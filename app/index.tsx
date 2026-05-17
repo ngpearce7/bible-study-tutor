@@ -2562,26 +2562,6 @@ export default function Home() {
                 <Text style={styles.homeHeroText}>
                   Bible Study Tutor is here to help you come close to God, open the Scriptures, respond honestly, and carry the word into memory, prayer, and community.
                 </Text>
-                <View style={styles.homePurposePanel}>
-                  <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
-                  <Text style={styles.homePurposeText}>
-                    Built for individuals, small groups, and churches, Bible Study Tutor is free to use and designed to work comfortably on both desktop and mobile devices.
-                  </Text>
-                  <View style={styles.homePurposePillRow}>
-                    <View style={styles.homePurposePill}>
-                      <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
-                      <Text style={styles.homePurposePillText}>Free to use</Text>
-                    </View>
-                    <View style={styles.homePurposePill}>
-                      <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
-                      <Text style={styles.homePurposePillText}>Mobile ready</Text>
-                    </View>
-                    <View style={styles.homePurposePill}>
-                      <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
-                      <Text style={styles.homePurposePillText}>Desktop friendly</Text>
-                    </View>
-                  </View>
-                </View>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a study" onPress={() => setTab("study")} style={phoneLayout && styles.homePhoneActionButton} />
                   <AppButton label="Read Scripture" variant="secondary" onPress={() => setTab("bible")} style={phoneLayout && styles.homePhoneActionButton} />
@@ -2604,6 +2584,27 @@ export default function Home() {
                   <Text style={styles.homeScriptureRef}>2 Timothy 3:16</Text>
                   <Text style={styles.homeScriptureQuote}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
                   <Text style={styles.homeScriptureNote}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
+                </View>
+              </View>
+
+              <View style={styles.homePurposePanel}>
+                <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
+                <Text style={styles.homePurposeText}>
+                  Built for individuals, small groups, and churches, Bible Study Tutor is free to use and designed to work comfortably on both desktop and mobile devices.
+                </Text>
+                <View style={styles.homePurposePillRow}>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Free to use</Text>
+                  </View>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Mobile ready</Text>
+                  </View>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Desktop friendly</Text>
+                  </View>
                 </View>
               </View>
             </Card>

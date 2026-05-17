@@ -363,6 +363,7 @@ export default function Home() {
   const [memoryHintLevels, setMemoryHintLevels] = useState<Record<number, number>>({});
   const [memoryStepTwoOffset, setMemoryStepTwoOffset] = useState(0);
   const [pendingDeleteMemoryVerseId, setPendingDeleteMemoryVerseId] = useState("");
+  const memoryBlankInputRefs = useRef<Record<number, TextInput | null>>({});
   const [passageStatus, setPassageStatus] = useState("Loading passage...");
   const [passageReloadKey, setPassageReloadKey] = useState(0);
   const [loadedDraftKey, setLoadedDraftKey] = useState("");
@@ -1975,10 +1976,29 @@ export default function Home() {
     setTab("memory");
   }
 
+  function focusMemoryBlankAfter(index: number, answers: Record<number, string>) {
+    const currentPosition = memoryBlankTokens.findIndex((token) => token.index === index);
+    const nextToken = memoryBlankTokens
+      .slice(Math.max(0, currentPosition + 1))
+      .find((token) => normalizeMemoryAnswer(answers[token.index] || "") !== normalizeMemoryAnswer(token.answer));
+
+    if (nextToken) {
+      setTimeout(() => memoryBlankInputRefs.current[nextToken.index]?.focus(), 80);
+      return;
+    }
+
+    Keyboard.dismiss();
+  }
+
   function updateMemoryPracticeAnswer(index: number, value: string) {
+    const token = memoryBlankTokens.find((item) => item.index === index);
+    const nextAnswers = { ...memoryPracticeAnswers, [index]: value };
     setMemoryPracticeAnswers((current) => ({ ...current, [index]: value }));
     setMemoryPracticeResult("");
     setMemoryPracticeChecked(false);
+    if (token && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer)) {
+      focusMemoryBlankAfter(index, nextAnswers);
+    }
   }
 
   function moveMemoryPracticeStep(level: number) {
@@ -4296,8 +4316,9 @@ export default function Home() {
                                   <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText]}>{verse.verseText}</Text>
                                 ) : (
                                   <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox]}>
-                                    {memoryPracticeTokens.map((token) =>
-                                      token.blank ? (
+                                    {memoryPracticeTokens.map((token) => {
+                                      const blankIndex = token.blank ? memoryBlankTokens.findIndex((item) => item.index === token.index) : -1;
+                                      return token.blank ? (
                                         <MemoryBlank
                                           key={token.index}
                                           token={token}
@@ -4305,14 +4326,19 @@ export default function Home() {
                                           checked={memoryPracticeChecked}
                                           hintsVisible={memoryHintsVisible}
                                           hintLevel={memoryHintLevels[token.index] || 1}
+                                          inputRef={(input) => {
+                                            memoryBlankInputRefs.current[token.index] = input;
+                                          }}
                                           onChange={(value) => updateMemoryPracticeAnswer(token.index, value)}
+                                          onSubmit={() => focusMemoryBlankAfter(token.index, memoryPracticeAnswers)}
                                           onMoreHint={() => showMoreMemoryHint(token.index)}
+                                          returnKeyType={blankIndex === memoryBlankTokens.length - 1 ? "done" : "next"}
                                           compact={phoneLayout}
                                         />
                                       ) : (
                                         <Text key={token.index} style={styles.memoryPracticeWord}>{token.text}</Text>
-                                      )
-                                    )}
+                                      );
+                                    })}
                                   </View>
                                 )}
                                 {(memoryPracticeAllCorrect && memoryPracticeLevel > 1) ? (
@@ -6030,8 +6056,11 @@ function MemoryBlank({
   checked,
   hintsVisible,
   hintLevel,
+  inputRef,
   onChange,
+  onSubmit,
   onMoreHint,
+  returnKeyType = "next",
   compact = false
 }: {
   token: { index: number; answer: string };
@@ -6039,8 +6068,11 @@ function MemoryBlank({
   checked: boolean;
   hintsVisible: boolean;
   hintLevel: number;
+  inputRef?: (input: TextInput | null) => void;
   onChange: (value: string) => void;
+  onSubmit?: () => void;
   onMoreHint: () => void;
+  returnKeyType?: "next" | "done";
   compact?: boolean;
 }) {
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
@@ -6050,9 +6082,13 @@ function MemoryBlank({
   return (
     <View style={[styles.memoryBlankWrap, { width: memoryBlankWidth(token.answer, compact) }]}>
       <TextInput
+        ref={inputRef}
         value={value}
         onChangeText={onChange}
+        onSubmitEditing={onSubmit}
         autoCapitalize="none"
+        blurOnSubmit={false}
+        returnKeyType={returnKeyType}
         style={[
           styles.memoryBlankInput,
           correct && styles.correctMemoryBlankInput,

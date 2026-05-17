@@ -1995,7 +1995,6 @@ export default function Home() {
     const nextAnswers = { ...memoryPracticeAnswers, [index]: value };
     setMemoryPracticeAnswers((current) => ({ ...current, [index]: value }));
     setMemoryPracticeResult("");
-    setMemoryPracticeChecked(false);
     if (token && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer)) {
       focusMemoryBlankAfter(index, nextAnswers);
     }
@@ -6096,7 +6095,9 @@ function MemoryBlank({
   compact?: boolean;
 }) {
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
-  const incorrect = checked && !!value && !correct;
+  const normalizedValue = normalizeMemoryAnswer(value);
+  const normalizedAnswer = normalizeMemoryAnswer(token.answer);
+  const incorrect = !!normalizedValue && !correct && (checked || normalizedValue.length >= normalizedAnswer.length);
   const canShowMoreHint = memoryHintRevealCount(token.answer, hintLevel) < token.answer.replace(/[^a-z0-9]/gi, "").length;
 
   return (
@@ -12143,6 +12144,7 @@ const styles = StyleSheet.create({
   },
   correctMemoryBlankInput: {
     backgroundColor: "rgba(138, 154, 91, 0.14)",
+    borderColor: "rgba(102, 114, 78, 0.35)",
     borderBottomColor: colors.olive
   },
   hintedMemoryBlankInput: {
@@ -12169,8 +12171,12 @@ const styles = StyleSheet.create({
     lineHeight: 10
   },
   incorrectMemoryBlankInput: {
-    backgroundColor: "rgba(201, 103, 80, 0.12)",
-    borderBottomColor: colors.coral
+    backgroundColor: "rgba(201, 103, 80, 0.18)",
+    borderColor: "rgba(201, 103, 80, 0.75)",
+    borderBottomColor: colors.coral,
+    borderRadius: 8,
+    borderWidth: 1,
+    color: colors.coral
   },
   methodCard: {
     alignSelf: "stretch",

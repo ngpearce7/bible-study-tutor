@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Bible Study Tutor",
+    "slug": "bible-study-tutor",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "biblestudytutor",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#F6F1E8"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png",
+      "name": "Bible Study Tutor",
+      "shortName": "Bible Tutor",
+      "themeColor": "#F6F1E8",
+      "backgroundColor": "#F6F1E8"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

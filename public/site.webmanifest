@@ -1,0 +1,22 @@
+{
+  "name": "Bible Study Tutor",
+  "short_name": "Bible Tutor",
+  "description": "A free Bible study app for Scripture reading, guided study, journaling, memory verses, highlights, and simple church community check-ins.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F6F1E8",
+  "theme_color": "#F6F1E8",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

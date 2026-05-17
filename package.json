@@ -1,0 +1,39 @@
+{
+  "name": "bible-study-tutor-native",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo start",
+    "ios": "HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo start --ios",
+    "android": "HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo start --android",
+    "web": "HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo start --web",
+    "convex": "convex dev",
+    "desktop": "npm run web:export && npx electron electron/main.cjs",
+    "seo:prepare": "node scripts/prepare-seo.mjs",
+    "web:export": "npm run seo:prepare && HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo export --platform web",
+    "serve:dist": "python3 -m http.server 8088 --directory dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@auth/core": "^0.37.0",
+    "@convex-dev/auth": "^0.0.92",
+    "@expo/vector-icons": "^15.0.3",
+    "convex": "^1.28.0",
+    "expo": "~53.0.0",
+    "expo-constants": "~17.1.7",
+    "expo-router": "~5.1.4",
+    "expo-secure-store": "~14.2.3",
+    "expo-status-bar": "~2.2.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-native": "0.79.5",
+    "react-native-safe-area-context": "5.4.0",
+    "react-native-screens": "~4.11.1",
+    "react-native-web": "^0.20.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.0.10",
+    "typescript": "~5.8.3"
+  }
+}

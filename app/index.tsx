@@ -2563,6 +2563,26 @@ export default function Home() {
                 <Text style={styles.homeHeroText}>
                   Bible Study Tutor is here to help you come close to God, open the Scriptures, respond honestly, and carry the word into memory, prayer, and community.
                 </Text>
+                <View style={styles.homePurposePanel}>
+                  <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
+                  <Text style={styles.homePurposeText}>
+                    Built for individuals, small groups, and churches, Bible Study Tutor is free to use and designed to work comfortably on both desktop and mobile devices.
+                  </Text>
+                  <View style={styles.homePurposePillRow}>
+                    <View style={styles.homePurposePill}>
+                      <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
+                      <Text style={styles.homePurposePillText}>Free to use</Text>
+                    </View>
+                    <View style={styles.homePurposePill}>
+                      <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
+                      <Text style={styles.homePurposePillText}>Mobile ready</Text>
+                    </View>
+                    <View style={styles.homePurposePill}>
+                      <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
+                      <Text style={styles.homePurposePillText}>Desktop friendly</Text>
+                    </View>
+                  </View>
+                </View>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a study" onPress={() => setTab("study")} style={phoneLayout && styles.homePhoneActionButton} />
                   <AppButton label="Read Scripture" variant="secondary" onPress={() => setTab("bible")} style={phoneLayout && styles.homePhoneActionButton} />
@@ -5429,7 +5449,7 @@ export default function Home() {
               <Eyebrow>Help</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, start here` : "Start here"}</Text>
               <Text style={styles.titleSupport}>
-                A simple guide to reading, studying, remembering, journaling, and sharing with Bible Study Tutor.
+                Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, and share Scripture with less friction.
               </Text>
               <View style={styles.helpActionRow}>
                 <AppButton label="Read the Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneFullWidthButton} />
@@ -8725,6 +8745,46 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     lineHeight: 27,
     maxWidth: 720
+  },
+  homePurposePanel: {
+    backgroundColor: "#fffaf2",
+    borderColor: "rgba(102, 114, 78, 0.22)",
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 10,
+    padding: 14
+  },
+  homePurposeTitle: {
+    color: colors.oliveDark,
+    fontSize: 16,
+    fontWeight: "900"
+  },
+  homePurposeText: {
+    color: colors.ink,
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 21
+  },
+  homePurposePillRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  homePurposePill: {
+    alignItems: "center",
+    backgroundColor: "white",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7
+  },
+  homePurposePillText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   homeActionRow: {
     flexDirection: "row",

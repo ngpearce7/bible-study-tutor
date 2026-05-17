@@ -1,5 +1,5 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
@@ -248,6 +248,7 @@ export default function Home() {
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [adminInsightsExpanded, setAdminInsightsExpanded] = useState(false);
+  const [, setIconFontReady] = useState(Platform.OS !== "web");
   const [passage, setPassage] = useState("Psalm 23");
   const [methodId, setMethodId] = useState(methods[0].id);
   const [activeMethodInfoId, setActiveMethodInfoId] = useState("");
@@ -402,6 +403,13 @@ export default function Home() {
     }
     previousTabRef.current = tab;
   }, [tab]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    Ionicons.loadFont()
+      .then(() => setIconFontReady(true))
+      .catch(() => setIconFontReady(true));
+  }, []);
 
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;

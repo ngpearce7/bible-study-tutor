@@ -93,6 +93,8 @@ export default function RootLayout() {
         {siteImage ? <meta name="twitter:image" content={siteImage} /> : null}
         {siteUrl ? <link rel="canonical" href={siteUrl} /> : null}
         <link rel="manifest" href="/site.webmanifest" />
+        <link rel="preload" href="/ionicons.ttf" as="font" type="font/ttf" crossOrigin="" />
+        <style>{'@font-face{font-family:"ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}'}</style>
         <script type="application/ld+json">{JSON.stringify(siteUrl ? { ...structuredData, url: siteUrl } : structuredData)}</script>
       </Head>
       <StatusBar style="dark" />

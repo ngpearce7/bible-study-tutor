@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
@@ -6,6 +6,10 @@ const rawSiteUrl = process.env.EXPO_PUBLIC_SITE_URL || "";
 const siteUrl = rawSiteUrl.replace(/\/$/, "");
 
 mkdirSync(publicDir, { recursive: true });
+copyFileSync(
+  join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "Ionicons.ttf"),
+  join(publicDir, "ionicons.ttf")
+);
 
 const robots = [
   "User-agent: *",

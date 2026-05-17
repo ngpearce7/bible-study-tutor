@@ -4796,16 +4796,16 @@ export default function Home() {
               <Text style={styles.title}>Admin insights</Text>
               <Text style={styles.titleSupport}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
 
-              <View style={styles.adminDashboardGrid}>
-                <Metric value={adminStats.totals.activeProfiles7d} label="active profiles 7d" />
-                <Metric value={adminStats.totals.signedInProfiles} label="signed-in profiles" />
-                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" />
-                <Metric value={adminStats.totals.newFeedback} label="new feedback" />
-                <Metric value={adminStats.totals.events} label="recent events" />
-                <Metric value={adminStats.totals.localProfiles} label="local/test profiles" />
+              <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
+                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact={phoneLayout} />
+                <Metric value={adminStats.totals.signedInProfiles} label="signed in" compact={phoneLayout} />
+                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact={phoneLayout} />
+                <Metric value={adminStats.totals.newFeedback} label="new feedback" compact={phoneLayout} />
+                <Metric value={adminStats.totals.events} label="events" compact={phoneLayout} />
+                <Metric value={adminStats.totals.localProfiles} label="local/test" compact={phoneLayout} />
               </View>
 
-              <Card style={styles.adminDashboardCard}>
+              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="information-circle-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Profile context</Text>
@@ -4815,37 +4815,37 @@ export default function Home() {
                 </Text>
               </Card>
 
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout]}>
-                <Card style={styles.adminDashboardCard}>
+              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} />
                 </Card>
-                <Card style={styles.adminDashboardCard}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Top memory verses" items={adminStats.topMemory} />
                 </Card>
-                <Card style={styles.adminDashboardCard}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Top study methods" items={adminStats.topMethods} />
                 </Card>
-                <Card style={styles.adminDashboardCard}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Bible searches" items={adminStats.topSearches} />
                 </Card>
               </View>
 
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout]}>
-                <Card style={styles.adminDashboardCard}>
+              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} />
                 </Card>
-                <Card style={styles.adminDashboardCard}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} />
                   <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} />
                 </Card>
               </View>
 
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout]}>
-                <Card style={styles.adminDashboardCard}>
+              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <Text style={styles.lastCheckinLabel}>Latest feedback</Text>
                   <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={markFeedbackStatus} />
                 </Card>
-                <Card style={styles.adminDashboardCard}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <Text style={styles.lastCheckinLabel}>Recent activity</Text>
                   <AdminEventList events={adminStats.recentEvents} />
                 </Card>
@@ -13172,17 +13172,30 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     marginTop: 14
   },
+  phoneAdminDashboardGrid: {
+    gap: 6
+  },
   adminDashboardCard: {
     flex: 1,
     gap: 10,
     marginBottom: 14,
     minWidth: 260
   },
+  phoneAdminDashboardCard: {
+    flexBasis: "100%",
+    marginBottom: 10,
+    minWidth: 0,
+    width: "100%"
+  },
   adminSectionGrid: {
     alignItems: "stretch",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 14
+  },
+  phoneAdminSectionGrid: {
+    gap: 0,
+    width: "100%"
   },
   adminMetricGrid: {
     flexDirection: "row",
@@ -13201,6 +13214,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     justifyContent: "space-between",
+    minWidth: 0,
     padding: 8
   },
   adminCountLabel: {
@@ -13215,6 +13229,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     gap: 8,
+    minWidth: 0,
     padding: 10
   },
   adminFeedbackList: {

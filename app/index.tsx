@@ -126,56 +126,113 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
   { id: "next-week", label: "In 1 week" },
   { id: "next-month", label: "In 1 month" }
 ];
+const LEGAL_LAST_UPDATED = "May 17, 2026";
 const PRIVACY_POLICY_SECTIONS = [
   {
-    title: "What we collect",
-    body: "Bible Study Tutor can store your display name, email address when you sign in, study notes, journal entries, saved highlights, memory verses, bookmarks, check-ins, goals, and app preferences."
+    title: "Who we are",
+    body: "Bible Study Tutor is a free Bible reading and study app available at biblestudytutor.org. For privacy questions, data requests, or concerns, contact support@biblestudytutor.org."
   },
   {
-    title: "How your data is used",
-    body: "Your data is used to save your studies, personalize the app, restore your work across devices when signed in, and help you review passages, memory verses, and journal entries."
+    title: "Information you provide",
+    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, check-ins, goals, feedback messages, and app preferences."
+  },
+  {
+    title: "Faith and personal reflections",
+    body: "Your notes, journal entries, check-ins, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. Please write thoughtfully and avoid adding information you would not want stored in the app."
+  },
+  {
+    title: "How we use information",
+    body: "We use your information to create and secure your account, save and sync your studies, personalize encouragement by name, restore your work across devices, provide Bible reading, journaling and memory tools, respond to feedback, improve the app, and protect the service from misuse."
   },
   {
     title: "Local and cloud storage",
-    body: "If you use the app without signing in, some data is connected to a local device profile. If you sign in, saved studies and account-linked data can sync through Convex."
+    body: "If you use the app without signing in, some preferences and local work may be connected to your device. If you create an account, account-linked data is stored through Convex so it can sync between devices. The live Convex deployment currently runs in the United States."
+  },
+  {
+    title: "Hosting and service providers",
+    body: "The website is hosted with Cloudflare Pages and the app backend is provided by Convex. These providers process data needed to deliver, secure, store, and operate the app. We do not sell your personal study data."
+  },
+  {
+    title: "Admin insights and feedback",
+    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, and feature usage. These insights are used to improve the app and keep it helpful and safe."
   },
   {
     title: "AI and coaching",
-    body: "Free coaching is generated locally in the app and does not require paid AI usage. Deeper AI feedback is optional and should only run when explicitly enabled."
+    body: "Free coaching is generated locally in the app and does not require paid AI usage. Deeper AI feedback is optional and should only run if you deliberately enable it in the future. Do not enter sensitive information into optional AI features unless you are comfortable with that processing."
   },
   {
-    title: "Sharing",
-    body: "The app can help you copy or share check-ins and study insights, but you choose where to send them. We do not sell your personal study data."
+    title: "Sharing from the app",
+    body: "The app can help you copy or share study insights and check-in messages, but you choose where to send them. Once you share content outside the app, that outside service or recipient controls what happens to it."
   },
   {
-    title: "Your choices",
-    body: "You can continue as a guest, sign out, delete journal entries, remove memory verses, and clear local reader data from inside the app where those controls are available."
+    title: "Data retention and deletion",
+    body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, and drafts. To request account deletion or broader data removal, contact support@biblestudytutor.org."
+  },
+  {
+    title: "Access, correction, and complaints",
+    body: "You can update your name and account details in the Account tab. To ask for access to your data, correction of data, deletion, or to raise a privacy concern, contact support@biblestudytutor.org and we will respond as reasonably as we can."
+  },
+  {
+    title: "Children and shared devices",
+    body: "Bible Study Tutor is intended for general church and personal study use. If a child uses the app, a parent or guardian should supervise their account and what they write. On shared devices, sign out when finished."
+  },
+  {
+    title: "Changes to this policy",
+    body: "We may update this policy as the app changes. The latest version will be shown in the Account tab and will include the date it was last updated."
   }
 ];
 const TERMS_OF_SERVICE_SECTIONS = [
   {
-    title: "Purpose",
-    body: "Bible Study Tutor is designed to support personal Bible reading, study, journaling, memorization, and community check-ins. It is not a substitute for pastoral, legal, medical, financial, or emergency advice."
+    title: "Purpose of the app",
+    body: "Bible Study Tutor is a free study tool designed to support Bible reading, guided study methods, journaling, memorization, bookmarks, highlights, feedback, and simple community check-ins."
   },
   {
-    title: "Your responsibility",
-    body: "You are responsible for the notes, reflections, check-ins, and other content you create or share from the app. Use care when writing or sharing sensitive personal information."
+    title: "Not professional advice",
+    body: "The app is not a substitute for pastoral care, counselling, medical, legal, financial, emergency, or crisis support. If you need urgent help, contact appropriate local services, church leaders, or qualified professionals."
   },
   {
-    title: "Bible translations and content",
-    body: "The app may include public-domain or licensed Bible text options. Future paid translations may require publisher licensing and separate purchase terms."
+    title: "Your account",
+    body: "You are responsible for keeping your sign-in details secure and for activity on your account. Use accurate account information, sign out on shared devices, and tell us if you believe your account has been misused."
   },
   {
-    title: "Accounts",
-    body: "If you create an account, you agree to provide accurate sign-in information and to keep access to your account secure. Guest profiles may not transfer between devices."
+    title: "Your content",
+    body: "You keep ownership of the notes, reflections, check-ins, and feedback you create. You give Bible Study Tutor permission to store and process that content so the app can provide its features, sync your account, improve the service, and respond to feedback."
+  },
+  {
+    title: "Write and share wisely",
+    body: "You are responsible for what you write, save, copy, or share from the app. Do not use the app to harass, threaten, exploit, mislead, or harm others, and do not add another person's private information without permission."
+  },
+  {
+    title: "Bible translations and third-party content",
+    body: "The app may include public-domain or permission-based Bible text options such as BSB, WEB, and KJV access paths. Future modern paid translations may require publisher licensing, purchase terms, or app store rules before they are available."
+  },
+  {
+    title: "Free access and future changes",
+    body: "The intention is to keep the core app free and accessible to the church. Features, hosting, Bible translation availability, optional premium ideas, and AI options may change over time, especially while the app is still growing."
+  },
+  {
+    title: "Fair use and security",
+    body: "Do not scrape, spam, overload, reverse engineer, bypass security, attempt to access another user's data, interfere with the service, or use automated/bot activity in a way that harms the app or other users."
+  },
+  {
+    title: "Feedback",
+    body: "If you send feedback, you allow us to review it, store it, classify it, act on it, and use it to improve the app. Please do not include private information in feedback unless it is necessary."
   },
   {
     title: "Availability",
-    body: "The app is provided as a study tool and may change over time. Features such as premium access, own-key AI, and additional translations may be added, changed, or removed."
+    body: "The app is provided as-is. We aim to keep it reliable, but we cannot promise uninterrupted access, permanent data availability, or that every feature will always work on every device or browser."
   },
   {
-    title: "Fair use",
-    body: "Do not misuse the app, attempt to access another user's data, disrupt the service, or use the app in a way that violates law or the rights of others."
+    title: "Account limits or removal",
+    body: "We may limit, suspend, or remove access if an account appears to be used for abuse, security attacks, unlawful activity, or conduct that harms the app or other users."
+  },
+  {
+    title: "Liability",
+    body: "To the extent permitted by law, Bible Study Tutor is not liable for indirect loss, lost data, missed spiritual or practical outcomes, or decisions you make based on app content. Use Scripture, wisdom, community, and qualified help together."
+  },
+  {
+    title: "Changes to these terms",
+    body: "We may update these terms as the app changes. Continued use of the app after updated terms are shown means you accept the updated terms."
   }
 ];
 type BibleVerse = {
@@ -6546,7 +6603,7 @@ function LegalDocument({
       </Pressable>
       {open && (
         <View style={styles.legalDocBody}>
-          <Text style={styles.legalUpdatedText}>Last updated May 16, 2026</Text>
+          <Text style={styles.legalUpdatedText}>Last updated {LEGAL_LAST_UPDATED}</Text>
           {sections.map((section) => (
             <View key={section.title} style={styles.legalDocSection}>
               <Text style={styles.legalDocSectionTitle}>{section.title}</Text>

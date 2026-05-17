@@ -835,9 +835,13 @@ export default function Home() {
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memorySearchTerm, memoryVerses]
   );
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => !isMemoryVerseMemorized(item) && isMemoryVerseDue(item)).length;
+  const memoryPracticeText = useMemo(
+    () => (activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),
+    [activeMemoryVerse]
+  );
   const memoryPracticeTokens = useMemo(
-    () => (activeMemoryVerse ? buildMemoryPracticeTokens(activeMemoryVerse.verseText, memoryPracticeLevel, memoryStepTwoOffset) : []),
-    [activeMemoryVerse, memoryPracticeLevel, memoryStepTwoOffset]
+    () => (memoryPracticeText ? buildMemoryPracticeTokens(memoryPracticeText, memoryPracticeLevel, memoryStepTwoOffset) : []),
+    [memoryPracticeLevel, memoryPracticeText, memoryStepTwoOffset]
   );
   const memoryBlankTokens = memoryPracticeTokens.filter((token) => token.blank);
   const memoryPracticeAllCorrect =
@@ -2050,7 +2054,17 @@ export default function Home() {
     setMemoryPracticeResult("Great. Now try the full verse from blanks.");
   }
 
-  async function markMemoryPractice(result: "again" | "got-it") {
+  function repeatMemoryPracticeStep() {
+    if (memoryPracticeLevel <= 1) return;
+    if (memoryPracticeLevel === 2) setMemoryStepTwoOffset((current) => (current === 0 ? 1 : 0));
+    setMemoryPracticeAnswers({});
+    setMemoryPracticeChecked(false);
+    setMemoryHintsVisible(false);
+    setMemoryHintLevels({});
+    setMemoryPracticeResult(memoryPracticeLevel === 2 ? "Repeat step 2 with a fresh set of blanks." : "Repeat step 3 from the beginning.");
+  }
+
+  async function markMemoryPractice(result: "got-it") {
     if (!activeProfileId || !activeMemoryVerse) return;
 
     await recordMemoryPractice({
@@ -2059,13 +2073,13 @@ export default function Home() {
       result,
       practiceLevel: memoryPracticeLevel
     });
-    setMemoryPracticeLevel((current) => (result === "got-it" ? Math.min(3, current + 1) : Math.max(1, current - 1)));
+    setMemoryPracticeLevel((current) => Math.min(3, current + 1));
     setMemoryPracticeAnswers({});
     setMemoryPracticeResult("");
     setMemoryPracticeChecked(false);
     setMemoryHintsVisible(false);
     setMemoryHintLevels({});
-    setMemoryStatus(result === "got-it" ? `Nice${firstName ? `, ${firstName}` : ""}. Review scheduled.` : "Saved for another review soon.");
+    setMemoryStatus(`Nice${firstName ? `, ${firstName}` : ""}. Review scheduled.`);
   }
 
   async function deleteMemoryVerse(verse: any) {
@@ -4333,7 +4347,7 @@ export default function Home() {
                                   ))}
                                 </View>
                                 {memoryPracticeLevel === 1 ? (
-                                  <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText]}>{verse.verseText}</Text>
+                                  <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText]}>{memoryPracticeText}</Text>
                                 ) : (
                                   <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox]}>
                                     {memoryPracticeTokens.map((token) => {
@@ -4379,7 +4393,9 @@ export default function Home() {
                                   ) : (
                                     <ResumeButton label={memoryPracticeLevel === 1 ? "Ready for Step 2" : "Check answers"} icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
                                   )}
-                                  <ResumeButton label="Still learning" icon="refresh-outline" onPress={() => markMemoryPractice("again")} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  {memoryPracticeLevel > 1 && (
+                                    <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  )}
                                   {memoryPracticeLevel > 1 && !memoryPracticeAllCorrect && (
                                     <ResumeButton
                                       label={memoryHintsVisible ? "Hide hints" : "Show hints"}
@@ -7194,6 +7210,19 @@ function memoryChapterKey(reference: { book: string; chapter: number }) {
 
 function clampMemoryPracticeLevel(level: number) {
   return Math.max(1, Math.min(3, Math.round(level || 1)));
+}
+
+function buildMemoryPracticeText(verse: { reference?: string; verseText?: string }) {
+  const verseText = (verse.verseText || "").trim();
+  const reference = memoryReferenceSuffix(verse.reference || "");
+  return reference ? `${verseText} ${reference}`.trim() : verseText;
+}
+
+function memoryReferenceSuffix(reference: string) {
+  const match = reference.trim().match(/^.+?\s+(\d+:\d+(?:-\d+)?)/);
+  if (!match) return "";
+  const sameVerseRange = match[1].match(/^(\d+):(\d+)-\2$/);
+  return sameVerseRange ? `${sameVerseRange[1]}:${sameVerseRange[2]}` : match[1];
 }
 
 function buildMemoryPracticeTokens(text: string, level: number, stepTwoOffset: number) {

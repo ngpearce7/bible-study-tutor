@@ -132,5 +132,12 @@ export default defineSchema({
   })
     .index("by_profile_created", ["profileId", "createdAt"])
     .index("by_event_type_created", ["eventType", "createdAt"])
-    .index("by_created", ["createdAt"])
+    .index("by_created", ["createdAt"]),
+  adminNotificationState: defineTable({
+    key: v.string(),
+    profileId: v.optional(v.id("profiles")),
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
+    triggeredAt: v.number()
+  }).index("by_key", ["key"])
 });

@@ -1,4 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { action, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
@@ -64,6 +65,12 @@ export const ensureProfile = mutation({
             profilePatch.displayName = authProfileName;
           }
           await ctx.db.patch(existingDeviceProfile._id, profilePatch);
+          await maybeNotifyFirstNonAdminRegistration(ctx, {
+            profileId: existingDeviceProfile._id,
+            email: authUser?.email,
+            name: profilePatch.displayName || existingDeviceProfile.displayName,
+            now
+          });
           return existingDeviceProfile._id;
         }
 
@@ -73,13 +80,20 @@ export const ensureProfile = mutation({
       }
     }
 
-    return await ctx.db.insert("profiles", {
+    const profileId = await ctx.db.insert("profiles", {
       authUserId: authUserId || undefined,
       clientKey: authUserId ? `auth:${authUserId}` : clientKey || `guest:${now}`,
       displayName: profileName,
       createdAt: now,
       updatedAt: now
     });
+    await maybeNotifyFirstNonAdminRegistration(ctx, {
+      profileId,
+      email: authUser?.email,
+      name: profileName,
+      now
+    });
+    return profileId;
   }
 });
 
@@ -468,6 +482,57 @@ async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id
   if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
 
   return profile;
+}
+
+async function maybeNotifyFirstNonAdminRegistration(
+  ctx: MutationCtx,
+  args: { profileId: Id<"profiles">; email?: string; name?: string; now: number }
+) {
+  if (!args.email || isAdminEmail(args.email)) return;
+
+  const notificationKey = "first-non-admin-registration";
+  const existingNotification = await ctx.db
+    .query("adminNotificationState")
+    .withIndex("by_key", (q) => q.eq("key", notificationKey))
+    .first();
+  if (existingNotification) return;
+
+  const profiles = await ctx.db.query("profiles").collect();
+  let nonAdminSignedInCount = 0;
+
+  for (const profile of profiles) {
+    if (!profile.authUserId) continue;
+    const user = await ctx.db.get(profile.authUserId);
+    if (user?.email && !isAdminEmail(user.email)) nonAdminSignedInCount += 1;
+  }
+
+  if (nonAdminSignedInCount !== 1) return;
+
+  await ctx.db.insert("adminNotificationState", {
+    key: notificationKey,
+    profileId: args.profileId,
+    email: args.email,
+    name: args.name,
+    triggeredAt: args.now
+  });
+
+  await ctx.scheduler.runAfter(0, internal.adminNotifications.sendFirstUserRegisteredEmail, {
+    email: args.email,
+    name: args.name,
+    profileId: args.profileId,
+    registeredAt: args.now
+  });
+}
+
+function isAdminEmail(email: string) {
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return false;
+
+  return (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(normalized);
 }
 
 function dayKey(value: number) {

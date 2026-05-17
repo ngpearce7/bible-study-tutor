@@ -9,6 +9,7 @@
  */
 
 import type * as accountability from "../accountability.js";
+import type * as adminNotifications from "../adminNotifications.js";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as insights from "../insights.js";
@@ -23,6 +24,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   accountability: typeof accountability;
+  adminNotifications: typeof adminNotifications;
   auth: typeof auth;
   http: typeof http;
   insights: typeof insights;

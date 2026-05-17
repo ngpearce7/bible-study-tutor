@@ -3610,17 +3610,17 @@ export default function Home() {
                 {!bibleSearchCollapsed && (
                   <>
                     <Text style={styles.helpIntro}>Search exact words, close wording, themes, ideas, or questions. Results split by testament unless you choose one.</Text>
-                    <View style={styles.bibleSearchInputRow}>
+                    <View style={[styles.bibleSearchInputRow, phoneLayout && styles.phoneBibleSearchInputRow]}>
                       <TextInput
                         value={bibleSearchQuery}
                         onChangeText={setBibleSearchQuery}
                         onSubmitEditing={runBibleSearch}
                         placeholder="Try “draw near”, “anxiety”, or “what does Scripture teach?”"
-                        style={[styles.input, styles.bibleSearchInput]}
+                        style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput]}
                       />
-                      <AppButton label="Search" onPress={runBibleSearch} style={phoneLayout && styles.bibleSearchButton} />
+                      <AppButton label="Search" onPress={runBibleSearch} style={phoneLayout && styles.phoneBibleSearchButton} />
                     </View>
-                    <View style={styles.bibleSearchControls}>
+                    <View style={[styles.bibleSearchControls, phoneLayout && styles.phoneBibleSearchControls]}>
                       {[
                         ["all", "All"],
                         ["old", "Old Testament"],
@@ -3641,7 +3641,7 @@ export default function Home() {
                         <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : colors.oliveDark} />
                         <Text style={[styles.bibleSearchChipText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
                       </Pressable>
-                      <View style={styles.bibleSearchBookFilter}>
+                      <View style={[styles.bibleSearchBookFilter, phoneLayout && styles.phoneBibleSearchBookFilter]}>
                         {Platform.OS === "web" ? (
                           <select
                             aria-label="Book filter"
@@ -3657,7 +3657,7 @@ export default function Home() {
                         ) : (
                           <>
                             <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={styles.bibleSearchSelectButton}>
-                              <Text style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
+                              <Text numberOfLines={1} style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
                               <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
                             </Pressable>
                             {bibleSearchBookMenuOpen && (
@@ -5412,13 +5412,13 @@ export default function Home() {
               </View>
             </Card>
 
-            <View style={styles.helpQuickGrid}>
+            <View style={[styles.helpQuickGrid, phoneLayout && styles.phoneHelpGrid]}>
               {[
                 ["1", "Choose Scripture", "Open Bible, search, or type a passage in Study.", "reader-outline"],
                 ["2", "Respond honestly", "Use a method, write notes, highlight verses, and save your study.", "create-outline"],
                 ["3", "Return later", "Review your journal, practise memory verses, and share check-ins.", "refresh-circle-outline"]
               ].map(([number, title, body, icon]) => (
-                <Card key={title} style={styles.helpQuickCard}>
+                <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard]}>
                   <View style={styles.helpStepNumber}><Text style={styles.helpStepNumberText}>{number}</Text></View>
                   <Ionicons name={icon as any} size={20} color={colors.coral} />
                   <Text style={styles.helpCardTitle}>{title}</Text>
@@ -5427,7 +5427,7 @@ export default function Home() {
               ))}
             </View>
 
-            <View style={styles.helpWalkthroughGrid}>
+            <View style={[styles.helpWalkthroughGrid, phoneLayout && styles.phoneHelpGrid]}>
               <HelpScreenshot
                 title="Bible reader"
                 caption="Tap one verse, or tap another verse to select the whole range. The action bar stays near the bottom on mobile."
@@ -5527,7 +5527,7 @@ export default function Home() {
                     target: "journal"
                   }
                 ].map((item) => (
-                  <View key={item.title} style={styles.helpGuideItem}>
+                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGridItem]}>
                     <View style={styles.feedbackHeader}>
                       <Ionicons name={item.icon as any} size={18} color={colors.coral} />
                       <Text style={styles.helpGuideTitle}>{item.title}</Text>
@@ -5560,7 +5560,7 @@ export default function Home() {
                   ["Journal", "Review saved studies, drafts, highlights, and check-ins.", "journal-outline"],
                   ["Account", "Manage your name, sign-in, translation, and privacy details.", "person-circle-outline"]
                 ].map(([title, body, icon]) => (
-                  <View key={title} style={styles.helpTabItem}>
+                  <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem]}>
                     <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
                     <View style={styles.helpTabCopy}>
                       <Text style={styles.helpFaqQuestion}>{title}</Text>
@@ -8896,9 +8896,19 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     minWidth: 220
   },
-  bibleSearchButton: {
+  phoneBibleSearchInputRow: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 8
+  },
+  phoneBibleSearchInput: {
+    minWidth: 0,
+    width: "100%"
+  },
+  phoneBibleSearchButton: {
     flex: 1,
-    minWidth: 120
+    minWidth: 0,
+    width: "100%"
   },
   bibleSearchControls: {
     alignItems: "center",
@@ -8906,9 +8916,17 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8
   },
+  phoneBibleSearchControls: {
+    alignItems: "stretch",
+    gap: 6
+  },
   bibleSearchBookFilter: {
     minWidth: 150,
     width: 170
+  },
+  phoneBibleSearchBookFilter: {
+    minWidth: 0,
+    width: "100%"
   },
   bibleSearchChip: {
     alignItems: "center",
@@ -8956,8 +8974,10 @@ const styles = StyleSheet.create({
   },
   bibleSearchSelectText: {
     color: colors.ink,
+    flex: 1,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "800",
+    minWidth: 0
   },
   bibleSearchSelectMenu: {
     backgroundColor: "white",
@@ -12826,6 +12846,14 @@ const styles = StyleSheet.create({
     gap: 8,
     minWidth: 210
   },
+  phoneHelpGrid: {
+    alignItems: "stretch",
+    flexDirection: "column"
+  },
+  phoneHelpCard: {
+    minWidth: 0,
+    width: "100%"
+  },
   helpStepNumber: {
     alignItems: "center",
     backgroundColor: colors.oliveDark,
@@ -13048,6 +13076,10 @@ const styles = StyleSheet.create({
     minWidth: 280,
     padding: 12
   },
+  phoneHelpGridItem: {
+    minWidth: 0,
+    width: "100%"
+  },
   helpGuideTitle: {
     color: colors.ink,
     flex: 1,
@@ -13095,6 +13127,10 @@ const styles = StyleSheet.create({
     minWidth: 250,
     padding: 11,
     width: "32%"
+  },
+  phoneHelpTabItem: {
+    minWidth: 0,
+    width: "100%"
   },
   helpTabCopy: {
     flex: 1,

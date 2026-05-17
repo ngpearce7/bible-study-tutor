@@ -6122,10 +6122,11 @@ function MemoryBlank({
       <TextInput
         ref={inputRef}
         value={value}
-        onChangeText={onChange}
+        onChangeText={(nextValue) => onChange(formatMemoryBlankValue(token.answer, nextValue))}
         onSubmitEditing={onSubmit}
         autoCapitalize="none"
         blurOnSubmit={false}
+        keyboardType={memoryAnswerIsReference(token.answer) ? "numbers-and-punctuation" : "default"}
         returnKeyType={returnKeyType}
         style={[
           styles.memoryBlankInput,
@@ -7196,11 +7197,12 @@ function matchesMemoryStatusFilter(verse: any, statusFilter: MemoryBrowseStatusF
 }
 
 function parseMemoryReference(reference: string) {
-  const match = reference.trim().match(/^(.+?)\s+(\d+):(\d+)/);
+  const match = reference.trim().match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?/);
   return {
     book: match ? match[1] : "Other",
     chapter: match ? Number(match[2]) : 0,
-    verse: match ? Number(match[3]) : 0
+    verse: match ? Number(match[3]) : 0,
+    endVerse: match?.[4] ? Number(match[4]) : 0
   };
 }
 
@@ -7219,10 +7221,10 @@ function buildMemoryPracticeText(verse: { reference?: string; verseText?: string
 }
 
 function memoryReferenceSuffix(reference: string) {
-  const match = reference.trim().match(/^.+?\s+(\d+:\d+(?:-\d+)?)/);
-  if (!match) return "";
-  const sameVerseRange = match[1].match(/^(\d+):(\d+)-\2$/);
-  return sameVerseRange ? `${sameVerseRange[1]}:${sameVerseRange[2]}` : match[1];
+  const parsed = parseMemoryReference(reference);
+  if (!parsed.chapter || !parsed.verse) return "";
+  if (parsed.endVerse && parsed.endVerse !== parsed.verse) return `${parsed.book} ${parsed.chapter}:${parsed.verse}-${parsed.endVerse}`;
+  return `${parsed.book} ${parsed.chapter}:${parsed.verse}`;
 }
 
 function buildMemoryPracticeTokens(text: string, level: number, stepTwoOffset: number) {
@@ -7236,6 +7238,29 @@ function buildMemoryPracticeTokens(text: string, level: number, stepTwoOffset: n
       answer: word,
       blank: level >= 3 || (level === 2 && index % 2 === stepTwoOffset)
     }));
+}
+
+function memoryAnswerIsReference(answer: string) {
+  return /^\d+:\d+(?:-\d+)?$/.test(answer.trim());
+}
+
+function formatMemoryBlankValue(answer: string, value: string) {
+  const referenceMatch = answer.trim().match(/^(\d+):(\d+)(?:-(\d+))?$/);
+  if (!referenceMatch) return value;
+
+  const digits = value.replace(/\D/g, "");
+  const chapter = referenceMatch[1];
+  const verse = referenceMatch[2];
+  const endVerse = referenceMatch[3] || "";
+  const chapterLength = chapter.length;
+  const verseLength = verse.length;
+
+  if (digits.length <= chapterLength) return digits;
+  const typedChapter = digits.slice(0, chapterLength);
+  const typedVerse = digits.slice(chapterLength, chapterLength + verseLength);
+  const typedEndVerse = endVerse ? digits.slice(chapterLength + verseLength, chapterLength + verseLength + endVerse.length) : "";
+
+  return `${typedChapter}:${typedVerse}${typedEndVerse ? `-${typedEndVerse}` : ""}`;
 }
 
 function normalizeMemoryAnswer(text: string) {

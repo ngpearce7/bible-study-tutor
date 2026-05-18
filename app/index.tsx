@@ -3683,7 +3683,7 @@ export default function Home() {
                         <Pressable
                           key={scope}
                           onPress={() => setBibleSearchScope(scope as BibleSearchScope)}
-                          style={[styles.bibleSearchChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
+                          style={[styles.bibleSearchChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
                         >
                           <Text style={[styles.bibleSearchChipText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
                         </Pressable>
@@ -3691,7 +3691,7 @@ export default function Home() {
                       <View style={[styles.bibleSearchRefineRow, phoneLayout && styles.phoneBibleSearchRefineRow]}>
                         <Pressable
                           onPress={() => setBibleSearchExact((value) => !value)}
-                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleSearchExact && styles.activeBibleSearchChip]}
+                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
                         >
                           <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : colors.oliveDark} />
                           <Text style={[styles.bibleSearchChipText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
@@ -3702,7 +3702,7 @@ export default function Home() {
                               aria-label="Book filter"
                               value={bibleSearchBook}
                               onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
-                              style={styles.bibleSearchSelect as any}
+                              style={StyleSheet.flatten([styles.bibleSearchSelect, phoneLayout && styles.phoneBibleSearchSelect]) as any}
                             >
                               <option value="">Any book</option>
                               {bibleSearchBookOptions.map((book) => (
@@ -3711,7 +3711,7 @@ export default function Home() {
                             </select>
                           ) : (
                             <>
-                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={styles.bibleSearchSelectButton}>
+                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, phoneLayout && styles.phoneBibleSearchSelectButton]}>
                                 <Text numberOfLines={1} style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
                                 <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
                               </Pressable>
@@ -9102,8 +9102,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 5,
-    height: 36,
     paddingHorizontal: 10,
+    paddingVertical: 7
+  },
+  phoneBibleSearchChip: {
+    height: 36,
     paddingVertical: 0
   },
   activeBibleSearchChip: {
@@ -9123,9 +9126,13 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 12,
     fontWeight: "800",
-    height: 36,
+    minHeight: 34,
     paddingHorizontal: 11,
     width: "100%"
+  },
+  phoneBibleSearchSelect: {
+    height: 36,
+    minHeight: 36
   },
   bibleSearchSelectButton: {
     alignItems: "center",
@@ -9134,9 +9141,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
-    height: 36,
     justifyContent: "space-between",
+    minHeight: 34,
     paddingHorizontal: 11,
+    paddingVertical: 7
+  },
+  phoneBibleSearchSelectButton: {
+    height: 36,
+    minHeight: 36,
     paddingVertical: 0
   },
   bibleSearchSelectText: {

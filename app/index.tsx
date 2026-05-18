@@ -5518,7 +5518,7 @@ export default function Home() {
 
             <Card style={styles.helpSectionCard}>
               <Text style={styles.sectionTitle}>Step-by-step guide</Text>
-              <View style={styles.helpGuideGrid}>
+              <View style={[styles.helpGuideGrid, phoneLayout && styles.phoneHelpGuideGrid]}>
                 {[
                   {
                     icon: "reader-outline",
@@ -13363,6 +13363,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12
+  },
+  phoneHelpGuideGrid: {
+    flexDirection: "column",
+    gap: 10,
+    width: "100%"
   },
   helpGuideItem: {
     backgroundColor: "#fffdf8",

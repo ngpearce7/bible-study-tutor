@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import { createContext, PropsWithChildren, useContext } from "react";
 import { Pressable, StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from "react-native";
 
 export const colors = {
@@ -17,12 +17,26 @@ export const colors = {
   sage: "#e5ecda"
 };
 
-export function Card({ children, style }: PropsWithChildren<{ style?: object }>) {
-  return <View style={[styles.card, style]}>{children}</View>;
+export type ThemeColors = typeof colors;
+
+const ThemeContext = createContext<ThemeColors>(colors);
+
+export function ThemeProvider({ children, value }: PropsWithChildren<{ value: ThemeColors }>) {
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+export function useThemeColors() {
+  return useContext(ThemeContext);
+}
+
+export function Card({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
+  const theme = useThemeColors();
+  return <View style={[styles.card, { backgroundColor: theme.panel, borderColor: theme.line, shadowColor: theme.ink }, style]}>{children}</View>;
 }
 
 export function Eyebrow({ children }: PropsWithChildren) {
-  return <Text style={styles.eyebrow}>{children}</Text>;
+  const theme = useThemeColors();
+  return <Text style={[styles.eyebrow, { color: theme.coral }]}>{children}</Text>;
 }
 
 export function AppButton({
@@ -38,18 +52,21 @@ export function AppButton({
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
 }) {
+  const theme = useThemeColors();
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        variant === "secondary" ? styles.secondaryButton : styles.primaryButton,
+        variant === "secondary"
+          ? [styles.secondaryButton, { backgroundColor: theme.panel, borderColor: theme.line }]
+          : [styles.primaryButton, { backgroundColor: theme.coral }],
         pressed && styles.pressed,
         style
       ]}
     >
-      <Text style={[variant === "secondary" ? styles.secondaryLabel : styles.primaryLabel, labelStyle]}>{label}</Text>
+      <Text style={[variant === "secondary" ? [styles.secondaryLabel, { color: theme.oliveDark }] : styles.primaryLabel, labelStyle]}>{label}</Text>
     </Pressable>
   );
 }

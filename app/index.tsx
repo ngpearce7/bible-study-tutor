@@ -3,10 +3,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAiAccessChoice, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAiAccessChoice, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAiAccessChoice, getStoredAppTheme, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAiAccessChoice, saveStoredAppTheme, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppTheme, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
-import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
+import { AppButton, Card, Eyebrow, ThemeProvider, colors, type ThemeColors } from "@/components/ui";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -127,6 +127,110 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
   { id: "next-month", label: "In 1 month" }
 ];
 const LEGAL_LAST_UPDATED = "May 17, 2026";
+
+const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; description: string; icon: string; colors: ThemeColors; shell: string }[] = [
+  {
+    id: "warm-study",
+    label: "Warm Study",
+    shortLabel: "Default",
+    description: "The familiar warm devotional look.",
+    icon: "sunny-outline",
+    shell: "#fff6eb",
+    colors
+  },
+  {
+    id: "cathedral-light",
+    label: "Cathedral Light",
+    shortLabel: "Bright",
+    description: "Stone, glass, and a lighter worship-space feel.",
+    icon: "sparkles-outline",
+    shell: "#eef4f7",
+    colors: {
+      ink: "#252b32",
+      muted: "#6a7480",
+      paper: "#f4f7f8",
+      panel: "#ffffff",
+      line: "#d8e1e5",
+      olive: "#6f7e72",
+      oliveDark: "#375160",
+      gold: "#b78b4a",
+      coral: "#8f5fb8",
+      blue: "#4d7f9a",
+      soft: "#edf3f4",
+      blush: "#eadff2",
+      sage: "#e1eadf"
+    }
+  },
+  {
+    id: "midnight-lectio",
+    label: "Midnight Lectio",
+    shortLabel: "Dark",
+    description: "Lower-glare reading with warm gold accents.",
+    icon: "moon-outline",
+    shell: "#1d2824",
+    colors: {
+      ink: "#241d19",
+      muted: "#6f665c",
+      paper: "#17201c",
+      panel: "#f6efe1",
+      line: "#d3c2a7",
+      olive: "#78835f",
+      oliveDark: "#39452e",
+      gold: "#d7a24a",
+      coral: "#b98939",
+      blue: "#7daab4",
+      soft: "#ebe2d2",
+      blush: "#ead6c5",
+      sage: "#dce5cf"
+    }
+  },
+  {
+    id: "olive-grove",
+    label: "Olive Grove",
+    shortLabel: "Natural",
+    description: "Greens, clay, and a peaceful study feel.",
+    icon: "leaf-outline",
+    shell: "#e8eee1",
+    colors: {
+      ink: "#243024",
+      muted: "#66705f",
+      paper: "#eef3e8",
+      panel: "#fbfdf7",
+      line: "#d2dcc9",
+      olive: "#61764b",
+      oliveDark: "#2f5139",
+      gold: "#b58b42",
+      coral: "#b96f52",
+      blue: "#4d7d79",
+      soft: "#e4eadc",
+      blush: "#f2dfd5",
+      sage: "#d7e4ce"
+    }
+  },
+  {
+    id: "modern-chapel",
+    label: "Modern Chapel",
+    shortLabel: "Clean",
+    description: "A crisp, simple, contemporary app surface.",
+    icon: "ellipse-outline",
+    shell: "#e9f0f2",
+    colors: {
+      ink: "#20272c",
+      muted: "#65717a",
+      paper: "#f5f8f9",
+      panel: "#ffffff",
+      line: "#d9e3e7",
+      olive: "#5b7477",
+      oliveDark: "#335c67",
+      gold: "#bb934f",
+      coral: "#c26762",
+      blue: "#426f7d",
+      soft: "#edf3f5",
+      blush: "#f2dedc",
+      sage: "#dce8ea"
+    }
+  }
+];
 const PRIVACY_POLICY_SECTIONS = [
   {
     title: "Who we are",
@@ -301,6 +405,7 @@ export default function Home() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
+  const [appThemeId, setAppThemeId] = useState<StoredAppTheme>("warm-study");
   const [tab, setTab] = useState<Tab>("home");
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -524,6 +629,9 @@ export default function Home() {
         setAiAccessChoice(choice);
         setAiDetailsOpen(choice);
       })
+      .catch(() => undefined);
+    getStoredAppTheme()
+      .then(setAppThemeId)
       .catch(() => undefined);
     getPinnedJournalEntries()
       .then(setPinnedJournalEntryIds)
@@ -849,6 +957,21 @@ export default function Home() {
     memoryBlankTokens.every((token) => normalizeMemoryAnswer(memoryPracticeAnswers[token.index] || "") === normalizeMemoryAnswer(token.answer));
   const compactLayout = width < 900;
   const phoneLayout = width < 760;
+  const activeAppTheme = APP_THEMES.find((theme) => theme.id === appThemeId) || APP_THEMES[0];
+  const themeStyles = useMemo(
+    () => ({
+      screen: { backgroundColor: activeAppTheme.colors.paper },
+      shell: { backgroundColor: activeAppTheme.shell, borderColor: activeAppTheme.colors.line },
+      mobileButton: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
+      brandMark: { backgroundColor: activeAppTheme.colors.coral },
+      activeTab: { backgroundColor: activeAppTheme.colors.sage },
+      activeTabLabel: { color: activeAppTheme.colors.coral },
+      text: { color: activeAppTheme.colors.ink },
+      mutedText: { color: activeAppTheme.colors.muted },
+      content: { backgroundColor: activeAppTheme.colors.paper }
+    }),
+    [activeAppTheme]
+  );
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -1860,6 +1983,13 @@ export default function Home() {
     setSmartFeedbackStatus("Premium subscriptions are coming soon. For now, free local coaching is still available.");
   }
 
+  function chooseAppTheme(themeId: StoredAppTheme) {
+    setAppThemeId(themeId);
+    saveStoredAppTheme(themeId).catch(() => undefined);
+    const selected = APP_THEMES.find((theme) => theme.id === themeId) || APP_THEMES[0];
+    setAccountStatus(`${selected.label} theme selected`);
+  }
+
   function acceptSmartFeedback() {
     if (!smartFeedback) return;
     setAcceptedCoaching((current) => ({ ...current, [answerKey]: smartFeedback }));
@@ -2482,31 +2612,32 @@ export default function Home() {
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
 
   return (
-    <View style={[styles.screen, compactLayout && styles.compactScreen]}>
+    <ThemeProvider value={activeAppTheme.colors}>
+    <View style={[styles.screen, themeStyles.screen, compactLayout && styles.compactScreen]}>
       {phoneLayout && (
-        <View style={styles.mobileMenuBar}>
+        <View style={[styles.mobileMenuBar, themeStyles.shell]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={mobileMenuOpen ? "Close menu" : "Open menu"}
             onPress={() => setMobileMenuOpen((value) => !value)}
-            style={styles.mobileMenuButton}
+            style={[styles.mobileMenuButton, themeStyles.mobileButton]}
           >
             <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={colors.oliveDark} />
           </Pressable>
           <View style={styles.mobileMenuTitleBlock}>
-            <Text style={styles.mobileMenuTitle}>Bible Study Tutor</Text>
-            <Text style={styles.mobileMenuSubtitle}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+            <Text style={[styles.mobileMenuTitle, themeStyles.text]}>Bible Study Tutor</Text>
+            <Text style={[styles.mobileMenuSubtitle, themeStyles.mutedText]}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
           </View>
         </View>
       )}
 
-      <View style={[styles.sidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
+      <View style={[styles.sidebar, themeStyles.shell, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
         <View style={styles.brandRow}>
-          <View style={styles.brandMark}>
+          <View style={[styles.brandMark, themeStyles.brandMark]}>
             <Text style={styles.brandMarkText}>BT</Text>
           </View>
           <View style={styles.brandCopy}>
-            <Text style={styles.brandTitle}>Bible Study Tutor</Text>
+            <Text style={[styles.brandTitle, themeStyles.text]}>Bible Study Tutor</Text>
           </View>
         </View>
 
@@ -2530,10 +2661,10 @@ export default function Home() {
                 setTab(key as Tab);
                 if (phoneLayout) setMobileMenuOpen(false);
               }}
-              style={[styles.tab, tab === key && styles.activeTab]}
+              style={[styles.tab, tab === key && [styles.activeTab, themeStyles.activeTab]]}
             >
               <Ionicons name={icon as any} size={18} color={tab === key ? colors.oliveDark : colors.muted} />
-              <Text style={[styles.tabLabel, tab === key && styles.activeTabLabel]}>{label}</Text>
+              <Text style={[styles.tabLabel, themeStyles.mutedText, tab === key && [styles.activeTabLabel, themeStyles.activeTabLabel]]}>{label}</Text>
             </Pressable>
           ))}
         </View>
@@ -2558,6 +2689,7 @@ export default function Home() {
         ref={appScrollRef}
         contentContainerStyle={[
           styles.content,
+          themeStyles.content,
           phoneLayout && styles.phoneContent,
           showMobileReaderSelectionDock && styles.contentWithMobileReaderDock,
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
@@ -4665,6 +4797,33 @@ export default function Home() {
                 <AppButton label={isAuthenticated ? "Save details" : "Save name"} onPress={persistAccountSettings} />
                 {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
               </View>
+              <View style={styles.accountSection}>
+                <Text style={styles.sectionTitle}>Appearance</Text>
+                <Text style={styles.helpIntro}>Choose a whole-app theme. Warm Study stays the default, and your choice is remembered on this device.</Text>
+                <View style={styles.accountOptionGrid}>
+                  {APP_THEMES.map((theme) => (
+                    <Pressable
+                      key={theme.id}
+                      onPress={() => chooseAppTheme(theme.id)}
+                      style={[styles.aiOptionCard, styles.accountOptionCard, styles.themeOptionCard, appThemeId === theme.id && styles.activeAiOptionCard]}
+                    >
+                      <View style={styles.themeOptionHeader}>
+                        <Ionicons name={theme.icon as any} size={20} color={theme.colors.oliveDark} />
+                        <Text style={styles.themeOptionBadge}>{theme.shortLabel}</Text>
+                      </View>
+                      <View style={styles.themeSwatchRow}>
+                        {[theme.colors.paper, theme.colors.panel, theme.colors.coral, theme.colors.oliveDark].map((swatch) => (
+                          <View key={swatch} style={[styles.themeSwatch, { backgroundColor: swatch, borderColor: theme.colors.line }]} />
+                        ))}
+                      </View>
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>{theme.label}</Text>
+                        <Text style={styles.aiOptionText}>{theme.description}</Text>
+                      </View>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
               {isAuthenticated && profile?.authProvider === "password" && (
                 <View style={styles.accountSection}>
                   <Text style={styles.sectionTitle}>Change password</Text>
@@ -5821,6 +5980,7 @@ export default function Home() {
         </View>
       )}
     </View>
+    </ThemeProvider>
   );
 }
 
@@ -11898,6 +12058,36 @@ const styles = StyleSheet.create({
   },
   accountOptionCard: {
     backgroundColor: "#fff6eb"
+  },
+  themeOptionCard: {
+    flexDirection: "column"
+  },
+  themeOptionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
+    width: "100%"
+  },
+  themeOptionBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.72)",
+    borderRadius: 999,
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900",
+    overflow: "hidden",
+    paddingHorizontal: 8,
+    paddingVertical: 4
+  },
+  themeSwatchRow: {
+    flexDirection: "row",
+    gap: 6
+  },
+  themeSwatch: {
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 24,
+    width: 24
   },
   legalDocBox: {
     backgroundColor: "#fff6eb",

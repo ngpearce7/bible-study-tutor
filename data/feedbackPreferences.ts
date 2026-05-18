@@ -3,6 +3,7 @@ import { Platform } from "react-native";
 
 export type StoredAiAccessOption = "free" | "own-key" | "premium";
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
+export type StoredAppTheme = "warm-study" | "cathedral-light" | "midnight-lectio" | "olive-grove" | "modern-chapel";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
 export type StoredBibleReadChapters = Record<string, number[]>;
@@ -22,6 +23,7 @@ export type StoredStudyPanelKey = "community" | "plan" | "feedback" | "helps";
 export type StoredCollapsedStudyPanels = Record<StoredStudyPanelKey, boolean>;
 
 const aiAccessChoiceKey = "bible-study-tutor-ai-access-choice";
+const appThemeKey = "bible-study-tutor-app-theme";
 const pinnedJournalEntriesKey = "bible-study-tutor-pinned-journal-entries";
 const completedPlanDaysKey = "bible-study-tutor-completed-plan-days";
 const checkinPartnersKey = "bible-study-tutor-checkin-partners";
@@ -209,6 +211,15 @@ export async function saveStoredAiAccessChoice(choice: StoredAiAccessOption) {
   await setStoredValue(aiAccessChoiceKey, choice);
 }
 
+export async function getStoredAppTheme(): Promise<StoredAppTheme> {
+  const stored = await getStoredValue(appThemeKey);
+  return isAppTheme(stored) ? stored : "warm-study";
+}
+
+export async function saveStoredAppTheme(theme: StoredAppTheme) {
+  await setStoredValue(appThemeKey, theme);
+}
+
 export async function getPinnedJournalEntries(): Promise<string[]> {
   const stored = await getStoredValue(pinnedJournalEntriesKey);
   if (!stored) return [];
@@ -282,4 +293,8 @@ async function setStoredValue(key: string, value: string) {
 
 function isAiAccessOption(value: string | null): value is StoredAiAccessOption {
   return value === "free" || value === "own-key" || value === "premium";
+}
+
+function isAppTheme(value: string | null): value is StoredAppTheme {
+  return value === "warm-study" || value === "cathedral-light" || value === "midnight-lectio" || value === "olive-grove" || value === "modern-chapel";
 }

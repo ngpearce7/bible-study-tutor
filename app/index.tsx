@@ -6013,7 +6013,7 @@ function AdminReachMap({
 
   return (
     <Card style={[styles.adminMapCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-      <View style={styles.adminMapHeader}>
+      <View style={[styles.adminMapHeader, phoneLayout && styles.phoneAdminMapHeader]}>
         <View style={styles.adminMapTitleBlock}>
           <View style={styles.feedbackHeader}>
             <Ionicons name="earth-outline" size={18} color={colors.coral} />
@@ -6021,14 +6021,14 @@ function AdminReachMap({
           </View>
           <Text style={styles.helpIntro}>Privacy-friendly regional insights. Exact user locations are not tracked.</Text>
         </View>
-        <View style={styles.adminMapMetricPill}>
+        <View style={[styles.adminMapMetricPill, phoneLayout && styles.phoneAdminMapMetricPill]}>
           <Text style={styles.adminMapMetricValue}>{activeUsers}</Text>
           <Text style={styles.adminMapMetricLabel}>active 7d</Text>
         </View>
       </View>
 
       <View style={[styles.adminMapLayout, phoneLayout && styles.phoneAdminMapLayout]}>
-        <View style={styles.adminMapCanvas}>
+        <View style={[styles.adminMapCanvas, phoneLayout && styles.phoneAdminMapCanvas]}>
           <Image source={{ uri: ADMIN_WORLD_MAP_URI }} resizeMode="contain" style={styles.adminMapImage} />
           {regions.map((region) => (
             <Pressable
@@ -6039,6 +6039,7 @@ function AdminReachMap({
               style={[
                 styles.adminMapHotspot,
                 region.size === "large" ? styles.adminMapHotspotLarge : region.size === "medium" ? styles.adminMapHotspotMedium : styles.adminMapHotspotSmall,
+                phoneLayout && styles.phoneAdminMapHotspot,
                 { left: `${region.x}%`, top: `${region.y}%` },
                 selected.name === region.name && styles.activeAdminMapHotspot
               ]}
@@ -6046,13 +6047,13 @@ function AdminReachMap({
               <Text style={styles.adminMapHotspotText}>{region.count > 0 ? region.count : "•"}</Text>
             </Pressable>
           ))}
-          <View style={styles.adminMapNote}>
+          <View style={[styles.adminMapNote, phoneLayout && styles.phoneAdminMapNote]}>
             <Ionicons name="shield-checkmark-outline" size={14} color={colors.oliveDark} />
             <Text style={styles.adminMapNoteText}>Broad regions only</Text>
           </View>
         </View>
 
-        <View style={styles.adminMapDetailPanel}>
+        <View style={[styles.adminMapDetailPanel, phoneLayout && styles.phoneAdminMapDetailPanel]}>
           <Text style={styles.lastCheckinLabel}>{selected.name}</Text>
           <Text style={styles.helpIntro}>
             {isRegionTrackingReady
@@ -10606,10 +10607,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 10,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 11
   },
   aiOptionCopy: {
-    flex: 1
+    flex: 1,
+    minWidth: 0
   },
   aiOptionTitle: {
     color: colors.oliveDark,
@@ -10650,7 +10654,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: 8,
-    marginBottom: 8
+    marginBottom: 8,
+    minWidth: 0
   },
   collapsiblePanelHeader: {
     alignItems: "center",
@@ -10665,6 +10670,7 @@ const styles = StyleSheet.create({
   },
   feedbackTitle: {
     color: colors.coral,
+    flexShrink: 1,
     fontSize: 13,
     fontWeight: "800",
     textTransform: "uppercase"
@@ -10884,6 +10890,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 16,
     fontWeight: "700",
+    flexShrink: 1,
     lineHeight: 21
   },
   communityFocusBox: {
@@ -11913,6 +11920,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     marginTop: 14,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 14
   },
   signedInBadgeRow: {
@@ -11927,11 +11936,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 7,
+    maxWidth: "100%",
+    minWidth: 0,
     paddingHorizontal: 11,
     paddingVertical: 7
   },
   signedInBadgeText: {
     color: colors.oliveDark,
+    flexShrink: 1,
     fontSize: 13,
     fontWeight: "900"
   },
@@ -11958,6 +11970,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     marginBottom: 14,
+    minWidth: 0,
     padding: 4
   },
   authFlowButton: {
@@ -11965,6 +11978,7 @@ const styles = StyleSheet.create({
     borderRadius: 9,
     flex: 1,
     minHeight: 40,
+    minWidth: 0,
     justifyContent: "center",
     paddingHorizontal: 10
   },
@@ -11974,12 +11988,14 @@ const styles = StyleSheet.create({
   authFlowText: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "800",
+    textAlign: "center"
   },
   activeAuthFlowText: {
     color: "white"
   },
   accountOptionGrid: {
+    minWidth: 0,
     gap: 10
   },
   accountOptionCard: {
@@ -11992,11 +12008,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     marginTop: 10,
+    minWidth: 0,
     padding: 10
   },
   legalDocHeader: {
     alignItems: "center",
     flexDirection: "row",
+    gap: 8,
     justifyContent: "space-between"
   },
   legalDocBody: {
@@ -12027,6 +12045,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     marginTop: 12,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 12
   },
   lockedTranslationRow: {
@@ -12053,6 +12073,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     gap: 8,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 14
   },
   memoryList: {
@@ -13475,6 +13497,9 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: "space-between"
   },
+  phoneAdminMapHeader: {
+    flexDirection: "column"
+  },
   adminMapTitleBlock: {
     flex: 1,
     minWidth: 0
@@ -13487,6 +13512,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 9
+  },
+  phoneAdminMapMetricPill: {
+    alignItems: "flex-start",
+    width: "100%"
   },
   adminMapMetricValue: {
     color: colors.oliveDark,
@@ -13519,6 +13548,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     position: "relative"
   },
+  phoneAdminMapCanvas: {
+    minHeight: 220
+  },
   adminMapImage: {
     height: "100%",
     opacity: 0.82,
@@ -13550,6 +13582,12 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40
   },
+  phoneAdminMapHotspot: {
+    borderWidth: 2,
+    height: 26,
+    transform: [{ translateX: -13 }, { translateY: -13 }],
+    width: 26
+  },
   activeAdminMapHotspot: {
     backgroundColor: colors.oliveDark
   },
@@ -13573,6 +13611,12 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     position: "absolute"
   },
+  phoneAdminMapNote: {
+    bottom: 8,
+    left: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 5
+  },
   adminMapNoteText: {
     color: colors.muted,
     fontSize: 12,
@@ -13587,6 +13631,10 @@ const styles = StyleSheet.create({
     minWidth: 240,
     padding: 12,
     width: "30%"
+  },
+  phoneAdminMapDetailPanel: {
+    minWidth: 0,
+    width: "100%"
   },
   adminMapDetailList: {
     gap: 8
@@ -13618,7 +13666,8 @@ const styles = StyleSheet.create({
     marginTop: 14
   },
   phoneAdminDashboardGrid: {
-    gap: 6
+    gap: 6,
+    justifyContent: "space-between"
   },
   adminDashboardCard: {
     flex: 1,
@@ -13985,6 +14034,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 7,
     marginTop: 6,
+    maxWidth: "100%",
     minHeight: 40,
     paddingHorizontal: 13
   },
@@ -14009,6 +14059,7 @@ const styles = StyleSheet.create({
   },
   resumeButtonText: {
     color: colors.coral,
+    flexShrink: 1,
     fontWeight: "800"
   },
   primaryResumeButtonText: {

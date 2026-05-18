@@ -889,6 +889,7 @@ export default function Home() {
   const compactLayout = width < 900;
   const phoneLayout = width < 760;
   const activeAppTheme = APP_THEMES.find((theme) => theme.id === appThemeId) || APP_THEMES[0];
+  const isWarmStudyTheme = activeAppTheme.id === "warm-study";
   const themeStyles = useMemo(
     () => ({
       screen: { backgroundColor: activeAppTheme.colors.paper },
@@ -900,18 +901,27 @@ export default function Home() {
       text: { color: activeAppTheme.colors.ink },
       mutedText: { color: activeAppTheme.colors.muted },
       content: { backgroundColor: activeAppTheme.colors.paper },
-      panelBox: { backgroundColor: activeAppTheme.colors.soft, borderColor: activeAppTheme.colors.line },
+      panelBox: {
+        backgroundColor: isWarmStudyTheme ? "#fffaf2" : activeAppTheme.colors.soft,
+        borderColor: activeAppTheme.colors.line
+      },
       optionCard: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
       activeOptionCard: { borderColor: activeAppTheme.colors.oliveDark },
-      heroDivider: { borderBottomColor: activeAppTheme.colors.line },
-      homeBlock: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
-      homeIcon: { backgroundColor: activeAppTheme.colors.soft },
-      purposePanel: { backgroundColor: activeAppTheme.colors.soft, borderColor: activeAppTheme.colors.line },
+      heroDivider: { borderBottomColor: isWarmStudyTheme ? "rgba(102, 114, 78, 0.18)" : activeAppTheme.colors.line },
+      homeBlock: {
+        backgroundColor: isWarmStudyTheme ? "#fffdf8" : activeAppTheme.colors.panel,
+        borderColor: activeAppTheme.colors.line
+      },
+      homeIcon: { backgroundColor: isWarmStudyTheme ? colors.panel : activeAppTheme.colors.soft },
+      purposePanel: {
+        backgroundColor: isWarmStudyTheme ? "#fffaf2" : activeAppTheme.colors.soft,
+        borderColor: isWarmStudyTheme ? "rgba(102, 114, 78, 0.22)" : activeAppTheme.colors.line
+      },
       purposePill: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
       pathItem: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
       pathIcon: { backgroundColor: activeAppTheme.colors.sage }
     }),
-    [activeAppTheme]
+    [activeAppTheme, isWarmStudyTheme]
   );
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)

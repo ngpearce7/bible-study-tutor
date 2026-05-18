@@ -31,12 +31,13 @@ export function useThemeColors() {
 
 export function Card({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
   const theme = useThemeColors();
-  return <View style={[styles.card, { backgroundColor: theme.panel, borderColor: theme.line, shadowColor: theme.ink }, style]}>{children}</View>;
+  const themedStyle = theme === colors ? null : { backgroundColor: theme.panel, borderColor: theme.line, shadowColor: theme.ink };
+  return <View style={[styles.card, themedStyle, style]}>{children}</View>;
 }
 
 export function Eyebrow({ children }: PropsWithChildren) {
   const theme = useThemeColors();
-  return <Text style={[styles.eyebrow, { color: theme.coral }]}>{children}</Text>;
+  return <Text style={[styles.eyebrow, theme !== colors && { color: theme.coral }]}>{children}</Text>;
 }
 
 export function AppButton({
@@ -53,6 +54,7 @@ export function AppButton({
   labelStyle?: StyleProp<TextStyle>;
 }) {
   const theme = useThemeColors();
+  const useDefaultTheme = theme === colors;
   return (
     <Pressable
       accessibilityRole="button"
@@ -60,13 +62,13 @@ export function AppButton({
       style={({ pressed }) => [
         styles.button,
         variant === "secondary"
-          ? [styles.secondaryButton, { backgroundColor: theme.panel, borderColor: theme.line }]
-          : [styles.primaryButton, { backgroundColor: theme.coral }],
+          ? [styles.secondaryButton, !useDefaultTheme && { backgroundColor: theme.panel, borderColor: theme.line }]
+          : [styles.primaryButton, !useDefaultTheme && { backgroundColor: theme.coral }],
         pressed && styles.pressed,
         style
       ]}
     >
-      <Text style={[variant === "secondary" ? [styles.secondaryLabel, { color: theme.oliveDark }] : styles.primaryLabel, labelStyle]}>{label}</Text>
+      <Text style={[variant === "secondary" ? [styles.secondaryLabel, !useDefaultTheme && { color: theme.oliveDark }] : styles.primaryLabel, labelStyle]}>{label}</Text>
     </Pressable>
   );
 }

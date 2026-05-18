@@ -3,10 +3,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAiAccessChoice, getStoredAppTheme, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAiAccessChoice, saveStoredAppTheme, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppTheme, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAiAccessChoice, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAiAccessChoice, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
-import { AppButton, Card, Eyebrow, ThemeProvider, colors, type ThemeColors } from "@/components/ui";
+import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -127,41 +127,6 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
   { id: "next-month", label: "In 1 month" }
 ];
 const LEGAL_LAST_UPDATED = "May 17, 2026";
-
-const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; description: string; icon: string; colors: ThemeColors; shell: string }[] = [
-  {
-    id: "warm-study",
-    label: "Warm Study",
-    shortLabel: "Default",
-    description: "The familiar warm devotional look.",
-    icon: "sunny-outline",
-    shell: "#fff6eb",
-    colors
-  },
-  {
-    id: "modern-chapel",
-    label: "Modern Chapel",
-    shortLabel: "Clean",
-    description: "A crisp, spacious blue-gray theme inspired by the Modern Chapel mockup.",
-    icon: "ellipse-outline",
-    shell: "#e4edf1",
-    colors: {
-      ink: "#1f2a32",
-      muted: "#5f6f7a",
-      paper: "#f4f8fa",
-      panel: "#ffffff",
-      line: "#d2e0e7",
-      olive: "#5d7980",
-      oliveDark: "#2e5964",
-      gold: "#b9914e",
-      coral: "#c85f58",
-      blue: "#3d7483",
-      soft: "#eaf2f5",
-      blush: "#f3dfdd",
-      sage: "#d9e8ec"
-    }
-  }
-];
 const PRIVACY_POLICY_SECTIONS = [
   {
     title: "Who we are",
@@ -336,7 +301,6 @@ export default function Home() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
-  const [appThemeId, setAppThemeId] = useState<StoredAppTheme>("warm-study");
   const [tab, setTab] = useState<Tab>("home");
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -560,9 +524,6 @@ export default function Home() {
         setAiAccessChoice(choice);
         setAiDetailsOpen(choice);
       })
-      .catch(() => undefined);
-    getStoredAppTheme()
-      .then(setAppThemeId)
       .catch(() => undefined);
     getPinnedJournalEntries()
       .then(setPinnedJournalEntryIds)
@@ -888,41 +849,6 @@ export default function Home() {
     memoryBlankTokens.every((token) => normalizeMemoryAnswer(memoryPracticeAnswers[token.index] || "") === normalizeMemoryAnswer(token.answer));
   const compactLayout = width < 900;
   const phoneLayout = width < 760;
-  const activeAppTheme = APP_THEMES.find((theme) => theme.id === appThemeId) || APP_THEMES[0];
-  const isWarmStudyTheme = activeAppTheme.id === "warm-study";
-  const themeStyles = useMemo(
-    () => ({
-      screen: { backgroundColor: activeAppTheme.colors.paper },
-      shell: { backgroundColor: activeAppTheme.shell, borderColor: activeAppTheme.colors.line },
-      mobileButton: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
-      brandMark: { backgroundColor: activeAppTheme.colors.coral },
-      activeTab: { backgroundColor: activeAppTheme.colors.sage },
-      activeTabLabel: { color: activeAppTheme.colors.coral },
-      text: { color: activeAppTheme.colors.ink },
-      mutedText: { color: activeAppTheme.colors.muted },
-      content: { backgroundColor: activeAppTheme.colors.paper },
-      panelBox: {
-        backgroundColor: isWarmStudyTheme ? "#fffaf2" : activeAppTheme.colors.soft,
-        borderColor: activeAppTheme.colors.line
-      },
-      optionCard: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
-      activeOptionCard: { borderColor: activeAppTheme.colors.oliveDark },
-      heroDivider: { borderBottomColor: isWarmStudyTheme ? "rgba(102, 114, 78, 0.18)" : activeAppTheme.colors.line },
-      homeBlock: {
-        backgroundColor: isWarmStudyTheme ? "#fffdf8" : activeAppTheme.colors.panel,
-        borderColor: activeAppTheme.colors.line
-      },
-      homeIcon: { backgroundColor: isWarmStudyTheme ? colors.panel : activeAppTheme.colors.soft },
-      purposePanel: {
-        backgroundColor: isWarmStudyTheme ? "#fffaf2" : activeAppTheme.colors.soft,
-        borderColor: isWarmStudyTheme ? "rgba(102, 114, 78, 0.22)" : activeAppTheme.colors.line
-      },
-      purposePill: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
-      pathItem: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
-      pathIcon: { backgroundColor: activeAppTheme.colors.sage }
-    }),
-    [activeAppTheme, isWarmStudyTheme]
-  );
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -1934,13 +1860,6 @@ export default function Home() {
     setSmartFeedbackStatus("Premium subscriptions are coming soon. For now, free local coaching is still available.");
   }
 
-  function chooseAppTheme(themeId: StoredAppTheme) {
-    setAppThemeId(themeId);
-    saveStoredAppTheme(themeId).catch(() => undefined);
-    const selected = APP_THEMES.find((theme) => theme.id === themeId) || APP_THEMES[0];
-    setAccountStatus(`${selected.label} theme selected`);
-  }
-
   function acceptSmartFeedback() {
     if (!smartFeedback) return;
     setAcceptedCoaching((current) => ({ ...current, [answerKey]: smartFeedback }));
@@ -2563,32 +2482,31 @@ export default function Home() {
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
 
   return (
-    <ThemeProvider value={activeAppTheme.colors} isDefault={isWarmStudyTheme}>
-    <View style={[styles.screen, themeStyles.screen, compactLayout && styles.compactScreen]}>
+    <View style={[styles.screen, compactLayout && styles.compactScreen]}>
       {phoneLayout && (
-        <View style={[styles.mobileMenuBar, themeStyles.shell]}>
+        <View style={styles.mobileMenuBar}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={mobileMenuOpen ? "Close menu" : "Open menu"}
             onPress={() => setMobileMenuOpen((value) => !value)}
-            style={[styles.mobileMenuButton, themeStyles.mobileButton]}
+            style={styles.mobileMenuButton}
           >
             <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={colors.oliveDark} />
           </Pressable>
           <View style={styles.mobileMenuTitleBlock}>
-            <Text style={[styles.mobileMenuTitle, themeStyles.text]}>Bible Study Tutor</Text>
-            <Text style={[styles.mobileMenuSubtitle, themeStyles.mutedText]}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+            <Text style={styles.mobileMenuTitle}>Bible Study Tutor</Text>
+            <Text style={styles.mobileMenuSubtitle}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
           </View>
         </View>
       )}
 
-      <View style={[styles.sidebar, themeStyles.shell, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
+      <View style={[styles.sidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
         <View style={styles.brandRow}>
-          <View style={[styles.brandMark, themeStyles.brandMark]}>
+          <View style={styles.brandMark}>
             <Text style={styles.brandMarkText}>BT</Text>
           </View>
           <View style={styles.brandCopy}>
-            <Text style={[styles.brandTitle, themeStyles.text]}>Bible Study Tutor</Text>
+            <Text style={styles.brandTitle}>Bible Study Tutor</Text>
           </View>
         </View>
 
@@ -2612,10 +2530,10 @@ export default function Home() {
                 setTab(key as Tab);
                 if (phoneLayout) setMobileMenuOpen(false);
               }}
-              style={[styles.tab, tab === key && [styles.activeTab, themeStyles.activeTab]]}
+              style={[styles.tab, tab === key && styles.activeTab]}
             >
               <Ionicons name={icon as any} size={18} color={tab === key ? colors.oliveDark : colors.muted} />
-              <Text style={[styles.tabLabel, themeStyles.mutedText, tab === key && [styles.activeTabLabel, themeStyles.activeTabLabel]]}>{label}</Text>
+              <Text style={[styles.tabLabel, tab === key && styles.activeTabLabel]}>{label}</Text>
             </Pressable>
           ))}
         </View>
@@ -2640,7 +2558,6 @@ export default function Home() {
         ref={appScrollRef}
         contentContainerStyle={[
           styles.content,
-          themeStyles.content,
           phoneLayout && styles.phoneContent,
           showMobileReaderSelectionDock && styles.contentWithMobileReaderDock,
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
@@ -2649,14 +2566,14 @@ export default function Home() {
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard]}>
-              <View style={[styles.homeHero, themeStyles.heroDivider]}>
+              <View style={styles.homeHero}>
                 <Eyebrow>Purpose</Eyebrow>
-                <Text style={[styles.homeHeroTitle, themeStyles.text, phoneLayout && styles.phoneHomeHeroTitle]}>
+                <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle]}>
                   {firstName ? `${firstName}, draw near.` : "Draw near."}
                   {"\n"}
-                  <Text style={[styles.homeHeroTitleAccent, { color: activeAppTheme.colors.oliveDark }]}>Be shaped by Scripture.</Text>
+                  <Text style={styles.homeHeroTitleAccent}>Be shaped by Scripture.</Text>
                 </Text>
-                <Text style={[styles.homeHeroText, themeStyles.text]}>
+                <Text style={styles.homeHeroText}>
                   Bible Study Tutor is here to help you come close to God, open the Scriptures, respond honestly, and carry the word into memory, prayer, and community.
                 </Text>
                 <View style={styles.homeActionRow}>
@@ -2666,41 +2583,41 @@ export default function Home() {
               </View>
 
               <View style={styles.homeScriptureGrid}>
-                <View style={[styles.homeScriptureBlock, themeStyles.homeBlock]}>
-                  <View style={[styles.homeScriptureIcon, themeStyles.homeIcon]}>
-                    <Ionicons name="heart-outline" size={20} color={activeAppTheme.colors.coral} />
+                <View style={styles.homeScriptureBlock}>
+                  <View style={styles.homeScriptureIcon}>
+                    <Ionicons name="heart-outline" size={20} color={colors.coral} />
                   </View>
-                  <Text style={[styles.homeScriptureRef, { color: activeAppTheme.colors.coral }]}>James 4:8</Text>
-                  <Text style={[styles.homeScriptureQuote, themeStyles.text]}>“Draw near to God, and he will draw near to you.”</Text>
-                  <Text style={[styles.homeScriptureNote, themeStyles.mutedText]}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
+                  <Text style={styles.homeScriptureRef}>James 4:8</Text>
+                  <Text style={styles.homeScriptureQuote}>“Draw near to God, and he will draw near to you.”</Text>
+                  <Text style={styles.homeScriptureNote}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
                 </View>
-                <View style={[styles.homeScriptureBlock, themeStyles.homeBlock]}>
-                  <View style={[styles.homeScriptureIcon, themeStyles.homeIcon]}>
-                    <Ionicons name="book-outline" size={20} color={activeAppTheme.colors.coral} />
+                <View style={styles.homeScriptureBlock}>
+                  <View style={styles.homeScriptureIcon}>
+                    <Ionicons name="book-outline" size={20} color={colors.coral} />
                   </View>
-                  <Text style={[styles.homeScriptureRef, { color: activeAppTheme.colors.coral }]}>2 Timothy 3:16</Text>
-                  <Text style={[styles.homeScriptureQuote, themeStyles.text]}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
-                  <Text style={[styles.homeScriptureNote, themeStyles.mutedText]}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
+                  <Text style={styles.homeScriptureRef}>2 Timothy 3:16</Text>
+                  <Text style={styles.homeScriptureQuote}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
+                  <Text style={styles.homeScriptureNote}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
                 </View>
               </View>
 
-              <View style={[styles.homePurposePanel, themeStyles.purposePanel]}>
-                <Text style={[styles.homePurposeTitle, { color: activeAppTheme.colors.oliveDark }]}>Free Bible study for everyday discipleship.</Text>
-                <Text style={[styles.homePurposeText, themeStyles.text]}>
+              <View style={styles.homePurposePanel}>
+                <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
+                <Text style={styles.homePurposeText}>
                   Built for individuals, small groups, and churches, Bible Study Tutor is free to use and designed to work comfortably on both desktop and mobile devices.
                 </Text>
                 <View style={styles.homePurposePillRow}>
-                  <View style={[styles.homePurposePill, themeStyles.purposePill]}>
-                    <Ionicons name="gift-outline" size={15} color={activeAppTheme.colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, { color: activeAppTheme.colors.oliveDark }]}>Free to use</Text>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Free to use</Text>
                   </View>
-                  <View style={[styles.homePurposePill, themeStyles.purposePill]}>
-                    <Ionicons name="phone-portrait-outline" size={15} color={activeAppTheme.colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, { color: activeAppTheme.colors.oliveDark }]}>Mobile ready</Text>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Mobile ready</Text>
                   </View>
-                  <View style={[styles.homePurposePill, themeStyles.purposePill]}>
-                    <Ionicons name="desktop-outline" size={15} color={activeAppTheme.colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, { color: activeAppTheme.colors.oliveDark }]}>Desktop friendly</Text>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Desktop friendly</Text>
                   </View>
                 </View>
               </View>
@@ -2708,8 +2625,8 @@ export default function Home() {
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
               <Card style={styles.homeSideCard}>
-                <Text style={[styles.homeSideTitle, { color: activeAppTheme.colors.oliveDark }]}>Today’s path</Text>
-                <Text style={[styles.titleSupport, themeStyles.mutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
+                <Text style={styles.homeSideTitle}>Today’s path</Text>
+                <Text style={styles.titleSupport}>{`${friendlyName}, take the next small faithful step.`}</Text>
                 <View style={styles.homePathList}>
                   {[
                     ["Read", "Open the Bible reader and choose a passage.", "reader-outline", "bible"],
@@ -2718,22 +2635,22 @@ export default function Home() {
                     ["Reflect", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your journal connected to Scripture.", "journal-outline", "journal"],
                     ["Share", effectivePartner ? `Check in with ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
                   ].map(([title, detail, icon, target]) => (
-                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={[styles.homePathItem, themeStyles.pathItem]}>
-                      <View style={[styles.homePathIcon, themeStyles.pathIcon]}>
-                        <Ionicons name={icon as any} size={17} color={activeAppTheme.colors.oliveDark} />
+                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={styles.homePathItem}>
+                      <View style={styles.homePathIcon}>
+                        <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
                       </View>
                       <View style={styles.homePathTextBlock}>
-                        <Text style={[styles.homePathTitle, themeStyles.text]}>{title}</Text>
-                        <Text style={[styles.homePathDetail, themeStyles.mutedText]}>{detail}</Text>
+                        <Text style={styles.homePathTitle}>{title}</Text>
+                        <Text style={styles.homePathDetail}>{detail}</Text>
                       </View>
-                      <Ionicons name="chevron-forward-outline" size={16} color={activeAppTheme.colors.muted} />
+                      <Ionicons name="chevron-forward-outline" size={16} color={colors.muted} />
                     </Pressable>
                   ))}
                 </View>
               </Card>
 
               <Card style={styles.homeSideCard}>
-                <Text style={[styles.homeSideTitle, { color: activeAppTheme.colors.oliveDark }]}>At a glance</Text>
+                <Text style={styles.homeSideTitle}>At a glance</Text>
                 <View style={styles.homeMetricGrid}>
                   <Metric value={stats?.currentStreak ?? 0} label="day streak" compact={phoneLayout} />
                   <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} />
@@ -4677,7 +4594,7 @@ export default function Home() {
               <Eyebrow>Account & access</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, your profile` : "Your profile and feedback choices"}</Text>
               <Text style={styles.titleSupport}>Keep your details current so the app can speak to you personally and help you draw near to God.</Text>
-              <View style={[styles.accountSection, themeStyles.panelBox]}>
+              <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Sign in</Text>
                 {isAuthenticated ? (
                   <>
@@ -4688,7 +4605,7 @@ export default function Home() {
                       </View>
                     </View>
                     <Text style={styles.helpIntro}>{`${accountIdentityLabel}. New studies, drafts, and check-ins can follow this account across devices.`}</Text>
-                    <AppButton label="Sign out" variant="secondary" onPress={submitSignOut} />
+                    <AppButton label="Sign out" onPress={submitSignOut} />
                   </>
                 ) : (
                   <>
@@ -4731,7 +4648,7 @@ export default function Home() {
                 )}
                 {!!authStatus && <Text style={styles.saveStatus}>{authStatus}</Text>}
               </View>
-              <View style={[styles.accountSection, themeStyles.panelBox]}>
+              <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Personal details</Text>
                 <Text style={styles.helpIntro}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
                 <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" style={styles.input} />
@@ -4748,41 +4665,8 @@ export default function Home() {
                 <AppButton label={isAuthenticated ? "Save details" : "Save name"} onPress={persistAccountSettings} />
                 {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
               </View>
-              <View style={[styles.accountSection, themeStyles.panelBox]}>
-                <Text style={styles.sectionTitle}>Appearance</Text>
-                <Text style={styles.helpIntro}>Choose a whole-app theme. Warm Study stays the default, and your choice is remembered on this device.</Text>
-                <View style={styles.accountOptionGrid}>
-                  {APP_THEMES.map((theme) => (
-                    <Pressable
-                      key={theme.id}
-                      onPress={() => chooseAppTheme(theme.id)}
-                      style={[
-                        styles.aiOptionCard,
-                        styles.accountOptionCard,
-                        styles.themeOptionCard,
-                        { backgroundColor: theme.colors.panel, borderColor: appThemeId === theme.id ? activeAppTheme.colors.oliveDark : theme.colors.line },
-                        appThemeId === theme.id && styles.activeAiOptionCard
-                      ]}
-                    >
-                      <View style={styles.themeOptionHeader}>
-                        <Ionicons name={theme.icon as any} size={20} color={theme.colors.oliveDark} />
-                        <Text style={[styles.themeOptionBadge, { color: theme.colors.oliveDark }]}>{theme.shortLabel}</Text>
-                      </View>
-                      <View style={styles.themeSwatchRow}>
-                        {[theme.colors.paper, theme.colors.panel, theme.colors.coral, theme.colors.oliveDark].map((swatch) => (
-                          <View key={swatch} style={[styles.themeSwatch, { backgroundColor: swatch, borderColor: theme.colors.line }]} />
-                        ))}
-                      </View>
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={[styles.aiOptionTitle, { color: theme.colors.oliveDark }]}>{theme.label}</Text>
-                        <Text style={[styles.aiOptionText, { color: theme.colors.muted }]}>{theme.description}</Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
               {isAuthenticated && profile?.authProvider === "password" && (
-                <View style={[styles.accountSection, themeStyles.panelBox]}>
+                <View style={styles.accountSection}>
                   <Text style={styles.sectionTitle}>Change password</Text>
                   <Text style={styles.helpIntro}>Use this if you signed in with email and password.</Text>
                   <TextInput
@@ -4801,29 +4685,29 @@ export default function Home() {
                     placeholder="New password"
                     style={styles.input}
                   />
-                  <AppButton label="Update password" variant="secondary" onPress={submitPasswordChange} />
+                  <AppButton label="Update password" onPress={submitPasswordChange} />
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View style={[styles.accountSection, themeStyles.panelBox]}>
+              <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Feedback access</Text>
                 <Text style={styles.helpIntro}>Current: {aiAccessChoice === "free" ? "Free local coaching" : aiAccessChoice === "own-key" ? "Use my own AI key" : "Premium subscription"}</Text>
                 <View style={styles.accountOptionGrid}>
-                  <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, aiAccessChoice === "free" && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}>
+                  <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
                     <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
                       <Text style={styles.aiOptionTitle}>Free</Text>
                       <Text style={styles.aiOptionText}>Built-in coaching. No AI usage or payment.</Text>
                     </View>
                   </Pressable>
-                  <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, aiAccessChoice === "own-key" && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}>
+                  <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
                     <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
                       <Text style={styles.aiOptionTitle}>Own key</Text>
                       <Text style={styles.aiOptionText}>Planned. User pays the AI provider directly.</Text>
                     </View>
                   </Pressable>
-                  <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, aiAccessChoice === "premium" && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}>
+                  <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
                     <Ionicons name="card-outline" size={20} color={colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
                       <Text style={styles.aiOptionTitle}>Premium</Text>
@@ -4832,7 +4716,7 @@ export default function Home() {
                   </Pressable>
                 </View>
               </View>
-              <View style={[styles.accountSection, themeStyles.panelBox]}>
+              <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Bible translations</Text>
                 <Text style={styles.helpIntro}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
                 <View style={styles.accountOptionGrid}>
@@ -4843,7 +4727,7 @@ export default function Home() {
                         setBibleTranslation(translation.id);
                         saveStoredBibleTranslation(translation.id).catch(() => undefined);
                       }}
-                      style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, bibleTranslation === translation.id && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}
+                      style={[styles.aiOptionCard, styles.accountOptionCard, bibleTranslation === translation.id && styles.activeAiOptionCard]}
                     >
                       <Ionicons name={bibleTranslation === translation.id ? "checkmark-circle" : "book-outline"} size={20} color={colors.oliveDark} />
                       <View style={styles.aiOptionCopy}>
@@ -4868,7 +4752,7 @@ export default function Home() {
                   </View>
                 </View>
               </View>
-              <View style={[styles.accountSection, themeStyles.panelBox]}>
+              <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Legal</Text>
                 <Text style={styles.helpIntro}>Draft policies for the app experience. Have these reviewed before publishing publicly or submitting to an app store.</Text>
                 <LegalDocument
@@ -5937,7 +5821,6 @@ export default function Home() {
         </View>
       )}
     </View>
-    </ThemeProvider>
   );
 }
 
@@ -12015,36 +11898,6 @@ const styles = StyleSheet.create({
   },
   accountOptionCard: {
     backgroundColor: "#fff6eb"
-  },
-  themeOptionCard: {
-    flexDirection: "column"
-  },
-  themeOptionHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "space-between",
-    width: "100%"
-  },
-  themeOptionBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.72)",
-    borderRadius: 999,
-    color: colors.oliveDark,
-    fontSize: 11,
-    fontWeight: "900",
-    overflow: "hidden",
-    paddingHorizontal: 8,
-    paddingVertical: 4
-  },
-  themeSwatchRow: {
-    flexDirection: "row",
-    gap: 6
-  },
-  themeSwatch: {
-    borderRadius: 999,
-    borderWidth: 1,
-    height: 24,
-    width: 24
   },
   legalDocBox: {
     backgroundColor: "#fff6eb",

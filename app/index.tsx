@@ -5593,20 +5593,26 @@ export default function Home() {
                     target: "journal"
                   }
                 ].map((item) => (
-                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGridItem]}>
-                    <View style={styles.feedbackHeader}>
+                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem]}>
+                    <View style={[styles.feedbackHeader, phoneLayout && styles.phoneHelpGuideHeader]}>
                       <Ionicons name={item.icon as any} size={18} color={colors.coral} />
                       <Text style={styles.helpGuideTitle}>{item.title}</Text>
                     </View>
                     <View style={styles.helpGuideStepList}>
                       {item.steps.map((stepText, index) => (
-                        <View key={stepText} style={styles.helpGuideStep}>
+                        <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep]}>
                           <Text style={styles.helpGuideStepNumber}>{index + 1}</Text>
-                          <Text style={styles.helpGuideStepText}>{stepText}</Text>
+                          <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText]}>{stepText}</Text>
                         </View>
                       ))}
                     </View>
-                    <ResumeButton label={item.action} icon={item.icon} onPress={() => setTab(item.target as Tab)} />
+                    <ResumeButton
+                      label={item.action}
+                      icon={item.icon}
+                      onPress={() => setTab(item.target as Tab)}
+                      style={phoneLayout && styles.phoneHelpGuideAction}
+                      labelStyle={phoneLayout && styles.phoneHelpGuideActionText}
+                    />
                   </View>
                 ))}
               </View>
@@ -13368,15 +13374,27 @@ const styles = StyleSheet.create({
     minWidth: 280,
     padding: 12
   },
+  phoneHelpGuideItem: {
+    borderRadius: 10,
+    gap: 9,
+    minWidth: 0,
+    padding: 10,
+    width: "100%"
+  },
   phoneHelpGridItem: {
     minWidth: 0,
     width: "100%"
+  },
+  phoneHelpGuideHeader: {
+    alignItems: "flex-start",
+    marginBottom: 2
   },
   helpGuideTitle: {
     color: colors.ink,
     flex: 1,
     fontSize: 15,
-    fontWeight: "900"
+    fontWeight: "900",
+    minWidth: 0
   },
   helpGuideStepList: {
     gap: 7
@@ -13385,6 +13403,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     gap: 8
+  },
+  phoneHelpGuideStep: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 9,
+    borderWidth: 1,
+    gap: 9,
+    padding: 8
   },
   helpGuideStepNumber: {
     backgroundColor: colors.sage,
@@ -13402,6 +13428,17 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     lineHeight: 19
+  },
+  phoneHelpGuideStepText: {
+    lineHeight: 18
+  },
+  phoneHelpGuideAction: {
+    alignSelf: "stretch",
+    justifyContent: "center",
+    marginTop: 2
+  },
+  phoneHelpGuideActionText: {
+    textAlign: "center"
   },
   helpTabGrid: {
     flexDirection: "row",

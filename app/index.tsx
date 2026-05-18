@@ -9102,8 +9102,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 5,
+    height: 36,
     paddingHorizontal: 10,
-    paddingVertical: 7
+    paddingVertical: 0
   },
   activeBibleSearchChip: {
     backgroundColor: colors.oliveDark,

@@ -3688,34 +3688,35 @@ export default function Home() {
                           <Text style={[styles.bibleSearchChipText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
                         </Pressable>
                       ))}
-                      <Pressable
-                        onPress={() => setBibleSearchExact((value) => !value)}
-                        style={[styles.bibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
-                      >
-                        <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : colors.oliveDark} />
-                        <Text style={[styles.bibleSearchChipText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
-                      </Pressable>
-                      <View style={[styles.bibleSearchBookFilter, phoneLayout && styles.phoneBibleSearchBookFilter]}>
-                        {Platform.OS === "web" ? (
-                          <select
-                            aria-label="Book filter"
-                            value={bibleSearchBook}
-                            onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
-                            style={styles.bibleSearchSelect as any}
-                          >
-                            <option value="">Any book</option>
-                            {bibleSearchBookOptions.map((book) => (
-                              <option key={book} value={book}>{book}</option>
-                            ))}
-                          </select>
-                        ) : (
-                          <>
-                            <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={styles.bibleSearchSelectButton}>
-                              <Text numberOfLines={1} style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
-                              <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
-                            </Pressable>
-                            {bibleSearchBookMenuOpen && (
-                              <View style={styles.bibleSearchSelectMenu}>
+                      <View style={[styles.bibleSearchRefineRow, phoneLayout && styles.phoneBibleSearchRefineRow]}>
+                        <Pressable
+                          onPress={() => setBibleSearchExact((value) => !value)}
+                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleSearchExact && styles.activeBibleSearchChip]}
+                        >
+                          <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : colors.oliveDark} />
+                          <Text style={[styles.bibleSearchChipText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
+                        </Pressable>
+                        <View style={[styles.bibleSearchBookFilter, phoneLayout && styles.phoneBibleSearchBookFilter]}>
+                          {Platform.OS === "web" ? (
+                            <select
+                              aria-label="Book filter"
+                              value={bibleSearchBook}
+                              onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
+                              style={styles.bibleSearchSelect as any}
+                            >
+                              <option value="">Any book</option>
+                              {bibleSearchBookOptions.map((book) => (
+                                <option key={book} value={book}>{book}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <>
+                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={styles.bibleSearchSelectButton}>
+                                <Text numberOfLines={1} style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
+                                <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
+                              </Pressable>
+                              {bibleSearchBookMenuOpen && (
+                                <View style={styles.bibleSearchSelectMenu}>
                                 <Pressable
                                   onPress={() => {
                                     setBibleSearchBook("");
@@ -3737,10 +3738,11 @@ export default function Home() {
                                     <Text style={[styles.bibleSearchSelectOptionText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
                                   </Pressable>
                                 ))}
-                              </View>
-                            )}
-                          </>
-                        )}
+                                </View>
+                              )}
+                            </>
+                          )}
+                        </View>
                       </View>
                     </View>
                   </>
@@ -9072,13 +9074,25 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     gap: 6
   },
+  bibleSearchRefineRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8
+  },
+  phoneBibleSearchRefineRow: {
+    width: "100%"
+  },
   bibleSearchBookFilter: {
     minWidth: 150,
     width: 170
   },
   phoneBibleSearchBookFilter: {
+    flex: 1,
     minWidth: 0,
-    width: "100%"
+    width: "auto"
+  },
+  bibleSearchExactChip: {
+    flexShrink: 0
   },
   bibleSearchChip: {
     alignItems: "center",
@@ -9108,7 +9122,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 12,
     fontWeight: "800",
-    minHeight: 34,
+    height: 36,
     paddingHorizontal: 11,
     width: "100%"
   },
@@ -9119,10 +9133,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
+    height: 36,
     justifyContent: "space-between",
-    minHeight: 34,
     paddingHorizontal: 11,
-    paddingVertical: 7
+    paddingVertical: 0
   },
   bibleSearchSelectText: {
     color: colors.ink,

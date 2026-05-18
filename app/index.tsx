@@ -2563,7 +2563,7 @@ export default function Home() {
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
 
   return (
-    <ThemeProvider value={activeAppTheme.colors}>
+    <ThemeProvider value={activeAppTheme.colors} isDefault={isWarmStudyTheme}>
     <View style={[styles.screen, themeStyles.screen, compactLayout && styles.compactScreen]}>
       {phoneLayout && (
         <View style={[styles.mobileMenuBar, themeStyles.shell]}>

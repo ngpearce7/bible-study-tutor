@@ -18,26 +18,27 @@ export const colors = {
 };
 
 export type ThemeColors = typeof colors;
+type ThemeContextValue = { colors: ThemeColors; isDefault: boolean };
 
-const ThemeContext = createContext<ThemeColors>(colors);
+const ThemeContext = createContext<ThemeContextValue>({ colors, isDefault: true });
 
-export function ThemeProvider({ children, value }: PropsWithChildren<{ value: ThemeColors }>) {
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+export function ThemeProvider({ children, isDefault = false, value }: PropsWithChildren<{ isDefault?: boolean; value: ThemeColors }>) {
+  return <ThemeContext.Provider value={{ colors: value, isDefault }}>{children}</ThemeContext.Provider>;
 }
 
 export function useThemeColors() {
-  return useContext(ThemeContext);
+  return useContext(ThemeContext).colors;
 }
 
 export function Card({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
-  const theme = useThemeColors();
-  const themedStyle = theme === colors ? null : { backgroundColor: theme.panel, borderColor: theme.line, shadowColor: theme.ink };
+  const theme = useContext(ThemeContext);
+  const themedStyle = theme.isDefault ? null : { backgroundColor: theme.colors.panel, borderColor: theme.colors.line, shadowColor: theme.colors.ink };
   return <View style={[styles.card, themedStyle, style]}>{children}</View>;
 }
 
 export function Eyebrow({ children }: PropsWithChildren) {
-  const theme = useThemeColors();
-  return <Text style={[styles.eyebrow, theme !== colors && { color: theme.coral }]}>{children}</Text>;
+  const theme = useContext(ThemeContext);
+  return <Text style={[styles.eyebrow, !theme.isDefault && { color: theme.colors.coral }]}>{children}</Text>;
 }
 
 export function AppButton({
@@ -53,8 +54,7 @@ export function AppButton({
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
 }) {
-  const theme = useThemeColors();
-  const useDefaultTheme = theme === colors;
+  const theme = useContext(ThemeContext);
   return (
     <Pressable
       accessibilityRole="button"
@@ -62,13 +62,13 @@ export function AppButton({
       style={({ pressed }) => [
         styles.button,
         variant === "secondary"
-          ? [styles.secondaryButton, !useDefaultTheme && { backgroundColor: theme.panel, borderColor: theme.line }]
-          : [styles.primaryButton, !useDefaultTheme && { backgroundColor: theme.coral }],
+          ? [styles.secondaryButton, !theme.isDefault && { backgroundColor: theme.colors.panel, borderColor: theme.colors.line }]
+          : [styles.primaryButton, !theme.isDefault && { backgroundColor: theme.colors.coral }],
         pressed && styles.pressed,
         style
       ]}
     >
-      <Text style={[variant === "secondary" ? [styles.secondaryLabel, !useDefaultTheme && { color: theme.oliveDark }] : styles.primaryLabel, labelStyle]}>{label}</Text>
+      <Text style={[variant === "secondary" ? [styles.secondaryLabel, !theme.isDefault && { color: theme.colors.oliveDark }] : styles.primaryLabel, labelStyle]}>{label}</Text>
     </Pressable>
   );
 }

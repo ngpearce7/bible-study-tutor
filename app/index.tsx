@@ -139,95 +139,26 @@ const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; descr
     colors
   },
   {
-    id: "cathedral-light",
-    label: "Cathedral Light",
-    shortLabel: "Bright",
-    description: "Stone, glass, and a lighter worship-space feel.",
-    icon: "sparkles-outline",
-    shell: "#eaf2f7",
-    colors: {
-      ink: "#1f2b35",
-      muted: "#687889",
-      paper: "#f3f8fb",
-      panel: "#ffffff",
-      line: "#cfdee8",
-      olive: "#6e8077",
-      oliveDark: "#234d63",
-      gold: "#c89b3e",
-      coral: "#8e5bb4",
-      blue: "#2f7aa5",
-      soft: "#e8f1f6",
-      blush: "#efe4f5",
-      sage: "#deeadf"
-    }
-  },
-  {
-    id: "midnight-lectio",
-    label: "Midnight Lectio",
-    shortLabel: "Dark",
-    description: "Lower-glare reading with warm gold accents.",
-    icon: "moon-outline",
-    shell: "#1c2522",
-    colors: {
-      ink: "#241d19",
-      muted: "#6f665c",
-      paper: "#111816",
-      panel: "#f3ead8",
-      line: "#cdbb9a",
-      olive: "#78835f",
-      oliveDark: "#39452e",
-      gold: "#d6a34b",
-      coral: "#d6a34b",
-      blue: "#7daab4",
-      soft: "#e8ddc9",
-      blush: "#ead7ba",
-      sage: "#dce5cf"
-    }
-  },
-  {
-    id: "olive-grove",
-    label: "Olive Grove",
-    shortLabel: "Natural",
-    description: "Greens, clay, and a peaceful study feel.",
-    icon: "leaf-outline",
-    shell: "#e4ead9",
-    colors: {
-      ink: "#26301f",
-      muted: "#647058",
-      paper: "#edf2e4",
-      panel: "#fbfdf6",
-      line: "#ccd9be",
-      olive: "#6f7f47",
-      oliveDark: "#31513a",
-      gold: "#b58b42",
-      coral: "#b46d4b",
-      blue: "#4d7d79",
-      soft: "#e1ead6",
-      blush: "#f0ded2",
-      sage: "#d2e1c8"
-    }
-  },
-  {
     id: "modern-chapel",
     label: "Modern Chapel",
     shortLabel: "Clean",
-    description: "A crisp, simple, contemporary app surface.",
+    description: "A crisp, spacious blue-gray theme inspired by the Modern Chapel mockup.",
     icon: "ellipse-outline",
-    shell: "#e6eef2",
+    shell: "#e4edf1",
     colors: {
-      ink: "#1f2930",
-      muted: "#62707a",
-      paper: "#f6f9fa",
+      ink: "#1f2a32",
+      muted: "#5f6f7a",
+      paper: "#f4f8fa",
       panel: "#ffffff",
-      line: "#d6e1e6",
-      olive: "#607d82",
-      oliveDark: "#335d68",
-      gold: "#bb934f",
-      coral: "#c95f58",
-      blue: "#3f7482",
-      soft: "#edf4f6",
-      blush: "#f4dfdd",
-      sage: "#dbe9eb"
+      line: "#d2e0e7",
+      olive: "#5d7980",
+      oliveDark: "#2e5964",
+      gold: "#b9914e",
+      coral: "#c85f58",
+      blue: "#3d7483",
+      soft: "#eaf2f5",
+      blush: "#f3dfdd",
+      sage: "#d9e8ec"
     }
   }
 ];
@@ -971,7 +902,14 @@ export default function Home() {
       content: { backgroundColor: activeAppTheme.colors.paper },
       panelBox: { backgroundColor: activeAppTheme.colors.soft, borderColor: activeAppTheme.colors.line },
       optionCard: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
-      activeOptionCard: { borderColor: activeAppTheme.colors.oliveDark }
+      activeOptionCard: { borderColor: activeAppTheme.colors.oliveDark },
+      heroDivider: { borderBottomColor: activeAppTheme.colors.line },
+      homeBlock: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
+      homeIcon: { backgroundColor: activeAppTheme.colors.soft },
+      purposePanel: { backgroundColor: activeAppTheme.colors.soft, borderColor: activeAppTheme.colors.line },
+      purposePill: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
+      pathItem: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
+      pathIcon: { backgroundColor: activeAppTheme.colors.sage }
     }),
     [activeAppTheme]
   );
@@ -2701,14 +2639,14 @@ export default function Home() {
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.homeHero}>
+              <View style={[styles.homeHero, themeStyles.heroDivider]}>
                 <Eyebrow>Purpose</Eyebrow>
-                <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle]}>
+                <Text style={[styles.homeHeroTitle, themeStyles.text, phoneLayout && styles.phoneHomeHeroTitle]}>
                   {firstName ? `${firstName}, draw near.` : "Draw near."}
                   {"\n"}
-                  <Text style={styles.homeHeroTitleAccent}>Be shaped by Scripture.</Text>
+                  <Text style={[styles.homeHeroTitleAccent, { color: activeAppTheme.colors.oliveDark }]}>Be shaped by Scripture.</Text>
                 </Text>
-                <Text style={styles.homeHeroText}>
+                <Text style={[styles.homeHeroText, themeStyles.text]}>
                   Bible Study Tutor is here to help you come close to God, open the Scriptures, respond honestly, and carry the word into memory, prayer, and community.
                 </Text>
                 <View style={styles.homeActionRow}>
@@ -2718,41 +2656,41 @@ export default function Home() {
               </View>
 
               <View style={styles.homeScriptureGrid}>
-                <View style={styles.homeScriptureBlock}>
-                  <View style={styles.homeScriptureIcon}>
-                    <Ionicons name="heart-outline" size={20} color={colors.coral} />
+                <View style={[styles.homeScriptureBlock, themeStyles.homeBlock]}>
+                  <View style={[styles.homeScriptureIcon, themeStyles.homeIcon]}>
+                    <Ionicons name="heart-outline" size={20} color={activeAppTheme.colors.coral} />
                   </View>
-                  <Text style={styles.homeScriptureRef}>James 4:8</Text>
-                  <Text style={styles.homeScriptureQuote}>“Draw near to God, and he will draw near to you.”</Text>
-                  <Text style={styles.homeScriptureNote}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
+                  <Text style={[styles.homeScriptureRef, { color: activeAppTheme.colors.coral }]}>James 4:8</Text>
+                  <Text style={[styles.homeScriptureQuote, themeStyles.text]}>“Draw near to God, and he will draw near to you.”</Text>
+                  <Text style={[styles.homeScriptureNote, themeStyles.mutedText]}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
                 </View>
-                <View style={styles.homeScriptureBlock}>
-                  <View style={styles.homeScriptureIcon}>
-                    <Ionicons name="book-outline" size={20} color={colors.coral} />
+                <View style={[styles.homeScriptureBlock, themeStyles.homeBlock]}>
+                  <View style={[styles.homeScriptureIcon, themeStyles.homeIcon]}>
+                    <Ionicons name="book-outline" size={20} color={activeAppTheme.colors.coral} />
                   </View>
-                  <Text style={styles.homeScriptureRef}>2 Timothy 3:16</Text>
-                  <Text style={styles.homeScriptureQuote}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
-                  <Text style={styles.homeScriptureNote}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
+                  <Text style={[styles.homeScriptureRef, { color: activeAppTheme.colors.coral }]}>2 Timothy 3:16</Text>
+                  <Text style={[styles.homeScriptureQuote, themeStyles.text]}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
+                  <Text style={[styles.homeScriptureNote, themeStyles.mutedText]}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
                 </View>
               </View>
 
-              <View style={styles.homePurposePanel}>
-                <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
-                <Text style={styles.homePurposeText}>
+              <View style={[styles.homePurposePanel, themeStyles.purposePanel]}>
+                <Text style={[styles.homePurposeTitle, { color: activeAppTheme.colors.oliveDark }]}>Free Bible study for everyday discipleship.</Text>
+                <Text style={[styles.homePurposeText, themeStyles.text]}>
                   Built for individuals, small groups, and churches, Bible Study Tutor is free to use and designed to work comfortably on both desktop and mobile devices.
                 </Text>
                 <View style={styles.homePurposePillRow}>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Free to use</Text>
+                  <View style={[styles.homePurposePill, themeStyles.purposePill]}>
+                    <Ionicons name="gift-outline" size={15} color={activeAppTheme.colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, { color: activeAppTheme.colors.oliveDark }]}>Free to use</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Mobile ready</Text>
+                  <View style={[styles.homePurposePill, themeStyles.purposePill]}>
+                    <Ionicons name="phone-portrait-outline" size={15} color={activeAppTheme.colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, { color: activeAppTheme.colors.oliveDark }]}>Mobile ready</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Desktop friendly</Text>
+                  <View style={[styles.homePurposePill, themeStyles.purposePill]}>
+                    <Ionicons name="desktop-outline" size={15} color={activeAppTheme.colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, { color: activeAppTheme.colors.oliveDark }]}>Desktop friendly</Text>
                   </View>
                 </View>
               </View>
@@ -2760,8 +2698,8 @@ export default function Home() {
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
               <Card style={styles.homeSideCard}>
-                <Text style={styles.homeSideTitle}>Today’s path</Text>
-                <Text style={styles.titleSupport}>{`${friendlyName}, take the next small faithful step.`}</Text>
+                <Text style={[styles.homeSideTitle, { color: activeAppTheme.colors.oliveDark }]}>Today’s path</Text>
+                <Text style={[styles.titleSupport, themeStyles.mutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
                 <View style={styles.homePathList}>
                   {[
                     ["Read", "Open the Bible reader and choose a passage.", "reader-outline", "bible"],
@@ -2770,22 +2708,22 @@ export default function Home() {
                     ["Reflect", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your journal connected to Scripture.", "journal-outline", "journal"],
                     ["Share", effectivePartner ? `Check in with ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
                   ].map(([title, detail, icon, target]) => (
-                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={styles.homePathItem}>
-                      <View style={styles.homePathIcon}>
-                        <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
+                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={[styles.homePathItem, themeStyles.pathItem]}>
+                      <View style={[styles.homePathIcon, themeStyles.pathIcon]}>
+                        <Ionicons name={icon as any} size={17} color={activeAppTheme.colors.oliveDark} />
                       </View>
                       <View style={styles.homePathTextBlock}>
-                        <Text style={styles.homePathTitle}>{title}</Text>
-                        <Text style={styles.homePathDetail}>{detail}</Text>
+                        <Text style={[styles.homePathTitle, themeStyles.text]}>{title}</Text>
+                        <Text style={[styles.homePathDetail, themeStyles.mutedText]}>{detail}</Text>
                       </View>
-                      <Ionicons name="chevron-forward-outline" size={16} color={colors.muted} />
+                      <Ionicons name="chevron-forward-outline" size={16} color={activeAppTheme.colors.muted} />
                     </Pressable>
                   ))}
                 </View>
               </Card>
 
               <Card style={styles.homeSideCard}>
-                <Text style={styles.homeSideTitle}>At a glance</Text>
+                <Text style={[styles.homeSideTitle, { color: activeAppTheme.colors.oliveDark }]}>At a glance</Text>
                 <View style={styles.homeMetricGrid}>
                   <Metric value={stats?.currentStreak ?? 0} label="day streak" compact={phoneLayout} />
                   <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} />

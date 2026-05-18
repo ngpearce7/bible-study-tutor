@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 
 export type StoredAiAccessOption = "free" | "own-key" | "premium";
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
-export type StoredAppTheme = "warm-study" | "cathedral-light" | "midnight-lectio" | "olive-grove" | "modern-chapel";
+export type StoredAppTheme = "warm-study" | "modern-chapel";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
 export type StoredBibleReadChapters = Record<string, number[]>;
@@ -296,5 +296,5 @@ function isAiAccessOption(value: string | null): value is StoredAiAccessOption {
 }
 
 function isAppTheme(value: string | null): value is StoredAppTheme {
-  return value === "warm-study" || value === "cathedral-light" || value === "midnight-lectio" || value === "olive-grove" || value === "modern-chapel";
+  return value === "warm-study" || value === "modern-chapel";
 }

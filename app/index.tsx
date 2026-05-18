@@ -9,7 +9,7 @@ import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { createElement, useEffect, useMemo, useRef, useState } from "react";
-import { Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
@@ -127,6 +127,15 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
   { id: "next-month", label: "In 1 month" }
 ];
 const LEGAL_LAST_UPDATED = "May 17, 2026";
+const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/BlankMap-World.svg/1280px-BlankMap-World.svg.png";
+type AdminRegionInsight = { name: string; description: string; count: number; x: number; y: number; size: "small" | "medium" | "large" };
+const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
+  { name: "Australia", description: "Broad region only", count: 0, x: 79, y: 73, size: "large" },
+  { name: "Europe", description: "Broad region only", count: 0, x: 52, y: 32, size: "medium" },
+  { name: "North America", description: "Broad region only", count: 0, x: 23, y: 35, size: "medium" },
+  { name: "Africa", description: "Broad region only", count: 0, x: 52, y: 55, size: "small" },
+  { name: "Asia", description: "Broad region only", count: 0, x: 70, y: 38, size: "small" }
+];
 const PRIVACY_POLICY_SECTIONS = [
   {
     title: "Who we are",
@@ -301,10 +310,10 @@ export default function Home() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
+  const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [tab, setTab] = useState<Tab>("home");
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [adminInsightsExpanded, setAdminInsightsExpanded] = useState(false);
   const [, setIconFontReady] = useState(Platform.OS !== "web");
   const [passage, setPassage] = useState("Psalm 23");
   const [methodId, setMethodId] = useState(methods[0].id);
@@ -4782,15 +4791,9 @@ export default function Home() {
               </View>
               {adminStats && (
                 <View style={styles.accountStatusBox}>
-                  <View style={styles.adminQuickHeader}>
-                    <View style={styles.feedbackHeader}>
-                      <Ionicons name="analytics-outline" size={18} color={colors.coral} />
-                      <Text style={styles.feedbackTitle}>Admin insights</Text>
-                    </View>
-                    <Pressable onPress={() => setAdminInsightsExpanded((value) => !value)} style={styles.iconTextButton}>
-                      <Ionicons name={adminInsightsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
-                      <Text style={styles.iconTextButtonLabel}>{adminInsightsExpanded ? "Hide" : "Expand"}</Text>
-                    </Pressable>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="analytics-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Admin insights</Text>
                   </View>
                   <View style={styles.adminMetricGrid}>
                     <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact />
@@ -4802,15 +4805,6 @@ export default function Home() {
                     Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
                   </Text>
                   <ResumeButton label="Open full insights" icon="analytics-outline" onPress={() => setTab("admin")} />
-                  {adminInsightsExpanded && (
-                    <>
-                      <AdminCountList title="Top bookmarks" items={adminStats.topBookmarked} />
-                      <AdminCountList title="Top memory verses" items={adminStats.topMemory} />
-                      <AdminCountList title="Top methods" items={adminStats.topMethods} />
-                      <Text style={styles.lastCheckinLabel}>Latest feedback</Text>
-                      <AdminFeedbackList feedback={adminStats.recentFeedback.slice(0, 3)} onMarkStatus={markFeedbackStatus} />
-                    </>
-                  )}
                 </View>
               )}
               <View style={styles.accountStatusBox}>
@@ -4878,6 +4872,14 @@ export default function Home() {
                   Total raw profiles: {adminStats.totals.profiles}. This can include local test profiles and older device-only profiles, so active users and signed-in profiles are the better health signals.
                 </Text>
               </Card>
+
+              <AdminReachMap
+                activeUsers={adminStats.totals.activeProfiles7d}
+                regions={[...ADMIN_REGION_PREVIEW]}
+                selectedRegion={selectedAdminRegion}
+                onSelectRegion={setSelectedAdminRegion}
+                phoneLayout={phoneLayout}
+              />
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
@@ -5990,6 +5992,90 @@ function AdminCountList({ title, items }: { title: string; items: { label: strin
         ))
       )}
     </View>
+  );
+}
+
+function AdminReachMap({
+  activeUsers,
+  regions,
+  selectedRegion,
+  onSelectRegion,
+  phoneLayout
+}: {
+  activeUsers: number;
+  regions: AdminRegionInsight[];
+  selectedRegion: string;
+  onSelectRegion: (region: string) => void;
+  phoneLayout: boolean;
+}) {
+  const selected = regions.find((region) => region.name === selectedRegion) || regions[0];
+  const isRegionTrackingReady = regions.some((region) => region.count > 0);
+
+  return (
+    <Card style={[styles.adminMapCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+      <View style={styles.adminMapHeader}>
+        <View style={styles.adminMapTitleBlock}>
+          <View style={styles.feedbackHeader}>
+            <Ionicons name="earth-outline" size={18} color={colors.coral} />
+            <Text style={styles.feedbackTitle}>User reach map</Text>
+          </View>
+          <Text style={styles.helpIntro}>Privacy-friendly regional insights. Exact user locations are not tracked.</Text>
+        </View>
+        <View style={styles.adminMapMetricPill}>
+          <Text style={styles.adminMapMetricValue}>{activeUsers}</Text>
+          <Text style={styles.adminMapMetricLabel}>active 7d</Text>
+        </View>
+      </View>
+
+      <View style={[styles.adminMapLayout, phoneLayout && styles.phoneAdminMapLayout]}>
+        <View style={styles.adminMapCanvas}>
+          <Image source={{ uri: ADMIN_WORLD_MAP_URI }} resizeMode="contain" style={styles.adminMapImage} />
+          {regions.map((region) => (
+            <Pressable
+              key={region.name}
+              accessibilityRole="button"
+              accessibilityLabel={`${region.name} region`}
+              onPress={() => onSelectRegion(region.name)}
+              style={[
+                styles.adminMapHotspot,
+                region.size === "large" ? styles.adminMapHotspotLarge : region.size === "medium" ? styles.adminMapHotspotMedium : styles.adminMapHotspotSmall,
+                { left: `${region.x}%`, top: `${region.y}%` },
+                selected.name === region.name && styles.activeAdminMapHotspot
+              ]}
+            >
+              <Text style={styles.adminMapHotspotText}>{region.count > 0 ? region.count : "•"}</Text>
+            </Pressable>
+          ))}
+          <View style={styles.adminMapNote}>
+            <Ionicons name="shield-checkmark-outline" size={14} color={colors.oliveDark} />
+            <Text style={styles.adminMapNoteText}>Broad regions only</Text>
+          </View>
+        </View>
+
+        <View style={styles.adminMapDetailPanel}>
+          <Text style={styles.lastCheckinLabel}>{selected.name}</Text>
+          <Text style={styles.helpIntro}>
+            {isRegionTrackingReady
+              ? `${selected.count} active user${selected.count === 1 ? "" : "s"} in this broad region.`
+              : "Regional counts are not enabled yet. This panel shows where broad, privacy-safe reach data will appear."}
+          </Text>
+          <View style={styles.adminMapDetailList}>
+            <View style={styles.adminMapDetailRow}>
+              <Text style={styles.adminMapDetailLabel}>Location detail</Text>
+              <Text style={styles.adminMapDetailValue}>Country/region only</Text>
+            </View>
+            <View style={styles.adminMapDetailRow}>
+              <Text style={styles.adminMapDetailLabel}>Exact addresses</Text>
+              <Text style={styles.adminMapDetailValue}>Not collected</Text>
+            </View>
+            <View style={styles.adminMapDetailRow}>
+              <Text style={styles.adminMapDetailLabel}>Next step</Text>
+              <Text style={styles.adminMapDetailValue}>Optional region field</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Card>
   );
 }
 
@@ -13363,12 +13449,6 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     textAlignVertical: "top"
   },
-  adminQuickHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "space-between"
-  },
   iconTextButton: {
     alignItems: "center",
     backgroundColor: "#fff6eb",
@@ -13384,6 +13464,151 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 11,
     fontWeight: "900"
+  },
+  adminMapCard: {
+    gap: 14,
+    marginBottom: 14
+  },
+  adminMapHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between"
+  },
+  adminMapTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  adminMapMetricPill: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.28)",
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 9
+  },
+  adminMapMetricValue: {
+    color: colors.oliveDark,
+    fontSize: 22,
+    fontWeight: "900",
+    lineHeight: 24
+  },
+  adminMapMetricLabel: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  adminMapLayout: {
+    alignItems: "stretch",
+    flexDirection: "row",
+    gap: 14
+  },
+  phoneAdminMapLayout: {
+    flexDirection: "column"
+  },
+  adminMapCanvas: {
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flex: 1,
+    minHeight: 320,
+    minWidth: 0,
+    overflow: "hidden",
+    position: "relative"
+  },
+  adminMapImage: {
+    height: "100%",
+    opacity: 0.82,
+    width: "100%"
+  },
+  adminMapHotspot: {
+    alignItems: "center",
+    backgroundColor: colors.coral,
+    borderColor: "#fffdf8",
+    borderRadius: 999,
+    borderWidth: 3,
+    justifyContent: "center",
+    position: "absolute",
+    shadowColor: colors.coral,
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.24,
+    shadowRadius: 10,
+    transform: [{ translateX: -16 }, { translateY: -16 }]
+  },
+  adminMapHotspotSmall: {
+    height: 28,
+    width: 28
+  },
+  adminMapHotspotMedium: {
+    height: 34,
+    width: 34
+  },
+  adminMapHotspotLarge: {
+    height: 40,
+    width: 40
+  },
+  activeAdminMapHotspot: {
+    backgroundColor: colors.oliveDark
+  },
+  adminMapHotspotText: {
+    color: "white",
+    fontSize: 15,
+    fontWeight: "900",
+    lineHeight: 18
+  },
+  adminMapNote: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 250, 242, 0.94)",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    bottom: 12,
+    flexDirection: "row",
+    gap: 6,
+    left: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    position: "absolute"
+  },
+  adminMapNoteText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
+  },
+  adminMapDetailPanel: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    minWidth: 240,
+    padding: 12,
+    width: "30%"
+  },
+  adminMapDetailList: {
+    gap: 8
+  },
+  adminMapDetailRow: {
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 3,
+    padding: 9
+  },
+  adminMapDetailLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  adminMapDetailValue: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "800"
   },
   adminDashboardGrid: {
     flexDirection: "row",

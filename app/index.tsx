@@ -144,21 +144,21 @@ const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; descr
     shortLabel: "Bright",
     description: "Stone, glass, and a lighter worship-space feel.",
     icon: "sparkles-outline",
-    shell: "#eef4f7",
+    shell: "#eaf2f7",
     colors: {
-      ink: "#252b32",
-      muted: "#6a7480",
-      paper: "#f4f7f8",
+      ink: "#1f2b35",
+      muted: "#687889",
+      paper: "#f3f8fb",
       panel: "#ffffff",
-      line: "#d8e1e5",
-      olive: "#6f7e72",
-      oliveDark: "#375160",
-      gold: "#b78b4a",
-      coral: "#8f5fb8",
-      blue: "#4d7f9a",
-      soft: "#edf3f4",
-      blush: "#eadff2",
-      sage: "#e1eadf"
+      line: "#cfdee8",
+      olive: "#6e8077",
+      oliveDark: "#234d63",
+      gold: "#c89b3e",
+      coral: "#8e5bb4",
+      blue: "#2f7aa5",
+      soft: "#e8f1f6",
+      blush: "#efe4f5",
+      sage: "#deeadf"
     }
   },
   {
@@ -167,20 +167,20 @@ const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; descr
     shortLabel: "Dark",
     description: "Lower-glare reading with warm gold accents.",
     icon: "moon-outline",
-    shell: "#1d2824",
+    shell: "#1c2522",
     colors: {
       ink: "#241d19",
       muted: "#6f665c",
-      paper: "#17201c",
-      panel: "#f6efe1",
-      line: "#d3c2a7",
+      paper: "#111816",
+      panel: "#f3ead8",
+      line: "#cdbb9a",
       olive: "#78835f",
       oliveDark: "#39452e",
-      gold: "#d7a24a",
-      coral: "#b98939",
+      gold: "#d6a34b",
+      coral: "#d6a34b",
       blue: "#7daab4",
-      soft: "#ebe2d2",
-      blush: "#ead6c5",
+      soft: "#e8ddc9",
+      blush: "#ead7ba",
       sage: "#dce5cf"
     }
   },
@@ -190,21 +190,21 @@ const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; descr
     shortLabel: "Natural",
     description: "Greens, clay, and a peaceful study feel.",
     icon: "leaf-outline",
-    shell: "#e8eee1",
+    shell: "#e4ead9",
     colors: {
-      ink: "#243024",
-      muted: "#66705f",
-      paper: "#eef3e8",
-      panel: "#fbfdf7",
-      line: "#d2dcc9",
-      olive: "#61764b",
-      oliveDark: "#2f5139",
+      ink: "#26301f",
+      muted: "#647058",
+      paper: "#edf2e4",
+      panel: "#fbfdf6",
+      line: "#ccd9be",
+      olive: "#6f7f47",
+      oliveDark: "#31513a",
       gold: "#b58b42",
-      coral: "#b96f52",
+      coral: "#b46d4b",
       blue: "#4d7d79",
-      soft: "#e4eadc",
-      blush: "#f2dfd5",
-      sage: "#d7e4ce"
+      soft: "#e1ead6",
+      blush: "#f0ded2",
+      sage: "#d2e1c8"
     }
   },
   {
@@ -213,21 +213,21 @@ const APP_THEMES: { id: StoredAppTheme; label: string; shortLabel: string; descr
     shortLabel: "Clean",
     description: "A crisp, simple, contemporary app surface.",
     icon: "ellipse-outline",
-    shell: "#e9f0f2",
+    shell: "#e6eef2",
     colors: {
-      ink: "#20272c",
-      muted: "#65717a",
-      paper: "#f5f8f9",
+      ink: "#1f2930",
+      muted: "#62707a",
+      paper: "#f6f9fa",
       panel: "#ffffff",
-      line: "#d9e3e7",
-      olive: "#5b7477",
-      oliveDark: "#335c67",
+      line: "#d6e1e6",
+      olive: "#607d82",
+      oliveDark: "#335d68",
       gold: "#bb934f",
-      coral: "#c26762",
-      blue: "#426f7d",
-      soft: "#edf3f5",
-      blush: "#f2dedc",
-      sage: "#dce8ea"
+      coral: "#c95f58",
+      blue: "#3f7482",
+      soft: "#edf4f6",
+      blush: "#f4dfdd",
+      sage: "#dbe9eb"
     }
   }
 ];
@@ -968,7 +968,10 @@ export default function Home() {
       activeTabLabel: { color: activeAppTheme.colors.coral },
       text: { color: activeAppTheme.colors.ink },
       mutedText: { color: activeAppTheme.colors.muted },
-      content: { backgroundColor: activeAppTheme.colors.paper }
+      content: { backgroundColor: activeAppTheme.colors.paper },
+      panelBox: { backgroundColor: activeAppTheme.colors.soft, borderColor: activeAppTheme.colors.line },
+      optionCard: { backgroundColor: activeAppTheme.colors.panel, borderColor: activeAppTheme.colors.line },
+      activeOptionCard: { borderColor: activeAppTheme.colors.oliveDark }
     }),
     [activeAppTheme]
   );
@@ -4726,7 +4729,7 @@ export default function Home() {
               <Eyebrow>Account & access</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, your profile` : "Your profile and feedback choices"}</Text>
               <Text style={styles.titleSupport}>Keep your details current so the app can speak to you personally and help you draw near to God.</Text>
-              <View style={styles.accountSection}>
+              <View style={[styles.accountSection, themeStyles.panelBox]}>
                 <Text style={styles.sectionTitle}>Sign in</Text>
                 {isAuthenticated ? (
                   <>
@@ -4780,7 +4783,7 @@ export default function Home() {
                 )}
                 {!!authStatus && <Text style={styles.saveStatus}>{authStatus}</Text>}
               </View>
-              <View style={styles.accountSection}>
+              <View style={[styles.accountSection, themeStyles.panelBox]}>
                 <Text style={styles.sectionTitle}>Personal details</Text>
                 <Text style={styles.helpIntro}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
                 <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" style={styles.input} />
@@ -4797,7 +4800,7 @@ export default function Home() {
                 <AppButton label={isAuthenticated ? "Save details" : "Save name"} onPress={persistAccountSettings} />
                 {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
               </View>
-              <View style={styles.accountSection}>
+              <View style={[styles.accountSection, themeStyles.panelBox]}>
                 <Text style={styles.sectionTitle}>Appearance</Text>
                 <Text style={styles.helpIntro}>Choose a whole-app theme. Warm Study stays the default, and your choice is remembered on this device.</Text>
                 <View style={styles.accountOptionGrid}>
@@ -4805,11 +4808,17 @@ export default function Home() {
                     <Pressable
                       key={theme.id}
                       onPress={() => chooseAppTheme(theme.id)}
-                      style={[styles.aiOptionCard, styles.accountOptionCard, styles.themeOptionCard, appThemeId === theme.id && styles.activeAiOptionCard]}
+                      style={[
+                        styles.aiOptionCard,
+                        styles.accountOptionCard,
+                        styles.themeOptionCard,
+                        { backgroundColor: theme.colors.panel, borderColor: appThemeId === theme.id ? activeAppTheme.colors.oliveDark : theme.colors.line },
+                        appThemeId === theme.id && styles.activeAiOptionCard
+                      ]}
                     >
                       <View style={styles.themeOptionHeader}>
                         <Ionicons name={theme.icon as any} size={20} color={theme.colors.oliveDark} />
-                        <Text style={styles.themeOptionBadge}>{theme.shortLabel}</Text>
+                        <Text style={[styles.themeOptionBadge, { color: theme.colors.oliveDark }]}>{theme.shortLabel}</Text>
                       </View>
                       <View style={styles.themeSwatchRow}>
                         {[theme.colors.paper, theme.colors.panel, theme.colors.coral, theme.colors.oliveDark].map((swatch) => (
@@ -4817,15 +4826,15 @@ export default function Home() {
                         ))}
                       </View>
                       <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>{theme.label}</Text>
-                        <Text style={styles.aiOptionText}>{theme.description}</Text>
+                        <Text style={[styles.aiOptionTitle, { color: theme.colors.oliveDark }]}>{theme.label}</Text>
+                        <Text style={[styles.aiOptionText, { color: theme.colors.muted }]}>{theme.description}</Text>
                       </View>
                     </Pressable>
                   ))}
                 </View>
               </View>
               {isAuthenticated && profile?.authProvider === "password" && (
-                <View style={styles.accountSection}>
+                <View style={[styles.accountSection, themeStyles.panelBox]}>
                   <Text style={styles.sectionTitle}>Change password</Text>
                   <Text style={styles.helpIntro}>Use this if you signed in with email and password.</Text>
                   <TextInput
@@ -4848,25 +4857,25 @@ export default function Home() {
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View style={styles.accountSection}>
+              <View style={[styles.accountSection, themeStyles.panelBox]}>
                 <Text style={styles.sectionTitle}>Feedback access</Text>
                 <Text style={styles.helpIntro}>Current: {aiAccessChoice === "free" ? "Free local coaching" : aiAccessChoice === "own-key" ? "Use my own AI key" : "Premium subscription"}</Text>
                 <View style={styles.accountOptionGrid}>
-                  <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
+                  <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, aiAccessChoice === "free" && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}>
                     <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
                       <Text style={styles.aiOptionTitle}>Free</Text>
                       <Text style={styles.aiOptionText}>Built-in coaching. No AI usage or payment.</Text>
                     </View>
                   </Pressable>
-                  <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
+                  <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, aiAccessChoice === "own-key" && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}>
                     <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
                       <Text style={styles.aiOptionTitle}>Own key</Text>
                       <Text style={styles.aiOptionText}>Planned. User pays the AI provider directly.</Text>
                     </View>
                   </Pressable>
-                  <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
+                  <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, aiAccessChoice === "premium" && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}>
                     <Ionicons name="card-outline" size={20} color={colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
                       <Text style={styles.aiOptionTitle}>Premium</Text>
@@ -4875,7 +4884,7 @@ export default function Home() {
                   </Pressable>
                 </View>
               </View>
-              <View style={styles.accountSection}>
+              <View style={[styles.accountSection, themeStyles.panelBox]}>
                 <Text style={styles.sectionTitle}>Bible translations</Text>
                 <Text style={styles.helpIntro}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
                 <View style={styles.accountOptionGrid}>
@@ -4886,7 +4895,7 @@ export default function Home() {
                         setBibleTranslation(translation.id);
                         saveStoredBibleTranslation(translation.id).catch(() => undefined);
                       }}
-                      style={[styles.aiOptionCard, styles.accountOptionCard, bibleTranslation === translation.id && styles.activeAiOptionCard]}
+                      style={[styles.aiOptionCard, styles.accountOptionCard, themeStyles.optionCard, bibleTranslation === translation.id && [styles.activeAiOptionCard, themeStyles.activeOptionCard]]}
                     >
                       <Ionicons name={bibleTranslation === translation.id ? "checkmark-circle" : "book-outline"} size={20} color={colors.oliveDark} />
                       <View style={styles.aiOptionCopy}>
@@ -4911,7 +4920,7 @@ export default function Home() {
                   </View>
                 </View>
               </View>
-              <View style={styles.accountSection}>
+              <View style={[styles.accountSection, themeStyles.panelBox]}>
                 <Text style={styles.sectionTitle}>Legal</Text>
                 <Text style={styles.helpIntro}>Draft policies for the app experience. Have these reviewed before publishing publicly or submitting to an app store.</Text>
                 <LegalDocument

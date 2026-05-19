@@ -3919,6 +3919,12 @@ export default function Home() {
                       <Ionicons name="chevron-back-outline" size={15} color={colors.oliveDark} />
                       <Text style={styles.readerBottomNavText}>Previous</Text>
                     </Pressable>
+                    <Pressable onPress={toggleReaderChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, currentChapterRead && styles.activeReaderReadButton]}>
+                      <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : colors.oliveDark} />
+                      <Text style={[styles.readerBottomNavText, currentChapterRead && styles.activeReaderReadButtonText]}>
+                        {currentChapterRead ? "Chapter read" : "Mark read"}
+                      </Text>
+                    </Pressable>
                     <Pressable onPress={() => moveReaderChapter(1)} style={styles.readerBottomNavButton}>
                       <Text style={styles.readerBottomNavText}>Next</Text>
                       <Ionicons name="chevron-forward-outline" size={15} color={colors.oliveDark} />
@@ -9928,10 +9934,17 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
+    flexShrink: 1,
     flexDirection: "row",
     gap: 4,
+    justifyContent: "center",
+    minHeight: 38,
     paddingHorizontal: 11,
     paddingVertical: 7
+  },
+  readerBottomReadButton: {
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.24)"
   },
   readerBottomNavText: {
     color: colors.oliveDark,

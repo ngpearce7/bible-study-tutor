@@ -8666,6 +8666,7 @@ function buildPrintableStudyWorksheetHtml({
       .scripture { border-bottom: 1px solid var(--line); padding: 12px 0 12px; }
       .scripture h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 17px; margin: 0 0 8px; }
       .passage { columns: 2; column-gap: 34px; font-size: 15.5px; line-height: 1.62; }
+      .passage p { margin: 0; }
       .single-passage { columns: 1; font-size: 18px; line-height: 1.65; max-width: 720px; }
       .long-passage { font-size: 14.5px; line-height: 1.54; }
       .verse { break-inside: avoid; display: inline; }
@@ -8715,8 +8716,8 @@ function buildPrintableStudyWorksheetHtml({
 }
 
 function getPrintableStepLineCount(verseCount: number, stepCount: number) {
-  if (verseCount <= 1) return 4;
-  if (verseCount <= 6) return 3;
+  if (verseCount <= 1) return 5;
+  if (verseCount <= 6) return 5;
   if (verseCount <= 12) return Math.max(4, Math.round(11 / Math.max(stepCount, 1)));
   return Math.max(5, Math.round(15 / Math.max(stepCount, 1)));
 }

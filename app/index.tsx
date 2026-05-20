@@ -1989,16 +1989,17 @@ export default function Home() {
       method,
       verses: selectedReaderVerseObjects
     });
-    const printWindow = window.open("about:blank", "_blank");
+    const worksheetBlob = new Blob([worksheetHtml], { type: "text/html;charset=utf-8" });
+    const worksheetUrl = URL.createObjectURL(worksheetBlob);
+    const printWindow = window.open(worksheetUrl, "_blank");
     if (!printWindow) {
+      URL.revokeObjectURL(worksheetUrl);
       setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
       return;
     }
 
-    printWindow.document.open();
-    printWindow.document.write(worksheetHtml);
-    printWindow.document.close();
     printWindow.focus();
+    window.setTimeout(() => URL.revokeObjectURL(worksheetUrl), 60000);
   }
 
   function startMemoryPractice(verse: any) {
@@ -8654,35 +8655,35 @@ function buildPrintableStudyWorksheetHtml({
       .toolbar p { color: var(--muted); margin: 0; }
       .print-button { background: var(--coral); border: 0; border-radius: 10px; color: white; cursor: pointer; font-weight: 800; min-height: 42px; padding: 0 16px; }
       .page { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); margin: 0 auto; max-width: 900px; min-height: 1160px; padding: 46px; }
-      .header { border-bottom: 3px double var(--line); display: grid; gap: 12px; grid-template-columns: 1fr auto; min-height: 118px; padding-bottom: 18px; }
+      .header { border-bottom: 3px double var(--line); display: grid; gap: 12px; grid-template-columns: 1fr auto; min-height: 108px; padding-bottom: 14px; }
       .title-block { display: flex; flex-direction: column; justify-content: space-between; }
       .eyebrow { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
-      h1 { color: var(--olive); font-size: 36px; line-height: 1; margin: 6px 0 0; }
+      h1 { color: var(--olive); font-size: 34px; line-height: 1; margin: 6px 0 0; }
       .title-row { align-items: baseline; display: flex; flex-wrap: wrap; gap: 10px; }
       .translation-code { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
       .meta { color: var(--muted); display: flex; flex-direction: column; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 700; justify-content: space-between; line-height: 1.6; text-align: right; }
       .meta-method { color: var(--olive); display: block; font-size: 17px; font-weight: 900; line-height: 1.2; }
-      .scripture { border-bottom: 1px solid var(--line); padding: 14px 0 16px; }
+      .scripture { border-bottom: 1px solid var(--line); padding: 12px 0 12px; }
       .scripture h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 17px; margin: 0 0 8px; }
-      .passage { columns: 2; column-gap: 34px; font-size: 16px; line-height: 1.72; }
-      .single-passage { columns: 1; font-size: 19px; line-height: 1.75; max-width: 720px; }
-      .long-passage { font-size: 15px; line-height: 1.62; }
+      .passage { columns: 2; column-gap: 34px; font-size: 15.5px; line-height: 1.62; }
+      .single-passage { columns: 1; font-size: 18px; line-height: 1.65; max-width: 720px; }
+      .long-passage { font-size: 14.5px; line-height: 1.54; }
       .verse { break-inside: avoid; display: inline; }
       .verse-number { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; margin-right: 4px; vertical-align: super; }
-      .section { margin-top: 20px; }
-      .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; margin-bottom: 14px; overflow: hidden; page-break-inside: avoid; }
-      .prompt-title { align-items: center; background: #fff6eb; border-bottom: 1px solid var(--line); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; gap: 10px; padding: 10px 12px; }
+      .section { margin-top: 14px; }
+      .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; }
+      .prompt-title { align-items: center; background: #fff6eb; border-bottom: 1px solid var(--line); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; gap: 10px; padding: 8px 10px; }
       .badge { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-size: 12px; font-weight: 900; height: 26px; justify-content: center; min-width: 26px; }
       .prompt-title strong { color: var(--ink); }
       .prompt-title span:not(.badge) { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
-      .lines { padding: 12px; }
-      .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 32 : verseCount > 10 ? 35 : 28}px; }
+      .lines { padding: 10px; }
+      .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 29 : verseCount > 10 ? 30 : 24}px; }
       .two-column { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
       .small-box { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; padding: 12px; }
       .small-box h3 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 0 0 8px; }
-      .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 24px; padding-top: 12px; }
+      .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 16px; padding-top: 10px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
-      @media print { @page { margin: 16mm; } body { background: white; padding: 0; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } }
+      @media print { @page { margin: 10mm 11mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } }
     </style>
   </head>
   <body>

@@ -8685,7 +8685,6 @@ function buildPrintableStudyWorksheetHtml({
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 16px; padding-top: 10px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
       @media print { @page { margin: 8mm 9mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } .header { min-height: 96px; padding-bottom: 12px; } h1 { font-size: 31px; } .scripture { padding: 10px 0; } .passage { font-size: 14.5px; line-height: 1.46; } .single-passage { font-size: 17px; line-height: 1.55; } .long-passage { font-size: 13.5px; line-height: 1.42; } .section { margin-top: 10px; } .prompt { margin-bottom: 8px; } .prompt-title { padding: 6px 9px; } .badge { height: 22px; min-width: 22px; } .lines { padding: 8px 10px; } .line { height: ${verseCount === 1 ? 24 : verseCount > 10 ? 24 : 19}px; } .small-box { padding: 9px; } .footer { margin-top: 10px; padding-top: 8px; } }
-      @media print and (max-width: 720px) { @page { margin: 6mm; } .header { min-height: 78px; padding-bottom: 8px; } .eyebrow { font-size: 10px; } h1 { font-size: 25px; } .translation-code { font-size: 10px; } .meta { font-size: 11px; } .meta-method { font-size: 14px; } .scripture { padding: 7px 0; } .scripture h2 { font-size: 14px; margin-bottom: 5px; } .passage { columns: 1; font-size: 12.6px; line-height: 1.33; } .single-passage { font-size: 14px; line-height: 1.38; } .section { margin-top: 7px; } .prompt { border-radius: 8px; margin-bottom: 6px; } .prompt-title { gap: 7px; padding: 5px 7px; } .prompt-title span:not(.badge) { font-size: 10px; line-height: 1.25; } .badge { font-size: 10px; height: 20px; min-width: 20px; } .lines { padding: 6px 8px; } .line { height: ${verseCount <= 6 ? 15 : 17}px; } .two-column { gap: 8px; } .small-box { padding: 7px; } .small-box h3 { font-size: 12px; margin-bottom: 5px; } .footer { font-size: 9px; margin-top: 7px; padding-top: 6px; } }
     </style>
   </head>
   <body>
@@ -8718,9 +8717,9 @@ function buildPrintableStudyWorksheetHtml({
 
 function getPrintableStepLineCount(verseCount: number, stepCount: number) {
   if (verseCount <= 1) return 5;
-  if (verseCount <= 6) return 5;
-  if (verseCount <= 12) return Math.max(4, Math.round(11 / Math.max(stepCount, 1)));
-  return Math.max(5, Math.round(15 / Math.max(stepCount, 1)));
+  if (verseCount <= 6) return 6;
+  if (verseCount <= 12) return Math.max(6, Math.round(18 / Math.max(stepCount, 1)));
+  return Math.max(7, Math.round(24 / Math.max(stepCount, 1)));
 }
 
 function isReaderVerseBookmarked(verse: number, bookmarks: StoredBibleBookmark[], book: string, chapter: number) {

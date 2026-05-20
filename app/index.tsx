@@ -1976,6 +1976,31 @@ export default function Home() {
     }
   }
 
+  function printSelectedReaderWorksheet() {
+    if (!readerPassage || selectedReaderVerseObjects.length === 0) return;
+    if (Platform.OS !== "web" || typeof window === "undefined") {
+      setReaderMemoryStatus("Printable worksheets are available in the web app.");
+      return;
+    }
+
+    const worksheetHtml = buildPrintableStudyWorksheetHtml({
+      reference: buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses),
+      translation: shortBibleTranslationName(readerPassage.translation_name),
+      method,
+      verses: selectedReaderVerseObjects
+    });
+    const printWindow = window.open("", "_blank", "noopener,noreferrer");
+    if (!printWindow) {
+      setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(worksheetHtml);
+    printWindow.document.close();
+    printWindow.focus();
+  }
+
   function startMemoryPractice(verse: any) {
     setActiveMemoryVerseId(String(verse._id));
     setMemoryPracticeLevel(isMemoryVerseMemorized(verse) ? 1 : clampMemoryPracticeLevel(verse.practiceLevel || 1));
@@ -3899,6 +3924,10 @@ export default function Home() {
                               <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
                               <Text style={[styles.inlineReaderBookmarkText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
                             </Pressable>
+                            <Pressable onPress={printSelectedReaderWorksheet} style={styles.inlineReaderBookmarkButton}>
+                              <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
+                              <Text style={styles.inlineReaderBookmarkText}>Print</Text>
+                            </Pressable>
                             <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.memoryReaderButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
                               <Ionicons name="sparkles-outline" size={14} color="white" />
                               <Text style={styles.memoryReaderButtonText}>{selectedReaderVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
@@ -5744,6 +5773,10 @@ export default function Home() {
             <Pressable onPress={openSelectedReaderNote} style={[styles.mobileReaderSelectionButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
               <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
               <Text style={[styles.mobileReaderSelectionButtonText, currentSelectionBookmark?.note?.trim() && styles.primaryMobileReaderSelectionButtonText]}>Note</Text>
+            </Pressable>
+            <Pressable onPress={printSelectedReaderWorksheet} style={styles.mobileReaderSelectionButton}>
+              <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
+              <Text style={styles.mobileReaderSelectionButtonText}>Print</Text>
             </Pressable>
             <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.mobileReaderSelectionButton, styles.mobileReaderMemoryButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
               <Ionicons name="sparkles-outline" size={15} color="white" />
@@ -7789,12 +7822,13 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function escapeHtml(value: string) {
-  return value
+function escapeHtml(value: string | number | undefined | null) {
+  return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function moveCaretToEnd(element: any) {
@@ -8569,6 +8603,123 @@ function shortBibleTranslationName(name?: string) {
   return name || "";
 }
 
+function buildPrintableStudyWorksheetHtml({
+  reference,
+  translation,
+  method,
+  verses
+}: {
+  reference: string;
+  translation: string;
+  method: (typeof methods)[number];
+  verses: BibleVerse[];
+}) {
+  const safeReference = escapeHtml(reference);
+  const safeTranslation = escapeHtml(translation || "");
+  const printableSteps = method.steps.filter((step) => step.responseType === "text");
+  const methodLabel = `${method.short} Study Method`;
+  const verseCount = verses.length;
+  const passageClass = verseCount === 1 ? "single-passage" : verseCount > 10 ? "long-passage" : "";
+  const stepLineCount = getPrintableStepLineCount(verseCount, printableSteps.length);
+  const passageHtml = verses
+    .map((verse) => `<span class="verse"><span class="verse-number">${verse.verse}</span>${escapeHtml(verse.text)}</span>`)
+    .join(" ");
+  const promptHtml = printableSteps
+    .map((step, index) => {
+      const badge = method.short.charAt(index) || String(index + 1);
+      const lines = Array.from({ length: stepLineCount }, () => '<div class="line"></div>').join("");
+      return `
+        <div class="prompt">
+          <div class="prompt-title">
+            <span class="badge">${escapeHtml(badge)}</span>
+            <div><strong>${escapeHtml(step.title)}</strong><span>${escapeHtml(step.prompt || step.action)}</span></div>
+          </div>
+          <div class="lines">${lines}</div>
+        </div>
+      `;
+    })
+    .join("");
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${safeReference} Worksheet</title>
+    <style>
+      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #c96750; --soft: #fffaf2; }
+      * { box-sizing: border-box; }
+      body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 28px; }
+      .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 900px; }
+      .toolbar p { color: var(--muted); margin: 0; }
+      .print-button { background: var(--coral); border: 0; border-radius: 10px; color: white; cursor: pointer; font-weight: 800; min-height: 42px; padding: 0 16px; }
+      .page { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); margin: 0 auto; max-width: 900px; min-height: 1160px; padding: 46px; }
+      .header { border-bottom: 3px double var(--line); display: grid; gap: 12px; grid-template-columns: 1fr auto; min-height: 118px; padding-bottom: 18px; }
+      .title-block { display: flex; flex-direction: column; justify-content: space-between; }
+      .eyebrow { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
+      h1 { color: var(--olive); font-size: 36px; line-height: 1; margin: 6px 0 0; }
+      .title-row { align-items: baseline; display: flex; flex-wrap: wrap; gap: 10px; }
+      .translation-code { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
+      .meta { color: var(--muted); display: flex; flex-direction: column; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 700; justify-content: space-between; line-height: 1.6; text-align: right; }
+      .meta-method { color: var(--olive); display: block; font-size: 17px; font-weight: 900; line-height: 1.2; }
+      .scripture { border-bottom: 1px solid var(--line); padding: 14px 0 16px; }
+      .scripture h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 17px; margin: 0 0 8px; }
+      .passage { columns: 2; column-gap: 34px; font-size: 16px; line-height: 1.72; }
+      .single-passage { columns: 1; font-size: 19px; line-height: 1.75; max-width: 720px; }
+      .long-passage { font-size: 15px; line-height: 1.62; }
+      .verse { break-inside: avoid; display: inline; }
+      .verse-number { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; margin-right: 4px; vertical-align: super; }
+      .section { margin-top: 20px; }
+      .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; margin-bottom: 14px; overflow: hidden; page-break-inside: avoid; }
+      .prompt-title { align-items: center; background: #fff6eb; border-bottom: 1px solid var(--line); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; gap: 10px; padding: 10px 12px; }
+      .badge { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-size: 12px; font-weight: 900; height: 26px; justify-content: center; min-width: 26px; }
+      .prompt-title strong { color: var(--ink); }
+      .prompt-title span:not(.badge) { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
+      .lines { padding: 12px; }
+      .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 32 : verseCount > 10 ? 35 : 28}px; }
+      .two-column { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+      .small-box { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; padding: 12px; }
+      .small-box h3 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 0 0 8px; }
+      .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 24px; padding-top: 12px; }
+      @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
+      @media print { @page { margin: 16mm; } body { background: white; padding: 0; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <p>Printable worksheet for ${safeReference}. Use your browser to print or save as PDF.</p>
+      <button class="print-button" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+    <main class="page">
+      <header class="header">
+        <div class="title-block">
+          <div class="eyebrow">Bible Study Tutor worksheet</div>
+          <div class="title-row"><h1>${safeReference}</h1>${safeTranslation ? `<span class="translation-code">${safeTranslation}</span>` : ""}</div>
+        </div>
+        <div class="meta"><span class="meta-method">${escapeHtml(methodLabel)}</span><span>Date: ____________________</span></div>
+      </header>
+      <section class="scripture">
+        <h2>Selected Scripture</h2>
+        <div class="passage ${passageClass}"><p>${passageHtml}</p></div>
+      </section>
+      <section class="section">${promptHtml}</section>
+      <section class="section two-column">
+        <div class="small-box"><h3>Memory Verse</h3><div class="line"></div><div class="line"></div></div>
+        <div class="small-box"><h3>Shareable Insight</h3><div class="line"></div><div class="line"></div></div>
+      </section>
+      <footer class="footer"><span>Free Bible study worksheet from Bible Study Tutor</span><span>biblestudytutor.org</span></footer>
+    </main>
+  </body>
+</html>`;
+}
+
+function getPrintableStepLineCount(verseCount: number, stepCount: number) {
+  if (verseCount <= 1) return 5;
+  if (verseCount <= 6) return 4;
+  if (verseCount <= 12) return Math.max(5, Math.round(14 / Math.max(stepCount, 1)));
+  return Math.max(6, Math.round(18 / Math.max(stepCount, 1)));
+}
+
 function isReaderVerseBookmarked(verse: number, bookmarks: StoredBibleBookmark[], book: string, chapter: number) {
   return bookmarks.some((bookmark) => {
     if (bookmark.book !== book || bookmark.chapter !== chapter || !bookmark.startVerse || bookmark.bookmarked === false) return false;
@@ -8854,7 +9005,7 @@ const styles = StyleSheet.create({
     padding: 14
   },
   contentWithMobileReaderDock: {
-    paddingBottom: 134
+    paddingBottom: 172
   },
   contentWithMobileReaderNoteDock: {
     paddingBottom: 292
@@ -9849,6 +10000,7 @@ const styles = StyleSheet.create({
   mobileReaderSelectionActions: {
     alignItems: "center",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 6
   },
   mobileReaderSelectionButton: {
@@ -9858,6 +10010,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     flex: 1,
+    flexBasis: "24%",
     flexDirection: "row",
     gap: 4,
     justifyContent: "center",
@@ -9893,6 +10046,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     height: 34,
     justifyContent: "center",
+    marginLeft: "auto",
     width: 34
   },
   mobileReaderNoteEditor: {
@@ -9916,7 +10070,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   },
   phoneReaderPassageWithSelectionDock: {
-    paddingBottom: 108
+    paddingBottom: 146
   },
   readerBottomNav: {
     borderTopColor: colors.line,

@@ -8653,7 +8653,7 @@ function buildPrintableStudyWorksheetHtml({
       body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 28px; }
       .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 900px; }
       .toolbar p { color: var(--muted); margin: 0; }
-      .print-button { background: var(--coral); border: 0; border-radius: 10px; color: white; cursor: pointer; font-weight: 800; min-height: 42px; padding: 0 16px; }
+      .print-shortcut { background: #fff6eb; border: 1px solid var(--line); border-radius: 999px; color: var(--olive); font-weight: 900; padding: 8px 12px; white-space: nowrap; }
       .page { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); margin: 0 auto; max-width: 900px; min-height: 1160px; padding: 46px; }
       .header { border-bottom: 3px double var(--line); display: grid; gap: 12px; grid-template-columns: 1fr auto; min-height: 108px; padding-bottom: 14px; }
       .title-block { display: flex; flex-direction: column; justify-content: space-between; }
@@ -8677,30 +8677,19 @@ function buildPrintableStudyWorksheetHtml({
       .prompt-title strong { color: var(--ink); }
       .prompt-title span:not(.badge) { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
       .lines { padding: 10px; }
-      .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 29 : verseCount > 10 ? 30 : 24}px; }
+      .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 28 : verseCount > 10 ? 28 : 22}px; }
       .two-column { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
       .small-box { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; padding: 12px; }
       .small-box h3 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 0 0 8px; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 16px; padding-top: 10px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
-      @media print { @page { margin: 10mm 11mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } }
+      @media print { @page { margin: 8mm 9mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } .header { min-height: 96px; padding-bottom: 12px; } h1 { font-size: 31px; } .scripture { padding: 10px 0; } .passage { font-size: 14.5px; line-height: 1.46; } .single-passage { font-size: 17px; line-height: 1.55; } .long-passage { font-size: 13.5px; line-height: 1.42; } .section { margin-top: 10px; } .prompt { margin-bottom: 8px; } .prompt-title { padding: 6px 9px; } .badge { height: 22px; min-width: 22px; } .lines { padding: 8px 10px; } .line { height: ${verseCount === 1 ? 24 : verseCount > 10 ? 24 : 19}px; } .small-box { padding: 9px; } .footer { margin-top: 10px; padding-top: 8px; } }
     </style>
-    <script>
-      document.title = ${JSON.stringify(`${reference} Worksheet`)};
-      function printWorksheet() {
-        document.title = ${JSON.stringify(`${reference} Worksheet`)};
-        window.focus();
-        window.print();
-      }
-      window.addEventListener("afterprint", function () {
-        document.title = ${JSON.stringify(`${reference} Worksheet`)};
-      });
-    </script>
   </head>
   <body>
     <div class="toolbar">
-      <p>Printable worksheet for ${safeReference}. Use your browser to print or save as PDF.</p>
-      <button class="print-button" onclick="printWorksheet()">Print / Save as PDF</button>
+      <p>Printable worksheet for ${safeReference}. Use your browser’s print command, then choose your printer or Save as PDF.</p>
+      <span class="print-shortcut">Press Ctrl+P or Cmd+P</span>
     </div>
     <main class="page">
       <header class="header">
@@ -8726,10 +8715,10 @@ function buildPrintableStudyWorksheetHtml({
 }
 
 function getPrintableStepLineCount(verseCount: number, stepCount: number) {
-  if (verseCount <= 1) return 5;
-  if (verseCount <= 6) return 4;
-  if (verseCount <= 12) return Math.max(5, Math.round(14 / Math.max(stepCount, 1)));
-  return Math.max(6, Math.round(18 / Math.max(stepCount, 1)));
+  if (verseCount <= 1) return 4;
+  if (verseCount <= 6) return 3;
+  if (verseCount <= 12) return Math.max(4, Math.round(11 / Math.max(stepCount, 1)));
+  return Math.max(5, Math.round(15 / Math.max(stepCount, 1)));
 }
 
 function isReaderVerseBookmarked(verse: number, bookmarks: StoredBibleBookmark[], book: string, chapter: number) {

@@ -2002,6 +2002,38 @@ export default function Home() {
     printWindow.focus();
   }
 
+  function printCurrentStudyWorksheet() {
+    if (!passageText?.verses?.length) {
+      setSaveStatus("Passage is still loading. Try again in a moment.");
+      return;
+    }
+    if (Platform.OS !== "web" || typeof window === "undefined") {
+      setSaveStatus("Printable worksheets are available in the web app.");
+      return;
+    }
+
+    const versesToPrint = selectedVerses.length ? selectedVerses : passageText.verses;
+    const reference = selectedVerses.length ? buildMemoryReference(selectedVerses) : passageText.reference || passage;
+    const worksheetHtml = buildPrintableStudyWorksheetHtml({
+      reference,
+      translation: shortBibleTranslationName(passageText.translation_name),
+      method,
+      verses: versesToPrint
+    });
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      setSaveStatus("Allow pop-ups to open the printable worksheet.");
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(worksheetHtml);
+    printWindow.document.close();
+    printWindow.document.title = `${reference} Worksheet`;
+    printWindow.focus();
+    setSaveStatus(selectedVerses.length ? "Printable worksheet opened for selected verses." : "Printable worksheet opened.");
+  }
+
   function startMemoryPractice(verse: any) {
     setActiveMemoryVerseId(String(verse._id));
     setMemoryPracticeLevel(isMemoryVerseMemorized(verse) ? 1 : clampMemoryPracticeLevel(verse.practiceLevel || 1));
@@ -2883,6 +2915,10 @@ export default function Home() {
                                         <Ionicons name="sparkles-outline" size={14} color="white" />
                                         <Text style={styles.memoryReaderButtonText}>{selectedVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
                                       </Pressable>
+                                      <Pressable onPress={printCurrentStudyWorksheet} style={styles.inlineReaderBookmarkButton}>
+                                        <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
+                                        <Text style={styles.inlineReaderBookmarkText}>Print</Text>
+                                      </Pressable>
                                       <Pressable onPress={() => setSelectedVerseKeys([])} style={styles.inlineReaderBookmarkButton}>
                                         <Ionicons name="close-outline" size={14} color={colors.oliveDark} />
                                         <Text style={styles.inlineReaderBookmarkText}>Clear</Text>
@@ -2983,6 +3019,17 @@ export default function Home() {
                     <Text style={styles.translationNote}>
                       {passageText.translation_name} · {passageText.translation_note || "Public Domain"}
                     </Text>
+                    {passageText.verses?.length ? (
+                      <View style={styles.studyPrintRow}>
+                        <ResumeButton
+                          label={selectedVerses.length ? "Print selected worksheet" : "Print worksheet"}
+                          icon="print-outline"
+                          onPress={printCurrentStudyWorksheet}
+                          style={phoneLayout && styles.phoneStudyPrintButton}
+                          labelStyle={phoneLayout && styles.phoneStudyPrintButtonText}
+                        />
+                      </View>
+                    ) : null}
                   </>
                 ) : (
                   <View style={styles.passageStatusBox}>
@@ -11750,6 +11797,21 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 12,
     fontWeight: "700"
+  },
+  studyPrintRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10
+  },
+  phoneStudyPrintButton: {
+    alignSelf: "stretch",
+    justifyContent: "center",
+    width: "100%"
+  },
+  phoneStudyPrintButtonText: {
+    textAlign: "center"
   },
   methodChip: {
     backgroundColor: colors.sage,

@@ -1989,13 +1989,16 @@ export default function Home() {
       method,
       verses: selectedReaderVerseObjects
     });
-    const worksheetUrl = `data:text/html;charset=utf-8,${encodeURIComponent(worksheetHtml)}`;
-    const printWindow = window.open(worksheetUrl, "_blank");
+    const printWindow = window.open("", "_blank");
     if (!printWindow) {
       setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
       return;
     }
 
+    printWindow.document.open();
+    printWindow.document.write(worksheetHtml);
+    printWindow.document.close();
+    printWindow.document.title = `${buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses)} Worksheet`;
     printWindow.focus();
   }
 

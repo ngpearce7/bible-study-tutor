@@ -1989,7 +1989,7 @@ export default function Home() {
       method,
       verses: selectedReaderVerseObjects
     });
-    const printWindow = window.open("", "_blank", "noopener,noreferrer");
+    const printWindow = window.open("about:blank", "_blank");
     if (!printWindow) {
       setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
       return;

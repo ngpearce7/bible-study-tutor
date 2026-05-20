@@ -1989,17 +1989,14 @@ export default function Home() {
       method,
       verses: selectedReaderVerseObjects
     });
-    const worksheetBlob = new Blob([worksheetHtml], { type: "text/html;charset=utf-8" });
-    const worksheetUrl = URL.createObjectURL(worksheetBlob);
+    const worksheetUrl = `data:text/html;charset=utf-8,${encodeURIComponent(worksheetHtml)}`;
     const printWindow = window.open(worksheetUrl, "_blank");
     if (!printWindow) {
-      URL.revokeObjectURL(worksheetUrl);
       setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
       return;
     }
 
     printWindow.focus();
-    window.setTimeout(() => URL.revokeObjectURL(worksheetUrl), 60000);
   }
 
   function startMemoryPractice(verse: any) {
@@ -8685,11 +8682,22 @@ function buildPrintableStudyWorksheetHtml({
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
       @media print { @page { margin: 10mm 11mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } }
     </style>
+    <script>
+      document.title = ${JSON.stringify(`${reference} Worksheet`)};
+      function printWorksheet() {
+        document.title = ${JSON.stringify(`${reference} Worksheet`)};
+        window.focus();
+        window.print();
+      }
+      window.addEventListener("afterprint", function () {
+        document.title = ${JSON.stringify(`${reference} Worksheet`)};
+      });
+    </script>
   </head>
   <body>
     <div class="toolbar">
       <p>Printable worksheet for ${safeReference}. Use your browser to print or save as PDF.</p>
-      <button class="print-button" onclick="window.print()">Print / Save as PDF</button>
+      <button class="print-button" onclick="printWorksheet()">Print / Save as PDF</button>
     </div>
     <main class="page">
       <header class="header">

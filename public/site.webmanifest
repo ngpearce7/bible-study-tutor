@@ -1,7 +1,7 @@
 {
   "name": "Bible Study Tutor",
   "short_name": "Bible Tutor",
-  "description": "A free Bible study app for Scripture reading, guided study, journaling, memory verses, highlights, and simple church community check-ins.",
+  "description": "A free Bible study app for desktop and mobile with Scripture reading, guided study, printable worksheets, journaling, memory verses, highlights, and simple church check-ins.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -1,23 +1,24 @@
-# Bible Study Tutor Native
+# Bible Study Tutor
 
-A cross-platform Bible study tutor for phone and desktop.
+A free Bible study app for desktop and mobile. Bible Study Tutor helps people and churches read Scripture, work through guided study methods, save notes, memorize verses, journal reflections, and print worksheets for pen-and-paper study.
 
 ## What This Version Includes
 
 - Expo app for iOS, Android, and web
 - Electron wrapper for a desktop build
 - Convex database schema and functions
-- Guided tutor sessions for OIA, SOAP, Inductive Study, and Lectio Divina
+- Guided tutor sessions for OIA, SOAP, Inductive Study, Lectio Divina, and other study methods
 - Inline method switching from the study screen
 - Optional local coaching feedback for written answers
 - Optional deeper tutor feedback through a Convex server action and OpenAI Responses API
 - Common passage starts for each method
 - Study review screen before saving completed work
+- Printable Bible study worksheets from the Bible and Study tabs
 - Shareable insight notes at the end of completed studies
 - After-study check-in handoff from saved studies
 - Journal filters and two-step draft archiving
 - Accountability plan, check-ins, streaks, minutes, and journal
-- Convex Auth email/password, Google, and Apple sign-in for cross-device profile sync
+- Convex Auth email/password sign-in for cross-device profile sync
 - Guest per-device profile fallback so early testing can still run without sign-in
 
 ## Setup
@@ -69,31 +70,16 @@ Convex generates `convex/_generated/*` after `npx convex dev`. Until then, the a
 
 This version uses Convex Auth email/password sign-in so study history can follow a signed-in person across devices. If someone does not sign in, the app still falls back to a per-device guest profile for early testing.
 
-## Google Sign-In Setup
+## Launch Notes
 
-Google sign-in is wired in the app, but it needs OAuth credentials in Convex before it can complete a real login.
+The current launch build uses email/password sign-in and a local profile fallback. Google and Apple sign-in are intentionally hidden until OAuth, app-store, and support flows are ready.
 
-1. In Google Cloud, create an OAuth client for a web application.
-2. Add this authorized redirect URI:
+For search engines, set the public site URL in the hosting environment:
 
-   ```text
-   https://your-project.convex.site/api/auth/callback/google
-   ```
-
-   For local Convex dev, use the local Convex site URL shown in `.env.local`, for example:
-
-   ```text
-   http://127.0.0.1:3211/api/auth/callback/google
-   ```
-
-3. Save the Google client values in Convex env:
-
-   ```bash
-   npx convex env set AUTH_GOOGLE_ID your_google_oauth_client_id
-   npx convex env set AUTH_GOOGLE_SECRET your_google_oauth_client_secret
-   ```
-
-4. Restart the Convex dev server and the Expo app, then use **Continue with Google** from Account.
+```bash
+EXPO_PUBLIC_SITE_URL=https://biblestudytutor.org
+SITE_URL=https://biblestudytutor.org
+```
 
 Deeper tutor feedback is optional. To enable it, set `OPENAI_API_KEY` in Convex:
 

@@ -2,8 +2,9 @@ import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
-const rawSiteUrl = process.env.EXPO_PUBLIC_SITE_URL || "";
-const siteUrl = rawSiteUrl.replace(/\/$/, "");
+const rawSiteUrl = process.env.EXPO_PUBLIC_SITE_URL || process.env.SITE_URL || "";
+const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
+const siteUrl = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedSiteUrl) ? "" : normalizedSiteUrl;
 
 mkdirSync(publicDir, { recursive: true });
 copyFileSync(

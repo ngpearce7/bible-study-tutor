@@ -4776,6 +4776,22 @@ export default function Home() {
                 ) : (
                   <>
                     <Text style={styles.helpIntro}>Create an account to carry your study journal between phone, web, and desktop. Adding your name helps the app feel more personal as you draw near to God.</Text>
+                    <View style={styles.freeAccountBox}>
+                      <View style={styles.feedbackHeader}>
+                        <Ionicons name="gift-outline" size={18} color={colors.coral} />
+                        <Text style={styles.feedbackTitle}>Why create a free account?</Text>
+                      </View>
+                      {[
+                        "Keep your studies, journal, highlights, memory verses, and reading progress connected to you.",
+                        "Move between phone, desktop, and web without starting again.",
+                        "Keep the app personal, with encouragement using your name."
+                      ].map((benefit) => (
+                        <View key={benefit} style={styles.freeAccountBenefitRow}>
+                          <Ionicons name="checkmark-circle-outline" size={16} color={colors.oliveDark} />
+                          <Text style={styles.freeAccountBenefitText}>{benefit}</Text>
+                        </View>
+                      ))}
+                    </View>
                     <View style={styles.authFlowRow}>
                       <Pressable onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton]}>
                         <Text style={[styles.authFlowText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
@@ -12401,6 +12417,31 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: 13,
     fontWeight: "900"
+  },
+  freeAccountBox: {
+    backgroundColor: "#fff6eb",
+    borderColor: "#edd8bd",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 9,
+    marginVertical: 12,
+    padding: 12
+  },
+  freeAccountBenefitRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
+  },
+  freeAccountBenefitText: {
+    color: colors.ink,
+    flex: 1,
+    flexShrink: 1,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 18,
+    minWidth: 0
   },
   authDividerRow: {
     alignItems: "center",

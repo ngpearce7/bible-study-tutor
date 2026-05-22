@@ -193,7 +193,7 @@ const PRIVACY_POLICY_SECTIONS = [
 const TERMS_OF_SERVICE_SECTIONS = [
   {
     title: "Purpose of the app",
-    body: "Bible Study Tutor is a free study tool designed to support Bible reading, guided study methods, journaling, memorization, bookmarks, highlights, feedback, and simple community check-ins."
+    body: "Bible Study Tutor is a free study tool designed to support Bible reading, guided study methods, journaling, memorization, bookmarks, highlights, printable worksheets, feedback, and simple community check-ins."
   },
   {
     title: "Not professional advice",
@@ -2682,7 +2682,7 @@ export default function Home() {
               <View style={styles.homePurposePanel}>
                 <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
                 <Text style={styles.homePurposeText}>
-                  Built for individuals, small groups, and churches, Bible Study Tutor is free to use and designed to work comfortably on both desktop and mobile devices.
+                  Built for individuals, small groups, and churches, Bible Study Tutor is free to use on desktop and mobile, with printable worksheets for anyone who prefers pen and paper.
                 </Text>
                 <View style={styles.homePurposePillRow}>
                   <View style={styles.homePurposePill}>
@@ -2696,6 +2696,10 @@ export default function Home() {
                   <View style={styles.homePurposePill}>
                     <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
                     <Text style={styles.homePurposePillText}>Desktop friendly</Text>
+                  </View>
+                  <View style={styles.homePurposePill}>
+                    <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
+                    <Text style={styles.homePurposePillText}>Printable worksheets</Text>
                   </View>
                 </View>
               </View>
@@ -5569,7 +5573,7 @@ export default function Home() {
               <Eyebrow>Help</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, start here` : "Start here"}</Text>
               <Text style={styles.titleSupport}>
-                Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, and share Scripture with less friction.
+                Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, share Scripture, and print worksheets for pen-and-paper study.
               </Text>
               <View style={styles.helpActionRow}>
                 <AppButton label="Read the Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneFullWidthButton} />

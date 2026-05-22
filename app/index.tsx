@@ -133,7 +133,7 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
   { id: "next-week", label: "In 1 week" },
   { id: "next-month", label: "In 1 month" }
 ];
-const LEGAL_LAST_UPDATED = "May 17, 2026";
+const LEGAL_LAST_UPDATED = "May 23, 2026";
 const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/BlankMap-World.svg/1280px-BlankMap-World.svg.png";
 type AdminRegionInsight = { name: string; description: string; count: number; x: number; y: number; size: "small" | "medium" | "large" };
 const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
@@ -146,7 +146,7 @@ const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
 const PRIVACY_POLICY_SECTIONS = [
   {
     title: "Who we are",
-    body: "Bible Study Tutor is a free Bible reading and study app available at biblestudytutor.org. For privacy questions, data requests, or concerns, contact support@biblestudytutor.org."
+    body: "Bible Study Tutor is a free Bible reading and study app available at biblestudytutor.org. For privacy questions, data requests, account deletion, or concerns, contact support@biblestudytutor.org."
   },
   {
     title: "Information you provide",
@@ -154,11 +154,15 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Faith and personal reflections",
-    body: "Your notes, journal entries, check-ins, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. Please write thoughtfully and avoid adding information you would not want stored in the app."
+    body: "Your notes, journal entries, check-ins, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. By choosing to save that content, you consent to the app storing and using it to provide the features you request. Please write thoughtfully and avoid adding information you would not want stored in the app."
   },
   {
     title: "How we use information",
     body: "We use your information to create and secure your account, save and sync your studies, personalize encouragement by name, restore your work across devices, provide Bible reading, journaling and memory tools, respond to feedback, improve the app, and protect the service from misuse."
+  },
+  {
+    title: "Information we do not intentionally collect",
+    body: "Bible Study Tutor does not intentionally collect payment card details, precise location, government identity numbers, or contact lists. The app does not sell personal study data."
   },
   {
     title: "Local and cloud storage",
@@ -166,7 +170,11 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Hosting and service providers",
-    body: "The website is hosted with Cloudflare Pages and the app backend is provided by Convex. These providers process data needed to deliver, secure, store, and operate the app. We do not sell your personal study data."
+    body: "The website is hosted with Cloudflare Pages and the app backend is provided by Convex. These providers process data needed to deliver, secure, store, and operate the app. Depending on how those services route traffic and store data, information may be processed outside Australia."
+  },
+  {
+    title: "Local storage and device information",
+    body: "The app may use local storage on your device to remember settings such as Bible translation, reading position, focus mode, device profile, and sign-in state. Hosting and backend providers may also process normal technical information such as browser type, request details, and security logs."
   },
   {
     title: "Admin insights and feedback",
@@ -185,8 +193,12 @@ const PRIVACY_POLICY_SECTIONS = [
     body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, and drafts. To request account deletion or broader data removal, contact support@biblestudytutor.org."
   },
   {
-    title: "Access, correction, and complaints",
-    body: "You can update your name and account details in the Account tab. To ask for access to your data, correction of data, deletion, or to raise a privacy concern, contact support@biblestudytutor.org and we will respond as reasonably as we can."
+    title: "Access, correction, deletion, and complaints",
+    body: "You can update your name and account details in the Account tab. To ask for access to your data, correction of data, deletion, or to raise a privacy concern, contact support@biblestudytutor.org. We will respond as reasonably as we can. If you are not satisfied with the response, you may also contact the Office of the Australian Information Commissioner."
+  },
+  {
+    title: "Security",
+    body: "We take reasonable steps to protect the app and stored information, including account access controls and backend authorization checks. No online service can be guaranteed completely secure, so use a strong password and sign out on shared devices."
   },
   {
     title: "Children and shared devices",
@@ -199,6 +211,10 @@ const PRIVACY_POLICY_SECTIONS = [
 ];
 const TERMS_OF_SERVICE_SECTIONS = [
   {
+    title: "Acceptance of these terms",
+    body: "By using Bible Study Tutor, you agree to these terms. If you do not agree, please do not use the app."
+  },
+  {
     title: "Purpose of the app",
     body: "Bible Study Tutor is a free study tool designed to support Bible reading, guided study methods, journaling, memorization, bookmarks, highlights, printable worksheets, feedback, and simple community check-ins."
   },
@@ -208,7 +224,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Your account",
-    body: "You are responsible for keeping your sign-in details secure and for activity on your account. Use accurate account information, sign out on shared devices, and tell us if you believe your account has been misused."
+    body: "Creating an account is free. You are responsible for keeping your sign-in details secure and for activity on your account. Use accurate account information, sign out on shared devices, and tell us if you believe your account has been misused."
   },
   {
     title: "Your content",
@@ -220,7 +236,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Bible translations and third-party content",
-    body: "The app may include public-domain or permission-based Bible text options such as BSB, WEB, and KJV access paths. Future modern paid translations may require publisher licensing, purchase terms, or app store rules before they are available."
+    body: "The app may include public-domain or permission-based Bible text options such as BSB, WEB, and KJV access paths. Bible translation names and content remain the property of their respective rights holders. Future modern paid translations may require publisher licensing, purchase terms, or app store rules before they are available."
   },
   {
     title: "Free access and future changes",
@@ -229,6 +245,10 @@ const TERMS_OF_SERVICE_SECTIONS = [
   {
     title: "Fair use and security",
     body: "Do not scrape, spam, overload, reverse engineer, bypass security, attempt to access another user's data, interfere with the service, or use automated/bot activity in a way that harms the app or other users."
+  },
+  {
+    title: "Respectful use",
+    body: "Do not use the app to store or share unlawful, abusive, exploitative, hateful, threatening, or deliberately misleading content. Do not impersonate another person or use the app to harm churches, groups, or individuals."
   },
   {
     title: "Feedback",
@@ -245,6 +265,10 @@ const TERMS_OF_SERVICE_SECTIONS = [
   {
     title: "Liability",
     body: "To the extent permitted by law, Bible Study Tutor is not liable for indirect loss, lost data, missed spiritual or practical outcomes, or decisions you make based on app content. Use Scripture, wisdom, community, and qualified help together."
+  },
+  {
+    title: "Australian operation",
+    body: "Bible Study Tutor is operated from Australia. These terms are intended to be read in a way that is consistent with applicable Australian law and any rights that cannot legally be excluded."
   },
   {
     title: "Changes to these terms",
@@ -4936,7 +4960,7 @@ export default function Home() {
               </View>
               <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Legal</Text>
-                <Text style={styles.helpIntro}>Draft policies for the app experience. Have these reviewed before publishing publicly or submitting to an app store.</Text>
+                <Text style={styles.helpIntro}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
                 <LegalDocument
                   title="Privacy Policy"
                   icon="shield-checkmark-outline"

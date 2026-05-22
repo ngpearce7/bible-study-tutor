@@ -598,7 +598,7 @@ export default function Home() {
   }, []);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
-  const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId, timezoneOffsetMinutes: new Date().getTimezoneOffset() } : "skip");
+  const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId } : "skip");
   const sessions = useQuery(api.study.recentSessions, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,

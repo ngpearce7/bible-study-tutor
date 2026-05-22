@@ -34,8 +34,8 @@ export const submitFeedback = mutation({
       profileId: args.profileId,
       category: args.category,
       message,
-      tab: args.tab,
-      device: args.device,
+      tab: clampOptionalText(args.tab, 80),
+      device: clampOptionalText(args.device, 160),
       status: "new",
       createdAt: Date.now()
     });
@@ -58,8 +58,15 @@ export const recordUsage = mutation({
     await authorizeProfileAccess(ctx, args.profileId);
 
     return await ctx.db.insert("usageEvents", {
-      ...args,
-      eventType: args.eventType.slice(0, 80),
+      profileId: args.profileId,
+      eventType: clampText(args.eventType, 80),
+      reference: clampOptionalText(args.reference, 160),
+      methodId: clampOptionalText(args.methodId, 80),
+      methodName: clampOptionalText(args.methodName, 120),
+      translation: clampOptionalText(args.translation, 120),
+      tab: clampOptionalText(args.tab, 80),
+      book: clampOptionalText(args.book, 80),
+      chapter: clampNumber(args.chapter, 0, 200),
       createdAt: Date.now()
     });
   }
@@ -160,4 +167,19 @@ function topCounts(values: string[], limit: number) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
     .map(([label, count]) => ({ label, count }));
+}
+
+function clampText(value: string | undefined, maxLength: number) {
+  return (value || "").trim().slice(0, maxLength);
+}
+
+function clampOptionalText(value: string | undefined, maxLength: number) {
+  const cleaned = clampText(value, maxLength);
+  return cleaned || undefined;
+}
+
+function clampNumber(value: number | undefined, min: number, max: number) {
+  if (value === undefined) return undefined;
+  if (!Number.isFinite(value)) return undefined;
+  return Math.max(min, Math.min(max, Math.round(value)));
 }

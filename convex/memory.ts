@@ -17,25 +17,32 @@ export const saveVerse = mutation({
   },
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
+    const cleaned = {
+      profileId: args.profileId,
+      reference: clampText(args.reference, 160),
+      verseText: clampText(args.verseText, 5000),
+      translationName: clampText(args.translationName, 120),
+      note: clampOptionalText(args.note, 2000)
+    };
 
     const now = Date.now();
     const existing = await ctx.db
       .query("memoryVerses")
-      .withIndex("by_profile_reference", (q) => q.eq("profileId", args.profileId).eq("reference", args.reference))
+      .withIndex("by_profile_reference", (q) => q.eq("profileId", args.profileId).eq("reference", cleaned.reference))
       .first();
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        verseText: args.verseText,
-        translationName: args.translationName,
-        note: args.note,
+        verseText: cleaned.verseText,
+        translationName: cleaned.translationName,
+        note: cleaned.note,
         updatedAt: now
       });
       return existing._id;
     }
 
     return await ctx.db.insert("memoryVerses", {
-      ...args,
+      ...cleaned,
       status: "new",
       practiceLevel: 1,
       reviewCount: 0,
@@ -139,6 +146,15 @@ function reviewPresetDelay(preset: "later-today" | "tomorrow" | "three-days" | "
   if (preset === "three-days") return day * 3;
   if (preset === "next-week") return day * 7;
   return day * 30;
+}
+
+function clampText(value: string | undefined, maxLength: number) {
+  return (value || "").trim().slice(0, maxLength);
+}
+
+function clampOptionalText(value: string | undefined, maxLength: number) {
+  const cleaned = clampText(value, maxLength);
+  return cleaned || undefined;
 }
 
 async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {

@@ -25,8 +25,8 @@ export const ensureProfile = mutation({
     const now = Date.now();
 
     const authUser = authUserId ? await ctx.db.get(authUserId) : null;
-    const authProfileName = authUser?.name?.trim() || authUser?.email?.trim() || "";
-    const profileName = args.displayName?.trim() || authProfileName || "Bible student";
+    const authProfileName = clampText(authUser?.name || authUser?.email || "", 80);
+    const profileName = clampText(args.displayName || authProfileName, 80) || "Bible student";
 
     if (authUserId) {
       const authenticatedProfile = await ctx.db
@@ -46,7 +46,7 @@ export const ensureProfile = mutation({
       }
     }
 
-    const clientKey = args.clientKey;
+    const clientKey = clampText(args.clientKey || "", 200);
     const existingDeviceProfile = clientKey
       ? await ctx.db
           .query("profiles")
@@ -125,16 +125,27 @@ export const saveSession = mutation({
   },
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
+    const cleaned = {
+      profileId: args.profileId,
+      passage: clampText(args.passage, 160),
+      methodId: clampText(args.methodId, 80),
+      methodName: clampText(args.methodName, 120),
+      shareNote: clampOptionalText(args.shareNote, 1200),
+      passageMarkups: cleanPassageMarkups(args.passageMarkups),
+      minutes: clampNumber(args.minutes, 0, 600),
+      coachingMoments: cleanCoachingMoments(args.coachingMoments),
+      answers: cleanAnswers(args.answers)
+    };
 
     const sessionId = await ctx.db.insert("sessions", {
-      ...args,
+      ...cleaned,
       completedAt: Date.now()
     });
 
     const draft = await ctx.db
       .query("drafts")
       .withIndex("by_profile_passage_method", (q) =>
-        q.eq("profileId", args.profileId).eq("passage", args.passage).eq("methodId", args.methodId)
+        q.eq("profileId", args.profileId).eq("passage", cleaned.passage).eq("methodId", cleaned.methodId)
       )
       .first();
 
@@ -155,10 +166,11 @@ export const getDeeperFeedback = action({
     localFeedback: v.array(v.string())
   },
   handler: async (_ctx, args) => {
+    const localFeedback = args.localFeedback.slice(0, 5).map((item) => clampText(item, 500));
     const fallback = {
-      encouragement: args.localFeedback[0] || "You are engaging the passage thoughtfully.",
+      encouragement: localFeedback[0] || "You are engaging the passage thoughtfully.",
       textGrounding: "Look for one word, action, image, or claim in the passage that supports your answer.",
-      nextRevision: args.localFeedback[1] || "Revise this by adding one concrete detail from the selected passage.",
+      nextRevision: localFeedback[1] || "Revise this by adding one concrete detail from the selected passage.",
       source: "local" as const
     };
 
@@ -184,13 +196,13 @@ export const getDeeperFeedback = action({
             {
               role: "user",
               content: JSON.stringify({
-                passageReference: args.passageReference,
-                passageText: args.passageText?.slice(0, 3000),
-                methodName: args.methodName,
-                stepTitle: args.stepTitle,
-                stepPrompt: args.stepPrompt,
-                studentAnswer: args.answer,
-                localFeedback: args.localFeedback
+                passageReference: clampText(args.passageReference, 160),
+                passageText: clampOptionalText(args.passageText, 3000),
+                methodName: clampText(args.methodName, 120),
+                stepTitle: clampText(args.stepTitle, 120),
+                stepPrompt: clampText(args.stepPrompt, 1000),
+                studentAnswer: clampText(args.answer, 8000),
+                localFeedback
               })
             }
           ],
@@ -232,9 +244,9 @@ export const getDeeperFeedback = action({
 
       const parsed = JSON.parse(outputText);
       return {
-        encouragement: String(parsed.encouragement || fallback.encouragement),
-        textGrounding: String(parsed.textGrounding || fallback.textGrounding),
-        nextRevision: String(parsed.nextRevision || fallback.nextRevision),
+        encouragement: clampText(String(parsed.encouragement || fallback.encouragement), 500),
+        textGrounding: clampText(String(parsed.textGrounding || fallback.textGrounding), 500),
+        nextRevision: clampText(String(parsed.nextRevision || fallback.nextRevision), 500),
         source: "openai" as const
       };
     } catch {
@@ -275,31 +287,43 @@ export const saveDraft = mutation({
   },
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
+    const cleaned = {
+      profileId: args.profileId,
+      passage: clampText(args.passage, 160),
+      passageReference: clampOptionalText(args.passageReference, 160),
+      passageText: clampOptionalText(args.passageText, 30000),
+      translationName: clampOptionalText(args.translationName, 120),
+      passageMarkups: cleanPassageMarkups(args.passageMarkups),
+      methodId: clampText(args.methodId, 80),
+      methodName: clampText(args.methodName, 120),
+      stepIndex: clampNumber(args.stepIndex, 0, 20),
+      answers: cleanAnswers(args.answers)
+    };
 
     const existing = await ctx.db
       .query("drafts")
       .withIndex("by_profile_passage_method", (q) =>
-        q.eq("profileId", args.profileId).eq("passage", args.passage).eq("methodId", args.methodId)
+        q.eq("profileId", args.profileId).eq("passage", cleaned.passage).eq("methodId", cleaned.methodId)
       )
       .first();
     const now = Date.now();
 
     if (existing) {
       await ctx.db.patch(existing._id, {
-        passageReference: args.passageReference,
-        passageText: args.passageText,
-        translationName: args.translationName,
-        passageMarkups: args.passageMarkups,
-        methodName: args.methodName,
-        stepIndex: args.stepIndex,
-        answers: args.answers,
+        passageReference: cleaned.passageReference,
+        passageText: cleaned.passageText,
+        translationName: cleaned.translationName,
+        passageMarkups: cleaned.passageMarkups,
+        methodName: cleaned.methodName,
+        stepIndex: cleaned.stepIndex,
+        answers: cleaned.answers,
         updatedAt: now
       });
       return existing._id;
     }
 
     return await ctx.db.insert("drafts", {
-      ...args,
+      ...cleaned,
       createdAt: now,
       updatedAt: now
     });
@@ -411,7 +435,7 @@ export const completeStudyReview = mutation({
     await ctx.db.patch(args.sessionId, {
       reviewStatus: "reviewed",
       reviewedAt: Date.now(),
-      reviewNote: args.reviewNote?.trim() || undefined
+      reviewNote: clampOptionalText(args.reviewNote, 2000)
     });
     return true;
   }
@@ -556,6 +580,49 @@ function isAdminEmail(email: string) {
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean)
     .includes(normalized);
+}
+
+function clampText(value: string | undefined, maxLength: number) {
+  return (value || "").trim().slice(0, maxLength);
+}
+
+function clampOptionalText(value: string | undefined, maxLength: number) {
+  const cleaned = clampText(value, maxLength);
+  return cleaned || undefined;
+}
+
+function clampNumber(value: number, min: number, max: number) {
+  if (!Number.isFinite(value)) return min;
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
+function cleanAnswers(answers: { stepTitle: string; answer: string }[]) {
+  return answers.slice(0, 20).map((item) => ({
+    stepTitle: clampText(item.stepTitle, 120),
+    answer: clampText(item.answer, 12000)
+  }));
+}
+
+function cleanCoachingMoments(
+  moments: { stepTitle: string; encouragement: string; textGrounding: string; nextRevision: string }[] | undefined
+) {
+  return moments?.slice(0, 20).map((item) => ({
+    stepTitle: clampText(item.stepTitle, 120),
+    encouragement: clampText(item.encouragement, 500),
+    textGrounding: clampText(item.textGrounding, 500),
+    nextRevision: clampText(item.nextRevision, 500)
+  }));
+}
+
+function cleanPassageMarkups(markups: { key: string; kind: "notice" | "question" | "truth" | "apply"; label: string; note?: string; reference: string; verse: number }[] | undefined) {
+  return markups?.slice(0, 300).map((item) => ({
+    key: clampText(item.key, 120),
+    kind: item.kind,
+    label: clampText(item.label, 80),
+    note: clampOptionalText(item.note, 1000),
+    reference: clampText(item.reference, 160),
+    verse: clampNumber(item.verse, 0, 200)
+  }));
 }
 
 function dayKey(value: number, timezoneOffsetMinutes = 0) {

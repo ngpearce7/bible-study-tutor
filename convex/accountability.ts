@@ -14,9 +14,10 @@ export const savePlan = mutation({
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
-    const { profileId, ...patch } = args;
-    await ctx.db.patch(profileId, {
-      ...patch,
+    await ctx.db.patch(args.profileId, {
+      weeklyGoal: clampText(args.weeklyGoal, 300),
+      accountabilityPartner: clampText(args.accountabilityPartner, 200),
+      preferredMethodId: clampOptionalText(args.preferredMethodId, 80),
       updatedAt: Date.now()
     });
   }
@@ -34,13 +35,14 @@ export const saveAccountSettings = mutation({
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
     const authUserId = await getAuthUserId(ctx);
-    const nextName = args.displayName.trim() || "Bible student";
-    const nextEmail = args.email?.trim().toLowerCase();
+    const nextName = clampText(args.displayName, 80) || "Bible student";
+    const nextEmail = clampText(args.email, 254).toLowerCase();
 
-    const { profileId, email, ...patch } = args;
-    await ctx.db.patch(profileId, {
-      ...patch,
+    await ctx.db.patch(args.profileId, {
       displayName: nextName,
+      weeklyGoal: clampOptionalText(args.weeklyGoal, 300),
+      accountabilityPartner: clampOptionalText(args.accountabilityPartner, 200),
+      preferredMethodId: clampOptionalText(args.preferredMethodId, 80),
       updatedAt: Date.now()
     });
 
@@ -87,6 +89,7 @@ export const changePassword = action({
     const email = args.email.trim().toLowerCase();
     if (!email || !args.currentPassword) throw new Error("Add your current password.");
     if (!args.newPassword || args.newPassword.length < 8) throw new Error("New password needs at least 8 characters.");
+    if (email.length > 254 || args.currentPassword.length > 200 || args.newPassword.length > 200) throw new Error("Those details are too long.");
 
     const retrieved = await retrieveAccount(ctx, {
       provider: "password",
@@ -114,7 +117,10 @@ export const saveCheckin = mutation({
     await authorizeProfileAccess(ctx, args.profileId);
 
     return await ctx.db.insert("checkins", {
-      ...args,
+      profileId: args.profileId,
+      mood: clampText(args.mood, 80),
+      note: clampText(args.note, 4000),
+      sentAt: args.sentAt,
       createdAt: Date.now()
     });
   }
@@ -193,11 +199,20 @@ export const updateCheckin = mutation({
     if (!checkin || checkin.profileId !== args.profileId) return false;
 
     await ctx.db.patch(args.checkinId, {
-      note: args.note
+      note: clampText(args.note, 4000)
     });
     return true;
   }
 });
+
+function clampText(value: string | undefined, maxLength: number) {
+  return (value || "").trim().slice(0, maxLength);
+}
+
+function clampOptionalText(value: string | undefined, maxLength: number) {
+  const cleaned = clampText(value, maxLength);
+  return cleaned || undefined;
+}
 
 async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
   const profile = await ctx.db.get(profileId);

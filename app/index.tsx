@@ -2000,6 +2000,11 @@ export default function Home() {
     printWindow.document.close();
     printWindow.document.title = `${buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses)} Worksheet`;
     printWindow.focus();
+    setReaderMemoryStatus(
+      phoneLayout
+        ? "Worksheet opened. On phone, use Share, then Print or Save to Files."
+        : "Printable worksheet opened."
+    );
   }
 
   function printCurrentStudyWorksheet() {
@@ -2031,7 +2036,13 @@ export default function Home() {
     printWindow.document.close();
     printWindow.document.title = `${reference} Worksheet`;
     printWindow.focus();
-    setSaveStatus(selectedVerses.length ? "Printable worksheet opened for selected verses." : "Printable worksheet opened.");
+    setSaveStatus(
+      phoneLayout
+        ? "Worksheet opened. On phone, use Share, then Print or Save to Files."
+        : selectedVerses.length
+          ? "Printable worksheet opened for selected verses."
+          : "Printable worksheet opened."
+    );
   }
 
   function startMemoryPractice(verse: any) {
@@ -3028,6 +3039,12 @@ export default function Home() {
                           style={phoneLayout && styles.phoneStudyPrintButton}
                           labelStyle={phoneLayout && styles.phoneStudyPrintButtonText}
                         />
+                      </View>
+                    ) : null}
+                    {phoneLayout && passageText.verses?.length ? (
+                      <View style={styles.mobilePrintHint}>
+                        <Ionicons name="phone-portrait-outline" size={15} color={colors.coral} />
+                        <Text style={styles.mobilePrintHintText}>On phone, open the worksheet, then use Share to Print or Save to Files.</Text>
                       </View>
                     ) : null}
                   </>
@@ -5931,13 +5948,13 @@ function getContextHelp(tab: Tab) {
       title: "Study help",
       icon: "book-outline",
       summary: "Study walks you through one method step at a time, with passage text, notes, highlighting, memory saving, and journal saving.",
-      tips: ["Type or choose a passage, then press Use.", "Select verses to highlight, note, or save to Memory.", "Use Focus mode when you want fewer side panels."]
+      tips: ["Type or choose a passage, then press Use.", "Select verses to highlight, note, save to Memory, or print a worksheet.", "Use Focus mode when you want fewer side panels."]
     },
     bible: {
       title: "Bible help",
       icon: "reader-outline",
       summary: "Bible lets you read by book and chapter, search Scripture, select verses, add notes, bookmark passages, and launch a study.",
-      tips: ["Tap one verse, then another verse to select a range.", "Use the bottom action bar on mobile for Study, Save, Note, and Memory.", "Use the reader panel to change books and chapters."]
+      tips: ["Tap one verse, then another verse to select a range.", "Use the bottom action bar on mobile for Study, Save, Note, Print, and Memory.", "Use the reader panel to change books and chapters."]
     },
     plans: {
       title: "Plans help",
@@ -8700,6 +8717,7 @@ function buildPrintableStudyWorksheetHtml({
       body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 28px; }
       .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 900px; }
       .toolbar p { color: var(--muted); margin: 0; }
+      .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
       .print-shortcut { background: #fff6eb; border: 1px solid var(--line); border-radius: 999px; color: var(--olive); font-weight: 900; padding: 8px 12px; white-space: nowrap; }
       .page { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); margin: 0 auto; max-width: 900px; min-height: 1160px; padding: 46px; }
       .header { border-bottom: 3px double var(--line); display: grid; gap: 12px; grid-template-columns: 1fr auto; min-height: 108px; padding-bottom: 14px; }
@@ -8736,8 +8754,11 @@ function buildPrintableStudyWorksheetHtml({
   </head>
   <body>
     <div class="toolbar">
-      <p>Printable worksheet for ${safeReference}. Use your browser’s print command, then choose your printer or Save as PDF.</p>
-      <span class="print-shortcut">Press Ctrl+P or Cmd+P</span>
+      <p>Printable worksheet for ${safeReference}. On desktop, use your browser’s print command. On phone or tablet, use the browser Share menu, then choose Print or Save to Files.</p>
+      <div class="toolbar-actions">
+        <span class="print-shortcut">Desktop: Ctrl+P or Cmd+P</span>
+        <span class="print-shortcut">Phone: Share &gt; Print</span>
+      </div>
     </div>
     <main class="page">
       <header class="header">
@@ -11812,6 +11833,25 @@ const styles = StyleSheet.create({
   },
   phoneStudyPrintButtonText: {
     textAlign: "center"
+  },
+  mobilePrintHint: {
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 7,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8
+  },
+  mobilePrintHintText: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 17
   },
   methodChip: {
     backgroundColor: colors.sage,

@@ -4344,6 +4344,21 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={styles.memoryList}>
+                  {!phoneMemoryFocusMode && (
+                    <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox]}>
+                      <View style={styles.addMemoryCopy}>
+                        <View style={styles.feedbackHeader}>
+                          <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
+                          <Text style={styles.feedbackTitle}>Add memory verses</Text>
+                        </View>
+                        <Text style={styles.addMemoryText}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
+                      </View>
+                      <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
+                        <AppButton label="Find in Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddButton} />
+                        <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={phoneLayout && styles.phoneMemoryAddButton} />
+                      </View>
+                    </View>
+                  )}
                   {!phoneMemoryFocusMode && <View style={styles.memoryViewToggle}>
                     {[
                       ["review", "Review"],
@@ -13517,6 +13532,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8
+  },
+  addMemoryBox: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.24)",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between",
+    padding: 12
+  },
+  phoneAddMemoryBox: {
+    alignItems: "stretch",
+    flexDirection: "column"
+  },
+  addMemoryCopy: {
+    flex: 1,
+    gap: 5,
+    minWidth: 0
+  },
+  addMemoryText: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 18
+  },
+  phoneAddMemoryActions: {
+    alignItems: "stretch"
+  },
+  phoneMemoryAddButton: {
+    width: "100%"
   },
   emptyJournalTitle: {
     color: colors.ink,

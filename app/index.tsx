@@ -23,6 +23,7 @@ type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
+type WorksheetWritingSpace = "standard" | "more";
 type AnswerMap = Record<string, string>;
 type SmartFeedback = {
   encouragement: string;
@@ -80,6 +81,12 @@ type SavedStudySummary = {
   shareNote: string;
   reviewAt?: number;
   completedPlanDay?: string;
+};
+type PrintableWorksheetRequest = {
+  source: "study" | "bible";
+  reference: string;
+  translation: string;
+  verses: BibleVerse[];
 };
 
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
@@ -377,6 +384,10 @@ export default function Home() {
   const [passageReloadKey, setPassageReloadKey] = useState(0);
   const [loadedDraftKey, setLoadedDraftKey] = useState("");
   const [saveStatus, setSaveStatus] = useState("Not saved yet");
+  const [printWorksheetRequest, setPrintWorksheetRequest] = useState<PrintableWorksheetRequest | null>(null);
+  const [printWorksheetMethodId, setPrintWorksheetMethodId] = useState(methods[0]?.id || "");
+  const [printWorksheetWritingSpace, setPrintWorksheetWritingSpace] = useState<WorksheetWritingSpace>("standard");
+  const [printWorksheetIncludes, setPrintWorksheetIncludes] = useState({ memory: true, insight: true });
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [passageQuery, setPassageQuery] = useState("Psalm 23");
@@ -1976,73 +1987,84 @@ export default function Home() {
     }
   }
 
-  function printSelectedReaderWorksheet() {
+  function openReaderWorksheetOptions() {
     if (!readerPassage || selectedReaderVerseObjects.length === 0) return;
-    if (Platform.OS !== "web" || typeof window === "undefined") {
-      setReaderMemoryStatus("Printable worksheets are available in the web app.");
-      return;
-    }
-
-    const worksheetHtml = buildPrintableStudyWorksheetHtml({
+    setPrintWorksheetMethodId(method.id);
+    setPrintWorksheetWritingSpace("standard");
+    setPrintWorksheetIncludes({ memory: true, insight: true });
+    setPrintWorksheetRequest({
+      source: "bible",
       reference: buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses),
       translation: shortBibleTranslationName(readerPassage.translation_name),
-      method,
       verses: selectedReaderVerseObjects
     });
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
-      return;
-    }
-
-    printWindow.document.open();
-    printWindow.document.write(worksheetHtml);
-    printWindow.document.close();
-    printWindow.document.title = `${buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses)} Worksheet`;
-    printWindow.focus();
-    setReaderMemoryStatus(
-      phoneLayout
-        ? "Worksheet opened. On phone, use Share, then Print or Save to Files."
-        : "Printable worksheet opened."
-    );
   }
 
-  function printCurrentStudyWorksheet() {
+  function openStudyWorksheetOptions() {
     if (!passageText?.verses?.length) {
       setSaveStatus("Passage is still loading. Try again in a moment.");
       return;
     }
+    const versesToPrint = selectedVerses.length ? selectedVerses : passageText.verses;
+    setPrintWorksheetMethodId(method.id);
+    setPrintWorksheetWritingSpace("standard");
+    setPrintWorksheetIncludes({ memory: true, insight: true });
+    setPrintWorksheetRequest({
+      source: "study",
+      reference: selectedVerses.length ? buildMemoryReference(selectedVerses) : passageText.reference || passage,
+      translation: shortBibleTranslationName(passageText.translation_name),
+      verses: versesToPrint
+    });
+  }
+
+  function openPrintableWorksheet() {
+    if (!printWorksheetRequest) return;
     if (Platform.OS !== "web" || typeof window === "undefined") {
-      setSaveStatus("Printable worksheets are available in the web app.");
+      if (printWorksheetRequest.source === "bible") {
+        setReaderMemoryStatus("Printable worksheets are available in the web app.");
+      } else {
+        setSaveStatus("Printable worksheets are available in the web app.");
+      }
+      setPrintWorksheetRequest(null);
       return;
     }
 
-    const versesToPrint = selectedVerses.length ? selectedVerses : passageText.verses;
-    const reference = selectedVerses.length ? buildMemoryReference(selectedVerses) : passageText.reference || passage;
+    const selectedMethod = methods.find((item) => item.id === printWorksheetMethodId) || method;
     const worksheetHtml = buildPrintableStudyWorksheetHtml({
-      reference,
-      translation: shortBibleTranslationName(passageText.translation_name),
-      method,
-      verses: versesToPrint
+      reference: printWorksheetRequest.reference,
+      translation: printWorksheetRequest.translation,
+      method: selectedMethod,
+      verses: printWorksheetRequest.verses,
+      writingSpace: printWorksheetWritingSpace,
+      includeMemory: printWorksheetIncludes.memory,
+      includeInsight: printWorksheetIncludes.insight
     });
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
-      setSaveStatus("Allow pop-ups to open the printable worksheet.");
+      if (printWorksheetRequest.source === "bible") {
+        setReaderMemoryStatus("Allow pop-ups to open the printable worksheet.");
+      } else {
+        setSaveStatus("Allow pop-ups to open the printable worksheet.");
+      }
       return;
     }
 
     printWindow.document.open();
     printWindow.document.write(worksheetHtml);
     printWindow.document.close();
-    printWindow.document.title = `${reference} Worksheet`;
+    printWindow.document.title = `${printWorksheetRequest.reference} Worksheet`;
     printWindow.focus();
-    setSaveStatus(
-      phoneLayout
-        ? "Worksheet opened. On phone, use Share, then Print or Save to Files."
-        : selectedVerses.length
-          ? "Printable worksheet opened for selected verses."
-          : "Printable worksheet opened."
-    );
+    const status = phoneLayout
+      ? "Worksheet opened. On phone, use Share, then Print or Save to Files."
+      : printWorksheetRequest.source === "study" && selectedVerses.length
+        ? "Printable worksheet opened for selected verses."
+        : "Printable worksheet opened.";
+    if (printWorksheetRequest.source === "bible") {
+      setReaderMemoryStatus(status);
+    } else {
+      setSaveStatus(status);
+    }
+    setPrintWorksheetRequest(null);
   }
 
   function startMemoryPractice(verse: any) {
@@ -2930,7 +2952,7 @@ export default function Home() {
                                         <Ionicons name="sparkles-outline" size={14} color="white" />
                                         <Text style={styles.memoryReaderButtonText}>{selectedVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
                                       </Pressable>
-                                      <Pressable onPress={printCurrentStudyWorksheet} style={styles.inlineReaderBookmarkButton}>
+                                      <Pressable onPress={openStudyWorksheetOptions} style={styles.inlineReaderBookmarkButton}>
                                         <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
                                         <Text style={styles.inlineReaderBookmarkText}>Print</Text>
                                       </Pressable>
@@ -3039,7 +3061,7 @@ export default function Home() {
                         <ResumeButton
                           label={selectedVerses.length ? "Print selected worksheet" : "Print worksheet"}
                           icon="print-outline"
-                          onPress={printCurrentStudyWorksheet}
+                          onPress={openStudyWorksheetOptions}
                           style={phoneLayout && styles.phoneStudyPrintButton}
                           labelStyle={phoneLayout && styles.phoneStudyPrintButtonText}
                         />
@@ -3993,7 +4015,7 @@ export default function Home() {
                               <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
                               <Text style={[styles.inlineReaderBookmarkText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
                             </Pressable>
-                            <Pressable onPress={printSelectedReaderWorksheet} style={styles.inlineReaderBookmarkButton}>
+                            <Pressable onPress={openReaderWorksheetOptions} style={styles.inlineReaderBookmarkButton}>
                               <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
                               <Text style={styles.inlineReaderBookmarkText}>Print</Text>
                             </Pressable>
@@ -5857,7 +5879,7 @@ export default function Home() {
               <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
               <Text style={[styles.mobileReaderSelectionButtonText, currentSelectionBookmark?.note?.trim() && styles.primaryMobileReaderSelectionButtonText]}>Note</Text>
             </Pressable>
-            <Pressable onPress={printSelectedReaderWorksheet} style={styles.mobileReaderSelectionButton}>
+            <Pressable onPress={openReaderWorksheetOptions} style={styles.mobileReaderSelectionButton}>
               <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
               <Text style={styles.mobileReaderSelectionButtonText}>Print</Text>
             </Pressable>
@@ -5905,6 +5927,86 @@ export default function Home() {
               </View>
             </View>
           )}
+        </View>
+      )}
+      {printWorksheetRequest && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable style={styles.printOptionsScrim} onPress={() => setPrintWorksheetRequest(null)} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={styles.printOptionsTitle}>Print worksheet</Text>
+                <Text style={styles.printOptionsSubtitle}>
+                  {printWorksheetRequest.reference} · {methods.find((item) => item.id === printWorksheetMethodId)?.short || method.short} · {printWorksheetRequest.translation}
+                </Text>
+              </View>
+              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={colors.muted} />
+              </Pressable>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={styles.printOptionLabel}>Method</Text>
+              <View style={styles.printOptionChipRow}>
+                {methods.map((item) => (
+                  <Pressable
+                    key={item.id}
+                    onPress={() => setPrintWorksheetMethodId(item.id)}
+                    style={[styles.printOptionChip, printWorksheetMethodId === item.id && styles.activePrintOptionChip]}
+                  >
+                    <Text style={[styles.printOptionChipText, printWorksheetMethodId === item.id && styles.activePrintOptionChipText]}>{item.short}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={styles.printOptionLabel}>Writing space</Text>
+              <View style={styles.printOptionChipRow}>
+                {[
+                  ["standard", "Standard"],
+                  ["more", "More space"]
+                ].map(([key, label]) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => setPrintWorksheetWritingSpace(key as WorksheetWritingSpace)}
+                    style={[styles.printOptionChip, printWorksheetWritingSpace === key && styles.activePrintOptionChip]}
+                  >
+                    <Text style={[styles.printOptionChipText, printWorksheetWritingSpace === key && styles.activePrintOptionChipText]}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={styles.printOptionLabel}>Include</Text>
+              <View style={styles.printOptionToggleList}>
+                {[
+                  ["memory", "Memory verse"],
+                  ["insight", "Shareable insight"]
+                ].map(([key, label]) => {
+                  const active = printWorksheetIncludes[key as keyof typeof printWorksheetIncludes];
+                  return (
+                    <Pressable
+                      key={key}
+                      onPress={() => setPrintWorksheetIncludes((current) => ({ ...current, [key]: !current[key as keyof typeof current] }))}
+                      style={styles.printOptionToggle}
+                    >
+                      <Ionicons name={active ? "checkbox" : "square-outline"} size={19} color={active ? colors.coral : colors.muted} />
+                      <Text style={styles.printOptionToggleText}>{label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={styles.printOptionsActions}>
+              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.printOptionsCancelButton}>
+                <Text style={styles.printOptionsCancelText}>Cancel</Text>
+              </Pressable>
+              <ResumeButton label="Open worksheet" icon="open-outline" onPress={openPrintableWorksheet} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+            </View>
+          </View>
         </View>
       )}
       <Pressable
@@ -8691,12 +8793,18 @@ function buildPrintableStudyWorksheetHtml({
   reference,
   translation,
   method,
-  verses
+  verses,
+  writingSpace = "standard",
+  includeMemory = true,
+  includeInsight = true
 }: {
   reference: string;
   translation: string;
   method: (typeof methods)[number];
   verses: BibleVerse[];
+  writingSpace?: WorksheetWritingSpace;
+  includeMemory?: boolean;
+  includeInsight?: boolean;
 }) {
   const safeReference = escapeHtml(reference);
   const safeTranslation = escapeHtml(translation || "");
@@ -8704,7 +8812,11 @@ function buildPrintableStudyWorksheetHtml({
   const methodLabel = `${method.short} Study Method`;
   const verseCount = verses.length;
   const passageClass = verseCount === 1 ? "single-passage" : verseCount > 10 ? "long-passage" : "";
-  const stepLineCount = getPrintableStepLineCount(verseCount, printableSteps.length);
+  const stepLineCount = getPrintableStepLineCount(verseCount, printableSteps.length, writingSpace);
+  const smallBoxHtml = [
+    includeMemory ? '<div class="small-box"><h3>Memory Verse</h3><div class="line"></div><div class="line"></div></div>' : "",
+    includeInsight ? '<div class="small-box"><h3>Shareable Insight</h3><div class="line"></div><div class="line"></div></div>' : ""
+  ].filter(Boolean).join("");
   const passageHtml = verses
     .map((verse) => `<span class="verse"><span class="verse-number">${verse.verse}</span>${escapeHtml(verse.text)}</span>`)
     .join(" ");
@@ -8792,17 +8904,20 @@ function buildPrintableStudyWorksheetHtml({
         <div class="passage ${passageClass}"><p>${passageHtml}</p></div>
       </section>
       <section class="section">${promptHtml}</section>
-      <section class="section two-column">
-        <div class="small-box"><h3>Memory Verse</h3><div class="line"></div><div class="line"></div></div>
-        <div class="small-box"><h3>Shareable Insight</h3><div class="line"></div><div class="line"></div></div>
-      </section>
+      ${smallBoxHtml ? `<section class="section two-column">${smallBoxHtml}</section>` : ""}
       <footer class="footer"><span>Free Bible study worksheet from Bible Study Tutor</span><span>biblestudytutor.org</span></footer>
     </main>
   </body>
 </html>`;
 }
 
-function getPrintableStepLineCount(verseCount: number, stepCount: number) {
+function getPrintableStepLineCount(verseCount: number, stepCount: number, writingSpace: WorksheetWritingSpace = "standard") {
+  if (writingSpace === "more") {
+    if (verseCount <= 1) return 8;
+    if (verseCount <= 6) return 8;
+    if (verseCount <= 12) return Math.max(8, Math.round(24 / Math.max(stepCount, 1)));
+    return Math.max(9, Math.round(30 / Math.max(stepCount, 1)));
+  }
   if (verseCount <= 1) return 5;
   if (verseCount <= 6) return 6;
   if (verseCount <= 12) return Math.max(6, Math.round(18 / Math.max(stepCount, 1)));
@@ -14073,6 +14188,138 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 11,
     fontWeight: "800"
+  },
+  printOptionsOverlay: {
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    zIndex: 520
+  },
+  printOptionsScrim: {
+    backgroundColor: "rgba(36, 29, 25, 0.28)",
+    bottom: 0,
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0
+  },
+  printOptionsCard: {
+    alignSelf: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 14,
+    marginTop: 82,
+    maxWidth: 520,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
+    width: "88%"
+  },
+  phonePrintOptionsCard: {
+    marginTop: 68,
+    width: "92%"
+  },
+  printOptionsHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  printOptionsTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  printOptionsTitle: {
+    color: colors.ink,
+    fontSize: 18,
+    fontWeight: "900"
+  },
+  printOptionsSubtitle: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 18,
+    marginTop: 3
+  },
+  printOptionGroup: {
+    gap: 8
+  },
+  printOptionLabel: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  printOptionChipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  printOptionChip: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 34,
+    paddingHorizontal: 12
+  },
+  activePrintOptionChip: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  printOptionChipText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  activePrintOptionChipText: {
+    color: "white"
+  },
+  printOptionToggleList: {
+    gap: 8
+  },
+  printOptionToggle: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    minHeight: 32
+  },
+  printOptionToggleText: {
+    color: colors.ink,
+    fontSize: 14,
+    fontWeight: "800"
+  },
+  printOptionsActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "flex-end"
+  },
+  printOptionsCancelButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 38,
+    paddingHorizontal: 12
+  },
+  printOptionsCancelText: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "900"
+  },
+  phonePrintOpenButton: {
+    justifyContent: "center",
+    width: "100%"
+  },
+  phonePrintOpenButtonText: {
+    textAlign: "center"
   },
   contextHelpButton: {
     alignItems: "center",

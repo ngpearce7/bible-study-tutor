@@ -5586,7 +5586,8 @@ export default function Home() {
               {[
                 ["1", "Choose Scripture", "Open Bible, search, or type a passage in Study.", "reader-outline"],
                 ["2", "Respond honestly", "Use a method, write notes, highlight verses, and save your study.", "create-outline"],
-                ["3", "Return later", "Review your journal, practise memory verses, and share check-ins.", "refresh-circle-outline"]
+                ["3", "Print when useful", "Create worksheets for pen-and-paper study, groups, or church handouts.", "print-outline"],
+                ["4", "Return later", "Review your journal, practise memory verses, and share check-ins.", "refresh-circle-outline"]
               ].map(([number, title, body, icon]) => (
                 <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard]}>
                   <View style={styles.helpStepNumber}><Text style={styles.helpStepNumberText}>{number}</Text></View>
@@ -5600,7 +5601,7 @@ export default function Home() {
             <View style={[styles.helpWalkthroughGrid, phoneLayout && styles.phoneHelpGrid]}>
               <HelpScreenshot
                 title="Bible reader"
-                caption="Tap one verse, or tap another verse to select the whole range. The action bar stays near the bottom on mobile."
+                caption="Tap one verse, or tap another verse to select the whole range. The action bar lets you study, note, print, save, or memorize."
                 variant="bible"
               />
               <HelpScreenshot
@@ -5673,6 +5674,18 @@ export default function Home() {
                     target: "study"
                   },
                   {
+                    icon: "print-outline",
+                    title: "Print a worksheet",
+                    steps: [
+                      "In Bible, select one or more verses and tap Print.",
+                      "In Study, use Print worksheet to print the current passage.",
+                      "If verses are selected in Study, the worksheet prints just those verses.",
+                      "On phone, open the worksheet, then use Share to Print or Save to Files."
+                    ],
+                    action: "Open Bible",
+                    target: "bible"
+                  },
+                  {
                     icon: "sparkles-outline",
                     title: "Memorize Scripture",
                     steps: [
@@ -5727,8 +5740,8 @@ export default function Home() {
               <View style={styles.helpTabGrid}>
                 {[
                   ["Home", "Your starting point and next best actions.", "home-outline"],
-                  ["Bible", "Read, search, select verses, bookmark, note, and send to Study.", "reader-outline"],
-                  ["Study", "Guided Bible study with notes, highlights, coaching, and saving.", "book-outline"],
+                  ["Bible", "Read, search, select verses, bookmark, note, print worksheets, and send to Study.", "reader-outline"],
+                  ["Study", "Guided Bible study with notes, highlights, coaching, worksheets, and saving.", "book-outline"],
                   ["Methods", "Choose how you want to study a passage.", "layers-outline"],
                   ["Plans", "Follow short guided paths over several days.", "calendar-outline"],
                   ["Memory", "Practise saved verses in three simple steps.", "sparkles-outline"],
@@ -5754,6 +5767,7 @@ export default function Home() {
                 ["How do I study selected verses?", "Select one or more verses in Bible, then tap Study. The app opens Study with those verses loaded."],
                 ["Where do highlights go?", "Highlights stay with the saved study and can be found again from Journal."],
                 ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab."],
+                ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
                 ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, then tap Share insight."],
                 ["How do I change the Bible translation?", "Open Account, then choose BSB, WEB, or KJV under Bible translations."],
                 ["How do I hide busy panels?", "Use Focus mode in Study, collapse the Bible reader panel, and use the small arrow controls on collapsible sections."],
@@ -6036,6 +6050,7 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
             <View style={styles.helpDockPreview}>
               <Text style={styles.helpDockButton}>Study</Text>
               <Text style={styles.helpDockButton}>Note</Text>
+              <Text style={styles.helpDockButton}>Print</Text>
               <Text style={styles.helpDockButton}>Memory</Text>
             </View>
           </>

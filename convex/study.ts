@@ -453,22 +453,45 @@ export const dueStudyReviews = query({
 
 export const stats = query({
   args: {
-    profileId: v.id("profiles")
+    profileId: v.id("profiles"),
+    timezoneOffsetMinutes: v.optional(v.number())
   },
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
-    const sessions = await ctx.db
+    const [sessions, checkins, memoryVerses, usageEvents] = await Promise.all([
+      ctx.db
       .query("sessions")
       .withIndex("by_profile_completed", (q) => q.eq("profileId", args.profileId))
-      .collect();
+        .collect(),
+      ctx.db
+        .query("checkins")
+        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+        .collect(),
+      ctx.db
+        .query("memoryVerses")
+        .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
+        .collect(),
+      ctx.db
+        .query("usageEvents")
+        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+        .collect()
+    ]);
 
-    const dates = Array.from(new Set(sessions.map((session) => dayKey(session.completedAt)))).sort();
+    const timezoneOffsetMinutes = args.timezoneOffsetMinutes ?? 0;
+    const activityTimestamps = [
+      ...sessions.map((session) => session.completedAt),
+      ...checkins.map((checkin) => checkin.createdAt),
+      ...memoryVerses.flatMap((verse) => [verse.createdAt, verse.lastReviewedAt].filter(isNumber)),
+      ...usageEvents.filter((event) => countsTowardScriptureRhythm(event.eventType)).map((event) => event.createdAt)
+    ];
+
+    const dates = Array.from(new Set(activityTimestamps.map((timestamp) => dayKey(timestamp, timezoneOffsetMinutes)))).sort();
 
     return {
       sessionCount: sessions.length,
       minutes: sessions.reduce((total, session) => total + session.minutes, 0),
-      currentStreak: currentStreak(dates),
+      currentStreak: currentStreak(dates, timezoneOffsetMinutes),
       bestStreak: bestStreak(dates)
     };
   }
@@ -535,8 +558,8 @@ function isAdminEmail(email: string) {
     .includes(normalized);
 }
 
-function dayKey(value: number) {
-  return new Date(value).toISOString().slice(0, 10);
+function dayKey(value: number, timezoneOffsetMinutes = 0) {
+  return new Date(value - timezoneOffsetMinutes * 60 * 1000).toISOString().slice(0, 10);
 }
 
 function reviewTimestamp(preset: "tomorrow" | "three-days" | "next-week" | "next-month") {
@@ -557,9 +580,15 @@ function customReviewTimestamp(daysFromNow: number) {
   return Date.now() + days * 24 * 60 * 60 * 1000;
 }
 
-function currentStreak(dates: string[]) {
+function currentStreak(dates: string[], timezoneOffsetMinutes = 0) {
   let count = 0;
-  const cursor = new Date(dayKey(Date.now()));
+  const today = dayKey(Date.now(), timezoneOffsetMinutes);
+  const cursor = new Date(today);
+
+  if (!dates.includes(today)) {
+    cursor.setDate(cursor.getDate() - 1);
+    if (!dates.includes(dayKey(cursor.getTime()))) return 0;
+  }
 
   while (dates.includes(dayKey(cursor.getTime()))) {
     count += 1;
@@ -587,4 +616,20 @@ function bestStreak(dates: string[]) {
   }
 
   return best;
+}
+
+function countsTowardScriptureRhythm(eventType: string) {
+  return [
+    "bible_search",
+    "bookmark_saved",
+    "chapter_read",
+    "checkin_saved",
+    "memory_saved",
+    "study_completed",
+    "worksheet_printed"
+  ].includes(eventType);
+}
+
+function isNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
 }

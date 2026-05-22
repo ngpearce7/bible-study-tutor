@@ -598,7 +598,7 @@ export default function Home() {
   }, []);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
-  const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId, timezoneOffsetMinutes: new Date().getTimezoneOffset() } : "skip");
   const sessions = useQuery(api.study.recentSessions, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,
@@ -2064,6 +2064,13 @@ export default function Home() {
     } else {
       setSaveStatus(status);
     }
+    trackUsage("worksheet_printed", {
+      reference: printWorksheetRequest.reference,
+      methodId: selectedMethod.id,
+      methodName: selectedMethod.name,
+      translation: printWorksheetRequest.translation,
+      tab: printWorksheetRequest.source
+    });
     setPrintWorksheetRequest(null);
   }
 
@@ -2311,6 +2318,7 @@ export default function Home() {
   }
 
   function toggleReaderChapterRead() {
+    const wasRead = currentChapterRead;
     setReadBibleChapters((current) => {
       const currentBookChapters = current[readerBook] || [];
       const chapterSet = new Set(currentBookChapters);
@@ -2330,6 +2338,14 @@ export default function Home() {
       saveStoredBibleReadChapters(next).catch(() => undefined);
       return next;
     });
+    if (!wasRead) {
+      trackUsage("chapter_read", {
+        reference: buildReaderStudyReference(readerBook, readerChapter, []),
+        tab: "bible",
+        book: readerBook,
+        chapter: readerChapter
+      });
+    }
   }
 
   function clearBibleReadingProgress() {
@@ -2643,7 +2659,7 @@ export default function Home() {
             <Card style={styles.todayCard}>
               <Eyebrow>Today</Eyebrow>
               <Text style={styles.streakNumber}>{stats?.currentStreak ?? 0}</Text>
-              <Text style={styles.muted}>day streak</Text>
+              <Text style={styles.muted}>day rhythm</Text>
               <View style={styles.progressTrack}>
                 <View style={[styles.progressFill, { width: `${progress}%` }]} />
               </View>
@@ -2756,7 +2772,7 @@ export default function Home() {
               <Card style={styles.homeSideCard}>
                 <Text style={styles.homeSideTitle}>At a glance</Text>
                 <View style={styles.homeMetricGrid}>
-                  <Metric value={stats?.currentStreak ?? 0} label="day streak" compact={phoneLayout} />
+                  <Metric value={stats?.currentStreak ?? 0} label="day rhythm" compact={phoneLayout} />
                   <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} />
                   <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} />
                 </View>

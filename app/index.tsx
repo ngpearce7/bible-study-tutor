@@ -5761,6 +5761,18 @@ export default function Home() {
                     ],
                     action: "Open Journal",
                     target: "journal"
+                  },
+                  {
+                    icon: "time-outline",
+                    title: "Understand your daily rhythm",
+                    steps: [
+                      "Your rhythm grows when you engage with Scripture in the app.",
+                      "Reading, studying, saving memory verses, check-ins, bookmarks, chapter reading, searches, and worksheet printing can count.",
+                      "The app uses your recent activity to show a steady daily pattern, not a score to feel guilty about.",
+                      "If you miss today but were active yesterday, the rhythm gives a grace day before dropping back."
+                    ],
+                    action: "Go Home",
+                    target: "home"
                   }
                 ].map((item) => (
                   <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem]}>
@@ -5822,6 +5834,7 @@ export default function Home() {
                 ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab."],
                 ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
                 ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, then tap Share insight."],
+                ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, check-ins, bookmarks, searches, and printed worksheets can count. It also allows a grace day, so missing one day does not immediately erase the rhythm."],
                 ["How do I change the Bible translation?", "Open Account, then choose BSB, WEB, or KJV under Bible translations."],
                 ["How do I hide busy panels?", "Use Focus mode in Study, collapse the Bible reader panel, and use the small arrow controls on collapsible sections."],
                 ["Can I use the app without signing in?", "Yes. You can use a local profile, or sign in later to carry your work between devices."]

@@ -8868,19 +8868,19 @@ function buildPrintableStudyWorksheetHtml({
       .verse { break-inside: avoid; display: inline; }
       .verse-number { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; margin-right: 4px; vertical-align: super; }
       .section { margin-top: 14px; }
-      .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; }
+      .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; break-inside: avoid-page; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
       .prompt-title { align-items: center; background: #fff6eb; border-bottom: 1px solid var(--line); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; gap: 10px; padding: 8px 10px; }
       .badge { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-size: 12px; font-weight: 900; height: 26px; justify-content: center; min-width: 26px; }
       .prompt-title strong { color: var(--ink); }
       .prompt-title span:not(.badge) { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
       .lines { padding: 10px; }
       .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 28 : verseCount > 10 ? 28 : 22}px; }
-      .two-column { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
-      .small-box { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; padding: 12px; }
+      .two-column { break-inside: avoid; break-inside: avoid-page; display: grid; gap: 14px; grid-template-columns: 1fr 1fr; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
+      .small-box { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; break-inside: avoid-page; page-break-inside: avoid; padding: 12px; -webkit-column-break-inside: avoid; }
       .small-box h3 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 0 0 8px; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 16px; padding-top: 10px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
-      @media print { @page { margin: 8mm 9mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } .header { min-height: 96px; padding-bottom: 12px; } h1 { font-size: 31px; } .scripture { padding: 10px 0; } .passage { font-size: 14.5px; line-height: 1.46; } .single-passage { font-size: 17px; line-height: 1.55; } .long-passage { font-size: 13.5px; line-height: 1.42; } .section { margin-top: 10px; } .prompt { margin-bottom: 8px; } .prompt-title { padding: 6px 9px; } .badge { height: 22px; min-width: 22px; } .lines { padding: 8px 10px; } .line { height: ${verseCount === 1 ? 24 : verseCount > 10 ? 24 : 19}px; } .small-box { padding: 9px; } .footer { margin-top: 10px; padding-top: 8px; } }
+      @media print { @page { margin: 8mm 9mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } .header { min-height: 96px; padding-bottom: 12px; } h1 { font-size: 31px; } .scripture { padding: 10px 0; } .passage { font-size: 14.5px; line-height: 1.46; } .single-passage { font-size: 17px; line-height: 1.55; } .long-passage { font-size: 13.5px; line-height: 1.42; } .section { margin-top: 10px; } .prompt, .small-box, .two-column { break-inside: avoid; break-inside: avoid-page; page-break-inside: avoid; -webkit-column-break-inside: avoid; } .prompt { display: block; margin-bottom: 8px; overflow: visible; } .prompt-title, .lines { break-inside: avoid; page-break-inside: avoid; } .prompt-title { padding: 6px 9px; } .badge { height: 22px; min-width: 22px; } .lines { padding: 8px 10px; } .line { height: ${verseCount === 1 ? 24 : verseCount > 10 ? 24 : 19}px; } .small-box { display: block; padding: 9px; } .footer { margin-top: 10px; padding-top: 8px; } }
     </style>
   </head>
   <body>

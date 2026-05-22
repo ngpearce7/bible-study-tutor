@@ -114,6 +114,9 @@ export default function RootLayout() {
         <meta name="twitter:description" content={SITE_DESCRIPTION} />
         {siteImage ? <meta name="twitter:image" content={siteImage} /> : null}
         {siteUrl ? <link rel="canonical" href={siteUrl} /> : null}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="preload" href="/ionicons.ttf" as="font" type="font/ttf" crossOrigin="" />
         <style>{'@font-face{font-family:"ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}'}</style>

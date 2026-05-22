@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
@@ -72,6 +72,7 @@ copyFileSync(
 );
 copyFileSync(join(process.cwd(), "assets", "icon.png"), join(publicDir, "icon.png"));
 copyFileSync(join(process.cwd(), "assets", "favicon.png"), join(publicDir, "favicon.png"));
+writeFileSync(join(publicDir, "favicon.ico"), pngToIco(readFileSync(join(process.cwd(), "assets", "favicon.png")), 48, 48));
 
 const robots = [
   "User-agent: *",
@@ -135,7 +136,9 @@ function buildSeoPage(page, baseUrl) {
     <meta name="description" content="${escapeHtml(page.description)}" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="${escapeHtml(canonical)}" />
-    <link rel="icon" href="/favicon.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Bible Study Tutor" />
     <meta property="og:title" content="${escapeHtml(page.title)}" />
@@ -200,4 +203,23 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function pngToIco(png, width, height) {
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(1, 4);
+
+  const directory = Buffer.alloc(16);
+  directory.writeUInt8(width === 256 ? 0 : width, 0);
+  directory.writeUInt8(height === 256 ? 0 : height, 1);
+  directory.writeUInt8(0, 2);
+  directory.writeUInt8(0, 3);
+  directory.writeUInt16LE(1, 4);
+  directory.writeUInt16LE(32, 6);
+  directory.writeUInt32LE(png.length, 8);
+  directory.writeUInt32LE(header.length + directory.length, 12);
+
+  return Buffer.concat([header, directory, png]);
 }

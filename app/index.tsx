@@ -6549,11 +6549,83 @@ function AdminFeedbackList({ feedback, onMarkStatus }: { feedback: any[]; onMark
 }
 
 function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion">("all");
+  const [visibleCount, setVisibleCount] = useState(15);
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const filteredUsers = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    return users.filter((user) => {
+      const haystack = [
+        user.displayName,
+        user.email,
+        user.signedIn ? "signed in account" : "local profile",
+        user.deletionStatus,
+        user.profileId
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      const matchesSearch = !query || haystack.includes(query);
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "signedIn" && user.signedIn) ||
+        (filter === "local" && !user.signedIn) ||
+        (filter === "active" && user.lastActiveAt >= sevenDaysAgo) ||
+        (filter === "deletion" && !!user.deletionStatus);
+      return matchesSearch && matchesFilter;
+    });
+  }, [filter, searchTerm, sevenDaysAgo, users]);
+  const visibleUsers = filteredUsers.slice(0, visibleCount);
+
+  useEffect(() => {
+    setVisibleCount(15);
+  }, [filter, searchTerm, users.length]);
+
   if (users.length === 0) return <Text style={styles.helpIntro}>No users found yet.</Text>;
 
   return (
     <View style={styles.adminFeedbackList}>
-      {users.slice(0, 12).map((user) => (
+      <View style={styles.adminDirectoryTools}>
+        <View style={styles.adminDirectorySearchBox}>
+          <Ionicons name="search-outline" size={17} color={colors.coral} />
+          <TextInput
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+            placeholder="Search name or email"
+            style={styles.adminDirectorySearchInput}
+          />
+          {!!searchTerm && (
+            <Pressable onPress={() => setSearchTerm("")} style={styles.clearSearchButton}>
+              <Ionicons name="close-outline" size={17} color={colors.muted} />
+            </Pressable>
+          )}
+        </View>
+        <View style={styles.adminDirectoryFilterRow}>
+          {[
+            ["all", "All"],
+            ["signedIn", "Signed in"],
+            ["local", "Local/test"],
+            ["active", "Active 7d"],
+            ["deletion", "Deletion"]
+          ].map(([key, label]) => (
+            <Pressable
+              key={key}
+              onPress={() => setFilter(key as typeof filter)}
+              style={[styles.feedbackCategoryChip, filter === key && styles.activeFeedbackCategoryChip]}
+            >
+              <Text style={[styles.feedbackCategoryText, filter === key && styles.activeFeedbackCategoryText]}>{label}</Text>
+            </Pressable>
+          ))}
+        </View>
+        <Text style={styles.adminDirectorySummary}>
+          Showing {visibleUsers.length} of {filteredUsers.length} matching users · {users.length} loaded
+        </Text>
+      </View>
+
+      {visibleUsers.length === 0 ? (
+        <Text style={styles.helpIntro}>No users match this search or filter.</Text>
+      ) : visibleUsers.map((user) => (
         <Pressable
           key={user.profileId}
           onPress={() => onSelect(user.profileId)}
@@ -6572,6 +6644,13 @@ function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any
           </View>
         </Pressable>
       ))}
+
+      {visibleCount < filteredUsers.length && (
+        <Pressable onPress={() => setVisibleCount((count) => count + 15)} style={styles.adminDirectoryShowMore}>
+          <Text style={styles.feedbackCategoryText}>Show 15 more</Text>
+          <Ionicons name="chevron-down-outline" size={16} color={colors.oliveDark} />
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -15161,6 +15240,58 @@ const styles = StyleSheet.create({
   },
   adminFeedbackList: {
     gap: 10
+  },
+  adminDirectoryTools: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 9,
+    padding: 10
+  },
+  adminDirectorySearchBox: {
+    alignItems: "center",
+    backgroundColor: "white",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    minWidth: 0,
+    paddingHorizontal: 10,
+    paddingVertical: 8
+  },
+  adminDirectorySearchInput: {
+    color: colors.ink,
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    minWidth: 0,
+    outlineStyle: "none" as any,
+    padding: 0
+  },
+  adminDirectoryFilterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  adminDirectorySummary: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17
+  },
+  adminDirectoryShowMore: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
+    paddingHorizontal: 11,
+    paddingVertical: 8
   },
   adminUserRow: {
     alignItems: "center",

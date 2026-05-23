@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
-import { action, mutation, query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
 
@@ -154,118 +154,6 @@ export const saveSession = mutation({
     return sessionId;
   }
 });
-
-export const getDeeperFeedback = action({
-  args: {
-    passageReference: v.string(),
-    passageText: v.optional(v.string()),
-    methodName: v.string(),
-    stepTitle: v.string(),
-    stepPrompt: v.string(),
-    answer: v.string(),
-    localFeedback: v.array(v.string())
-  },
-  handler: async (_ctx, args) => {
-    const localFeedback = args.localFeedback.slice(0, 5).map((item) => clampText(item, 500));
-    const fallback = {
-      encouragement: localFeedback[0] || "You are engaging the passage thoughtfully.",
-      textGrounding: "Look for one word, action, image, or claim in the passage that supports your answer.",
-      nextRevision: localFeedback[1] || "Revise this by adding one concrete detail from the selected passage.",
-      source: "local" as const
-    };
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) return fallback;
-
-    try {
-      const response = await fetch("https://api.openai.com/v1/responses", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: process.env.OPENAI_TUTOR_MODEL || "gpt-5.4-mini",
-          reasoning: { effort: "low" },
-          input: [
-            {
-              role: "system",
-              content:
-                "You are a gentle Bible study tutor. Give concise, non-guilt-based coaching. Keep feedback tied to the selected passage and method. Do not invent historical background. Do not write the student's answer for them."
-            },
-            {
-              role: "user",
-              content: JSON.stringify({
-                passageReference: clampText(args.passageReference, 160),
-                passageText: clampOptionalText(args.passageText, 3000),
-                methodName: clampText(args.methodName, 120),
-                stepTitle: clampText(args.stepTitle, 120),
-                stepPrompt: clampText(args.stepPrompt, 1000),
-                studentAnswer: clampText(args.answer, 8000),
-                localFeedback
-              })
-            }
-          ],
-          text: {
-            format: {
-              type: "json_schema",
-              name: "bible_tutor_feedback",
-              strict: true,
-              schema: {
-                type: "object",
-                additionalProperties: false,
-                required: ["encouragement", "textGrounding", "nextRevision"],
-                properties: {
-                  encouragement: {
-                    type: "string",
-                    description: "One warm sentence naming what is working in the student's answer."
-                  },
-                  textGrounding: {
-                    type: "string",
-                    description: "One concise suggestion for tying the answer more closely to the passage."
-                  },
-                  nextRevision: {
-                    type: "string",
-                    description: "One concrete revision prompt the student can act on."
-                  }
-                }
-              }
-            }
-          },
-          max_output_tokens: 500
-        })
-      });
-
-      if (!response.ok) return fallback;
-
-      const data = await response.json();
-      const outputText = extractOutputText(data);
-      if (!outputText) return fallback;
-
-      const parsed = JSON.parse(outputText);
-      return {
-        encouragement: clampText(String(parsed.encouragement || fallback.encouragement), 500),
-        textGrounding: clampText(String(parsed.textGrounding || fallback.textGrounding), 500),
-        nextRevision: clampText(String(parsed.nextRevision || fallback.nextRevision), 500),
-        source: "openai" as const
-      };
-    } catch {
-      return fallback;
-    }
-  }
-});
-
-function extractOutputText(data: any) {
-  if (typeof data.output_text === "string") return data.output_text;
-
-  for (const item of data.output || []) {
-    for (const content of item.content || []) {
-      if (content.type === "output_text" && typeof content.text === "string") return content.text;
-    }
-  }
-
-  return "";
-}
 
 export const saveDraft = mutation({
   args: {

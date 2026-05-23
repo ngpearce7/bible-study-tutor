@@ -1,7 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
-export type StoredAiAccessOption = "free" | "own-key" | "premium";
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
@@ -21,7 +20,6 @@ export type StoredCheckinPartner = { id: string; name: string; contactNote?: str
 export type StoredStudyPanelKey = "community" | "plan" | "feedback" | "helps";
 export type StoredCollapsedStudyPanels = Record<StoredStudyPanelKey, boolean>;
 
-const aiAccessChoiceKey = "bible-study-tutor-ai-access-choice";
 const pinnedJournalEntriesKey = "bible-study-tutor-pinned-journal-entries";
 const completedPlanDaysKey = "bible-study-tutor-completed-plan-days";
 const checkinPartnersKey = "bible-study-tutor-checkin-partners";
@@ -200,15 +198,6 @@ export async function saveStoredCustomWritingPrompts(prompts: string[]) {
   await setStoredValue(customWritingPromptsKey, JSON.stringify(normalized));
 }
 
-export async function getStoredAiAccessChoice(): Promise<StoredAiAccessOption> {
-  const stored = await getStoredValue(aiAccessChoiceKey);
-  return isAiAccessOption(stored) ? stored : "free";
-}
-
-export async function saveStoredAiAccessChoice(choice: StoredAiAccessOption) {
-  await setStoredValue(aiAccessChoiceKey, choice);
-}
-
 export async function getPinnedJournalEntries(): Promise<string[]> {
   const stored = await getStoredValue(pinnedJournalEntriesKey);
   if (!stored) return [];
@@ -278,8 +267,4 @@ async function setStoredValue(key: string, value: string) {
   }
 
   await SecureStore.setItemAsync(key, value);
-}
-
-function isAiAccessOption(value: string | null): value is StoredAiAccessOption {
-  return value === "free" || value === "own-key" || value === "premium";
 }

@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAiAccessChoice, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAiAccessChoice, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -25,13 +25,6 @@ type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
 type WorksheetWritingSpace = "standard" | "more";
 type AnswerMap = Record<string, string>;
-type SmartFeedback = {
-  encouragement: string;
-  textGrounding: string;
-  nextRevision: string;
-  source: "local" | "openai";
-};
-type AiAccessOption = "free" | "own-key" | "premium";
 type BibleTranslationId = "bsb" | "web" | "kjv";
 type AuthFlow = "signIn" | "signUp";
 type LegalSection = "privacy" | "terms" | "";
@@ -174,8 +167,8 @@ const PRIVACY_POLICY_SECTIONS = [
     body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, and feature usage. These insights are used to improve the app and keep it helpful and safe."
   },
   {
-    title: "AI and coaching",
-    body: "Free coaching is generated locally in the app and does not require paid AI usage. Deeper AI feedback is optional and should only run if you deliberately enable it in the future. Do not enter sensitive information into optional AI features unless you are comfortable with that processing."
+    title: "Study coaching",
+    body: "Study coaching is generated locally in the app using built-in prompts. It does not send notes to an AI provider, use paid AI credits, or require an AI account."
   },
   {
     title: "Sharing from the app",
@@ -233,7 +226,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Free access and future changes",
-    body: "The intention is to keep the core app free and accessible to the church. Features, hosting, Bible translation availability, optional premium ideas, and AI options may change over time, especially while the app is still growing."
+    body: "The intention is to keep the core app free and accessible to the church. Features, hosting, and Bible translation availability may change over time, especially while the app is still growing."
   },
   {
     title: "Fair use and security",
@@ -301,7 +294,6 @@ export default function Home() {
   const saveDraft = useMutation(api.study.saveDraft);
   const deleteDraftMutation = useMutation(api.study.deleteDraft);
   const deleteSessionMutation = useMutation(api.study.deleteSession);
-  const getDeeperFeedback = useAction(api.study.getDeeperFeedback);
   const savePlan = useMutation(api.accountability.savePlan);
   const saveAccountSettings = useMutation(api.accountability.saveAccountSettings);
   const changePassword = useAction(api.accountability.changePassword);
@@ -455,13 +447,6 @@ export default function Home() {
   const [editReflectionPrayer, setEditReflectionPrayer] = useState("");
   const [editReflectionNextStep, setEditReflectionNextStep] = useState("");
   const [isSavingJournalEdit, setIsSavingJournalEdit] = useState(false);
-  const [smartFeedback, setSmartFeedback] = useState<SmartFeedback | null>(null);
-  const [smartFeedbackKey, setSmartFeedbackKey] = useState("");
-  const [smartFeedbackStatus, setSmartFeedbackStatus] = useState("");
-  const [acceptedCoaching, setAcceptedCoaching] = useState<Record<string, SmartFeedback>>({});
-  const [showAiOptions, setShowAiOptions] = useState(false);
-  const [aiAccessChoice, setAiAccessChoice] = useState<AiAccessOption>("free");
-  const [aiDetailsOpen, setAiDetailsOpen] = useState<AiAccessOption>("free");
   const [bibleTranslation, setBibleTranslation] = useState<BibleTranslationId>("bsb");
   const [readerBook, setReaderBook] = useState("Genesis");
   const [readerChapter, setReaderChapter] = useState(1);
@@ -564,12 +549,6 @@ export default function Home() {
   }, [authLoading, authName, ensureProfile, isAuthenticated]);
 
   useEffect(() => {
-    getStoredAiAccessChoice()
-      .then((choice) => {
-        setAiAccessChoice(choice);
-        setAiDetailsOpen(choice);
-      })
-      .catch(() => undefined);
     getPinnedJournalEntries()
       .then(setPinnedJournalEntryIds)
       .catch(() => undefined);
@@ -717,7 +696,6 @@ export default function Home() {
   const communityMessage = buildCommunityMessage({ partner: effectivePartner, senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
-  const currentAcceptedCoaching = acceptedCoaching[answerKey];
   const passagePresets = buildPassagePresets(method.id);
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
@@ -1138,12 +1116,6 @@ export default function Home() {
         shareNote: finalShareNote || undefined,
         passageMarkups: passageMarkupRecords,
         minutes: Math.max(5, sessionAnswers.filter((item) => item.answer.trim()).length * 6),
-        coachingMoments: Object.entries(acceptedCoaching).map(([key, feedback]) => ({
-          stepTitle: method.steps[Number(key.split(":")[1])]?.title || "Study step",
-          encouragement: feedback.encouragement,
-          textGrounding: feedback.textGrounding,
-          nextRevision: feedback.nextRevision
-        })),
         answers: sessionAnswers
       });
     } catch {
@@ -1169,9 +1141,6 @@ export default function Home() {
     setPassageMarkups({});
     setPassageMarkupNotes({});
     setSelectedVerseKeys([]);
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     setStudyPhase("saved");
     setLoadedDraftKey("");
     setSaveStatus(`Completed and saved${firstName ? `, ${firstName}` : ""}`);
@@ -1244,7 +1213,6 @@ export default function Home() {
     setPassageMarkups(markupRecordsToMap(nextPassageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(nextPassageMarkups || []));
     setSelectedVerseKeys([]);
-    setAcceptedCoaching({});
     setActivePlanDayKey("");
     setLoadedDraftKey(studyKey(nextPassage, nextMethodId));
     setSaveStatus(status);
@@ -1292,9 +1260,6 @@ export default function Home() {
     setSavedStudySummary(null);
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setLoadedDraftKey("");
     setSaveStatus("Not saved yet");
@@ -1312,9 +1277,6 @@ export default function Home() {
     setSavedStudySummary(null);
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setLoadedDraftKey("");
     setSaveStatus(`Example loaded: ${examplePassage}`);
@@ -1326,9 +1288,6 @@ export default function Home() {
     const lastStudiedPassage = passageText?.reference || passage.trim() || passageQuery.trim() || "Psalm 23";
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setPassage(lastStudiedPassage);
     setPassageQuery(lastStudiedPassage);
@@ -1347,9 +1306,6 @@ export default function Home() {
     setPassageQuery(nextPassage);
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setStepIndex(0);
     setStudyPhase("study");
@@ -1937,53 +1893,6 @@ export default function Home() {
     }
   }
 
-  async function requestDeeperFeedback() {
-    const answer = answers[answerKey]?.trim();
-    if (!answer) return;
-
-    setSmartFeedback(null);
-    setSmartFeedbackKey(answerKey);
-    setSmartFeedbackStatus("");
-    setShowAiOptions(true);
-  }
-
-  function chooseAiAccess(option: AiAccessOption, createFeedback = false) {
-    setAiAccessChoice(option);
-    setAiDetailsOpen(option);
-    saveStoredAiAccessChoice(option).catch(() => undefined);
-
-    if (!createFeedback) {
-      setSmartFeedbackStatus(option === "free" ? "Free local coaching selected" : "This feedback option is planned, but not active yet.");
-      return;
-    }
-
-    setSmartFeedbackKey(answerKey);
-
-    if (option === "free") {
-      setSmartFeedback({
-        encouragement: currentCoaching[0] || "You are engaging the passage thoughtfully.",
-        textGrounding: "Free coaching uses built-in guidance, so it will not create any AI usage cost.",
-        nextRevision: currentCoaching[1] || "Add one concrete word, image, or action from the passage to strengthen your answer.",
-        source: "local"
-      });
-      setSmartFeedbackStatus("Free local coaching ready");
-      setShowAiOptions(false);
-      return;
-    }
-
-    if (option === "own-key") {
-      setSmartFeedbackStatus("Personal AI keys are coming soon. For now, free local coaching is still available.");
-      return;
-    }
-
-    setSmartFeedbackStatus("Premium subscriptions are coming soon. For now, free local coaching is still available.");
-  }
-
-  function acceptSmartFeedback() {
-    if (!smartFeedback) return;
-    setAcceptedCoaching((current) => ({ ...current, [answerKey]: smartFeedback }));
-  }
-
   function applyVerseMarkup(kind: PassageMarkupKind) {
     if (selectedVerseKeys.length === 0) return;
     setPassageMarkups((current) => {
@@ -2338,9 +2247,6 @@ export default function Home() {
     setMethodId(nextMethod.id);
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setStepIndex(0);
     setStudyPhase("study");
@@ -2499,9 +2405,6 @@ export default function Home() {
     setPassageQuery(reference);
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setStepIndex(0);
     setStudyPhase("study");
@@ -2643,9 +2546,6 @@ export default function Home() {
     setPassageQuery(readerStudyReference);
     setAnswers({});
     setShareNote("");
-    setSmartFeedback(null);
-    setShowAiOptions(false);
-    setAcceptedCoaching({});
     resetPassageMarkup();
     setStepIndex(0);
     setStudyPhase("study");
@@ -3421,65 +3321,6 @@ export default function Home() {
                               <Text style={styles.coachingText}>{item}</Text>
                             </View>
                           ))}
-                          <Pressable onPress={requestDeeperFeedback} style={styles.deeperFeedbackButton}>
-                            <Ionicons name="sparkles-outline" size={16} color={colors.oliveDark} />
-                            <Text style={styles.deeperFeedbackText}>AI feedback options</Text>
-                          </Pressable>
-                          {showAiOptions && smartFeedbackKey === answerKey && (
-                            <View style={styles.aiOptionsBox}>
-                              <Text style={styles.aiOptionsTitle}>Choose your feedback option</Text>
-                              <Text style={styles.aiOptionsText}>
-                                Deeper AI feedback may create usage costs. Choose the option that works for you.
-                              </Text>
-                              <Pressable onPress={() => chooseAiAccess("free", true)} style={styles.aiOptionCard}>
-                                <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
-                                <View style={styles.aiOptionCopy}>
-                                  <Text style={styles.aiOptionTitle}>Continue free</Text>
-                                  <Text style={styles.aiOptionText}>Use built-in coaching. No account, payment, or AI cost.</Text>
-                                </View>
-                              </Pressable>
-                              <Pressable onPress={() => chooseAiAccess("own-key", true)} style={styles.aiOptionCard}>
-                                <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
-                                <View style={styles.aiOptionCopy}>
-                                  <Text style={styles.aiOptionTitle}>Use my own AI key</Text>
-                                  <Text style={styles.aiOptionText}>Coming soon. You would pay the AI provider directly.</Text>
-                                </View>
-                              </Pressable>
-                              <Pressable onPress={() => chooseAiAccess("premium", true)} style={styles.aiOptionCard}>
-                                <Ionicons name="card-outline" size={20} color={colors.oliveDark} />
-                                <View style={styles.aiOptionCopy}>
-                                  <Text style={styles.aiOptionTitle}>Premium subscription</Text>
-                                  <Text style={styles.aiOptionText}>Coming soon. Subscription access with clear usage limits.</Text>
-                                </View>
-                              </Pressable>
-                            </View>
-                          )}
-                          {!!smartFeedbackStatus && smartFeedbackStatus !== "Asking the tutor..." && (
-                            <Text style={styles.saveStatus}>{smartFeedbackStatus}</Text>
-                          )}
-                          {smartFeedback && smartFeedbackKey === answerKey && (
-                            <View style={styles.smartFeedbackBox}>
-                              <View style={styles.smartFeedbackHeader}>
-                                <Text style={styles.reviewStepTitle}>
-                                  {smartFeedback.source === "openai" ? "Smart tutor" : "Local tutor"}
-                                </Text>
-                                {currentAcceptedCoaching && <Text style={styles.acceptedPill}>Accepted</Text>}
-                              </View>
-                              <Text style={styles.body}>
-                                <Text style={styles.bold}>Encouragement: </Text>
-                                {smartFeedback.encouragement}
-                              </Text>
-                              <Text style={styles.body}>
-                                <Text style={styles.bold}>Text grounding: </Text>
-                                {smartFeedback.textGrounding}
-                              </Text>
-                              <Text style={styles.body}>
-                                <Text style={styles.bold}>Next revision: </Text>
-                                {smartFeedback.nextRevision}
-                              </Text>
-                              <ResumeButton label="Save this coaching" icon="checkmark-circle-outline" onPress={acceptSmartFeedback} />
-                            </View>
-                          )}
                         </View>
                       )}
                       {stepIndex === method.steps.length - 1 && (
@@ -3563,14 +3404,26 @@ export default function Home() {
                 </View>
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
-                title="Feedback"
-                icon="sparkles-outline"
+                title="Coaching"
+                icon="bulb-outline"
                 collapsed={collapsedStudyPanels.feedback}
                 onToggle={() => toggleStudyPanel("feedback")}
                 style={styles.feedbackOptionsBox}
               >
-                <Text style={styles.helpIntro}>Current: {aiAccessChoice === "free" ? "Free local coaching" : aiAccessChoice === "own-key" ? "Own AI key" : "Premium"}</Text>
-                <ResumeButton label="Manage access" icon="settings-outline" onPress={() => setTab("account")} />
+                <Text style={styles.helpIntro}>
+                  {showCoaching
+                    ? "Free local coaching is on. It uses built-in prompts only."
+                    : "Free local coaching is off for the study screen."}
+                </Text>
+                <ResumeButton
+                  label={showCoaching ? "Turn off" : "Turn on"}
+                  icon={showCoaching ? "eye-off-outline" : "eye-outline"}
+                  onPress={() => {
+                    const nextValue = !showCoaching;
+                    setShowCoaching(nextValue);
+                    saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
+                  }}
+                />
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
                 title="Study helps"
@@ -5004,30 +4857,23 @@ export default function Home() {
               {isAuthenticated && (
                 <View style={styles.accountSection}>
                   <Text style={styles.sectionTitle}>Coaching preference</Text>
-                  <Text style={styles.helpIntro}>Current: free local coaching. Deeper AI options are placeholders and stay off by default.</Text>
-                  <View style={styles.accountOptionGrid}>
-                    <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
-                      <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>Free local coaching</Text>
-                        <Text style={styles.aiOptionText}>Built into the app. No AI usage, subscription, or payment required.</Text>
-                      </View>
-                    </Pressable>
-                    <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
-                      <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>Own key later</Text>
-                        <Text style={styles.aiOptionText}>Planned only. This is not active yet.</Text>
-                      </View>
-                    </Pressable>
-                    <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
-                      <Ionicons name="sparkles-outline" size={20} color={colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>Deeper feedback later</Text>
-                        <Text style={styles.aiOptionText}>Planned only. Free local coaching remains the default.</Text>
-                      </View>
-                    </Pressable>
-                  </View>
+                  <Text style={styles.helpIntro}>
+                    Free local coaching gives gentle prompts while studying. It does not use paid AI credits, send your notes to an AI provider, or require an AI account.
+                  </Text>
+                  <Pressable
+                    onPress={() => {
+                      const nextValue = !showCoaching;
+                      setShowCoaching(nextValue);
+                      saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
+                    }}
+                    style={[styles.aiOptionCard, styles.accountOptionCard, showCoaching && styles.activeAiOptionCard]}
+                  >
+                    <Ionicons name={showCoaching ? "bulb" : "bulb-outline"} size={20} color={colors.oliveDark} />
+                    <View style={styles.aiOptionCopy}>
+                      <Text style={styles.aiOptionTitle}>{showCoaching ? "Coaching is on" : "Coaching is off"}</Text>
+                      <Text style={styles.aiOptionText}>{showCoaching ? "Tap to hide coaching prompts in Study." : "Tap to show coaching prompts in Study."}</Text>
+                    </View>
+                  </Pressable>
                 </View>
               )}
               {isAuthenticated && (
@@ -5139,7 +4985,7 @@ export default function Home() {
                     <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
                     <Text style={styles.feedbackTitle}>Privacy</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Free coaching stays local. Future AI options should always make cost, storage, and usage limits clear before deeper feedback is enabled.</Text>
+                  <Text style={styles.helpIntro}>Free coaching stays local. Study notes are not sent to an AI provider or paid API service.</Text>
                 </View>
                 {adminStats && (
                   <View style={styles.accountStatusBox}>
@@ -11335,42 +11181,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20
   },
-  deeperFeedbackButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "#fffaf2",
-    borderColor: "rgba(102, 114, 78, 0.24)",
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 6,
-    marginTop: 4,
-    minHeight: 38,
-    paddingHorizontal: 12
-  },
-  deeperFeedbackText: {
-    color: colors.oliveDark,
-    fontSize: 13,
-    fontWeight: "800"
-  },
-  aiOptionsBox: {
-    backgroundColor: "#fffaf2",
-    borderColor: "rgba(102, 114, 78, 0.18)",
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 10,
-    padding: 12
-  },
-  aiOptionsTitle: {
-    color: colors.ink,
-    fontSize: 15,
-    fontWeight: "800"
-  },
-  aiOptionsText: {
-    color: colors.muted,
-    fontSize: 13,
-    lineHeight: 19
-  },
   aiOptionCard: {
     alignItems: "flex-start",
     backgroundColor: "#fff6eb",
@@ -11397,30 +11207,6 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 13,
     lineHeight: 18
-  },
-  smartFeedbackBox: {
-    backgroundColor: "#fffaf2",
-    borderColor: "rgba(102, 114, 78, 0.18)",
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 4,
-    padding: 12
-  },
-  smartFeedbackHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10
-  },
-  acceptedPill: {
-    backgroundColor: colors.oliveDark,
-    borderRadius: 999,
-    color: "white",
-    fontSize: 11,
-    fontWeight: "800",
-    overflow: "hidden",
-    paddingHorizontal: 8,
-    paddingVertical: 4
   },
   feedbackHeader: {
     alignItems: "center",

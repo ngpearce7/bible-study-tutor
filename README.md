@@ -9,8 +9,7 @@ A free Bible study app for desktop and mobile. Bible Study Tutor helps people an
 - Convex database schema and functions
 - Guided tutor sessions for OIA, SOAP, Inductive Study, Lectio Divina, and other study methods
 - Inline method switching from the study screen
-- Optional local coaching feedback for written answers
-- Optional deeper tutor feedback through a Convex server action and OpenAI Responses API
+- Optional local coaching feedback for written answers with no paid AI usage
 - Common passage starts for each method
 - Study review screen before saving completed work
 - Printable Bible study worksheets from the Bible and Study tabs
@@ -81,10 +80,4 @@ EXPO_PUBLIC_SITE_URL=https://biblestudytutor.org
 SITE_URL=https://biblestudytutor.org
 ```
 
-Deeper tutor feedback is optional. To enable it, set `OPENAI_API_KEY` in Convex:
-
-```bash
-npx convex env set OPENAI_API_KEY your_api_key
-```
-
-You can override the default tutor model with `OPENAI_TUTOR_MODEL`; otherwise the app uses `gpt-5.4-mini`. If no key is configured, the UI falls back to local coaching feedback.
+Study coaching is generated locally in the app using built-in prompts. It does not require an AI provider account or paid API credits.

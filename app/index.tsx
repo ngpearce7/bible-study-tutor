@@ -322,6 +322,10 @@ export default function Home() {
   const submitFeedback = useMutation((api as any).insights.submitFeedback);
   const recordUsage = useMutation((api as any).insights.recordUsage);
   const markFeedbackStatus = useMutation((api as any).insights.markFeedbackStatus);
+  const requestAccountDeletion = useMutation((api as any).insights.requestAccountDeletion);
+  const cancelAccountDeletionRequest = useMutation((api as any).insights.cancelAccountDeletionRequest);
+  const approveDeletionRequestAsAdmin = useMutation((api as any).insights.approveDeletionRequestAsAdmin);
+  const cancelDeletionRequestAsAdmin = useMutation((api as any).insights.cancelDeletionRequestAsAdmin);
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
@@ -329,6 +333,9 @@ export default function Home() {
   const [displayName, setDisplayName] = useState("Bible student");
   const [accountEmail, setAccountEmail] = useState("");
   const [accountStatus, setAccountStatus] = useState("");
+  const [deletionStatus, setDeletionStatus] = useState("");
+  const [deletionConfirmArmed, setDeletionConfirmArmed] = useState(false);
+  const [pendingAdminDeletionRequestId, setPendingAdminDeletionRequestId] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [currentAccountPassword, setCurrentAccountPassword] = useState("");
   const [newAccountPassword, setNewAccountPassword] = useState("");
@@ -634,6 +641,7 @@ export default function Home() {
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
+  const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -801,6 +809,7 @@ export default function Home() {
       events: number;
       feedback: number;
       newFeedback: number;
+      pendingDeletionRequests: number;
     };
     topBookmarked: { label: string; count: number }[];
     topMemory: { label: string; count: number }[];
@@ -818,6 +827,7 @@ export default function Home() {
       createdAt: number;
     }[];
     recentFeedback: any[];
+    deletionRequests: any[];
   };
   const bibleSearchBookOptions = useMemo(() => buildBibleSearchBookOptions(bibleSearchScope), [bibleSearchScope]);
   const bibleSearchSections = useMemo(() => buildBibleSearchSections(bibleSearchResults, bibleSearchScope, bibleSearchBook), [bibleSearchBook, bibleSearchResults, bibleSearchScope]);
@@ -1422,6 +1432,65 @@ export default function Home() {
       setPasswordStatus("Password updated");
     } catch {
       setPasswordStatus("Could not update password. Check your current password and use at least 8 characters.");
+    }
+  }
+
+  async function submitAccountDeletionRequest() {
+    if (!activeProfileId) {
+      setDeletionStatus("Saving is still connecting. Try again in a moment.");
+      return;
+    }
+    if (!deletionConfirmArmed) {
+      setDeletionConfirmArmed(true);
+      setDeletionStatus("Tap Request deletion again to confirm. An administrator will review it before anything is removed.");
+      return;
+    }
+
+    setDeletionStatus("Sending deletion request...");
+    try {
+      await requestAccountDeletion({
+        profileId: activeProfileId,
+        note: isAuthenticated ? "Requested from signed-in Account tab." : "Requested from local profile Account tab."
+      });
+      setDeletionConfirmArmed(false);
+      setDeletionStatus("Deletion request sent. Your account will not be removed until an administrator approves it.");
+    } catch {
+      setDeletionStatus("Could not send deletion request. Try again in a moment.");
+    }
+  }
+
+  async function cancelOwnAccountDeletionRequest() {
+    if (!activeProfileId) return;
+    setDeletionStatus("Cancelling deletion request...");
+    try {
+      await cancelAccountDeletionRequest({ profileId: activeProfileId });
+      setDeletionConfirmArmed(false);
+      setDeletionStatus("Deletion request cancelled.");
+    } catch {
+      setDeletionStatus("Could not cancel the deletion request.");
+    }
+  }
+
+  async function approveAdminDeletionRequest(requestId: any) {
+    if (pendingAdminDeletionRequestId !== requestId) {
+      setPendingAdminDeletionRequestId(requestId);
+      return;
+    }
+
+    try {
+      await approveDeletionRequestAsAdmin({ requestId });
+      setPendingAdminDeletionRequestId("");
+    } catch {
+      setPendingAdminDeletionRequestId("");
+    }
+  }
+
+  async function cancelAdminDeletionRequest(requestId: any) {
+    try {
+      await cancelDeletionRequestAsAdmin({ requestId });
+      setPendingAdminDeletionRequestId("");
+    } catch {
+      setPendingAdminDeletionRequestId("");
     }
   }
 
@@ -4976,6 +5045,36 @@ export default function Home() {
                   onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
                 />
               </View>
+              <View style={styles.accountSection}>
+                <Text style={styles.sectionTitle}>Account deletion</Text>
+                <Text style={styles.helpIntro}>
+                  You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
+                </Text>
+                {accountDeletionRequest ? (
+                  <View style={styles.deletionRequestBox}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons name="time-outline" size={18} color={colors.coral} />
+                      <Text style={styles.feedbackTitle}>Deletion request pending</Text>
+                    </View>
+                    <Text style={styles.helpIntro}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
+                    <AppButton label="Cancel request" variant="secondary" onPress={cancelOwnAccountDeletionRequest} />
+                  </View>
+                ) : (
+                  <View style={styles.deletionRequestBox}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons name="warning-outline" size={18} color={colors.coral} />
+                      <Text style={styles.feedbackTitle}>Before requesting deletion</Text>
+                    </View>
+                    <Text style={styles.helpIntro}>Approved deletion removes your profile, studies, drafts, check-ins, memory verses, feedback, usage events, and sign-in records where connected.</Text>
+                    <AppButton
+                      label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
+                      variant="secondary"
+                      onPress={submitAccountDeletionRequest}
+                    />
+                  </View>
+                )}
+                {!!deletionStatus && <Text style={styles.saveStatus}>{deletionStatus}</Text>}
+              </View>
             </Card>
             <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
               <View style={styles.accountStatusBox}>
@@ -4997,6 +5096,7 @@ export default function Home() {
                     <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact />
                     <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact />
                     <Metric value={adminStats.totals.newFeedback} label="new feedback" compact />
+                    <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
                   </View>
                   <Text style={styles.helpIntro}>
                     Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
@@ -5056,9 +5156,24 @@ export default function Home() {
                 <Metric value={adminStats.totals.signedInProfiles} label="signed in" compact={phoneLayout} />
                 <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact={phoneLayout} />
                 <Metric value={adminStats.totals.newFeedback} label="new feedback" compact={phoneLayout} />
+                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact={phoneLayout} />
                 <Metric value={adminStats.totals.events} label="events" compact={phoneLayout} />
                 <Metric value={adminStats.totals.localProfiles} label="local/test" compact={phoneLayout} />
               </View>
+
+              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="trash-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Account deletion requests</Text>
+                </View>
+                <Text style={styles.helpIntro}>Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records.</Text>
+                <AdminDeletionRequestList
+                  requests={adminStats.deletionRequests}
+                  pendingConfirmId={pendingAdminDeletionRequestId}
+                  onApprove={approveAdminDeletionRequest}
+                  onCancel={cancelAdminDeletionRequest}
+                />
+              </Card>
 
               <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                 <View style={styles.feedbackHeader}>
@@ -6414,6 +6529,47 @@ function AdminFeedbackList({ feedback, onMarkStatus }: { feedback: any[]; onMark
                 <Text style={styles.feedbackCategoryText}>{status}</Text>
               </Pressable>
             ))}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function AdminDeletionRequestList({
+  requests,
+  pendingConfirmId,
+  onApprove,
+  onCancel
+}: {
+  requests: any[];
+  pendingConfirmId: string;
+  onApprove: (requestId: any) => void;
+  onCancel: (requestId: any) => void;
+}) {
+  if (requests.length === 0) return <Text style={styles.helpIntro}>No pending deletion requests.</Text>;
+
+  return (
+    <View style={styles.adminFeedbackList}>
+      {requests.map((item: any) => (
+        <View key={item._id} style={styles.adminFeedbackItem}>
+          <View style={styles.journalHeader}>
+            <View style={styles.journalTitleBlock}>
+              <Text style={styles.helpFaqQuestion}>{item.displayName || "Bible student"}</Text>
+              <Text style={styles.adminEventMeta}>{item.email || "No account email"} · {formatAdminDate(item.requestedAt)}</Text>
+            </View>
+            <Text style={styles.draftPill}>Pending</Text>
+          </View>
+          {!!item.note && <Text style={styles.helpFaqAnswer}>{item.note}</Text>}
+          <View style={styles.feedbackCategoryRow}>
+            <Pressable onPress={() => onApprove(item._id)} style={[styles.feedbackCategoryChip, pendingConfirmId === item._id && styles.dangerActionChip]}>
+              <Text style={[styles.feedbackCategoryText, pendingConfirmId === item._id && styles.dangerActionText]}>
+                {pendingConfirmId === item._id ? "Confirm delete" : "Approve deletion"}
+              </Text>
+            </Pressable>
+            <Pressable onPress={() => onCancel(item._id)} style={styles.feedbackCategoryChip}>
+              <Text style={styles.feedbackCategoryText}>Cancel request</Text>
+            </Pressable>
           </View>
         </View>
       ))}
@@ -14052,6 +14208,22 @@ const styles = StyleSheet.create({
   },
   activeFeedbackCategoryText: {
     color: "white"
+  },
+  dangerActionChip: {
+    backgroundColor: "#c96750",
+    borderColor: "#c96750"
+  },
+  dangerActionText: {
+    color: "white"
+  },
+  deletionRequestBox: {
+    backgroundColor: "#fff6eb",
+    borderColor: "#edd8bd",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 9,
+    marginTop: 10,
+    padding: 12
   },
   feedbackInput: {
     minHeight: 110,

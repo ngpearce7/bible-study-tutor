@@ -139,5 +139,19 @@ export default defineSchema({
     email: v.optional(v.string()),
     name: v.optional(v.string()),
     triggeredAt: v.number()
-  }).index("by_key", ["key"])
+  }).index("by_key", ["key"]),
+  accountDeletionRequests: defineTable({
+    profileId: v.id("profiles"),
+    authUserId: v.optional(v.id("users")),
+    displayName: v.string(),
+    email: v.optional(v.string()),
+    note: v.optional(v.string()),
+    status: v.union(v.literal("pending"), v.literal("cancelled"), v.literal("approved")),
+    requestedAt: v.number(),
+    reviewedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.id("users")),
+    completedAt: v.optional(v.number())
+  })
+    .index("by_profile_status", ["profileId", "status"])
+    .index("by_status_requested", ["status", "requestedAt"])
 });

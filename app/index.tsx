@@ -349,6 +349,7 @@ export default function Home() {
   const [feedbackStatus, setFeedbackStatus] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
+  const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -642,6 +643,9 @@ export default function Home() {
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
   const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const adminUsers = useQuery((api as any).insights.adminUsers, activeProfileId ? {} : "skip");
+  const adminUserDetail = useQuery((api as any).insights.adminUserDetail, selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
+  const adminAuditLog = useQuery((api as any).insights.adminAuditLog, activeProfileId ? { limit: 20 } : "skip");
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -5175,6 +5179,37 @@ export default function Home() {
                 />
               </Card>
 
+              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="people-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>User directory</Text>
+                  </View>
+                  <Text style={styles.helpIntro}>A privacy-safe list of profiles, account status, and activity counts.</Text>
+                  <AdminUserDirectory
+                    users={Array.isArray(adminUsers) ? adminUsers : []}
+                    selectedProfileId={selectedAdminProfileId}
+                    onSelect={setSelectedAdminProfileId}
+                  />
+                </Card>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>User summary</Text>
+                  </View>
+                  <AdminUserDetail detail={adminUserDetail} />
+                </Card>
+              </View>
+
+              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="receipt-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Admin audit log</Text>
+                </View>
+                <Text style={styles.helpIntro}>Tracks sensitive admin actions such as deletion approvals and feedback status changes.</Text>
+                <AdminAuditLog entries={Array.isArray(adminAuditLog) ? adminAuditLog : []} />
+              </Card>
+
               <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="information-circle-outline" size={18} color={colors.coral} />
@@ -6530,6 +6565,109 @@ function AdminFeedbackList({ feedback, onMarkStatus }: { feedback: any[]; onMark
               </Pressable>
             ))}
           </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void }) {
+  if (users.length === 0) return <Text style={styles.helpIntro}>No users found yet.</Text>;
+
+  return (
+    <View style={styles.adminFeedbackList}>
+      {users.slice(0, 12).map((user) => (
+        <Pressable
+          key={user.profileId}
+          onPress={() => onSelect(user.profileId)}
+          style={[styles.adminUserRow, selectedProfileId === user.profileId && styles.activeAdminUserRow]}
+        >
+          <View style={styles.journalTitleBlock}>
+            <Text style={styles.helpFaqQuestion}>{user.displayName || "Bible student"}</Text>
+            <Text style={styles.adminEventMeta}>
+              {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
+            </Text>
+          </View>
+          <View style={styles.adminUserMetaPills}>
+            {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
+            <Text style={styles.draftPill}>{user.signedIn ? "Account" : "Local"}</Text>
+            <Text style={styles.readerBookmarkCount}>{user.studies}</Text>
+          </View>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
+function AdminUserDetail({ detail }: { detail: any }) {
+  if (detail === undefined) return <Text style={styles.helpIntro}>Choose a user to see their summary.</Text>;
+  if (!detail) return <Text style={styles.helpIntro}>Choose a user to see their summary.</Text>;
+
+  return (
+    <View style={styles.adminUserDetailBox}>
+      <Text style={styles.communityTitle}>{detail.displayName || "Bible student"}</Text>
+      <Text style={styles.helpIntro}>{detail.email || (detail.signedIn ? "Signed-in account" : "Local profile")}</Text>
+      <View style={styles.adminMetricGrid}>
+        <Metric value={detail.counts.studies} label="studies" compact />
+        <Metric value={detail.counts.memoryVerses} label="memory" compact />
+        <Metric value={detail.counts.checkins} label="check-ins" compact />
+        <Metric value={detail.counts.feedback} label="feedback" compact />
+      </View>
+      <View style={styles.adminMapDetailList}>
+        <View style={styles.adminMapDetailRow}>
+          <Text style={styles.adminMapDetailLabel}>Created</Text>
+          <Text style={styles.adminMapDetailValue}>{formatAdminDate(detail.createdAt)}</Text>
+        </View>
+        <View style={styles.adminMapDetailRow}>
+          <Text style={styles.adminMapDetailLabel}>Last active</Text>
+          <Text style={styles.adminMapDetailValue}>{formatAdminDate(detail.lastActiveAt)}</Text>
+        </View>
+        <View style={styles.adminMapDetailRow}>
+          <Text style={styles.adminMapDetailLabel}>Active sessions</Text>
+          <Text style={styles.adminMapDetailValue}>{detail.activeSessions}</Text>
+        </View>
+        <View style={styles.adminMapDetailRow}>
+          <Text style={styles.adminMapDetailLabel}>Deletion</Text>
+          <Text style={styles.adminMapDetailValue}>{detail.deletionStatus || "None"}</Text>
+        </View>
+      </View>
+      <AdminMiniActivity title="Recent activity" items={detail.recentActivity || []} />
+      <AdminMiniActivity title="Feedback history" items={detail.latestFeedback || []} />
+    </View>
+  );
+}
+
+function AdminMiniActivity({ title, items }: { title: string; items: any[] }) {
+  return (
+    <View style={styles.adminMiniActivityBox}>
+      <Text style={styles.lastCheckinLabel}>{title}</Text>
+      {items.length === 0 ? (
+        <Text style={styles.helpIntro}>No recent items.</Text>
+      ) : (
+        items.map((item) => (
+          <View key={item._id} style={styles.adminEventItem}>
+            <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(item.eventType || item.category || "Activity")}</Text>
+            <Text style={styles.adminEventMeta}>{formatAdminDate(item.createdAt)}{item.status ? ` · ${item.status}` : ""}{item.tab ? ` · ${item.tab}` : ""}</Text>
+          </View>
+        ))
+      )}
+    </View>
+  );
+}
+
+function AdminAuditLog({ entries }: { entries: any[] }) {
+  if (entries.length === 0) return <Text style={styles.helpIntro}>No admin actions logged yet.</Text>;
+
+  return (
+    <View style={styles.adminFeedbackList}>
+      {entries.map((entry) => (
+        <View key={entry._id} style={styles.adminEventItem}>
+          <View style={styles.journalHeader}>
+            <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(entry.action)}</Text>
+            <Text style={styles.adminEventMeta}>{formatAdminDate(entry.createdAt)}</Text>
+          </View>
+          <Text style={styles.helpFaqAnswer}>{entry.details || "Admin action"}</Text>
+          {!!entry.targetEmail && <Text style={styles.adminEventMeta}>{entry.targetEmail}</Text>}
         </View>
       ))}
     </View>
@@ -14487,6 +14625,38 @@ const styles = StyleSheet.create({
   },
   adminFeedbackList: {
     gap: 10
+  },
+  adminUserRow: {
+    alignItems: "center",
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minWidth: 0,
+    padding: 10
+  },
+  activeAdminUserRow: {
+    backgroundColor: "#eef3e5",
+    borderColor: colors.olive
+  },
+  adminUserMetaPills: {
+    alignItems: "flex-end",
+    flexShrink: 0,
+    gap: 5
+  },
+  adminUserDetailBox: {
+    gap: 10,
+    minWidth: 0
+  },
+  adminMiniActivityBox: {
+    gap: 7
+  },
+  warningPill: {
+    backgroundColor: "#f5cfc5",
+    color: "#783423"
   },
   adminEventItem: {
     backgroundColor: "#fff6eb",

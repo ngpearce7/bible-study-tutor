@@ -191,14 +191,173 @@ export const adminOverview = query({
   }
 });
 
+export const adminUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    if (!(await isAdmin(ctx))) return null;
+
+    const [profiles, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, deletionRequests] = await Promise.all([
+      ctx.db.query("profiles").collect(),
+      ctx.db.query("sessions").collect(),
+      ctx.db.query("drafts").collect(),
+      ctx.db.query("checkins").collect(),
+      ctx.db.query("memoryVerses").collect(),
+      ctx.db.query("feedback").collect(),
+      ctx.db.query("usageEvents").collect(),
+      ctx.db.query("accountDeletionRequests").collect()
+    ]);
+    const profileStats = new Map<string, { studies: number; drafts: number; checkins: number; memoryVerses: number; feedback: number; events: number; lastActiveAt: number }>();
+
+    for (const profile of profiles) {
+      profileStats.set(profile._id, {
+        studies: 0,
+        drafts: 0,
+        checkins: 0,
+        memoryVerses: 0,
+        feedback: 0,
+        events: 0,
+        lastActiveAt: profile.updatedAt || profile.createdAt
+      });
+    }
+
+    incrementProfileStats(profileStats, sessions, "studies", "completedAt");
+    incrementProfileStats(profileStats, drafts, "drafts", "updatedAt");
+    incrementProfileStats(profileStats, checkins, "checkins", "createdAt");
+    incrementProfileStats(profileStats, memoryVerses, "memoryVerses", "updatedAt");
+    incrementProfileStats(profileStats, feedback, "feedback", "createdAt");
+    incrementProfileStats(profileStats, usageEvents, "events", "createdAt");
+
+    const rows = [];
+    for (const profile of profiles) {
+      const user = profile.authUserId ? await ctx.db.get(profile.authUserId) : null;
+      const pendingDeletion = deletionRequests.find((item) => item.profileId === profile._id && item.status === "pending");
+      const stats = profileStats.get(profile._id);
+      rows.push({
+        profileId: profile._id,
+        authUserId: profile.authUserId,
+        displayName: profile.displayName,
+        email: user?.email,
+        signedIn: !!profile.authUserId,
+        createdAt: profile.createdAt,
+        updatedAt: profile.updatedAt,
+        lastActiveAt: stats?.lastActiveAt || profile.updatedAt || profile.createdAt,
+        studies: stats?.studies || 0,
+        drafts: stats?.drafts || 0,
+        checkins: stats?.checkins || 0,
+        memoryVerses: stats?.memoryVerses || 0,
+        feedback: stats?.feedback || 0,
+        events: stats?.events || 0,
+        deletionStatus: pendingDeletion ? "pending" : ""
+      });
+    }
+
+    return rows.sort((a, b) => b.lastActiveAt - a.lastActiveAt).slice(0, 100);
+  }
+});
+
+export const adminUserDetail = query({
+  args: {
+    profileId: v.id("profiles")
+  },
+  handler: async (ctx, args) => {
+    if (!(await isAdmin(ctx))) return null;
+
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) return null;
+
+    const [user, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, deletionRequests, authSessions] = await Promise.all([
+      profile.authUserId ? ctx.db.get(profile.authUserId) : Promise.resolve(null),
+      ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", args.profileId).eq("status", "pending")).collect(),
+      profile.authUserId ? ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", profile.authUserId!)).collect() : Promise.resolve([])
+    ]);
+    const lastActiveAt = Math.max(
+      profile.updatedAt || profile.createdAt,
+      ...sessions.map((item) => item.completedAt),
+      ...drafts.map((item) => item.updatedAt),
+      ...checkins.map((item) => item.createdAt),
+      ...memoryVerses.map((item) => item.updatedAt),
+      ...feedback.map((item) => item.createdAt),
+      ...usageEvents.map((item) => item.createdAt)
+    );
+
+    return {
+      profileId: profile._id,
+      displayName: profile.displayName,
+      email: user?.email,
+      signedIn: !!profile.authUserId,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      lastActiveAt,
+      activeSessions: authSessions.length,
+      deletionStatus: deletionRequests[0]?.status || "",
+      counts: {
+        studies: sessions.length,
+        drafts: drafts.length,
+        checkins: checkins.length,
+        memoryVerses: memoryVerses.length,
+        feedback: feedback.length,
+        events: usageEvents.length
+      },
+      latestFeedback: feedback
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 5)
+        .map((item) => ({
+          _id: item._id,
+          category: item.category,
+          status: item.status,
+          tab: item.tab,
+          createdAt: item.createdAt
+        })),
+      recentActivity: usageEvents
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 8)
+        .map((item) => ({
+          _id: item._id,
+          eventType: item.eventType,
+          reference: item.reference,
+          tab: item.tab,
+          createdAt: item.createdAt
+        }))
+    };
+  }
+});
+
+export const adminAuditLog = query({
+  args: {
+    limit: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    if (!(await isAdmin(ctx))) return null;
+
+    return await ctx.db
+      .query("adminAuditLog")
+      .withIndex("by_created")
+      .order("desc")
+      .take(Math.min(Math.max(Math.round(args.limit || 20), 1), 50));
+  }
+});
+
 export const markFeedbackStatus = mutation({
   args: {
     feedbackId: v.id("feedback"),
     status: v.union(v.literal("new"), v.literal("reviewed"), v.literal("actioned"), v.literal("ignored"))
   },
   handler: async (ctx, args) => {
-    if (!(await isAdmin(ctx))) throw new Error("Unauthorized");
+    const adminUserId = await requireAdminUserId(ctx);
+    const feedback = await ctx.db.get(args.feedbackId);
     await ctx.db.patch(args.feedbackId, { status: args.status });
+    await logAdminAction(ctx, {
+      adminUserId,
+      action: "feedback_status_changed",
+      targetProfileId: feedback?.profileId,
+      details: `Marked feedback ${args.status}`
+    });
     return true;
   }
 });
@@ -216,6 +375,14 @@ export const cancelDeletionRequestAsAdmin = mutation({
       status: "cancelled",
       reviewedAt: Date.now(),
       reviewedBy: adminUserId
+    });
+    await logAdminAction(ctx, {
+      adminUserId,
+      action: "deletion_request_cancelled",
+      targetProfileId: request.profileId,
+      targetUserId: request.authUserId,
+      targetEmail: request.email,
+      details: "Admin cancelled account deletion request"
     });
     return true;
   }
@@ -243,6 +410,14 @@ export const approveDeletionRequestAsAdmin = mutation({
       reviewedAt: now,
       reviewedBy: adminUserId,
       completedAt: now
+    });
+    await logAdminAction(ctx, {
+      adminUserId,
+      action: "account_deleted",
+      targetProfileId: request.profileId,
+      targetUserId: profile?.authUserId || request.authUserId,
+      targetEmail: request.email,
+      details: "Admin approved account deletion request"
     });
     return true;
   }
@@ -304,6 +479,24 @@ function topCounts(values: string[], limit: number) {
     .map(([label, count]) => ({ label, count }));
 }
 
+function incrementProfileStats(
+  profileStats: Map<string, { studies: number; drafts: number; checkins: number; memoryVerses: number; feedback: number; events: number; lastActiveAt: number }>,
+  items: { profileId: Id<"profiles">; [key: string]: unknown }[],
+  countKey: "studies" | "drafts" | "checkins" | "memoryVerses" | "feedback" | "events",
+  timestampKey: string
+) {
+  for (const item of items) {
+    const stats = profileStats.get(item.profileId);
+    if (!stats) continue;
+
+    stats[countKey] += 1;
+    const timestamp = item[timestampKey];
+    if (typeof timestamp === "number" && Number.isFinite(timestamp)) {
+      stats.lastActiveAt = Math.max(stats.lastActiveAt, timestamp);
+    }
+  }
+}
+
 function clampText(value: string | undefined, maxLength: number) {
   return (value || "").trim().slice(0, maxLength);
 }
@@ -361,4 +554,26 @@ async function deleteProfileData(ctx: MutationCtx, profileId: Id<"profiles">, au
 
   const user = await ctx.db.get(authUserId);
   if (user) await ctx.db.delete(authUserId);
+}
+
+async function logAdminAction(
+  ctx: MutationCtx,
+  args: {
+    adminUserId: Id<"users">;
+    action: string;
+    targetProfileId?: Id<"profiles">;
+    targetUserId?: Id<"users">;
+    targetEmail?: string;
+    details?: string;
+  }
+) {
+  await ctx.db.insert("adminAuditLog", {
+    adminUserId: args.adminUserId,
+    action: clampText(args.action, 80),
+    targetProfileId: args.targetProfileId,
+    targetUserId: args.targetUserId,
+    targetEmail: clampOptionalText(args.targetEmail, 254),
+    details: clampOptionalText(args.details, 500),
+    createdAt: Date.now()
+  });
 }

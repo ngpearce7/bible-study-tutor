@@ -153,5 +153,16 @@ export default defineSchema({
     completedAt: v.optional(v.number())
   })
     .index("by_profile_status", ["profileId", "status"])
-    .index("by_status_requested", ["status", "requestedAt"])
+    .index("by_status_requested", ["status", "requestedAt"]),
+  adminAuditLog: defineTable({
+    adminUserId: v.id("users"),
+    action: v.string(),
+    targetProfileId: v.optional(v.id("profiles")),
+    targetUserId: v.optional(v.id("users")),
+    targetEmail: v.optional(v.string()),
+    details: v.optional(v.string()),
+    createdAt: v.number()
+  })
+    .index("by_created", ["createdAt"])
+    .index("by_admin_created", ["adminUserId", "createdAt"])
 });

@@ -152,7 +152,8 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
 const LEGAL_LAST_UPDATED = "May 23, 2026";
 const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/BlankMap-World.svg/1280px-BlankMap-World.svg.png";
 const APP_SHARE_URL = "https://biblestudytutor.org";
-const APP_SHARE_QR_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(APP_SHARE_URL)}`;
+const APP_SHARE_QR_TARGET_URL = `${APP_SHARE_URL}/?shared=qr`;
+const APP_SHARE_QR_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
 type AdminRegionInsight = { name: string; description: string; count: number; x: number; y: number; size: "small" | "medium" | "large" };
 const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
   { name: "Australia", description: "Broad region only", count: 0, x: 79, y: 73, size: "large" },
@@ -365,6 +366,7 @@ export default function Home() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
   const [appShareStatus, setAppShareStatus] = useState("");
+  const [incomingShareSource, setIncomingShareSource] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
@@ -517,6 +519,7 @@ export default function Home() {
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
   const previousTabRef = useRef<Tab>(tab);
+  const trackedIncomingShareRef = useRef("");
 
   useEffect(() => {
     if (tab === "journal" && previousTabRef.current !== "journal") {
@@ -537,12 +540,15 @@ export default function Home() {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     const url = new URL(window.location.href);
     const requestedTab = url.searchParams.get("tab");
+    const sharedSource = url.searchParams.get("shared");
     const pendingTab = typeof localStorage !== "undefined" ? localStorage.getItem("bibleStudyTutorReturnTab") : "";
     const nextTab = tabs.includes(requestedTab as Tab) ? requestedTab : tabs.includes(pendingTab as Tab) ? pendingTab : "";
     if (nextTab) setTab(nextTab as Tab);
+    if (sharedSource) setIncomingShareSource(sharedSource.slice(0, 40));
     if (typeof localStorage !== "undefined") localStorage.removeItem("bibleStudyTutorReturnTab");
-    if (requestedTab) {
+    if (requestedTab || sharedSource) {
       url.searchParams.delete("tab");
+      url.searchParams.delete("shared");
       window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     }
   }, []);
@@ -636,6 +642,17 @@ export default function Home() {
   }, []);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
+  useEffect(() => {
+    if (!activeProfileId || !incomingShareSource || trackedIncomingShareRef.current === incomingShareSource) return;
+    trackedIncomingShareRef.current = incomingShareSource;
+    recordUsage({
+      profileId: activeProfileId,
+      eventType: "app_shared",
+      reference: incomingShareSource === "qr" ? "QR code" : incomingShareSource,
+      tab: "help"
+    }).catch(() => undefined);
+  }, [activeProfileId, incomingShareSource, recordUsage]);
+
   const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId } : "skip");
   const sessions = useQuery(api.study.recentSessions, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
@@ -816,12 +833,14 @@ export default function Home() {
       events: number;
       feedback: number;
       newFeedback: number;
+      appShares: number;
       pendingDeletionRequests: number;
     };
     topBookmarked: { label: string; count: number }[];
     topMemory: { label: string; count: number }[];
     topMethods: { label: string; count: number }[];
     topSearches: { label: string; count: number }[];
+    shareSources: { label: string; count: number }[];
     eventBreakdown: { label: string; count: number }[];
     feedbackByCategory: { label: string; count: number }[];
     feedbackByStatus: { label: string; count: number }[];
@@ -1705,11 +1724,13 @@ export default function Home() {
         const nav = navigator as any;
         if (nav?.share) {
           await nav.share({ title: "Bible Study Tutor", text: message, url: APP_SHARE_URL });
+          trackUsage("app_shared", { reference: "Share button", tab: "help" });
           setAppShareStatus("Share sheet opened.");
           return;
         }
         if (nav?.clipboard?.writeText) {
           await nav.clipboard.writeText(APP_SHARE_URL);
+          trackUsage("app_shared", { reference: "Copy link", tab: "help" });
           setAppShareStatus("Link copied. Paste it into a message, email, or group chat.");
           return;
         }
@@ -1717,6 +1738,7 @@ export default function Home() {
 
       const { Share } = await import("react-native");
       await Share.share({ title: "Bible Study Tutor", message });
+      trackUsage("app_shared", { reference: "Share button", tab: "help" });
       setAppShareStatus("Share sheet opened.");
     } catch {
       setAppShareStatus("Could not share from this device right now.");
@@ -1729,6 +1751,7 @@ export default function Home() {
     try {
       if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(APP_SHARE_URL);
+        trackUsage("app_shared", { reference: "Copy link", tab: "help" });
         setAppShareStatus("Link copied.");
         return;
       }
@@ -5059,6 +5082,7 @@ export default function Home() {
                       <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact />
                       <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact />
                       <Metric value={adminStats.totals.newFeedback} label="new feedback" compact />
+                      <Metric value={adminStats.totals.appShares} label="app shares" compact />
                       <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
                     </View>
                     <Text style={styles.helpIntro}>
@@ -5084,6 +5108,7 @@ export default function Home() {
                 <Metric value={adminStats.totals.signedInProfiles} label="signed in" compact={phoneLayout} />
                 <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact={phoneLayout} />
                 <Metric value={adminStats.totals.newFeedback} label="new feedback" compact={phoneLayout} />
+                <Metric value={adminStats.totals.appShares} label="app shares" compact={phoneLayout} />
                 <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact={phoneLayout} />
                 <Metric value={adminStats.totals.events} label="events" compact={phoneLayout} />
                 <Metric value={adminStats.totals.localProfiles} label="local/test" compact={phoneLayout} />
@@ -5164,6 +5189,9 @@ export default function Home() {
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <AdminCountList title="Bible searches" items={adminStats.topSearches} />
+                </Card>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                  <AdminCountList title="App shares" items={adminStats.shareSources} />
                 </Card>
               </View>
 

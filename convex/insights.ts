@@ -150,6 +150,7 @@ export const adminOverview = query({
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
     const studyProfileIds = new Set(sessions.map((item) => item.profileId));
+    const shareEvents = events.filter((item) => item.eventType === "app_shared");
 
     return {
       totals: {
@@ -161,12 +162,14 @@ export const adminOverview = query({
         events: events.length,
         feedback: feedback.length,
         newFeedback: feedback.filter((item) => item.status === "new").length,
+        appShares: shareEvents.length,
         pendingDeletionRequests: deletionRequests.length
       },
       topBookmarked: topCounts(events.filter((item) => item.eventType === "bookmark_saved").map((item) => item.reference).filter(isString), 8),
       topMemory: topCounts(events.filter((item) => item.eventType === "memory_saved").map((item) => item.reference).filter(isString), 8),
       topMethods: topCounts(events.filter((item) => item.eventType === "study_completed").map((item) => item.methodName).filter(isString), 8),
       topSearches: topCounts(events.filter((item) => item.eventType === "bible_search").map((item) => item.reference).filter(isString), 8),
+      shareSources: topCounts(shareEvents.map((item) => item.reference).filter(isString), 8),
       eventBreakdown: topCounts(events.map((item) => item.eventType).filter(isString), 10),
       feedbackByCategory: topCounts(feedback.map((item) => item.category).filter(isString), 8),
       feedbackByStatus: topCounts(feedback.map((item) => item.status).filter(isString), 8),

@@ -4970,35 +4970,6 @@ export default function Home() {
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              {isAuthenticated && (
-                <View style={styles.accountSection}>
-                  <Text style={styles.sectionTitle}>Feedback access</Text>
-                  <Text style={styles.helpIntro}>Current: {aiAccessChoice === "free" ? "Free local coaching" : aiAccessChoice === "own-key" ? "Use my own AI key" : "Premium subscription"}</Text>
-                  <View style={styles.accountOptionGrid}>
-                    <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
-                      <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>Free</Text>
-                        <Text style={styles.aiOptionText}>Built-in coaching. No AI usage or payment.</Text>
-                      </View>
-                    </Pressable>
-                    <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
-                      <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>Own key</Text>
-                        <Text style={styles.aiOptionText}>Planned. User pays the AI provider directly.</Text>
-                      </View>
-                    </Pressable>
-                    <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
-                      <Ionicons name="card-outline" size={20} color={colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>Premium</Text>
-                        <Text style={styles.aiOptionText}>Planned. Subscription with clear monthly limits.</Text>
-                      </View>
-                    </Pressable>
-                  </View>
-                </View>
-              )}
               <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Bible translations</Text>
                 <Text style={styles.helpIntro}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
@@ -5030,6 +5001,35 @@ export default function Home() {
                   </Text>
                 </View>
               </View>
+              {isAuthenticated && (
+                <View style={styles.accountSection}>
+                  <Text style={styles.sectionTitle}>Coaching preference</Text>
+                  <Text style={styles.helpIntro}>Current: free local coaching. Deeper AI options are placeholders and stay off by default.</Text>
+                  <View style={styles.accountOptionGrid}>
+                    <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
+                      <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>Free local coaching</Text>
+                        <Text style={styles.aiOptionText}>Built into the app. No AI usage, subscription, or payment required.</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
+                      <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>Own key later</Text>
+                        <Text style={styles.aiOptionText}>Planned only. This is not active yet.</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
+                      <Ionicons name="sparkles-outline" size={20} color={colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>Deeper feedback later</Text>
+                        <Text style={styles.aiOptionText}>Planned only. Free local coaching remains the default.</Text>
+                      </View>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
               {isAuthenticated && (
                 <View style={styles.accountSection}>
                   <Text style={styles.sectionTitle}>Your saved data</Text>
@@ -5106,71 +5106,61 @@ export default function Home() {
               )}
             </Card>
             {isAuthenticated && (
-            <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.accountStatusBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="cloud-done-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Save status</Text>
-                </View>
-                <Text style={styles.communityTitle}>{backendStatusLabel}</Text>
-                <Text style={styles.helpIntro}>{backendStatusDetail}</Text>
-              </View>
-              {adminStats && (
+              <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
                 <View style={styles.accountStatusBox}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="analytics-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Admin insights</Text>
+                    <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "person-circle-outline"} size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Account status</Text>
                   </View>
-                  <View style={styles.adminMetricGrid}>
-                    <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact />
-                    <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact />
-                    <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact />
-                    <Metric value={adminStats.totals.newFeedback} label="new feedback" compact />
-                    <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
-                  </View>
+                  <Text style={styles.communityTitle}>{`Signed in with ${accountProviderLabel}`}</Text>
                   <Text style={styles.helpIntro}>
-                    Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
+                    {`${accountIdentityLabel} is connected for cross-device sync.`}
                   </Text>
-                  <ResumeButton label="Open full insights" icon="analytics-outline" onPress={() => setTab("admin")} />
                 </View>
-              )}
-              <View style={styles.accountStatusBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "person-circle-outline"} size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Account status</Text>
+                <View style={styles.accountStatusBox}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="cloud-done-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Save status</Text>
+                  </View>
+                  <Text style={styles.communityTitle}>{backendStatusLabel}</Text>
+                  <Text style={styles.helpIntro}>{backendStatusDetail}</Text>
                 </View>
-                <Text style={styles.communityTitle}>{isAuthenticated ? `Signed in with ${accountProviderLabel}` : "Local profile"}</Text>
-                <Text style={styles.helpIntro}>
-                  {isAuthenticated
-                    ? `${accountIdentityLabel} is connected for cross-device sync.`
-                    : "Your journal is connected to this device profile until you sign in."}
-                </Text>
-              </View>
-              <View style={styles.accountStatusBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="people-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Community settings</Text>
+                <View style={styles.accountStatusBox}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="people-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Community settings</Text>
+                  </View>
+                  <Text style={styles.communityTitle}>Check-ins live in Community</Text>
+                  <Text style={styles.helpIntro}>Set your weekly goal and check-in person or group from the Community tab.</Text>
+                  <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} />
                 </View>
-                <Text style={styles.communityTitle}>Check-ins live in Community</Text>
-                <Text style={styles.helpIntro}>Set your weekly goal and check-in person or group from the Community tab.</Text>
-                <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} />
-              </View>
-              <View style={styles.accountStatusBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Privacy</Text>
+                <View style={styles.accountStatusBox}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Privacy</Text>
+                  </View>
+                  <Text style={styles.helpIntro}>Free coaching stays local. Future AI options should always make cost, storage, and usage limits clear before deeper feedback is enabled.</Text>
                 </View>
-                <Text style={styles.helpIntro}>Free coaching stays local. Future AI options should always make cost, storage, and usage limits clear before deeper feedback is enabled.</Text>
-              </View>
-              <View style={styles.accountStatusBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="card-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Subscription</Text>
-                </View>
-                <Text style={styles.communityTitle}>Not active</Text>
-                <Text style={styles.helpIntro}>Premium is a placeholder until payment and usage-limit systems are wired in.</Text>
-              </View>
-            </Card>
+                {adminStats && (
+                  <View style={styles.accountStatusBox}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons name="analytics-outline" size={18} color={colors.coral} />
+                      <Text style={styles.feedbackTitle}>Admin insights</Text>
+                    </View>
+                    <View style={styles.adminMetricGrid}>
+                      <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact />
+                      <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact />
+                      <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact />
+                      <Metric value={adminStats.totals.newFeedback} label="new feedback" compact />
+                      <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
+                    </View>
+                    <Text style={styles.helpIntro}>
+                      Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
+                    </Text>
+                    <ResumeButton label="Open full insights" icon="analytics-outline" onPress={() => setTab("admin")} />
+                  </View>
+                )}
+              </Card>
             )}
           </View>
         )}

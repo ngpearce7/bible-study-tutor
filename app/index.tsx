@@ -841,6 +841,15 @@ export default function Home() {
   const baseVisibleDrafts = (drafts || []).filter((draft: any) => matchesJournalSearch(draft, journalSearchTerm));
   const baseHighlightJournalEntries = buildHighlightJournalEntries(sessions || [], drafts || [], journalSearchTerm);
   const totalSavedHighlightCount = countSavedHighlights(sessions || [], drafts || []);
+  const savedDataItems = [
+    { label: "Completed studies", value: (sessions || []).length, icon: "book-outline" },
+    { label: "Draft studies", value: (drafts || []).length, icon: "create-outline" },
+    { label: "Memory verses", value: (memoryVerses || []).length, icon: "sparkles-outline" },
+    { label: "Check-ins", value: (checkins || []).length, icon: "people-outline" },
+    { label: "Saved highlights", value: totalSavedHighlightCount, icon: "color-wand-outline" },
+    { label: "Bible bookmarks", value: bibleBookmarks.length, icon: "bookmark-outline" },
+    { label: "Chapters marked read", value: readBibleChapterCount, icon: "checkmark-circle-outline" }
+  ];
   const baseJournalEntries = [
     ...(journalFilter === "reviews" ? dueStudyReviews || [] : []),
     ...(journalFilter === "all" || journalFilter === "pinned" || journalFilter === "studies" ? sessions || [] : []),
@@ -5030,6 +5039,28 @@ export default function Home() {
                     ))}
                   </View>
                 </View>
+              </View>
+              <View style={styles.accountSection}>
+                <Text style={styles.sectionTitle}>Your saved data</Text>
+                <Text style={styles.helpIntro}>
+                  A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
+                </Text>
+                <View style={styles.savedDataGrid}>
+                  {savedDataItems.map((item) => (
+                    <View key={item.label} style={styles.savedDataItem}>
+                      <View style={styles.savedDataIcon}>
+                        <Ionicons name={item.icon as any} size={17} color={colors.oliveDark} />
+                      </View>
+                      <View style={styles.savedDataCopy}>
+                        <Text style={styles.savedDataValue}>{item.value}</Text>
+                        <Text style={styles.savedDataLabel}>{item.label}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+                <Text style={styles.helpIntro}>
+                  Account-linked studies, drafts, check-ins, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
+                </Text>
               </View>
               <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Legal</Text>
@@ -14362,6 +14393,46 @@ const styles = StyleSheet.create({
     gap: 9,
     marginTop: 10,
     padding: 12
+  },
+  savedDataGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginVertical: 10
+  },
+  savedDataItem: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexBasis: "31%",
+    flexDirection: "row",
+    gap: 9,
+    minWidth: 150,
+    padding: 10
+  },
+  savedDataIcon: {
+    alignItems: "center",
+    backgroundColor: "#eef3e5",
+    borderRadius: 999,
+    height: 32,
+    justifyContent: "center",
+    width: 32
+  },
+  savedDataCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  savedDataValue: {
+    color: colors.ink,
+    fontSize: 18,
+    fontWeight: "900"
+  },
+  savedDataLabel: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
   },
   feedbackInput: {
     minHeight: 110,

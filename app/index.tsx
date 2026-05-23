@@ -98,6 +98,36 @@ const BIBLE_CHAPTER_COUNTS: Record<string, number> = {
   "1 Timothy": 6, "2 Timothy": 4, Titus: 3, Philemon: 1, Hebrews: 13, James: 5, "1 Peter": 5, "2 Peter": 3,
   "1 John": 5, "2 John": 1, "3 John": 1, Jude: 1, Revelation: 22
 };
+const BIBLE_BOOK_ALIASES: Record<string, string> = {
+  gen: "Genesis", ge: "Genesis", ex: "Exodus", exo: "Exodus", lev: "Leviticus", le: "Leviticus", num: "Numbers", nu: "Numbers",
+  deut: "Deuteronomy", de: "Deuteronomy", dt: "Deuteronomy", josh: "Joshua", jos: "Joshua", judg: "Judges", jdg: "Judges",
+  ruth: "Ruth", ru: "Ruth", "1sam": "1 Samuel", "1 sam": "1 Samuel", "1sa": "1 Samuel", "1 sa": "1 Samuel",
+  "2sam": "2 Samuel", "2 sam": "2 Samuel", "2sa": "2 Samuel", "2 sa": "2 Samuel", "1ki": "1 Kings", "1 ki": "1 Kings",
+  "1kgs": "1 Kings", "1 kgs": "1 Kings", "1king": "1 Kings", "1 king": "1 Kings", "2ki": "2 Kings", "2 ki": "2 Kings",
+  "2kgs": "2 Kings", "2 kgs": "2 Kings", "2king": "2 Kings", "2 king": "2 Kings", "1chron": "1 Chronicles",
+  "1 chron": "1 Chronicles", "1chr": "1 Chronicles", "1 chr": "1 Chronicles", "1ch": "1 Chronicles", "1 ch": "1 Chronicles",
+  "2chron": "2 Chronicles", "2 chron": "2 Chronicles", "2chr": "2 Chronicles", "2 chr": "2 Chronicles", "2ch": "2 Chronicles",
+  "2 ch": "2 Chronicles", ezra: "Ezra", ezr: "Ezra", neh: "Nehemiah", est: "Esther", job: "Job", ps: "Psalm",
+  psa: "Psalm", psm: "Psalm", psalm: "Psalm", psalms: "Psalm", prov: "Proverbs", pro: "Proverbs", pr: "Proverbs",
+  ecc: "Ecclesiastes", eccl: "Ecclesiastes", song: "Song of Solomon", sos: "Song of Solomon", "song sol": "Song of Solomon",
+  "song of sol": "Song of Solomon", isa: "Isaiah", is: "Isaiah", jer: "Jeremiah", lam: "Lamentations", ezek: "Ezekiel",
+  eze: "Ezekiel", ezk: "Ezekiel", dan: "Daniel", hos: "Hosea", obad: "Obadiah", mic: "Micah", nah: "Nahum",
+  hab: "Habakkuk", zeph: "Zephaniah", zep: "Zephaniah", hag: "Haggai", zech: "Zechariah", zec: "Zechariah",
+  mal: "Malachi", matt: "Matthew", mt: "Matthew", mrk: "Mark", mk: "Mark", lk: "Luke", jn: "John", joh: "John",
+  ac: "Acts", rom: "Romans", ro: "Romans", "1cor": "1 Corinthians", "1 cor": "1 Corinthians", "1co": "1 Corinthians",
+  "1 co": "1 Corinthians", "2cor": "2 Corinthians", "2 cor": "2 Corinthians", "2co": "2 Corinthians", "2 co": "2 Corinthians",
+  gal: "Galatians", ga: "Galatians", eph: "Ephesians", phil: "Philippians", php: "Philippians", col: "Colossians",
+  "1thes": "1 Thessalonians", "1 thes": "1 Thessalonians", "1thess": "1 Thessalonians", "1 thess": "1 Thessalonians",
+  "1th": "1 Thessalonians", "1 th": "1 Thessalonians", "2thes": "2 Thessalonians", "2 thes": "2 Thessalonians",
+  "2thess": "2 Thessalonians", "2 thess": "2 Thessalonians", "2th": "2 Thessalonians", "2 th": "2 Thessalonians",
+  "1tim": "1 Timothy", "1 tim": "1 Timothy", "1ti": "1 Timothy", "1 ti": "1 Timothy", "2tim": "2 Timothy",
+  "2 tim": "2 Timothy", "2ti": "2 Timothy", "2 ti": "2 Timothy", tit: "Titus", philem: "Philemon", phm: "Philemon",
+  heb: "Hebrews", jas: "James", jam: "James", "1pet": "1 Peter", "1 pet": "1 Peter", "1pe": "1 Peter",
+  "1 pe": "1 Peter", "2pet": "2 Peter", "2 pet": "2 Peter", "2pe": "2 Peter", "2 pe": "2 Peter", "1jn": "1 John",
+  "1 jn": "1 John", "1john": "1 John", "1 john": "1 John", "2jn": "2 John", "2 jn": "2 John", "2john": "2 John",
+  "2 john": "2 John", "3jn": "3 John", "3 jn": "3 John", "3john": "3 John", "3 john": "3 John", rev: "Revelation",
+  revelation: "Revelation"
+};
 const OLD_TESTAMENT_BOOKS = bibleBooks.slice(0, bibleBooks.indexOf("Matthew"));
 const NEW_TESTAMENT_BOOKS = bibleBooks.slice(bibleBooks.indexOf("Matthew"));
 const PASSAGE_MARKUP_OPTIONS: { id: PassageMarkupKind; label: string; background: string; color: string }[] = [
@@ -662,7 +692,6 @@ export default function Home() {
         ? "Review study"
         : "Save and continue";
   const parsedPassage = parsePassageQuery(passageQuery);
-  const smartSuggestions = buildPassageSuggestions(passageQuery);
   const latestCheckin = checkins?.[0];
   const selectedPlan = studyPlans.find((item) => item.id === selectedPlanId) || studyPlans[0];
   const completedPlanDaySet = new Set(completedPlanDayKeys);
@@ -697,7 +726,6 @@ export default function Home() {
   const communityMessage = buildCommunityMessage({ partner: effectivePartner, senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
-  const passagePresets = buildPassagePresets(method.id);
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
   const filteredReaderBooks = bibleBooks.filter((book) => book.toLowerCase().includes(readerBookSearch.trim().toLowerCase()));
@@ -2835,31 +2863,12 @@ export default function Home() {
                         value={passageQuery}
                         onChangeText={setPassageQuery}
                         onSubmitEditing={() => applyPassageQuery()}
-                        placeholder="Try “John 3:16-18” or “Psalm 23”"
+                        placeholder="Try “Jn 3:16”, “Ps 23”, or “1 Thes 1:1”"
                         style={styles.smartPassageInput}
                       />
                       <Pressable onPress={() => applyPassageQuery()} style={styles.useInlineButton}>
                         <Text style={styles.useInlineText}>Use</Text>
                       </Pressable>
-                    </View>
-
-                    <View style={styles.suggestionRow}>
-                      {smartSuggestions.map((suggestion) => (
-                        <Pressable key={suggestion} onPress={() => applyPassageQuery(suggestion)} style={styles.suggestionChip}>
-                          <Text style={styles.suggestionText}>{suggestion}</Text>
-                        </Pressable>
-                      ))}
-                    </View>
-
-                    <View style={styles.presetSection}>
-                      <Text style={styles.presetLabel}>Common starts</Text>
-                      <View style={styles.suggestionRow}>
-                        {passagePresets.map((preset) => (
-                          <Pressable key={preset} onPress={() => applyPassageQuery(preset)} style={styles.presetChip}>
-                            <Text style={styles.presetText}>{preset}</Text>
-                          </Pressable>
-                        ))}
-                      </View>
                     </View>
                   </View>
                 </>
@@ -8089,14 +8098,12 @@ async function fetchBsbPassage(reference: string, signal: AbortSignal): Promise<
 
 function parseBsbPassageReference(query: string) {
   const compact = query.trim().replace(/\s+/g, " ").replace(/\s*:\s*/g, ":").replace(/\s*-\s*/g, "-");
-  const lower = compact.toLowerCase();
-  const names = Array.from(new Set([...bibleBooks, "Psalm"])).sort((a, b) => b.length - a.length);
-  const matchedBook = names.find((book) => lower.startsWith(book.toLowerCase()));
-  if (!matchedBook) return null;
+  const resolved = resolveBibleBookReference(compact);
+  if (!resolved) return null;
 
-  const bookName = normalizeBibleBookName(matchedBook);
+  const bookName = normalizeBibleBookName(resolved.book);
   const bookId = BSB_BOOK_IDS[bookName];
-  const rest = compact.slice(matchedBook.length).trim();
+  const rest = resolved.rest;
   const match = rest.match(/^(\d+)(?::(\d+)(?:-(\d+))?)?$/);
   if (!bookId || !match) return null;
 
@@ -8129,6 +8136,49 @@ function flattenBsbVerseContent(content: any[]) {
 function formatBsbReference(parsed: { bookName: string; chapter: number; startVerse?: number; endVerse?: number }) {
   if (!parsed.startVerse) return `${parsed.bookName} ${parsed.chapter}`;
   return `${parsed.bookName} ${parsed.chapter}:${parsed.startVerse}${parsed.endVerse ? `-${parsed.endVerse}` : ""}`;
+}
+
+function resolveBibleBookReference(reference: string) {
+  const normalizedReference = normalizeBibleBookLookupKey(reference);
+  const aliases = buildBibleBookAliasEntries();
+  const matched = aliases.find(({ key }) => {
+    if (normalizedReference === key) return true;
+    if (!normalizedReference.startsWith(key)) return false;
+    const nextChar = normalizedReference.slice(key.length, key.length + 1);
+    return !nextChar || /\s|\d|:|-/.test(nextChar);
+  });
+
+  if (!matched) return null;
+
+  return {
+    book: matched.book,
+    rest: normalizedReference.slice(matched.key.length).trim()
+  };
+}
+
+function buildBibleBookAliasEntries() {
+  const entries = new Map<string, string>();
+  const add = (alias: string, book: string) => {
+    const key = normalizeBibleBookLookupKey(alias);
+    if (key) entries.set(key, book);
+  };
+
+  [...bibleBooks, "Psalm"].forEach((book) => {
+    add(book, book);
+    add(book.replace(/\s+/g, ""), book);
+  });
+  Object.entries(BIBLE_BOOK_ALIASES).forEach(([alias, book]) => add(alias, book));
+
+  return Array.from(entries, ([key, book]) => ({ key, book })).sort((a, b) => b.key.length - a.key.length);
+}
+
+function normalizeBibleBookLookupKey(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[.]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 const BSB_BOOK_IDS: Record<string, string> = {
@@ -8209,18 +8259,10 @@ function parsePassageQuery(query: string) {
   if (!compact) return { reference: "" };
 
   const normalized = compact.replace(/\s*:\s*/g, ":").replace(/\s*-\s*/g, "-");
-  const lower = normalized.toLowerCase();
-  const bookNames = Array.from(new Set([...bibleBooks, "Psalm"]));
-  const matchedBook =
-    bookNames
-      .slice()
-      .sort((a, b) => b.length - a.length)
-      .find((book) => lower.startsWith(book.toLowerCase())) ||
-    bookNames.find((book) => book.toLowerCase().startsWith(lower.split(" ")[0]));
+  const resolved = resolveBibleBookReference(normalized);
+  if (!resolved) return { reference: normalized };
 
-  if (!matchedBook) return { reference: normalized };
-
-  const rest = normalized.slice(matchedBook.length).trim();
+  const rest = resolved.rest;
   const parts = rest.match(/^(\d+)?(?:\s+|:)?(\d+)?(?:-(\d+))?/);
   const chapter = parts?.[1] || "";
   const startVerse = parts?.[2] || "";
@@ -8228,16 +8270,17 @@ function parsePassageQuery(query: string) {
   const verse = startVerse ? `:${startVerse}${endVerse ? `-${endVerse}` : ""}` : "";
 
   return {
-    reference: `${normalizeBibleBookName(matchedBook)}${chapter ? ` ${chapter}` : ""}${verse}`.trim()
+    reference: `${normalizeBibleBookName(resolved.book)}${chapter ? ` ${chapter}` : ""}${verse}`.trim()
   };
 }
 
 function findTypedScriptureReference(text: string) {
   const cleaned = stripNoteFormatting(text).replace(/\s+/g, " ");
-  const bookPattern = Array.from(new Set([...bibleBooks, "Psalm"])).map(escapeRegExp).join("|");
-  const referencePattern = new RegExp(`\\b(${bookPattern})\\s+\\d{1,3}:\\d{1,3}(?:-\\d{1,3})?\\s*$`, "i");
+  const referencePattern = /(?:^|\s)((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,2}\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?)\s*$/i;
   const match = cleaned.match(referencePattern);
-  return match?.[0] ? parsePassageQuery(match[0]).reference : "";
+  if (!match?.[1]) return "";
+  const parsed = parsePassageQuery(match[1]).reference;
+  return parseBsbPassageReference(parsed) ? parsed : "";
 }
 
 function expandScriptureReference(currentAnswer: string, reference: string, verseText: string, useRichHtml = false) {
@@ -8386,36 +8429,6 @@ function unwrapElement(element: any) {
     parent.insertBefore(element.firstChild, element);
   }
   parent.removeChild(element);
-}
-
-function buildPassageSuggestions(query: string) {
-  const parsed = parsePassageQuery(query).reference;
-  const trimmed = query.trim();
-  const defaults = ["Psalm 23", "John 3:16-18", "Romans 8:1-4"];
-  if (!trimmed) return defaults;
-
-  const parsedParts = parsed.match(/^(.+?)\s+(\d+)(?::(\d+)(?:-(\d+))?)?$/);
-  if (parsedParts) {
-    const [, book, chapter, startVerse] = parsedParts;
-    const chapterNumber = Number(chapter);
-    const verseNumber = Number(startVerse || 1);
-    const suggestions = startVerse
-      ? [
-          `${book} ${chapter}:${verseNumber}`,
-          `${book} ${chapter}:${verseNumber}-${verseNumber + 2}`,
-          `${book} ${chapter}:${verseNumber}-${verseNumber + 4}`
-        ]
-      : [`${book} ${chapter}`, `${book} ${chapter}:1-4`, `${book} ${chapter}:5-8`, `${book} ${chapterNumber + 1}`];
-
-    return Array.from(new Set(suggestions)).slice(0, 4);
-  }
-
-  const bookMatches = bibleBooks
-    .filter((book) => book.toLowerCase().includes(trimmed.toLowerCase()))
-    .slice(0, 4)
-    .map((book) => `${book} 1`);
-
-  return Array.from(new Set([...bookMatches, parsed])).filter(Boolean).slice(0, 4);
 }
 
 function buildPassagePresets(methodId: string) {
@@ -11274,48 +11287,6 @@ const styles = StyleSheet.create({
   useInlineText: {
     color: "white",
     fontWeight: "800"
-  },
-  suggestionRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 2
-  },
-  suggestionChip: {
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 7
-  },
-  suggestionText: {
-    color: colors.oliveDark,
-    fontWeight: "700"
-  },
-  presetSection: {
-    borderColor: "rgba(102, 114, 78, 0.16)",
-    borderTopWidth: 1,
-    marginTop: 10,
-    paddingTop: 10
-  },
-  presetLabel: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700",
-    marginBottom: 8,
-    textTransform: "uppercase"
-  },
-  presetChip: {
-    backgroundColor: "#fff6eb",
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    paddingVertical: 7
-  },
-  presetText: {
-    color: colors.ink,
-    fontSize: 13,
-    fontWeight: "700"
   },
   textarea: {
     minHeight: 150,

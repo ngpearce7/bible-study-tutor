@@ -3398,15 +3398,25 @@ export default function Home() {
             {!studyFocusMode && (
             <Card style={[styles.memoryCoachCard, compactLayout && styles.fluidCard]}>
               <CollapsibleStudyPanel
-                title="Community cue"
-                icon="people-outline"
-                collapsed={collapsedStudyPanels.community}
-                onToggle={() => toggleStudyPanel("community")}
-                style={styles.communityBox}
+                title="Study helps"
+                icon="library-outline"
+                collapsed={collapsedStudyPanels.helps}
+                onToggle={() => toggleStudyPanel("helps")}
+                style={styles.studyHelpsBox}
               >
-                <Text style={styles.communityTitle}>{effectivePartner ? `Bring ${effectivePartner} one sentence.` : "Bring one person into this rhythm."}</Text>
-                <Text style={styles.helpIntro}>{suggestedShareNote || "Your final answer becomes a small share note when you complete the study."}</Text>
-                <AppButton label="Open community" variant="secondary" onPress={() => setTab("accountability")} />
+                <Text style={styles.helpIntro}>Use these after you have written your own observations.</Text>
+                {studyHelps.map((help) => (
+                  <Pressable key={help.title} onPress={() => Linking.openURL(help.url)} style={styles.helpLink}>
+                    <View style={styles.helpIcon}>
+                      <Ionicons name={help.icon as any} size={17} color={colors.oliveDark} />
+                    </View>
+                    <View style={styles.helpTextBlock}>
+                      <Text style={styles.helpTitle}>{help.title}</Text>
+                      <Text style={styles.helpDescription}>{help.description}</Text>
+                    </View>
+                    <Ionicons name="open-outline" size={16} color={colors.muted} />
+                  </Pressable>
+                ))}
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
                 title="Current plan"
@@ -3444,27 +3454,6 @@ export default function Home() {
                     saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
                   }}
                 />
-              </CollapsibleStudyPanel>
-              <CollapsibleStudyPanel
-                title="Study helps"
-                icon="library-outline"
-                collapsed={collapsedStudyPanels.helps}
-                onToggle={() => toggleStudyPanel("helps")}
-                style={styles.studyHelpsBox}
-              >
-                <Text style={styles.helpIntro}>Use these after you have written your own observations.</Text>
-                {studyHelps.map((help) => (
-                  <Pressable key={help.title} onPress={() => Linking.openURL(help.url)} style={styles.helpLink}>
-                    <View style={styles.helpIcon}>
-                      <Ionicons name={help.icon as any} size={17} color={colors.oliveDark} />
-                    </View>
-                    <View style={styles.helpTextBlock}>
-                      <Text style={styles.helpTitle}>{help.title}</Text>
-                      <Text style={styles.helpDescription}>{help.description}</Text>
-                    </View>
-                    <Ionicons name="open-outline" size={16} color={colors.muted} />
-                  </Pressable>
-                ))}
               </CollapsibleStudyPanel>
             </Card>
             )}
@@ -10976,28 +10965,28 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
-    flexDirection: "row",
+    flexDirection: "column",
     gap: 14,
-    justifyContent: "space-between",
     marginBottom: 14,
-    padding: 14
+    padding: 14,
+    position: "relative"
   },
   phoneStudyGuidedHeader: {
-    flexDirection: "column",
     gap: 12,
     paddingRight: 104,
     position: "relative"
   },
   studyGuidedTitleBlock: {
-    flex: 1,
-    minWidth: 0
+    minWidth: 0,
+    paddingRight: 112,
+    width: "100%"
   },
   studyHeaderControls: {
     alignItems: "flex-start",
     flexDirection: "row",
     flexShrink: 1,
     gap: 8,
-    justifyContent: "flex-end",
+    justifyContent: "flex-start",
     maxWidth: 430,
     minWidth: 0
   },
@@ -11008,10 +10997,12 @@ const styles = StyleSheet.create({
     width: "100%"
   },
   studyFocusHeaderToggle: {
-    flexShrink: 0
+    flexShrink: 0,
+    position: "absolute",
+    right: 14,
+    top: 14
   },
   phoneStudyFocusHeaderToggle: {
-    position: "absolute",
     right: 12,
     top: 12
   },

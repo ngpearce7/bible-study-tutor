@@ -5082,7 +5082,7 @@ export default function Home() {
                       <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact />
                       <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact />
                       <Metric value={adminStats.totals.newFeedback} label="new feedback" compact />
-                      <Metric value={adminStats.totals.appShares} label="app shares" compact />
+                      <Metric value={adminStats.totals.appShares || 0} label="app shares" compact />
                       <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
                     </View>
                     <Text style={styles.helpIntro}>
@@ -5108,7 +5108,7 @@ export default function Home() {
                 <Metric value={adminStats.totals.signedInProfiles} label="signed in" compact={phoneLayout} />
                 <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact={phoneLayout} />
                 <Metric value={adminStats.totals.newFeedback} label="new feedback" compact={phoneLayout} />
-                <Metric value={adminStats.totals.appShares} label="app shares" compact={phoneLayout} />
+                <Metric value={adminStats.totals.appShares || 0} label="app shares" compact={phoneLayout} />
                 <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact={phoneLayout} />
                 <Metric value={adminStats.totals.events} label="events" compact={phoneLayout} />
                 <Metric value={adminStats.totals.localProfiles} label="local/test" compact={phoneLayout} />
@@ -5191,7 +5191,7 @@ export default function Home() {
                   <AdminCountList title="Bible searches" items={adminStats.topSearches} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="App shares" items={adminStats.shareSources} />
+                  <AdminCountList title="App shares" items={adminStats.shareSources || []} />
                 </Card>
               </View>
 
@@ -6417,14 +6417,16 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
   );
 }
 
-function AdminCountList({ title, items }: { title: string; items: { label: string; count: number }[] }) {
+function AdminCountList({ title, items }: { title: string; items?: { label: string; count: number }[] }) {
+  const safeItems = Array.isArray(items) ? items : [];
+
   return (
     <View style={styles.adminCountList}>
       <Text style={styles.lastCheckinLabel}>{title}</Text>
-      {items.length === 0 ? (
+      {safeItems.length === 0 ? (
         <Text style={styles.helpIntro}>No data yet.</Text>
       ) : (
-        items.map((item) => (
+        safeItems.map((item) => (
           <View key={item.label} style={styles.adminCountRow}>
             <Text numberOfLines={1} style={styles.adminCountLabel}>{item.label}</Text>
             <Text style={styles.readerBookmarkCount}>{item.count}</Text>

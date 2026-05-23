@@ -4936,11 +4936,11 @@ export default function Home() {
                 )}
                 {!!authStatus && <Text style={styles.saveStatus}>{authStatus}</Text>}
               </View>
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Personal details</Text>
-                <Text style={styles.helpIntro}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
-                <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" style={styles.input} />
-                {isAuthenticated && (
+              {isAuthenticated && (
+                <View style={styles.accountSection}>
+                  <Text style={styles.sectionTitle}>Personal details</Text>
+                  <Text style={styles.helpIntro}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
+                  <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" style={styles.input} />
                   <TextInput
                     value={accountEmail}
                     onChangeText={setAccountEmail}
@@ -4949,10 +4949,10 @@ export default function Home() {
                     placeholder="Email"
                     style={styles.input}
                   />
-                )}
-                <AppButton label={isAuthenticated ? "Save details" : "Save name"} onPress={persistAccountSettings} />
-                {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
-              </View>
+                  <AppButton label="Save details" onPress={persistAccountSettings} />
+                  {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
+                </View>
+              )}
               {isAuthenticated && profile?.authProvider === "password" && (
                 <View style={styles.accountSection}>
                   <Text style={styles.sectionTitle}>Change password</Text>
@@ -4977,33 +4977,35 @@ export default function Home() {
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Feedback access</Text>
-                <Text style={styles.helpIntro}>Current: {aiAccessChoice === "free" ? "Free local coaching" : aiAccessChoice === "own-key" ? "Use my own AI key" : "Premium subscription"}</Text>
-                <View style={styles.accountOptionGrid}>
-                  <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
-                    <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
-                    <View style={styles.aiOptionCopy}>
-                      <Text style={styles.aiOptionTitle}>Free</Text>
-                      <Text style={styles.aiOptionText}>Built-in coaching. No AI usage or payment.</Text>
-                    </View>
-                  </Pressable>
-                  <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
-                    <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
-                    <View style={styles.aiOptionCopy}>
-                      <Text style={styles.aiOptionTitle}>Own key</Text>
-                      <Text style={styles.aiOptionText}>Planned. User pays the AI provider directly.</Text>
-                    </View>
-                  </Pressable>
-                  <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
-                    <Ionicons name="card-outline" size={20} color={colors.oliveDark} />
-                    <View style={styles.aiOptionCopy}>
-                      <Text style={styles.aiOptionTitle}>Premium</Text>
-                      <Text style={styles.aiOptionText}>Planned. Subscription with clear monthly limits.</Text>
-                    </View>
-                  </Pressable>
+              {isAuthenticated && (
+                <View style={styles.accountSection}>
+                  <Text style={styles.sectionTitle}>Feedback access</Text>
+                  <Text style={styles.helpIntro}>Current: {aiAccessChoice === "free" ? "Free local coaching" : aiAccessChoice === "own-key" ? "Use my own AI key" : "Premium subscription"}</Text>
+                  <View style={styles.accountOptionGrid}>
+                    <Pressable onPress={() => chooseAiAccess("free")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "free" && styles.activeAiOptionCard]}>
+                      <Ionicons name="leaf-outline" size={20} color={colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>Free</Text>
+                        <Text style={styles.aiOptionText}>Built-in coaching. No AI usage or payment.</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable onPress={() => chooseAiAccess("own-key")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "own-key" && styles.activeAiOptionCard]}>
+                      <Ionicons name="key-outline" size={20} color={colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>Own key</Text>
+                        <Text style={styles.aiOptionText}>Planned. User pays the AI provider directly.</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable onPress={() => chooseAiAccess("premium")} style={[styles.aiOptionCard, styles.accountOptionCard, aiAccessChoice === "premium" && styles.activeAiOptionCard]}>
+                      <Ionicons name="card-outline" size={20} color={colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={styles.aiOptionTitle}>Premium</Text>
+                        <Text style={styles.aiOptionText}>Planned. Subscription with clear monthly limits.</Text>
+                      </View>
+                    </Pressable>
+                  </View>
                 </View>
-              </View>
+              )}
               <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Bible translations</Text>
                 <Text style={styles.helpIntro}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
@@ -5040,28 +5042,30 @@ export default function Home() {
                   </View>
                 </View>
               </View>
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Your saved data</Text>
-                <Text style={styles.helpIntro}>
-                  A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
-                </Text>
-                <View style={styles.savedDataGrid}>
-                  {savedDataItems.map((item) => (
-                    <View key={item.label} style={styles.savedDataItem}>
-                      <View style={styles.savedDataIcon}>
-                        <Ionicons name={item.icon as any} size={17} color={colors.oliveDark} />
+              {isAuthenticated && (
+                <View style={styles.accountSection}>
+                  <Text style={styles.sectionTitle}>Your saved data</Text>
+                  <Text style={styles.helpIntro}>
+                    A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
+                  </Text>
+                  <View style={styles.savedDataGrid}>
+                    {savedDataItems.map((item) => (
+                      <View key={item.label} style={styles.savedDataItem}>
+                        <View style={styles.savedDataIcon}>
+                          <Ionicons name={item.icon as any} size={17} color={colors.oliveDark} />
+                        </View>
+                        <View style={styles.savedDataCopy}>
+                          <Text style={styles.savedDataValue}>{item.value}</Text>
+                          <Text style={styles.savedDataLabel}>{item.label}</Text>
+                        </View>
                       </View>
-                      <View style={styles.savedDataCopy}>
-                        <Text style={styles.savedDataValue}>{item.value}</Text>
-                        <Text style={styles.savedDataLabel}>{item.label}</Text>
-                      </View>
-                    </View>
-                  ))}
+                    ))}
+                  </View>
+                  <Text style={styles.helpIntro}>
+                    Account-linked studies, drafts, check-ins, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
+                  </Text>
                 </View>
-                <Text style={styles.helpIntro}>
-                  Account-linked studies, drafts, check-ins, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
-                </Text>
-              </View>
+              )}
               <View style={styles.accountSection}>
                 <Text style={styles.sectionTitle}>Legal</Text>
                 <Text style={styles.helpIntro}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
@@ -5080,37 +5084,40 @@ export default function Home() {
                   onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
                 />
               </View>
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Account deletion</Text>
-                <Text style={styles.helpIntro}>
-                  You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
-                </Text>
-                {accountDeletionRequest ? (
-                  <View style={styles.deletionRequestBox}>
-                    <View style={styles.feedbackHeader}>
-                      <Ionicons name="time-outline" size={18} color={colors.coral} />
-                      <Text style={styles.feedbackTitle}>Deletion request pending</Text>
+              {isAuthenticated && (
+                <View style={styles.accountSection}>
+                  <Text style={styles.sectionTitle}>Account deletion</Text>
+                  <Text style={styles.helpIntro}>
+                    You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
+                  </Text>
+                  {accountDeletionRequest ? (
+                    <View style={styles.deletionRequestBox}>
+                      <View style={styles.feedbackHeader}>
+                        <Ionicons name="time-outline" size={18} color={colors.coral} />
+                        <Text style={styles.feedbackTitle}>Deletion request pending</Text>
+                      </View>
+                      <Text style={styles.helpIntro}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
+                      <AppButton label="Cancel request" variant="secondary" onPress={cancelOwnAccountDeletionRequest} />
                     </View>
-                    <Text style={styles.helpIntro}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
-                    <AppButton label="Cancel request" variant="secondary" onPress={cancelOwnAccountDeletionRequest} />
-                  </View>
-                ) : (
-                  <View style={styles.deletionRequestBox}>
-                    <View style={styles.feedbackHeader}>
-                      <Ionicons name="warning-outline" size={18} color={colors.coral} />
-                      <Text style={styles.feedbackTitle}>Before requesting deletion</Text>
+                  ) : (
+                    <View style={styles.deletionRequestBox}>
+                      <View style={styles.feedbackHeader}>
+                        <Ionicons name="warning-outline" size={18} color={colors.coral} />
+                        <Text style={styles.feedbackTitle}>Before requesting deletion</Text>
+                      </View>
+                      <Text style={styles.helpIntro}>Approved deletion removes your profile, studies, drafts, check-ins, memory verses, feedback, usage events, and sign-in records where connected.</Text>
+                      <AppButton
+                        label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
+                        variant="secondary"
+                        onPress={submitAccountDeletionRequest}
+                      />
                     </View>
-                    <Text style={styles.helpIntro}>Approved deletion removes your profile, studies, drafts, check-ins, memory verses, feedback, usage events, and sign-in records where connected.</Text>
-                    <AppButton
-                      label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
-                      variant="secondary"
-                      onPress={submitAccountDeletionRequest}
-                    />
-                  </View>
-                )}
-                {!!deletionStatus && <Text style={styles.saveStatus}>{deletionStatus}</Text>}
-              </View>
+                  )}
+                  {!!deletionStatus && <Text style={styles.saveStatus}>{deletionStatus}</Text>}
+                </View>
+              )}
             </Card>
+            {isAuthenticated && (
             <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
               <View style={styles.accountStatusBox}>
                 <View style={styles.feedbackHeader}>
@@ -5176,6 +5183,7 @@ export default function Home() {
                 <Text style={styles.helpIntro}>Premium is a placeholder until payment and usage-limit systems are wired in.</Text>
               </View>
             </Card>
+            )}
           </View>
         )}
 

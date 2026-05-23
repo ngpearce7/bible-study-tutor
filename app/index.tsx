@@ -94,13 +94,6 @@ const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string 
   { id: "web", label: "WEB", name: "World English Bible" },
   { id: "kjv", label: "KJV", name: "King James Version" }
 ];
-const PREMIUM_TRANSLATION_PLACEHOLDERS = [
-  "NIV",
-  "ESV",
-  "NKJV",
-  "NLT",
-  "CSB"
-];
 const BIBLE_CHAPTER_COUNTS: Record<string, number> = {
   Genesis: 50, Exodus: 40, Leviticus: 27, Numbers: 36, Deuteronomy: 34, Joshua: 24, Judges: 21, Ruth: 4,
   "1 Samuel": 31, "2 Samuel": 24, "1 Kings": 22, "2 Kings": 25, "1 Chronicles": 29, "2 Chronicles": 36,
@@ -236,7 +229,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Bible translations and third-party content",
-    body: "The app may include public-domain or permission-based Bible text options such as BSB, WEB, and KJV access paths. Bible translation names and content remain the property of their respective rights holders. Future modern paid translations may require publisher licensing, purchase terms, or app store rules before they are available."
+    body: "The app currently uses free public-domain or permission-friendly Bible text options such as BSB, WEB, and KJV so the core study, memory, journal, and worksheet features can remain free and accessible."
   },
   {
     title: "Free access and future changes",
@@ -5029,17 +5022,12 @@ export default function Home() {
                 </View>
                 <View style={styles.translationLockedBox}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Premium translations later</Text>
+                    <Ionicons name="heart-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Why these translations?</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Modern paid translations need publisher licensing and app-store purchase setup before they can be sold here.</Text>
-                  <View style={styles.lockedTranslationRow}>
-                    {PREMIUM_TRANSLATION_PLACEHOLDERS.map((translation) => (
-                      <View key={translation} style={styles.lockedTranslationPill}>
-                        <Text style={styles.lockedTranslationText}>{translation}</Text>
-                      </View>
-                    ))}
-                  </View>
+                  <Text style={styles.helpIntro}>
+                    Bible Study Tutor is intentionally free and built for churches, groups, and personal study. These translations let the app support reading, study notes, memory verses, journaling, and printable worksheets without putting commercial Bible licensing costs onto users.
+                  </Text>
                 </View>
               </View>
               {isAuthenticated && (

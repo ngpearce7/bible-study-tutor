@@ -2800,14 +2800,14 @@ export default function Home() {
                     <Text style={styles.compactMethodCurrent}>{method.short}</Text>
                     <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
                   </Pressable>
-                  <Pressable onPress={() => {
-                    const nextValue = !studyFocusMode;
-                    setStudyFocusMode(nextValue);
-                    saveStoredStudyFocusMode(nextValue).catch(() => undefined);
-                  }} style={[styles.togglePill, studyFocusMode && styles.activeTogglePill]}>
-                    <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
-                  </Pressable>
                 </View>
+                <Pressable onPress={() => {
+                  const nextValue = !studyFocusMode;
+                  setStudyFocusMode(nextValue);
+                  saveStoredStudyFocusMode(nextValue).catch(() => undefined);
+                }} style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyFocusMode && styles.activeTogglePill]}>
+                  <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
+                </Pressable>
               </View>
               {studyMethodPickerOpen && (
                 <View style={styles.compactMethodMenu}>
@@ -3090,12 +3090,6 @@ export default function Home() {
                         />
                       </View>
                     ) : null}
-                    {phoneLayout && passageText.verses?.length ? (
-                      <View style={styles.mobilePrintHint}>
-                        <Ionicons name="phone-portrait-outline" size={15} color={colors.coral} />
-                        <Text style={styles.mobilePrintHintText}>On phone, open the worksheet, then use Share to Print or Save to Files.</Text>
-                      </View>
-                    ) : null}
                   </>
                 ) : (
                   <View style={styles.passageStatusBox}>
@@ -3209,18 +3203,12 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel]}>
-                  <View style={styles.stepHeader} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
-                    <View>
-                      <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
-                      <Text style={styles.stepTitle}>{step.title}</Text>
-                      <Text style={styles.titleSupport}>{`Stay with the text, ${friendlyName}. One honest response is enough.`}</Text>
-                    </View>
-                    <Text style={styles.badge}>{method.short}</Text>
-                  </View>
                   <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox]}>
                     <View style={styles.instructionHeader}>
-                      <View style={styles.instructionHeaderCopy}>
-                        <Eyebrow>Do this now</Eyebrow>
+                      <View style={styles.instructionHeaderCopy} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
+                        <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
+                        <Text style={styles.stepTitle}>{step.title}</Text>
+                        <Text style={styles.instructionKicker}>Do this now</Text>
                         <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText]}>{step.action}</Text>
                       </View>
                       <Pressable onPress={() => setInstructionsCollapsed((value) => !value)} style={styles.collapseButton}>
@@ -6856,6 +6844,7 @@ function StudyNoteEditor({
           onInsert={insertWritingPromptNative}
           onAddCustomPrompt={onAddCustomWritingPrompt}
           onRemoveCustomPrompt={onRemoveCustomWritingPrompt}
+          compact={phoneLayout}
         />
         <TextInput
           ref={nativeInputRef}
@@ -6982,6 +6971,7 @@ function StudyNoteEditor({
         onInsert={insertWritingPromptWeb}
         onAddCustomPrompt={onAddCustomWritingPrompt}
         onRemoveCustomPrompt={onRemoveCustomWritingPrompt}
+        compact={phoneLayout}
       />
       {createElement("div", {
         ref: editorRef,
@@ -7144,7 +7134,8 @@ function WritingPromptChips({
   status,
   onInsert,
   onAddCustomPrompt,
-  onRemoveCustomPrompt
+  onRemoveCustomPrompt,
+  compact = false
 }: {
   prompts: string[];
   customPrompts?: string[];
@@ -7152,6 +7143,7 @@ function WritingPromptChips({
   onInsert: (prompt: string) => void;
   onAddCustomPrompt?: (prompt: string) => boolean;
   onRemoveCustomPrompt?: (prompt: string) => void;
+  compact?: boolean;
 }) {
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [draftPrompt, setDraftPrompt] = useState("");
@@ -7168,25 +7160,25 @@ function WritingPromptChips({
   };
 
   return (
-    <View style={styles.writingPromptBox}>
-      <View style={styles.writingPromptHeader}>
+    <View style={[styles.writingPromptBox, compact && styles.compactWritingPromptBox]}>
+      <View style={[styles.writingPromptHeader, compact && styles.compactWritingPromptHeader]}>
         <Text style={styles.writingPromptLabel}>Note starters</Text>
         {!!onAddCustomPrompt && (
-          <Pressable onPress={() => setIsCustomizing((current) => !current)} style={styles.customizePromptButton}>
+          <Pressable onPress={() => setIsCustomizing((current) => !current)} style={[styles.customizePromptButton, compact && styles.compactCustomizePromptButton]}>
             <Ionicons name={isCustomizing ? "close-outline" : "create-outline"} size={14} color={colors.coral} />
-            <Text style={styles.customizePromptText}>{isCustomizing ? "Close" : "Customize"}</Text>
+            <Text style={styles.customizePromptText}>{isCustomizing ? "Close" : compact ? "Edit" : "Customize"}</Text>
           </Pressable>
         )}
       </View>
-      <View style={styles.writingPromptRow}>
+      <View style={[styles.writingPromptRow, compact && styles.compactWritingPromptRow]}>
         {prompts.map((prompt) => (
-          <View key={prompt} style={styles.writingPromptChip}>
-            <Pressable onPress={() => onInsert(prompt)} style={styles.writingPromptInsert}>
-              <Ionicons name="add-circle-outline" size={15} color={colors.oliveDark} />
-              <Text style={styles.writingPromptText}>{prompt}</Text>
+          <View key={prompt} style={[styles.writingPromptChip, compact && styles.compactWritingPromptChip]}>
+            <Pressable onPress={() => onInsert(prompt)} style={[styles.writingPromptInsert, compact && styles.compactWritingPromptInsert]}>
+              {!compact && <Ionicons name="add-circle-outline" size={15} color={colors.oliveDark} />}
+              <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText]} numberOfLines={1}>{prompt}</Text>
             </Pressable>
             {customPromptSet.has(prompt) && !!onRemoveCustomPrompt && (
-              <Pressable onPress={() => onRemoveCustomPrompt(prompt)} style={styles.removePromptButton}>
+              <Pressable onPress={() => onRemoveCustomPrompt(prompt)} style={[styles.removePromptButton, compact && styles.compactRemovePromptButton]}>
                 <Ionicons name="close-outline" size={14} color={colors.oliveDark} />
               </Pressable>
             )}
@@ -10979,7 +10971,9 @@ const styles = StyleSheet.create({
   },
   phoneStudyGuidedHeader: {
     flexDirection: "column",
-    gap: 12
+    gap: 12,
+    paddingRight: 104,
+    position: "relative"
   },
   studyGuidedTitleBlock: {
     flex: 1,
@@ -10999,6 +10993,14 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     maxWidth: "100%",
     width: "100%"
+  },
+  studyFocusHeaderToggle: {
+    flexShrink: 0
+  },
+  phoneStudyFocusHeaderToggle: {
+    position: "absolute",
+    right: 12,
+    top: 12
   },
   compactMethodPicker: {
     alignItems: "center",
@@ -11419,12 +11421,20 @@ const styles = StyleSheet.create({
     marginTop: -4,
     padding: 10
   },
+  compactWritingPromptBox: {
+    marginBottom: 8,
+    marginTop: -2,
+    padding: 7
+  },
   writingPromptHeader: {
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 10,
     marginBottom: 8
+  },
+  compactWritingPromptHeader: {
+    marginBottom: 5
   },
   writingPromptLabel: {
     color: colors.muted,
@@ -11439,6 +11449,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 3
   },
+  compactCustomizePromptButton: {
+    paddingHorizontal: 3,
+    paddingVertical: 2
+  },
   customizePromptText: {
     color: colors.coral,
     fontSize: 12,
@@ -11449,12 +11463,19 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8
   },
+  compactWritingPromptRow: {
+    gap: 5
+  },
   writingPromptChip: {
     alignItems: "center",
     backgroundColor: colors.sage,
     borderRadius: 999,
     flexDirection: "row",
     overflow: "hidden"
+  },
+  compactWritingPromptChip: {
+    flexShrink: 1,
+    maxWidth: "48%"
   },
   writingPromptInsert: {
     alignItems: "center",
@@ -11464,16 +11485,29 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     paddingVertical: 7
   },
+  compactWritingPromptInsert: {
+    gap: 0,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingVertical: 5
+  },
   writingPromptText: {
     color: colors.oliveDark,
     fontSize: 12,
     fontWeight: "800"
+  },
+  compactWritingPromptText: {
+    fontSize: 11
   },
   removePromptButton: {
     borderColor: "rgba(102, 114, 78, 0.18)",
     borderLeftWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 8
+  },
+  compactRemovePromptButton: {
+    paddingHorizontal: 6,
+    paddingVertical: 6
   },
   customPromptEditor: {
     alignItems: "center",
@@ -12733,10 +12767,18 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: colors.ink,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "700",
-    lineHeight: 23,
+    lineHeight: 22,
     marginBottom: 8
+  },
+  instructionKicker: {
+    color: colors.coral,
+    fontSize: 11,
+    fontWeight: "900",
+    marginBottom: 5,
+    marginTop: 10,
+    textTransform: "uppercase"
   },
   collapsedActionText: {
     marginBottom: 0

@@ -151,6 +151,8 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
 ];
 const LEGAL_LAST_UPDATED = "May 23, 2026";
 const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/BlankMap-World.svg/1280px-BlankMap-World.svg.png";
+const APP_SHARE_URL = "https://biblestudytutor.org";
+const APP_SHARE_QR_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(APP_SHARE_URL)}`;
 type AdminRegionInsight = { name: string; description: string; count: number; x: number; y: number; size: "small" | "medium" | "large" };
 const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
   { name: "Australia", description: "Broad region only", count: 0, x: 79, y: 73, size: "large" },
@@ -362,6 +364,7 @@ export default function Home() {
   const [feedbackCategory, setFeedbackCategory] = useState<"bug" | "confusing" | "suggestion" | "encouragement" | "other">("suggestion");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
+  const [appShareStatus, setAppShareStatus] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
@@ -1690,6 +1693,49 @@ export default function Home() {
       setShareInsightStatus("Share sheet opened");
     } catch {
       setShareInsightStatus("Could not share from this device");
+    }
+  }
+
+  async function shareAppLink() {
+    const message = `Bible Study Tutor is a free Bible study app for desktop and mobile: ${APP_SHARE_URL}`;
+    setAppShareStatus("");
+
+    try {
+      if (Platform.OS === "web") {
+        const nav = navigator as any;
+        if (nav?.share) {
+          await nav.share({ title: "Bible Study Tutor", text: message, url: APP_SHARE_URL });
+          setAppShareStatus("Share sheet opened.");
+          return;
+        }
+        if (nav?.clipboard?.writeText) {
+          await nav.clipboard.writeText(APP_SHARE_URL);
+          setAppShareStatus("Link copied. Paste it into a message, email, or group chat.");
+          return;
+        }
+      }
+
+      const { Share } = await import("react-native");
+      await Share.share({ title: "Bible Study Tutor", message });
+      setAppShareStatus("Share sheet opened.");
+    } catch {
+      setAppShareStatus("Could not share from this device right now.");
+    }
+  }
+
+  async function copyAppLink() {
+    setAppShareStatus("");
+
+    try {
+      if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(APP_SHARE_URL);
+        setAppShareStatus("Link copied.");
+        return;
+      }
+
+      setAppShareStatus("Use Share to send the link from this device.");
+    } catch {
+      setAppShareStatus("Could not copy the link right now.");
     }
   }
 
@@ -5700,6 +5746,29 @@ export default function Home() {
                 <AppButton label="Read the Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneFullWidthButton} />
                 <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} style={phoneLayout && styles.phoneFullWidthButton} />
                 <AppButton label="Open journal" variant="secondary" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneFullWidthButton} />
+              </View>
+            </Card>
+
+            <Card style={[styles.helpShareCard, phoneLayout && styles.phoneHelpShareCard]}>
+              <View style={styles.helpShareCopy}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="qr-code-outline" size={19} color={colors.coral} />
+                  <Text style={styles.helpCardTitle}>Share Bible Study Tutor</Text>
+                </View>
+                <Text style={styles.helpShareTitle}>Invite someone to study Scripture with you.</Text>
+                <Text style={styles.helpCardText}>
+                  Bible Study Tutor is free and works on desktop and mobile. Scan the QR code, copy the link, or send it straight to a friend, church group, or Bible study partner.
+                </Text>
+                <Text selectable style={styles.helpShareUrl}>biblestudytutor.org</Text>
+                <View style={styles.helpShareActions}>
+                  <ResumeButton label="Share app" icon="share-outline" onPress={shareAppLink} style={phoneLayout && styles.phoneHelpShareButton} labelStyle={phoneLayout && styles.phoneHelpShareButtonText} />
+                  <ResumeButton label="Copy link" icon="copy-outline" onPress={copyAppLink} style={phoneLayout && styles.phoneHelpShareButton} labelStyle={phoneLayout && styles.phoneHelpShareButtonText} />
+                </View>
+                {!!appShareStatus && <Text style={styles.saveStatus}>{appShareStatus}</Text>}
+              </View>
+              <View style={styles.helpQrFrame}>
+                <Image source={{ uri: APP_SHARE_QR_URI }} style={styles.helpQrImage} />
+                <Text style={styles.helpQrCaption}>Scan to open</Text>
               </View>
             </Card>
 
@@ -14296,6 +14365,74 @@ const styles = StyleSheet.create({
   },
   helpHeroCard: {
     gap: 12
+  },
+  helpShareCard: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 16,
+    justifyContent: "space-between"
+  },
+  phoneHelpShareCard: {
+    alignItems: "stretch",
+    flexDirection: "column"
+  },
+  helpShareCopy: {
+    flex: 1,
+    gap: 9,
+    minWidth: 0
+  },
+  helpShareTitle: {
+    color: colors.ink,
+    fontSize: 20,
+    fontWeight: "900",
+    lineHeight: 26
+  },
+  helpShareUrl: {
+    alignSelf: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "900",
+    overflow: "hidden",
+    paddingHorizontal: 11,
+    paddingVertical: 7
+  },
+  helpShareActions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 2
+  },
+  phoneHelpShareButton: {
+    flex: 1,
+    justifyContent: "center",
+    minWidth: 130
+  },
+  phoneHelpShareButtonText: {
+    textAlign: "center"
+  },
+  helpQrFrame: {
+    alignItems: "center",
+    alignSelf: "center",
+    backgroundColor: "white",
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 7,
+    padding: 11
+  },
+  helpQrImage: {
+    height: 168,
+    width: 168
+  },
+  helpQrCaption: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
   },
   helpActionRow: {
     flexDirection: "row",

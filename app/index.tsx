@@ -2817,25 +2817,29 @@ export default function Home() {
           <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard]}>
               <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader]}>
-                <View style={styles.studyGuidedTitleBlock}>
-                  <Eyebrow>Guided study</Eyebrow>
-                  <Text style={styles.title}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
-                  {!studyFocusMode && <Text style={styles.titleSupport}>{`${method.description} Take your time and let the passage lead.`}</Text>}
-                </View>
-                <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
-                  <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={styles.compactMethodPicker}>
-                    <Text style={styles.compactMethodLabel}>Method</Text>
-                    <Text style={styles.compactMethodCurrent}>{method.short}</Text>
-                    <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                <View style={styles.studyGuidedTopRow}>
+                  <View style={styles.studyGuidedTitleBlock}>
+                    <Eyebrow>Guided study</Eyebrow>
+                    <Text style={styles.title}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
+                  </View>
+                  <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
+                    <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={styles.compactMethodPicker}>
+                      <Text style={styles.compactMethodLabel}>Method</Text>
+                      <Text style={styles.compactMethodCurrent}>{method.short}</Text>
+                      <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                    </Pressable>
+                  </View>
+                  <Pressable onPress={() => {
+                    const nextValue = !studyFocusMode;
+                    setStudyFocusMode(nextValue);
+                    saveStoredStudyFocusMode(nextValue).catch(() => undefined);
+                  }} style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyFocusMode && styles.activeTogglePill]}>
+                    <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
                   </Pressable>
                 </View>
-                <Pressable onPress={() => {
-                  const nextValue = !studyFocusMode;
-                  setStudyFocusMode(nextValue);
-                  saveStoredStudyFocusMode(nextValue).catch(() => undefined);
-                }} style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyFocusMode && styles.activeTogglePill]}>
-                  <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
-                </Pressable>
+                <View style={styles.studyGuidedDescriptionRow}>
+                  {!studyFocusMode && <Text style={styles.titleSupport}>{`${method.description} Take your time and let the passage lead.`}</Text>}
+                </View>
               </View>
               {studyMethodPickerOpen && (
                 <View style={styles.compactMethodMenu}>
@@ -10965,18 +10969,24 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
-    flexDirection: "row",
-    gap: 14,
-    justifyContent: "space-between",
+    gap: 8,
     marginBottom: 14,
     padding: 14,
     position: "relative"
   },
   phoneStudyGuidedHeader: {
-    flexDirection: "column",
-    gap: 12,
     paddingRight: 104,
     position: "relative"
+  },
+  studyGuidedTopRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 14,
+    justifyContent: "space-between",
+    width: "100%"
+  },
+  studyGuidedDescriptionRow: {
+    width: "100%"
   },
   studyGuidedTitleBlock: {
     flex: 1,

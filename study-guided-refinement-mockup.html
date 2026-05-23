@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Study Refinement Mockup</title>
+  <style>
+    :root {
+      --ink: #241d19;
+      --muted: #766d63;
+      --paper: #f8f1e6;
+      --panel: #fffaf2;
+      --line: #e4d6c5;
+      --olive: #66724e;
+      --olive-dark: #39452e;
+      --gold: #c3923e;
+      --coral: #c96750;
+      --blue: #426f7d;
+      --soft: #f0eadf;
+      --sage: #e5ecda;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: #fff6eb;
+      border-right: 1px solid rgba(108, 91, 67, 0.18);
+      padding: 22px 16px;
+    }
+
+    .brand {
+      color: var(--olive-dark);
+      font-size: 20px;
+      font-weight: 850;
+      line-height: 1.1;
+      margin-bottom: 24px;
+    }
+
+    .nav-item {
+      align-items: center;
+      border-radius: 10px;
+      color: var(--muted);
+      display: flex;
+      font-size: 14px;
+      font-weight: 750;
+      gap: 10px;
+      min-height: 40px;
+      padding: 0 10px;
+    }
+
+    .nav-item.active {
+      background: var(--coral);
+      color: white;
+    }
+
+    .icon {
+      align-items: center;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      display: inline-flex;
+      flex: 0 0 auto;
+      font-size: 11px;
+      height: 22px;
+      justify-content: center;
+      width: 22px;
+    }
+
+    main {
+      padding: 24px;
+    }
+
+    .study-layout {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    .study-card,
+    .side-card,
+    .scripture-card {
+      background: var(--panel);
+      border: 1px solid rgba(108, 91, 67, 0.18);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(90, 63, 45, 0.07);
+    }
+
+    .study-card {
+      overflow: hidden;
+    }
+
+    .study-top {
+      align-items: start;
+      background: linear-gradient(180deg, #fffaf2 0%, #fff6eb 100%);
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      padding: 20px;
+    }
+
+    .eyebrow {
+      color: var(--coral);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .04em;
+      margin: 0 0 5px;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      color: var(--olive-dark);
+      font-size: 30px;
+      line-height: 1.08;
+    }
+
+    .support {
+      color: var(--muted);
+      font-size: 15px;
+      margin-top: 7px;
+      max-width: 680px;
+    }
+
+    .mode-button {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--olive-dark);
+      font-weight: 850;
+      min-height: 40px;
+      padding: 0 14px;
+      white-space: nowrap;
+    }
+
+    .scripture-card {
+      box-shadow: none;
+      padding: 16px;
+    }
+
+    .scripture-card h2 {
+      color: var(--olive-dark);
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .scripture-card p {
+      color: #3f352f;
+      font-size: 15px;
+    }
+
+    .method-switcher {
+      align-self: start;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: auto auto;
+      min-height: 40px;
+      padding: 0 6px 0 12px;
+    }
+
+    .method-switcher strong {
+      align-self: center;
+      color: var(--olive-dark);
+      display: block;
+      font-size: 13px;
+      margin-bottom: 0;
+    }
+
+    .select-like {
+      align-items: center;
+      background: #fff6eb;
+      border: 0;
+      border-left: 1px solid var(--line);
+      border-radius: 0 999px 999px 0;
+      color: var(--ink);
+      display: flex;
+      font-size: 14px;
+      font-weight: 800;
+      justify-content: space-between;
+      min-height: 38px;
+      min-width: 88px;
+      padding: 0 12px;
+    }
+
+    .progress-strip {
+      border-top: 1px solid rgba(228, 214, 197, 0.75);
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      padding: 16px 20px 6px;
+    }
+
+    .step-pill {
+      align-items: center;
+      background: var(--soft);
+      border: 1px solid transparent;
+      border-radius: 999px;
+      color: var(--muted);
+      display: flex;
+      font-size: 13px;
+      font-weight: 850;
+      gap: 8px;
+      min-height: 36px;
+      min-width: 0;
+      padding: 0 12px;
+    }
+
+    .step-number {
+      align-items: center;
+      background: white;
+      border-radius: 999px;
+      display: inline-flex;
+      flex: 0 0 auto;
+      height: 22px;
+      justify-content: center;
+      width: 22px;
+    }
+
+    .step-pill.active {
+      background: var(--olive-dark);
+      color: white;
+    }
+
+    .step-pill.done {
+      background: var(--sage);
+      color: var(--olive-dark);
+    }
+
+    .guided-step {
+      padding: 8px 20px 20px;
+    }
+
+    .active-step-panel {
+      background: #fffefa;
+      border: 2px solid rgba(201, 103, 80, 0.38);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .step-scripture-panel {
+      background: #fff6eb;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 18px;
+    }
+
+    .step-scripture-panel h2 {
+      color: var(--olive-dark);
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .step-scripture-panel p {
+      color: #3f352f;
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .active-step-content {
+      padding: 18px;
+    }
+
+    .step-heading-row {
+      align-items: start;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .step-title {
+      color: var(--olive-dark);
+      font-size: 24px;
+      line-height: 1.15;
+      margin-top: 2px;
+    }
+
+    .step-status {
+      background: #fff6eb;
+      border: 1px solid rgba(201, 103, 80, 0.25);
+      border-radius: 999px;
+      color: var(--coral);
+      font-size: 12px;
+      font-weight: 900;
+      padding: 7px 10px;
+      white-space: nowrap;
+    }
+
+    .instruction-block {
+      background: #f9f2e8;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-top: 14px;
+      padding: 14px;
+    }
+
+    .instruction-block strong {
+      color: var(--olive-dark);
+      display: block;
+      font-size: 15px;
+      margin-bottom: 5px;
+    }
+
+    .instruction-block p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .workspace {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      margin-top: 14px;
+    }
+
+    .note-area {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      min-height: 210px;
+      padding: 14px;
+    }
+
+    .note-toolbar {
+      align-items: center;
+      border-top: 1px solid var(--line);
+      display: flex;
+      gap: 7px;
+      margin-top: 126px;
+      padding-top: 12px;
+    }
+
+    .tool {
+      align-items: center;
+      background: var(--soft);
+      border-radius: 8px;
+      color: var(--olive-dark);
+      display: inline-flex;
+      font-size: 13px;
+      font-weight: 900;
+      height: 32px;
+      justify-content: center;
+      width: 32px;
+    }
+
+    .coaching-card {
+      background: #f6f9f1;
+      border: 1px solid rgba(102, 114, 78, 0.2);
+      border-radius: 10px;
+      padding: 13px;
+    }
+
+    .coaching-card h3 {
+      color: var(--olive-dark);
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .coaching-heading {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .coaching-heading h3 {
+      margin-bottom: 0;
+    }
+
+    .mini-toggle {
+      align-items: center;
+      background: var(--olive-dark);
+      border-radius: 999px;
+      color: white;
+      display: inline-flex;
+      font-size: 11px;
+      font-weight: 900;
+      min-height: 26px;
+      padding: 0 9px;
+      white-space: nowrap;
+    }
+
+    .coaching-card ul {
+      color: var(--olive-dark);
+      font-size: 13px;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .coaching-card li + li {
+      margin-top: 8px;
+    }
+
+    .action-row {
+      align-items: center;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr 1fr;
+      margin-top: 16px;
+    }
+
+    button {
+      border: 0;
+      cursor: default;
+      font: inherit;
+    }
+
+    .button {
+      align-items: center;
+      border-radius: 11px;
+      display: inline-flex;
+      font-weight: 850;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 14px;
+    }
+
+    .secondary {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--olive-dark);
+    }
+
+    .primary {
+      background: var(--coral);
+      color: white;
+    }
+
+    .side-column {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .side-card {
+      padding: 14px;
+    }
+
+    .side-card h3 {
+      align-items: center;
+      color: var(--olive-dark);
+      display: flex;
+      font-size: 15px;
+      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 7px;
+    }
+
+    .side-card p {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .quiet-action {
+      background: #fff6eb;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      color: var(--olive-dark);
+      font-size: 13px;
+      font-weight: 850;
+      margin-top: 12px;
+      min-height: 36px;
+      width: 100%;
+    }
+
+    .collapsed {
+      opacity: .78;
+    }
+
+    .mobile-preview {
+      background: #14100d;
+      border-radius: 34px;
+      box-shadow: 0 22px 60px rgba(36, 29, 25, 0.22);
+      margin: 28px auto 0;
+      max-width: 410px;
+      padding: 12px;
+    }
+
+    .mobile-screen {
+      background: var(--paper);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .mobile-bar {
+      align-items: center;
+      background: #fff6eb;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 10px;
+      min-height: 58px;
+      padding: 0 14px;
+    }
+
+    .hamburger {
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--olive-dark);
+      display: inline-flex;
+      font-size: 20px;
+      height: 38px;
+      justify-content: center;
+      width: 38px;
+    }
+
+    .mobile-title {
+      color: var(--olive-dark);
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .mobile-body {
+      padding: 12px;
+    }
+
+    .mobile-card {
+      background: var(--panel);
+      border: 1px solid rgba(108, 91, 67, 0.18);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(90, 63, 45, 0.07);
+      overflow: hidden;
+    }
+
+    .mobile-study-top {
+      background: linear-gradient(180deg, #fffaf2 0%, #fff6eb 100%);
+      border-bottom: 1px solid var(--line);
+      padding: 14px;
+    }
+
+    .mobile-study-top h2 {
+      color: var(--olive-dark);
+      font-size: 22px;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .mobile-study-top p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .mobile-method-row {
+      align-items: center;
+      background: #fff6eb;
+      border-bottom: 1px solid var(--line);
+      display: grid;
+      gap: 10px;
+      grid-template-columns: auto minmax(0, 1fr);
+      padding: 10px 14px;
+    }
+
+    .mobile-method-row span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+    }
+
+    .mobile-progress {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+      padding: 12px 14px 4px;
+    }
+
+    .mobile-step-panel {
+      padding: 10px 14px 14px;
+    }
+
+    .mobile-active-step {
+      background: #fffefa;
+      border: 2px solid rgba(201, 103, 80, 0.38);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .mobile-step-scripture {
+      background: #fff6eb;
+      border-bottom: 1px solid var(--line);
+      padding: 13px 14px;
+    }
+
+    .mobile-step-scripture h3 {
+      color: var(--olive-dark);
+      font-size: 16px;
+      margin: 0 0 6px;
+    }
+
+    .mobile-step-scripture p {
+      color: #3f352f;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .mobile-active-content {
+      padding: 14px;
+    }
+
+    .mobile-step-head {
+      align-items: start;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mobile-step-head h3 {
+      color: var(--olive-dark);
+      font-size: 21px;
+      margin: 0;
+    }
+
+    .mobile-instruction {
+      background: #f9f2e8;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 12px;
+      padding: 12px;
+    }
+
+    .mobile-note {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 12px;
+      min-height: 170px;
+      padding: 12px;
+    }
+
+    .mobile-note .note-toolbar {
+      margin-top: 88px;
+    }
+
+    .mobile-coaching {
+      background: #f6f9f1;
+      border: 1px solid rgba(102, 114, 78, 0.2);
+      border-radius: 10px;
+      color: var(--olive-dark);
+      font-size: 13px;
+      margin-top: 12px;
+      padding: 12px;
+    }
+
+    .mobile-coaching strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .mobile-coaching-head {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .mobile-coaching-head strong {
+      margin-bottom: 0;
+    }
+
+    .mobile-actions {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: .8fr 1.2fr .9fr;
+      margin-top: 12px;
+    }
+
+    .mobile-actions .button {
+      font-size: 12px;
+      min-height: 40px;
+      padding: 0 8px;
+    }
+
+    .mobile-quiet-panels {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mobile-quiet-panel {
+      align-items: center;
+      background: var(--panel);
+      border: 1px solid rgba(108, 91, 67, 0.18);
+      border-radius: 10px;
+      color: var(--olive-dark);
+      display: flex;
+      font-size: 13px;
+      font-weight: 850;
+      justify-content: space-between;
+      min-height: 42px;
+      padding: 0 12px;
+    }
+
+    @media (max-width: 900px) {
+      .app-shell {
+        display: block;
+      }
+
+      .sidebar {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+        overflow: hidden;
+        padding: 12px;
+      }
+
+      .brand {
+        font-size: 17px;
+        margin: 0 auto 0 0;
+      }
+
+      .nav-item:not(.active) {
+        display: none;
+      }
+
+      main {
+        padding: 12px;
+      }
+
+      .study-layout {
+        display: block;
+      }
+
+      .study-top,
+      .workspace,
+      .step-heading-row {
+        grid-template-columns: 1fr;
+      }
+
+      .study-top {
+        grid-template-columns: 1fr;
+      }
+
+      .method-switcher {
+        border-radius: 10px;
+        grid-template-columns: auto minmax(0, 1fr);
+        padding: 0 6px 0 12px;
+        width: 100%;
+      }
+
+      .progress-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .side-column {
+        margin-top: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">Bible Study Tutor</div>
+      <div class="nav-item">⌂ Home</div>
+      <div class="nav-item active">☰ Study</div>
+      <div class="nav-item">☷ Bible</div>
+      <div class="nav-item">✎ Journal</div>
+      <div class="nav-item">○ Account</div>
+    </aside>
+
+    <main>
+      <section class="study-layout">
+        <article class="study-card">
+          <header class="study-top">
+            <div>
+              <p class="eyebrow">Guided Study</p>
+              <h1>Nick, your SOAP study</h1>
+              <p class="support">The active step is now the centre of the page. Reading, notes, coaching, and buttons sit in one clear path.</p>
+            </div>
+            <div class="method-switcher">
+              <strong>Method</strong>
+              <div class="select-like">SOAP <span>⌄</span></div>
+            </div>
+            <button class="mode-button">Focus mode</button>
+          </header>
+
+          <nav class="progress-strip" aria-label="Study progress">
+            <div class="step-pill done"><span class="step-number">1</span> Read</div>
+            <div class="step-pill active"><span class="step-number">2</span> Observe</div>
+            <div class="step-pill"><span class="step-number">3</span> Apply</div>
+            <div class="step-pill"><span class="step-number">4</span> Pray</div>
+          </nav>
+
+          <section class="guided-step">
+            <div class="active-step-panel">
+              <div class="step-scripture-panel">
+                <h2>Psalm 23:1-3 <span style="color: var(--coral); font-size: 14px;">BSB</span></h2>
+                <p>The LORD is my shepherd; I shall not want. He makes me lie down in green pastures; He leads me beside quiet waters. He restores my soul...</p>
+              </div>
+
+              <div class="active-step-content">
+                <div class="step-heading-row">
+                  <div>
+                    <p class="eyebrow">Step 2 of 4</p>
+                    <h2 class="step-title">Observation</h2>
+                  </div>
+                  <div class="step-status">Active step</div>
+                </div>
+
+                <div class="instruction-block">
+                  <strong>Write what you see in the passage.</strong>
+                  <p>Stay close to the Scripture before thinking about your life. Look for repeated words, actions, promises, contrasts, and images.</p>
+                </div>
+
+                <div class="workspace">
+                  <div class="note-area">
+                    <p style="color: var(--muted);">I notice that God is described as personally leading, feeding, and restoring...</p>
+                    <div class="note-toolbar">
+                      <span class="tool">B</span>
+                      <span class="tool"><em>I</em></span>
+                      <span class="tool"><u>U</u></span>
+                      <span class="tool">•</span>
+                      <span class="tool" style="background: #f7ddd2;">H</span>
+                    </div>
+                  </div>
+
+                  <aside class="coaching-card">
+                    <div class="coaching-heading">
+                      <h3>Local coaching</h3>
+                      <span class="mini-toggle">On</span>
+                    </div>
+                    <ul>
+                      <li>Good SOAP observation. You are letting Scripture lead.</li>
+                      <li>Add one repeated word or image from the passage.</li>
+                      <li>Save personal response for the Apply step.</li>
+                    </ul>
+                  </aside>
+                </div>
+
+                <div class="action-row">
+                  <button class="button secondary">Back</button>
+                  <button class="button primary">Save & continue</button>
+                  <button class="button secondary">Fresh start</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </article>
+
+        <aside class="side-column">
+          <div class="side-card collapsed">
+            <h3>Share note <span>+</span></h3>
+            <p>Collapsed until the final step, keeping the screen quieter.</p>
+          </div>
+          <div class="side-card">
+            <h3>Plan <span>−</span></h3>
+            <p>Continue today’s reading plan after this study.</p>
+            <button class="quiet-action">Open plans</button>
+          </div>
+          <div class="side-card collapsed">
+            <h3>Study helps <span>+</span></h3>
+            <p>Optional links stay tucked away until needed.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="mobile-preview" aria-label="Mobile study refinement mockup">
+        <div class="mobile-screen">
+          <div class="mobile-bar">
+            <div class="hamburger">☰</div>
+            <div class="mobile-title">Bible Study Tutor<br><span style="color: var(--muted); font-size: 12px; font-weight: 750;">Study</span></div>
+          </div>
+
+          <div class="mobile-body">
+            <article class="mobile-card">
+              <header class="mobile-study-top">
+                <p class="eyebrow">Guided Study</p>
+                <h2>Nick, your SOAP study</h2>
+                <p>The screen focuses on the current step first, with tools tucked underneath.</p>
+              </header>
+
+              <div class="mobile-method-row">
+                <span>Method</span>
+                <div class="select-like">SOAP <span>⌄</span></div>
+              </div>
+
+              <nav class="mobile-progress" aria-label="Mobile study progress">
+                <div class="step-pill done"><span class="step-number">1</span> Read</div>
+                <div class="step-pill active"><span class="step-number">2</span> Observe</div>
+                <div class="step-pill"><span class="step-number">3</span> Apply</div>
+                <div class="step-pill"><span class="step-number">4</span> Pray</div>
+              </nav>
+
+              <section class="mobile-step-panel">
+                <div class="mobile-active-step">
+                  <div class="mobile-step-scripture">
+                    <h3>Psalm 23:1-3 <span style="color: var(--coral); font-size: 13px;">BSB</span></h3>
+                    <p>The LORD is my shepherd; I shall not want. He makes me lie down in green pastures...</p>
+                  </div>
+
+                  <div class="mobile-active-content">
+                    <div class="mobile-step-head">
+                      <div>
+                        <p class="eyebrow">Step 2 of 4</p>
+                        <h3>Observation</h3>
+                      </div>
+                      <div class="step-status">Active</div>
+                    </div>
+
+                    <div class="mobile-instruction">
+                      <strong style="color: var(--olive-dark);">Write what you see.</strong><br>
+                      Stay close to the Scripture. Look for repeated words, actions, promises, contrasts, and images.
+                    </div>
+
+                    <div class="mobile-note">
+                      I notice that God is described as personally leading, feeding, and restoring...
+                      <div class="note-toolbar">
+                        <span class="tool">B</span>
+                        <span class="tool"><em>I</em></span>
+                        <span class="tool"><u>U</u></span>
+                        <span class="tool">•</span>
+                        <span class="tool" style="background: #f7ddd2;">H</span>
+                      </div>
+                    </div>
+
+                    <div class="mobile-coaching">
+                      <div class="mobile-coaching-head">
+                        <strong>Local coaching</strong>
+                        <span class="mini-toggle">On</span>
+                      </div>
+                      Good SOAP observation. Add one repeated word or image from the passage.
+                    </div>
+
+                    <div class="mobile-actions">
+                      <button class="button secondary">Back</button>
+                      <button class="button primary">Continue</button>
+                      <button class="button secondary">Fresh</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mobile-quiet-panels">
+                  <div class="mobile-quiet-panel">Share note <span>+</span></div>
+                  <div class="mobile-quiet-panel">Plan <span>+</span></div>
+                  <div class="mobile-quiet-panel">Study helps <span>+</span></div>
+                </div>
+              </section>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

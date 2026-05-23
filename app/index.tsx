@@ -352,6 +352,7 @@ export default function Home() {
   const [stepIndex, setStepIndex] = useState(0);
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("study");
   const [instructionsCollapsed, setInstructionsCollapsed] = useState(false);
+  const [studyMethodPickerOpen, setStudyMethodPickerOpen] = useState(false);
   const [studyStepAnchorY, setStudyStepAnchorY] = useState(0);
   const [studyFocusMode, setStudyFocusMode] = useState(false);
   const [answers, setAnswers] = useState<AnswerMap>({});
@@ -2787,60 +2788,46 @@ export default function Home() {
         {tab === "study" && (
           <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard]}>
-              <View style={styles.focusModeRow}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="resize-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Study focus</Text>
+              <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader]}>
+                <View style={styles.studyGuidedTitleBlock}>
+                  <Eyebrow>Guided study</Eyebrow>
+                  <Text style={styles.title}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
+                  {!studyFocusMode && <Text style={styles.titleSupport}>{`${method.description} Take your time and let the passage lead.`}</Text>}
                 </View>
-                <Pressable onPress={() => {
-                  const nextValue = !studyFocusMode;
-                  setStudyFocusMode(nextValue);
-                  saveStoredStudyFocusMode(nextValue).catch(() => undefined);
-                }} style={[styles.togglePill, studyFocusMode && styles.activeTogglePill]}>
-                  <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
-                </Pressable>
+                <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
+                  <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={styles.compactMethodPicker}>
+                    <Text style={styles.compactMethodLabel}>Method</Text>
+                    <Text style={styles.compactMethodCurrent}>{method.short}</Text>
+                    <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                  </Pressable>
+                  <Pressable onPress={() => {
+                    const nextValue = !studyFocusMode;
+                    setStudyFocusMode(nextValue);
+                    saveStoredStudyFocusMode(nextValue).catch(() => undefined);
+                  }} style={[styles.togglePill, studyFocusMode && styles.activeTogglePill]}>
+                    <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
+                  </Pressable>
+                </View>
               </View>
+              {studyMethodPickerOpen && (
+                <View style={styles.compactMethodMenu}>
+                  {methods.map((item) => (
+                    <Pressable
+                      key={item.id}
+                      onPress={() => {
+                        switchMethod(item.id);
+                        setStudyMethodPickerOpen(false);
+                      }}
+                      style={[styles.compactMethodChip, method.id === item.id && styles.activeCompactMethodChip]}
+                    >
+                      <Text style={[styles.compactMethodText, method.id === item.id && styles.activeCompactMethodText]}>{item.short}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
 
               {!studyFocusMode && (
                 <>
-                  <View style={styles.studyIntro}>
-                    <View style={styles.methodPill}>
-                      <Text style={styles.methodPillText}>{method.short}</Text>
-                    </View>
-                    <View style={styles.studyIntroCopy}>
-                      <Eyebrow>Selected method</Eyebrow>
-                      <Text style={styles.title}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
-                      <Text style={styles.methodFullName}>{method.name}</Text>
-                      <Text style={styles.titleSupport}>{`${method.description} Take your time and let the passage lead.`}</Text>
-                    </View>
-                  </View>
-
-                  <View style={styles.inlineMethodRow}>
-                    {methods.map((item) => (
-                      <Pressable
-                        key={item.id}
-                        onPress={() => switchMethod(item.id)}
-                        style={[styles.inlineMethodChip, method.id === item.id && styles.activeInlineMethodChip]}
-                      >
-                        <Text style={[styles.inlineMethodText, method.id === item.id && styles.activeInlineMethodText]}>{item.short}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-
-                  <View style={styles.coachingToggleRow}>
-                    <View style={styles.feedbackHeader}>
-                      <Ionicons name="sparkles-outline" size={18} color={colors.coral} />
-                      <Text style={styles.feedbackTitle}>Tutor coaching</Text>
-                    </View>
-                    <Pressable onPress={() => {
-                      const nextValue = !showCoaching;
-                      setShowCoaching(nextValue);
-                      saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
-                    }} style={[styles.togglePill, showCoaching && styles.activeTogglePill]}>
-                      <Text style={[styles.toggleText, showCoaching && styles.activeToggleText]}>{showCoaching ? "On" : "Off"}</Text>
-                    </Pressable>
-                  </View>
-
                   <View style={styles.smartPassageBox}>
                     <View style={styles.smartPassageHeader}>
                       <Ionicons name="search-outline" size={20} color={colors.coral} />
@@ -2878,7 +2865,28 @@ export default function Home() {
                 </>
               )}
 
-              <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyFocusMode && styles.focusScriptureBox]}>
+              {studyPhase === "study" && (
+                <View style={[styles.studyProgressStrip, phoneLayout && styles.phoneStudyProgressStrip]}>
+                  {method.steps.map((item, index) => {
+                    const stepAnswered = !!answers[`${method.id}:${index}`]?.trim();
+                    const active = index === stepIndex;
+                    return (
+                      <Pressable
+                        key={item.title}
+                        onPress={() => goToStudyStep(index)}
+                        style={[styles.studyProgressPill, stepAnswered && styles.completedStudyProgressPill, active && styles.activeStudyProgressPill]}
+                      >
+                        <Text style={[styles.studyProgressNumber, stepAnswered && styles.completedStudyProgressNumber, active && styles.activeStudyProgressNumber]}>{index + 1}</Text>
+                        <Text style={[styles.studyProgressText, stepAnswered && styles.completedStudyProgressText, active && styles.activeStudyProgressText]} numberOfLines={1}>
+                          {item.title}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+
+              <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyPhase === "study" && styles.attachedScriptureBox, studyFocusMode && styles.focusScriptureBox]}>
                 <View style={styles.scriptureHeader}>
                   <View>
                     <Eyebrow>Passage text</Eyebrow>
@@ -3200,7 +3208,7 @@ export default function Home() {
                   </View>
                 </View>
               ) : (
-                <>
+                <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel]}>
                   <View style={styles.stepHeader} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
                     <View>
                       <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
@@ -3302,25 +3310,40 @@ export default function Home() {
                           }}
                           style={styles.collapsedCoachingBox}
                         >
-                          <View style={styles.feedbackHeader}>
-                            <Ionicons name="sparkles-outline" size={17} color={colors.coral} />
-                            <Text style={styles.feedbackTitle}>Tutor coaching is off</Text>
+                          <View style={styles.coachingHeaderRow}>
+                            <View style={styles.feedbackHeader}>
+                              <Ionicons name="sparkles-outline" size={17} color={colors.coral} />
+                              <Text style={styles.feedbackTitle}>Tutor coaching is off</Text>
+                            </View>
+                            <Text style={styles.coachingToggleBadge}>Off</Text>
                           </View>
                           <Text style={styles.collapsedCoachingText}>Tap to show gentle writing feedback for this step.</Text>
                         </Pressable>
                       )}
-                      {showCoaching && currentCoaching.length > 0 && (
+                      {showCoaching && (
                         <View style={styles.coachingBox}>
-                          <View style={styles.feedbackHeader}>
-                            <Ionicons name="bulb-outline" size={18} color={colors.coral} />
-                            <Text style={styles.feedbackTitle}>Coaching feedback</Text>
-                          </View>
-                          {currentCoaching.map((item) => (
-                            <View key={item} style={styles.coachingItem}>
-                              <Ionicons name="ellipse" size={7} color={colors.olive} />
-                              <Text style={styles.coachingText}>{item}</Text>
+                          <View style={styles.coachingHeaderRow}>
+                            <View style={styles.feedbackHeader}>
+                              <Ionicons name="bulb-outline" size={18} color={colors.coral} />
+                              <Text style={styles.feedbackTitle}>Coaching feedback</Text>
                             </View>
-                          ))}
+                            <Pressable onPress={() => {
+                              setShowCoaching(false);
+                              saveStoredTutorCoachingEnabled(false).catch(() => undefined);
+                            }} style={[styles.coachingToggleBadge, styles.activeCoachingToggleBadge]}>
+                              <Text style={styles.activeCoachingToggleText}>On</Text>
+                            </Pressable>
+                          </View>
+                          {currentCoaching.length > 0 ? (
+                            currentCoaching.map((item) => (
+                              <View key={item} style={styles.coachingItem}>
+                                <Ionicons name="ellipse" size={7} color={colors.olive} />
+                                <Text style={styles.coachingText}>{item}</Text>
+                              </View>
+                            ))
+                          ) : (
+                            <Text style={styles.coachingText}>Start writing and local coaching will respond to this step.</Text>
+                          )}
                         </View>
                       )}
                       {stepIndex === method.steps.length - 1 && (
@@ -3371,7 +3394,7 @@ export default function Home() {
                       labelStyle={phoneLayout && styles.studyStepButtonLabel}
                     />
                   </View>
-                </>
+                </View>
               )}
             </Card>
 
@@ -10942,6 +10965,167 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "800"
   },
+  studyGuidedHeader: {
+    alignItems: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 14,
+    justifyContent: "space-between",
+    marginBottom: 14,
+    padding: 14
+  },
+  phoneStudyGuidedHeader: {
+    flexDirection: "column",
+    gap: 12
+  },
+  studyGuidedTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  studyHeaderControls: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flexShrink: 1,
+    gap: 8,
+    justifyContent: "flex-end",
+    maxWidth: 430,
+    minWidth: 0
+  },
+  phoneStudyHeaderControls: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    maxWidth: "100%",
+    width: "100%"
+  },
+  compactMethodPicker: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    maxWidth: "100%",
+    minHeight: 38,
+    minWidth: 0,
+    paddingHorizontal: 12
+  },
+  compactMethodLabel: {
+    color: colors.oliveDark,
+    flexShrink: 0,
+    fontSize: 12,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  compactMethodChips: {
+    flexDirection: "row",
+    flexShrink: 1,
+    flexWrap: "wrap",
+    gap: 5,
+    justifyContent: "flex-end",
+    minWidth: 0
+  },
+  compactMethodCurrent: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "900"
+  },
+  compactMethodMenu: {
+    alignSelf: "flex-end",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7,
+    justifyContent: "flex-end",
+    marginBottom: 12,
+    marginTop: -6,
+    maxWidth: 430,
+    padding: 8
+  },
+  compactMethodChip: {
+    backgroundColor: "#fff6eb",
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 6
+  },
+  activeCompactMethodChip: {
+    backgroundColor: colors.oliveDark
+  },
+  compactMethodText: {
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  activeCompactMethodText: {
+    color: "white"
+  },
+  studyProgressStrip: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 8
+  },
+  phoneStudyProgressStrip: {
+    gap: 6
+  },
+  studyProgressPill: {
+    alignItems: "center",
+    backgroundColor: colors.soft,
+    borderColor: "transparent",
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    flexGrow: 1,
+    flexShrink: 1,
+    gap: 7,
+    minHeight: 36,
+    minWidth: 120,
+    paddingHorizontal: 10
+  },
+  completedStudyProgressPill: {
+    backgroundColor: colors.sage
+  },
+  activeStudyProgressPill: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  studyProgressNumber: {
+    backgroundColor: "white",
+    borderRadius: 999,
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900",
+    height: 22,
+    lineHeight: 22,
+    overflow: "hidden",
+    textAlign: "center",
+    width: 22
+  },
+  completedStudyProgressNumber: {
+    backgroundColor: "#fffaf2"
+  },
+  activeStudyProgressNumber: {
+    color: colors.oliveDark
+  },
+  studyProgressText: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "900",
+    minWidth: 0
+  },
+  completedStudyProgressText: {
+    color: colors.oliveDark
+  },
+  activeStudyProgressText: {
+    color: "white"
+  },
   studyIntro: {
     alignItems: "flex-start",
     flexDirection: "row",
@@ -11386,6 +11570,32 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 14,
     padding: 12
+  },
+  coachingHeaderRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minWidth: 0
+  },
+  coachingToggleBadge: {
+    backgroundColor: colors.soft,
+    borderRadius: 999,
+    color: colors.muted,
+    flexShrink: 0,
+    fontSize: 12,
+    fontWeight: "900",
+    overflow: "hidden",
+    paddingHorizontal: 10,
+    paddingVertical: 6
+  },
+  activeCoachingToggleBadge: {
+    backgroundColor: colors.oliveDark
+  },
+  activeCoachingToggleText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "900"
   },
   collapsedCoachingBox: {
     backgroundColor: "#fff6eb",
@@ -12098,6 +12308,11 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 16
   },
+  attachedScriptureBox: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    marginBottom: 0
+  },
   phoneScriptureBox: {
     borderRadius: 11,
     padding: 11
@@ -12420,6 +12635,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
     marginBottom: 14
+  },
+  guidedStudyStepPanel: {
+    backgroundColor: "#fffefa",
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
+    borderColor: "rgba(201, 103, 80, 0.38)",
+    borderTopWidth: 0,
+    borderWidth: 2,
+    marginBottom: 16,
+    padding: 16
+  },
+  phoneGuidedStudyStepPanel: {
+    borderBottomLeftRadius: 11,
+    borderBottomRightRadius: 11,
+    padding: 12
   },
   focusModeRow: {
     alignItems: "center",

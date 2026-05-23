@@ -8866,12 +8866,50 @@ function buildCoachingFeedback(methodId: string, stepTitle: string, answer: stri
 
   const lowerStep = stepTitle.toLowerCase();
   const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+  const sentenceCount = trimmed.split(/[.!?]+/).filter((item) => item.trim().length > 0).length;
+  const hasTextAnchor = hasAnyPattern(trimmed, [
+    /\bverse\b/i,
+    /\bpassage\b/i,
+    /\bscripture\b/i,
+    /\bi notice\b/i,
+    /\bi noticed\b/i,
+    /\bstands out\b/i,
+    /\bsays\b/i,
+    /\bshows\b/i,
+    /\bteaches\b/i,
+    /\bmeans\b/i,
+    /["'][^"']+["']/,
+    /\b(v|vv|verse|verses)\.?\s*\d+/i
+  ]);
+  const hasMeaningBridge = hasAnyPattern(trimmed, [/\bbecause\b/i, /\btherefore\b/i, /\bso that\b/i, /\bthis means\b/i, /\bthis shows\b/i, /\bthis teaches\b/i, /\breveals\b/i]);
+  const hasAction = hasAnyPattern(trimmed, [/\btoday\b/i, /\bthis week\b/i, /\bi will\b/i, /\bi can\b/i, /\bi need to\b/i, /\bi am going to\b/i, /\bask\b/i, /\bchoose\b/i, /\bstop\b/i, /\bstart\b/i, /\bpractice\b/i]);
+  const isPrayerful = hasAnyPattern(trimmed, [/\bgod\b/i, /\blord\b/i, /\bfather\b/i, /\bjesus\b/i, /\bholy spirit\b/i, /\bamen\b/i]);
+  const hasQuestion = /\?/.test(trimmed) || hasAnyPattern(trimmed, [/\bwhy\b/i, /\bhow\b/i, /\bwhat does\b/i, /\bwhat is\b/i]);
   const feedback: string[] = [];
 
-  if (wordCount < 8) feedback.push("This is a start. Add one more concrete detail from the passage.");
+  if (wordCount < 8) feedback.push("This is a good start. Add one concrete detail so future you can remember what stood out.");
+  if (wordCount >= 8 && wordCount <= 45) feedback.push(pickCoachingLine(trimmed, [
+    "Good pace. You are keeping this focused enough to revisit later.",
+    "This is clear and usable. One small text detail could make it even stronger.",
+    "You are building a thoughtful note without overcomplicating it."
+  ]));
   if (wordCount > 90) feedback.push("Strong engagement. Consider tightening this to the clearest one or two insights before moving on.");
 
-  if (lowerStep.includes("observe") || lowerStep.includes("observation") || lowerStep.includes("mark")) {
+  if (methodId === "soap") {
+    addSoapCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, hasAction, isPrayerful });
+  } else if (methodId === "oia") {
+    addOiaCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, hasMeaningBridge, hasAction });
+  } else if (methodId === "inductive") {
+    addInductiveCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, hasMeaningBridge, hasQuestion, sentenceCount });
+  } else if (methodId === "lectio") {
+    addLectioCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, isPrayerful, sentenceCount });
+  } else if (methodId === "read") {
+    addReadCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, hasMeaningBridge, hasAction });
+  } else if (methodId === "hear") {
+    addHearCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, hasMeaningBridge, hasAction, isPrayerful });
+  } else if (methodId === "coma") {
+    addComaCoaching(lowerStep, trimmed, feedback, { hasTextAnchor, hasMeaningBridge, hasAction });
+  } else if (lowerStep.includes("observe") || lowerStep.includes("observation") || lowerStep.includes("mark")) {
     if (/today i|i will|i can apply|my life|for me/i.test(trimmed)) {
       feedback.push("This sounds like application. Save that thought, then add one detail that is directly visible in the passage.");
     } else {
@@ -8902,6 +8940,199 @@ function buildCoachingFeedback(methodId: string, stepTitle: string, answer: stri
   }
 
   return Array.from(new Set(feedback)).slice(0, 3);
+}
+
+function addSoapCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; hasAction: boolean; isPrayerful: boolean }
+) {
+  if (lowerStep.includes("observation")) {
+    if (!checks.hasTextAnchor) feedback.push("For SOAP observation, name one word, image, command, or contrast from the Scripture itself.");
+    else feedback.push("Good SOAP observation. You are letting the Scripture lead before moving to personal application.");
+    if (/i will|today|my life|apply/i.test(answer)) feedback.push("This may be application. Keep it handy, but first write what the passage says.");
+    return;
+  }
+
+  if (lowerStep.includes("application")) {
+    if (!checks.hasAction) feedback.push("For SOAP application, make this personal and concrete: what will you believe, change, or do today?");
+    else feedback.push("Good SOAP application. It is moving from the passage toward a real response.");
+    return;
+  }
+
+  if (lowerStep.includes("prayer")) {
+    if (!checks.isPrayerful) feedback.push("Turn this directly toward God with simple prayer language, not just thoughts about prayer.");
+    else feedback.push("Good prayerful response. Keep it honest, specific, and connected to your application.");
+  }
+}
+
+function addOiaCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; hasMeaningBridge: boolean; hasAction: boolean }
+) {
+  if (lowerStep.includes("observe")) {
+    if (/i think this means|this teaches|therefore|i will/i.test(answer)) feedback.push("You may be moving ahead. In Observation, stay with details you can point to in the passage.");
+    else if (!checks.hasTextAnchor) feedback.push("Try adding one visible detail: a repeated word, action, speaker, contrast, promise, or command.");
+    else feedback.push("Good observation. You are staying close to what is actually in the text.");
+    return;
+  }
+
+  if (lowerStep.includes("interpret")) {
+    if (!checks.hasMeaningBridge) feedback.push("For Interpretation, connect your point with meaning using a phrase like 'This shows...' or 'This teaches...'.");
+    else feedback.push("Good interpretation. Now make sure one observation from the passage supports that meaning.");
+    return;
+  }
+
+  if (lowerStep.includes("apply")) {
+    if (!checks.hasAction) feedback.push("For Application, make the response concrete enough to act on in the next 24 hours.");
+    else feedback.push("Good application. It is specific enough to become more than a general idea.");
+  }
+}
+
+function addInductiveCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; hasMeaningBridge: boolean; hasQuestion: boolean; sentenceCount: number }
+) {
+  if (lowerStep.includes("divide")) {
+    if (!/\b\d+\b|verse|verses|vv/i.test(answer)) feedback.push("For dividing the passage, include verse numbers or small section labels so the structure is easy to follow.");
+    else feedback.push("Good structure. Section labels make the passage easier to study and teach later.");
+    return;
+  }
+
+  if (lowerStep.includes("mark")) {
+    if (!checks.hasTextAnchor) feedback.push("Mark one concrete detail from the passage: a repeated word, command, promise, contrast, or strong verb.");
+    else feedback.push("Good inductive detail. Now ask why that detail matters in the flow of the passage.");
+    return;
+  }
+
+  if (lowerStep.includes("question")) {
+    if (!checks.hasQuestion) feedback.push("Add at least one real question from the text, especially a 'why' or 'how' question.");
+    else feedback.push("Good question. Try writing a first-pass answer from nearby clues before using outside sources.");
+    return;
+  }
+
+  if (lowerStep.includes("summarize")) {
+    if (!checks.hasMeaningBridge || checks.sentenceCount > 3) feedback.push("For the summary, aim for one or two sentences that explain the main claim of the passage.");
+    else feedback.push("Good summary. It is beginning to gather the passage into one clear main point.");
+  }
+}
+
+function addLectioCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; isPrayerful: boolean; sentenceCount: number }
+) {
+  if (lowerStep.includes("meditate")) {
+    if (!checks.hasTextAnchor) feedback.push("For Lectio, choose one phrase from the passage and stay with what it stirs in you.");
+    else feedback.push("Good Lectio rhythm. You are lingering with a phrase instead of trying to cover everything.");
+    return;
+  }
+
+  if (lowerStep.includes("pray")) {
+    if (!checks.isPrayerful) feedback.push("Let this become direct prayer: speak to God from the phrase that stood out.");
+    else feedback.push("Good. This sounds like prayerful response, not just analysis.");
+    return;
+  }
+
+  if (lowerStep.includes("rest")) {
+    if (checks.sentenceCount > 2) feedback.push("For Rest, simplify this to one truth you can carry quietly through the day.");
+    else feedback.push("Good simplicity. Lectio often ends best with one received truth.");
+  }
+}
+
+function addReadCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; hasMeaningBridge: boolean; hasAction: boolean }
+) {
+  if (lowerStep.includes("explore")) {
+    if (!checks.hasTextAnchor) feedback.push("For Explore, name the word, phrase, command, warning, promise, or image that stood out.");
+    else if (!checks.hasMeaningBridge) feedback.push("Good noticing. Add why it matters in the passage before moving to action.");
+    else feedback.push("Good exploring. You are noticing and beginning to explain why it matters.");
+    return;
+  }
+
+  if (lowerStep.includes("apply")) {
+    if (!/this applies|my|i\b/i.test(answer)) feedback.push("For Apply, connect the passage to one real area of your own life.");
+    else feedback.push("Good application. You are making the passage personal without skipping the text.");
+    return;
+  }
+
+  if (lowerStep.includes("do")) {
+    if (!checks.hasAction) feedback.push("For Do, write one small action you can actually take today.");
+    else feedback.push("Good next step. Keep it small enough that you can obey it today.");
+  }
+}
+
+function addHearCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; hasMeaningBridge: boolean; hasAction: boolean; isPrayerful: boolean }
+) {
+  if (lowerStep.includes("explain")) {
+    if (!checks.hasTextAnchor) feedback.push("For Explain, include the phrase you highlighted and one clue from the surrounding passage.");
+    else if (!checks.hasMeaningBridge) feedback.push("Good phrase choice. Now explain what it means in plain words.");
+    else feedback.push("Good explanation. You are grounding the phrase before applying it.");
+    return;
+  }
+
+  if (lowerStep.includes("apply")) {
+    if (!checks.hasAction && !/my|me|i\b/i.test(answer)) feedback.push("For Apply, name where this phrase touches your actual day, fear, habit, relationship, or hope.");
+    else feedback.push("Good personal connection. The highlighted phrase is beginning to speak into real life.");
+    return;
+  }
+
+  if (lowerStep.includes("respond")) {
+    if (!checks.isPrayerful && !checks.hasAction) feedback.push("For Respond, turn this into either a short prayer or one concrete act of obedience.");
+    else feedback.push("Good response. You are letting the passage move you toward God or action.");
+  }
+}
+
+function addComaCoaching(
+  lowerStep: string,
+  answer: string,
+  feedback: string[],
+  checks: { hasTextAnchor: boolean; hasMeaningBridge: boolean; hasAction: boolean }
+) {
+  if (lowerStep.includes("context")) {
+    if (!/context|before|after|speaker|audience|letter|poem|story|teaching/i.test(answer)) feedback.push("For Context, note the setting, speaker, audience, nearby flow, or type of writing.");
+    else feedback.push("Good context. This will help your meaning and application stay grounded.");
+    return;
+  }
+
+  if (lowerStep.includes("observation")) {
+    if (!checks.hasTextAnchor) feedback.push("For Observation, list details the passage actually says before deciding what it means.");
+    else feedback.push("Good observation. COMA works best when meaning grows from details like these.");
+    return;
+  }
+
+  if (lowerStep.includes("meaning")) {
+    if (!checks.hasMeaningBridge) feedback.push("For Meaning, state the main point with language like 'This passage means...' or 'This teaches...'.");
+    else feedback.push("Good meaning statement. Make sure it flows from context and observation.");
+    return;
+  }
+
+  if (lowerStep.includes("application")) {
+    if (!checks.hasAction) feedback.push("For Application, choose one wise response for today or this week.");
+    else feedback.push("Good application. It is concrete enough to carry out.");
+  }
+}
+
+function hasAnyPattern(value: string, patterns: RegExp[]) {
+  return patterns.some((pattern) => pattern.test(value));
+}
+
+function pickCoachingLine(seed: string, lines: string[]) {
+  const total = seed.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return lines[total % lines.length];
 }
 
 function buildStudyHelpLinks(reference: string, translation: BibleTranslationId) {

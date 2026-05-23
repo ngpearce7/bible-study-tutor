@@ -149,7 +149,7 @@ const STUDY_REVIEW_OPTIONS: { id: StudyReviewPreset; label: string }[] = [
   { id: "next-week", label: "In 1 week" },
   { id: "next-month", label: "In 1 month" }
 ];
-const LEGAL_LAST_UPDATED = "May 23, 2026";
+const LEGAL_LAST_UPDATED = "May 24, 2026";
 const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/BlankMap-World.svg/1280px-BlankMap-World.svg.png";
 const APP_SHARE_URL = "https://biblestudytutor.org";
 const APP_SHARE_QR_TARGET_URL = `${APP_SHARE_URL}/?shared=qr`;
@@ -197,7 +197,7 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Admin insights and feedback",
-    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, and feature usage. These insights are used to improve the app and keep it helpful and safe."
+    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, app share counts, QR-code arrivals, and feature usage. These insights are used to improve the app and keep it helpful and safe."
   },
   {
     title: "Study coaching",
@@ -205,7 +205,7 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Sharing from the app",
-    body: "The app can help you copy or share study insights and check-in messages, but you choose where to send them. Once you share content outside the app, that outside service or recipient controls what happens to it."
+    body: "The app can help you copy or share study insights, check-in messages, and the Bible Study Tutor link. We may count that a share, copy-link, or QR-code arrival happened, but we do not know who you sent it to or what outside service you used. Once you share content outside the app, that outside service or recipient controls what happens to it."
   },
   {
     title: "Data retention and deletion",

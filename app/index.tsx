@@ -10965,28 +10965,30 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
-    flexDirection: "column",
+    flexDirection: "row",
     gap: 14,
+    justifyContent: "space-between",
     marginBottom: 14,
     padding: 14,
     position: "relative"
   },
   phoneStudyGuidedHeader: {
+    flexDirection: "column",
     gap: 12,
     paddingRight: 104,
     position: "relative"
   },
   studyGuidedTitleBlock: {
+    flex: 1,
     minWidth: 0,
-    paddingRight: 112,
-    width: "100%"
+    paddingRight: 0
   },
   studyHeaderControls: {
     alignItems: "flex-start",
     flexDirection: "row",
     flexShrink: 1,
     gap: 8,
-    justifyContent: "flex-start",
+    justifyContent: "flex-end",
     maxWidth: 430,
     minWidth: 0
   },
@@ -10997,12 +10999,10 @@ const styles = StyleSheet.create({
     width: "100%"
   },
   studyFocusHeaderToggle: {
-    flexShrink: 0,
-    position: "absolute",
-    right: 14,
-    top: 14
+    flexShrink: 0
   },
   phoneStudyFocusHeaderToggle: {
+    position: "absolute",
     right: 12,
     top: 12
   },

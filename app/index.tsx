@@ -2817,10 +2817,10 @@ export default function Home() {
           <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard]}>
               <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader]}>
-                <View style={styles.studyGuidedTopRow}>
-                  <View style={styles.studyGuidedTitleBlock}>
+                <View style={[styles.studyGuidedTopRow, phoneLayout && styles.phoneStudyGuidedTopRow]}>
+                  <View style={[styles.studyGuidedTitleBlock, phoneLayout && styles.phoneStudyGuidedTitleBlock]}>
                     <Eyebrow>Guided study</Eyebrow>
-                    <Text style={styles.title}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
+                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
                   </View>
                   <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
                     <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={styles.compactMethodPicker}>
@@ -2837,7 +2837,7 @@ export default function Home() {
                     <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
                   </Pressable>
                 </View>
-                <View style={styles.studyGuidedDescriptionRow}>
+                <View style={[styles.studyGuidedDescriptionRow, phoneLayout && styles.phoneStudyGuidedDescriptionRow]}>
                   {!studyFocusMode && <Text style={styles.titleSupport}>{`${method.description} Take your time and let the passage lead.`}</Text>}
                 </View>
               </View>
@@ -2959,16 +2959,22 @@ export default function Home() {
                                 </Pressable>
                                 {selectedVerses.length > 0 && key === activeStudyMarkupVerseKey && (
                                   <View style={[styles.inlineReaderActionBar, styles.inlineStudyMarkupBar, phoneLayout && styles.phoneInlineStudyMarkupBar]}>
-                                    <Text style={styles.readerSelectionText}>
-                                      {selectedVerses.length === 1 ? `Verse ${selectedVerses[0].verse} selected` : `${selectedVerses.length} verses selected`}
-                                    </Text>
-                                    <View style={styles.markupOptionsRow}>
+                                    <View style={styles.selectedMarkupHeader}>
+                                      <Text style={styles.readerSelectionText}>
+                                        {selectedVerses.length === 1 ? `Verse ${selectedVerses[0].verse} selected` : `${selectedVerses.length} verses selected`}
+                                      </Text>
+                                      <Pressable onPress={() => setSelectedVerseKeys([])} style={styles.selectedMarkupCloseButton}>
+                                        <Ionicons name="close-outline" size={18} color={colors.oliveDark} />
+                                      </Pressable>
+                                    </View>
+                                    <View style={[styles.markupOptionsRow, styles.compactMarkupOptionsRow]}>
                                       {PASSAGE_MARKUP_OPTIONS.map((option) => (
                                         <Pressable
                                           key={option.id}
                                           onPress={() => applyVerseMarkup(option.id)}
                                           style={[
                                             styles.markupOption,
+                                            styles.compactMarkupOption,
                                             { backgroundColor: option.background },
                                             selectedVerseMarkup === option.id && styles.activeMarkupOption
                                           ]}
@@ -2979,22 +2985,18 @@ export default function Home() {
                                     </View>
                                     <View style={styles.inlineReaderActions}>
                                       {selectedMarkupKinds.length > 0 && (
-                                        <Pressable onPress={clearVerseMarkup} style={styles.inlineReaderBookmarkButton}>
+                                        <Pressable onPress={clearVerseMarkup} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton]}>
                                           <Ionicons name="remove-circle-outline" size={14} color={colors.oliveDark} />
-                                          <Text style={styles.inlineReaderBookmarkText}>Clear markup</Text>
+                                          <Text style={styles.inlineReaderBookmarkText}>Unmark</Text>
                                         </Pressable>
                                       )}
-                                      <Pressable onPress={saveSelectedVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.memoryReaderButton, selectedVersesAlreadyInMemory && styles.savedMemoryButton]}>
+                                      <Pressable onPress={saveSelectedVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, styles.memoryReaderButton, selectedVersesAlreadyInMemory && styles.savedMemoryButton]}>
                                         <Ionicons name="sparkles-outline" size={14} color="white" />
                                         <Text style={styles.memoryReaderButtonText}>{selectedVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
                                       </Pressable>
-                                      <Pressable onPress={openStudyWorksheetOptions} style={styles.inlineReaderBookmarkButton}>
+                                      <Pressable onPress={openStudyWorksheetOptions} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton]}>
                                         <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
                                         <Text style={styles.inlineReaderBookmarkText}>Print</Text>
-                                      </Pressable>
-                                      <Pressable onPress={() => setSelectedVerseKeys([])} style={styles.inlineReaderBookmarkButton}>
-                                        <Ionicons name="close-outline" size={14} color={colors.oliveDark} />
-                                        <Text style={styles.inlineReaderBookmarkText}>Clear</Text>
                                       </Pressable>
                                     </View>
                                     {!!memoryStatus && <Text style={styles.saveStatus}>{memoryStatus}</Text>}
@@ -10849,17 +10851,37 @@ const styles = StyleSheet.create({
   inlineStudyMarkupBar: {
     alignItems: "stretch",
     flexDirection: "column",
-    marginLeft: 28
+    gap: 7,
+    marginLeft: 28,
+    padding: 8
   },
   phoneInlineStudyMarkupBar: {
     marginLeft: 20,
-    padding: 9
+    padding: 8
+  },
+  selectedMarkupHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
+    minWidth: 0
+  },
+  selectedMarkupCloseButton: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexShrink: 0,
+    height: 30,
+    justifyContent: "center",
+    width: 30
   },
   inlineReaderActions: {
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 6
   },
   inlineReaderStudyButton: {
     backgroundColor: colors.olive,
@@ -10882,6 +10904,11 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingHorizontal: 12,
     paddingVertical: 8
+  },
+  compactInlineActionButton: {
+    minHeight: 32,
+    paddingHorizontal: 9,
+    paddingVertical: 6
   },
   inlineReaderBookmarkText: {
     color: colors.oliveDark,
@@ -10975,7 +11002,7 @@ const styles = StyleSheet.create({
     position: "relative"
   },
   phoneStudyGuidedHeader: {
-    paddingRight: 104,
+    paddingRight: 14,
     position: "relative"
   },
   studyGuidedTopRow: {
@@ -10985,13 +11012,30 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%"
   },
+  phoneStudyGuidedTopRow: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 10,
+    paddingRight: 96
+  },
   studyGuidedDescriptionRow: {
     width: "100%"
+  },
+  phoneStudyGuidedDescriptionRow: {
+    paddingRight: 0
   },
   studyGuidedTitleBlock: {
     flex: 1,
     minWidth: 0,
     paddingRight: 0
+  },
+  phoneStudyGuidedTitleBlock: {
+    flex: 0,
+    width: "100%"
+  },
+  phoneStudyGuidedTitle: {
+    fontSize: 20,
+    lineHeight: 25
   },
   studyHeaderControls: {
     alignItems: "flex-start",
@@ -11003,7 +11047,7 @@ const styles = StyleSheet.create({
     minWidth: 0
   },
   phoneStudyHeaderControls: {
-    alignItems: "stretch",
+    alignItems: "flex-start",
     flexDirection: "column",
     maxWidth: "100%",
     width: "100%"
@@ -12475,6 +12519,9 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8
   },
+  compactMarkupOptionsRow: {
+    gap: 5
+  },
   markupOption: {
     borderColor: "transparent",
     borderRadius: 999,
@@ -12482,6 +12529,10 @@ const styles = StyleSheet.create({
     minHeight: 34,
     justifyContent: "center",
     paddingHorizontal: 11
+  },
+  compactMarkupOption: {
+    minHeight: 30,
+    paddingHorizontal: 9
   },
   markupLegendOption: {
     opacity: 0.9

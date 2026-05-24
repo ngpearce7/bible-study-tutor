@@ -3330,7 +3330,7 @@ export default function Home() {
                     </View>
                   ) : (
                     <>
-                      <View style={[styles.responseWorkspace, !compactLayout && styles.desktopResponseWorkspace]}>
+                      <View style={styles.responseWorkspace}>
                         <View style={styles.responseEditorColumn}>
                           <StudyNoteEditor
                             value={answers[answerKey] || ""}
@@ -3354,30 +3354,6 @@ export default function Home() {
                             scriptureInsertFocusKey={scriptureInsertFocusKey}
                             onInsertScripture={insertDetectedScripture}
                           />
-                          {answeredSteps.length > 0 && (
-                            <View style={styles.savedStepBox}>
-                              <Text style={styles.savedStepTitle}>Saved responses</Text>
-                              <View style={styles.savedStepRow}>
-                                {answeredSteps.map((item) => (
-                                  <Pressable
-                                    key={item.index}
-                                    onPress={() => goToStudyStep(item.index)}
-                                    style={[styles.savedStepChip, stepIndex === item.index && styles.activeSavedStepChip]}
-                                  >
-                                    <Text style={[styles.savedStepChipText, stepIndex === item.index && styles.activeSavedStepChipText]}>
-                                      Step {item.index + 1}
-                                    </Text>
-                                  </Pressable>
-                                ))}
-                              </View>
-                            </View>
-                          )}
-                          <View style={styles.responseFooter}>
-                            <Text style={styles.saveStatus}>{saveStatus}</Text>
-                            <Text style={styles.saveStatus}>{(answers[answerKey] || "").trim().split(/\s+/).filter(Boolean).length} words</Text>
-                          </View>
-                        </View>
-                        <View style={styles.responseCoachingColumn}>
                           {!showCoaching && (
                             <Pressable
                               onPress={() => {
@@ -3422,6 +3398,28 @@ export default function Home() {
                               )}
                             </View>
                           )}
+                          {answeredSteps.length > 0 && (
+                            <View style={styles.savedStepBox}>
+                              <Text style={styles.savedStepTitle}>Saved responses</Text>
+                              <View style={styles.savedStepRow}>
+                                {answeredSteps.map((item) => (
+                                  <Pressable
+                                    key={item.index}
+                                    onPress={() => goToStudyStep(item.index)}
+                                    style={[styles.savedStepChip, stepIndex === item.index && styles.activeSavedStepChip]}
+                                  >
+                                    <Text style={[styles.savedStepChipText, stepIndex === item.index && styles.activeSavedStepChipText]}>
+                                      Step {item.index + 1}
+                                    </Text>
+                                  </Pressable>
+                                ))}
+                              </View>
+                            </View>
+                          )}
+                          <View style={styles.responseFooter}>
+                            <Text style={styles.saveStatus}>{saveStatus}</Text>
+                            <Text style={styles.saveStatus}>{(answers[answerKey] || "").trim().split(/\s+/).filter(Boolean).length} words</Text>
+                          </View>
                         </View>
                       </View>
                       {stepIndex === method.steps.length - 1 && (
@@ -7047,7 +7045,7 @@ function StudyNoteEditor({
         {!!scriptureReference && (
           <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={onInsertScripture} />
         )}
-        <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} helpText="Select text, then apply a style. Formatting is saved with the note." />
+        <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} />
       </>
     );
   }
@@ -7223,7 +7221,6 @@ function StudyNoteEditor({
         }}
         activeFormats={activeNoteFormats}
         compact={phoneLayout}
-        helpText="Select text in the note box, then apply a style. Formatting stays inside the notes box."
       />
     </View>
   );
@@ -7232,12 +7229,10 @@ function StudyNoteEditor({
 function NoteFormatToolbar({
   onFormat,
   activeFormats = [],
-  helpText,
   compact = false
 }: {
   onFormat: (kind: NoteFormatKind) => void;
   activeFormats?: NoteFormatKind[];
-  helpText: string;
   compact?: boolean;
 }) {
   const [hoveredFormat, setHoveredFormat] = useState<NoteFormatKind | null>(null);
@@ -7311,7 +7306,6 @@ function NoteFormatToolbar({
       </Pressable>
       </View>
       {Platform.OS === "web" && hoveredFormat && <Text style={styles.noteFormatTooltip}>{formatLabels[hoveredFormat]}</Text>}
-      <Text style={[styles.noteFormatHelp, compact && styles.compactNoteFormatHelp]}>{helpText}</Text>
     </View>
   );
 }
@@ -11750,17 +11744,9 @@ const styles = StyleSheet.create({
   responseWorkspace: {
     gap: 12
   },
-  desktopResponseWorkspace: {
-    alignItems: "flex-start",
-    flexDirection: "row"
-  },
   responseEditorColumn: {
     flex: 1,
     minWidth: 0
-  },
-  responseCoachingColumn: {
-    minWidth: 250,
-    width: "31%"
   },
   saveStatus: {
     color: colors.muted,

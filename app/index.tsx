@@ -3330,94 +3330,100 @@ export default function Home() {
                     </View>
                   ) : (
                     <>
-                      <StudyNoteEditor
-                        value={answers[answerKey] || ""}
-                        onChange={(value) => {
-                          setAnswers({ ...answers, [answerKey]: value });
-                          setDetectedScriptureReference(findTypedScriptureReference(value));
-                          setScriptureInsertStatus("");
-                        }}
-                        onSelectionChange={handleAnswerSelectionChange}
-                        onFormat={applyNoteFormat}
-                        placeholder={step.output}
-                        studyFocusMode={studyFocusMode}
-                        phoneLayout={phoneLayout}
-                        writingPrompts={buildStudyWritingPrompts(method.id, step.title, customWritingPrompts)}
-                        customWritingPrompts={customWritingPrompts}
-                        writingPromptStatus={writingPromptStatus}
-                        onAddCustomWritingPrompt={addCustomWritingPrompt}
-                        onRemoveCustomWritingPrompt={removeCustomWritingPrompt}
-                        scriptureReference={detectedScriptureReference}
-                        scriptureInsertStatus={scriptureInsertStatus}
-                        scriptureInsertFocusKey={scriptureInsertFocusKey}
-                        onInsertScripture={insertDetectedScripture}
-                      />
-                      {answeredSteps.length > 0 && (
-                        <View style={styles.savedStepBox}>
-                          <Text style={styles.savedStepTitle}>Saved responses</Text>
-                          <View style={styles.savedStepRow}>
-                            {answeredSteps.map((item) => (
-                              <Pressable
-                                key={item.index}
-                                onPress={() => goToStudyStep(item.index)}
-                                style={[styles.savedStepChip, stepIndex === item.index && styles.activeSavedStepChip]}
-                              >
-                                <Text style={[styles.savedStepChipText, stepIndex === item.index && styles.activeSavedStepChipText]}>
-                                  Step {item.index + 1}
-                                </Text>
-                              </Pressable>
-                            ))}
+                      <View style={[styles.responseWorkspace, !compactLayout && styles.desktopResponseWorkspace]}>
+                        <View style={styles.responseEditorColumn}>
+                          <StudyNoteEditor
+                            value={answers[answerKey] || ""}
+                            onChange={(value) => {
+                              setAnswers({ ...answers, [answerKey]: value });
+                              setDetectedScriptureReference(findTypedScriptureReference(value));
+                              setScriptureInsertStatus("");
+                            }}
+                            onSelectionChange={handleAnswerSelectionChange}
+                            onFormat={applyNoteFormat}
+                            placeholder={step.output}
+                            studyFocusMode={studyFocusMode}
+                            phoneLayout={phoneLayout}
+                            writingPrompts={buildStudyWritingPrompts(method.id, step.title, customWritingPrompts)}
+                            customWritingPrompts={customWritingPrompts}
+                            writingPromptStatus={writingPromptStatus}
+                            onAddCustomWritingPrompt={addCustomWritingPrompt}
+                            onRemoveCustomWritingPrompt={removeCustomWritingPrompt}
+                            scriptureReference={detectedScriptureReference}
+                            scriptureInsertStatus={scriptureInsertStatus}
+                            scriptureInsertFocusKey={scriptureInsertFocusKey}
+                            onInsertScripture={insertDetectedScripture}
+                          />
+                          {answeredSteps.length > 0 && (
+                            <View style={styles.savedStepBox}>
+                              <Text style={styles.savedStepTitle}>Saved responses</Text>
+                              <View style={styles.savedStepRow}>
+                                {answeredSteps.map((item) => (
+                                  <Pressable
+                                    key={item.index}
+                                    onPress={() => goToStudyStep(item.index)}
+                                    style={[styles.savedStepChip, stepIndex === item.index && styles.activeSavedStepChip]}
+                                  >
+                                    <Text style={[styles.savedStepChipText, stepIndex === item.index && styles.activeSavedStepChipText]}>
+                                      Step {item.index + 1}
+                                    </Text>
+                                  </Pressable>
+                                ))}
+                              </View>
+                            </View>
+                          )}
+                          <View style={styles.responseFooter}>
+                            <Text style={styles.saveStatus}>{saveStatus}</Text>
+                            <Text style={styles.saveStatus}>{(answers[answerKey] || "").trim().split(/\s+/).filter(Boolean).length} words</Text>
                           </View>
                         </View>
-                      )}
-                      <View style={styles.responseFooter}>
-                        <Text style={styles.saveStatus}>{saveStatus}</Text>
-                        <Text style={styles.saveStatus}>{(answers[answerKey] || "").trim().split(/\s+/).filter(Boolean).length} words</Text>
-                      </View>
-                      {!showCoaching && (
-                        <Pressable
-                          onPress={() => {
-                            setShowCoaching(true);
-                            saveStoredTutorCoachingEnabled(true).catch(() => undefined);
-                          }}
-                          style={styles.collapsedCoachingBox}
-                        >
-                          <View style={styles.coachingHeaderRow}>
-                            <View style={styles.feedbackHeader}>
-                              <Ionicons name="sparkles-outline" size={17} color={colors.coral} />
-                              <Text style={styles.feedbackTitle}>Tutor coaching is off</Text>
-                            </View>
-                            <Text style={styles.coachingToggleBadge}>Off</Text>
-                          </View>
-                          <Text style={styles.collapsedCoachingText}>Tap to show gentle writing feedback for this step.</Text>
-                        </Pressable>
-                      )}
-                      {showCoaching && (
-                        <View style={styles.coachingBox}>
-                          <View style={styles.coachingHeaderRow}>
-                            <View style={styles.feedbackHeader}>
-                              <Ionicons name="bulb-outline" size={18} color={colors.coral} />
-                              <Text style={styles.feedbackTitle}>Coaching feedback</Text>
-                            </View>
-                            <Pressable onPress={() => {
-                              setShowCoaching(false);
-                              saveStoredTutorCoachingEnabled(false).catch(() => undefined);
-                            }} style={[styles.coachingToggleBadge, styles.activeCoachingToggleBadge]}>
-                              <Text style={styles.activeCoachingToggleText}>On</Text>
-                            </Pressable>
-                          </View>
-                          {currentCoaching.length > 0 ? (
-                            currentCoaching.map((item) => (
-                              <View key={item} style={styles.coachingItem}>
-                                <Ionicons name="ellipse" size={7} color={colors.olive} />
-                                <Text style={styles.coachingText}>{item}</Text>
+                        <View style={styles.responseCoachingColumn}>
+                          {!showCoaching && (
+                            <Pressable
+                              onPress={() => {
+                                setShowCoaching(true);
+                                saveStoredTutorCoachingEnabled(true).catch(() => undefined);
+                              }}
+                              style={styles.collapsedCoachingBox}
+                            >
+                              <View style={styles.coachingHeaderRow}>
+                                <View style={styles.feedbackHeader}>
+                                  <Ionicons name="sparkles-outline" size={17} color={colors.coral} />
+                                  <Text style={styles.feedbackTitle}>Tutor coaching is off</Text>
+                                </View>
+                                <Text style={styles.coachingToggleBadge}>Off</Text>
                               </View>
-                            ))
-                          ) : (
-                            <Text style={styles.coachingText}>Start writing and local coaching will respond to this step.</Text>
+                              <Text style={styles.collapsedCoachingText}>Tap to show gentle writing feedback for this step.</Text>
+                            </Pressable>
+                          )}
+                          {showCoaching && (
+                            <View style={styles.coachingBox}>
+                              <View style={styles.coachingHeaderRow}>
+                                <View style={styles.feedbackHeader}>
+                                  <Ionicons name="bulb-outline" size={18} color={colors.coral} />
+                                  <Text style={styles.feedbackTitle}>Coaching feedback</Text>
+                                </View>
+                                <Pressable onPress={() => {
+                                  setShowCoaching(false);
+                                  saveStoredTutorCoachingEnabled(false).catch(() => undefined);
+                                }} style={[styles.coachingToggleBadge, styles.activeCoachingToggleBadge]}>
+                                  <Text style={styles.activeCoachingToggleText}>On</Text>
+                                </Pressable>
+                              </View>
+                              {currentCoaching.length > 0 ? (
+                                currentCoaching.map((item) => (
+                                  <View key={item} style={styles.coachingItem}>
+                                    <Ionicons name="ellipse" size={7} color={colors.olive} />
+                                    <Text style={styles.coachingText}>{item}</Text>
+                                  </View>
+                                ))
+                              ) : (
+                                <Text style={styles.coachingText}>Start writing and local coaching will respond to this step.</Text>
+                              )}
+                            </View>
                           )}
                         </View>
-                      )}
+                      </View>
                       {stepIndex === method.steps.length - 1 && (
                         <View style={styles.shareInsightBox}>
                           <View style={styles.feedbackHeader}>
@@ -11740,6 +11746,21 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 10,
     marginTop: -6
+  },
+  responseWorkspace: {
+    gap: 12
+  },
+  desktopResponseWorkspace: {
+    alignItems: "flex-start",
+    flexDirection: "row"
+  },
+  responseEditorColumn: {
+    flex: 1,
+    minWidth: 0
+  },
+  responseCoachingColumn: {
+    minWidth: 250,
+    width: "31%"
   },
   saveStatus: {
     color: colors.muted,

@@ -6478,7 +6478,7 @@ function AdminReachMap({
 
       <View style={[styles.adminMapLayout, phoneLayout && styles.phoneAdminMapLayout]}>
         <View style={[styles.adminMapCanvas, phoneLayout && styles.phoneAdminMapCanvas]}>
-          <Image source={{ uri: ADMIN_WORLD_MAP_URI }} resizeMode="contain" style={styles.adminMapImage} />
+          <Image source={{ uri: ADMIN_WORLD_MAP_URI }} resizeMode="contain" style={[styles.adminMapImage, phoneLayout && styles.phoneAdminMapImage]} />
           {regions.map((region) => (
             <Pressable
               key={region.name}
@@ -15085,14 +15085,24 @@ const styles = StyleSheet.create({
   },
   phoneAdminMapCanvas: {
     flex: 0,
-    height: 158,
-    maxHeight: 158,
-    minHeight: 158,
+    flexShrink: 0,
+    height: 210,
+    maxHeight: 210,
+    minHeight: 210,
     width: "100%"
   },
   adminMapImage: {
     height: "100%",
     opacity: 0.82,
+    width: "100%"
+  },
+  phoneAdminMapImage: {
+    bottom: 0,
+    height: "100%",
+    left: 0,
+    position: "absolute",
+    right: 0,
+    top: 0,
     width: "100%"
   },
   adminMapHotspot: {

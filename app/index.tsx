@@ -5108,14 +5108,14 @@ export default function Home() {
               <Text style={styles.titleSupport}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
 
               <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
-                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact={phoneLayout} />
-                <Metric value={adminStats.totals.signedInProfiles} label="signed in" compact={phoneLayout} />
-                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact={phoneLayout} />
-                <Metric value={adminStats.totals.newFeedback} label="new feedback" compact={phoneLayout} />
-                <Metric value={adminStats.totals.appShares || 0} label="app shares" compact={phoneLayout} />
-                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact={phoneLayout} />
-                <Metric value={adminStats.totals.events} label="events" compact={phoneLayout} />
-                <Metric value={adminStats.totals.localProfiles} label="local/test" compact={phoneLayout} />
+                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" />
+                <Metric value={adminStats.totals.signedInProfiles} label="signed in" />
+                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" />
+                <Metric value={adminStats.totals.newFeedback} label="new feedback" />
+                <Metric value={adminStats.totals.appShares || 0} label="app shares" />
+                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" />
+                <Metric value={adminStats.totals.events} label="events" />
+                <Metric value={adminStats.totals.localProfiles} label="local/test" />
               </View>
 
               <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
@@ -5150,7 +5150,7 @@ export default function Home() {
                     <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
                     <Text style={styles.feedbackTitle}>User summary</Text>
                   </View>
-                  <AdminUserDetail detail={adminUserDetail} />
+                  <AdminUserDetail detail={adminUserDetail} phoneLayout={phoneLayout} />
                 </Card>
               </View>
 
@@ -6659,7 +6659,7 @@ function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any
   );
 }
 
-function AdminUserDetail({ detail }: { detail: any }) {
+function AdminUserDetail({ detail, phoneLayout = false }: { detail: any; phoneLayout?: boolean }) {
   if (detail === undefined) return <Text style={styles.helpIntro}>Choose a user to see their summary.</Text>;
   if (!detail) return <Text style={styles.helpIntro}>Choose a user to see their summary.</Text>;
 
@@ -6667,11 +6667,11 @@ function AdminUserDetail({ detail }: { detail: any }) {
     <View style={styles.adminUserDetailBox}>
       <Text style={styles.communityTitle}>{detail.displayName || "Bible student"}</Text>
       <Text style={styles.helpIntro}>{detail.email || (detail.signedIn ? "Signed-in account" : "Local profile")}</Text>
-      <View style={styles.adminMetricGrid}>
-        <Metric value={detail.counts.studies} label="studies" compact />
-        <Metric value={detail.counts.memoryVerses} label="memory" compact />
-        <Metric value={detail.counts.checkins} label="check-ins" compact />
-        <Metric value={detail.counts.feedback} label="feedback" compact />
+      <View style={[styles.adminMetricGrid, phoneLayout && styles.phoneAdminDetailMetricGrid]}>
+        <Metric value={detail.counts.studies} label="studies" compact={!phoneLayout} />
+        <Metric value={detail.counts.memoryVerses} label="memory" compact={!phoneLayout} />
+        <Metric value={detail.counts.checkins} label="check-ins" compact={!phoneLayout} />
+        <Metric value={detail.counts.feedback} label="feedback" compact={!phoneLayout} />
       </View>
       <View style={styles.adminMapDetailList}>
         <View style={styles.adminMapDetailRow}>
@@ -15185,8 +15185,9 @@ const styles = StyleSheet.create({
     marginTop: 14
   },
   phoneAdminDashboardGrid: {
-    gap: 6,
-    justifyContent: "space-between"
+    gap: 8,
+    marginBottom: 10,
+    marginTop: 10
   },
   adminDashboardCard: {
     flex: 1,
@@ -15196,7 +15197,7 @@ const styles = StyleSheet.create({
   },
   phoneAdminDashboardCard: {
     flexBasis: "100%",
-    marginBottom: 10,
+    marginBottom: 8,
     minWidth: 0,
     width: "100%"
   },
@@ -15213,6 +15214,9 @@ const styles = StyleSheet.create({
   adminMetricGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
+    gap: 8
+  },
+  phoneAdminDetailMetricGrid: {
     gap: 8
   },
   adminCountList: {

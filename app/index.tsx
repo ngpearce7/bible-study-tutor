@@ -15084,7 +15084,11 @@ const styles = StyleSheet.create({
     position: "relative"
   },
   phoneAdminMapCanvas: {
-    minHeight: 158
+    flex: 0,
+    height: 158,
+    maxHeight: 158,
+    minHeight: 158,
+    width: "100%"
   },
   adminMapImage: {
     height: "100%",

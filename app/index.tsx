@@ -5123,12 +5123,13 @@ export default function Home() {
                   <Ionicons name="trash-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Account deletion requests</Text>
                 </View>
-                <Text style={styles.helpIntro}>Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records.</Text>
+                <Text style={styles.helpIntro}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
                 <AdminDeletionRequestList
                   requests={adminStats.deletionRequests}
                   pendingConfirmId={pendingAdminDeletionRequestId}
                   onApprove={approveAdminDeletionRequest}
                   onCancel={cancelAdminDeletionRequest}
+                  phoneLayout={phoneLayout}
                 />
               </Card>
 
@@ -5159,8 +5160,8 @@ export default function Home() {
                   <Ionicons name="receipt-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Admin audit log</Text>
                 </View>
-                <Text style={styles.helpIntro}>Tracks sensitive admin actions such as deletion approvals and feedback status changes.</Text>
-                <AdminAuditLog entries={Array.isArray(adminAuditLog) ? adminAuditLog : []} />
+                <Text style={styles.helpIntro}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
+                <AdminAuditLog entries={Array.isArray(adminAuditLog) ? adminAuditLog : []} phoneLayout={phoneLayout} />
               </Card>
 
               <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
@@ -5183,40 +5184,40 @@ export default function Home() {
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} />
+                  <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} phoneLayout={phoneLayout} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Top memory verses" items={adminStats.topMemory} />
+                  <AdminCountList title="Top memory verses" items={adminStats.topMemory} phoneLayout={phoneLayout} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Top study methods" items={adminStats.topMethods} />
+                  <AdminCountList title="Top study methods" items={adminStats.topMethods} phoneLayout={phoneLayout} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Bible searches" items={adminStats.topSearches} />
+                  <AdminCountList title="Bible searches" items={adminStats.topSearches} phoneLayout={phoneLayout} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="App shares" items={adminStats.shareSources || []} />
+                  <AdminCountList title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} />
                 </Card>
               </View>
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} />
+                  <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} phoneLayout={phoneLayout} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} />
-                  <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} />
+                  <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} phoneLayout={phoneLayout} />
+                  <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} phoneLayout={phoneLayout} />
                 </Card>
               </View>
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <Text style={styles.lastCheckinLabel}>Latest feedback</Text>
-                  <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={markFeedbackStatus} />
+                  <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={markFeedbackStatus} phoneLayout={phoneLayout} />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
                   <Text style={styles.lastCheckinLabel}>Recent activity</Text>
-                  <AdminEventList events={adminStats.recentEvents} />
+                  <AdminEventList events={adminStats.recentEvents} phoneLayout={phoneLayout} />
                 </Card>
               </View>
             </View>
@@ -6421,8 +6422,9 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
   );
 }
 
-function AdminCountList({ title, items }: { title: string; items?: { label: string; count: number }[] }) {
+function AdminCountList({ title, items, phoneLayout = false }: { title: string; items?: { label: string; count: number }[]; phoneLayout?: boolean }) {
   const safeItems = Array.isArray(items) ? items : [];
+  const visibleItems = phoneLayout ? safeItems.slice(0, 4) : safeItems;
 
   return (
     <View style={styles.adminCountList}>
@@ -6430,13 +6432,14 @@ function AdminCountList({ title, items }: { title: string; items?: { label: stri
       {safeItems.length === 0 ? (
         <Text style={styles.helpIntro}>No data yet.</Text>
       ) : (
-        safeItems.map((item) => (
-          <View key={item.label} style={styles.adminCountRow}>
+        visibleItems.map((item) => (
+          <View key={item.label} style={[styles.adminCountRow, phoneLayout && styles.phoneAdminCountRow]}>
             <Text numberOfLines={1} style={styles.adminCountLabel}>{item.label}</Text>
             <Text style={styles.readerBookmarkCount}>{item.count}</Text>
           </View>
         ))
       )}
+      {phoneLayout && safeItems.length > visibleItems.length && <Text style={styles.adminDirectorySummary}>Showing top {visibleItems.length} of {safeItems.length}.</Text>}
     </View>
   );
 }
@@ -6465,7 +6468,7 @@ function AdminReachMap({
             <Ionicons name="earth-outline" size={18} color={colors.coral} />
             <Text style={styles.feedbackTitle}>User reach map</Text>
           </View>
-          <Text style={styles.helpIntro}>Privacy-friendly regional insights. Exact user locations are not tracked.</Text>
+          <Text style={styles.helpIntro}>{phoneLayout ? "Broad regional insights only." : "Privacy-friendly regional insights. Exact user locations are not tracked."}</Text>
         </View>
         <View style={[styles.adminMapMetricPill, phoneLayout && styles.phoneAdminMapMetricPill]}>
           <Text style={styles.adminMapMetricValue}>{activeUsers}</Text>
@@ -6506,7 +6509,7 @@ function AdminReachMap({
               ? `${selected.count} active user${selected.count === 1 ? "" : "s"} in this broad region.`
               : "Regional counts are not enabled yet. This panel shows where broad, privacy-safe reach data will appear."}
           </Text>
-          <View style={styles.adminMapDetailList}>
+          {!phoneLayout && <View style={styles.adminMapDetailList}>
             <View style={styles.adminMapDetailRow}>
               <Text style={styles.adminMapDetailLabel}>Location detail</Text>
               <Text style={styles.adminMapDetailValue}>Country/region only</Text>
@@ -6519,20 +6522,21 @@ function AdminReachMap({
               <Text style={styles.adminMapDetailLabel}>Next step</Text>
               <Text style={styles.adminMapDetailValue}>Optional region field</Text>
             </View>
-          </View>
+          </View>}
         </View>
       </View>
     </Card>
   );
 }
 
-function AdminFeedbackList({ feedback, onMarkStatus }: { feedback: any[]; onMarkStatus: (args: { feedbackId: any; status: string }) => Promise<unknown> }) {
+function AdminFeedbackList({ feedback, onMarkStatus, phoneLayout = false }: { feedback: any[]; onMarkStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>; phoneLayout?: boolean }) {
   if (feedback.length === 0) return <Text style={styles.helpIntro}>No feedback yet.</Text>;
+  const visibleFeedback = phoneLayout ? feedback.slice(0, 3) : feedback;
 
   return (
     <View style={styles.adminFeedbackList}>
-      {feedback.map((item: any) => (
-        <View key={item._id} style={styles.adminFeedbackItem}>
+      {visibleFeedback.map((item: any) => (
+        <View key={item._id} style={[styles.adminFeedbackItem, phoneLayout && styles.phoneAdminFeedbackItem]}>
           <View style={styles.journalHeader}>
             <Text style={styles.helpFaqQuestion}>{item.category}</Text>
             <Text style={styles.draftPill}>{item.status}</Text>
@@ -6548,6 +6552,7 @@ function AdminFeedbackList({ feedback, onMarkStatus }: { feedback: any[]; onMark
           </View>
         </View>
       ))}
+      {phoneLayout && feedback.length > visibleFeedback.length && <Text style={styles.adminDirectorySummary}>Showing latest {visibleFeedback.length} of {feedback.length}.</Text>}
     </View>
   );
 }
@@ -6715,13 +6720,14 @@ function AdminMiniActivity({ title, items }: { title: string; items: any[] }) {
   );
 }
 
-function AdminAuditLog({ entries }: { entries: any[] }) {
+function AdminAuditLog({ entries, phoneLayout = false }: { entries: any[]; phoneLayout?: boolean }) {
   if (entries.length === 0) return <Text style={styles.helpIntro}>No admin actions logged yet.</Text>;
+  const visibleEntries = phoneLayout ? entries.slice(0, 4) : entries;
 
   return (
     <View style={styles.adminFeedbackList}>
-      {entries.map((entry) => (
-        <View key={entry._id} style={styles.adminEventItem}>
+      {visibleEntries.map((entry) => (
+        <View key={entry._id} style={[styles.adminEventItem, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={styles.journalHeader}>
             <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(entry.action)}</Text>
             <Text style={styles.adminEventMeta}>{formatAdminDate(entry.createdAt)}</Text>
@@ -6730,6 +6736,7 @@ function AdminAuditLog({ entries }: { entries: any[] }) {
           {!!entry.targetEmail && <Text style={styles.adminEventMeta}>{entry.targetEmail}</Text>}
         </View>
       ))}
+      {phoneLayout && entries.length > visibleEntries.length && <Text style={styles.adminDirectorySummary}>Showing latest {visibleEntries.length} of {entries.length}.</Text>}
     </View>
   );
 }
@@ -6738,19 +6745,21 @@ function AdminDeletionRequestList({
   requests,
   pendingConfirmId,
   onApprove,
-  onCancel
+  onCancel,
+  phoneLayout = false
 }: {
   requests: any[];
   pendingConfirmId: string;
   onApprove: (requestId: any) => void;
   onCancel: (requestId: any) => void;
+  phoneLayout?: boolean;
 }) {
   if (requests.length === 0) return <Text style={styles.helpIntro}>No pending deletion requests.</Text>;
 
   return (
     <View style={styles.adminFeedbackList}>
       {requests.map((item: any) => (
-        <View key={item._id} style={styles.adminFeedbackItem}>
+        <View key={item._id} style={[styles.adminFeedbackItem, phoneLayout && styles.phoneAdminFeedbackItem]}>
           <View style={styles.journalHeader}>
             <View style={styles.journalTitleBlock}>
               <Text style={styles.helpFaqQuestion}>{item.displayName || "Bible student"}</Text>
@@ -6775,13 +6784,14 @@ function AdminDeletionRequestList({
   );
 }
 
-function AdminEventList({ events }: { events: { _id: string; eventType: string; reference?: string; methodName?: string; tab?: string; createdAt: number }[] }) {
+function AdminEventList({ events, phoneLayout = false }: { events: { _id: string; eventType: string; reference?: string; methodName?: string; tab?: string; createdAt: number }[]; phoneLayout?: boolean }) {
   if (events.length === 0) return <Text style={styles.helpIntro}>No recent activity yet.</Text>;
+  const visibleEvents = phoneLayout ? events.slice(0, 4) : events;
 
   return (
     <View style={styles.adminFeedbackList}>
-      {events.map((event) => (
-        <View key={event._id} style={styles.adminEventItem}>
+      {visibleEvents.map((event) => (
+        <View key={event._id} style={[styles.adminEventItem, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={styles.journalHeader}>
             <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(event.eventType)}</Text>
             <Text style={styles.adminEventMeta}>{formatAdminDate(event.createdAt)}</Text>
@@ -6789,6 +6799,7 @@ function AdminEventList({ events }: { events: { _id: string; eventType: string; 
           <Text style={styles.helpFaqAnswer}>{event.reference || event.methodName || event.tab || "App activity"}</Text>
         </View>
       ))}
+      {phoneLayout && events.length > visibleEvents.length && <Text style={styles.adminDirectorySummary}>Showing latest {visibleEvents.length} of {events.length}.</Text>}
     </View>
   );
 }
@@ -15034,6 +15045,11 @@ const styles = StyleSheet.create({
   },
   phoneAdminMapMetricPill: {
     alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    paddingVertical: 7,
     width: "100%"
   },
   adminMapMetricValue: {
@@ -15068,7 +15084,7 @@ const styles = StyleSheet.create({
     position: "relative"
   },
   phoneAdminMapCanvas: {
-    minHeight: 220
+    minHeight: 158
   },
   adminMapImage: {
     height: "100%",
@@ -15152,7 +15168,9 @@ const styles = StyleSheet.create({
     width: "30%"
   },
   phoneAdminMapDetailPanel: {
+    gap: 4,
     minWidth: 0,
+    padding: 10,
     width: "100%"
   },
   adminMapDetailList: {
@@ -15196,6 +15214,7 @@ const styles = StyleSheet.create({
     minWidth: 260
   },
   phoneAdminDashboardCard: {
+    flex: 0,
     flexBasis: "100%",
     marginBottom: 8,
     minWidth: 0,
@@ -15234,6 +15253,10 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 8
   },
+  phoneAdminCountRow: {
+    paddingHorizontal: 8,
+    paddingVertical: 6
+  },
   adminCountLabel: {
     color: colors.ink,
     flex: 1,
@@ -15248,6 +15271,10 @@ const styles = StyleSheet.create({
     gap: 8,
     minWidth: 0,
     padding: 10
+  },
+  phoneAdminFeedbackItem: {
+    gap: 6,
+    padding: 8
   },
   adminFeedbackList: {
     gap: 10
@@ -15343,6 +15370,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 6,
     padding: 10
+  },
+  phoneAdminEventItem: {
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 7
   },
   adminEventMeta: {
     color: colors.muted,

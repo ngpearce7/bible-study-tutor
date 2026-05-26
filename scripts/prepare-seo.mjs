@@ -86,6 +86,12 @@ seoPages.forEach((page) => {
   writeFileSync(join(publicDir, page.file), buildSeoPage(page, siteUrl));
 });
 
+const redirects = [
+  "/index.html / 301",
+  ...seoPages.map((page) => `/${page.file} ${page.path} 301`)
+].join("\n") + "\n";
+writeFileSync(join(publicDir, "_redirects"), redirects);
+
 if (siteUrl) {
   const sitemapUrls = [
     { loc: `${siteUrl}/`, priority: "1.0", changefreq: "weekly" },

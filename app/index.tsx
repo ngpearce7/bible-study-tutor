@@ -15228,13 +15228,11 @@ const styles = StyleSheet.create({
     minWidth: 260
   },
   phoneAdminDashboardCard: {
-    flex: 0,
     flexGrow: 0,
-    flexShrink: 0,
+    flexShrink: 1,
     marginBottom: 8,
     maxWidth: "100%",
     minWidth: 0,
-    overflow: "hidden",
     width: "100%"
   },
   adminSectionGrid: {

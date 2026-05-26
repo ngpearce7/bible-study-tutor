@@ -15230,8 +15230,12 @@ const styles = StyleSheet.create({
   phoneAdminDashboardCard: {
     flex: 0,
     flexBasis: "100%",
+    flexGrow: 0,
+    flexShrink: 0,
     marginBottom: 8,
+    maxWidth: "100%",
     minWidth: 0,
+    overflow: "hidden",
     width: "100%"
   },
   adminSectionGrid: {
@@ -15241,7 +15245,13 @@ const styles = StyleSheet.create({
     gap: 14
   },
   phoneAdminSectionGrid: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    flexWrap: "nowrap",
     gap: 0,
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
     width: "100%"
   },
   adminMetricGrid: {

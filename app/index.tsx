@@ -15229,7 +15229,6 @@ const styles = StyleSheet.create({
   },
   phoneAdminDashboardCard: {
     flex: 0,
-    flexBasis: "100%",
     flexGrow: 0,
     flexShrink: 0,
     marginBottom: 8,

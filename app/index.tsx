@@ -8079,7 +8079,7 @@ function normalizeMemoryAnswer(text: string) {
 
 function memoryBlankWidth(answer: string, compact = false) {
   const letters = answer.replace(/[^a-z0-9]/gi, "").length;
-  return Math.max(compact ? 38 : 42, Math.min(compact ? 96 : 116, letters * (compact ? 10 : 11) + 18));
+  return Math.max(compact ? 44 : 48, Math.min(compact ? 142 : 170, letters * (compact ? 11 : 12) + 26));
 }
 
 function memoryHintText(answer: string, hintLevel = 1) {

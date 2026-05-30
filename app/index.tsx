@@ -4566,8 +4566,8 @@ export default function Home() {
                                 </Text>
                               </View>
                               <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
-                                <Text style={[styles.reviewDatePill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
-                                <Text style={styles.draftPill}>{memoryProgressLabel(verse)}</Text>
+                                <Text style={[styles.reviewDatePill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
+                                <Text style={[styles.draftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>
                             </Pressable>
                             {!cardExpanded && <Text numberOfLines={1} style={styles.memoryVersePreview}>{verse.verseText}</Text>}
@@ -13589,8 +13589,9 @@ const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.28)"
   },
   phoneMemoryCardHeader: {
-    alignItems: "stretch",
-    flexDirection: "column",
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flexWrap: "nowrap",
     gap: 8,
     width: "100%"
   },
@@ -13616,10 +13617,19 @@ const styles = StyleSheet.create({
     gap: 6
   },
   phoneMemoryHeaderBadges: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start"
+    alignItems: "flex-end",
+    flexDirection: "column",
+    flexShrink: 0,
+    gap: 4,
+    justifyContent: "flex-start",
+    maxWidth: 104
+  },
+  phoneMemoryHeaderPill: {
+    fontSize: 10,
+    lineHeight: 12,
+    paddingHorizontal: 7,
+    paddingVertical: 4,
+    textAlign: "right"
   },
   reviewDatePill: {
     backgroundColor: colors.sage,

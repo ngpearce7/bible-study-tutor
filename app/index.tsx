@@ -2211,10 +2211,11 @@ export default function Home() {
 
   function updateMemoryPracticeAnswer(index: number, value: string) {
     const token = memoryBlankTokens.find((item) => item.index === index);
-    const nextAnswers = { ...memoryPracticeAnswers, [index]: value };
-    setMemoryPracticeAnswers((current) => ({ ...current, [index]: value }));
+    const correctedValue = token && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer) ? token.answer : value;
+    const nextAnswers = { ...memoryPracticeAnswers, [index]: correctedValue };
+    setMemoryPracticeAnswers((current) => ({ ...current, [index]: correctedValue }));
     setMemoryPracticeResult("");
-    if (token && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer)) {
+    if (token && normalizeMemoryAnswer(correctedValue) === normalizeMemoryAnswer(token.answer)) {
       focusMemoryBlankAfter(index, nextAnswers);
     }
   }

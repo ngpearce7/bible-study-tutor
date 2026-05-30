@@ -4575,17 +4575,19 @@ export default function Home() {
                               <>
                             {practicing ? (
                               <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice]}>
-                                <Text style={styles.helpIntro}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
-                                <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow]}>
-                                  {[1, 2, 3].map((level) => (
-                                    <Pressable
-                                      key={level}
-                                      onPress={() => moveMemoryPracticeStep(level)}
-                                      style={[styles.memoryStepButton, memoryPracticeLevel === level && styles.activeMemoryStepButton]}
-                                    >
-                                      <Text style={[styles.memoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}>Step {level}</Text>
-                                    </Pressable>
-                                  ))}
+                                <View style={[styles.memoryPracticeHeader, phoneLayout && styles.phoneMemoryPracticeHeader]}>
+                                  <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
+                                  <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow]}>
+                                    {[1, 2, 3].map((level) => (
+                                      <Pressable
+                                        key={level}
+                                        onPress={() => moveMemoryPracticeStep(level)}
+                                        style={[styles.memoryStepButton, phoneLayout && styles.phoneMemoryStepButton, memoryPracticeLevel === level && styles.activeMemoryStepButton]}
+                                      >
+                                        <Text style={[styles.memoryStepText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}>{phoneLayout ? level : `Step ${level}`}</Text>
+                                      </Pressable>
+                                    ))}
+                                  </View>
                                 </View>
                                 {memoryPracticeLevel === 1 ? (
                                   <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText]}>{memoryPracticeText}</Text>
@@ -4654,7 +4656,7 @@ export default function Home() {
                                 <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText]}>{verse.verseText}</Text>
                                 {!!verse.note && <Text style={styles.muted}>{verse.note}</Text>}
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
-                                  <ResumeButton label="Practice" icon="school-outline" onPress={() => startMemoryPractice(verse)} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
                                   <ResumeButton
                                     label={reviewOpen ? "Hide review" : "Change review"}
                                     icon="calendar-outline"
@@ -13686,6 +13688,24 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     padding: 12
   },
+  memoryPracticeHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  phoneMemoryPracticeHeader: {
+    alignItems: "center",
+    flexWrap: "nowrap"
+  },
+  phoneMemoryPracticeTitle: {
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 16,
+    marginBottom: 0,
+    minWidth: 0
+  },
   memoryStepRow: {
     backgroundColor: colors.soft,
     borderRadius: 999,
@@ -13694,7 +13714,11 @@ const styles = StyleSheet.create({
     padding: 4
   },
   phoneMemoryStepRow: {
-    borderRadius: 12
+    alignSelf: "flex-start",
+    borderRadius: 999,
+    flexShrink: 0,
+    gap: 3,
+    padding: 3
   },
   memoryStepButton: {
     alignItems: "center",
@@ -13704,6 +13728,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 8
   },
+  phoneMemoryStepButton: {
+    flex: 0,
+    height: 28,
+    minHeight: 28,
+    minWidth: 28,
+    paddingHorizontal: 0,
+    width: 28
+  },
   activeMemoryStepButton: {
     backgroundColor: colors.oliveDark
   },
@@ -13711,6 +13743,9 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 12,
     fontWeight: "800"
+  },
+  phoneMemoryStepText: {
+    fontSize: 11
   },
   activeMemoryStepText: {
     color: "white"
@@ -15902,7 +15937,10 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   phoneMemoryActions: {
-    gap: 6
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 5,
+    justifyContent: "flex-end"
   },
   resumeButton: {
     alignItems: "center",
@@ -15919,15 +15957,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13
   },
   phoneMemoryActionButton: {
-    flex: 1,
+    flex: 0,
     justifyContent: "center",
     marginTop: 4,
-    minHeight: 38,
-    minWidth: 112,
-    paddingHorizontal: 8
+    minHeight: 32,
+    minWidth: 0,
+    paddingHorizontal: 9
   },
   phoneMemoryActionText: {
-    fontSize: 12,
+    fontSize: 11,
     textAlign: "center"
   },
   primaryResumeButton: {

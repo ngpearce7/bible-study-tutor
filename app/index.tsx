@@ -2790,7 +2790,7 @@ export default function Home() {
                   <Text style={styles.homeHeroTitleAccent}>Be shaped by Scripture.</Text>
                 </Text>
                 <Text style={styles.homeHeroText}>
-                  Bible Study Tutor is here to help you come close to God, open the Scriptures, respond honestly, and carry the word into memory, prayer, and community.
+                  Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, and review in one simple place.
                 </Text>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a study" onPress={() => setTab("study")} style={phoneLayout && styles.homePhoneActionButton} />

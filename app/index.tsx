@@ -4585,7 +4585,12 @@ export default function Home() {
                                         onPress={() => moveMemoryPracticeStep(level)}
                                         style={[styles.memoryStepButton, phoneLayout && styles.phoneMemoryStepButton, memoryPracticeLevel === level && styles.activeMemoryStepButton]}
                                       >
-                                        <Text style={[styles.memoryStepText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}>{phoneLayout ? level : `Step ${level}`}</Text>
+                                        <Text
+                                          numberOfLines={1}
+                                          style={[styles.memoryStepText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}
+                                        >
+                                          {phoneLayout ? level : `Step ${level}`}
+                                        </Text>
                                       </Pressable>
                                     ))}
                                   </View>
@@ -13721,6 +13726,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.soft,
     borderRadius: 999,
     flexDirection: "row",
+    flexShrink: 0,
     gap: 5,
     padding: 4
   },
@@ -13736,6 +13742,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     flex: 1,
     minHeight: 34,
+    minWidth: 74,
     justifyContent: "center",
     paddingHorizontal: 8
   },
@@ -13753,7 +13760,8 @@ const styles = StyleSheet.create({
   memoryStepText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "800",
+    lineHeight: 15
   },
   phoneMemoryStepText: {
     fontSize: 11

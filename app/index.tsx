@@ -9492,7 +9492,7 @@ function buildBibleHubCommentaryUrl(reference: string) {
   const parsed = parsePassageQuery(reference).reference.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
   if (!parsed) return "https://biblehub.com/commentaries/";
 
-  const book = parsed[1].toLowerCase().replace(/\s+/g, "_");
+  const book = bibleHubBookSlug(parsed[1]);
   const chapter = parsed[2];
   const verse = parsed[3] || "1";
   return `https://biblehub.com/commentaries/${book}/${chapter}-${verse}.htm`;

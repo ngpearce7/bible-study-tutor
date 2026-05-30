@@ -13643,6 +13643,7 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 11,
     fontWeight: "800",
+    lineHeight: 13,
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 5,
@@ -15830,8 +15831,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blush,
     borderRadius: 999,
     color: colors.coral,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
+    lineHeight: 13,
     overflow: "hidden",
     paddingHorizontal: 10,
     paddingVertical: 6

@@ -4651,7 +4651,7 @@ export default function Home() {
                               </View>
                             ) : (
                               <>
-                                <Text style={styles.memoryVerseText}>{verse.verseText}</Text>
+                                <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText]}>{verse.verseText}</Text>
                                 {!!verse.note && <Text style={styles.muted}>{verse.note}</Text>}
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                                   <ResumeButton label="Practice" icon="school-outline" onPress={() => startMemoryPractice(verse)} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
@@ -13587,7 +13587,10 @@ const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.28)"
   },
   phoneMemoryCardHeader: {
-    gap: 8
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 8,
+    width: "100%"
   },
   memoryCardHeaderButton: {
     alignItems: "flex-start",
@@ -13613,7 +13616,8 @@ const styles = StyleSheet.create({
   phoneMemoryHeaderBadges: {
     alignItems: "flex-start",
     flexDirection: "row",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
+    justifyContent: "flex-start"
   },
   reviewDatePill: {
     backgroundColor: colors.sage,
@@ -13635,6 +13639,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     lineHeight: 24
+  },
+  phoneMemoryVerseText: {
+    fontSize: 15,
+    lineHeight: 22
   },
   memoryVersePreview: {
     color: colors.muted,

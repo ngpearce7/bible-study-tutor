@@ -424,6 +424,8 @@ export default function Home() {
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
+  const [memoryCardsExpanded, setMemoryCardsExpanded] = useState(false);
+  const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
   const [memoryPracticeLevel, setMemoryPracticeLevel] = useState(1);
   const [memoryPracticeAnswers, setMemoryPracticeAnswers] = useState<Record<number, string>>({});
   const [memoryPracticeResult, setMemoryPracticeResult] = useState("");
@@ -4429,6 +4431,21 @@ export default function Home() {
                       </Pressable>
                     ))}
                   </View>}
+                  {!phoneMemoryFocusMode && (
+                    <View style={styles.memoryListTools}>
+                      <Text style={styles.muted}>Saved verses open compact by default so the list is easier to scan.</Text>
+                      <ResumeButton
+                        label={memoryCardsExpanded ? "Compact list" : "Expand all"}
+                        icon={memoryCardsExpanded ? "contract-outline" : "expand-outline"}
+                        onPress={() => {
+                          setMemoryCardsExpanded((expanded) => !expanded);
+                          setExpandedMemoryVerseIds([]);
+                        }}
+                        style={phoneLayout && styles.phoneMemoryListToolButton}
+                        labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                      />
+                    </View>
+                  )}
                   {!phoneMemoryFocusMode && memoryView === "browse" && (
                     <>
                       <View style={styles.journalSearchBox}>
@@ -4524,13 +4541,26 @@ export default function Home() {
                         </>
                       )}
                       {section.verses.map((verse: any) => {
-                        const practicing = String(verse._id) === activeMemoryVerseId;
+                        const verseId = String(verse._id);
+                        const practicing = verseId === activeMemoryVerseId;
+                        const reviewOpen = reviewScheduleVerseId === verseId;
+                        const cardExpanded = memoryCardsExpanded || expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen;
 
                         return (
-                          <View key={verse._id} style={[styles.memoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard]}>
-                            <View style={[styles.journalHeader, phoneLayout && styles.phoneMemoryCardHeader]}>
+                          <View key={verse._id} style={[styles.memoryCard, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard]}>
+                            <Pressable
+                              onPress={() => {
+                                setExpandedMemoryVerseIds((current) =>
+                                  current.includes(verseId) ? current.filter((id) => id !== verseId) : [...current, verseId]
+                                );
+                              }}
+                              style={[styles.memoryCardHeaderButton, phoneLayout && styles.phoneMemoryCardHeader]}
+                            >
                               <View style={styles.journalTitleBlock}>
-                                <Text style={styles.cardTitle}>{verse.reference}</Text>
+                                <View style={styles.memoryReferenceRow}>
+                                  <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle]}>{verse.reference}</Text>
+                                  <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={colors.coral} />
+                                </View>
                                 <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel]}>
                                   {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
                                 </Text>
@@ -4539,7 +4569,10 @@ export default function Home() {
                                 <Text style={[styles.reviewDatePill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
                                 <Text style={styles.draftPill}>{memoryProgressLabel(verse)}</Text>
                               </View>
-                            </View>
+                            </Pressable>
+                            {!cardExpanded && <Text numberOfLines={1} style={styles.memoryVersePreview}>{verse.verseText}</Text>}
+                            {cardExpanded && (
+                              <>
                             {practicing ? (
                               <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice]}>
                                 <Text style={styles.helpIntro}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
@@ -4623,21 +4656,21 @@ export default function Home() {
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                                   <ResumeButton label="Practice" icon="school-outline" onPress={() => startMemoryPractice(verse)} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
                                   <ResumeButton
-                                    label={reviewScheduleVerseId === String(verse._id) ? "Hide review" : "Change review"}
+                                    label={reviewOpen ? "Hide review" : "Change review"}
                                     icon="calendar-outline"
-                                    onPress={() => setReviewScheduleVerseId((current) => current === String(verse._id) ? "" : String(verse._id))}
+                                    onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
                                     style={phoneLayout && styles.phoneMemoryActionButton}
                                     labelStyle={phoneLayout && styles.phoneMemoryActionText}
                                   />
                                   <ResumeButton
-                                    label={pendingDeleteMemoryVerseId === String(verse._id) ? "Confirm remove" : "Remove"}
+                                    label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
                                     icon="trash-outline"
                                     onPress={() => deleteMemoryVerse(verse)}
                                     style={phoneLayout && styles.phoneMemoryActionButton}
                                     labelStyle={phoneLayout && styles.phoneMemoryActionText}
                                   />
                                 </View>
-                                {reviewScheduleVerseId === String(verse._id) && (
+                                {reviewOpen && (
                                   <View style={styles.reviewScheduleBox}>
                                     <Text style={styles.memoryDiscoverLabel}>Review again</Text>
                                     <View style={styles.filterRow}>
@@ -4653,6 +4686,8 @@ export default function Home() {
                                     </View>
                                   </View>
                                 )}
+                              </>
+                            )}
                               </>
                             )}
                           </View>
@@ -13419,6 +13454,24 @@ const styles = StyleSheet.create({
   memoryList: {
     gap: 12
   },
+  memoryListTools: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10
+  },
+  phoneMemoryListToolButton: {
+    alignSelf: "stretch",
+    justifyContent: "center",
+    width: "100%"
+  },
   memoryViewToggle: {
     backgroundColor: colors.soft,
     borderRadius: 999,
@@ -13520,6 +13573,10 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 14
   },
+  collapsedMemoryCard: {
+    gap: 5,
+    paddingVertical: 10
+  },
   phoneMemoryCard: {
     borderRadius: 12,
     gap: 9,
@@ -13531,6 +13588,23 @@ const styles = StyleSheet.create({
   },
   phoneMemoryCardHeader: {
     gap: 8
+  },
+  memoryCardHeaderButton: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    justifyContent: "space-between"
+  },
+  memoryReferenceRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    minWidth: 0
+  },
+  memoryReferenceTitle: {
+    flexShrink: 1,
+    marginBottom: 0
   },
   memoryHeaderBadges: {
     alignItems: "flex-end",
@@ -13561,6 +13635,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     lineHeight: 24
+  },
+  memoryVersePreview: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 18
   },
   memoryTranslationLabel: {
     fontSize: 12,

@@ -9392,16 +9392,16 @@ function pickCoachingLine(seed: string, lines: string[]) {
 
 function buildStudyHelpLinks(reference: string, translation: BibleTranslationId) {
   const encoded = encodeURIComponent(reference || "Psalm 23");
-  const bibleHubUrl = buildBibleHubCommentaryUrl(reference);
   const helpVersion = translation.toUpperCase();
-  const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encoded}&version=${helpVersion}`;
+  const bibleHubUrl = buildBibleHubCommentaryUrl(reference);
+  const bibleHubPassageUrl = buildBibleHubPassageUrl(reference, translation);
 
   return [
     {
-      title: "Bible Gateway passage",
-      description: "Open the passage in a familiar Bible reader.",
+      title: "Bible Hub passage",
+      description: "Open this passage on Bible Hub in your selected translation where available.",
       icon: "reader-outline",
-      url: bibleGatewayUrl
+      url: bibleHubPassageUrl
     },
     {
       title: "Matthew Henry Concise",
@@ -9496,6 +9496,24 @@ function buildBibleHubCommentaryUrl(reference: string) {
   const chapter = parsed[2];
   const verse = parsed[3] || "1";
   return `https://biblehub.com/commentaries/${book}/${chapter}-${verse}.htm`;
+}
+
+function buildBibleHubPassageUrl(reference: string, translation: BibleTranslationId) {
+  const parsedReference = parsePassageQuery(reference || "Psalm 23").reference;
+  const parsed = parsedReference.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
+  if (!parsed) return `https://biblehub.com/${translation}/`;
+
+  const book = bibleHubBookSlug(parsed[1]);
+  const chapter = parsed[2];
+  const verse = parsed[3];
+  if (!verse) return `https://biblehub.com/p/${translation}/${translation}/${book}/${chapter}.shtml`;
+
+  return `https://biblehub.com/${translation}/${book}/${chapter}-${verse}.htm`;
+}
+
+function bibleHubBookSlug(book: string) {
+  const normalized = displayBibleBookName(normalizeBibleBookName(book));
+  return normalized.toLowerCase().replace(/\s+/g, "_");
 }
 
 function buildReaderStudyReference(book: string, chapter: number, selectedVerses: number[]) {

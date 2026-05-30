@@ -15937,10 +15937,7 @@ const styles = StyleSheet.create({
     textAlign: "center"
   },
   phoneMemoryActions: {
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 5,
-    justifyContent: "flex-end"
+    gap: 6
   },
   resumeButton: {
     alignItems: "center",
@@ -15957,15 +15954,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13
   },
   phoneMemoryActionButton: {
-    flex: 0,
+    flex: 1,
     justifyContent: "center",
     marginTop: 4,
-    minHeight: 32,
-    minWidth: 0,
-    paddingHorizontal: 9
+    minHeight: 38,
+    minWidth: 112,
+    paddingHorizontal: 8
   },
   phoneMemoryActionText: {
-    fontSize: 11,
+    fontSize: 12,
     textAlign: "center"
   },
   primaryResumeButton: {

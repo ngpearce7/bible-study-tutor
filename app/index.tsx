@@ -9508,7 +9508,7 @@ function buildBibleHubPassageUrl(reference: string, translation: BibleTranslatio
   const verse = parsed[3];
   if (!verse) return `https://biblehub.com/p/${translation}/${translation}/${book}/${chapter}.shtml`;
 
-  return `https://biblehub.com/${translation}/${book}/${chapter}-${verse}.htm`;
+  return `https://biblehub.com/${book}/${chapter}-${verse}.htm`;
 }
 
 function bibleHubBookSlug(book: string) {

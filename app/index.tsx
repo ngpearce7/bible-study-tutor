@@ -5187,6 +5187,7 @@ export default function Home() {
                     users={Array.isArray(adminUsers) ? adminUsers : []}
                     selectedProfileId={selectedAdminProfileId}
                     onSelect={setSelectedAdminProfileId}
+                    phoneLayout={phoneLayout}
                   />
                 </Card>
                 <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
@@ -6600,7 +6601,7 @@ function AdminFeedbackList({ feedback, onMarkStatus, phoneLayout = false }: { fe
   );
 }
 
-function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void }) {
+function AdminUserDirectory({ users, selectedProfileId, onSelect, phoneLayout = false }: { users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void; phoneLayout?: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion">("all");
   const [visibleCount, setVisibleCount] = useState(15);
@@ -6681,7 +6682,7 @@ function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any
         <Pressable
           key={user.profileId}
           onPress={() => onSelect(user.profileId)}
-          style={[styles.adminUserRow, selectedProfileId === user.profileId && styles.activeAdminUserRow]}
+          style={[styles.adminUserRow, phoneLayout && styles.phoneAdminUserRow, selectedProfileId === user.profileId && styles.activeAdminUserRow]}
         >
           <View style={styles.journalTitleBlock}>
             <Text style={styles.helpFaqQuestion}>{user.displayName || "Bible student"}</Text>
@@ -6689,7 +6690,7 @@ function AdminUserDirectory({ users, selectedProfileId, onSelect }: { users: any
               {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
             </Text>
           </View>
-          <View style={styles.adminUserMetaPills}>
+          <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
             {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
             <Text style={styles.draftPill}>{user.signedIn ? "Account" : "Local"}</Text>
             <Text style={styles.readerBookmarkCount}>{user.studies}</Text>
@@ -15389,11 +15390,14 @@ const styles = StyleSheet.create({
     minWidth: 260
   },
   phoneAdminDashboardCard: {
+    alignSelf: "stretch",
+    flexBasis: "auto" as any,
     flexGrow: 0,
     flexShrink: 1,
     marginBottom: 8,
     maxWidth: "100%",
     minWidth: 0,
+    overflow: "visible",
     width: "100%"
   },
   adminSectionGrid: {
@@ -15406,10 +15410,9 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     flexDirection: "column",
     flexWrap: "nowrap",
-    gap: 0,
+    gap: 8,
     maxWidth: "100%",
     minWidth: 0,
-    overflow: "hidden",
     width: "100%"
   },
   adminMetricGrid: {
@@ -15525,6 +15528,11 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 10
   },
+  phoneAdminUserRow: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 8
+  },
   activeAdminUserRow: {
     backgroundColor: "#eef3e5",
     borderColor: colors.olive
@@ -15533,6 +15541,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     flexShrink: 0,
     gap: 5
+  },
+  phoneAdminUserMetaPills: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start"
   },
   adminUserDetailBox: {
     gap: 10,

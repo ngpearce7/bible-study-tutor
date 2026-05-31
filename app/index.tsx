@@ -4720,31 +4720,46 @@ export default function Home() {
           <View style={[styles.layout, compactLayout && styles.stackedLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard]}>
               <Eyebrow>Community</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, share a simple check-in` : "Share a simple check-in"}</Text>
-              <Text style={styles.titleSupport}>One honest update can help you stay steady, encouraged, and accountable.</Text>
+              <Text style={styles.title}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
+              <Text style={styles.titleSupport}>Turn today’s study into one simple message for someone you trust.</Text>
               <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Sending to</Text>
+                <View style={styles.communityStepHeader}>
+                  <View style={styles.communityStepBadge}>
+                    <Text style={styles.communityStepBadgeText}>1</Text>
+                  </View>
+                  <View style={styles.journalTitleBlock}>
+                    <Text style={styles.feedbackTitle}>Choose who to encourage</Text>
+                    <Text style={styles.helpIntro}>This is only used to prepare your message.</Text>
+                  </View>
                 </View>
                 <Text style={styles.communityRecipientText}>{effectivePartner.trim() || "Choose a person or group"}</Text>
-                <Text style={styles.helpIntro}>
-                  {effectivePartner.trim()
-                    ? "This name is used at the start of your copied message."
-                    : `${friendlyName}, add or choose someone from the People panel.`}
-                </Text>
+                {!effectivePartner.trim() && <Text style={styles.helpIntro}>{`${friendlyName}, add or choose someone in My people.`}</Text>}
+              </View>
+              <View style={styles.communityStepHeader}>
+                <View style={styles.communityStepBadge}>
+                  <Text style={styles.communityStepBadgeText}>2</Text>
+                </View>
+                <View style={styles.journalTitleBlock}>
+                  <Text style={styles.feedbackTitle}>Write one honest update</Text>
+                  <Text style={styles.helpIntro}>A thought, a verse, or one next step is enough.</Text>
+                </View>
               </View>
               <TextInput
                 multiline
                 value={checkinNote}
                 onChangeText={setCheckinNote}
-                placeholder="What did you study, what stood out, and what is your next small step?"
+                placeholder="Example: I studied Psalm 23 and was reminded that God leads me one step at a time."
                 style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
               />
               <View style={[styles.sendNoteBox, phoneLayout && styles.phoneSendNoteBox]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="send-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Message preview</Text>
+                <View style={styles.communityStepHeader}>
+                  <View style={styles.communityStepBadge}>
+                    <Text style={styles.communityStepBadgeText}>3</Text>
+                  </View>
+                  <View style={styles.journalTitleBlock}>
+                    <Text style={styles.feedbackTitle}>Copy, send, then save</Text>
+                    <Text style={styles.helpIntro}>The app does not send messages for you.</Text>
+                  </View>
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
                 <View style={[styles.buttonRow, phoneLayout && styles.phoneCommunityButtonRow]}>
@@ -4760,7 +4775,7 @@ export default function Home() {
               <Pressable onPress={() => setPeoplePanelCollapsed((value) => !value)} style={styles.communityPanelHeader}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="people-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>People</Text>
+                  <Text style={styles.feedbackTitle}>My people</Text>
                 </View>
                 <View style={styles.communityHeaderMeta}>
                   {!!effectivePartner.trim() && <Text style={styles.communityHeaderMetaText}>{effectivePartner}</Text>}
@@ -4769,7 +4784,7 @@ export default function Home() {
               </Pressable>
               {!peoplePanelCollapsed && (
                 <>
-                  <Text style={styles.helpIntro}>Keep this to the person, group, or chat you actually send updates to.</Text>
+                  <Text style={styles.helpIntro}>Add the person, group, or chat you normally share study updates with.</Text>
                   <View style={[styles.partnerManagerBox, phoneLayout && styles.phonePartnerManagerBox]}>
                     <TextInput value={partnerName} onChangeText={setPartnerName} placeholder="Partner or group name" style={styles.input} />
                     <TextInput value={partnerContactNote} onChangeText={setPartnerContactNote} placeholder="Optional: text, WhatsApp, email, group chat" style={styles.input} />
@@ -4790,10 +4805,14 @@ export default function Home() {
                 </>
               )}
               <View style={styles.communityGoalBox}>
-                <Text style={styles.lastCheckinLabel}>Weekly goal</Text>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="pulse-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Rhythm</Text>
+                </View>
+                <Text style={styles.helpIntro}>Keep a simple goal for regular study and encouragement.</Text>
                 <TextInput value={weeklyGoal} onChangeText={setWeeklyGoal} placeholder="Example: Study 3 times this week" style={styles.input} />
               </View>
-              <AppButton label="Save people" onPress={persistPlan} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+              <AppButton label="Save community settings" onPress={persistPlan} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
               {!!planStatus && <Text style={styles.saveStatus}>{planStatus}</Text>}
               <View style={styles.communityDivider} />
               <View style={styles.feedbackHeader}>
@@ -12208,6 +12227,27 @@ const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 14,
     padding: 14
+  },
+  communityStepHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 9,
+    marginBottom: 8
+  },
+  communityStepBadge: {
+    alignItems: "center",
+    backgroundColor: colors.oliveDark,
+    borderRadius: 999,
+    height: 24,
+    justifyContent: "center",
+    marginTop: 1,
+    width: 24
+  },
+  communityStepBadgeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "900",
+    lineHeight: 14
   },
   phoneCommunityFocusBox: {
     borderRadius: 12,

@@ -12830,8 +12830,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   activeCircleChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: "#f5eedf",
+    borderColor: "rgba(102, 114, 78, 0.42)"
   },
   circleChipTitle: {
     color: colors.oliveDark,
@@ -12845,7 +12845,7 @@ const styles = StyleSheet.create({
     lineHeight: 17
   },
   activeCircleChipText: {
-    color: "white"
+    color: colors.oliveDark
   },
   circleCopyButton: {
     alignItems: "center",

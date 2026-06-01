@@ -87,6 +87,7 @@ const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string 
   { id: "web", label: "WEB", name: "World English Bible" },
   { id: "kjv", label: "KJV", name: "King James Version" }
 ];
+const COMMUNITY_CIRCLES_ENABLED = process.env.EXPO_PUBLIC_ENABLE_COMMUNITY_CIRCLES === "true";
 const BIBLE_CHAPTER_COUNTS: Record<string, number> = {
   Genesis: 50, Exodus: 40, Leviticus: 27, Numbers: 36, Deuteronomy: 34, Joshua: 24, Judges: 21, Ruth: 4,
   "1 Samuel": 31, "2 Samuel": 24, "1 Kings": 22, "2 Kings": 25, "1 Chronicles": 29, "2 Chronicles": 36,
@@ -673,8 +674,8 @@ export default function Home() {
   const drafts = useQuery(api.study.recentDrafts, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, activeProfileId ? { profileId: activeProfileId, limit: 10 } : "skip");
   const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
-  const communityCircles = useQuery((api as any).community.myCircles, activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
-  const communityFeed = useQuery((api as any).community.feed, activeProfileId && selectedCircleId ? { profileId: activeProfileId, circleId: selectedCircleId, limit: 12 } : "skip");
+  const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
+  const communityFeed = useQuery((api as any).community.feed, COMMUNITY_CIRCLES_ENABLED && activeProfileId && selectedCircleId ? { profileId: activeProfileId, circleId: selectedCircleId, limit: 12 } : "skip");
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
@@ -1608,7 +1609,7 @@ export default function Home() {
     setCommunityStatus("Saving check-in...");
     try {
       const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: checkinNote.trim(), sentAt: checkinMarkedSent ? Date.now() : undefined });
-      if (shareCheckinWithCircle && selectedCircleId) {
+      if (COMMUNITY_CIRCLES_ENABLED && shareCheckinWithCircle && selectedCircleId) {
         await shareCheckinToCircle({
           profileId: activeProfileId,
           circleId: selectedCircleId,
@@ -1618,7 +1619,7 @@ export default function Home() {
         });
       }
       setCommunityStatus(
-        shareCheckinWithCircle && selectedCircleId
+        COMMUNITY_CIRCLES_ENABLED && shareCheckinWithCircle && selectedCircleId
           ? "Check-in saved and shared with your circle"
           : checkinMarkedSent
             ? "Sent check-in saved"
@@ -4858,7 +4859,7 @@ export default function Home() {
                   </View>
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
-                {isAuthenticated && selectedCommunityCircle && (
+                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && selectedCommunityCircle && (
                   <Pressable
                     onPress={() => setShareCheckinWithCircle((value) => !value)}
                     style={[styles.circleShareToggle, shareCheckinWithCircle && styles.activeCircleShareToggle]}
@@ -4917,11 +4918,13 @@ export default function Home() {
                   <Text style={styles.feedbackTitle}>Private circle</Text>
                 </View>
                 <Text style={styles.helpIntro}>
-                  {isAuthenticated
+                {COMMUNITY_CIRCLES_ENABLED
+                  ? isAuthenticated
                     ? "Invite-only spaces for shared check-ins. No public feed, no social media."
-                    : "Sign in to create or join a private circle with registered users."}
+                    : "Sign in to create or join a private circle with registered users."
+                  : "Private circles are being prepared and will be enabled after the backend is ready."}
                 </Text>
-                {isAuthenticated ? (
+                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                   <>
                     <View style={styles.circleActionGrid}>
                       <View style={styles.circleActionBox}>
@@ -4953,8 +4956,10 @@ export default function Home() {
                     )}
                     {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
                   </>
-                ) : (
+                ) : COMMUNITY_CIRCLES_ENABLED ? (
                   <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                ) : (
+                  <Text style={styles.saveStatus}>Check-ins still save privately and can be copied or sent as before.</Text>
                 )}
               </View>
               <View style={styles.communityGoalBox}>
@@ -5005,7 +5010,7 @@ export default function Home() {
                   )}
                 </>
               )}
-              {isAuthenticated && selectedCommunityCircle && (
+              {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && selectedCommunityCircle && (
                 <>
                   <View style={styles.communityDivider} />
                   <View style={styles.feedbackHeader}>

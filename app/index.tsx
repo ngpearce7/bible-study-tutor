@@ -4957,8 +4957,8 @@ export default function Home() {
                 <Text style={styles.helpIntro}>
                 {COMMUNITY_CIRCLES_ENABLED
                   ? isAuthenticated
-                    ? "Invite-only spaces for shared check-ins. No public feed, no social media."
-                    : "Sign in to create or join a private circle with registered users."
+                    ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple check-in so you can encourage one another to keep drawing near to God."
+                    : "Sign in to create or join a small private circle where trusted people can share study thoughts, prayer points, and encouragement."
                   : "Private circles are being prepared and will be enabled after the backend is ready."}
                 </Text>
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (

@@ -1613,20 +1613,28 @@ export default function Home() {
 
     setIsSavingCheckin(true);
     setCommunityStatus("Saving check-in...");
+    const noteToSave = checkinNote.trim();
+    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && shareCheckinWithCircle && selectedCircleId;
     try {
-      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: checkinNote.trim(), sentAt: checkinMarkedSent ? Date.now() : undefined });
-      if (COMMUNITY_CIRCLES_ENABLED && shareCheckinWithCircle && selectedCircleId) {
-        await shareCheckinToCircle({
-          profileId: activeProfileId,
-          circleId: selectedCircleId,
-          checkinId,
-          note: checkinNote.trim(),
-          passageReference: passageText?.reference || passage
-        });
+      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: checkinMarkedSent ? Date.now() : undefined });
+      if (shouldShareWithCircle) {
+        try {
+          await shareCheckinToCircle({
+            profileId: activeProfileId,
+            circleId: selectedCircleId,
+            checkinId,
+            note: noteToSave,
+            passageReference: passageText?.reference || passage
+          });
+        } catch {
+          setCommunityStatus("Saved privately, but could not post to the selected circle. Try selecting the circle again.");
+          trackUsage("checkin_saved", { tab: "accountability" });
+          return;
+        }
       }
       setCommunityStatus(
-        COMMUNITY_CIRCLES_ENABLED && shareCheckinWithCircle && selectedCircleId
-          ? "Check-in saved and shared with your circle"
+        shouldShareWithCircle
+          ? `Check-in saved and posted to ${selectedCommunityCircle?.name || "your circle"}`
           : checkinMarkedSent
             ? "Sent check-in saved"
             : "Check-in saved"
@@ -1634,6 +1642,8 @@ export default function Home() {
       trackUsage("checkin_saved", { tab: "accountability" });
       setCheckinNote("");
       setCheckinMarkedSent(false);
+    } catch {
+      setCommunityStatus("Could not save that check-in. Please try again.");
     } finally {
       setIsSavingCheckin(false);
     }

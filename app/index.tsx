@@ -424,6 +424,8 @@ export default function Home() {
   const [circleStatus, setCircleStatus] = useState("");
   const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
   const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
+  const [circleChooserOpen, setCircleChooserOpen] = useState(false);
+  const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
   const [shareNote, setShareNote] = useState("");
@@ -4996,73 +4998,89 @@ export default function Home() {
                 </Text>
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                   <>
-                    <View style={styles.circleActionGrid}>
-                      <View style={styles.circleActionBox}>
-                        <Text style={styles.lastCheckinLabel}>Create</Text>
-                        <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={styles.input} />
-                        <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                      </View>
-                      <View style={styles.circleActionBox}>
-                        <Text style={styles.lastCheckinLabel}>Join</Text>
-                        <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={styles.input} />
-                        <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                      </View>
-                    </View>
-                    {(communityCircles || []).length > 0 && (
-                      <View style={styles.circleList}>
-                        {(communityCircles || []).map((circle: any) => (
-                          <Pressable
-                            key={circle._id}
-                            onPress={() => setSelectedCircleId(circle._id)}
-                            style={[styles.circleChip, String(selectedCircleId) === String(circle._id) && styles.activeCircleChip]}
-                          >
-                            <View style={styles.circleChipHeader}>
-                              <View style={styles.journalTitleBlock}>
+                    {selectedCommunityCircle ? (
+                      <View style={styles.activeCirclePanel}>
+                        <View style={styles.circleChipHeader}>
+                          <View style={styles.journalTitleBlock}>
+                            <Text style={styles.lastCheckinLabel}>Active circle</Text>
+                            <Text style={styles.circleChipTitle}>{selectedCommunityCircle.name}</Text>
+                            <Text style={styles.circleChipMeta}>
+                              {selectedCommunityCircle.memberCount} member{selectedCommunityCircle.memberCount === 1 ? "" : "s"} · Code {selectedCommunityCircle.inviteCode}
+                            </Text>
+                          </View>
+                          <Pressable onPress={() => copyCircleInviteCode(selectedCommunityCircle.inviteCode)} style={styles.circleCopyButton}>
+                            <Ionicons name="copy-outline" size={14} color={colors.oliveDark} />
+                            <Text style={styles.circleCopyText}>Copy</Text>
+                          </Pressable>
+                        </View>
+                        <View style={styles.circleManagementRow}>
+                          {(communityCircles || []).length > 1 && (
+                            <Pressable onPress={() => setCircleChooserOpen((open) => !open)} style={styles.circleManageButton}>
+                              <Text style={styles.circleManageText}>{circleChooserOpen ? "Hide circles" : "Change circle"}</Text>
+                            </Pressable>
+                          )}
+                          {selectedCommunityCircle.canDelete ? (
+                            <Pressable
+                              onPress={() => deleteCircle(selectedCommunityCircle)}
+                              style={[styles.circleManageButton, styles.circleDangerManageButton, pendingCircleDeleteId === selectedCommunityCircle._id && styles.activeCircleDangerManageButton]}
+                            >
+                              <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingCircleDeleteId === selectedCommunityCircle._id && styles.activeCircleDangerManageText]}>
+                                {pendingCircleDeleteId === selectedCommunityCircle._id ? "Confirm delete" : "Delete"}
+                              </Text>
+                            </Pressable>
+                          ) : (
+                            <Pressable
+                              onPress={() => leaveCircle(selectedCommunityCircle)}
+                              style={[styles.circleManageButton, pendingCircleLeaveId === selectedCommunityCircle._id && styles.activeCircleManageButton]}
+                            >
+                              <Text style={[styles.circleManageText, pendingCircleLeaveId === selectedCommunityCircle._id && styles.activeCircleManageText]}>
+                                {pendingCircleLeaveId === selectedCommunityCircle._id ? "Confirm leave" : "Leave"}
+                              </Text>
+                            </Pressable>
+                          )}
+                        </View>
+                        {circleChooserOpen && (
+                          <View style={styles.circleList}>
+                            {(communityCircles || []).map((circle: any) => (
+                              <Pressable
+                                key={circle._id}
+                                onPress={() => {
+                                  setSelectedCircleId(circle._id);
+                                  setCircleChooserOpen(false);
+                                }}
+                                style={[styles.circleChip, String(selectedCircleId) === String(circle._id) && styles.activeCircleChip]}
+                              >
                                 <Text style={[styles.circleChipTitle, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>{circle.name}</Text>
                                 <Text style={[styles.circleChipMeta, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>
-                                  {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · Code {circle.inviteCode}
+                                  {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · {circle.canDelete ? "Owner" : "Member"}
                                 </Text>
-                              </View>
-                              <Pressable
-                                onPress={(event) => {
-                                  event.stopPropagation();
-                                  copyCircleInviteCode(circle.inviteCode);
-                                }}
-                                style={[styles.circleCopyButton, String(selectedCircleId) === String(circle._id) && styles.activeCircleCopyButton]}
-                              >
-                                <Ionicons name="copy-outline" size={14} color={String(selectedCircleId) === String(circle._id) ? "white" : colors.oliveDark} />
-                                <Text style={[styles.circleCopyText, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>Copy</Text>
                               </Pressable>
-                            </View>
-                            <View style={styles.circleManagementRow}>
-                              {circle.canDelete ? (
-                                <Pressable
-                                  onPress={(event) => {
-                                    event.stopPropagation();
-                                    deleteCircle(circle);
-                                  }}
-                                  style={[styles.circleManageButton, styles.circleDangerManageButton, pendingCircleDeleteId === circle._id && styles.activeCircleDangerManageButton]}
-                                >
-                                  <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingCircleDeleteId === circle._id && styles.activeCircleDangerManageText]}>
-                                    {pendingCircleDeleteId === circle._id ? "Confirm delete" : "Delete circle"}
-                                  </Text>
-                                </Pressable>
-                              ) : (
-                                <Pressable
-                                  onPress={(event) => {
-                                    event.stopPropagation();
-                                    leaveCircle(circle);
-                                  }}
-                                  style={[styles.circleManageButton, pendingCircleLeaveId === circle._id && styles.activeCircleManageButton]}
-                                >
-                                  <Text style={[styles.circleManageText, pendingCircleLeaveId === circle._id && styles.activeCircleManageText]}>
-                                    {pendingCircleLeaveId === circle._id ? "Confirm leave" : "Leave circle"}
-                                  </Text>
-                                </Pressable>
-                              )}
-                            </View>
-                          </Pressable>
-                        ))}
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    ) : (
+                      <View style={styles.emptyCommunityBox}>
+                        <Text style={styles.communityTitle}>No private circles yet</Text>
+                        <Text style={styles.helpIntro}>Create one or join with an invite code when you are ready.</Text>
+                      </View>
+                    )}
+                    <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
+                      <Text style={styles.circleManageText}>{circleManagerOpen || !selectedCommunityCircle ? "Hide circle tools" : "Manage circles"}</Text>
+                      <Ionicons name={circleManagerOpen || !selectedCommunityCircle ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                    </Pressable>
+                    {(circleManagerOpen || !selectedCommunityCircle) && (
+                      <View style={styles.circleActionGrid}>
+                        <View style={styles.circleActionBox}>
+                          <Text style={styles.lastCheckinLabel}>Create</Text>
+                          <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={styles.input} />
+                          <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                        </View>
+                        <View style={styles.circleActionBox}>
+                          <Text style={styles.lastCheckinLabel}>Join</Text>
+                          <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={styles.input} />
+                          <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                        </View>
                       </View>
                     )}
                     {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
@@ -12725,6 +12743,26 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 8,
     minWidth: 170
+  },
+  activeCirclePanel: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    padding: 10
+  },
+  circleManagerToggle: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 7
   },
   circleList: {
     gap: 8

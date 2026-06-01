@@ -4949,41 +4949,6 @@ export default function Home() {
                 </View>
                 {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
               </View>
-            </Card>
-
-            <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
-              <Pressable onPress={() => setPeoplePanelCollapsed((value) => !value)} style={styles.communityPanelHeader}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="people-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>My people</Text>
-                </View>
-                <View style={styles.communityHeaderMeta}>
-                  {!!effectivePartner.trim() && <Text style={styles.communityHeaderMetaText}>{effectivePartner}</Text>}
-                  <Ionicons name={peoplePanelCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={colors.muted} />
-                </View>
-              </Pressable>
-              {!peoplePanelCollapsed && (
-                <>
-                  <Text style={styles.helpIntro}>Add the person, group, or chat you normally share study updates with.</Text>
-                  <View style={[styles.partnerManagerBox, phoneLayout && styles.phonePartnerManagerBox]}>
-                    <TextInput value={partnerName} onChangeText={setPartnerName} placeholder="Partner or group name" style={styles.input} />
-                    <TextInput value={partnerContactNote} onChangeText={setPartnerContactNote} placeholder="Optional: text, WhatsApp, email, group chat" style={styles.input} />
-                    <AppButton label="Add person" variant="secondary" onPress={addCheckinPartner} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                    <View style={styles.partnerList}>
-                      {checkinPartners.length === 0 ? (
-                        <Text style={styles.helpIntro}>No people added yet.</Text>
-                      ) : (
-                        checkinPartners.map((item) => (
-                          <Pressable key={item.id} onPress={() => selectCheckinPartner(item.id)} style={[styles.partnerChip, phoneLayout && styles.phonePartnerChip, activeCheckinPartnerId === item.id && styles.activePartnerChip]}>
-                            <Text style={[styles.partnerChipText, activeCheckinPartnerId === item.id && styles.activePartnerChipText]}>{item.name}</Text>
-                            {item.contactNote && <Text style={[styles.partnerContactText, activeCheckinPartnerId === item.id && styles.activePartnerChipText]}>{item.contactNote}</Text>}
-                          </Pressable>
-                        ))
-                      )}
-                    </View>
-                  </View>
-                </>
-              )}
               <View style={styles.communityCircleBox}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
@@ -5091,54 +5056,6 @@ export default function Home() {
                   <Text style={styles.saveStatus}>Check-ins still save privately and can be copied or sent as before.</Text>
                 )}
               </View>
-              <View style={styles.communityGoalBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="pulse-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Rhythm</Text>
-                </View>
-                <Text style={styles.helpIntro}>Keep a simple goal for regular study and encouragement.</Text>
-                <TextInput value={weeklyGoal} onChangeText={setWeeklyGoal} placeholder="Example: Study 3 times this week" style={styles.input} />
-              </View>
-              <AppButton label="Save community settings" onPress={persistPlan} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-              {!!planStatus && <Text style={styles.saveStatus}>{planStatus}</Text>}
-              <View style={styles.communityDivider} />
-              <View style={styles.feedbackHeader}>
-                <Ionicons name="time-outline" size={18} color={colors.coral} />
-                <Text style={styles.feedbackTitle}>Recent check-ins</Text>
-              </View>
-              {(checkins || []).length === 0 ? (
-                <View style={styles.emptyCommunityBox}>
-                  <Text style={styles.communityTitle}>No check-ins yet</Text>
-                  <Text style={styles.helpIntro}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
-                </View>
-              ) : (
-                <>
-                  {visibleCheckins.map((checkin: any) => (
-                    <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
-                      <View style={styles.journalHeader}>
-                        <View style={styles.journalTitleBlock}>
-                          <View style={styles.checkinTitleRow}>
-                            <Text style={styles.checkinMood}>{checkin.mood}</Text>
-                            <Text style={[styles.sentPill, checkin.sentAt && styles.sentPillActive]}>{checkin.sentAt ? "Sent" : "Saved"}</Text>
-                          </View>
-                          <Text style={styles.muted}>{new Date(checkin.createdAt).toLocaleDateString()}</Text>
-                        </View>
-                        <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
-                          <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
-                          <Text style={styles.copySmallText}>Copy</Text>
-                        </Pressable>
-                      </View>
-                      <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
-                    </View>
-                  ))}
-                  {(checkins || []).length > 3 && (
-                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={styles.communityShowMoreButton}>
-                      <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
-                      <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
-                    </Pressable>
-                  )}
-                </>
-              )}
               {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && selectedCommunityCircle && (
                 <>
                   <View style={styles.communityDivider} />
@@ -5191,6 +5108,89 @@ export default function Home() {
                       <Text style={styles.communityTitle}>No shared check-ins yet</Text>
                       <Text style={styles.helpIntro}>Save a check-in with circle sharing turned on to start the circle rhythm.</Text>
                     </View>
+                  )}
+                </>
+              )}
+            </Card>
+
+            <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
+              <Pressable onPress={() => setPeoplePanelCollapsed((value) => !value)} style={styles.communityPanelHeader}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="people-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>My people</Text>
+                </View>
+                <View style={styles.communityHeaderMeta}>
+                  {!!effectivePartner.trim() && <Text style={styles.communityHeaderMetaText}>{effectivePartner}</Text>}
+                  <Ionicons name={peoplePanelCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={colors.muted} />
+                </View>
+              </Pressable>
+              {!peoplePanelCollapsed && (
+                <>
+                  <Text style={styles.helpIntro}>Add the person, group, or chat you normally share study updates with.</Text>
+                  <View style={[styles.partnerManagerBox, phoneLayout && styles.phonePartnerManagerBox]}>
+                    <TextInput value={partnerName} onChangeText={setPartnerName} placeholder="Partner or group name" style={styles.input} />
+                    <TextInput value={partnerContactNote} onChangeText={setPartnerContactNote} placeholder="Optional: text, WhatsApp, email, group chat" style={styles.input} />
+                    <AppButton label="Add person" variant="secondary" onPress={addCheckinPartner} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                    <View style={styles.partnerList}>
+                      {checkinPartners.length === 0 ? (
+                        <Text style={styles.helpIntro}>No people added yet.</Text>
+                      ) : (
+                        checkinPartners.map((item) => (
+                          <Pressable key={item.id} onPress={() => selectCheckinPartner(item.id)} style={[styles.partnerChip, phoneLayout && styles.phonePartnerChip, activeCheckinPartnerId === item.id && styles.activePartnerChip]}>
+                            <Text style={[styles.partnerChipText, activeCheckinPartnerId === item.id && styles.activePartnerChipText]}>{item.name}</Text>
+                            {item.contactNote && <Text style={[styles.partnerContactText, activeCheckinPartnerId === item.id && styles.activePartnerChipText]}>{item.contactNote}</Text>}
+                          </Pressable>
+                        ))
+                      )}
+                    </View>
+                  </View>
+                </>
+              )}
+              <View style={styles.communityGoalBox}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="pulse-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Rhythm</Text>
+                </View>
+                <Text style={styles.helpIntro}>Keep a simple goal for regular study and encouragement.</Text>
+                <TextInput value={weeklyGoal} onChangeText={setWeeklyGoal} placeholder="Example: Study 3 times this week" style={styles.input} />
+              </View>
+              <AppButton label="Save community settings" onPress={persistPlan} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+              {!!planStatus && <Text style={styles.saveStatus}>{planStatus}</Text>}
+              <View style={styles.communityDivider} />
+              <View style={styles.feedbackHeader}>
+                <Ionicons name="time-outline" size={18} color={colors.coral} />
+                <Text style={styles.feedbackTitle}>Recent check-ins</Text>
+              </View>
+              {(checkins || []).length === 0 ? (
+                <View style={styles.emptyCommunityBox}>
+                  <Text style={styles.communityTitle}>No check-ins yet</Text>
+                  <Text style={styles.helpIntro}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
+                </View>
+              ) : (
+                <>
+                  {visibleCheckins.map((checkin: any) => (
+                    <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
+                      <View style={styles.journalHeader}>
+                        <View style={styles.journalTitleBlock}>
+                          <View style={styles.checkinTitleRow}>
+                            <Text style={styles.checkinMood}>{checkin.mood}</Text>
+                            <Text style={[styles.sentPill, checkin.sentAt && styles.sentPillActive]}>{checkin.sentAt ? "Sent" : "Saved"}</Text>
+                          </View>
+                          <Text style={styles.muted}>{new Date(checkin.createdAt).toLocaleDateString()}</Text>
+                        </View>
+                        <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
+                          <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
+                          <Text style={styles.copySmallText}>Copy</Text>
+                        </Pressable>
+                      </View>
+                      <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
+                    </View>
+                  ))}
+                  {(checkins || []).length > 3 && (
+                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={styles.communityShowMoreButton}>
+                      <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
+                      <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
+                    </Pressable>
                   )}
                 </>
               )}

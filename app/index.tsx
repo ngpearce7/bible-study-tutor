@@ -4931,15 +4931,30 @@ export default function Home() {
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && selectedCommunityCircle && (
-                  <Pressable
-                    onPress={() => setShareCheckinWithCircle((value) => !value)}
-                    style={[styles.circleShareToggle, shareCheckinWithCircle && styles.activeCircleShareToggle]}
-                  >
-                    <Ionicons name={shareCheckinWithCircle ? "checkmark-circle-outline" : "ellipse-outline"} size={18} color={shareCheckinWithCircle ? "white" : colors.oliveDark} />
-                    <Text style={[styles.circleShareToggleText, shareCheckinWithCircle && styles.activeCircleShareToggleText]}>
-                      {shareCheckinWithCircle ? `Share with ${selectedCommunityCircle.name}` : "Save privately"}
+                  <View style={styles.circleSaveChoiceBox}>
+                    <Text style={styles.circleManagementLabel}>When you save this check-in</Text>
+                    <View style={styles.circleSaveChoiceRow}>
+                      <Pressable
+                        onPress={() => setShareCheckinWithCircle(false)}
+                        style={[styles.circleSaveChoice, !shareCheckinWithCircle && styles.activeCircleSaveChoice]}
+                      >
+                        <Ionicons name={!shareCheckinWithCircle ? "checkmark-circle-outline" : "ellipse-outline"} size={17} color={colors.oliveDark} />
+                        <Text style={styles.circleSaveChoiceText}>Only save privately</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setShareCheckinWithCircle(true)}
+                        style={[styles.circleSaveChoice, shareCheckinWithCircle && styles.activeCircleSaveChoice]}
+                      >
+                        <Ionicons name={shareCheckinWithCircle ? "checkmark-circle-outline" : "ellipse-outline"} size={17} color={colors.oliveDark} />
+                        <Text style={styles.circleSaveChoiceText}>{`Also post to ${selectedCommunityCircle.name}`}</Text>
+                      </Pressable>
+                    </View>
+                    <Text style={styles.circleSaveChoiceHint}>
+                      {shareCheckinWithCircle
+                        ? `Press Save to add this to your history and to ${selectedCommunityCircle.name}'s shared check-ins.`
+                        : "Press Save to keep this in your own check-in history only."}
                     </Text>
-                  </Pressable>
+                  </View>
                 )}
                 <View style={[styles.buttonRow, phoneLayout && styles.phoneCommunityButtonRow]}>
                   <AppButton label="Copy message" onPress={shareCommunityMessage} style={phoneLayout && styles.phoneCommunityPrimaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
@@ -12907,6 +12922,47 @@ const styles = StyleSheet.create({
   },
   activeCircleDangerManageText: {
     color: "white"
+  },
+  circleSaveChoiceBox: {
+    backgroundColor: "rgba(102, 114, 78, 0.07)",
+    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    marginBottom: 8,
+    padding: 10
+  },
+  circleSaveChoiceRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  circleSaveChoice: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 34,
+    paddingHorizontal: 10,
+    paddingVertical: 7
+  },
+  activeCircleSaveChoice: {
+    backgroundColor: "#f5eedf",
+    borderColor: "rgba(102, 114, 78, 0.42)"
+  },
+  circleSaveChoiceText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  circleSaveChoiceHint: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 17
   },
   circleShareToggle: {
     alignItems: "center",

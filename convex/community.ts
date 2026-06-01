@@ -12,6 +12,7 @@ export const myCircles = query({
   },
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
+    const authUserId = await getRequiredAuthUserId(ctx);
 
     const memberships = await ctx.db
       .query("communityMembers")
@@ -30,7 +31,7 @@ export const myCircles = query({
         ...circle,
         role: membership.role,
         memberCount: members.length,
-        canDelete: membership.role === "owner"
+        canDelete: membership.role === "owner" || circle.ownerProfileId === args.profileId || circle.ownerAuthUserId === authUserId
       });
     }
 
@@ -232,8 +233,10 @@ export const leaveCircle = mutation({
   },
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
+    const authUserId = await getRequiredAuthUserId(ctx);
     const membership = await authorizeCircleMember(ctx, args.circleId, args.profileId);
-    if (membership.role === "owner") throw new Error("Owners need to delete the circle instead.");
+    const circle = await ctx.db.get(args.circleId);
+    if (membership.role === "owner" || circle?.ownerProfileId === args.profileId || circle?.ownerAuthUserId === authUserId) throw new Error("Owners need to delete the circle instead.");
 
     await removeProfileReactionsInCircle(ctx, args.profileId, args.circleId);
     await ctx.db.delete(membership._id);
@@ -248,10 +251,12 @@ export const deleteCircle = mutation({
   },
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
+    const authUserId = await getRequiredAuthUserId(ctx);
     const circle = await ctx.db.get(args.circleId);
     if (!circle) return false;
     const membership = await authorizeCircleMember(ctx, args.circleId, args.profileId);
-    if (membership.role !== "owner" || circle.ownerProfileId !== args.profileId) throw new Error("Only the circle owner can delete this circle.");
+    const isOwner = membership.role === "owner" || circle.ownerProfileId === args.profileId || circle.ownerAuthUserId === authUserId;
+    if (!isOwner) throw new Error("Only the circle owner can delete this circle.");
 
     const posts = await ctx.db
       .query("communityPosts")

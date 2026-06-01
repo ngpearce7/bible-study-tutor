@@ -333,6 +333,10 @@ export default function Home() {
   const saveCheckin = useMutation(api.accountability.saveCheckin);
   const deleteCheckinMutation = useMutation(api.accountability.deleteCheckin);
   const updateCheckin = useMutation(api.accountability.updateCheckin);
+  const createCommunityCircle = useMutation((api as any).community.createCircle);
+  const joinCommunityCircle = useMutation((api as any).community.joinCircle);
+  const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
+  const reactToCommunityPost = useMutation((api as any).community.reactToPost);
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
@@ -409,6 +413,11 @@ export default function Home() {
   const [communityStatus, setCommunityStatus] = useState("");
   const [checkinMarkedSent, setCheckinMarkedSent] = useState(false);
   const [isSavingCheckin, setIsSavingCheckin] = useState(false);
+  const [circleName, setCircleName] = useState("");
+  const [circleInviteCode, setCircleInviteCode] = useState("");
+  const [selectedCircleId, setSelectedCircleId] = useState<any>(null);
+  const [shareCheckinWithCircle, setShareCheckinWithCircle] = useState(false);
+  const [circleStatus, setCircleStatus] = useState("");
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
   const [shareNote, setShareNote] = useState("");
@@ -664,6 +673,8 @@ export default function Home() {
   const drafts = useQuery(api.study.recentDrafts, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, activeProfileId ? { profileId: activeProfileId, limit: 10 } : "skip");
   const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
+  const communityCircles = useQuery((api as any).community.myCircles, activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
+  const communityFeed = useQuery((api as any).community.feed, activeProfileId && selectedCircleId ? { profileId: activeProfileId, circleId: selectedCircleId, limit: 12 } : "skip");
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
@@ -671,6 +682,16 @@ export default function Home() {
   const adminUsers = useQuery((api as any).insights.adminUsers, activeProfileId ? {} : "skip");
   const adminUserDetail = useQuery((api as any).insights.adminUserDetail, selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
   const adminAuditLog = useQuery((api as any).insights.adminAuditLog, activeProfileId ? { limit: 20 } : "skip");
+  useEffect(() => {
+    if (!Array.isArray(communityCircles) || communityCircles.length === 0) {
+      setSelectedCircleId(null);
+      setShareCheckinWithCircle(false);
+      return;
+    }
+    if (!selectedCircleId || !communityCircles.some((circle: any) => String(circle._id) === String(selectedCircleId))) {
+      setSelectedCircleId(communityCircles[0]._id);
+    }
+  }, [communityCircles, selectedCircleId]);
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -747,6 +768,7 @@ export default function Home() {
   const effectivePartner = activeCheckinPartner?.name || partner;
   const communityMessage = buildCommunityMessage({ partner: effectivePartner, senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
+  const selectedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(selectedCircleId));
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
@@ -1585,13 +1607,87 @@ export default function Home() {
     setIsSavingCheckin(true);
     setCommunityStatus("Saving check-in...");
     try {
-      await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: checkinNote.trim(), sentAt: checkinMarkedSent ? Date.now() : undefined });
-      setCommunityStatus(checkinMarkedSent ? "Sent check-in saved" : "Check-in saved");
+      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: checkinNote.trim(), sentAt: checkinMarkedSent ? Date.now() : undefined });
+      if (shareCheckinWithCircle && selectedCircleId) {
+        await shareCheckinToCircle({
+          profileId: activeProfileId,
+          circleId: selectedCircleId,
+          checkinId,
+          note: checkinNote.trim(),
+          passageReference: passageText?.reference || passage
+        });
+      }
+      setCommunityStatus(
+        shareCheckinWithCircle && selectedCircleId
+          ? "Check-in saved and shared with your circle"
+          : checkinMarkedSent
+            ? "Sent check-in saved"
+            : "Check-in saved"
+      );
       trackUsage("checkin_saved", { tab: "accountability" });
       setCheckinNote("");
       setCheckinMarkedSent(false);
     } finally {
       setIsSavingCheckin(false);
+    }
+  }
+
+  async function createCircle() {
+    if (!activeProfileId) return;
+    if (!isAuthenticated) {
+      setCircleStatus("Sign in before creating a private circle.");
+      return;
+    }
+    const name = circleName.trim();
+    if (!name) {
+      setCircleStatus("Add a circle name first.");
+      return;
+    }
+
+    setCircleStatus("Creating circle...");
+    try {
+      const result = await createCommunityCircle({ profileId: activeProfileId, name });
+      setSelectedCircleId(result.circleId);
+      setShareCheckinWithCircle(true);
+      setCircleName("");
+      setCircleStatus(`Circle created. Invite code: ${result.inviteCode}`);
+      trackUsage("community_circle_created", { tab: "accountability" });
+    } catch {
+      setCircleStatus("Could not create the circle. Make sure you are signed in.");
+    }
+  }
+
+  async function joinCircle() {
+    if (!activeProfileId) return;
+    if (!isAuthenticated) {
+      setCircleStatus("Sign in before joining a private circle.");
+      return;
+    }
+    const inviteCode = circleInviteCode.trim();
+    if (!inviteCode) {
+      setCircleStatus("Enter an invite code first.");
+      return;
+    }
+
+    setCircleStatus("Joining circle...");
+    try {
+      const circleId = await joinCommunityCircle({ profileId: activeProfileId, inviteCode });
+      setSelectedCircleId(circleId);
+      setShareCheckinWithCircle(true);
+      setCircleInviteCode("");
+      setCircleStatus("Circle joined.");
+      trackUsage("community_circle_joined", { tab: "accountability" });
+    } catch {
+      setCircleStatus("That invite code did not work.");
+    }
+  }
+
+  async function toggleCommunityReaction(postId: any, reaction: "amen" | "praying" | "encouraged") {
+    if (!activeProfileId) return;
+    try {
+      await reactToCommunityPost({ profileId: activeProfileId, postId, reaction });
+    } catch {
+      setCircleStatus("Could not update that encouragement.");
     }
   }
 
@@ -4762,6 +4858,17 @@ export default function Home() {
                   </View>
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
+                {isAuthenticated && selectedCommunityCircle && (
+                  <Pressable
+                    onPress={() => setShareCheckinWithCircle((value) => !value)}
+                    style={[styles.circleShareToggle, shareCheckinWithCircle && styles.activeCircleShareToggle]}
+                  >
+                    <Ionicons name={shareCheckinWithCircle ? "checkmark-circle-outline" : "ellipse-outline"} size={18} color={shareCheckinWithCircle ? "white" : colors.oliveDark} />
+                    <Text style={[styles.circleShareToggleText, shareCheckinWithCircle && styles.activeCircleShareToggleText]}>
+                      {shareCheckinWithCircle ? `Share with ${selectedCommunityCircle.name}` : "Save privately"}
+                    </Text>
+                  </Pressable>
+                )}
                 <View style={[styles.buttonRow, phoneLayout && styles.phoneCommunityButtonRow]}>
                   <AppButton label="Copy message" onPress={shareCommunityMessage} style={phoneLayout && styles.phoneCommunityPrimaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                   <AppButton label={checkinMarkedSent ? "Marked sent" : "Mark sent"} variant="secondary" onPress={markCheckinMessageSent} style={phoneLayout && styles.phoneCommunitySecondaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
@@ -4804,6 +4911,52 @@ export default function Home() {
                   </View>
                 </>
               )}
+              <View style={styles.communityCircleBox}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Private circle</Text>
+                </View>
+                <Text style={styles.helpIntro}>
+                  {isAuthenticated
+                    ? "Invite-only spaces for shared check-ins. No public feed, no social media."
+                    : "Sign in to create or join a private circle with registered users."}
+                </Text>
+                {isAuthenticated ? (
+                  <>
+                    <View style={styles.circleActionGrid}>
+                      <View style={styles.circleActionBox}>
+                        <Text style={styles.lastCheckinLabel}>Create</Text>
+                        <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={styles.input} />
+                        <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                      </View>
+                      <View style={styles.circleActionBox}>
+                        <Text style={styles.lastCheckinLabel}>Join</Text>
+                        <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={styles.input} />
+                        <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                      </View>
+                    </View>
+                    {(communityCircles || []).length > 0 && (
+                      <View style={styles.circleList}>
+                        {(communityCircles || []).map((circle: any) => (
+                          <Pressable
+                            key={circle._id}
+                            onPress={() => setSelectedCircleId(circle._id)}
+                            style={[styles.circleChip, String(selectedCircleId) === String(circle._id) && styles.activeCircleChip]}
+                          >
+                            <Text style={[styles.circleChipTitle, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>{circle.name}</Text>
+                            <Text style={[styles.circleChipMeta, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>
+                              {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · Code {circle.inviteCode}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    )}
+                    {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
+                  </>
+                ) : (
+                  <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                )}
+              </View>
               <View style={styles.communityGoalBox}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="pulse-outline" size={18} color={colors.coral} />
@@ -4849,6 +5002,55 @@ export default function Home() {
                       <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
                       <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
                     </Pressable>
+                  )}
+                </>
+              )}
+              {isAuthenticated && selectedCommunityCircle && (
+                <>
+                  <View style={styles.communityDivider} />
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="chatbubbles-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>{selectedCommunityCircle.name}</Text>
+                  </View>
+                  <Text style={styles.helpIntro}>Shared check-ins from this private circle.</Text>
+                  {Array.isArray(communityFeed) && communityFeed.length > 0 ? (
+                    <View style={styles.circleFeedList}>
+                      {communityFeed.map((post: any) => (
+                        <View key={post._id} style={styles.circlePostCard}>
+                          <View style={styles.journalHeader}>
+                            <View style={styles.journalTitleBlock}>
+                              <Text style={styles.helpFaqQuestion}>{post.authorName || "Bible student"}</Text>
+                              <Text style={styles.adminEventMeta}>{formatAdminDate(post.createdAt)}{post.passageReference ? ` · ${post.passageReference}` : ""}</Text>
+                            </View>
+                          </View>
+                          <Text style={styles.lastCheckinText}>{post.note}</Text>
+                          <View style={styles.circleReactionRow}>
+                            {[
+                              ["amen", "Amen"],
+                              ["praying", "Praying"],
+                              ["encouraged", "Encouraged"]
+                            ].map(([reaction, label]) => {
+                              const active = post.myReactions?.includes(reaction);
+                              const count = post.reactions?.[reaction] || 0;
+                              return (
+                                <Pressable
+                                  key={reaction}
+                                  onPress={() => toggleCommunityReaction(post._id, reaction as "amen" | "praying" | "encouraged")}
+                                  style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
+                                >
+                                  <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{label}{count ? ` ${count}` : ""}</Text>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  ) : (
+                    <View style={styles.emptyCommunityBox}>
+                      <Text style={styles.communityTitle}>No shared check-ins yet</Text>
+                      <Text style={styles.helpIntro}>Save a check-in with circle sharing turned on to start the circle rhythm.</Text>
+                    </View>
                   )}
                 </>
               )}
@@ -12382,6 +12584,112 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 12,
     padding: 12
+  },
+  communityCircleBox: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 12,
+    padding: 12
+  },
+  circleActionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  circleActionBox: {
+    flex: 1,
+    gap: 8,
+    minWidth: 170
+  },
+  circleList: {
+    gap: 8
+  },
+  circleChip: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 3,
+    padding: 10
+  },
+  activeCircleChip: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  circleChipTitle: {
+    color: colors.oliveDark,
+    fontSize: 14,
+    fontWeight: "900"
+  },
+  circleChipMeta: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17
+  },
+  activeCircleChipText: {
+    color: "white"
+  },
+  circleShareToggle: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    flexDirection: "row",
+    gap: 7,
+    marginBottom: 8,
+    paddingHorizontal: 11,
+    paddingVertical: 8
+  },
+  activeCircleShareToggle: {
+    backgroundColor: colors.oliveDark
+  },
+  circleShareToggleText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  activeCircleShareToggleText: {
+    color: "white"
+  },
+  circleFeedList: {
+    gap: 9
+  },
+  circlePostCard: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    padding: 11
+  },
+  circleReactionRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  circleReactionChip: {
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 6
+  },
+  activeCircleReactionChip: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  circleReactionText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  activeCircleReactionText: {
+    color: "white"
   },
   communityDivider: {
     backgroundColor: colors.line,

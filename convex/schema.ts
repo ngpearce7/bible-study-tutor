@@ -89,6 +89,45 @@ export default defineSchema({
   })
     .index("by_profile", ["profileId"])
     .index("by_profile_created", ["profileId", "createdAt"]),
+  communityCircles: defineTable({
+    name: v.string(),
+    inviteCode: v.string(),
+    ownerProfileId: v.id("profiles"),
+    ownerAuthUserId: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_invite_code", ["inviteCode"])
+    .index("by_owner_profile", ["ownerProfileId"]),
+  communityMembers: defineTable({
+    circleId: v.id("communityCircles"),
+    profileId: v.id("profiles"),
+    authUserId: v.id("users"),
+    role: v.union(v.literal("owner"), v.literal("member")),
+    joinedAt: v.number()
+  })
+    .index("by_profile", ["profileId"])
+    .index("by_circle", ["circleId"])
+    .index("by_circle_and_profile", ["circleId", "profileId"]),
+  communityPosts: defineTable({
+    circleId: v.id("communityCircles"),
+    checkinId: v.optional(v.id("checkins")),
+    profileId: v.id("profiles"),
+    authorName: v.string(),
+    note: v.string(),
+    passageReference: v.optional(v.string()),
+    createdAt: v.number()
+  })
+    .index("by_circle_created", ["circleId", "createdAt"])
+    .index("by_profile_created", ["profileId", "createdAt"]),
+  communityReactions: defineTable({
+    postId: v.id("communityPosts"),
+    profileId: v.id("profiles"),
+    reaction: v.union(v.literal("amen"), v.literal("praying"), v.literal("encouraged")),
+    createdAt: v.number()
+  })
+    .index("by_post", ["postId"])
+    .index("by_post_and_profile_and_reaction", ["postId", "profileId", "reaction"]),
   memoryVerses: defineTable({
     profileId: v.id("profiles"),
     reference: v.string(),

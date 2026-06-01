@@ -5030,25 +5030,31 @@ export default function Home() {
                         <Text style={styles.helpIntro}>Create one or join with an invite code when you are ready.</Text>
                       </View>
                     )}
-                    <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
-                      <Text style={styles.circleManageText}>{circleManagerOpen || !selectedCommunityCircle ? "Hide circle tools" : "Manage circles"}</Text>
-                      <Ionicons name={circleManagerOpen || !selectedCommunityCircle ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
-                    </Pressable>
-                    {(circleManagerOpen || !selectedCommunityCircle) && (
-                      <View style={styles.circleActionGrid}>
-                        <View style={styles.circleActionBox}>
-                          <Text style={styles.lastCheckinLabel}>Create</Text>
-                          <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={styles.input} />
-                          <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                    <View style={styles.circleManagementBox}>
+                      <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
+                        <Ionicons name="settings-outline" size={14} color={colors.oliveDark} />
+                        <Text style={styles.circleManageText}>{circleManagerOpen || !selectedCommunityCircle ? "Hide circle tools" : "Manage circles"}</Text>
+                        <Ionicons name={circleManagerOpen || !selectedCommunityCircle ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                      </Pressable>
+                      {(circleManagerOpen || !selectedCommunityCircle) && (
+                        <View style={styles.circleManagementContent}>
+                          <Text style={styles.circleManagementLabel}>Create or join a circle</Text>
+                          <View style={styles.circleActionGrid}>
+                            <View style={styles.circleActionBox}>
+                              <Text style={styles.lastCheckinLabel}>Create</Text>
+                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={styles.input} />
+                              <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                            </View>
+                            <View style={styles.circleActionBox}>
+                              <Text style={styles.lastCheckinLabel}>Join</Text>
+                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={styles.input} />
+                              <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                            </View>
+                          </View>
                         </View>
-                        <View style={styles.circleActionBox}>
-                          <Text style={styles.lastCheckinLabel}>Join</Text>
-                          <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={styles.input} />
-                          <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                        </View>
+                      )}
+                      {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
                       </View>
-                    )}
-                    {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
                   </>
                 ) : COMMUNITY_CIRCLES_ENABLED ? (
                   <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
@@ -12732,7 +12738,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     marginBottom: 12,
+    marginTop: 18,
     padding: 12
+  },
+  circleManagementBox: {
+    backgroundColor: "rgba(255, 255, 255, 0.58)",
+    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 2,
+    padding: 10
+  },
+  circleManagementContent: {
+    gap: 9
+  },
+  circleManagementLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
   },
   circleActionGrid: {
     flexDirection: "row",

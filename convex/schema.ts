@@ -127,6 +127,7 @@ export default defineSchema({
     createdAt: v.number()
   })
     .index("by_post", ["postId"])
+    .index("by_profile", ["profileId"])
     .index("by_post_and_profile_and_reaction", ["postId", "profileId", "reaction"]),
   memoryVerses: defineTable({
     profileId: v.id("profiles"),

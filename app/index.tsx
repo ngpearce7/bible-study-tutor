@@ -339,6 +339,8 @@ export default function Home() {
   const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
   const reactToCommunityPost = useMutation((api as any).community.reactToPost);
   const removeCommunityPost = useMutation((api as any).community.removePost);
+  const leaveCommunityCircle = useMutation((api as any).community.leaveCircle);
+  const deleteCommunityCircle = useMutation((api as any).community.deleteCircle);
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
@@ -420,6 +422,8 @@ export default function Home() {
   const [selectedCircleId, setSelectedCircleId] = useState<any>(null);
   const [shareCheckinWithCircle, setShareCheckinWithCircle] = useState(false);
   const [circleStatus, setCircleStatus] = useState("");
+  const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
+  const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
   const [shareNote, setShareNote] = useState("");
@@ -1716,6 +1720,45 @@ export default function Home() {
       setCircleStatus("Shared check-in removed.");
     } catch {
       setCircleStatus("Could not remove that shared check-in.");
+    }
+  }
+
+  async function leaveCircle(circle: any) {
+    if (!activeProfileId) return;
+    if (pendingCircleLeaveId !== circle._id) {
+      setPendingCircleLeaveId(circle._id);
+      setPendingCircleDeleteId(null);
+      setCircleStatus(`Tap Leave again to leave ${circle.name}.`);
+      return;
+    }
+
+    try {
+      await leaveCommunityCircle({ profileId: activeProfileId, circleId: circle._id });
+      setPendingCircleLeaveId(null);
+      setSelectedCircleId(null);
+      setCircleStatus(`You left ${circle.name}.`);
+    } catch {
+      setCircleStatus("Could not leave that circle.");
+    }
+  }
+
+  async function deleteCircle(circle: any) {
+    if (!activeProfileId) return;
+    if (pendingCircleDeleteId !== circle._id) {
+      setPendingCircleDeleteId(circle._id);
+      setPendingCircleLeaveId(null);
+      setCircleStatus(`Tap Delete again to delete ${circle.name} for every member.`);
+      return;
+    }
+
+    try {
+      await deleteCommunityCircle({ profileId: activeProfileId, circleId: circle._id });
+      setPendingCircleDeleteId(null);
+      setSelectedCircleId(null);
+      setShareCheckinWithCircle(false);
+      setCircleStatus(`${circle.name} deleted.`);
+    } catch {
+      setCircleStatus("Could not delete that circle.");
     }
   }
 
@@ -4990,6 +5033,33 @@ export default function Home() {
                                 <Ionicons name="copy-outline" size={14} color={String(selectedCircleId) === String(circle._id) ? "white" : colors.oliveDark} />
                                 <Text style={[styles.circleCopyText, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>Copy</Text>
                               </Pressable>
+                            </View>
+                            <View style={styles.circleManagementRow}>
+                              {circle.canDelete ? (
+                                <Pressable
+                                  onPress={(event) => {
+                                    event.stopPropagation();
+                                    deleteCircle(circle);
+                                  }}
+                                  style={[styles.circleManageButton, styles.circleDangerManageButton, pendingCircleDeleteId === circle._id && styles.activeCircleDangerManageButton]}
+                                >
+                                  <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingCircleDeleteId === circle._id && styles.activeCircleDangerManageText]}>
+                                    {pendingCircleDeleteId === circle._id ? "Confirm delete" : "Delete circle"}
+                                  </Text>
+                                </Pressable>
+                              ) : (
+                                <Pressable
+                                  onPress={(event) => {
+                                    event.stopPropagation();
+                                    leaveCircle(circle);
+                                  }}
+                                  style={[styles.circleManageButton, pendingCircleLeaveId === circle._id && styles.activeCircleManageButton]}
+                                >
+                                  <Text style={[styles.circleManageText, pendingCircleLeaveId === circle._id && styles.activeCircleManageText]}>
+                                    {pendingCircleLeaveId === circle._id ? "Confirm leave" : "Leave circle"}
+                                  </Text>
+                                </Pressable>
+                              )}
                             </View>
                           </Pressable>
                         ))}
@@ -12710,6 +12780,47 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 11,
     fontWeight: "900"
+  },
+  circleManagementRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 8
+  },
+  circleManageButton: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 6
+  },
+  activeCircleManageButton: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  circleDangerManageButton: {
+    backgroundColor: colors.panel,
+    borderColor: "rgba(201, 103, 80, 0.28)"
+  },
+  activeCircleDangerManageButton: {
+    backgroundColor: colors.coral,
+    borderColor: colors.coral
+  },
+  circleManageText: {
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  activeCircleManageText: {
+    color: "white"
+  },
+  circleDangerManageText: {
+    color: colors.coral
+  },
+  activeCircleDangerManageText: {
+    color: "white"
   },
   circleShareToggle: {
     alignItems: "center",

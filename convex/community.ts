@@ -29,7 +29,8 @@ export const myCircles = query({
       circles.push({
         ...circle,
         role: membership.role,
-        memberCount: members.length
+        memberCount: members.length,
+        canDelete: membership.role === "owner"
       });
     }
 
@@ -224,6 +225,62 @@ export const removePost = mutation({
   }
 });
 
+export const leaveCircle = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    circleId: v.id("communityCircles")
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    const membership = await authorizeCircleMember(ctx, args.circleId, args.profileId);
+    if (membership.role === "owner") throw new Error("Owners need to delete the circle instead.");
+
+    await removeProfileReactionsInCircle(ctx, args.profileId, args.circleId);
+    await ctx.db.delete(membership._id);
+    return true;
+  }
+});
+
+export const deleteCircle = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    circleId: v.id("communityCircles")
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    const circle = await ctx.db.get(args.circleId);
+    if (!circle) return false;
+    const membership = await authorizeCircleMember(ctx, args.circleId, args.profileId);
+    if (membership.role !== "owner" || circle.ownerProfileId !== args.profileId) throw new Error("Only the circle owner can delete this circle.");
+
+    const posts = await ctx.db
+      .query("communityPosts")
+      .withIndex("by_circle_created", (q) => q.eq("circleId", args.circleId))
+      .take(200);
+    for (const post of posts) {
+      const reactions = await ctx.db
+        .query("communityReactions")
+        .withIndex("by_post", (q) => q.eq("postId", post._id))
+        .take(200);
+      for (const reaction of reactions) {
+        await ctx.db.delete(reaction._id);
+      }
+      await ctx.db.delete(post._id);
+    }
+
+    const members = await ctx.db
+      .query("communityMembers")
+      .withIndex("by_circle", (q) => q.eq("circleId", args.circleId))
+      .take(200);
+    for (const member of members) {
+      await ctx.db.delete(member._id);
+    }
+
+    await ctx.db.delete(args.circleId);
+    return true;
+  }
+});
+
 async function authorizeSignedInProfile(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
   const profile = await ctx.db.get(profileId);
   if (!profile) throw new Error("Profile not found.");
@@ -241,6 +298,18 @@ async function authorizeCircleMember(ctx: QueryCtx | MutationCtx, circleId: Id<"
     .unique();
   if (!membership) throw new Error("You are not a member of this circle.");
   return membership;
+}
+
+async function removeProfileReactionsInCircle(ctx: MutationCtx, profileId: Id<"profiles">, circleId: Id<"communityCircles">) {
+  const reactions = await ctx.db
+    .query("communityReactions")
+    .withIndex("by_profile", (q) => q.eq("profileId", profileId))
+    .take(200);
+
+  for (const reaction of reactions) {
+    const post = await ctx.db.get(reaction.postId);
+    if (post?.circleId === circleId) await ctx.db.delete(reaction._id);
+  }
 }
 
 async function getRequiredAuthUserId(ctx: QueryCtx | MutationCtx) {

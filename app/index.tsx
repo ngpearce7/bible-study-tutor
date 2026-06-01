@@ -1609,7 +1609,15 @@ export default function Home() {
   }
 
   async function persistCheckin() {
-    if (!activeProfileId || !checkinNote.trim() || isSavingCheckin) return;
+    if (isSavingCheckin) return;
+    if (!activeProfileId) {
+      setCommunityStatus("Saving is still connecting. Please wait a moment and try again.");
+      return;
+    }
+    if (!checkinNote.trim()) {
+      setCommunityStatus("Write one honest update before saving.");
+      return;
+    }
 
     setIsSavingCheckin(true);
     setCommunityStatus("Saving check-in...");
@@ -4969,7 +4977,13 @@ export default function Home() {
                 <View style={[styles.buttonRow, phoneLayout && styles.phoneCommunityButtonRow]}>
                   <AppButton label="Copy message" onPress={shareCommunityMessage} style={phoneLayout && styles.phoneCommunityPrimaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                   <AppButton label={checkinMarkedSent ? "Marked sent" : "Mark sent"} variant="secondary" onPress={markCheckinMessageSent} style={phoneLayout && styles.phoneCommunitySecondaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                  <AppButton label={isSavingCheckin ? "Saving..." : "Save"} variant="secondary" onPress={persistCheckin} style={phoneLayout && styles.phoneCommunitySecondaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                  <AppButton
+                    label={isSavingCheckin ? "Saving..." : shareCheckinWithCircle && selectedCommunityCircle ? "Save and post" : "Save"}
+                    variant="secondary"
+                    onPress={persistCheckin}
+                    style={phoneLayout && styles.phoneCommunitySecondaryButton}
+                    labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
+                  />
                 </View>
                 {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
               </View>

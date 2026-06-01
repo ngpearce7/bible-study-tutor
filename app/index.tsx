@@ -338,6 +338,7 @@ export default function Home() {
   const joinCommunityCircle = useMutation((api as any).community.joinCircle);
   const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
   const reactToCommunityPost = useMutation((api as any).community.reactToPost);
+  const removeCommunityPost = useMutation((api as any).community.removePost);
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
@@ -1689,6 +1690,32 @@ export default function Home() {
       await reactToCommunityPost({ profileId: activeProfileId, postId, reaction });
     } catch {
       setCircleStatus("Could not update that encouragement.");
+    }
+  }
+
+  async function copyCircleInviteCode(code: string) {
+    try {
+      if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(code);
+        setCircleStatus("Invite code copied.");
+        return;
+      }
+
+      const { Share } = await import("react-native");
+      await Share.share({ message: `Join my Bible Study Tutor circle with invite code: ${code}` });
+      setCircleStatus("Invite code ready to share.");
+    } catch {
+      setCircleStatus("Could not copy the invite code.");
+    }
+  }
+
+  async function deleteCommunityPost(postId: any) {
+    if (!activeProfileId) return;
+    try {
+      await removeCommunityPost({ profileId: activeProfileId, postId });
+      setCircleStatus("Shared check-in removed.");
+    } catch {
+      setCircleStatus("Could not remove that shared check-in.");
     }
   }
 
@@ -4946,10 +4973,24 @@ export default function Home() {
                             onPress={() => setSelectedCircleId(circle._id)}
                             style={[styles.circleChip, String(selectedCircleId) === String(circle._id) && styles.activeCircleChip]}
                           >
-                            <Text style={[styles.circleChipTitle, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>{circle.name}</Text>
-                            <Text style={[styles.circleChipMeta, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>
-                              {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · Code {circle.inviteCode}
-                            </Text>
+                            <View style={styles.circleChipHeader}>
+                              <View style={styles.journalTitleBlock}>
+                                <Text style={[styles.circleChipTitle, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>{circle.name}</Text>
+                                <Text style={[styles.circleChipMeta, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>
+                                  {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · Code {circle.inviteCode}
+                                </Text>
+                              </View>
+                              <Pressable
+                                onPress={(event) => {
+                                  event.stopPropagation();
+                                  copyCircleInviteCode(circle.inviteCode);
+                                }}
+                                style={[styles.circleCopyButton, String(selectedCircleId) === String(circle._id) && styles.activeCircleCopyButton]}
+                              >
+                                <Ionicons name="copy-outline" size={14} color={String(selectedCircleId) === String(circle._id) ? "white" : colors.oliveDark} />
+                                <Text style={[styles.circleCopyText, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>Copy</Text>
+                              </Pressable>
+                            </View>
                           </Pressable>
                         ))}
                       </View>
@@ -5027,6 +5068,12 @@ export default function Home() {
                               <Text style={styles.helpFaqQuestion}>{post.authorName || "Bible student"}</Text>
                               <Text style={styles.adminEventMeta}>{formatAdminDate(post.createdAt)}{post.passageReference ? ` · ${post.passageReference}` : ""}</Text>
                             </View>
+                            {post.canRemove && (
+                              <Pressable onPress={() => deleteCommunityPost(post._id)} style={styles.circleRemovePostButton}>
+                                <Ionicons name="trash-outline" size={14} color={colors.coral} />
+                                <Text style={styles.circleRemovePostText}>Remove</Text>
+                              </Pressable>
+                            )}
                           </View>
                           <Text style={styles.lastCheckinText}>{post.note}</Text>
                           <View style={styles.circleReactionRow}>
@@ -12620,6 +12667,12 @@ const styles = StyleSheet.create({
     gap: 3,
     padding: 10
   },
+  circleChipHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
   activeCircleChip: {
     backgroundColor: colors.oliveDark,
     borderColor: colors.oliveDark
@@ -12637,6 +12690,26 @@ const styles = StyleSheet.create({
   },
   activeCircleChipText: {
     color: "white"
+  },
+  circleCopyButton: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 4,
+    minHeight: 30,
+    paddingHorizontal: 8
+  },
+  activeCircleCopyButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.14)",
+    borderColor: "rgba(255, 255, 255, 0.24)",
+    borderWidth: 1
+  },
+  circleCopyText: {
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900"
   },
   circleShareToggle: {
     alignItems: "center",
@@ -12675,6 +12748,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 7
+  },
+  circleRemovePostButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 4,
+    minHeight: 30,
+    paddingHorizontal: 8
+  },
+  circleRemovePostText: {
+    color: colors.coral,
+    fontSize: 11,
+    fontWeight: "900"
   },
   circleReactionChip: {
     backgroundColor: colors.panel,

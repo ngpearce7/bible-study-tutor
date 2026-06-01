@@ -63,7 +63,8 @@ export const feed = query({
       enriched.push({
         ...post,
         reactions: reactionSummary(reactions),
-        myReactions: reactions.filter((reaction) => reaction.profileId === args.profileId).map((reaction) => reaction.reaction)
+        myReactions: reactions.filter((reaction) => reaction.profileId === args.profileId).map((reaction) => reaction.reaction),
+        canRemove: post.profileId === args.profileId
       });
     }
 
@@ -195,6 +196,30 @@ export const reactToPost = mutation({
       reaction: args.reaction,
       createdAt: Date.now()
     });
+    return true;
+  }
+});
+
+export const removePost = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    postId: v.id("communityPosts")
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    const post = await ctx.db.get(args.postId);
+    if (!post) return false;
+    await authorizeCircleMember(ctx, post.circleId, args.profileId);
+    if (post.profileId !== args.profileId) throw new Error("Only the person who shared this check-in can remove it.");
+
+    const reactions = await ctx.db
+      .query("communityReactions")
+      .withIndex("by_post", (q) => q.eq("postId", args.postId))
+      .take(200);
+    for (const reaction of reactions) {
+      await ctx.db.delete(reaction._id);
+    }
+    await ctx.db.delete(args.postId);
     return true;
   }
 });

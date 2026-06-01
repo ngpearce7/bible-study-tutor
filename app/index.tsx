@@ -424,7 +424,6 @@ export default function Home() {
   const [circleStatus, setCircleStatus] = useState("");
   const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
   const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
-  const [circleChooserOpen, setCircleChooserOpen] = useState(false);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
@@ -4979,11 +4978,6 @@ export default function Home() {
                           </Pressable>
                         </View>
                         <View style={styles.circleManagementRow}>
-                          {(communityCircles || []).length > 1 && (
-                            <Pressable onPress={() => setCircleChooserOpen((open) => !open)} style={styles.circleManageButton}>
-                              <Text style={styles.circleManageText}>{circleChooserOpen ? "Hide circles" : "Change circle"}</Text>
-                            </Pressable>
-                          )}
                           {selectedCommunityCircle.canDelete ? (
                             <Pressable
                               onPress={() => deleteCircle(selectedCommunityCircle)}
@@ -5004,30 +4998,37 @@ export default function Home() {
                             </Pressable>
                           )}
                         </View>
-                        {circleChooserOpen && (
-                          <View style={styles.circleList}>
-                            {(communityCircles || []).map((circle: any) => (
-                              <Pressable
-                                key={circle._id}
-                                onPress={() => {
-                                  setSelectedCircleId(circle._id);
-                                  setCircleChooserOpen(false);
-                                }}
-                                style={[styles.circleChip, String(selectedCircleId) === String(circle._id) && styles.activeCircleChip]}
-                              >
-                                <Text style={[styles.circleChipTitle, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>{circle.name}</Text>
-                                <Text style={[styles.circleChipMeta, String(selectedCircleId) === String(circle._id) && styles.activeCircleChipText]}>
-                                  {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · {circle.canDelete ? "Owner" : "Member"}
-                                </Text>
-                              </Pressable>
-                            ))}
-                          </View>
-                        )}
                       </View>
                     ) : (
                       <View style={styles.emptyCommunityBox}>
                         <Text style={styles.communityTitle}>No private circles yet</Text>
                         <Text style={styles.helpIntro}>Create one or join with an invite code when you are ready.</Text>
+                      </View>
+                    )}
+                    {(communityCircles || []).length > 1 && (
+                      <View style={styles.circleSelectorPanel}>
+                        <Text style={styles.circleManagementLabel}>Your circles</Text>
+                        <View style={styles.circleList}>
+                          {(communityCircles || []).map((circle: any) => {
+                            const circleIsSelected = String(selectedCircleId) === String(circle._id);
+                            return (
+                              <Pressable
+                                key={circle._id}
+                                onPress={() => {
+                                  setSelectedCircleId(circle._id);
+                                  setPendingCircleDeleteId(null);
+                                  setPendingCircleLeaveId(null);
+                                }}
+                                style={[styles.circleChip, circleIsSelected && styles.activeCircleChip]}
+                              >
+                                <Text style={[styles.circleChipTitle, circleIsSelected && styles.activeCircleChipText]}>{circle.name}</Text>
+                                <Text style={[styles.circleChipMeta, circleIsSelected && styles.activeCircleChipText]}>
+                                  {circleIsSelected ? "Selected" : "Tap to manage"} · {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · {circle.canDelete ? "Owner" : "Member"}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
                       </View>
                     )}
                     <View style={styles.circleManagementBox}>
@@ -12748,6 +12749,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     marginTop: 2,
+    padding: 10
+  },
+  circleSelectorPanel: {
+    backgroundColor: "rgba(102, 114, 78, 0.07)",
+    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
     padding: 10
   },
   circleManagementContent: {

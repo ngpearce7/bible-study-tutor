@@ -6,6 +6,130 @@ import { v } from "convex/values";
 
 const reactionValidator = v.union(v.literal("amen"), v.literal("praying"), v.literal("encouraged"));
 
+export const myFriends = query({
+  args: {
+    profileId: v.id("profiles")
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+
+    const sent = await ctx.db
+      .query("communityFriends")
+      .withIndex("by_requester", (q) => q.eq("requesterProfileId", args.profileId))
+      .take(50);
+    const received = await ctx.db
+      .query("communityFriends")
+      .withIndex("by_recipient", (q) => q.eq("recipientProfileId", args.profileId))
+      .take(50);
+
+    const rows = [...sent, ...received].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 80);
+    const friends = [];
+    for (const row of rows) {
+      const isRequester = row.requesterProfileId === args.profileId;
+      const otherProfile = await ctx.db.get(isRequester ? row.recipientProfileId : row.requesterProfileId);
+      const otherUser = await ctx.db.get(isRequester ? row.recipientAuthUserId : row.requesterAuthUserId);
+      if (!otherProfile) continue;
+      friends.push({
+        _id: row._id,
+        friendProfileId: otherProfile._id,
+        name: clampText(otherProfile.displayName, 80) || "Bible student",
+        email: otherUser?.email || "",
+        status: row.status,
+        direction: isRequester ? "sent" : "received",
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+      });
+    }
+
+    return friends;
+  }
+});
+
+export const inviteFriendByEmail = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    email: v.string()
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    const authUserId = await getRequiredAuthUserId(ctx);
+    const email = clampText(args.email, 254).toLowerCase();
+    if (!email) throw new Error("Add your friend's account email.");
+
+    const targetUser = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .unique();
+    if (!targetUser) throw new Error("No registered user found with that email.");
+    if (targetUser._id === authUserId) throw new Error("You cannot add yourself as a friend.");
+
+    const targetProfile = await ctx.db
+      .query("profiles")
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", targetUser._id))
+      .unique();
+    if (!targetProfile) throw new Error("That user has not finished setting up a profile yet.");
+
+    const existingForward = await ctx.db
+      .query("communityFriends")
+      .withIndex("by_requester_and_recipient", (q) => q.eq("requesterProfileId", profile._id).eq("recipientProfileId", targetProfile._id))
+      .unique();
+    if (existingForward) return existingForward._id;
+
+    const existingReverse = await ctx.db
+      .query("communityFriends")
+      .withIndex("by_requester_and_recipient", (q) => q.eq("requesterProfileId", targetProfile._id).eq("recipientProfileId", profile._id))
+      .unique();
+    if (existingReverse) {
+      if (existingReverse.status === "pending") {
+        await ctx.db.patch(existingReverse._id, { status: "accepted", updatedAt: Date.now() });
+      }
+      return existingReverse._id;
+    }
+
+    const now = Date.now();
+    return await ctx.db.insert("communityFriends", {
+      requesterProfileId: profile._id,
+      recipientProfileId: targetProfile._id,
+      requesterAuthUserId: authUserId,
+      recipientAuthUserId: targetUser._id,
+      status: "pending",
+      createdAt: now,
+      updatedAt: now
+    });
+  }
+});
+
+export const acceptFriend = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    friendId: v.id("communityFriends")
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    const friendship = await ctx.db.get(args.friendId);
+    if (!friendship || friendship.recipientProfileId !== args.profileId) throw new Error("Friend invite not found.");
+    await ctx.db.patch(friendship._id, { status: "accepted", updatedAt: Date.now() });
+    return true;
+  }
+});
+
+export const removeFriend = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    friendId: v.id("communityFriends")
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    const friendship = await ctx.db.get(args.friendId);
+    if (!friendship) return false;
+    if (friendship.requesterProfileId !== args.profileId && friendship.recipientProfileId !== args.profileId) {
+      throw new Error("Friend connection not found.");
+    }
+    await ctx.db.delete(friendship._id);
+    return true;
+  }
+});
+
 export const myCircles = query({
   args: {
     profileId: v.id("profiles")

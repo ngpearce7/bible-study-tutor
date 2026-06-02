@@ -109,6 +109,20 @@ export default defineSchema({
     .index("by_profile", ["profileId"])
     .index("by_circle", ["circleId"])
     .index("by_circle_and_profile", ["circleId", "profileId"]),
+  communityFriends: defineTable({
+    requesterProfileId: v.id("profiles"),
+    recipientProfileId: v.id("profiles"),
+    requesterAuthUserId: v.id("users"),
+    recipientAuthUserId: v.id("users"),
+    status: v.union(v.literal("pending"), v.literal("accepted")),
+    createdAt: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_requester", ["requesterProfileId"])
+    .index("by_recipient", ["recipientProfileId"])
+    .index("by_requester_and_recipient", ["requesterProfileId", "recipientProfileId"])
+    .index("by_requester_and_status", ["requesterProfileId", "status"])
+    .index("by_recipient_and_status", ["recipientProfileId", "status"]),
   communityPosts: defineTable({
     circleId: v.id("communityCircles"),
     checkinId: v.optional(v.id("checkins")),

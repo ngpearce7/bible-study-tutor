@@ -336,6 +336,9 @@ export default function Home() {
   const updateCheckin = useMutation(api.accountability.updateCheckin);
   const createCommunityCircle = useMutation((api as any).community.createCircle);
   const joinCommunityCircle = useMutation((api as any).community.joinCircle);
+  const inviteCommunityFriend = useMutation((api as any).community.inviteFriendByEmail);
+  const acceptCommunityFriend = useMutation((api as any).community.acceptFriend);
+  const removeCommunityFriend = useMutation((api as any).community.removeFriend);
   const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
   const reactToCommunityPost = useMutation((api as any).community.reactToPost);
   const removeCommunityPost = useMutation((api as any).community.removePost);
@@ -422,6 +425,11 @@ export default function Home() {
   const [selectedCircleId, setSelectedCircleId] = useState<any>(null);
   const [shareCheckinWithCircle, setShareCheckinWithCircle] = useState(false);
   const [circleStatus, setCircleStatus] = useState("");
+  const [friendEmail, setFriendEmail] = useState("");
+  const [friendStatus, setFriendStatus] = useState("");
+  const [selectedFriendId, setSelectedFriendId] = useState<any>(null);
+  const [pendingFriendRemoveId, setPendingFriendRemoveId] = useState<any>(null);
+  const [communityTargetType, setCommunityTargetType] = useState<"friend" | "circle">("friend");
   const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
   const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
@@ -680,6 +688,7 @@ export default function Home() {
   const drafts = useQuery(api.study.recentDrafts, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, activeProfileId ? { profileId: activeProfileId, limit: 10 } : "skip");
   const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
+  const communityFriends = useQuery((api as any).community.myFriends, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityFeed = useQuery((api as any).community.feed, COMMUNITY_CIRCLES_ENABLED && activeProfileId && selectedCircleId ? { profileId: activeProfileId, circleId: selectedCircleId, limit: 12 } : "skip");
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
@@ -699,6 +708,23 @@ export default function Home() {
       setSelectedCircleId(communityCircles[0]._id);
     }
   }, [communityCircles, selectedCircleId]);
+  useEffect(() => {
+    if (!Array.isArray(communityFriends)) {
+      return;
+    }
+
+    const acceptedFriends = communityFriends.filter((friend: any) => friend.status === "accepted");
+    if (acceptedFriends.length === 0) {
+      setSelectedFriendId(null);
+      if (Array.isArray(communityCircles) && communityCircles.length > 0) setCommunityTargetType("circle");
+      return;
+    }
+
+    if (!selectedFriendId || !acceptedFriends.some((friend: any) => String(friend._id) === String(selectedFriendId))) {
+      setSelectedFriendId(acceptedFriends[0]._id);
+    }
+    if (!selectedCircleId) setCommunityTargetType("friend");
+  }, [communityFriends, communityCircles, selectedFriendId, selectedCircleId]);
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -773,9 +799,15 @@ export default function Home() {
   const suggestedShareNote = buildShareNote(method, answers, passageText?.reference || passage);
   const activeCheckinPartner = checkinPartners.find((item) => item.id === activeCheckinPartnerId);
   const effectivePartner = activeCheckinPartner?.name || partner;
-  const communityMessage = buildCommunityMessage({ partner: effectivePartner, senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
+  const acceptedCommunityFriends = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "accepted") : [];
+  const pendingCommunityFriendInvites = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "pending") : [];
+  const selectedCommunityFriend = acceptedCommunityFriends.find((friend: any) => String(friend._id) === String(selectedFriendId));
   const selectedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(selectedCircleId));
+  const hasCommunityTarget = !!selectedCommunityFriend || !!selectedCommunityCircle;
+  const activeCommunityTargetName = communityTargetType === "friend" ? selectedCommunityFriend?.name : selectedCommunityCircle?.name;
+  const communityTargetLabel = communityTargetType === "friend" ? "Friend" : "Circle";
+  const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
@@ -1618,11 +1650,15 @@ export default function Home() {
       setCommunityStatus("Write one honest update before saving.");
       return;
     }
+    if (!hasCommunityTarget) {
+      setCommunityStatus("Add an accepted friend or join a circle before saving a community check-in.");
+      return;
+    }
 
     setIsSavingCheckin(true);
     setCommunityStatus("Saving check-in...");
     const noteToSave = checkinNote.trim();
-    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && shareCheckinWithCircle && selectedCircleId;
+    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && shareCheckinWithCircle && selectedCircleId;
     try {
       const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: checkinMarkedSent ? Date.now() : undefined });
       if (shouldShareWithCircle) {
@@ -1673,12 +1709,67 @@ export default function Home() {
     try {
       const result = await createCommunityCircle({ profileId: activeProfileId, name });
       setSelectedCircleId(result.circleId);
+      setCommunityTargetType("circle");
       setShareCheckinWithCircle(true);
       setCircleName("");
       setCircleStatus(`Circle created. Invite code: ${result.inviteCode}`);
       trackUsage("community_circle_created", { tab: "accountability" });
     } catch {
       setCircleStatus("Could not create the circle. Make sure you are signed in.");
+    }
+  }
+
+  async function inviteFriend() {
+    if (!activeProfileId) return;
+    if (!isAuthenticated) {
+      setFriendStatus("Sign in before adding a friend.");
+      return;
+    }
+    const email = friendEmail.trim().toLowerCase();
+    if (!email) {
+      setFriendStatus("Enter the email address your friend uses for Bible Study Tutor.");
+      return;
+    }
+
+    setFriendStatus("Looking for that registered user...");
+    try {
+      await inviteCommunityFriend({ profileId: activeProfileId, email });
+      setFriendEmail("");
+      setFriendStatus("Friend invite saved. They will appear as a friend once accepted.");
+      trackUsage("community_friend_invited", { tab: "accountability" });
+    } catch {
+      setFriendStatus("Could not add that friend. Check they have registered with that email.");
+    }
+  }
+
+  async function acceptFriendInvite(friend: any) {
+    if (!activeProfileId) return;
+    setFriendStatus("Accepting friend invite...");
+    try {
+      await acceptCommunityFriend({ profileId: activeProfileId, friendId: friend._id });
+      setSelectedFriendId(friend._id);
+      setCommunityTargetType("friend");
+      setFriendStatus(`${friend.name} is now a friend.`);
+    } catch {
+      setFriendStatus("Could not accept that friend invite.");
+    }
+  }
+
+  async function removeFriend(friend: any) {
+    if (!activeProfileId) return;
+    if (pendingFriendRemoveId !== friend._id) {
+      setPendingFriendRemoveId(friend._id);
+      setFriendStatus(`Tap Remove again to remove ${friend.name}.`);
+      return;
+    }
+
+    try {
+      await removeCommunityFriend({ profileId: activeProfileId, friendId: friend._id });
+      setPendingFriendRemoveId(null);
+      if (String(selectedFriendId) === String(friend._id)) setSelectedFriendId(null);
+      setFriendStatus(`${friend.name} removed.`);
+    } catch {
+      setFriendStatus("Could not remove that friend.");
     }
   }
 
@@ -1698,6 +1789,7 @@ export default function Home() {
     try {
       const circleId = await joinCommunityCircle({ profileId: activeProfileId, inviteCode });
       setSelectedCircleId(circleId);
+      setCommunityTargetType("circle");
       setShareCheckinWithCircle(true);
       setCircleInviteCode("");
       setCircleStatus("Circle joined.");
@@ -4907,19 +4999,52 @@ export default function Home() {
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard]}>
               <Eyebrow>Community</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
-              <Text style={styles.titleSupport}>Turn today’s study into one simple message for someone you trust.</Text>
+              <Text style={styles.titleSupport}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
               <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>1</Text>
                   </View>
                   <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Choose who to encourage</Text>
-                    <Text style={styles.helpIntro}>This is only used to prepare your message.</Text>
+                    <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
+                    <Text style={styles.helpIntro}>Add an accepted friend or join a private circle before sharing encouragement.</Text>
                   </View>
                 </View>
-                <Text style={styles.communityRecipientText}>{effectivePartner.trim() || "Choose a person or group"}</Text>
-                {!effectivePartner.trim() && <Text style={styles.helpIntro}>{`${friendlyName}, add or choose someone in My people.`}</Text>}
+                {hasCommunityTarget ? (
+                  <>
+                    <View style={styles.communityTargetModeRow}>
+                      {!!selectedCommunityFriend && (
+                        <Pressable
+                          onPress={() => setCommunityTargetType("friend")}
+                          style={[styles.communityTargetModeChip, communityTargetType === "friend" && styles.activeCommunityTargetModeChip]}
+                        >
+                          <Ionicons name="person-outline" size={15} color={colors.oliveDark} />
+                          <Text style={styles.communityTargetModeText}>Friend</Text>
+                        </Pressable>
+                      )}
+                      {!!selectedCommunityCircle && (
+                        <Pressable
+                          onPress={() => setCommunityTargetType("circle")}
+                          style={[styles.communityTargetModeChip, communityTargetType === "circle" && styles.activeCommunityTargetModeChip]}
+                        >
+                          <Ionicons name="people-outline" size={15} color={colors.oliveDark} />
+                          <Text style={styles.communityTargetModeText}>Circle</Text>
+                        </Pressable>
+                      )}
+                    </View>
+                    <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
+                    <Text style={styles.helpIntro}>
+                      {communityTargetType === "circle"
+                        ? "Saving can also post this check-in to the selected circle feed."
+                        : "Friends are one-to-one. Copy and send the message outside the app, then save your check-in history."}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.communityRecipientText}>No friend or circle selected</Text>
+                    <Text style={styles.helpIntro}>{`${friendlyName}, add a registered friend or join a private circle below.`}</Text>
+                  </>
+                )}
               </View>
               <View style={styles.communityStepHeader}>
                 <View style={styles.communityStepBadge}>
@@ -4948,7 +5073,7 @@ export default function Home() {
                   </View>
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
-                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && selectedCommunityCircle && (
+                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && communityTargetType === "circle" && selectedCommunityCircle && (
                   <View style={styles.circleSaveChoiceBox}>
                     <Text style={styles.circleManagementLabel}>When you save this check-in</Text>
                     <View style={styles.circleSaveChoiceRow}>
@@ -4978,7 +5103,7 @@ export default function Home() {
                   <AppButton label="Copy message" onPress={shareCommunityMessage} style={phoneLayout && styles.phoneCommunityPrimaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                   <AppButton label={checkinMarkedSent ? "Marked sent" : "Mark sent"} variant="secondary" onPress={markCheckinMessageSent} style={phoneLayout && styles.phoneCommunitySecondaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                   <AppButton
-                    label={isSavingCheckin ? "Saving..." : shareCheckinWithCircle && selectedCommunityCircle ? "Save and post" : "Save"}
+                    label={isSavingCheckin ? "Saving..." : communityTargetType === "circle" && shareCheckinWithCircle && selectedCommunityCircle ? "Save and post" : "Save"}
                     variant="secondary"
                     onPress={persistCheckin}
                     style={phoneLayout && styles.phoneCommunitySecondaryButton}
@@ -4986,6 +5111,110 @@ export default function Home() {
                   />
                 </View>
                 {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
+              </View>
+              <View style={styles.communityCircleBox}>
+                <View style={styles.feedbackHeader}>
+                  <Ionicons name="person-add-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Friends</Text>
+                </View>
+                <Text style={styles.helpIntro}>
+                  Friends are registered Bible Study Tutor users you personally add by email. This keeps community private, intentional, and away from public social feeds.
+                </Text>
+                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
+                  <>
+                    <View style={styles.circleManagementBox}>
+                      <Text style={styles.circleManagementLabel}>Add registered friend</Text>
+                      <TextInput
+                        value={friendEmail}
+                        onChangeText={setFriendEmail}
+                        placeholder="Friend's account email"
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        style={styles.input}
+                      />
+                      <AppButton label="Send friend invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                    </View>
+                    {acceptedCommunityFriends.length > 0 ? (
+                      <View style={styles.circleSelectorPanel}>
+                        <View style={styles.circleSelectorHeader}>
+                          <Text style={styles.circleManagementLabel}>Your friends</Text>
+                          <Text style={styles.circleCountText}>{acceptedCommunityFriends.length} accepted</Text>
+                        </View>
+                        <View style={styles.circleList}>
+                          {acceptedCommunityFriends.map((friend: any) => {
+                            const friendIsSelected = String(selectedFriendId) === String(friend._id);
+                            return (
+                              <Pressable
+                                key={friend._id}
+                                onPress={() => {
+                                  setSelectedFriendId(friend._id);
+                                  setCommunityTargetType("friend");
+                                  setPendingFriendRemoveId(null);
+                                }}
+                                style={[styles.circleChip, friendIsSelected && communityTargetType === "friend" && styles.activeCircleChip]}
+                              >
+                                <Text style={[styles.circleChipTitle, friendIsSelected && communityTargetType === "friend" && styles.activeCircleChipText]}>{friend.name}</Text>
+                                <Text style={[styles.circleChipMeta, friendIsSelected && communityTargetType === "friend" && styles.activeCircleChipText]}>
+                                  {friendIsSelected && communityTargetType === "friend" ? "Selected" : "Tap to encourage"}{friend.email ? ` · ${friend.email}` : ""}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    ) : (
+                      <View style={styles.emptyCommunityBox}>
+                        <Text style={styles.communityTitle}>No accepted friends yet</Text>
+                        <Text style={styles.helpIntro}>Invite a registered user by email, or accept an invite below.</Text>
+                      </View>
+                    )}
+                    {pendingCommunityFriendInvites.length > 0 && (
+                      <View style={styles.circleSelectorPanel}>
+                        <Text style={styles.circleManagementLabel}>Pending friend invites</Text>
+                        <View style={styles.circleList}>
+                          {pendingCommunityFriendInvites.map((friend: any) => (
+                            <View key={friend._id} style={styles.circleChip}>
+                              <Text style={styles.circleChipTitle}>{friend.name}</Text>
+                              <Text style={styles.circleChipMeta}>
+                                {friend.direction === "received" ? "Waiting for you to accept" : "Invite sent"}{friend.email ? ` · ${friend.email}` : ""}
+                              </Text>
+                              <View style={styles.circleManagementRow}>
+                                {friend.direction === "received" && (
+                                  <Pressable onPress={() => acceptFriendInvite(friend)} style={styles.circleManageButton}>
+                                    <Text style={styles.circleManageText}>Accept</Text>
+                                  </Pressable>
+                                )}
+                                <Pressable
+                                  onPress={() => removeFriend(friend)}
+                                  style={[styles.circleManageButton, styles.circleDangerManageButton, pendingFriendRemoveId === friend._id && styles.activeCircleDangerManageButton]}
+                                >
+                                  <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingFriendRemoveId === friend._id && styles.activeCircleDangerManageText]}>
+                                    {pendingFriendRemoveId === friend._id ? "Confirm remove" : friend.direction === "received" ? "Decline" : "Cancel"}
+                                  </Text>
+                                </Pressable>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+                    {!!selectedCommunityFriend && (
+                      <Pressable
+                        onPress={() => removeFriend(selectedCommunityFriend)}
+                        style={[styles.circleManageButton, styles.circleDangerManageButton, pendingFriendRemoveId === selectedCommunityFriend._id && styles.activeCircleDangerManageButton]}
+                      >
+                        <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingFriendRemoveId === selectedCommunityFriend._id && styles.activeCircleDangerManageText]}>
+                          {pendingFriendRemoveId === selectedCommunityFriend._id ? "Confirm remove friend" : `Remove ${selectedCommunityFriend.name}`}
+                        </Text>
+                      </Pressable>
+                    )}
+                    {!!friendStatus && <Text style={styles.saveStatus}>{friendStatus}</Text>}
+                  </>
+                ) : COMMUNITY_CIRCLES_ENABLED ? (
+                  <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                ) : (
+                  <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
+                )}
               </View>
               <View style={styles.communityCircleBox}>
                 <View style={styles.feedbackHeader}>
@@ -5015,6 +5244,7 @@ export default function Home() {
                                 key={circle._id}
                                 onPress={() => {
                                   setSelectedCircleId(circle._id);
+                                  setCommunityTargetType("circle");
                                   setPendingCircleDeleteId(null);
                                   setPendingCircleLeaveId(null);
                                 }}
@@ -5105,7 +5335,7 @@ export default function Home() {
                   <Text style={styles.saveStatus}>Check-ins still save privately and can be copied or sent as before.</Text>
                 )}
               </View>
-              {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && selectedCommunityCircle && (
+              {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && communityTargetType === "circle" && selectedCommunityCircle && (
                 <>
                   <View style={styles.communityDivider} />
                   <View style={styles.feedbackHeader}>
@@ -5163,38 +5393,13 @@ export default function Home() {
             </Card>
 
             <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
-              <Pressable onPress={() => setPeoplePanelCollapsed((value) => !value)} style={styles.communityPanelHeader}>
+              <View style={styles.communityGoalBox}>
                 <View style={styles.feedbackHeader}>
-                  <Ionicons name="people-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>My people</Text>
+                  <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
+                  <Text style={styles.feedbackTitle}>Community boundary</Text>
                 </View>
-                <View style={styles.communityHeaderMeta}>
-                  {!!effectivePartner.trim() && <Text style={styles.communityHeaderMetaText}>{effectivePartner}</Text>}
-                  <Ionicons name={peoplePanelCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={colors.muted} />
-                </View>
-              </Pressable>
-              {!peoplePanelCollapsed && (
-                <>
-                  <Text style={styles.helpIntro}>Add the person, group, or chat you normally share study updates with.</Text>
-                  <View style={[styles.partnerManagerBox, phoneLayout && styles.phonePartnerManagerBox]}>
-                    <TextInput value={partnerName} onChangeText={setPartnerName} placeholder="Partner or group name" style={styles.input} />
-                    <TextInput value={partnerContactNote} onChangeText={setPartnerContactNote} placeholder="Optional: text, WhatsApp, email, group chat" style={styles.input} />
-                    <AppButton label="Add person" variant="secondary" onPress={addCheckinPartner} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                    <View style={styles.partnerList}>
-                      {checkinPartners.length === 0 ? (
-                        <Text style={styles.helpIntro}>No people added yet.</Text>
-                      ) : (
-                        checkinPartners.map((item) => (
-                          <Pressable key={item.id} onPress={() => selectCheckinPartner(item.id)} style={[styles.partnerChip, phoneLayout && styles.phonePartnerChip, activeCheckinPartnerId === item.id && styles.activePartnerChip]}>
-                            <Text style={[styles.partnerChipText, activeCheckinPartnerId === item.id && styles.activePartnerChipText]}>{item.name}</Text>
-                            {item.contactNote && <Text style={[styles.partnerContactText, activeCheckinPartnerId === item.id && styles.activePartnerChipText]}>{item.contactNote}</Text>}
-                          </Pressable>
-                        ))
-                      )}
-                    </View>
-                  </View>
-                </>
-              )}
+                <Text style={styles.helpIntro}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
+              </View>
               <View style={styles.communityGoalBox}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="pulse-outline" size={18} color={colors.coral} />
@@ -12650,6 +12855,31 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800",
     lineHeight: 26
+  },
+  communityTargetModeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  communityTargetModeChip: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 34,
+    paddingHorizontal: 10
+  },
+  activeCommunityTargetModeChip: {
+    backgroundColor: "#f5eedf",
+    borderColor: "rgba(102, 114, 78, 0.42)"
+  },
+  communityTargetModeText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   phoneCommunityMetricGrid: {
     flexWrap: "nowrap",

@@ -5346,7 +5346,7 @@ export default function Home() {
                     <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
                       <Text style={styles.circleManagementLabel}>Your friend code</Text>
                       <View style={styles.circleChip}>
-                        <View style={styles.circleInviteLine}>
+                        <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
                           <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
                           <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
                             <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
@@ -5505,7 +5505,7 @@ export default function Home() {
                                 </Pressable>
                                 {circleIsSelected && (
                                   <View style={styles.circleInlineManagement}>
-                                    <View style={styles.circleInviteLine}>
+                                    <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
                                       <Text style={styles.circleManagementLabel}>Invite code</Text>
                                       <Text style={styles.circleInviteCodeText}>{circle.inviteCode}</Text>
                                     </View>
@@ -13567,9 +13567,12 @@ const styles = StyleSheet.create({
     minWidth: 280
   },
   phoneCommunityConnectionPanel: {
-    flex: 0,
-    minWidth: 0,
-    width: "100%"
+    alignSelf: "stretch",
+    flexBasis: "auto",
+    flexGrow: 0,
+    flexShrink: 1,
+    maxWidth: "100%",
+    minWidth: 0
   },
   communityCircleBox: {
     backgroundColor: "#fffaf2",
@@ -13626,8 +13629,11 @@ const styles = StyleSheet.create({
     gap: 10
   },
   phoneCircleActionGrid: {
+    alignItems: "stretch",
     flexDirection: "column",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    width: "100%"
   },
   circleActionBox: {
     flex: 1,
@@ -13635,9 +13641,12 @@ const styles = StyleSheet.create({
     minWidth: 170
   },
   phoneCircleActionBox: {
-    flex: 0,
-    minWidth: 0,
-    width: "100%"
+    alignSelf: "stretch",
+    flexBasis: "auto",
+    flexGrow: 0,
+    flexShrink: 1,
+    maxWidth: "100%",
+    minWidth: 0
   },
   phoneCommunityInput: {
     marginBottom: 8,
@@ -13703,6 +13712,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
     justifyContent: "space-between"
+  },
+  phoneCircleInviteLine: {
+    alignItems: "flex-start",
+    justifyContent: "flex-start"
   },
   circleInviteCodeText: {
     color: colors.oliveDark,

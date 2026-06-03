@@ -5026,9 +5026,13 @@ export default function Home() {
               <Text style={styles.title}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
               <Text style={styles.titleSupport}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
               <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
-                <View style={styles.communitySectionHeader}>
-                  <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
-                  <Text style={styles.helpIntro}>Add an accepted friend or join a private circle before sharing encouragement.</Text>
+                <View style={styles.communityStepHeader}>
+                  <View style={styles.communityStepBadge}>
+                    <Text style={styles.communityStepBadgeText}>1</Text>
+                  </View>
+                  <View style={styles.journalTitleBlock}>
+                    <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
+                  </View>
                 </View>
                 {hasAvailableCommunityTarget ? (
                   <>
@@ -5110,9 +5114,13 @@ export default function Home() {
                   </>
                 )}
               </View>
-              <View style={styles.communitySectionHeader}>
-                <Text style={styles.feedbackTitle}>Write one honest update</Text>
-                <Text style={styles.helpIntro}>A thought, a verse, or one next step is enough.</Text>
+              <View style={styles.communityStepHeader}>
+                <View style={styles.communityStepBadge}>
+                  <Text style={styles.communityStepBadgeText}>2</Text>
+                </View>
+                <View style={styles.journalTitleBlock}>
+                  <Text style={styles.feedbackTitle}>Write one honest update</Text>
+                </View>
               </View>
               <TextInput
                 multiline
@@ -5122,9 +5130,13 @@ export default function Home() {
                 style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
               />
               <View style={[styles.sendNoteBox, phoneLayout && styles.phoneSendNoteBox]}>
-                <View style={styles.communitySectionHeader}>
-                  <Text style={styles.feedbackTitle}>Copy, send, then save</Text>
-                  <Text style={styles.helpIntro}>The app does not send messages for you.</Text>
+                <View style={styles.communityStepHeader}>
+                  <View style={styles.communityStepBadge}>
+                    <Text style={styles.communityStepBadgeText}>3</Text>
+                  </View>
+                  <View style={styles.journalTitleBlock}>
+                    <Text style={styles.feedbackTitle}>Copy, send, then save</Text>
+                  </View>
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && communityTargetType === "circle" && selectedCommunityCircle && (
@@ -12882,9 +12894,26 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     padding: 14
   },
-  communitySectionHeader: {
-    gap: 3,
+  communityStepHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 9,
     marginBottom: 8
+  },
+  communityStepBadge: {
+    alignItems: "center",
+    backgroundColor: colors.oliveDark,
+    borderRadius: 999,
+    height: 24,
+    justifyContent: "center",
+    marginTop: 1,
+    width: 24
+  },
+  communityStepBadgeText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "900",
+    lineHeight: 14
   },
   phoneCommunityFocusBox: {
     borderRadius: 12,

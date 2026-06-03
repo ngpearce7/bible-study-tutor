@@ -5456,25 +5456,24 @@ export default function Home() {
                           <View style={styles.checkinHistoryMeta}>
                             <View style={styles.checkinTitleRow}>
                               <Text style={styles.checkinMood}>{checkin.mood}</Text>
-                              <Text style={[styles.sentPill, sharedCircles.length > 0 && styles.sentPillActive]}>{sharedCircles.length > 0 ? "Shared" : "Private"}</Text>
                             </View>
                             <Text style={styles.checkinDestinationText}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
                           </View>
-                          <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
-                            <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
-                              <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
-                              <Text style={styles.copySmallText}>Copy</Text>
-                            </Pressable>
-                            <Pressable
-                              onPress={() => deleteRecentCheckin(checkin)}
-                              style={[styles.circleRemovePostButton, checkinDeletePending && styles.pendingDeleteButton]}
-                            >
-                              <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={14} color={colors.coral} />
-                              <Text style={styles.circleRemovePostText}>{checkinDeletePending ? "Confirm delete" : "Remove"}</Text>
-                            </Pressable>
-                          </View>
                         </View>
                         <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
+                        <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
+                          <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
+                            <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
+                            <Text style={styles.copySmallText}>Copy</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={() => deleteRecentCheckin(checkin)}
+                            style={[styles.circleRemovePostButton, checkinDeletePending && styles.pendingDeleteButton]}
+                          >
+                            <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={14} color={colors.coral} />
+                            <Text style={styles.circleRemovePostText}>{checkinDeletePending ? "Confirm delete" : "Remove"}</Text>
+                          </Pressable>
+                        </View>
                       </View>
                     );
                   })}

@@ -4773,8 +4773,8 @@ export default function Home() {
         )}
 
         {tab === "memory" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard]}>
               <Eyebrow>Memory</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
               {!phoneMemoryFocusMode && (
@@ -5695,7 +5695,7 @@ export default function Home() {
               )}
             </Card>
 
-            <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
+            {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
               <View style={styles.communityGoalBox}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
@@ -5785,7 +5785,7 @@ export default function Home() {
                   )}
                 </>
               )}
-            </Card>
+            </Card>}
           </View>
         )}
 

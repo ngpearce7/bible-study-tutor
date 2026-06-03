@@ -429,7 +429,7 @@ export default function Home() {
   const [friendEmail, setFriendEmail] = useState("");
   const [friendStatus, setFriendStatus] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState<any>(null);
-  const [targetFriendId, setTargetFriendId] = useState<any>(null);
+  const [targetFriendIds, setTargetFriendIds] = useState<any[]>([]);
   const [pendingFriendRemoveId, setPendingFriendRemoveId] = useState<any>(null);
   const [communityTargetType, setCommunityTargetType] = useState<"friend" | "circle">("friend");
   const [communityTargetPickerOpen, setCommunityTargetPickerOpen] = useState(false);
@@ -723,7 +723,7 @@ export default function Home() {
     const acceptedFriends = communityFriends.filter((friend: any) => friend.status === "accepted");
     if (acceptedFriends.length === 0) {
       setSelectedFriendId(null);
-      setTargetFriendId(null);
+      setTargetFriendIds([]);
       if (Array.isArray(communityCircles) && communityCircles.length > 0) setCommunityTargetType("circle");
       return;
     }
@@ -731,11 +731,15 @@ export default function Home() {
     if (!selectedFriendId || !acceptedFriends.some((friend: any) => String(friend._id) === String(selectedFriendId))) {
       setSelectedFriendId(acceptedFriends[0]._id);
     }
-    if (!targetFriendId || !acceptedFriends.some((friend: any) => String(friend._id) === String(targetFriendId))) {
-      setTargetFriendId(acceptedFriends[0]._id);
-    }
+    setTargetFriendIds((current) => {
+      const acceptedIds = acceptedFriends.map((friend: any) => String(friend._id));
+      const filtered = current.filter((id) => acceptedIds.includes(String(id)));
+      if (filtered.length > 0 && filtered.length === current.length) return current;
+      if (filtered.length > 0) return filtered;
+      return [acceptedFriends[0]._id];
+    });
     if (!targetCircleId) setCommunityTargetType("friend");
-  }, [communityFriends, communityCircles, selectedFriendId, targetFriendId, targetCircleId]);
+  }, [communityFriends, communityCircles, selectedFriendId, targetCircleId]);
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -813,14 +817,15 @@ export default function Home() {
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
   const acceptedCommunityFriends = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "accepted") : [];
   const pendingCommunityFriendInvites = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "pending") : [];
-  const selectedCommunityFriend = acceptedCommunityFriends.find((friend: any) => String(friend._id) === String(targetFriendId));
+  const selectedCommunityFriends = acceptedCommunityFriends.filter((friend: any) => targetFriendIds.some((id) => String(id) === String(friend._id)));
   const managedCommunityFriend = acceptedCommunityFriends.find((friend: any) => String(friend._id) === String(selectedFriendId));
   const selectedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(targetCircleId));
   const managedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(selectedCircleId));
-  const activeCommunityTargetName = communityTargetType === "friend" ? selectedCommunityFriend?.name : selectedCommunityCircle?.name;
+  const selectedCommunityFriendNames = selectedCommunityFriends.map((friend: any) => friend.name).filter(Boolean);
+  const activeCommunityTargetName = communityTargetType === "friend" ? formatNameList(selectedCommunityFriendNames) : selectedCommunityCircle?.name;
   const hasAvailableCommunityTarget = acceptedCommunityFriends.length > 0 || (communityCircles || []).length > 0;
   const hasCommunityTarget = !!activeCommunityTargetName;
-  const communityTargetLabel = communityTargetType === "friend" ? "Friend" : "Circle";
+  const communityTargetLabel = communityTargetType === "friend" && selectedCommunityFriends.length !== 1 ? "Friends" : communityTargetType === "friend" ? "Friend" : "Circle";
   const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
   const readerReference = `${readerBook} ${readerChapter}`;
@@ -1763,7 +1768,7 @@ export default function Home() {
     try {
       await acceptCommunityFriend({ profileId: activeProfileId, friendId: friend._id });
       setSelectedFriendId(friend._id);
-      setTargetFriendId(friend._id);
+      setTargetFriendIds((current) => current.some((id) => String(id) === String(friend._id)) ? current : [...current, friend._id]);
       setCommunityTargetType("friend");
       setFriendStatus(`${friend.name} is now a friend.`);
     } catch {
@@ -1783,7 +1788,7 @@ export default function Home() {
       await removeCommunityFriend({ profileId: activeProfileId, friendId: friend._id });
       setPendingFriendRemoveId(null);
       if (String(selectedFriendId) === String(friend._id)) setSelectedFriendId(null);
-      if (String(targetFriendId) === String(friend._id)) setTargetFriendId(null);
+      setTargetFriendIds((current) => current.filter((id) => String(id) !== String(friend._id)));
       setFriendStatus(`${friend.name} removed.`);
     } catch {
       setFriendStatus("Could not remove that friend.");
@@ -5043,20 +5048,22 @@ export default function Home() {
                       <View style={styles.communityTargetPickerPanel}>
                         {acceptedCommunityFriends.length > 0 && (
                           <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Friends</Text>
+                            <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
                             {acceptedCommunityFriends.map((friend: any) => {
-                              const isTarget = communityTargetType === "friend" && String(targetFriendId) === String(friend._id);
+                              const isTarget = communityTargetType === "friend" && targetFriendIds.some((id) => String(id) === String(friend._id));
                               return (
                                 <Pressable
                                   key={friend._id}
                                   onPress={() => {
                                     setCommunityTargetType("friend");
-                                    setTargetFriendId(friend._id);
-                                    setCommunityTargetPickerOpen(false);
+                                    setTargetFriendIds((current) => {
+                                      const alreadySelected = current.some((id) => String(id) === String(friend._id));
+                                      return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
+                                    });
                                   }}
                                   style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
                                 >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "person-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
                                   <View style={styles.journalTitleBlock}>
                                     <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
                                     {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
@@ -10395,6 +10402,12 @@ function buildCommunityMessage({
   const signedBy = senderName?.trim() ? `From: ${senderName.trim()}` : "";
 
   return [greeting, `Note: ${note}`, `Insight: ${insight}`, signedBy].filter(Boolean).join("\n");
+}
+
+function formatNameList(names: string[]) {
+  const cleaned = names.map((name) => name.trim()).filter(Boolean);
+  if (cleaned.length <= 2) return cleaned.join(" and ");
+  return `${cleaned.slice(0, -1).join(", ")}, and ${cleaned[cleaned.length - 1]}`;
 }
 
 function buildStudyInsightShareMessage({

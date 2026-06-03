@@ -5262,7 +5262,8 @@ export default function Home() {
                 />
                 {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
               </View>
-              <View style={styles.communityCircleBox}>
+              <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="person-add-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Friends</Text>
@@ -5365,7 +5366,7 @@ export default function Home() {
                   <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
                 )}
               </View>
-              <View style={styles.communityCircleBox}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Private circle</Text>
@@ -5482,6 +5483,7 @@ export default function Home() {
                 ) : (
                   <Text style={styles.saveStatus}>Check-ins still save privately and can be copied or sent as before.</Text>
                 )}
+              </View>
               </View>
               {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && communityTargetType === "circle" && selectedCommunityCircle && (
                 <>
@@ -13453,6 +13455,21 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     padding: 12
   },
+  communityConnectionGrid: {
+    alignItems: "stretch",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 18
+  },
+  phoneCommunityConnectionGrid: {
+    flexDirection: "column",
+    gap: 0
+  },
+  communityConnectionPanel: {
+    flex: 1,
+    minWidth: 280
+  },
   communityCircleBox: {
     backgroundColor: "#fffaf2",
     borderColor: colors.line,
@@ -13460,7 +13477,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     marginBottom: 12,
-    marginTop: 18,
     padding: 12
   },
   circleManagementBox: {

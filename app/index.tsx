@@ -824,14 +824,15 @@ export default function Home() {
   const effectivePartner = activeCheckinPartner?.name || partner;
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
   const communityCheckins = Array.isArray(checkins) ? checkins : [];
+  const communityHistoryCheckins = communitySubView === "history" ? communityCheckins : [];
   const communityHistoryCircleOptions = Array.from(
     new Map(
-      communityCheckins
+      communityHistoryCheckins
         .flatMap((checkin: any) => Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [])
         .map((item: any) => [String(item.circleId), { circleId: String(item.circleId), circleName: item.circleName || "Circle" }])
     ).values()
   );
-  const filteredCommunityHistoryCheckins = communityCheckins.filter((checkin: any) => {
+  const filteredCommunityHistoryCheckins = communityHistoryCheckins.filter((checkin: any) => {
     const sharedTo = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
     if (communityHistoryFilter === "private") return sharedTo.length === 0;
     if (communityHistoryFilter === "circles") {

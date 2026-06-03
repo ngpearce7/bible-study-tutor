@@ -69,35 +69,88 @@ export const inviteFriendByEmail = mutation({
       .unique();
     if (!targetProfile) throw new Error("That user has not finished setting up a profile yet.");
 
-    const existingForward = await ctx.db
-      .query("communityFriends")
-      .withIndex("by_requester_and_recipient", (q) => q.eq("requesterProfileId", profile._id).eq("recipientProfileId", targetProfile._id))
-      .unique();
-    if (existingForward) return existingForward._id;
-
-    const existingReverse = await ctx.db
-      .query("communityFriends")
-      .withIndex("by_requester_and_recipient", (q) => q.eq("requesterProfileId", targetProfile._id).eq("recipientProfileId", profile._id))
-      .unique();
-    if (existingReverse) {
-      if (existingReverse.status === "pending") {
-        await ctx.db.patch(existingReverse._id, { status: "accepted", updatedAt: Date.now() });
-      }
-      return existingReverse._id;
-    }
-
-    const now = Date.now();
-    return await ctx.db.insert("communityFriends", {
-      requesterProfileId: profile._id,
-      recipientProfileId: targetProfile._id,
-      requesterAuthUserId: authUserId,
-      recipientAuthUserId: targetUser._id,
-      status: "pending",
-      createdAt: now,
-      updatedAt: now
-    });
+    return await createOrAcceptFriendship(ctx, profile, authUserId, targetProfile, targetUser._id);
   }
 });
+
+export const ensureFriendCode = mutation({
+  args: {
+    profileId: v.id("profiles")
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    if (profile.friendCode) return profile.friendCode;
+
+    const friendCode = buildFriendCode(profile._id);
+    const existing = await ctx.db
+      .query("profiles")
+      .withIndex("by_friend_code", (q) => q.eq("friendCode", friendCode))
+      .unique();
+    if (existing && existing._id !== profile._id) throw new Error("Could not create a friend code. Please try again.");
+
+    await ctx.db.patch(profile._id, { friendCode, updatedAt: Date.now() });
+    return friendCode;
+  }
+});
+
+export const inviteFriendByCode = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    friendCode: v.string()
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    const authUserId = await getRequiredAuthUserId(ctx);
+    const friendCode = normalizeFriendCode(args.friendCode);
+    if (!friendCode) throw new Error("Enter your friend's code.");
+
+    const targetProfile = await ctx.db
+      .query("profiles")
+      .withIndex("by_friend_code", (q) => q.eq("friendCode", friendCode))
+      .unique();
+    if (!targetProfile) throw new Error("No registered user found with that friend code.");
+    if (targetProfile._id === profile._id) throw new Error("You cannot add yourself as a friend.");
+    if (!targetProfile.authUserId) throw new Error("That user has not finished setting up a signed-in profile yet.");
+
+    return await createOrAcceptFriendship(ctx, profile, authUserId, targetProfile, targetProfile.authUserId);
+  }
+});
+
+async function createOrAcceptFriendship(
+  ctx: MutationCtx,
+  profile: Doc<"profiles">,
+  authUserId: Id<"users">,
+  targetProfile: Doc<"profiles">,
+  targetAuthUserId: Id<"users">
+) {
+  const existingForward = await ctx.db
+    .query("communityFriends")
+    .withIndex("by_requester_and_recipient", (q) => q.eq("requesterProfileId", profile._id).eq("recipientProfileId", targetProfile._id))
+    .unique();
+  if (existingForward) return existingForward._id;
+
+  const existingReverse = await ctx.db
+    .query("communityFriends")
+    .withIndex("by_requester_and_recipient", (q) => q.eq("requesterProfileId", targetProfile._id).eq("recipientProfileId", profile._id))
+    .unique();
+  if (existingReverse) {
+    if (existingReverse.status === "pending") {
+      await ctx.db.patch(existingReverse._id, { status: "accepted", updatedAt: Date.now() });
+    }
+    return existingReverse._id;
+  }
+
+  const now = Date.now();
+  return await ctx.db.insert("communityFriends", {
+    requesterProfileId: profile._id,
+    recipientProfileId: targetProfile._id,
+    requesterAuthUserId: authUserId,
+    recipientAuthUserId: targetAuthUserId,
+    status: "pending",
+    createdAt: now,
+    updatedAt: now
+  });
+}
 
 export const acceptFriend = mutation({
   args: {
@@ -482,6 +535,14 @@ function reactionSummary(reactions: Doc<"communityReactions">[]) {
 
 function buildInviteCode(circleId: Id<"communityCircles">) {
   return String(circleId).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase();
+}
+
+function buildFriendCode(profileId: Id<"profiles">) {
+  return `FR${String(profileId).replace(/[^a-z0-9]/gi, "").slice(-10).toUpperCase()}`;
+}
+
+function normalizeFriendCode(value: string) {
+  return clampText(value, 24).replace(/[^a-z0-9]/gi, "").toUpperCase();
 }
 
 function clampText(value: string | undefined, maxLength: number) {

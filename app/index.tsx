@@ -170,7 +170,7 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Information you provide",
-    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, check-ins, feedback messages, app preferences, friend connections, private circle memberships, invite codes, shared circle posts, and reactions."
+    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, check-ins, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared circle posts, and reactions."
   },
   {
     title: "Faith and personal reflections",
@@ -341,6 +341,8 @@ export default function Home() {
   const createCommunityCircle = useMutation((api as any).community.createCircle);
   const joinCommunityCircle = useMutation((api as any).community.joinCircle);
   const inviteCommunityFriend = useMutation((api as any).community.inviteFriendByEmail);
+  const inviteCommunityFriendByCode = useMutation((api as any).community.inviteFriendByCode);
+  const ensureCommunityFriendCode = useMutation((api as any).community.ensureFriendCode);
   const acceptCommunityFriend = useMutation((api as any).community.acceptFriend);
   const removeCommunityFriend = useMutation((api as any).community.removeFriend);
   const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
@@ -430,6 +432,8 @@ export default function Home() {
   const [targetCircleId, setTargetCircleId] = useState<any>(null);
   const [circleStatus, setCircleStatus] = useState("");
   const [friendEmail, setFriendEmail] = useState("");
+  const [friendCodeInput, setFriendCodeInput] = useState("");
+  const [myFriendCode, setMyFriendCode] = useState("");
   const [friendStatus, setFriendStatus] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState<any>(null);
   const [targetFriendIds, setTargetFriendIds] = useState<any[]>([]);
@@ -714,6 +718,25 @@ export default function Home() {
   const adminUsers = useQuery((api as any).insights.adminUsers, activeProfileId ? {} : "skip");
   const adminUserDetail = useQuery((api as any).insights.adminUserDetail, selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
   const adminAuditLog = useQuery((api as any).insights.adminAuditLog, activeProfileId ? { limit: 20 } : "skip");
+  useEffect(() => {
+    if (!COMMUNITY_CIRCLES_ENABLED || !activeProfileId || !isAuthenticated) {
+      setMyFriendCode("");
+      return;
+    }
+
+    let cancelled = false;
+    ensureCommunityFriendCode({ profileId: activeProfileId })
+      .then((code: string) => {
+        if (!cancelled) setMyFriendCode(code || "");
+      })
+      .catch(() => {
+        if (!cancelled) setFriendStatus("Could not load your friend code yet.");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProfileId, ensureCommunityFriendCode, isAuthenticated]);
   useEffect(() => {
     if (!Array.isArray(communityCircles) || communityCircles.length === 0) {
       setSelectedCircleId(null);
@@ -1800,6 +1823,29 @@ export default function Home() {
     }
   }
 
+  async function inviteFriendWithCode() {
+    if (!activeProfileId) return;
+    if (!isAuthenticated) {
+      setFriendStatus("Sign in before adding a friend.");
+      return;
+    }
+    const friendCode = friendCodeInput.trim().replace(/[^a-z0-9]/gi, "").toUpperCase();
+    if (!friendCode) {
+      setFriendStatus("Enter your friend's code first.");
+      return;
+    }
+
+    setFriendStatus("Checking that friend code...");
+    try {
+      await inviteCommunityFriendByCode({ profileId: activeProfileId, friendCode });
+      setFriendCodeInput("");
+      setFriendStatus("Friend invite saved. If they already invited you, they are now a friend.");
+      trackUsage("community_friend_invited", { tab: "accountability", reference: "friend_code" });
+    } catch {
+      setFriendStatus("That friend code did not work. Check the code and try again.");
+    }
+  }
+
   async function acceptFriendInvite(friend: any) {
     if (!activeProfileId) return;
     setFriendStatus("Accepting friend invite...");
@@ -1881,6 +1927,26 @@ export default function Home() {
       setCircleStatus("Invite code ready to share.");
     } catch {
       setCircleStatus("Could not copy the invite code.");
+    }
+  }
+
+  async function copyFriendCode() {
+    if (!myFriendCode) {
+      setFriendStatus("Your friend code is still loading.");
+      return;
+    }
+    try {
+      if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(myFriendCode);
+        setFriendStatus("Friend code copied.");
+        return;
+      }
+
+      const { Share } = await import("react-native");
+      await Share.share({ message: `Add me as a friend on Bible Study Tutor with friend code: ${myFriendCode}` });
+      setFriendStatus("Friend code ready to share.");
+    } catch {
+      setFriendStatus("Could not copy your friend code.");
     }
   }
 
@@ -5273,21 +5339,47 @@ export default function Home() {
                   <Text style={styles.feedbackTitle}>Friends</Text>
                 </View>
                 <Text style={styles.helpIntro}>
-                  Friends are registered Bible Study Tutor users you personally add by email. This keeps community private, intentional, and away from public social feeds.
+                  Friends are registered Bible Study Tutor users you personally add by code or email. Share your code privately with someone you trust, then encourage one another without a public feed.
                 </Text>
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                   <>
                     <View style={styles.circleManagementBox}>
-                      <Text style={styles.circleManagementLabel}>Add registered friend</Text>
-                      <TextInput
-                        value={friendEmail}
-                        onChangeText={setFriendEmail}
-                        placeholder="Friend's account email"
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                        style={styles.input}
-                      />
-                      <AppButton label="Send friend invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                      <Text style={styles.circleManagementLabel}>Your friend code</Text>
+                      <View style={styles.circleChip}>
+                        <View style={styles.circleInviteLine}>
+                          <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
+                          <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
+                            <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
+                            <Text style={styles.circleCopyText}>Copy</Text>
+                          </Pressable>
+                        </View>
+                        <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
+                      </View>
+                      <View style={styles.circleActionGrid}>
+                        <View style={styles.circleActionBox}>
+                          <Text style={styles.circleManagementLabel}>Add by friend code</Text>
+                          <TextInput
+                            value={friendCodeInput}
+                            onChangeText={(value) => setFriendCodeInput(value.toUpperCase())}
+                            placeholder="Friend code"
+                            autoCapitalize="characters"
+                            style={styles.input}
+                          />
+                          <AppButton label="Add by code" variant="secondary" onPress={inviteFriendWithCode} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                        </View>
+                        <View style={styles.circleActionBox}>
+                          <Text style={styles.circleManagementLabel}>Add by email</Text>
+                          <TextInput
+                            value={friendEmail}
+                            onChangeText={setFriendEmail}
+                            placeholder="Friend's account email"
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            style={styles.input}
+                          />
+                          <AppButton label="Send invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                        </View>
+                      </View>
                     </View>
                     {acceptedCommunityFriends.length > 0 ? (
                       <View style={styles.circleSelectorPanel}>

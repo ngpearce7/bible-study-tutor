@@ -829,7 +829,6 @@ export default function Home() {
   const activeCommunityTargetName = communityTargetType === "friend" ? formatNameList(selectedCommunityFriendNames) : selectedCommunityCircle?.name;
   const hasAvailableCommunityTarget = acceptedCommunityFriends.length > 0 || (communityCircles || []).length > 0;
   const hasCommunityTarget = !!activeCommunityTargetName;
-  const communityTargetLabel = communityTargetType === "friend" && selectedCommunityFriends.length !== 1 ? "Friends" : communityTargetType === "friend" ? "Friend" : "Circle";
   const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
   const readerReference = `${readerBook} ${readerChapter}`;
@@ -5104,7 +5103,6 @@ export default function Home() {
                   <>
                     <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
                       <View style={styles.communityTargetSelectTextBlock}>
-                        <Text style={styles.lastCheckinLabel}>Selected {communityTargetLabel.toLowerCase()}</Text>
                         <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
                       </View>
                       <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />

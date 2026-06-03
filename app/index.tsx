@@ -423,13 +423,16 @@ export default function Home() {
   const [circleName, setCircleName] = useState("");
   const [circleInviteCode, setCircleInviteCode] = useState("");
   const [selectedCircleId, setSelectedCircleId] = useState<any>(null);
+  const [targetCircleId, setTargetCircleId] = useState<any>(null);
   const [shareCheckinWithCircle, setShareCheckinWithCircle] = useState(false);
   const [circleStatus, setCircleStatus] = useState("");
   const [friendEmail, setFriendEmail] = useState("");
   const [friendStatus, setFriendStatus] = useState("");
   const [selectedFriendId, setSelectedFriendId] = useState<any>(null);
+  const [targetFriendId, setTargetFriendId] = useState<any>(null);
   const [pendingFriendRemoveId, setPendingFriendRemoveId] = useState<any>(null);
   const [communityTargetType, setCommunityTargetType] = useState<"friend" | "circle">("friend");
+  const [communityTargetPickerOpen, setCommunityTargetPickerOpen] = useState(false);
   const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
   const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
@@ -690,7 +693,7 @@ export default function Home() {
   const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
-  const communityFeed = useQuery((api as any).community.feed, COMMUNITY_CIRCLES_ENABLED && activeProfileId && selectedCircleId ? { profileId: activeProfileId, circleId: selectedCircleId, limit: 12 } : "skip");
+  const communityFeed = useQuery((api as any).community.feed, COMMUNITY_CIRCLES_ENABLED && activeProfileId && targetCircleId ? { profileId: activeProfileId, circleId: targetCircleId, limit: 12 } : "skip");
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
@@ -701,13 +704,17 @@ export default function Home() {
   useEffect(() => {
     if (!Array.isArray(communityCircles) || communityCircles.length === 0) {
       setSelectedCircleId(null);
+      setTargetCircleId(null);
       setShareCheckinWithCircle(false);
       return;
     }
     if (!selectedCircleId || !communityCircles.some((circle: any) => String(circle._id) === String(selectedCircleId))) {
       setSelectedCircleId(communityCircles[0]._id);
     }
-  }, [communityCircles, selectedCircleId]);
+    if (!targetCircleId || !communityCircles.some((circle: any) => String(circle._id) === String(targetCircleId))) {
+      setTargetCircleId(communityCircles[0]._id);
+    }
+  }, [communityCircles, selectedCircleId, targetCircleId]);
   useEffect(() => {
     if (!Array.isArray(communityFriends)) {
       return;
@@ -716,6 +723,7 @@ export default function Home() {
     const acceptedFriends = communityFriends.filter((friend: any) => friend.status === "accepted");
     if (acceptedFriends.length === 0) {
       setSelectedFriendId(null);
+      setTargetFriendId(null);
       if (Array.isArray(communityCircles) && communityCircles.length > 0) setCommunityTargetType("circle");
       return;
     }
@@ -723,8 +731,11 @@ export default function Home() {
     if (!selectedFriendId || !acceptedFriends.some((friend: any) => String(friend._id) === String(selectedFriendId))) {
       setSelectedFriendId(acceptedFriends[0]._id);
     }
-    if (!selectedCircleId) setCommunityTargetType("friend");
-  }, [communityFriends, communityCircles, selectedFriendId, selectedCircleId]);
+    if (!targetFriendId || !acceptedFriends.some((friend: any) => String(friend._id) === String(targetFriendId))) {
+      setTargetFriendId(acceptedFriends[0]._id);
+    }
+    if (!targetCircleId) setCommunityTargetType("friend");
+  }, [communityFriends, communityCircles, selectedFriendId, targetFriendId, targetCircleId]);
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -802,10 +813,13 @@ export default function Home() {
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
   const acceptedCommunityFriends = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "accepted") : [];
   const pendingCommunityFriendInvites = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "pending") : [];
-  const selectedCommunityFriend = acceptedCommunityFriends.find((friend: any) => String(friend._id) === String(selectedFriendId));
-  const selectedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(selectedCircleId));
-  const hasCommunityTarget = !!selectedCommunityFriend || !!selectedCommunityCircle;
+  const selectedCommunityFriend = acceptedCommunityFriends.find((friend: any) => String(friend._id) === String(targetFriendId));
+  const managedCommunityFriend = acceptedCommunityFriends.find((friend: any) => String(friend._id) === String(selectedFriendId));
+  const selectedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(targetCircleId));
+  const managedCommunityCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(selectedCircleId));
   const activeCommunityTargetName = communityTargetType === "friend" ? selectedCommunityFriend?.name : selectedCommunityCircle?.name;
+  const hasAvailableCommunityTarget = acceptedCommunityFriends.length > 0 || (communityCircles || []).length > 0;
+  const hasCommunityTarget = !!activeCommunityTargetName;
   const communityTargetLabel = communityTargetType === "friend" ? "Friend" : "Circle";
   const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
@@ -1658,14 +1672,14 @@ export default function Home() {
     setIsSavingCheckin(true);
     setCommunityStatus("Saving check-in...");
     const noteToSave = checkinNote.trim();
-    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && shareCheckinWithCircle && selectedCircleId;
+    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && shareCheckinWithCircle && targetCircleId;
     try {
       const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: checkinMarkedSent ? Date.now() : undefined });
       if (shouldShareWithCircle) {
         try {
           await shareCheckinToCircle({
             profileId: activeProfileId,
-            circleId: selectedCircleId,
+            circleId: targetCircleId,
             checkinId,
             note: noteToSave,
             passageReference: passageText?.reference || passage
@@ -1709,6 +1723,7 @@ export default function Home() {
     try {
       const result = await createCommunityCircle({ profileId: activeProfileId, name });
       setSelectedCircleId(result.circleId);
+      setTargetCircleId(result.circleId);
       setCommunityTargetType("circle");
       setShareCheckinWithCircle(true);
       setCircleName("");
@@ -1748,6 +1763,7 @@ export default function Home() {
     try {
       await acceptCommunityFriend({ profileId: activeProfileId, friendId: friend._id });
       setSelectedFriendId(friend._id);
+      setTargetFriendId(friend._id);
       setCommunityTargetType("friend");
       setFriendStatus(`${friend.name} is now a friend.`);
     } catch {
@@ -1767,6 +1783,7 @@ export default function Home() {
       await removeCommunityFriend({ profileId: activeProfileId, friendId: friend._id });
       setPendingFriendRemoveId(null);
       if (String(selectedFriendId) === String(friend._id)) setSelectedFriendId(null);
+      if (String(targetFriendId) === String(friend._id)) setTargetFriendId(null);
       setFriendStatus(`${friend.name} removed.`);
     } catch {
       setFriendStatus("Could not remove that friend.");
@@ -1789,6 +1806,7 @@ export default function Home() {
     try {
       const circleId = await joinCommunityCircle({ profileId: activeProfileId, inviteCode });
       setSelectedCircleId(circleId);
+      setTargetCircleId(circleId);
       setCommunityTargetType("circle");
       setShareCheckinWithCircle(true);
       setCircleInviteCode("");
@@ -1847,6 +1865,7 @@ export default function Home() {
       await leaveCommunityCircle({ profileId: activeProfileId, circleId: circle._id });
       setPendingCircleLeaveId(null);
       setSelectedCircleId(null);
+      if (String(targetCircleId) === String(circle._id)) setTargetCircleId(null);
       setCircleStatus(`You left ${circle.name}.`);
     } catch {
       setCircleStatus("Could not leave that circle.");
@@ -1866,6 +1885,7 @@ export default function Home() {
       await deleteCommunityCircle({ profileId: activeProfileId, circleId: circle._id });
       setPendingCircleDeleteId(null);
       setSelectedCircleId(null);
+      if (String(targetCircleId) === String(circle._id)) setTargetCircleId(null);
       setShareCheckinWithCircle(false);
       setCircleStatus(`${circle.name} deleted.`);
     } catch {
@@ -5010,29 +5030,71 @@ export default function Home() {
                     <Text style={styles.helpIntro}>Add an accepted friend or join a private circle before sharing encouragement.</Text>
                   </View>
                 </View>
-                {hasCommunityTarget ? (
+                {hasAvailableCommunityTarget ? (
                   <>
-                    <View style={styles.communityTargetModeRow}>
-                      {!!selectedCommunityFriend && (
-                        <Pressable
-                          onPress={() => setCommunityTargetType("friend")}
-                          style={[styles.communityTargetModeChip, communityTargetType === "friend" && styles.activeCommunityTargetModeChip]}
-                        >
-                          <Ionicons name="person-outline" size={15} color={colors.oliveDark} />
-                          <Text style={styles.communityTargetModeText}>Friend</Text>
-                        </Pressable>
-                      )}
-                      {!!selectedCommunityCircle && (
-                        <Pressable
-                          onPress={() => setCommunityTargetType("circle")}
-                          style={[styles.communityTargetModeChip, communityTargetType === "circle" && styles.activeCommunityTargetModeChip]}
-                        >
-                          <Ionicons name="people-outline" size={15} color={colors.oliveDark} />
-                          <Text style={styles.communityTargetModeText}>Circle</Text>
-                        </Pressable>
-                      )}
-                    </View>
-                    <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
+                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
+                      <View style={styles.communityTargetSelectTextBlock}>
+                        <Text style={styles.lastCheckinLabel}>Selected {communityTargetLabel.toLowerCase()}</Text>
+                        <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
+                      </View>
+                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                    </Pressable>
+                    {communityTargetPickerOpen && (
+                      <View style={styles.communityTargetPickerPanel}>
+                        {acceptedCommunityFriends.length > 0 && (
+                          <View style={styles.communityTargetPickerGroup}>
+                            <Text style={styles.circleManagementLabel}>Friends</Text>
+                            {acceptedCommunityFriends.map((friend: any) => {
+                              const isTarget = communityTargetType === "friend" && String(targetFriendId) === String(friend._id);
+                              return (
+                                <Pressable
+                                  key={friend._id}
+                                  onPress={() => {
+                                    setCommunityTargetType("friend");
+                                    setTargetFriendId(friend._id);
+                                    setCommunityTargetPickerOpen(false);
+                                  }}
+                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                >
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "person-outline"} size={16} color={colors.oliveDark} />
+                                  <View style={styles.journalTitleBlock}>
+                                    <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
+                                    {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                        {(communityCircles || []).length > 0 && (
+                          <View style={styles.communityTargetPickerGroup}>
+                            <Text style={styles.circleManagementLabel}>Circles</Text>
+                            {(communityCircles || []).map((circle: any) => {
+                              const isTarget = communityTargetType === "circle" && String(targetCircleId) === String(circle._id);
+                              return (
+                                <Pressable
+                                  key={circle._id}
+                                  onPress={() => {
+                                    setCommunityTargetType("circle");
+                                    setTargetCircleId(circle._id);
+                                    setCommunityTargetPickerOpen(false);
+                                  }}
+                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                >
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
+                                  <View style={styles.journalTitleBlock}>
+                                    <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
+                                    <Text style={styles.circleChipMeta}>
+                                      {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
+                                    </Text>
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                      </View>
+                    )}
                     <Text style={styles.helpIntro}>
                       {communityTargetType === "circle"
                         ? "Saving can also post this check-in to the selected circle feed."
@@ -5148,14 +5210,13 @@ export default function Home() {
                                 key={friend._id}
                                 onPress={() => {
                                   setSelectedFriendId(friend._id);
-                                  setCommunityTargetType("friend");
                                   setPendingFriendRemoveId(null);
                                 }}
-                                style={[styles.circleChip, friendIsSelected && communityTargetType === "friend" && styles.activeCircleChip]}
+                                style={[styles.circleChip, friendIsSelected && styles.activeCircleChip]}
                               >
-                                <Text style={[styles.circleChipTitle, friendIsSelected && communityTargetType === "friend" && styles.activeCircleChipText]}>{friend.name}</Text>
-                                <Text style={[styles.circleChipMeta, friendIsSelected && communityTargetType === "friend" && styles.activeCircleChipText]}>
-                                  {friendIsSelected && communityTargetType === "friend" ? "Selected" : "Tap to encourage"}{friend.email ? ` · ${friend.email}` : ""}
+                                <Text style={[styles.circleChipTitle, friendIsSelected && styles.activeCircleChipText]}>{friend.name}</Text>
+                                <Text style={[styles.circleChipMeta, friendIsSelected && styles.activeCircleChipText]}>
+                                  {friendIsSelected ? "Selected for management" : "Tap to manage"}{friend.email ? ` · ${friend.email}` : ""}
                                 </Text>
                               </Pressable>
                             );
@@ -5198,13 +5259,13 @@ export default function Home() {
                         </View>
                       </View>
                     )}
-                    {!!selectedCommunityFriend && (
+                    {!!managedCommunityFriend && (
                       <Pressable
-                        onPress={() => removeFriend(selectedCommunityFriend)}
-                        style={[styles.circleManageButton, styles.circleDangerManageButton, pendingFriendRemoveId === selectedCommunityFriend._id && styles.activeCircleDangerManageButton]}
+                        onPress={() => removeFriend(managedCommunityFriend)}
+                        style={[styles.circleManageButton, styles.circleDangerManageButton, pendingFriendRemoveId === managedCommunityFriend._id && styles.activeCircleDangerManageButton]}
                       >
-                        <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingFriendRemoveId === selectedCommunityFriend._id && styles.activeCircleDangerManageText]}>
-                          {pendingFriendRemoveId === selectedCommunityFriend._id ? "Confirm remove friend" : `Remove ${selectedCommunityFriend.name}`}
+                        <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingFriendRemoveId === managedCommunityFriend._id && styles.activeCircleDangerManageText]}>
+                          {pendingFriendRemoveId === managedCommunityFriend._id ? "Confirm remove friend" : `Remove ${managedCommunityFriend.name}`}
                         </Text>
                       </Pressable>
                     )}
@@ -5244,7 +5305,6 @@ export default function Home() {
                                 key={circle._id}
                                 onPress={() => {
                                   setSelectedCircleId(circle._id);
-                                  setCommunityTargetType("circle");
                                   setPendingCircleDeleteId(null);
                                   setPendingCircleLeaveId(null);
                                 }}
@@ -5260,38 +5320,38 @@ export default function Home() {
                         </View>
                       </View>
                     )}
-                    {selectedCommunityCircle ? (
+                    {managedCommunityCircle ? (
                       <View style={styles.activeCirclePanel}>
                         <View style={styles.circleChipHeader}>
                           <View style={styles.journalTitleBlock}>
-                            <Text style={styles.lastCheckinLabel}>Active circle</Text>
-                            <Text style={styles.circleChipTitle}>{selectedCommunityCircle.name}</Text>
+                            <Text style={styles.lastCheckinLabel}>Selected for management</Text>
+                            <Text style={styles.circleChipTitle}>{managedCommunityCircle.name}</Text>
                             <Text style={styles.circleChipMeta}>
-                              {selectedCommunityCircle.memberCount} member{selectedCommunityCircle.memberCount === 1 ? "" : "s"} · Code {selectedCommunityCircle.inviteCode}
+                              {managedCommunityCircle.memberCount} member{managedCommunityCircle.memberCount === 1 ? "" : "s"} · Code {managedCommunityCircle.inviteCode}
                             </Text>
                           </View>
-                          <Pressable onPress={() => copyCircleInviteCode(selectedCommunityCircle.inviteCode)} style={styles.circleCopyButton}>
+                          <Pressable onPress={() => copyCircleInviteCode(managedCommunityCircle.inviteCode)} style={styles.circleCopyButton}>
                             <Ionicons name="copy-outline" size={14} color={colors.oliveDark} />
                             <Text style={styles.circleCopyText}>Copy</Text>
                           </Pressable>
                         </View>
                         <View style={styles.circleManagementRow}>
-                          {selectedCommunityCircle.canDelete ? (
+                          {managedCommunityCircle.canDelete ? (
                             <Pressable
-                              onPress={() => deleteCircle(selectedCommunityCircle)}
-                              style={[styles.circleManageButton, styles.circleDangerManageButton, pendingCircleDeleteId === selectedCommunityCircle._id && styles.activeCircleDangerManageButton]}
+                              onPress={() => deleteCircle(managedCommunityCircle)}
+                              style={[styles.circleManageButton, styles.circleDangerManageButton, pendingCircleDeleteId === managedCommunityCircle._id && styles.activeCircleDangerManageButton]}
                             >
-                              <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingCircleDeleteId === selectedCommunityCircle._id && styles.activeCircleDangerManageText]}>
-                                {pendingCircleDeleteId === selectedCommunityCircle._id ? "Confirm delete" : "Delete"}
+                              <Text style={[styles.circleManageText, styles.circleDangerManageText, pendingCircleDeleteId === managedCommunityCircle._id && styles.activeCircleDangerManageText]}>
+                                {pendingCircleDeleteId === managedCommunityCircle._id ? "Confirm delete" : "Delete"}
                               </Text>
                             </Pressable>
                           ) : (
                             <Pressable
-                              onPress={() => leaveCircle(selectedCommunityCircle)}
-                              style={[styles.circleManageButton, pendingCircleLeaveId === selectedCommunityCircle._id && styles.activeCircleManageButton]}
+                              onPress={() => leaveCircle(managedCommunityCircle)}
+                              style={[styles.circleManageButton, pendingCircleLeaveId === managedCommunityCircle._id && styles.activeCircleManageButton]}
                             >
-                              <Text style={[styles.circleManageText, pendingCircleLeaveId === selectedCommunityCircle._id && styles.activeCircleManageText]}>
-                                {pendingCircleLeaveId === selectedCommunityCircle._id ? "Confirm leave" : "Leave"}
+                              <Text style={[styles.circleManageText, pendingCircleLeaveId === managedCommunityCircle._id && styles.activeCircleManageText]}>
+                                {pendingCircleLeaveId === managedCommunityCircle._id ? "Confirm leave" : "Leave"}
                               </Text>
                             </Pressable>
                           )}
@@ -5306,10 +5366,10 @@ export default function Home() {
                     <View style={styles.circleManagementBox}>
                       <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
                         <Ionicons name="settings-outline" size={14} color={colors.oliveDark} />
-                        <Text style={styles.circleManageText}>{circleManagerOpen || !selectedCommunityCircle ? "Hide circle tools" : "Manage circles"}</Text>
-                        <Ionicons name={circleManagerOpen || !selectedCommunityCircle ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                        <Text style={styles.circleManageText}>{circleManagerOpen || !managedCommunityCircle ? "Hide circle tools" : "Manage circles"}</Text>
+                        <Ionicons name={circleManagerOpen || !managedCommunityCircle ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
                       </Pressable>
-                      {(circleManagerOpen || !selectedCommunityCircle) && (
+                      {(circleManagerOpen || !managedCommunityCircle) && (
                         <View style={styles.circleManagementContent}>
                           <Text style={styles.circleManagementLabel}>Create or join a circle</Text>
                           <View style={styles.circleActionGrid}>
@@ -12855,6 +12915,53 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800",
     lineHeight: 26
+  },
+  communityTargetSelect: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: "rgba(102, 114, 78, 0.22)",
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10
+  },
+  communityTargetSelectTextBlock: {
+    flex: 1,
+    gap: 2,
+    minWidth: 0
+  },
+  communityTargetPickerPanel: {
+    backgroundColor: "rgba(255, 255, 255, 0.62)",
+    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    padding: 10
+  },
+  communityTargetPickerGroup: {
+    gap: 7
+  },
+  communityTargetOption: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 11,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    padding: 10
+  },
+  activeCommunityTargetOption: {
+    backgroundColor: "#f5eedf",
+    borderColor: "rgba(102, 114, 78, 0.42)"
+  },
+  communityTargetOptionTitle: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "900"
   },
   communityTargetModeRow: {
     flexDirection: "row",

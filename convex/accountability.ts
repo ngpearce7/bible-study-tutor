@@ -168,15 +168,17 @@ export const recentCheckins = query({
       .order("desc")
       .take(args.limit ?? 12);
 
+    const profilePosts = await ctx.db
+      .query("communityPosts")
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(200);
+
     const enriched = [];
     for (const checkin of checkins) {
-      const sharedPosts = await ctx.db
-        .query("communityPosts")
-        .withIndex("by_checkin", (q) => q.eq("checkinId", checkin._id))
-        .take(20);
+      const sharedPosts = profilePosts.filter((post) => post.checkinId === checkin._id);
       const sharedTo = [];
       for (const post of sharedPosts) {
-        if (post.profileId !== args.profileId) continue;
         const circle = await ctx.db.get(post.circleId);
         if (!circle) continue;
         sharedTo.push({
@@ -204,12 +206,12 @@ export const deleteCheckin = mutation({
     const checkin = await ctx.db.get(args.checkinId);
     if (!checkin || checkin.profileId !== args.profileId) return false;
 
-    const sharedPosts = await ctx.db
+    const sharedPosts = (await ctx.db
       .query("communityPosts")
-      .withIndex("by_checkin", (q) => q.eq("checkinId", args.checkinId))
-      .take(50);
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(200)).filter((post) => post.checkinId === args.checkinId);
     for (const post of sharedPosts) {
-      if (post.profileId !== args.profileId) continue;
       const reactions = await ctx.db
         .query("communityReactions")
         .withIndex("by_post", (q) => q.eq("postId", post._id))
@@ -241,12 +243,12 @@ export const updateCheckin = mutation({
       note: nextNote
     });
 
-    const sharedPosts = await ctx.db
+    const sharedPosts = (await ctx.db
       .query("communityPosts")
-      .withIndex("by_checkin", (q) => q.eq("checkinId", args.checkinId))
-      .take(50);
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(200)).filter((post) => post.checkinId === args.checkinId);
     for (const post of sharedPosts) {
-      if (post.profileId !== args.profileId) continue;
       await ctx.db.patch(post._id, {
         note: clampText(nextNote, 1200)
       });

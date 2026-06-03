@@ -5452,15 +5452,15 @@ export default function Home() {
                     const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
                     return (
                       <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
-                        <View style={styles.journalHeader}>
-                          <View style={styles.journalTitleBlock}>
+                        <View style={styles.checkinHistoryHeader}>
+                          <View style={styles.checkinHistoryMeta}>
                             <View style={styles.checkinTitleRow}>
                               <Text style={styles.checkinMood}>{checkin.mood}</Text>
                               <Text style={[styles.sentPill, sharedCircles.length > 0 && styles.sentPillActive]}>{sharedCircles.length > 0 ? "Shared" : "Private"}</Text>
                             </View>
-                            <Text style={styles.muted}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
+                            <Text style={styles.checkinDestinationText}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
                           </View>
-                          <View style={styles.checkinActionRow}>
+                          <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
                             <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
                               <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
                               <Text style={styles.copySmallText}>Copy</Text>
@@ -12995,19 +12995,38 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     padding: 10
   },
+  checkinHistoryHeader: {
+    alignItems: "flex-start",
+    gap: 8
+  },
+  checkinHistoryMeta: {
+    gap: 4,
+    minWidth: 0,
+    width: "100%"
+  },
   checkinTitleRow: {
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 7
   },
+  checkinDestinationText: {
+    color: colors.muted,
+    flexShrink: 1,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 17
+  },
   checkinActionRow: {
     alignItems: "center",
     flexDirection: "row",
-    flexShrink: 0,
     flexWrap: "wrap",
     gap: 7,
-    justifyContent: "flex-end"
+    justifyContent: "flex-start",
+    width: "100%"
+  },
+  phoneCheckinActionRow: {
+    flexWrap: "nowrap"
   },
   checkinMood: {
     color: colors.ink,

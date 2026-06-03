@@ -418,13 +418,11 @@ export default function Home() {
   const [partnerContactNote, setPartnerContactNote] = useState("");
   const [checkinNote, setCheckinNote] = useState("");
   const [communityStatus, setCommunityStatus] = useState("");
-  const [checkinMarkedSent, setCheckinMarkedSent] = useState(false);
   const [isSavingCheckin, setIsSavingCheckin] = useState(false);
   const [circleName, setCircleName] = useState("");
   const [circleInviteCode, setCircleInviteCode] = useState("");
   const [selectedCircleId, setSelectedCircleId] = useState<any>(null);
   const [targetCircleId, setTargetCircleId] = useState<any>(null);
-  const [shareCheckinWithCircle, setShareCheckinWithCircle] = useState(false);
   const [circleStatus, setCircleStatus] = useState("");
   const [friendEmail, setFriendEmail] = useState("");
   const [friendStatus, setFriendStatus] = useState("");
@@ -705,7 +703,6 @@ export default function Home() {
     if (!Array.isArray(communityCircles) || communityCircles.length === 0) {
       setSelectedCircleId(null);
       setTargetCircleId(null);
-      setShareCheckinWithCircle(false);
       return;
     }
     if (!selectedCircleId || !communityCircles.some((circle: any) => String(circle._id) === String(selectedCircleId))) {
@@ -1675,11 +1672,11 @@ export default function Home() {
     }
 
     setIsSavingCheckin(true);
-    setCommunityStatus("Saving check-in...");
+    setCommunityStatus("Posting check-in...");
     const noteToSave = checkinNote.trim();
-    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && shareCheckinWithCircle && targetCircleId;
+    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && targetCircleId;
     try {
-      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: checkinMarkedSent ? Date.now() : undefined });
+      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: Date.now() });
       if (shouldShareWithCircle) {
         try {
           await shareCheckinToCircle({
@@ -1697,14 +1694,11 @@ export default function Home() {
       }
       setCommunityStatus(
         shouldShareWithCircle
-          ? `Check-in saved and posted to ${selectedCommunityCircle?.name || "your circle"}`
-          : checkinMarkedSent
-            ? "Sent check-in saved"
-            : "Check-in saved"
+          ? `Posted to ${selectedCommunityCircle?.name || "your circle"}`
+          : `Posted for ${activeCommunityTargetName || "your selected friend"}`
       );
       trackUsage("checkin_saved", { tab: "accountability" });
       setCheckinNote("");
-      setCheckinMarkedSent(false);
     } catch {
       setCommunityStatus("Could not save that check-in. Please try again.");
     } finally {
@@ -1730,7 +1724,6 @@ export default function Home() {
       setSelectedCircleId(result.circleId);
       setTargetCircleId(result.circleId);
       setCommunityTargetType("circle");
-      setShareCheckinWithCircle(true);
       setCircleName("");
       setCircleStatus(`Circle created. Invite code: ${result.inviteCode}`);
       trackUsage("community_circle_created", { tab: "accountability" });
@@ -1813,7 +1806,6 @@ export default function Home() {
       setSelectedCircleId(circleId);
       setTargetCircleId(circleId);
       setCommunityTargetType("circle");
-      setShareCheckinWithCircle(true);
       setCircleInviteCode("");
       setCircleStatus("Circle joined.");
       trackUsage("community_circle_joined", { tab: "accountability" });
@@ -1891,7 +1883,6 @@ export default function Home() {
       setPendingCircleDeleteId(null);
       setSelectedCircleId(null);
       if (String(targetCircleId) === String(circle._id)) setTargetCircleId(null);
-      setShareCheckinWithCircle(false);
       setCircleStatus(`${circle.name} deleted.`);
     } catch {
       setCircleStatus("Could not delete that circle.");
@@ -1958,27 +1949,6 @@ export default function Home() {
       const { Share } = await import("react-native");
       await Share.share({ message });
       setCommunityStatus("Share sheet opened. Mark as sent after you send it.");
-    } catch {
-      setCommunityStatus("Could not share from this device");
-    }
-  }
-
-  function markCheckinMessageSent() {
-    setCheckinMarkedSent(true);
-    setCommunityStatus("Marked as sent. Save the check-in to keep the record.");
-  }
-
-  async function shareCommunityMessage() {
-    try {
-      if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(communityMessage);
-        setCommunityStatus("Message copied. Paste it into Messages, WhatsApp, email, or your group chat.");
-        return;
-      }
-
-      const { Share } = await import("react-native");
-      await Share.share({ message: communityMessage });
-      setCommunityStatus("Share sheet opened");
     } catch {
       setCommunityStatus("Could not share from this device");
     }
@@ -5135,47 +5105,16 @@ export default function Home() {
                     <Text style={styles.communityStepBadgeText}>3</Text>
                   </View>
                   <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Copy, send, then save</Text>
+                    <Text style={styles.feedbackTitle}>Post encouragement</Text>
                   </View>
                 </View>
                 <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
-                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && communityTargetType === "circle" && selectedCommunityCircle && (
-                  <View style={styles.circleSaveChoiceBox}>
-                    <Text style={styles.circleManagementLabel}>When you save this check-in</Text>
-                    <View style={styles.circleSaveChoiceRow}>
-                      <Pressable
-                        onPress={() => setShareCheckinWithCircle(false)}
-                        style={[styles.circleSaveChoice, !shareCheckinWithCircle && styles.activeCircleSaveChoice]}
-                      >
-                        <Ionicons name={!shareCheckinWithCircle ? "checkmark-circle-outline" : "ellipse-outline"} size={17} color={colors.oliveDark} />
-                        <Text style={styles.circleSaveChoiceText}>Only save privately</Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => setShareCheckinWithCircle(true)}
-                        style={[styles.circleSaveChoice, shareCheckinWithCircle && styles.activeCircleSaveChoice]}
-                      >
-                        <Ionicons name={shareCheckinWithCircle ? "checkmark-circle-outline" : "ellipse-outline"} size={17} color={colors.oliveDark} />
-                        <Text style={styles.circleSaveChoiceText}>{`Also post to ${selectedCommunityCircle.name}`}</Text>
-                      </Pressable>
-                    </View>
-                    <Text style={styles.circleSaveChoiceHint}>
-                      {shareCheckinWithCircle
-                        ? `Press Save to add this to your history and to ${selectedCommunityCircle.name}'s shared check-ins.`
-                        : "Press Save to keep this in your own check-in history only."}
-                    </Text>
-                  </View>
-                )}
-                <View style={[styles.buttonRow, phoneLayout && styles.phoneCommunityButtonRow]}>
-                  <AppButton label="Copy message" onPress={shareCommunityMessage} style={phoneLayout && styles.phoneCommunityPrimaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                  <AppButton label={checkinMarkedSent ? "Marked sent" : "Mark sent"} variant="secondary" onPress={markCheckinMessageSent} style={phoneLayout && styles.phoneCommunitySecondaryButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                  <AppButton
-                    label={isSavingCheckin ? "Saving..." : communityTargetType === "circle" && shareCheckinWithCircle && selectedCommunityCircle ? "Save and post" : "Save"}
-                    variant="secondary"
-                    onPress={persistCheckin}
-                    style={phoneLayout && styles.phoneCommunitySecondaryButton}
-                    labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
-                  />
-                </View>
+                <AppButton
+                  label={isSavingCheckin ? "Posting..." : "Post"}
+                  onPress={persistCheckin}
+                  style={phoneLayout && styles.phoneFullWidthButton}
+                  labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
+                />
                 {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
               </View>
               <View style={styles.communityCircleBox}>
@@ -13294,69 +13233,6 @@ const styles = StyleSheet.create({
   activeCircleDangerManageText: {
     color: "white"
   },
-  circleSaveChoiceBox: {
-    backgroundColor: "rgba(102, 114, 78, 0.07)",
-    borderColor: "rgba(102, 114, 78, 0.14)",
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 8,
-    marginBottom: 8,
-    padding: 10
-  },
-  circleSaveChoiceRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
-  },
-  circleSaveChoice: {
-    alignItems: "center",
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 6,
-    minHeight: 34,
-    paddingHorizontal: 10,
-    paddingVertical: 7
-  },
-  activeCircleSaveChoice: {
-    backgroundColor: "#f5eedf",
-    borderColor: "rgba(102, 114, 78, 0.42)"
-  },
-  circleSaveChoiceText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "900"
-  },
-  circleSaveChoiceHint: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "700",
-    lineHeight: 17
-  },
-  circleShareToggle: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    flexDirection: "row",
-    gap: 7,
-    marginBottom: 8,
-    paddingHorizontal: 11,
-    paddingVertical: 8
-  },
-  activeCircleShareToggle: {
-    backgroundColor: colors.oliveDark
-  },
-  circleShareToggleText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "900"
-  },
-  activeCircleShareToggleText: {
-    color: "white"
-  },
   circleFeedList: {
     gap: 9
   },
@@ -13509,20 +13385,6 @@ const styles = StyleSheet.create({
   },
   phoneCheckinTextarea: {
     minHeight: 112
-  },
-  phoneCommunityButtonRow: {
-    flexWrap: "nowrap",
-    gap: 6
-  },
-  phoneCommunityPrimaryButton: {
-    flex: 1.3,
-    minHeight: 42,
-    paddingHorizontal: 8
-  },
-  phoneCommunitySecondaryButton: {
-    flex: 1,
-    minHeight: 42,
-    paddingHorizontal: 8
   },
   phoneFullWidthButton: {
     width: "100%",

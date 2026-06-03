@@ -5333,7 +5333,7 @@ export default function Home() {
                 {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
               </View>
               <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
-              <View style={[styles.communityCircleBox, styles.communityConnectionPanel]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="person-add-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Friends</Text>
@@ -5343,7 +5343,7 @@ export default function Home() {
                 </Text>
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                   <>
-                    <View style={styles.circleManagementBox}>
+                    <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
                       <Text style={styles.circleManagementLabel}>Your friend code</Text>
                       <View style={styles.circleChip}>
                         <View style={styles.circleInviteLine}>
@@ -5355,19 +5355,19 @@ export default function Home() {
                         </View>
                         <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
                       </View>
-                      <View style={styles.circleActionGrid}>
-                        <View style={styles.circleActionBox}>
+                      <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
+                        <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
                           <Text style={styles.circleManagementLabel}>Add by friend code</Text>
                           <TextInput
                             value={friendCodeInput}
                             onChangeText={(value) => setFriendCodeInput(value.toUpperCase())}
                             placeholder="Friend code"
                             autoCapitalize="characters"
-                            style={styles.input}
+                            style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
                           />
                           <AppButton label="Add by code" variant="secondary" onPress={inviteFriendWithCode} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                         </View>
-                        <View style={styles.circleActionBox}>
+                        <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
                           <Text style={styles.circleManagementLabel}>Add by email</Text>
                           <TextInput
                             value={friendEmail}
@@ -5375,7 +5375,7 @@ export default function Home() {
                             placeholder="Friend's account email"
                             autoCapitalize="none"
                             keyboardType="email-address"
-                            style={styles.input}
+                            style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
                           />
                           <AppButton label="Send invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                         </View>
@@ -5462,7 +5462,7 @@ export default function Home() {
                   <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
                 )}
               </View>
-              <View style={[styles.communityCircleBox, styles.communityConnectionPanel]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
                   <Text style={styles.feedbackTitle}>Private circle</Text>
@@ -5548,7 +5548,7 @@ export default function Home() {
                         <Text style={styles.helpIntro}>Create one or join with an invite code when you are ready.</Text>
                       </View>
                     )}
-                    <View style={styles.circleManagementBox}>
+                    <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
                       <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
                         <Ionicons name="settings-outline" size={14} color={colors.oliveDark} />
                         <Text style={styles.circleManageText}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
@@ -5557,15 +5557,15 @@ export default function Home() {
                       {(circleManagerOpen || (communityCircles || []).length === 0) && (
                         <View style={styles.circleManagementContent}>
                           <Text style={styles.circleManagementLabel}>Create or join a circle</Text>
-                          <View style={styles.circleActionGrid}>
-                            <View style={styles.circleActionBox}>
+                          <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
+                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
                               <Text style={styles.lastCheckinLabel}>Create</Text>
-                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={styles.input} />
+                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={[styles.input, phoneLayout && styles.phoneCommunityInput]} />
                               <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
-                            <View style={styles.circleActionBox}>
+                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
                               <Text style={styles.lastCheckinLabel}>Join</Text>
-                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={styles.input} />
+                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={[styles.input, phoneLayout && styles.phoneCommunityInput]} />
                               <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
                           </View>
@@ -13566,6 +13566,11 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 280
   },
+  phoneCommunityConnectionPanel: {
+    flex: 0,
+    minWidth: 0,
+    width: "100%"
+  },
   communityCircleBox: {
     backgroundColor: "#fffaf2",
     borderColor: colors.line,
@@ -13583,6 +13588,9 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 2,
     padding: 10
+  },
+  phoneCircleManagementBox: {
+    padding: 8
   },
   circleSelectorPanel: {
     backgroundColor: "rgba(102, 114, 78, 0.07)",
@@ -13617,10 +13625,23 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10
   },
+  phoneCircleActionGrid: {
+    flexDirection: "column",
+    gap: 8
+  },
   circleActionBox: {
     flex: 1,
     gap: 8,
     minWidth: 170
+  },
+  phoneCircleActionBox: {
+    flex: 0,
+    minWidth: 0,
+    width: "100%"
+  },
+  phoneCommunityInput: {
+    marginBottom: 8,
+    width: "100%"
   },
   circleManagerToggle: {
     alignItems: "center",
@@ -13685,9 +13706,11 @@ const styles = StyleSheet.create({
   },
   circleInviteCodeText: {
     color: colors.oliveDark,
+    flexShrink: 1,
     fontSize: 13,
     fontWeight: "900",
-    letterSpacing: 0.5
+    letterSpacing: 0.5,
+    minWidth: 0
   },
   circleCopyButton: {
     alignItems: "center",

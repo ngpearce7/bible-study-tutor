@@ -444,6 +444,9 @@ export default function Home() {
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
+  const [communitySubView, setCommunitySubView] = useState<"encourage" | "history">("encourage");
+  const [communityHistoryFilter, setCommunityHistoryFilter] = useState<"all" | "private" | "circles">("all");
+  const [communityHistoryCircleId, setCommunityHistoryCircleId] = useState("all");
   const [shareNote, setShareNote] = useState("");
   const [passageText, setPassageText] = useState<BiblePassage | null>(null);
   const [passageMarkups, setPassageMarkups] = useState<PassageMarkupMap>({});
@@ -696,7 +699,7 @@ export default function Home() {
   );
   const drafts = useQuery(api.study.recentDrafts, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, activeProfileId ? { profileId: activeProfileId, limit: 10 } : "skip");
-  const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
+  const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityFeed = useQuery((api as any).community.feed, COMMUNITY_CIRCLES_ENABLED && activeProfileId && targetCircleId ? { profileId: activeProfileId, circleId: targetCircleId, limit: 12 } : "skip");
@@ -820,6 +823,37 @@ export default function Home() {
   const activeCheckinPartner = checkinPartners.find((item) => item.id === activeCheckinPartnerId);
   const effectivePartner = activeCheckinPartner?.name || partner;
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
+  const communityCheckins = Array.isArray(checkins) ? checkins : [];
+  const communityHistoryCircleOptions = Array.from(
+    new Map(
+      communityCheckins
+        .flatMap((checkin: any) => Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [])
+        .map((item: any) => [String(item.circleId), { circleId: String(item.circleId), circleName: item.circleName || "Circle" }])
+    ).values()
+  );
+  const filteredCommunityHistoryCheckins = communityCheckins.filter((checkin: any) => {
+    const sharedTo = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
+    if (communityHistoryFilter === "private") return sharedTo.length === 0;
+    if (communityHistoryFilter === "circles") {
+      if (sharedTo.length === 0) return false;
+      if (communityHistoryCircleId === "all") return true;
+      return sharedTo.some((item: any) => String(item.circleId) === communityHistoryCircleId);
+    }
+    return true;
+  });
+  const communityHistoryGroups = filteredCommunityHistoryCheckins.reduce((groups: { title: string; items: any[] }[], checkin: any) => {
+    const sharedTo = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
+    const title = sharedTo.length > 0
+      ? `Shared to ${sharedTo.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
+      : "Private or friend check-ins";
+    const existing = groups.find((group) => group.title === title);
+    if (existing) {
+      existing.items.push(checkin);
+    } else {
+      groups.push({ title, items: [checkin] });
+    }
+    return groups;
+  }, []);
   const acceptedCommunityFriends = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "accepted") : [];
   const pendingCommunityFriendInvites = Array.isArray(communityFriends) ? communityFriends.filter((friend: any) => friend.status === "pending") : [];
   const selectedCommunityFriends = acceptedCommunityFriends.filter((friend: any) => targetFriendIds.some((id) => String(id) === String(friend._id)));
@@ -5090,6 +5124,22 @@ export default function Home() {
               <Eyebrow>Community</Eyebrow>
               <Text style={styles.title}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
               <Text style={styles.titleSupport}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
+              <View style={styles.communitySubViewTabs}>
+                {[
+                  ["encourage", "Encourage"],
+                  ["history", "History"]
+                ].map(([key, label]) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => setCommunitySubView(key as "encourage" | "history")}
+                    style={[styles.communitySubViewTab, communitySubView === key && styles.activeCommunitySubViewTab]}
+                  >
+                    <Text style={[styles.communitySubViewTabText, communitySubView === key && styles.activeCommunitySubViewTabText]}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              {communitySubView === "encourage" ? (
+                <>
               <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
@@ -5512,6 +5562,135 @@ export default function Home() {
                     </View>
                   )}
                 </>
+              )}
+                </>
+              ) : (
+                <View style={styles.communityHistoryPanel}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="albums-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Check-in history</Text>
+                  </View>
+                  <Text style={styles.helpIntro}>Review, edit, copy, or remove your saved check-ins. Circle posts stay grouped by where they were shared.</Text>
+                  <View style={styles.communityHistoryFilterRow}>
+                    {[
+                      ["all", "All"],
+                      ["private", "Private"],
+                      ["circles", "Circles"]
+                    ].map(([key, label]) => (
+                      <Pressable
+                        key={key}
+                        onPress={() => {
+                          setCommunityHistoryFilter(key as "all" | "private" | "circles");
+                          if (key !== "circles") setCommunityHistoryCircleId("all");
+                        }}
+                        style={[styles.filterChip, communityHistoryFilter === key && styles.activeFilterChip]}
+                      >
+                        <Text style={[styles.filterText, communityHistoryFilter === key && styles.activeFilterText]}>{label}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                  {communityHistoryFilter === "circles" && communityHistoryCircleOptions.length > 1 && (
+                    <View style={styles.communityHistoryFilterRow}>
+                      <Pressable
+                        onPress={() => setCommunityHistoryCircleId("all")}
+                        style={[styles.filterChip, communityHistoryCircleId === "all" && styles.activeFilterChip]}
+                      >
+                        <Text style={[styles.filterText, communityHistoryCircleId === "all" && styles.activeFilterText]}>All circles</Text>
+                      </Pressable>
+                      {communityHistoryCircleOptions.map((circle) => (
+                        <Pressable
+                          key={circle.circleId}
+                          onPress={() => setCommunityHistoryCircleId(circle.circleId)}
+                          style={[styles.filterChip, communityHistoryCircleId === circle.circleId && styles.activeFilterChip]}
+                        >
+                          <Text style={[styles.filterText, communityHistoryCircleId === circle.circleId && styles.activeFilterText]}>{circle.circleName}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
+                  {communityHistoryGroups.length === 0 ? (
+                    <View style={styles.emptyCommunityBox}>
+                      <Text style={styles.communityTitle}>No check-ins found</Text>
+                      <Text style={styles.helpIntro}>Try another filter, or post a new check-in from Encourage.</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.communityHistoryGroupList}>
+                      {communityHistoryGroups.map((group) => (
+                        <View key={group.title} style={styles.communityHistoryGroup}>
+                          <View style={styles.circleSelectorHeader}>
+                            <Text style={styles.circleManagementLabel}>{group.title}</Text>
+                            <Text style={styles.circleCountText}>{group.items.length}</Text>
+                          </View>
+                          <View style={styles.circleList}>
+                            {group.items.map((checkin: any) => {
+                              const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
+                              const destinationText = sharedCircles.length > 0
+                                ? `Shared to ${sharedCircles.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
+                                : "Private check-in";
+                              const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
+                              const checkinIsEditing = editingRecentCheckinId === checkin._id;
+                              return (
+                                <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
+                                  <View style={styles.checkinHistoryHeader}>
+                                    <View style={styles.checkinHistoryMeta}>
+                                      <View style={styles.checkinTitleRow}>
+                                        <Text style={styles.checkinMood}>{checkin.mood}</Text>
+                                      </View>
+                                      <Text style={styles.checkinDestinationText}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
+                                    </View>
+                                  </View>
+                                  {checkinIsEditing ? (
+                                    <TextInput
+                                      value={editRecentCheckinNote}
+                                      onChangeText={setEditRecentCheckinNote}
+                                      multiline
+                                      style={[styles.input, styles.checkinEditInput]}
+                                    />
+                                  ) : (
+                                    <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
+                                  )}
+                                  <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
+                                    {checkinIsEditing ? (
+                                      <>
+                                        <Pressable
+                                          onPress={() => saveRecentCheckinEdit(checkin)}
+                                          style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
+                                          accessibilityLabel="Save check-in changes"
+                                        >
+                                          <Ionicons name={isSavingRecentCheckinEdit ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
+                                        </Pressable>
+                                        <Pressable onPress={cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
+                                          <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
+                                        </Pressable>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={styles.checkinIconButton} accessibilityLabel="Copy check-in">
+                                          <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
+                                        </Pressable>
+                                        <Pressable onPress={() => startEditRecentCheckin(checkin)} style={styles.checkinIconButton} accessibilityLabel="Edit check-in">
+                                          <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                                        </Pressable>
+                                        <Pressable
+                                          onPress={() => deleteRecentCheckin(checkin)}
+                                          style={[styles.checkinIconButton, styles.checkinDeleteIconButton, checkinDeletePending && styles.pendingDeleteButton]}
+                                          accessibilityLabel={checkinDeletePending ? "Confirm delete check-in" : "Remove check-in"}
+                                        >
+                                          <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                                        </Pressable>
+                                      </>
+                                    )}
+                                  </View>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                  {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
+                </View>
               )}
             </Card>
 
@@ -12981,6 +13160,53 @@ const styles = StyleSheet.create({
     gap: 6,
     marginBottom: 14,
     padding: 14
+  },
+  communitySubViewTabs: {
+    alignSelf: "flex-start",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 4,
+    marginBottom: 14,
+    padding: 4
+  },
+  communitySubViewTab: {
+    borderRadius: 999,
+    minHeight: 34,
+    justifyContent: "center",
+    paddingHorizontal: 13
+  },
+  activeCommunitySubViewTab: {
+    backgroundColor: colors.oliveDark
+  },
+  communitySubViewTabText: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "900"
+  },
+  activeCommunitySubViewTabText: {
+    color: "white"
+  },
+  communityHistoryPanel: {
+    gap: 12
+  },
+  communityHistoryFilterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  communityHistoryGroupList: {
+    gap: 12
+  },
+  communityHistoryGroup: {
+    backgroundColor: "rgba(255, 250, 242, 0.7)",
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 9,
+    padding: 10
   },
   communityStepHeader: {
     alignItems: "flex-start",

@@ -342,6 +342,7 @@ export default function Home() {
   const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
   const reactToCommunityPost = useMutation((api as any).community.reactToPost);
   const removeCommunityPost = useMutation((api as any).community.removePost);
+  const updateCommunityPost = useMutation((api as any).community.updatePost);
   const leaveCommunityCircle = useMutation((api as any).community.leaveCircle);
   const deleteCommunityCircle = useMutation((api as any).community.deleteCircle);
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
@@ -434,6 +435,12 @@ export default function Home() {
   const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
   const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
   const [pendingCheckinDeleteId, setPendingCheckinDeleteId] = useState<any>(null);
+  const [editingRecentCheckinId, setEditingRecentCheckinId] = useState<any>(null);
+  const [editRecentCheckinNote, setEditRecentCheckinNote] = useState("");
+  const [isSavingRecentCheckinEdit, setIsSavingRecentCheckinEdit] = useState(false);
+  const [editingCommunityPostId, setEditingCommunityPostId] = useState<any>(null);
+  const [editCommunityPostNote, setEditCommunityPostNote] = useState("");
+  const [isSavingCommunityPostEdit, setIsSavingCommunityPostEdit] = useState(false);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
@@ -1849,10 +1856,43 @@ export default function Home() {
     }
   }
 
+  function startEditCommunityPost(post: any) {
+    setEditingCommunityPostId(post._id);
+    setEditCommunityPostNote(post.note || "");
+    setCircleStatus("");
+  }
+
+  function cancelEditCommunityPost() {
+    setEditingCommunityPostId(null);
+    setEditCommunityPostNote("");
+  }
+
+  async function saveCommunityPostEdit(post: any) {
+    if (!activeProfileId || isSavingCommunityPostEdit) return;
+    const nextNote = editCommunityPostNote.trim();
+    if (!nextNote) {
+      setCircleStatus("Add a note before saving changes.");
+      return;
+    }
+
+    setIsSavingCommunityPostEdit(true);
+    setCircleStatus("Saving shared post...");
+    try {
+      await updateCommunityPost({ profileId: activeProfileId, postId: post._id, note: nextNote });
+      cancelEditCommunityPost();
+      setCircleStatus("Shared post updated.");
+    } catch {
+      setCircleStatus("Could not update that shared post.");
+    } finally {
+      setIsSavingCommunityPostEdit(false);
+    }
+  }
+
   async function deleteRecentCheckin(checkin: any) {
     if (!activeProfileId) return;
     if (pendingCheckinDeleteId !== checkin._id) {
       setPendingCheckinDeleteId(checkin._id);
+      setEditingRecentCheckinId(null);
       setCommunityStatus(
         Array.isArray(checkin.sharedTo) && checkin.sharedTo.length > 0
           ? "Tap Confirm delete to remove this check-in and its shared circle post."
@@ -1867,6 +1907,43 @@ export default function Home() {
       setCommunityStatus("Check-in removed.");
     } catch {
       setCommunityStatus("Could not remove that check-in.");
+    }
+  }
+
+  function startEditRecentCheckin(checkin: any) {
+    setPendingCheckinDeleteId(null);
+    setEditingRecentCheckinId(checkin._id);
+    setEditRecentCheckinNote(checkin.note || "");
+    setCommunityStatus("");
+  }
+
+  function cancelEditRecentCheckin() {
+    setEditingRecentCheckinId(null);
+    setEditRecentCheckinNote("");
+  }
+
+  async function saveRecentCheckinEdit(checkin: any) {
+    if (!activeProfileId || isSavingRecentCheckinEdit) return;
+    const nextNote = editRecentCheckinNote.trim();
+    if (!nextNote) {
+      setCommunityStatus("Add a note before saving changes.");
+      return;
+    }
+
+    setIsSavingRecentCheckinEdit(true);
+    setCommunityStatus("Saving changes...");
+    try {
+      await updateCheckin({ profileId: activeProfileId, checkinId: checkin._id, note: nextNote });
+      cancelEditRecentCheckin();
+      setCommunityStatus(
+        Array.isArray(checkin.sharedTo) && checkin.sharedTo.length > 0
+          ? "Check-in and shared circle post updated."
+          : "Check-in updated."
+      );
+    } catch {
+      setCommunityStatus("Could not update that check-in.");
+    } finally {
+      setIsSavingRecentCheckinEdit(false);
     }
   }
 
@@ -5367,42 +5444,68 @@ export default function Home() {
                   <Text style={styles.helpIntro}>Shared check-ins from this private circle.</Text>
                   {Array.isArray(communityFeed) && communityFeed.length > 0 ? (
                     <View style={styles.circleFeedList}>
-                      {communityFeed.map((post: any) => (
-                        <View key={post._id} style={styles.circlePostCard}>
-                          <View style={styles.journalHeader}>
-                            <View style={styles.journalTitleBlock}>
-                              <Text style={styles.helpFaqQuestion}>{post.authorName || "Bible student"}</Text>
-                              <Text style={styles.adminEventMeta}>{formatAdminDate(post.createdAt)}{post.passageReference ? ` · ${post.passageReference}` : ""}</Text>
+                      {communityFeed.map((post: any) => {
+                        const postIsEditing = editingCommunityPostId === post._id;
+                        return (
+                          <View key={post._id} style={styles.circlePostCard}>
+                            <View style={styles.journalHeader}>
+                              <View style={styles.journalTitleBlock}>
+                                <Text style={styles.helpFaqQuestion}>{post.authorName || "Bible student"}</Text>
+                                <Text style={styles.adminEventMeta}>{formatAdminDate(post.createdAt)}{post.passageReference ? ` · ${post.passageReference}` : ""}</Text>
+                              </View>
+                              {post.canRemove && !postIsEditing && (
+                                <View style={styles.circlePostIconRow}>
+                                  <Pressable onPress={() => startEditCommunityPost(post)} style={styles.checkinIconButton} accessibilityLabel="Edit shared post">
+                                    <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                                  </Pressable>
+                                  <Pressable onPress={() => deleteCommunityPost(post._id)} style={[styles.checkinIconButton, styles.checkinDeleteIconButton]} accessibilityLabel="Remove shared post">
+                                    <Ionicons name="trash-outline" size={16} color={colors.coral} />
+                                  </Pressable>
+                                </View>
+                              )}
+                              {post.canRemove && postIsEditing && (
+                                <View style={styles.circlePostIconRow}>
+                                  <Pressable onPress={() => saveCommunityPostEdit(post)} style={[styles.checkinIconButton, styles.checkinSaveIconButton]} accessibilityLabel="Save shared post changes">
+                                    <Ionicons name={isSavingCommunityPostEdit ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
+                                  </Pressable>
+                                  <Pressable onPress={cancelEditCommunityPost} style={styles.checkinIconButton} accessibilityLabel="Cancel shared post edit">
+                                    <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
+                                  </Pressable>
+                                </View>
+                              )}
                             </View>
-                            {post.canRemove && (
-                              <Pressable onPress={() => deleteCommunityPost(post._id)} style={styles.circleRemovePostButton}>
-                                <Ionicons name="trash-outline" size={14} color={colors.coral} />
-                                <Text style={styles.circleRemovePostText}>Remove</Text>
-                              </Pressable>
+                            {postIsEditing ? (
+                              <TextInput
+                                value={editCommunityPostNote}
+                                onChangeText={setEditCommunityPostNote}
+                                multiline
+                                style={[styles.input, styles.checkinEditInput]}
+                              />
+                            ) : (
+                              <Text style={styles.lastCheckinText}>{post.note}</Text>
                             )}
+                            <View style={styles.circleReactionRow}>
+                              {[
+                                ["amen", "Amen"],
+                                ["praying", "Praying"],
+                                ["encouraged", "Encouraged"]
+                              ].map(([reaction, label]) => {
+                                const active = post.myReactions?.includes(reaction);
+                                const count = post.reactions?.[reaction] || 0;
+                                return (
+                                  <Pressable
+                                    key={reaction}
+                                    onPress={() => toggleCommunityReaction(post._id, reaction as "amen" | "praying" | "encouraged")}
+                                    style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
+                                  >
+                                    <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{label}{count ? ` ${count}` : ""}</Text>
+                                  </Pressable>
+                                );
+                              })}
+                            </View>
                           </View>
-                          <Text style={styles.lastCheckinText}>{post.note}</Text>
-                          <View style={styles.circleReactionRow}>
-                            {[
-                              ["amen", "Amen"],
-                              ["praying", "Praying"],
-                              ["encouraged", "Encouraged"]
-                            ].map(([reaction, label]) => {
-                              const active = post.myReactions?.includes(reaction);
-                              const count = post.reactions?.[reaction] || 0;
-                              return (
-                                <Pressable
-                                  key={reaction}
-                                  onPress={() => toggleCommunityReaction(post._id, reaction as "amen" | "praying" | "encouraged")}
-                                  style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
-                                >
-                                  <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{label}{count ? ` ${count}` : ""}</Text>
-                                </Pressable>
-                              );
-                            })}
-                          </View>
-                        </View>
-                      ))}
+                        );
+                      })}
                     </View>
                   ) : (
                     <View style={styles.emptyCommunityBox}>
@@ -5450,6 +5553,7 @@ export default function Home() {
                       ? `Shared to ${sharedCircles.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
                       : "Private check-in";
                     const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
+                    const checkinIsEditing = editingRecentCheckinId === checkin._id;
                     return (
                       <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
                         <View style={styles.checkinHistoryHeader}>
@@ -5460,19 +5564,47 @@ export default function Home() {
                             <Text style={styles.checkinDestinationText}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
                           </View>
                         </View>
-                        <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
+                        {checkinIsEditing ? (
+                          <TextInput
+                            value={editRecentCheckinNote}
+                            onChangeText={setEditRecentCheckinNote}
+                            multiline
+                            style={[styles.input, styles.checkinEditInput]}
+                          />
+                        ) : (
+                          <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
+                        )}
                         <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
-                          <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
-                            <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
-                            <Text style={styles.copySmallText}>Copy</Text>
-                          </Pressable>
-                          <Pressable
-                            onPress={() => deleteRecentCheckin(checkin)}
-                            style={[styles.circleRemovePostButton, checkinDeletePending && styles.pendingDeleteButton]}
-                          >
-                            <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={14} color={colors.coral} />
-                            <Text style={styles.circleRemovePostText}>{checkinDeletePending ? "Confirm delete" : "Remove"}</Text>
-                          </Pressable>
+                          {checkinIsEditing ? (
+                            <>
+                              <Pressable
+                                onPress={() => saveRecentCheckinEdit(checkin)}
+                                style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
+                                accessibilityLabel="Save check-in changes"
+                              >
+                                <Ionicons name={isSavingRecentCheckinEdit ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
+                              </Pressable>
+                              <Pressable onPress={cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
+                                <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
+                              </Pressable>
+                            </>
+                          ) : (
+                            <>
+                              <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={styles.checkinIconButton} accessibilityLabel="Copy check-in">
+                                <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
+                              </Pressable>
+                              <Pressable onPress={() => startEditRecentCheckin(checkin)} style={styles.checkinIconButton} accessibilityLabel="Edit check-in">
+                                <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                              </Pressable>
+                              <Pressable
+                                onPress={() => deleteRecentCheckin(checkin)}
+                                style={[styles.checkinIconButton, styles.checkinDeleteIconButton, checkinDeletePending && styles.pendingDeleteButton]}
+                                accessibilityLabel={checkinDeletePending ? "Confirm delete check-in" : "Remove check-in"}
+                              >
+                                <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                              </Pressable>
+                            </>
+                          )}
                         </View>
                       </View>
                     );
@@ -13027,43 +13159,33 @@ const styles = StyleSheet.create({
   phoneCheckinActionRow: {
     flexWrap: "nowrap"
   },
+  checkinIconButton: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 32,
+    justifyContent: "center",
+    width: 32
+  },
+  checkinSaveIconButton: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  checkinDeleteIconButton: {
+    backgroundColor: colors.panel,
+    borderColor: "rgba(201, 103, 80, 0.28)"
+  },
+  checkinEditInput: {
+    minHeight: 84,
+    textAlignVertical: "top"
+  },
   checkinMood: {
     color: colors.ink,
     fontSize: 14,
     fontWeight: "800",
     textTransform: "capitalize"
-  },
-  sentPill: {
-    backgroundColor: colors.blush,
-    borderRadius: 999,
-    color: colors.coral,
-    fontSize: 11,
-    fontWeight: "800",
-    overflow: "hidden",
-    paddingHorizontal: 7,
-    paddingVertical: 3
-  },
-  sentPillActive: {
-    backgroundColor: colors.oliveDark,
-    color: "white"
-  },
-  copySmallButton: {
-    alignItems: "center",
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    flexDirection: "row",
-    gap: 5,
-    minHeight: 30,
-    paddingHorizontal: 9
-  },
-  phoneCopySmallButton: {
-    minHeight: 32,
-    paddingHorizontal: 8
-  },
-  copySmallText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "800"
   },
   communityPanelHeader: {
     alignItems: "center",
@@ -13312,26 +13434,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 7
   },
-  circleRemovePostButton: {
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
+  circlePostIconRow: {
     flexDirection: "row",
-    gap: 4,
-    minHeight: 30,
-    paddingHorizontal: 8
+    flexShrink: 0,
+    gap: 7
   },
   pendingDeleteButton: {
     backgroundColor: colors.blush,
     borderColor: "rgba(201, 103, 80, 0.32)"
-  },
-  circleRemovePostText: {
-    color: colors.coral,
-    fontSize: 11,
-    fontWeight: "900"
   },
   circleReactionChip: {
     backgroundColor: colors.panel,

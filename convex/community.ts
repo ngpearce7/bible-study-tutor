@@ -350,6 +350,31 @@ export const removePost = mutation({
   }
 });
 
+export const updatePost = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    postId: v.id("communityPosts"),
+    note: v.string()
+  },
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    const post = await ctx.db.get(args.postId);
+    if (!post) return false;
+    await authorizeCircleMember(ctx, post.circleId, args.profileId);
+    if (post.profileId !== args.profileId) throw new Error("Only the person who shared this check-in can edit it.");
+
+    const nextNote = clampText(args.note, 1200);
+    await ctx.db.patch(args.postId, { note: nextNote });
+    if (post.checkinId) {
+      const checkin = await ctx.db.get(post.checkinId);
+      if (checkin && checkin.profileId === args.profileId) {
+        await ctx.db.patch(checkin._id, { note: clampText(args.note, 4000) });
+      }
+    }
+    return true;
+  }
+});
+
 export const leaveCircle = mutation({
   args: {
     profileId: v.id("profiles"),

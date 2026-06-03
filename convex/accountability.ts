@@ -236,9 +236,21 @@ export const updateCheckin = mutation({
     const checkin = await ctx.db.get(args.checkinId);
     if (!checkin || checkin.profileId !== args.profileId) return false;
 
+    const nextNote = clampText(args.note, 4000);
     await ctx.db.patch(args.checkinId, {
-      note: clampText(args.note, 4000)
+      note: nextNote
     });
+
+    const sharedPosts = await ctx.db
+      .query("communityPosts")
+      .withIndex("by_checkin", (q) => q.eq("checkinId", args.checkinId))
+      .take(50);
+    for (const post of sharedPosts) {
+      if (post.profileId !== args.profileId) continue;
+      await ctx.db.patch(post._id, {
+        note: clampText(nextNote, 1200)
+      });
+    }
     return true;
   }
 });

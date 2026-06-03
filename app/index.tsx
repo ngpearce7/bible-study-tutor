@@ -5525,16 +5525,6 @@ export default function Home() {
                 </View>
                 <Text style={styles.helpIntro}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
               </View>
-              <View style={styles.communityGoalBox}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="pulse-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Rhythm</Text>
-                </View>
-                <Text style={styles.helpIntro}>Keep a simple goal for regular study and encouragement.</Text>
-                <TextInput value={weeklyGoal} onChangeText={setWeeklyGoal} placeholder="Example: Study 3 times this week" style={styles.input} />
-              </View>
-              <AppButton label="Save community settings" onPress={persistPlan} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-              {!!planStatus && <Text style={styles.saveStatus}>{planStatus}</Text>}
               <View style={styles.communityDivider} />
               <View style={styles.feedbackHeader}>
                 <Ionicons name="time-outline" size={18} color={colors.coral} />

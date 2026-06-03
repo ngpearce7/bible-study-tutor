@@ -433,6 +433,7 @@ export default function Home() {
   const [communityTargetPickerOpen, setCommunityTargetPickerOpen] = useState(false);
   const [pendingCircleDeleteId, setPendingCircleDeleteId] = useState<any>(null);
   const [pendingCircleLeaveId, setPendingCircleLeaveId] = useState<any>(null);
+  const [pendingCheckinDeleteId, setPendingCheckinDeleteId] = useState<any>(null);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
@@ -1845,6 +1846,27 @@ export default function Home() {
       setCircleStatus("Shared check-in removed.");
     } catch {
       setCircleStatus("Could not remove that shared check-in.");
+    }
+  }
+
+  async function deleteRecentCheckin(checkin: any) {
+    if (!activeProfileId) return;
+    if (pendingCheckinDeleteId !== checkin._id) {
+      setPendingCheckinDeleteId(checkin._id);
+      setCommunityStatus(
+        Array.isArray(checkin.sharedTo) && checkin.sharedTo.length > 0
+          ? "Tap Confirm delete to remove this check-in and its shared circle post."
+          : "Tap Confirm delete to remove this private check-in."
+      );
+      return;
+    }
+
+    try {
+      await deleteCheckinMutation({ profileId: activeProfileId, checkinId: checkin._id });
+      setPendingCheckinDeleteId(null);
+      setCommunityStatus("Check-in removed.");
+    } catch {
+      setCommunityStatus("Could not remove that check-in.");
     }
   }
 
@@ -5422,24 +5444,40 @@ export default function Home() {
                 </View>
               ) : (
                 <>
-                  {visibleCheckins.map((checkin: any) => (
-                    <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
-                      <View style={styles.journalHeader}>
-                        <View style={styles.journalTitleBlock}>
-                          <View style={styles.checkinTitleRow}>
-                            <Text style={styles.checkinMood}>{checkin.mood}</Text>
-                            <Text style={[styles.sentPill, checkin.sentAt && styles.sentPillActive]}>{checkin.sentAt ? "Sent" : "Saved"}</Text>
+                  {visibleCheckins.map((checkin: any) => {
+                    const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
+                    const destinationText = sharedCircles.length > 0
+                      ? `Shared to ${sharedCircles.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
+                      : "Private check-in";
+                    const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
+                    return (
+                      <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
+                        <View style={styles.journalHeader}>
+                          <View style={styles.journalTitleBlock}>
+                            <View style={styles.checkinTitleRow}>
+                              <Text style={styles.checkinMood}>{checkin.mood}</Text>
+                              <Text style={[styles.sentPill, sharedCircles.length > 0 && styles.sentPillActive]}>{sharedCircles.length > 0 ? "Shared" : "Private"}</Text>
+                            </View>
+                            <Text style={styles.muted}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
                           </View>
-                          <Text style={styles.muted}>{new Date(checkin.createdAt).toLocaleDateString()}</Text>
+                          <View style={styles.checkinActionRow}>
+                            <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
+                              <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
+                              <Text style={styles.copySmallText}>Copy</Text>
+                            </Pressable>
+                            <Pressable
+                              onPress={() => deleteRecentCheckin(checkin)}
+                              style={[styles.circleRemovePostButton, checkinDeletePending && styles.pendingDeleteButton]}
+                            >
+                              <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={14} color={colors.coral} />
+                              <Text style={styles.circleRemovePostText}>{checkinDeletePending ? "Confirm delete" : "Remove"}</Text>
+                            </Pressable>
+                          </View>
                         </View>
-                        <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={[styles.copySmallButton, phoneLayout && styles.phoneCopySmallButton]}>
-                          <Ionicons name="copy-outline" size={15} color={colors.oliveDark} />
-                          <Text style={styles.copySmallText}>Copy</Text>
-                        </Pressable>
+                        <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
                       </View>
-                      <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
-                    </View>
-                  ))}
+                    );
+                  })}
                   {(checkins || []).length > 3 && (
                     <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={styles.communityShowMoreButton}>
                       <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
@@ -12963,6 +13001,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 7
   },
+  checkinActionRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    flexWrap: "wrap",
+    gap: 7,
+    justifyContent: "flex-end"
+  },
   checkinMood: {
     color: colors.ink,
     fontSize: 14,
@@ -13259,6 +13305,10 @@ const styles = StyleSheet.create({
     gap: 4,
     minHeight: 30,
     paddingHorizontal: 8
+  },
+  pendingDeleteButton: {
+    backgroundColor: colors.blush,
+    borderColor: "rgba(201, 103, 80, 0.32)"
   },
   circleRemovePostText: {
     color: colors.coral,

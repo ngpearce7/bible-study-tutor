@@ -133,6 +133,7 @@ export default defineSchema({
     createdAt: v.number()
   })
     .index("by_circle_created", ["circleId", "createdAt"])
+    .index("by_checkin", ["checkinId"])
     .index("by_profile_created", ["profileId", "createdAt"]),
   communityReactions: defineTable({
     postId: v.id("communityPosts"),

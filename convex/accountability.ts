@@ -162,11 +162,34 @@ export const recentCheckins = query({
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
-    return await ctx.db
+    const checkins = await ctx.db
       .query("checkins")
       .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
       .order("desc")
       .take(args.limit ?? 12);
+
+    const enriched = [];
+    for (const checkin of checkins) {
+      const sharedPosts = await ctx.db
+        .query("communityPosts")
+        .withIndex("by_checkin", (q) => q.eq("checkinId", checkin._id))
+        .take(20);
+      const sharedTo = [];
+      for (const post of sharedPosts) {
+        if (post.profileId !== args.profileId) continue;
+        const circle = await ctx.db.get(post.circleId);
+        if (!circle) continue;
+        sharedTo.push({
+          postId: post._id,
+          circleId: circle._id,
+          circleName: circle.name,
+          createdAt: post.createdAt
+        });
+      }
+      enriched.push({ ...checkin, sharedTo });
+    }
+
+    return enriched;
   }
 });
 
@@ -181,6 +204,21 @@ export const deleteCheckin = mutation({
     const checkin = await ctx.db.get(args.checkinId);
     if (!checkin || checkin.profileId !== args.profileId) return false;
 
+    const sharedPosts = await ctx.db
+      .query("communityPosts")
+      .withIndex("by_checkin", (q) => q.eq("checkinId", args.checkinId))
+      .take(50);
+    for (const post of sharedPosts) {
+      if (post.profileId !== args.profileId) continue;
+      const reactions = await ctx.db
+        .query("communityReactions")
+        .withIndex("by_post", (q) => q.eq("postId", post._id))
+        .take(200);
+      for (const reaction of reactions) {
+        await ctx.db.delete(reaction._id);
+      }
+      await ctx.db.delete(post._id);
+    }
     await ctx.db.delete(args.checkinId);
     return true;
   }

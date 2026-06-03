@@ -823,7 +823,7 @@ export default function Home() {
   const hasAvailableCommunityTarget = acceptedCommunityFriends.length > 0 || (communityCircles || []).length > 0;
   const hasCommunityTarget = !!activeCommunityTargetName;
   const communityTargetLabel = communityTargetType === "friend" && selectedCommunityFriends.length !== 1 ? "Friends" : communityTargetType === "friend" ? "Friend" : "Circle";
-  const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote, shareNote: suggestedShareNote, passageReference: passageText?.reference || passage });
+  const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
@@ -1934,9 +1934,7 @@ export default function Home() {
   async function copyPastCheckinMessage(checkin: any) {
     const message = buildCommunityMessage({
       partner: effectivePartner,
-      checkinNote: checkin.note,
-      shareNote: "",
-      passageReference: passageText?.reference || passage
+      checkinNote: checkin.note
     });
 
     try {
@@ -10322,22 +10320,17 @@ function pickResumeStepIndex(answers: { answer: string }[], requestedIndex: numb
 function buildCommunityMessage({
   partner,
   senderName,
-  checkinNote,
-  shareNote,
-  passageReference
+  checkinNote
 }: {
   partner: string;
   senderName?: string;
   checkinNote: string;
-  shareNote: string;
-  passageReference: string;
 }) {
   const greeting = partner.trim() ? `${partner.trim()}, here is my Bible study check-in:` : "Here is my Bible study check-in:";
   const note = checkinNote.trim() || "I studied today and want to keep the rhythm going.";
-  const insight = shareNote.trim() || `${passageReference}: I spent time with this passage today.`;
   const signedBy = senderName?.trim() ? `From: ${senderName.trim()}` : "";
 
-  return [greeting, `Note: ${note}`, `Insight: ${insight}`, signedBy].filter(Boolean).join("\n");
+  return [greeting, note, signedBy].filter(Boolean).join("\n");
 }
 
 function formatNameList(names: string[]) {

@@ -699,7 +699,7 @@ export default function Home() {
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
 
   useEffect(() => {
-    if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId) {
+    if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId || !isAuthenticated) {
       communityReactionStorageProfileRef.current = "";
       setCommunityReactionOverrides({});
       return;
@@ -713,10 +713,10 @@ export default function Home() {
     } catch {
       setCommunityReactionOverrides({});
     }
-  }, [activeProfileId]);
+  }, [activeProfileId, isAuthenticated]);
 
   useEffect(() => {
-    if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId) return;
+    if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId || !isAuthenticated) return;
     const storageProfileId = String(activeProfileId);
     if (communityReactionStorageProfileRef.current !== storageProfileId) return;
     try {
@@ -724,7 +724,7 @@ export default function Home() {
     } catch {
       // Ignore storage limits; Convex remains the source of truth when available.
     }
-  }, [activeProfileId, communityReactionOverrides]);
+  }, [activeProfileId, communityReactionOverrides, isAuthenticated]);
 
   useEffect(() => {
     if (!activeProfileId || !incomingShareSource || trackedIncomingShareRef.current === incomingShareSource) return;
@@ -1969,8 +1969,8 @@ export default function Home() {
     currentReactions: { amen?: number; praying?: number; encouraged?: number } = {},
     currentMyReactions: string[] = []
   ) {
-    if (!activeProfileId || !postId) {
-      setCommunityStatus("Sign in before reacting to an encouragement.");
+    if (!activeProfileId || !postId || !isAuthenticated) {
+      setCommunityStatus("Sign in before reacting so it can sync across devices.");
       return;
     }
     const postKey = String(postId);

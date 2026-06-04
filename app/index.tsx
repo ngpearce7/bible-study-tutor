@@ -170,15 +170,15 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Information you provide",
-    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, check-ins, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared friend or circle posts, and reactions."
+    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, encouragements, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared friend or circle posts, and reactions."
   },
   {
     title: "Faith and personal reflections",
-    body: "Your notes, journal entries, check-ins, shared friend or circle posts, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. By choosing to save or share that content, you consent to the app storing and using it to provide the features you request. Please write thoughtfully and avoid adding information you would not want stored in the app."
+    body: "Your notes, journal entries, encouragements, shared friend or circle posts, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. By choosing to save or share that content, you consent to the app storing and using it to provide the features you request. Please write thoughtfully and avoid adding information you would not want stored in the app."
   },
   {
     title: "How we use information",
-    body: "We use your information to create and secure your account, save and sync your studies, personalize encouragement by name, restore your work across devices, provide Bible reading, journaling, memory, check-in, friend, and private circle tools, respond to feedback, improve the app, and protect the service from misuse."
+    body: "We use your information to create and secure your account, save and sync your studies, personalize encouragement by name, restore your work across devices, provide Bible reading, journaling, memory, encouragement, friend, and private circle tools, respond to feedback, improve the app, and protect the service from misuse."
   },
   {
     title: "Information we do not intentionally collect",
@@ -206,11 +206,11 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Sharing from the app",
-    body: "The app can help you copy or share study insights, check-in messages, and the Bible Study Tutor link. It can also let you share insights and check-ins with accepted friends or invite-only private circles, where the selected recipients can view and react to shared posts. We may count that a share, copy-link, QR-code arrival, post, or reaction happened. Once you share content outside the app, that outside service or recipient controls what happens to it."
+    body: "The app can help you copy or share study insights, encouragement messages, and the Bible Study Tutor link. It can also let you share insights and encouragements with accepted friends or invite-only private circles, where the selected recipients can view and react to shared posts. We may count that a share, copy-link, QR-code arrival, post, or reaction happened. Once you share content outside the app, that outside service or recipient controls what happens to it."
   },
   {
     title: "Data retention and deletion",
-    body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, drafts, check-ins, and shared friend or circle posts. Editing or deleting a shared post updates or removes it inside the app, but it cannot control content already copied, screenshotted, remembered, or shared outside the app. To request account deletion or broader data removal, contact support@biblestudytutor.org."
+    body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, drafts, encouragements, and shared friend or circle posts. Editing or deleting a shared post updates or removes it inside the app, but it cannot control content already copied, screenshotted, remembered, or shared outside the app. To request account deletion or broader data removal, contact support@biblestudytutor.org."
   },
   {
     title: "Access, correction, deletion, and complaints",
@@ -236,7 +236,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Purpose of the app",
-    body: "Bible Study Tutor is a free study tool designed to support Bible reading, guided study methods, journaling, memorization, bookmarks, highlights, printable worksheets, feedback, private friends, invite-only circles, and simple community check-ins."
+    body: "Bible Study Tutor is a free study tool designed to support Bible reading, guided study methods, journaling, memorization, bookmarks, highlights, printable worksheets, feedback, private friends, invite-only circles, and simple community encouragements."
   },
   {
     title: "Not professional advice",
@@ -248,7 +248,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Your content",
-    body: "You keep ownership of the notes, reflections, check-ins, shared friend or circle posts, reactions, and feedback you create. You give Bible Study Tutor permission to store and process that content so the app can provide its features, sync your account, improve the service, and respond to feedback."
+    body: "You keep ownership of the notes, reflections, encouragements, shared friend or circle posts, reactions, and feedback you create. You give Bible Study Tutor permission to store and process that content so the app can provide its features, sync your account, improve the service, and respond to feedback."
   },
   {
     title: "Private community use",
@@ -890,7 +890,7 @@ export default function Home() {
     const sharedTo = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
     const title = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((item: any) => item.circleName || item.friendName).filter(Boolean).join(", ")}`
-      : "Private or friend check-ins";
+      : "Private encouragements";
     const existing = groups.find((group) => group.title === title);
     if (existing) {
       existing.items.push(checkin);
@@ -1036,7 +1036,7 @@ export default function Home() {
     { label: "Completed studies", value: (sessions || []).length, icon: "book-outline" },
     { label: "Draft studies", value: (drafts || []).length, icon: "create-outline" },
     { label: "Memory verses", value: (memoryVerses || []).length, icon: "sparkles-outline" },
-    { label: "Check-ins", value: (checkins || []).length, icon: "people-outline" },
+    { label: "Encouragements", value: (checkins || []).length, icon: "people-outline" },
     { label: "Saved highlights", value: totalSavedHighlightCount, icon: "color-wand-outline" },
     { label: "Bible bookmarks", value: bibleBookmarks.length, icon: "bookmark-outline" },
     { label: "Chapters marked read", value: readBibleChapterCount, icon: "checkmark-circle-outline" }
@@ -1548,7 +1548,7 @@ export default function Home() {
     setPartner(name);
     setPartnerName("");
     setPartnerContactNote("");
-    setPlanStatus("Check-in partner added");
+    setPlanStatus("Encouragement partner added");
     setPeoplePanelCollapsed(true);
     saveStoredCheckinPartners(next).catch(() => undefined);
     saveActiveCheckinPartnerId(created.id).catch(() => undefined);
@@ -1757,17 +1757,17 @@ export default function Home() {
       return;
     }
     if (!hasCommunityTarget) {
-      setCommunityStatus("Add an accepted friend or join a circle before saving a community check-in.");
+      setCommunityStatus("Add an accepted friend or join a circle before saving an encouragement.");
       return;
     }
 
     setIsSavingCheckin(true);
-    setCommunityStatus("Posting check-in...");
+    setCommunityStatus("Posting encouragement...");
     const noteToSave = checkinNote.trim();
     const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && targetCircleId;
     const shouldShareWithFriends = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "friend" && targetFriendIds.length > 0;
     try {
-      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: Date.now() });
+      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "encouragement", note: noteToSave, sentAt: Date.now() });
       if (shouldShareWithCircle || shouldShareWithFriends) {
         try {
           await shareCheckinToCircle({
@@ -1794,7 +1794,7 @@ export default function Home() {
       trackUsage("checkin_saved", { tab: "accountability" });
       setCheckinNote("");
     } catch {
-      setCommunityStatus("Could not save that check-in. Please try again.");
+      setCommunityStatus("Could not save that encouragement. Please try again.");
     } finally {
       setIsSavingCheckin(false);
     }
@@ -1980,9 +1980,9 @@ export default function Home() {
     if (!activeProfileId) return;
     try {
       await removeCommunityPost({ profileId: activeProfileId, postId });
-      setCircleStatus("Shared check-in removed.");
+      setCircleStatus("Shared encouragement removed.");
     } catch {
-      setCircleStatus("Could not remove that shared check-in.");
+      setCircleStatus("Could not remove that shared encouragement.");
     }
   }
 
@@ -2025,8 +2025,8 @@ export default function Home() {
       setEditingRecentCheckinId(null);
       setCommunityStatus(
         Array.isArray(checkin.sharedTo) && checkin.sharedTo.length > 0
-          ? "Tap Confirm delete to remove this check-in and its shared circle post."
-          : "Tap Confirm delete to remove this private check-in."
+          ? "Tap Confirm delete to remove this encouragement and its shared post."
+          : "Tap Confirm delete to remove this private encouragement."
       );
       return;
     }
@@ -2034,9 +2034,9 @@ export default function Home() {
     try {
       await deleteCheckinMutation({ profileId: activeProfileId, checkinId: checkin._id });
       setPendingCheckinDeleteId(null);
-      setCommunityStatus("Check-in removed.");
+      setCommunityStatus("Encouragement removed.");
     } catch {
-      setCommunityStatus("Could not remove that check-in.");
+      setCommunityStatus("Could not remove that encouragement.");
     }
   }
 
@@ -2067,11 +2067,11 @@ export default function Home() {
       cancelEditRecentCheckin();
       setCommunityStatus(
         Array.isArray(checkin.sharedTo) && checkin.sharedTo.length > 0
-          ? "Check-in and shared circle post updated."
-          : "Check-in updated."
+          ? "Encouragement and shared post updated."
+          : "Encouragement updated."
       );
     } catch {
-      setCommunityStatus("Could not update that check-in.");
+      setCommunityStatus("Could not update that encouragement.");
     } finally {
       setIsSavingRecentCheckinEdit(false);
     }
@@ -2168,7 +2168,7 @@ export default function Home() {
     try {
       if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(message);
-        setCommunityStatus("Past check-in copied");
+        setCommunityStatus("Past encouragement copied");
         return;
       }
 
@@ -2368,12 +2368,12 @@ export default function Home() {
     const canEditItem = !itemIsPost || item.canEdit !== false;
     const destinationText = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
-      : itemIsPost ? "Shared post" : "Private check-in";
+      : itemIsPost ? "Shared post" : "Private encouragement";
     const deletePending = !itemIsPost && pendingCheckinDeleteId === item._id;
     const itemIsEditing = itemIsPost ? editingCommunityPostId === item._id : editingRecentCheckinId === item._id;
     const editValue = itemIsPost ? editCommunityPostNote : editRecentCheckinNote;
     const saveBusy = itemIsPost ? isSavingCommunityPostEdit : isSavingRecentCheckinEdit;
-    const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood || "check-in";
+    const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood === "check-in" ? "encouragement" : item.mood || "encouragement";
     const authorText = item.authorLabel || "";
     const itemMeta = [
       new Date(item.createdAt).toLocaleDateString(),
@@ -2408,7 +2408,7 @@ export default function Home() {
               <Pressable
                 onPress={() => itemIsPost ? saveCommunityPostEdit(item) : saveRecentCheckinEdit(item)}
                 style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
-                accessibilityLabel={itemIsPost ? "Save shared post changes" : "Save check-in changes"}
+                accessibilityLabel={itemIsPost ? "Save shared post changes" : "Save encouragement changes"}
               >
                 <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
               </Pressable>
@@ -2418,18 +2418,18 @@ export default function Home() {
             </>
           ) : (
             <>
-              <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy check-in"}>
+              <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
                 <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
               </Pressable>
               {canEditItem && (
                 <>
-                  <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit check-in"}>
+                  <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
                     <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
                   </Pressable>
                   <Pressable
                     onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
                     style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
-                    accessibilityLabel={deletePending ? "Confirm delete check-in" : itemIsPost ? "Remove shared post" : "Remove check-in"}
+                    accessibilityLabel={deletePending ? "Confirm delete encouragement" : itemIsPost ? "Remove shared post" : "Remove encouragement"}
                   >
                     <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
                   </Pressable>
@@ -3969,7 +3969,7 @@ export default function Home() {
                   <View style={[styles.savedSummaryActions, phoneLayout && styles.phoneSavedSummaryActions]}>
                     <AppButton label="View Journal" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
                     {savedStudySummary.highlightCount > 0 && <AppButton label="Reflect" variant="secondary" onPress={openSavedHighlights} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />}
-                    <AppButton label="Check-in" variant="secondary" onPress={() => setTab("accountability")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
+                    <AppButton label="Encouragement" variant="secondary" onPress={() => setTab("accountability")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
                     <AppButton label="New study" variant="secondary" onPress={resetCurrentStudy} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
                   </View>
                 </View>
@@ -5533,8 +5533,8 @@ export default function Home() {
                     )}
                     <Text style={styles.helpIntro}>
                       {communityTargetType === "circle"
-                        ? "Saving can post this check-in to the selected circle."
-                        : "Saving can post this check-in to your selected friend or friends."}
+                        ? "Saving can post this encouragement to the selected circle."
+                        : "Saving can post this encouragement to your selected friend or friends."}
                     </Text>
                   </>
                 ) : (
@@ -5715,7 +5715,7 @@ export default function Home() {
                 <Text style={styles.helpIntro}>
                 {COMMUNITY_CIRCLES_ENABLED
                   ? isAuthenticated
-                    ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple check-in so you can encourage one another to keep drawing near to God."
+                    ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple encouragement so you can encourage one another to keep drawing near to God."
                     : "Sign in to create or join a small private circle where trusted people can share study thoughts, prayer points, and encouragement."
                   : "Private circles are being prepared and will be enabled after the backend is ready."}
                 </Text>
@@ -5822,7 +5822,7 @@ export default function Home() {
                 ) : COMMUNITY_CIRCLES_ENABLED ? (
                   <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                 ) : (
-                  <Text style={styles.saveStatus}>Check-ins still save privately and can be copied or sent as before.</Text>
+                  <Text style={styles.saveStatus}>Encouragements still save privately and can be copied or sent as before.</Text>
                 )}
               </View>
               </View>
@@ -5831,9 +5831,9 @@ export default function Home() {
                 <View style={styles.communityHistoryPanel}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="albums-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Check-in history</Text>
+                    <Text style={styles.feedbackTitle}>Encouragement history</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Review, edit, copy, or remove your saved check-ins. Circle posts stay grouped by where they were shared.</Text>
+                  <Text style={styles.helpIntro}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
                   <View style={styles.communityHistoryFilterRow}>
                     {[
                       ["all", "All"],
@@ -5874,7 +5874,7 @@ export default function Home() {
                   {communityHistoryGroups.length === 0 ? (
                     <View style={styles.emptyCommunityBox}>
                       <Text style={styles.communityTitle}>No posts found</Text>
-                      <Text style={styles.helpIntro}>Try another filter, or post a new check-in or study insight.</Text>
+                      <Text style={styles.helpIntro}>Try another filter, or post a new encouragement or study insight.</Text>
                     </View>
                   ) : (
                     <View style={styles.communityHistoryGroupList}>
@@ -5907,11 +5907,11 @@ export default function Home() {
               <View style={styles.communityDivider} />
               <View style={styles.feedbackHeader}>
                 <Ionicons name="time-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Recent check-ins and insights</Text>
+                  <Text style={styles.feedbackTitle}>Recent encouragements</Text>
               </View>
               {(checkins || []).length === 0 ? (
                 <View style={styles.emptyCommunityBox}>
-                  <Text style={styles.communityTitle}>No check-ins or insights yet</Text>
+                  <Text style={styles.communityTitle}>No encouragements yet</Text>
                   <Text style={styles.helpIntro}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
                 </View>
               ) : (
@@ -5945,7 +5945,7 @@ export default function Home() {
                         <Text style={styles.signedInBadgeText}>{`Signed in with ${accountProviderLabel}`}</Text>
                       </View>
                     </View>
-                    <Text style={styles.helpIntro}>{`${accountIdentityLabel}. New studies, drafts, and check-ins can follow this account across devices.`}</Text>
+                    <Text style={styles.helpIntro}>{`${accountIdentityLabel}. New studies, drafts, and encouragements can follow this account across devices.`}</Text>
                     <AppButton label="Sign out" onPress={submitSignOut} />
                   </>
                 ) : (
@@ -6119,7 +6119,7 @@ export default function Home() {
                     ))}
                   </View>
                   <Text style={styles.helpIntro}>
-                    Account-linked studies, drafts, check-ins, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
+                    Account-linked studies, drafts, encouragements, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
                   </Text>
                 </View>
               )}
@@ -6162,7 +6162,7 @@ export default function Home() {
                         <Ionicons name="warning-outline" size={18} color={colors.coral} />
                         <Text style={styles.feedbackTitle}>Before requesting deletion</Text>
                       </View>
-                      <Text style={styles.helpIntro}>Approved deletion removes your profile, studies, drafts, check-ins, memory verses, feedback, usage events, and sign-in records where connected.</Text>
+                      <Text style={styles.helpIntro}>Approved deletion removes your profile, studies, drafts, encouragements, memory verses, feedback, usage events, and sign-in records where connected.</Text>
                       <AppButton
                         label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
                         variant="secondary"
@@ -6199,8 +6199,8 @@ export default function Home() {
                     <Ionicons name="people-outline" size={18} color={colors.coral} />
                     <Text style={styles.feedbackTitle}>Community settings</Text>
                   </View>
-                  <Text style={styles.communityTitle}>Check-ins live in Community</Text>
-                  <Text style={styles.helpIntro}>Set your weekly goal and check-in person or group from the Community tab.</Text>
+                  <Text style={styles.communityTitle}>Encouragements live in Community</Text>
+                  <Text style={styles.helpIntro}>Set your weekly goal and encouragement person or group from the Community tab.</Text>
                   <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} />
                 </View>
                 <View style={styles.accountStatusBox}>
@@ -6371,7 +6371,7 @@ export default function Home() {
           <View>
             <Eyebrow>Saved work</Eyebrow>
             <Text style={styles.title}>{firstName ? `${firstName}, your study journal` : "Your study journal"}</Text>
-            <Text style={styles.titleSupport}>Return to what God has been teaching you through studies, highlights, reflections, and check-ins.</Text>
+            <Text style={styles.titleSupport}>Return to what God has been teaching you through studies, highlights, reflections, and encouragements.</Text>
             <View style={[styles.journalSearchBox, phoneLayout && styles.phoneJournalSearchBox]}>
               <Ionicons name="search-outline" size={18} color={colors.coral} />
               <TextInput
@@ -6417,7 +6417,7 @@ export default function Home() {
                 ["studies", "Studies"],
                 ["reviews", dueStudyReviewCount > 0 ? `Reviews (${dueStudyReviewCount})` : "Reviews"],
                 ["highlights", `Highlights (${totalSavedHighlightCount})`],
-                ["checkins", "Check-ins"]
+                ["checkins", "Encouragements"]
               ].map(([key, label]) => (
                 <Pressable
                   key={key}
@@ -6652,7 +6652,7 @@ export default function Home() {
               const pinned = pinnedEntryIds.has(rawEntryId);
               const editing = editingJournalEntryId === rawEntryId;
               const expanded = isJournalEntryExpanded(entryId) || editing || activeStudyReviewId === rawEntryId || reviewScheduleStudyId === rawEntryId;
-              const entryTitle = entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : `Check-in: ${entry.mood}`);
+              const entryTitle = entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement");
               const entryStatus = entry.answers
                 ? pinned
                   ? "Pinned"
@@ -6665,7 +6665,7 @@ export default function Home() {
                       : "Study"
                 : isHighlightReflection(entry)
                   ? "Reflection"
-                  : "Check-in";
+                  : "Encouragement";
 
               return (
                 <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
@@ -6888,14 +6888,14 @@ export default function Home() {
                 <Text style={styles.emptyJournalTitle}>{journalSearchTerm ? "No matching entries" : "No journal entries yet"}</Text>
                 <Text style={styles.emptyJournalText}>
                   {journalSearchTerm
-                    ? "Try a passage, method name, answer phrase, or check-in word."
+                    ? "Try a passage, method name, answer phrase, or encouragement word."
                     : journalFilter === "drafts"
                       ? "Drafts appear here once you begin writing a study response."
                       : journalFilter === "highlights"
                         ? "Highlighted verses appear here after you mark up a passage and save your study."
                         : journalFilter === "checkins"
-                          ? "Check-ins appear here after you save one from Community."
-                          : `${friendlyName}, complete a study or save a check-in to start building your journal.`}
+                          ? "Encouragements appear here after you save one from Community."
+                          : `${friendlyName}, complete a study or save an encouragement to start building your journal.`}
                 </Text>
                 {!journalSearchTerm && <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} />}
               </View>
@@ -6946,7 +6946,7 @@ export default function Home() {
                 ["1", "Choose Scripture", "Open Bible, search, or type a passage in Study.", "reader-outline"],
                 ["2", "Respond honestly", "Use a method, write notes, highlight verses, and save your study.", "create-outline"],
                 ["3", "Print when useful", "Create worksheets for pen-and-paper study, groups, or church handouts.", "print-outline"],
-                ["4", "Return later", "Review your journal, practise memory verses, and share check-ins.", "refresh-circle-outline"]
+                ["4", "Return later", "Review your journal, practise memory verses, and share encouragements.", "refresh-circle-outline"]
               ].map(([number, title, body, icon]) => (
                 <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard]}>
                   <View style={styles.helpStepNumber}><Text style={styles.helpStepNumberText}>{number}</Text></View>
@@ -6975,7 +6975,7 @@ export default function Home() {
               />
               <HelpScreenshot
                 title="Journal review"
-                caption="Your saved studies, highlights, check-ins, and reflections collect here for later review."
+                caption="Your saved studies, highlights, encouragements, and reflections collect here for later review."
                 variant="journal"
               />
             </View>
@@ -7060,7 +7060,7 @@ export default function Home() {
                     icon: "journal-outline",
                     title: "Review your journal",
                     steps: [
-                      "Open Journal to see saved studies and check-ins.",
+                      "Open Journal to see saved studies and encouragements.",
                       "Use List for quick scanning.",
                       "Use Calendar to review by date.",
                       "Use Scripture view to browse entries by book and chapter."
@@ -7073,7 +7073,7 @@ export default function Home() {
                     title: "Understand your daily rhythm",
                     steps: [
                       "Your rhythm grows when you engage with Scripture in the app.",
-                      "Reading, studying, saving memory verses, check-ins, bookmarks, chapter reading, searches, and worksheet printing can count.",
+                      "Reading, studying, saving memory verses, encouragements, bookmarks, chapter reading, searches, and worksheet printing can count.",
                       "The app uses your recent activity to show a steady daily pattern, not a score to feel guilty about.",
                       "If you miss today but were active yesterday, the rhythm gives a grace day before dropping back."
                     ],
@@ -7116,8 +7116,8 @@ export default function Home() {
                   ["Methods", "Choose how you want to study a passage.", "layers-outline"],
                   ["Plans", "Follow short guided paths over several days.", "calendar-outline"],
                   ["Memory", "Practise saved verses in three simple steps.", "sparkles-outline"],
-                  ["Community", "Create and save check-ins for a person or group.", "people-outline"],
-                  ["Journal", "Review saved studies, drafts, highlights, and check-ins.", "journal-outline"],
+                  ["Community", "Create and save encouragements for a person or group.", "people-outline"],
+                  ["Journal", "Review saved studies, drafts, highlights, and encouragements.", "journal-outline"],
                   ["Account", "Manage your name, sign-in, translation, and privacy details.", "person-circle-outline"]
                 ].map(([title, body, icon]) => (
                   <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem]}>
@@ -7140,7 +7140,7 @@ export default function Home() {
                 ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab."],
                 ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
                 ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, choose a friend or circle, then tap Post insight."],
-                ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, check-ins, bookmarks, searches, and printed worksheets can count. It also allows a grace day, so missing one day does not immediately erase the rhythm."],
+                ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, encouragements, bookmarks, searches, and printed worksheets can count. It also allows a grace day, so missing one day does not immediately erase the rhythm."],
                 ["How do I change the Bible translation?", "Open Account, then choose BSB, WEB, or KJV under Bible translations."],
                 ["How do I hide busy panels?", "Use Focus mode in Study, collapse the Bible reader panel, and use the small arrow controls on collapsible sections."],
                 ["Can I use the app without signing in?", "Yes. You can use a local profile, or sign in later to carry your work between devices."]
@@ -7447,13 +7447,13 @@ function getContextHelp(tab: Tab) {
     accountability: {
       title: "Community help",
       icon: "people-outline",
-      summary: "Community helps you turn one study insight into a simple check-in message for a trusted person or group.",
-      tips: ["Add a person or group in the People panel.", "Write one honest update, then copy the message.", "Save check-ins so they appear in Journal."]
+      summary: "Community helps you turn one study insight into a simple encouragement message for a trusted person or group.",
+      tips: ["Add a person or group in the People panel.", "Write one honest update, then copy the message.", "Save encouragements so they appear in Journal."]
     },
     journal: {
       title: "Journal help",
       icon: "journal-outline",
-      summary: "Journal is where saved studies, drafts, highlights, reflections, check-ins, and reviews come back together.",
+      summary: "Journal is where saved studies, drafts, highlights, reflections, encouragements, and reviews come back together.",
       tips: ["Use List for a simple view, Calendar for date review, and Scripture for book/chapter browsing.", "Expand an entry to read or edit it.", "Schedule reviews to bring important studies back later."]
     },
     account: {
@@ -7544,7 +7544,7 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
               <Text style={styles.helpScreenshotLabel}>Journal</Text>
               <Text style={styles.helpScreenshotPill}>List</Text>
             </View>
-            {["Psalm 23", "James 1:5", "Check-in"].map((item) => (
+            {["Psalm 23", "James 1:5", "Encouragement"].map((item) => (
               <View key={item} style={styles.helpJournalRow}>
                 <Text style={styles.helpJournalTitle}>{item}</Text>
                 <Ionicons name="chevron-down-outline" size={14} color={colors.muted} />
@@ -7811,7 +7811,7 @@ function AdminUserDetail({ detail, phoneLayout = false }: { detail: any; phoneLa
       <View style={[styles.adminMetricGrid, phoneLayout && styles.phoneAdminDetailMetricGrid]}>
         <Metric value={detail.counts.studies} label="studies" compact={!phoneLayout} />
         <Metric value={detail.counts.memoryVerses} label="memory" compact={!phoneLayout} />
-        <Metric value={detail.counts.checkins} label="check-ins" compact={!phoneLayout} />
+        <Metric value={detail.counts.checkins} label="encouragements" compact={!phoneLayout} />
         <Metric value={detail.counts.feedback} label="feedback" compact={!phoneLayout} />
       </View>
       <View style={styles.adminMapDetailList}>
@@ -9817,7 +9817,7 @@ function buildJournalGuideText(filter: JournalFilter, highlightCount: number) {
   }
   if (filter === "drafts") return "Drafts are studies you started but have not completed yet.";
   if (filter === "studies") return "Studies are completed study sessions with your answers, notes, and highlights.";
-  if (filter === "checkins") return "Check-ins include community updates and saved highlight reflections.";
+  if (filter === "checkins") return "Encouragements include community updates and saved highlight reflections.";
   if (filter === "pinned") return "Pinned entries stay at the top of your saved work for quick review.";
   return "Use the filters to narrow your journal, or search for a passage, answer, highlight note, or reflection.";
 }
@@ -9895,8 +9895,8 @@ function buildJournalCalendarItems({
       const pinned = pinnedEntryIds.has(String(entry._id));
       return {
         id: `entry:${entry._id}`,
-        title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : `Check-in: ${entry.mood}`),
-        status: entry.answers ? (pinned ? "Pinned" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Check-in",
+        title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement"),
+        status: entry.answers ? (pinned ? "Pinned" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
         timestamp: journalEntryTimestamp(entry)
       };
     })
@@ -9959,8 +9959,8 @@ function buildJournalScriptureItems({
       const pinned = pinnedEntryIds.has(String(entry._id));
       return {
         id: `entry:${entry._id}`,
-        title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : `Check-in: ${entry.mood}`),
-        status: entry.answers ? (pinned ? "Pinned" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Check-in",
+        title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement"),
+        status: entry.answers ? (pinned ? "Pinned" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
         timestamp: journalEntryTimestamp(entry),
         references: journalReferenceTextForItem(entry, "entry")
       };
@@ -10802,7 +10802,7 @@ function buildCommunityMessage({
   senderName?: string;
   checkinNote: string;
 }) {
-  const greeting = partner.trim() ? `${partner.trim()}, here is my Bible study check-in:` : "Here is my Bible study check-in:";
+  const greeting = partner.trim() ? `${partner.trim()}, here is my Bible study encouragement:` : "Here is my Bible study encouragement:";
   const note = checkinNote.trim() || "I studied today and want to keep the rhythm going.";
   const signedBy = senderName?.trim() ? `From: ${senderName.trim()}` : "";
 

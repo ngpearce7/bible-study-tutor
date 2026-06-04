@@ -490,6 +490,10 @@ export default function Home() {
   const [printWorksheetIncludes, setPrintWorksheetIncludes] = useState({ memory: true, insight: true });
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
+  const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
+  const [shareInsightFriendIds, setShareInsightFriendIds] = useState<any[]>([]);
+  const [shareInsightCircleId, setShareInsightCircleId] = useState<any>(null);
+  const [shareInsightTargetPickerOpen, setShareInsightTargetPickerOpen] = useState(false);
   const [passageQuery, setPassageQuery] = useState("Psalm 23");
   const [showCoaching, setShowCoaching] = useState(true);
   const [collapsedStudyPanels, setCollapsedStudyPanels] = useState<Record<StudySidePanelKey, boolean>>({
@@ -783,6 +787,17 @@ export default function Home() {
     });
     if (!targetCircleId) setCommunityTargetType("friend");
   }, [communityFriends, communityCircles, selectedFriendId, targetCircleId]);
+  useEffect(() => {
+    if (!Array.isArray(communityFriends)) return;
+    const acceptedIds = communityFriends.filter((friend: any) => friend.status === "accepted").map((friend: any) => String(friend._id));
+    setShareInsightFriendIds((current) => current.filter((id) => acceptedIds.includes(String(id))));
+  }, [communityFriends]);
+  useEffect(() => {
+    if (!Array.isArray(communityCircles)) return;
+    if (shareInsightCircleId && !communityCircles.some((circle: any) => String(circle._id) === String(shareInsightCircleId))) {
+      setShareInsightCircleId(null);
+    }
+  }, [communityCircles, shareInsightCircleId]);
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);
@@ -899,6 +914,11 @@ export default function Home() {
   const activeCommunityTargetName = communityTargetType === "friend" ? formatNameList(selectedCommunityFriendNames) : selectedCommunityCircle?.name;
   const hasAvailableCommunityTarget = acceptedCommunityFriends.length > 0 || (communityCircles || []).length > 0;
   const hasCommunityTarget = !!activeCommunityTargetName;
+  const selectedShareInsightFriends = acceptedCommunityFriends.filter((friend: any) => shareInsightFriendIds.some((id) => String(id) === String(friend._id)));
+  const selectedShareInsightCircle = (communityCircles || []).find((circle: any) => String(circle._id) === String(shareInsightCircleId));
+  const selectedShareInsightFriendNames = selectedShareInsightFriends.map((friend: any) => friend.name).filter(Boolean);
+  const activeShareInsightTargetName = shareInsightTargetType === "friend" ? formatNameList(selectedShareInsightFriendNames) : selectedShareInsightCircle?.name;
+  const hasShareInsightTarget = !!activeShareInsightTargetName;
   const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
   const readerReference = `${readerBook} ${readerChapter}`;
@@ -2212,15 +2232,15 @@ export default function Home() {
       setShareInsightStatus("Sign in before sharing with a friend or circle.");
       return;
     }
-    if (!hasCommunityTarget) {
-      setShareInsightStatus("Choose a friend or circle in Community first.");
+    if (!hasShareInsightTarget) {
+      setShareInsightStatus("Choose a friend or circle first.");
       return;
     }
 
-    const shouldShareWithCircle = communityTargetType === "circle" && targetCircleId;
-    const shouldShareWithFriends = communityTargetType === "friend" && targetFriendIds.length > 0;
+    const shouldShareWithCircle = shareInsightTargetType === "circle" && shareInsightCircleId;
+    const shouldShareWithFriends = shareInsightTargetType === "friend" && shareInsightFriendIds.length > 0;
     if (!shouldShareWithCircle && !shouldShareWithFriends) {
-      setShareInsightStatus("Choose a friend or circle in Community first.");
+      setShareInsightStatus("Choose a friend or circle first.");
       return;
     }
 
@@ -2228,16 +2248,103 @@ export default function Home() {
     try {
       await shareStudyInsightToCommunity({
         profileId: activeProfileId,
-        circleId: shouldShareWithCircle ? targetCircleId : undefined,
-        friendIds: shouldShareWithFriends ? targetFriendIds : undefined,
+        circleId: shouldShareWithCircle ? shareInsightCircleId : undefined,
+        friendIds: shouldShareWithFriends ? shareInsightFriendIds : undefined,
         note: insight,
         passageReference: passageText?.reference || passage
       });
-      setShareInsightStatus(`Insight posted to ${activeCommunityTargetName || "your selected connection"}.`);
+      setShareInsightStatus(`Insight posted to ${activeShareInsightTargetName || "your selected connection"}.`);
       trackUsage("study_insight_posted", { reference: passageText?.reference || passage, tab: "study" });
     } catch {
       setShareInsightStatus("Could not post that insight. Check the selected friend or circle.");
     }
+  }
+
+  function renderShareInsightCommunityControls(noteOverride?: string) {
+    return (
+      <View style={styles.shareInsightCommunityBox}>
+        <Text style={styles.circleManagementLabel}>Post inside Bible Study Tutor</Text>
+        {hasAvailableCommunityTarget ? (
+          <>
+            <Pressable onPress={() => setShareInsightTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
+              <View style={styles.communityTargetSelectTextBlock}>
+                <Text style={styles.communityRecipientText}>{hasShareInsightTarget ? activeShareInsightTargetName : "Choose friends or a circle"}</Text>
+              </View>
+              <Ionicons name={shareInsightTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+            </Pressable>
+            {shareInsightTargetPickerOpen && (
+              <View style={styles.communityTargetPickerPanel}>
+                {acceptedCommunityFriends.length > 0 && (
+                  <View style={styles.communityTargetPickerGroup}>
+                    <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
+                    {acceptedCommunityFriends.map((friend: any) => {
+                      const isTarget = shareInsightTargetType === "friend" && shareInsightFriendIds.some((id) => String(id) === String(friend._id));
+                      return (
+                        <Pressable
+                          key={friend._id}
+                          onPress={() => {
+                            setShareInsightTargetType("friend");
+                            setShareInsightCircleId(null);
+                            setShareInsightFriendIds((current) => {
+                              const alreadySelected = current.some((id) => String(id) === String(friend._id));
+                              return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
+                            });
+                          }}
+                          style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                        >
+                          <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
+                          <View style={styles.journalTitleBlock}>
+                            <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
+                            {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+                {(communityCircles || []).length > 0 && (
+                  <View style={styles.communityTargetPickerGroup}>
+                    <Text style={styles.circleManagementLabel}>Circles</Text>
+                    {(communityCircles || []).map((circle: any) => {
+                      const isTarget = shareInsightTargetType === "circle" && String(shareInsightCircleId) === String(circle._id);
+                      return (
+                        <Pressable
+                          key={circle._id}
+                          onPress={() => {
+                            setShareInsightTargetType("circle");
+                            setShareInsightFriendIds([]);
+                            setShareInsightCircleId(circle._id);
+                            setShareInsightTargetPickerOpen(false);
+                          }}
+                          style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                        >
+                          <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
+                          <View style={styles.journalTitleBlock}>
+                            <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
+                            <Text style={styles.circleChipMeta}>
+                              {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
+                            </Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            )}
+            <AppButton
+              label="Post insight"
+              variant="secondary"
+              onPress={() => postStudyInsightToCommunity(noteOverride)}
+              style={phoneLayout && styles.phoneFullWidthButton}
+              labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
+            />
+          </>
+        ) : (
+          <Text style={styles.helpIntro}>Add a friend or join a private circle before posting an insight inside the app.</Text>
+        )}
+      </View>
+    );
   }
 
   async function shareAppLink() {
@@ -3736,30 +3843,8 @@ export default function Home() {
                   <View style={styles.savedSummaryPanel}>
                     <Text style={styles.lastCheckinLabel}>Shareable insight</Text>
                     <Text style={styles.body}>{savedStudySummary.shareNote || "Study saved without a share note."}</Text>
-                    {!!savedStudySummary.shareNote && (
-                      <>
-                        <View style={styles.shareInsightActions}>
-                          <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight(savedStudySummary.shareNote)} />
-                          <ResumeButton
-                            label={hasCommunityTarget ? `Post to ${activeCommunityTargetName}` : "Post to friend/circle"}
-                            icon="people-outline"
-                            onPress={() => postStudyInsightToCommunity(savedStudySummary.shareNote)}
-                          />
-                        </View>
-                        <Pressable
-                          onPress={() => {
-                            setCommunitySubView("encourage");
-                            setTab("accountability");
-                          }}
-                          style={styles.shareInsightTargetLink}
-                        >
-                          <Text style={styles.shareInsightTargetText}>
-                            {hasCommunityTarget ? `Selected: ${activeCommunityTargetName}` : "Choose a friend or circle in Community"}
-                          </Text>
-                        </Pressable>
-                        {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
-                      </>
-                    )}
+                    {!!savedStudySummary.shareNote && renderShareInsightCommunityControls(savedStudySummary.shareNote)}
+                    {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                   </View>
                   <View style={styles.savedSummaryPanel}>
                     <Text style={styles.lastCheckinLabel}>Review later</Text>
@@ -3820,25 +3905,7 @@ export default function Home() {
                       placeholder={suggestedShareNote || "Today I noticed..."}
                       style={[styles.input, styles.shareInput]}
                     />
-                    <View style={styles.shareInsightActions}>
-                      <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight()} />
-                      <ResumeButton
-                        label={hasCommunityTarget ? `Post to ${activeCommunityTargetName}` : "Post to friend/circle"}
-                        icon="people-outline"
-                        onPress={() => postStudyInsightToCommunity()}
-                      />
-                    </View>
-                    <Pressable
-                      onPress={() => {
-                        setCommunitySubView("encourage");
-                        setTab("accountability");
-                      }}
-                      style={styles.shareInsightTargetLink}
-                    >
-                      <Text style={styles.shareInsightTargetText}>
-                        {hasCommunityTarget ? `Selected: ${activeCommunityTargetName}` : "Choose a friend or circle in Community"}
-                      </Text>
-                    </Pressable>
+                    {renderShareInsightCommunityControls()}
                     {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                   </View>
                   <View style={styles.buttonRow}>
@@ -3997,25 +4064,7 @@ export default function Home() {
                             placeholder={suggestedShareNote || "Today I noticed..."}
                             style={[styles.input, styles.shareInput]}
                           />
-                          <View style={styles.shareInsightActions}>
-                            <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight()} />
-                            <ResumeButton
-                              label={hasCommunityTarget ? `Post to ${activeCommunityTargetName}` : "Post to friend/circle"}
-                              icon="people-outline"
-                              onPress={() => postStudyInsightToCommunity()}
-                            />
-                          </View>
-                          <Pressable
-                            onPress={() => {
-                              setCommunitySubView("encourage");
-                              setTab("accountability");
-                            }}
-                            style={styles.shareInsightTargetLink}
-                          >
-                            <Text style={styles.shareInsightTargetText}>
-                              {hasCommunityTarget ? `Selected: ${activeCommunityTargetName}` : "Choose a friend or circle in Community"}
-                            </Text>
-                          </Pressable>
+                          {renderShareInsightCommunityControls()}
                           {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                         </View>
                       )}
@@ -7203,7 +7252,7 @@ export default function Home() {
                 ["Where do highlights go?", "Highlights stay with the saved study and can be found again from Journal."],
                 ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab."],
                 ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
-                ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, then tap Share insight."],
+                ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, choose a friend or circle, then tap Post insight."],
                 ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, check-ins, bookmarks, searches, and printed worksheets can count. It also allows a grace day, so missing one day does not immediately erase the rhythm."],
                 ["How do I change the Bible translation?", "Open Account, then choose BSB, WEB, or KJV under Bible translations."],
                 ["How do I hide busy panels?", "Use Focus mode in Study, collapse the Bible reader panel, and use the small arrow controls on collapsible sections."],
@@ -14054,19 +14103,14 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     textAlignVertical: "top"
   },
-  shareInsightActions: {
-    alignItems: "flex-start",
-    marginTop: 10
-  },
-  shareInsightTargetLink: {
-    alignSelf: "flex-start",
-    marginTop: 8,
-    paddingVertical: 3
-  },
-  shareInsightTargetText: {
-    color: colors.muted,
-    fontSize: 12,
-    fontWeight: "800"
+  shareInsightCommunityBox: {
+    backgroundColor: "rgba(255, 255, 255, 0.58)",
+    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 9,
+    marginTop: 10,
+    padding: 10
   },
   savedSummaryBox: {
     alignItems: "flex-start",

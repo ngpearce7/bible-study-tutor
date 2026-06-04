@@ -2487,65 +2487,69 @@ export default function Home() {
         ) : (
           <Text style={styles.lastCheckinText}>{item.note || "No note added."}</Text>
         )}
-        {reactionPostId && !itemIsEditing && (
-          <View style={styles.circleReactionRow}>
-            {reactionOptions.map((reaction) => {
-              const active = myReactions.includes(reaction.key);
-              return (
-                <Pressable
-                  key={reaction.key}
-                  onPress={(event) => {
-                    event.stopPropagation?.();
-                    toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions);
-                  }}
-                  style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
-                  accessibilityLabel={`${reaction.label} reaction`}
-                >
-                  <Text style={styles.circleReactionSymbol}>{reaction.symbol}</Text>
-                  {reaction.count > 0 && (
-                    <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
-                  )}
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
-        {showActionRow && <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
-          {itemIsEditing && canEditItem ? (
-            <>
-              <Pressable
-                onPress={() => itemIsPost ? saveCommunityPostEdit(item) : saveRecentCheckinEdit(item)}
-                style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
-                accessibilityLabel={itemIsPost ? "Save shared post changes" : "Save encouragement changes"}
-              >
-                <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
-              </Pressable>
-              <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
-                <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
-              </Pressable>
-            </>
-          ) : (
-            <>
-              <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
-                <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
-              </Pressable>
-              {canEditItem && (
+        {(reactionPostId && !itemIsEditing) || showActionRow ? (
+          <View style={[styles.communityPostFooterRow, phoneLayout && styles.phoneCommunityPostFooterRow]}>
+            {reactionPostId && !itemIsEditing ? (
+              <View style={styles.circleReactionRow}>
+                {reactionOptions.map((reaction) => {
+                  const active = myReactions.includes(reaction.key);
+                  return (
+                    <Pressable
+                      key={reaction.key}
+                      onPress={(event) => {
+                        event.stopPropagation?.();
+                        toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions);
+                      }}
+                      style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
+                      accessibilityLabel={`${reaction.label} reaction`}
+                    >
+                      <Text style={styles.circleReactionSymbol}>{reaction.symbol}</Text>
+                      {reaction.count > 0 && (
+                        <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : <View />}
+            {showActionRow && <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
+              {itemIsEditing && canEditItem ? (
                 <>
-                  <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
-                    <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
-                  </Pressable>
                   <Pressable
-                    onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
-                    style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
-                    accessibilityLabel={deletePending ? "Confirm delete encouragement" : itemIsPost ? "Remove shared post" : "Remove encouragement"}
+                    onPress={() => itemIsPost ? saveCommunityPostEdit(item) : saveRecentCheckinEdit(item)}
+                    style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
+                    accessibilityLabel={itemIsPost ? "Save shared post changes" : "Save encouragement changes"}
                   >
-                    <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                    <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
+                  </Pressable>
+                  <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
+                    <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
                   </Pressable>
                 </>
+              ) : (
+                <>
+                  <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
+                    <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
+                  </Pressable>
+                  {canEditItem && (
+                    <>
+                      <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
+                        <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
+                        style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
+                        accessibilityLabel={deletePending ? "Confirm delete encouragement" : itemIsPost ? "Remove shared post" : "Remove encouragement"}
+                      >
+                        <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                      </Pressable>
+                    </>
+                  )}
+                </>
               )}
-            </>
-          )}
-        </View>}
+            </View>}
+          </View>
+        ) : null}
       </Pressable>
     );
   }
@@ -13614,13 +13618,23 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 17
   },
+  communityPostFooterRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
+    width: "100%"
+  },
+  phoneCommunityPostFooterRow: {
+    alignItems: "flex-start",
+    flexWrap: "wrap"
+  },
   checkinActionRow: {
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 7,
-    justifyContent: "flex-start",
-    width: "100%"
+    justifyContent: "flex-end"
   },
   phoneCheckinActionRow: {
     flexWrap: "nowrap"
@@ -13943,6 +13957,7 @@ const styles = StyleSheet.create({
     padding: 11
   },
   circleReactionRow: {
+    flexShrink: 1,
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 7

@@ -2374,8 +2374,8 @@ export default function Home() {
     const reactionCounts = item.reactions || {};
     const myReactions = Array.isArray(item.myReactions) ? item.myReactions : [];
     const reactionOptions = [
-      { key: "amen", label: "Amen", icons: ["hand-left-outline", "hand-right-outline"], count: reactionCounts.amen || 0 },
-      { key: "praying", label: "Praying", icons: ["hand-right-outline", "hand-left-outline"], count: reactionCounts.praying || 0 }
+      { key: "amen", label: "Amen", symbol: "🙌", count: reactionCounts.amen || 0 },
+      { key: "praying", label: "Praying", symbol: "🙏", count: reactionCounts.praying || 0 }
     ] as const;
     const destinationText = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
@@ -2424,11 +2424,7 @@ export default function Home() {
                   style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
                   accessibilityLabel={`${reaction.label} reaction`}
                 >
-                  <View style={styles.circleReactionIconPair}>
-                    {reaction.icons.map((icon, index) => (
-                      <Ionicons key={`${reaction.key}-${icon}-${index}`} name={icon as any} size={15} color={active ? "white" : colors.oliveDark} />
-                    ))}
-                  </View>
+                  <Text style={styles.circleReactionSymbol}>{reaction.symbol}</Text>
                   {reaction.count > 0 && (
                     <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
                   )}
@@ -13903,9 +13899,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900"
   },
-  circleReactionIconPair: {
-    flexDirection: "row",
-    gap: 0
+  circleReactionSymbol: {
+    fontSize: 15,
+    lineHeight: 18
   },
   activeCircleReactionText: {
     color: "white"

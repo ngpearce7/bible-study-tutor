@@ -494,6 +494,7 @@ export default function Home() {
   const [shareInsightFriendIds, setShareInsightFriendIds] = useState<any[]>([]);
   const [shareInsightCircleId, setShareInsightCircleId] = useState<any>(null);
   const [shareInsightTargetPickerOpen, setShareInsightTargetPickerOpen] = useState(false);
+  const [shareInsightPostedReady, setShareInsightPostedReady] = useState(false);
   const [passageQuery, setPassageQuery] = useState("Psalm 23");
   const [showCoaching, setShowCoaching] = useState(true);
   const [collapsedStudyPanels, setCollapsedStudyPanels] = useState<Record<StudySidePanelKey, boolean>>({
@@ -2228,6 +2229,7 @@ export default function Home() {
       setShareInsightStatus("Write an insight first.");
       return;
     }
+    setShareInsightPostedReady(false);
     if (!activeProfileId || !isAuthenticated) {
       setShareInsightStatus("Sign in before sharing with a friend or circle.");
       return;
@@ -2253,6 +2255,17 @@ export default function Home() {
         note: insight,
         passageReference: passageText?.reference || passage
       });
+      if (shouldShareWithCircle) {
+        setCommunityTargetType("circle");
+        setTargetCircleId(shareInsightCircleId);
+        setSelectedCircleId(shareInsightCircleId);
+      } else if (shouldShareWithFriends && shareInsightFriendIds.length === 1) {
+        setCommunityTargetType("friend");
+        setSelectedFriendId(shareInsightFriendIds[0]);
+        setTargetFriendIds([shareInsightFriendIds[0]]);
+      }
+      setCommunitySubView("encourage");
+      setShareInsightPostedReady(true);
       setShareInsightStatus(`Insight posted to ${activeShareInsightTargetName || "your selected connection"}.`);
       trackUsage("study_insight_posted", { reference: passageText?.reference || passage, tab: "study" });
     } catch {
@@ -2285,6 +2298,7 @@ export default function Home() {
                           onPress={() => {
                             setShareInsightTargetType("friend");
                             setShareInsightCircleId(null);
+                            setShareInsightPostedReady(false);
                             setShareInsightFriendIds((current) => {
                               const alreadySelected = current.some((id) => String(id) === String(friend._id));
                               return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
@@ -2315,6 +2329,7 @@ export default function Home() {
                             setShareInsightFriendIds([]);
                             setShareInsightCircleId(circle._id);
                             setShareInsightTargetPickerOpen(false);
+                            setShareInsightPostedReady(false);
                           }}
                           style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
                         >
@@ -2333,9 +2348,16 @@ export default function Home() {
               </View>
             )}
             <AppButton
-              label="Post insight"
+              label={shareInsightPostedReady ? "View in Community" : "Post insight"}
               variant="secondary"
-              onPress={() => postStudyInsightToCommunity(noteOverride)}
+              onPress={() => {
+                if (shareInsightPostedReady) {
+                  setCommunitySubView("encourage");
+                  setTab("accountability");
+                } else {
+                  postStudyInsightToCommunity(noteOverride);
+                }
+              }}
               style={phoneLayout && styles.phoneFullWidthButton}
               labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
             />

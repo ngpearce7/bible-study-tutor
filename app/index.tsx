@@ -2374,9 +2374,8 @@ export default function Home() {
     const reactionCounts = item.reactions || {};
     const myReactions = Array.isArray(item.myReactions) ? item.myReactions : [];
     const reactionOptions = [
-      { key: "amen", label: "Amen", icon: "hand-left-outline", count: reactionCounts.amen || 0 },
-      { key: "praying", label: "Praying", icon: "heart-outline", count: reactionCounts.praying || 0 },
-      { key: "encouraged", label: "Encouraged", icon: "sparkles-outline", count: reactionCounts.encouraged || 0 }
+      { key: "amen", label: "Amen", icons: ["hand-left-outline", "hand-right-outline"], count: reactionCounts.amen || 0 },
+      { key: "praying", label: "Praying", icons: ["hand-right-outline", "hand-left-outline"], count: reactionCounts.praying || 0 }
     ] as const;
     const destinationText = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
@@ -2425,10 +2424,14 @@ export default function Home() {
                   style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
                   accessibilityLabel={`${reaction.label} reaction`}
                 >
-                  <Ionicons name={reaction.icon as any} size={14} color={active ? "white" : colors.oliveDark} />
-                  <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>
-                    {reaction.label}{reaction.count > 0 ? ` ${reaction.count}` : ""}
-                  </Text>
+                  <View style={styles.circleReactionIconPair}>
+                    {reaction.icons.map((icon, index) => (
+                      <Ionicons key={`${reaction.key}-${icon}-${index}`} name={icon as any} size={15} color={active ? "white" : colors.oliveDark} />
+                    ))}
+                  </View>
+                  {reaction.count > 0 && (
+                    <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
+                  )}
                 </Pressable>
               );
             })}
@@ -13884,8 +13887,11 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
-    gap: 5,
-    paddingHorizontal: 9,
+    gap: 4,
+    minHeight: 32,
+    minWidth: 46,
+    justifyContent: "center",
+    paddingHorizontal: 8,
     paddingVertical: 6
   },
   activeCircleReactionChip: {
@@ -13896,6 +13902,10 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 12,
     fontWeight: "900"
+  },
+  circleReactionIconPair: {
+    flexDirection: "row",
+    gap: 0
   },
   activeCircleReactionText: {
     color: "white"

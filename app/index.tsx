@@ -574,6 +574,7 @@ export default function Home() {
   const appScrollRef = useRef<any>(null);
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
+  const communityReactionStorageProfileRef = useRef("");
 
   useEffect(() => {
     if (tab === "journal" && previousTabRef.current !== "journal") {
@@ -696,6 +697,35 @@ export default function Home() {
   }, []);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId) {
+      communityReactionStorageProfileRef.current = "";
+      setCommunityReactionOverrides({});
+      return;
+    }
+
+    const storageProfileId = String(activeProfileId);
+    communityReactionStorageProfileRef.current = storageProfileId;
+    try {
+      const stored = localStorage.getItem(`bible-study-tutor-community-reactions-${storageProfileId}`);
+      setCommunityReactionOverrides(stored ? JSON.parse(stored) : {});
+    } catch {
+      setCommunityReactionOverrides({});
+    }
+  }, [activeProfileId]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId) return;
+    const storageProfileId = String(activeProfileId);
+    if (communityReactionStorageProfileRef.current !== storageProfileId) return;
+    try {
+      localStorage.setItem(`bible-study-tutor-community-reactions-${storageProfileId}`, JSON.stringify(communityReactionOverrides));
+    } catch {
+      // Ignore storage limits; Convex remains the source of truth when available.
+    }
+  }, [activeProfileId, communityReactionOverrides]);
+
   useEffect(() => {
     if (!activeProfileId || !incomingShareSource || trackedIncomingShareRef.current === incomingShareSource) return;
     trackedIncomingShareRef.current = incomingShareSource;

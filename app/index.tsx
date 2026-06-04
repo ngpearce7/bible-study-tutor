@@ -1932,9 +1932,13 @@ export default function Home() {
   }
 
   async function toggleCommunityReaction(postId: any, reaction: "amen" | "praying" | "encouraged") {
-    if (!activeProfileId) return;
+    if (!activeProfileId || !postId) {
+      setCircleStatus("Sign in before reacting to an encouragement.");
+      return;
+    }
     try {
       await reactToCommunityPost({ profileId: activeProfileId, postId, reaction });
+      setCircleStatus("Reaction updated.");
     } catch {
       setCircleStatus("Could not update that encouragement.");
     }
@@ -2366,13 +2370,13 @@ export default function Home() {
     const sharedTo = Array.isArray(item.sharedTo) ? item.sharedTo : [];
     const itemIsPost = item.itemType === "communityPost";
     const canEditItem = !itemIsPost || item.canEdit !== false;
-    const reactionPostId = item.sharedPostId || (itemIsPost ? item._id : undefined);
+    const reactionPostId = item.sharedPostId || sharedTo.find((destination: any) => destination.postId)?.postId || (itemIsPost ? item._id : undefined);
     const reactionCounts = item.reactions || {};
     const myReactions = Array.isArray(item.myReactions) ? item.myReactions : [];
     const reactionOptions = [
-      { key: "amen", label: "Amen", count: reactionCounts.amen || 0 },
-      { key: "praying", label: "Praying", count: reactionCounts.praying || 0 },
-      { key: "encouraged", label: "Encouraged", count: reactionCounts.encouraged || 0 }
+      { key: "amen", label: "Amen", icon: "hand-left-outline", count: reactionCounts.amen || 0 },
+      { key: "praying", label: "Praying", icon: "heart-outline", count: reactionCounts.praying || 0 },
+      { key: "encouraged", label: "Encouraged", icon: "sparkles-outline", count: reactionCounts.encouraged || 0 }
     ] as const;
     const destinationText = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
@@ -2421,6 +2425,7 @@ export default function Home() {
                   style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
                   accessibilityLabel={`${reaction.label} reaction`}
                 >
+                  <Ionicons name={reaction.icon as any} size={14} color={active ? "white" : colors.oliveDark} />
                   <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>
                     {reaction.label}{reaction.count > 0 ? ` ${reaction.count}` : ""}
                   </Text>
@@ -13873,10 +13878,13 @@ const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.32)"
   },
   circleReactionChip: {
+    alignItems: "center",
     backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
     paddingHorizontal: 9,
     paddingVertical: 6
   },

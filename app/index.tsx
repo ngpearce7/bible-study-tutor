@@ -450,6 +450,7 @@ export default function Home() {
   const [editingCommunityPostId, setEditingCommunityPostId] = useState<any>(null);
   const [editCommunityPostNote, setEditCommunityPostNote] = useState("");
   const [isSavingCommunityPostEdit, setIsSavingCommunityPostEdit] = useState(false);
+  const [communityReactionOverrides, setCommunityReactionOverrides] = useState<Record<string, { reactions: { amen: number; praying: number; encouraged: number }; myReactions: string[] }>>({});
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
@@ -1931,16 +1932,43 @@ export default function Home() {
     }
   }
 
-  async function toggleCommunityReaction(postId: any, reaction: "amen" | "praying" | "encouraged") {
+  async function toggleCommunityReaction(
+    postId: any,
+    reaction: "amen" | "praying" | "encouraged",
+    currentReactions: { amen?: number; praying?: number; encouraged?: number } = {},
+    currentMyReactions: string[] = []
+  ) {
     if (!activeProfileId || !postId) {
-      setCircleStatus("Sign in before reacting to an encouragement.");
+      setCommunityStatus("Sign in before reacting to an encouragement.");
       return;
     }
+    const postKey = String(postId);
+    const active = currentMyReactions.includes(reaction);
+    const nextMyReactions = active ? currentMyReactions.filter((item) => item !== reaction) : [...currentMyReactions, reaction];
+    const nextReactions = {
+      amen: Math.max(0, (currentReactions.amen || 0) + (reaction === "amen" ? active ? -1 : 1 : 0)),
+      praying: Math.max(0, (currentReactions.praying || 0) + (reaction === "praying" ? active ? -1 : 1 : 0)),
+      encouraged: Math.max(0, (currentReactions.encouraged || 0) + (reaction === "encouraged" ? active ? -1 : 1 : 0))
+    };
+
+    setCommunityReactionOverrides((current) => ({
+      ...current,
+      [postKey]: {
+        reactions: nextReactions,
+        myReactions: nextMyReactions
+      }
+    }));
+    setCommunityStatus(active ? "Reaction removed." : "Reaction added.");
+
     try {
       await reactToCommunityPost({ profileId: activeProfileId, postId, reaction });
-      setCircleStatus("Reaction updated.");
     } catch {
-      setCircleStatus("Could not update that encouragement.");
+      setCommunityReactionOverrides((current) => {
+        const next = { ...current };
+        delete next[postKey];
+        return next;
+      });
+      setCommunityStatus("Could not update that encouragement.");
     }
   }
 
@@ -2371,8 +2399,9 @@ export default function Home() {
     const itemIsPost = item.itemType === "communityPost";
     const canEditItem = !itemIsPost || item.canEdit !== false;
     const reactionPostId = item.sharedPostId || sharedTo.find((destination: any) => destination.postId)?.postId || (itemIsPost ? item._id : undefined);
-    const reactionCounts = item.reactions || {};
-    const myReactions = Array.isArray(item.myReactions) ? item.myReactions : [];
+    const reactionOverride = reactionPostId ? communityReactionOverrides[String(reactionPostId)] : undefined;
+    const reactionCounts = reactionOverride?.reactions || item.reactions || {};
+    const myReactions = reactionOverride?.myReactions || (Array.isArray(item.myReactions) ? item.myReactions : []);
     const reactionOptions = [
       { key: "amen", label: "Amen", symbol: "🙌", count: reactionCounts.amen || 0 },
       { key: "praying", label: "Praying", symbol: "🙏", count: reactionCounts.praying || 0 }
@@ -2420,7 +2449,7 @@ export default function Home() {
               return (
                 <Pressable
                   key={reaction.key}
-                  onPress={() => toggleCommunityReaction(reactionPostId, reaction.key)}
+                  onPress={() => toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions)}
                   style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
                   accessibilityLabel={`${reaction.label} reaction`}
                 >

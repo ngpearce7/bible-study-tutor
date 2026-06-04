@@ -451,6 +451,7 @@ export default function Home() {
   const [editCommunityPostNote, setEditCommunityPostNote] = useState("");
   const [isSavingCommunityPostEdit, setIsSavingCommunityPostEdit] = useState(false);
   const [communityReactionOverrides, setCommunityReactionOverrides] = useState<Record<string, { reactions: { amen: number; praying: number; encouraged: number }; myReactions: string[] }>>({});
+  const [focusedCommunityItemId, setFocusedCommunityItemId] = useState("");
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);

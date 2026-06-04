@@ -2013,6 +2013,7 @@ export default function Home() {
     if (!activeProfileId) return;
     try {
       await removeCommunityPost({ profileId: activeProfileId, postId });
+      setFocusedCommunityItemId("");
       setCircleStatus("Shared encouragement removed.");
     } catch {
       setCircleStatus("Could not remove that shared encouragement.");
@@ -2020,6 +2021,7 @@ export default function Home() {
   }
 
   function startEditCommunityPost(post: any) {
+    setFocusedCommunityItemId(String(post._id));
     setEditingCommunityPostId(post._id);
     setEditCommunityPostNote(post.note || "");
     setCircleStatus("");
@@ -2067,6 +2069,7 @@ export default function Home() {
     try {
       await deleteCheckinMutation({ profileId: activeProfileId, checkinId: checkin._id });
       setPendingCheckinDeleteId(null);
+      setFocusedCommunityItemId("");
       setCommunityStatus("Encouragement removed.");
     } catch {
       setCommunityStatus("Could not remove that encouragement.");
@@ -2075,6 +2078,7 @@ export default function Home() {
 
   function startEditRecentCheckin(checkin: any) {
     setPendingCheckinDeleteId(null);
+    setFocusedCommunityItemId(String(checkin._id));
     setEditingRecentCheckinId(checkin._id);
     setEditRecentCheckinNote(checkin.note || "");
     setCommunityStatus("");
@@ -2415,6 +2419,8 @@ export default function Home() {
     const editValue = itemIsPost ? editCommunityPostNote : editRecentCheckinNote;
     const saveBusy = itemIsPost ? isSavingCommunityPostEdit : isSavingRecentCheckinEdit;
     const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood === "check-in" ? "encouragement" : item.mood || "encouragement";
+    const focusedItem = String(focusedCommunityItemId) === String(item._id);
+    const showActionRow = focusedItem || itemIsEditing || deletePending;
     const authorText = item.authorLabel || "";
     const itemMeta = [
       new Date(item.createdAt).toLocaleDateString(),
@@ -2424,7 +2430,15 @@ export default function Home() {
     ].filter(Boolean).join(" · ");
 
     return (
-      <View key={item._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
+      <Pressable
+        key={item._id}
+        onPress={() => {
+          if (!itemIsEditing) setFocusedCommunityItemId((current) => String(current) === String(item._id) ? "" : String(item._id));
+        }}
+        style={[styles.checkinHistoryItem, focusedItem && styles.focusedCheckinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}
+        accessibilityRole="button"
+        accessibilityLabel={showActionRow ? "Hide post actions" : "Show post actions"}
+      >
         <View style={styles.checkinHistoryHeader}>
           <View style={styles.checkinHistoryMeta}>
             <View style={styles.checkinTitleRow}>
@@ -2450,7 +2464,10 @@ export default function Home() {
               return (
                 <Pressable
                   key={reaction.key}
-                  onPress={() => toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions)}
+                  onPress={(event) => {
+                    event.stopPropagation?.();
+                    toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions);
+                  }}
                   style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
                   accessibilityLabel={`${reaction.label} reaction`}
                 >
@@ -2463,7 +2480,7 @@ export default function Home() {
             })}
           </View>
         )}
-        <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
+        {showActionRow && <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
           {itemIsEditing && canEditItem ? (
             <>
               <Pressable
@@ -2498,8 +2515,8 @@ export default function Home() {
               )}
             </>
           )}
-        </View>
-      </View>
+        </View>}
+      </Pressable>
     );
   }
 
@@ -13541,6 +13558,9 @@ const styles = StyleSheet.create({
   phoneCheckinHistoryItem: {
     borderRadius: 11,
     padding: 10
+  },
+  focusedCheckinHistoryItem: {
+    borderColor: "rgba(102, 114, 78, 0.34)"
   },
   checkinHistoryHeader: {
     alignItems: "flex-start",

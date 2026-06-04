@@ -7,7 +7,7 @@ The chosen direction is the warm community accountability interface.
 - A study table, not a classroom dashboard.
 - Gentle accountability with another person, not guilt-based streak pressure.
 - The tutor helps the user form one shareable insight after every session.
-- Community and check-ins should feel visible from the main study screen, not buried in settings.
+- Community and encouragements should feel visible from the main study screen, not buried in settings.
 
 ## Visual Language
 

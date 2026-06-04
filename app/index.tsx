@@ -3488,7 +3488,7 @@ export default function Home() {
               <View style={styles.progressTrack}>
                 <View style={[styles.progressFill, { width: `${progress}%` }]} />
               </View>
-              <Text style={styles.muted}>{effectivePartner ? `${friendlyName}, check in with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
+              <Text style={styles.muted}>{effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
             </Card>
 
           </>
@@ -3578,7 +3578,7 @@ export default function Home() {
                     ["Study", `Work through ${method.short} with notes and highlights.`, "book-outline", "study"],
                     ["Remember", dueMemoryCount > 0 ? `${dueMemoryCount} memory review${dueMemoryCount === 1 ? "" : "s"} due.` : "Save a verse worth carrying.", "sparkles-outline", "memory"],
                     ["Reflect", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your journal connected to Scripture.", "journal-outline", "journal"],
-                    ["Share", effectivePartner ? `Check in with ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
+                    ["Share", effectivePartner ? `Encourage ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
                   ].map(([title, detail, icon, target]) => (
                     <Pressable key={title} onPress={() => setTab(target as Tab)} style={styles.homePathItem}>
                       <View style={styles.homePathIcon}>

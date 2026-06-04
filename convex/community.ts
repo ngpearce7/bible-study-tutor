@@ -349,7 +349,7 @@ export const shareCheckin = mutation({
 
     if (args.checkinId) {
       const checkin = await ctx.db.get(args.checkinId);
-      if (!checkin || checkin.profileId !== args.profileId) throw new Error("Check-in not found.");
+      if (!checkin || checkin.profileId !== args.profileId) throw new Error("Encouragement not found.");
     }
 
     return await shareCommunityNote(ctx, {
@@ -396,7 +396,7 @@ export const reactToPost = mutation({
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
     const post = await ctx.db.get(args.postId);
-    if (!post) throw new Error("Shared check-in not found.");
+    if (!post) throw new Error("Shared encouragement not found.");
     await authorizePostViewer(ctx, post, args.profileId);
 
     const existing = await ctx.db
@@ -431,7 +431,7 @@ export const removePost = mutation({
     const post = await ctx.db.get(args.postId);
     if (!post) return false;
     await authorizePostViewer(ctx, post, args.profileId);
-    if (post.profileId !== args.profileId) throw new Error("Only the person who shared this check-in can remove it.");
+    if (post.profileId !== args.profileId) throw new Error("Only the person who shared this encouragement can remove it.");
 
     const reactions = await ctx.db
       .query("communityReactions")
@@ -456,7 +456,7 @@ export const updatePost = mutation({
     const post = await ctx.db.get(args.postId);
     if (!post) return false;
     await authorizePostViewer(ctx, post, args.profileId);
-    if (post.profileId !== args.profileId) throw new Error("Only the person who shared this check-in can edit it.");
+    if (post.profileId !== args.profileId) throw new Error("Only the person who shared this encouragement can edit it.");
 
     const nextNote = clampText(args.note, 1200);
     await ctx.db.patch(args.postId, { note: nextNote });

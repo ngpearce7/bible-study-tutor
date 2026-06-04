@@ -872,6 +872,7 @@ export default function Home() {
     new Map(
       communityHistoryCheckins
         .flatMap((checkin: any) => Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [])
+        .filter((item: any) => item.circleId)
         .map((item: any) => [String(item.circleId), { circleId: String(item.circleId), circleName: item.circleName || "Circle" }])
     ).values()
   );
@@ -2357,6 +2358,75 @@ export default function Home() {
         ) : (
           <Text style={styles.helpIntro}>Add a friend or join a private circle before posting an insight inside the app.</Text>
         )}
+      </View>
+    );
+  }
+
+  function renderCommunityHistoryItem(item: any) {
+    const sharedTo = Array.isArray(item.sharedTo) ? item.sharedTo : [];
+    const itemIsPost = item.itemType === "communityPost";
+    const destinationText = sharedTo.length > 0
+      ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
+      : itemIsPost ? "Shared post" : "Private check-in";
+    const deletePending = !itemIsPost && pendingCheckinDeleteId === item._id;
+    const itemIsEditing = itemIsPost ? editingCommunityPostId === item._id : editingRecentCheckinId === item._id;
+    const editValue = itemIsPost ? editCommunityPostNote : editRecentCheckinNote;
+    const saveBusy = itemIsPost ? isSavingCommunityPostEdit : isSavingRecentCheckinEdit;
+    const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood || "check-in";
+    const itemMeta = `${new Date(item.createdAt).toLocaleDateString()} · ${destinationText}${item.passageReference ? ` · ${item.passageReference}` : ""}`;
+
+    return (
+      <View key={item._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
+        <View style={styles.checkinHistoryHeader}>
+          <View style={styles.checkinHistoryMeta}>
+            <View style={styles.checkinTitleRow}>
+              <Text style={styles.checkinMood}>{itemLabel}</Text>
+            </View>
+            <Text style={styles.checkinDestinationText}>{itemMeta}</Text>
+          </View>
+        </View>
+        {itemIsEditing ? (
+          <TextInput
+            value={editValue}
+            onChangeText={itemIsPost ? setEditCommunityPostNote : setEditRecentCheckinNote}
+            multiline
+            style={[styles.input, styles.checkinEditInput]}
+          />
+        ) : (
+          <Text style={styles.lastCheckinText}>{item.note || "No note added."}</Text>
+        )}
+        <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
+          {itemIsEditing ? (
+            <>
+              <Pressable
+                onPress={() => itemIsPost ? saveCommunityPostEdit(item) : saveRecentCheckinEdit(item)}
+                style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
+                accessibilityLabel={itemIsPost ? "Save shared post changes" : "Save check-in changes"}
+              >
+                <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
+              </Pressable>
+              <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
+                <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy check-in"}>
+                <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
+              </Pressable>
+              <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit check-in"}>
+                <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+              </Pressable>
+              <Pressable
+                onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
+                style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
+                accessibilityLabel={deletePending ? "Confirm delete check-in" : itemIsPost ? "Remove shared post" : "Remove check-in"}
+              >
+                <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+              </Pressable>
+            </>
+          )}
+        </View>
       </View>
     );
   }
@@ -5792,8 +5862,8 @@ export default function Home() {
                   )}
                   {communityHistoryGroups.length === 0 ? (
                     <View style={styles.emptyCommunityBox}>
-                      <Text style={styles.communityTitle}>No check-ins found</Text>
-                      <Text style={styles.helpIntro}>Try another filter, or post a new check-in from Encourage.</Text>
+                      <Text style={styles.communityTitle}>No posts found</Text>
+                      <Text style={styles.helpIntro}>Try another filter, or post a new check-in or study insight.</Text>
                     </View>
                   ) : (
                     <View style={styles.communityHistoryGroupList}>
@@ -5804,68 +5874,7 @@ export default function Home() {
                             <Text style={styles.circleCountText}>{group.items.length}</Text>
                           </View>
                           <View style={styles.circleList}>
-                            {group.items.map((checkin: any) => {
-                              const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
-                              const destinationText = sharedCircles.length > 0
-                                ? `Shared to ${sharedCircles.map((item: any) => item.circleName || item.friendName).filter(Boolean).join(", ")}`
-                                : "Private check-in";
-                              const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
-                              const checkinIsEditing = editingRecentCheckinId === checkin._id;
-                              return (
-                                <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
-                                  <View style={styles.checkinHistoryHeader}>
-                                    <View style={styles.checkinHistoryMeta}>
-                                      <View style={styles.checkinTitleRow}>
-                                        <Text style={styles.checkinMood}>{checkin.mood}</Text>
-                                      </View>
-                                      <Text style={styles.checkinDestinationText}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
-                                    </View>
-                                  </View>
-                                  {checkinIsEditing ? (
-                                    <TextInput
-                                      value={editRecentCheckinNote}
-                                      onChangeText={setEditRecentCheckinNote}
-                                      multiline
-                                      style={[styles.input, styles.checkinEditInput]}
-                                    />
-                                  ) : (
-                                    <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
-                                  )}
-                                  <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
-                                    {checkinIsEditing ? (
-                                      <>
-                                        <Pressable
-                                          onPress={() => saveRecentCheckinEdit(checkin)}
-                                          style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
-                                          accessibilityLabel="Save check-in changes"
-                                        >
-                                          <Ionicons name={isSavingRecentCheckinEdit ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
-                                        </Pressable>
-                                        <Pressable onPress={cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
-                                          <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
-                                        </Pressable>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={styles.checkinIconButton} accessibilityLabel="Copy check-in">
-                                          <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
-                                        </Pressable>
-                                        <Pressable onPress={() => startEditRecentCheckin(checkin)} style={styles.checkinIconButton} accessibilityLabel="Edit check-in">
-                                          <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
-                                        </Pressable>
-                                        <Pressable
-                                          onPress={() => deleteRecentCheckin(checkin)}
-                                          style={[styles.checkinIconButton, styles.checkinDeleteIconButton, checkinDeletePending && styles.pendingDeleteButton]}
-                                          accessibilityLabel={checkinDeletePending ? "Confirm delete check-in" : "Remove check-in"}
-                                        >
-                                          <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
-                                        </Pressable>
-                                      </>
-                                    )}
-                                  </View>
-                                </View>
-                              );
-                            })}
+                            {group.items.map((item: any) => renderCommunityHistoryItem(item))}
                           </View>
                         </View>
                       ))}
@@ -5887,77 +5896,16 @@ export default function Home() {
               <View style={styles.communityDivider} />
               <View style={styles.feedbackHeader}>
                 <Ionicons name="time-outline" size={18} color={colors.coral} />
-                <Text style={styles.feedbackTitle}>Recent check-ins</Text>
+                  <Text style={styles.feedbackTitle}>Recent check-ins and insights</Text>
               </View>
               {(checkins || []).length === 0 ? (
                 <View style={styles.emptyCommunityBox}>
-                  <Text style={styles.communityTitle}>No check-ins yet</Text>
+                  <Text style={styles.communityTitle}>No check-ins or insights yet</Text>
                   <Text style={styles.helpIntro}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
                 </View>
               ) : (
                 <>
-                  {visibleCheckins.map((checkin: any) => {
-                      const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
-                      const destinationText = sharedCircles.length > 0
-                        ? `Shared to ${sharedCircles.map((item: any) => item.circleName || item.friendName).filter(Boolean).join(", ")}`
-                        : "Private check-in";
-                    const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
-                    const checkinIsEditing = editingRecentCheckinId === checkin._id;
-                    return (
-                      <View key={checkin._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
-                        <View style={styles.checkinHistoryHeader}>
-                          <View style={styles.checkinHistoryMeta}>
-                            <View style={styles.checkinTitleRow}>
-                              <Text style={styles.checkinMood}>{checkin.mood}</Text>
-                            </View>
-                            <Text style={styles.checkinDestinationText}>{new Date(checkin.createdAt).toLocaleDateString()} · {destinationText}</Text>
-                          </View>
-                        </View>
-                        {checkinIsEditing ? (
-                          <TextInput
-                            value={editRecentCheckinNote}
-                            onChangeText={setEditRecentCheckinNote}
-                            multiline
-                            style={[styles.input, styles.checkinEditInput]}
-                          />
-                        ) : (
-                          <Text style={styles.lastCheckinText}>{checkin.note || "No note added."}</Text>
-                        )}
-                        <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
-                          {checkinIsEditing ? (
-                            <>
-                              <Pressable
-                                onPress={() => saveRecentCheckinEdit(checkin)}
-                                style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
-                                accessibilityLabel="Save check-in changes"
-                              >
-                                <Ionicons name={isSavingRecentCheckinEdit ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
-                              </Pressable>
-                              <Pressable onPress={cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
-                                <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
-                              </Pressable>
-                            </>
-                          ) : (
-                            <>
-                              <Pressable onPress={() => copyPastCheckinMessage(checkin)} style={styles.checkinIconButton} accessibilityLabel="Copy check-in">
-                                <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
-                              </Pressable>
-                              <Pressable onPress={() => startEditRecentCheckin(checkin)} style={styles.checkinIconButton} accessibilityLabel="Edit check-in">
-                                <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
-                              </Pressable>
-                              <Pressable
-                                onPress={() => deleteRecentCheckin(checkin)}
-                                style={[styles.checkinIconButton, styles.checkinDeleteIconButton, checkinDeletePending && styles.pendingDeleteButton]}
-                                accessibilityLabel={checkinDeletePending ? "Confirm delete check-in" : "Remove check-in"}
-                              >
-                                <Ionicons name={checkinDeletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
-                              </Pressable>
-                            </>
-                          )}
-                        </View>
-                      </View>
-                    );
-                  })}
+                  {visibleCheckins.map((item: any) => renderCommunityHistoryItem(item))}
                   {(checkins || []).length > 3 && (
                     <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={styles.communityShowMoreButton}>
                       <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>

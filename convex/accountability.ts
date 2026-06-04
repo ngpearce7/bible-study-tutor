@@ -200,10 +200,47 @@ export const recentCheckins = query({
           });
         }
       }
-      enriched.push({ ...checkin, sharedTo });
+      enriched.push({ ...checkin, itemType: "checkin", sharedTo });
     }
 
-    return enriched;
+    const standalonePosts = profilePosts.filter((post) => !post.checkinId);
+    for (const post of standalonePosts) {
+      const sharedTo = [];
+      if (post.circleId) {
+        const circle = await ctx.db.get(post.circleId);
+        if (circle) {
+          sharedTo.push({
+            postId: post._id,
+            circleId: circle._id,
+            circleName: circle.name,
+            destinationType: "circle",
+            createdAt: post.createdAt
+          });
+        }
+      } else if (post.recipientProfileId) {
+        const friendProfile = await ctx.db.get(post.recipientProfileId);
+        sharedTo.push({
+          postId: post._id,
+          friendProfileId: post.recipientProfileId,
+          friendName: friendProfile?.displayName || "Friend",
+          destinationType: "friend",
+          createdAt: post.createdAt
+        });
+      }
+      enriched.push({
+        _id: post._id,
+        itemType: "communityPost",
+        mood: post.source === "studyInsight" ? "study insight" : "shared post",
+        note: post.note,
+        passageReference: post.passageReference,
+        createdAt: post.createdAt,
+        sentAt: post.createdAt,
+        sharedPostId: post._id,
+        sharedTo
+      });
+    }
+
+    return enriched.sort((a, b) => b.createdAt - a.createdAt).slice(0, args.limit ?? 12);
   }
 });
 

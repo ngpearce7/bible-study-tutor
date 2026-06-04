@@ -2366,6 +2366,14 @@ export default function Home() {
     const sharedTo = Array.isArray(item.sharedTo) ? item.sharedTo : [];
     const itemIsPost = item.itemType === "communityPost";
     const canEditItem = !itemIsPost || item.canEdit !== false;
+    const reactionPostId = item.sharedPostId || (itemIsPost ? item._id : undefined);
+    const reactionCounts = item.reactions || {};
+    const myReactions = Array.isArray(item.myReactions) ? item.myReactions : [];
+    const reactionOptions = [
+      { key: "amen", label: "Amen", count: reactionCounts.amen || 0 },
+      { key: "praying", label: "Praying", count: reactionCounts.praying || 0 },
+      { key: "encouraged", label: "Encouraged", count: reactionCounts.encouraged || 0 }
+    ] as const;
     const destinationText = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
       : itemIsPost ? "Shared post" : "Private encouragement";
@@ -2401,6 +2409,25 @@ export default function Home() {
           />
         ) : (
           <Text style={styles.lastCheckinText}>{item.note || "No note added."}</Text>
+        )}
+        {reactionPostId && !itemIsEditing && (
+          <View style={styles.circleReactionRow}>
+            {reactionOptions.map((reaction) => {
+              const active = myReactions.includes(reaction.key);
+              return (
+                <Pressable
+                  key={reaction.key}
+                  onPress={() => toggleCommunityReaction(reactionPostId, reaction.key)}
+                  style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
+                  accessibilityLabel={`${reaction.label} reaction`}
+                >
+                  <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>
+                    {reaction.label}{reaction.count > 0 ? ` ${reaction.count}` : ""}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         )}
         <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
           {itemIsEditing && canEditItem ? (

@@ -1,5 +1,5 @@
 import { getAuthUserId, modifyAccountCredentials, retrieveAccount } from "@convex-dev/auth/server";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { action, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
@@ -178,7 +178,13 @@ export const recentCheckins = query({
     for (const checkin of checkins) {
       const sharedPosts = profilePosts.filter((post) => post.checkinId === checkin._id);
       const sharedTo = [];
+      const allReactions = [];
       for (const post of sharedPosts) {
+        const reactions = await ctx.db
+          .query("communityReactions")
+          .withIndex("by_post", (q) => q.eq("postId", post._id))
+          .take(200);
+        allReactions.push(...reactions);
         if (post.circleId) {
           const circle = await ctx.db.get(post.circleId);
           if (!circle) continue;
@@ -205,12 +211,19 @@ export const recentCheckins = query({
         itemType: "checkin",
         authorLabel: "Posted by me",
         canEdit: true,
+        sharedPostId: sharedPosts.length === 1 ? sharedPosts[0]._id : undefined,
+        reactions: reactionSummary(allReactions),
+        myReactions: allReactions.filter((reaction) => reaction.profileId === args.profileId).map((reaction) => reaction.reaction),
         sharedTo
       });
     }
 
     const standalonePosts = profilePosts.filter((post) => !post.checkinId);
     for (const post of standalonePosts) {
+      const reactions = await ctx.db
+        .query("communityReactions")
+        .withIndex("by_post", (q) => q.eq("postId", post._id))
+        .take(200);
       const sharedTo = [];
       if (post.circleId) {
         const circle = await ctx.db.get(post.circleId);
@@ -245,6 +258,8 @@ export const recentCheckins = query({
         createdAt: post.createdAt,
         sentAt: post.createdAt,
         sharedPostId: post._id,
+        reactions: reactionSummary(reactions),
+        myReactions: reactions.filter((reaction) => reaction.profileId === args.profileId).map((reaction) => reaction.reaction),
         sharedTo
       });
     }
@@ -322,6 +337,14 @@ function clampText(value: string | undefined, maxLength: number) {
 function clampOptionalText(value: string | undefined, maxLength: number) {
   const cleaned = clampText(value, maxLength);
   return cleaned || undefined;
+}
+
+function reactionSummary(reactions: Doc<"communityReactions">[]) {
+  return {
+    amen: reactions.filter((reaction) => reaction.reaction === "amen").length,
+    praying: reactions.filter((reaction) => reaction.reaction === "praying").length,
+    encouraged: reactions.filter((reaction) => reaction.reaction === "encouraged").length
+  };
 }
 
 async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {

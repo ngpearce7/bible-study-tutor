@@ -2365,6 +2365,7 @@ export default function Home() {
   function renderCommunityHistoryItem(item: any) {
     const sharedTo = Array.isArray(item.sharedTo) ? item.sharedTo : [];
     const itemIsPost = item.itemType === "communityPost";
+    const canEditItem = !itemIsPost || item.canEdit !== false;
     const destinationText = sharedTo.length > 0
       ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
       : itemIsPost ? "Shared post" : "Private check-in";
@@ -2373,7 +2374,13 @@ export default function Home() {
     const editValue = itemIsPost ? editCommunityPostNote : editRecentCheckinNote;
     const saveBusy = itemIsPost ? isSavingCommunityPostEdit : isSavingRecentCheckinEdit;
     const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood || "check-in";
-    const itemMeta = `${new Date(item.createdAt).toLocaleDateString()} · ${destinationText}${item.passageReference ? ` · ${item.passageReference}` : ""}`;
+    const authorText = itemIsPost ? item.authorLabel || "Posted by me" : "";
+    const itemMeta = [
+      new Date(item.createdAt).toLocaleDateString(),
+      authorText,
+      destinationText,
+      item.passageReference
+    ].filter(Boolean).join(" · ");
 
     return (
       <View key={item._id} style={[styles.checkinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}>
@@ -2396,7 +2403,7 @@ export default function Home() {
           <Text style={styles.lastCheckinText}>{item.note || "No note added."}</Text>
         )}
         <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
-          {itemIsEditing ? (
+          {itemIsEditing && canEditItem ? (
             <>
               <Pressable
                 onPress={() => itemIsPost ? saveCommunityPostEdit(item) : saveRecentCheckinEdit(item)}
@@ -2414,16 +2421,20 @@ export default function Home() {
               <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy check-in"}>
                 <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
               </Pressable>
-              <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit check-in"}>
-                <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
-              </Pressable>
-              <Pressable
-                onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
-                style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
-                accessibilityLabel={deletePending ? "Confirm delete check-in" : itemIsPost ? "Remove shared post" : "Remove check-in"}
-              >
-                <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
-              </Pressable>
+              {canEditItem && (
+                <>
+                  <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit check-in"}>
+                    <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                  </Pressable>
+                  <Pressable
+                    onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
+                    style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
+                    accessibilityLabel={deletePending ? "Confirm delete check-in" : itemIsPost ? "Remove shared post" : "Remove check-in"}
+                  >
+                    <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                  </Pressable>
+                </>
+              )}
             </>
           )}
         </View>

@@ -716,14 +716,6 @@ export default function Home() {
   const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
-  const communityFeed = useQuery(
-    (api as any).community.feed,
-    COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated && communityTargetType === "circle" && targetCircleId
-      ? { profileId: activeProfileId, circleId: targetCircleId, limit: 12 }
-      : COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated && communityTargetType === "friend" && selectedFriendId
-        ? { profileId: activeProfileId, friendId: selectedFriendId, limit: 12 }
-        : "skip"
-  );
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
@@ -5753,92 +5745,6 @@ export default function Home() {
                 )}
               </View>
               </View>
-              {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && (
-                (communityTargetType === "circle" && selectedCommunityCircle) ||
-                (communityTargetType === "friend" && selectedFriendId && selectedCommunityFriends.length === 1)
-              ) && (
-                <>
-                  <View style={styles.communityDivider} />
-                  <View style={styles.feedbackHeader}>
-                    <Ionicons name="chatbubbles-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>{activeCommunityTargetName}</Text>
-                  </View>
-                  <Text style={styles.helpIntro}>
-                    {communityTargetType === "friend" ? "Shared posts between you and this friend." : "Shared posts from this private circle."}
-                  </Text>
-                  {Array.isArray(communityFeed) && communityFeed.length > 0 ? (
-                    <View style={styles.circleFeedList}>
-                      {communityFeed.map((post: any) => {
-                        const postIsEditing = editingCommunityPostId === post._id;
-                        return (
-                          <View key={post._id} style={styles.circlePostCard}>
-                            <View style={styles.journalHeader}>
-                              <View style={styles.journalTitleBlock}>
-                                <Text style={styles.helpFaqQuestion}>{post.authorName || "Bible student"}</Text>
-                                <Text style={styles.adminEventMeta}>{formatAdminDate(post.createdAt)}{post.passageReference ? ` · ${post.passageReference}` : ""}</Text>
-                              </View>
-                              {post.canRemove && !postIsEditing && (
-                                <View style={styles.circlePostIconRow}>
-                                  <Pressable onPress={() => startEditCommunityPost(post)} style={styles.checkinIconButton} accessibilityLabel="Edit shared post">
-                                    <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
-                                  </Pressable>
-                                  <Pressable onPress={() => deleteCommunityPost(post._id)} style={[styles.checkinIconButton, styles.checkinDeleteIconButton]} accessibilityLabel="Remove shared post">
-                                    <Ionicons name="trash-outline" size={16} color={colors.coral} />
-                                  </Pressable>
-                                </View>
-                              )}
-                              {post.canRemove && postIsEditing && (
-                                <View style={styles.circlePostIconRow}>
-                                  <Pressable onPress={() => saveCommunityPostEdit(post)} style={[styles.checkinIconButton, styles.checkinSaveIconButton]} accessibilityLabel="Save shared post changes">
-                                    <Ionicons name={isSavingCommunityPostEdit ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
-                                  </Pressable>
-                                  <Pressable onPress={cancelEditCommunityPost} style={styles.checkinIconButton} accessibilityLabel="Cancel shared post edit">
-                                    <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
-                                  </Pressable>
-                                </View>
-                              )}
-                            </View>
-                            {postIsEditing ? (
-                              <TextInput
-                                value={editCommunityPostNote}
-                                onChangeText={setEditCommunityPostNote}
-                                multiline
-                                style={[styles.input, styles.checkinEditInput]}
-                              />
-                            ) : (
-                              <Text style={styles.lastCheckinText}>{post.note}</Text>
-                            )}
-                            <View style={styles.circleReactionRow}>
-                              {[
-                                ["amen", "Amen"],
-                                ["praying", "Praying"],
-                                ["encouraged", "Encouraged"]
-                              ].map(([reaction, label]) => {
-                                const active = post.myReactions?.includes(reaction);
-                                const count = post.reactions?.[reaction] || 0;
-                                return (
-                                  <Pressable
-                                    key={reaction}
-                                    onPress={() => toggleCommunityReaction(post._id, reaction as "amen" | "praying" | "encouraged")}
-                                    style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
-                                  >
-                                    <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{label}{count ? ` ${count}` : ""}</Text>
-                                  </Pressable>
-                                );
-                              })}
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </View>
-                  ) : (
-                    <View style={styles.emptyCommunityBox}>
-                      <Text style={styles.communityTitle}>No shared posts yet</Text>
-                      <Text style={styles.helpIntro}>Post a check-in or study insight to begin this encouragement thread.</Text>
-                    </View>
-                  )}
-                </>
-              )}
                 </>
               ) : (
                 <View style={styles.communityHistoryPanel}>
@@ -13957,9 +13863,6 @@ const styles = StyleSheet.create({
   },
   activeCircleDangerManageText: {
     color: "white"
-  },
-  circleFeedList: {
-    gap: 9
   },
   circlePostCard: {
     backgroundColor: "#fff6eb",

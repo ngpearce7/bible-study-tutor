@@ -220,18 +220,37 @@ export const feed = query({
   args: {
     profileId: v.id("profiles"),
     circleId: v.optional(v.id("communityCircles")),
+    friendId: v.optional(v.id("communityFriends")),
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
-    if (!args.circleId) return [];
-    await authorizeCircleMember(ctx, args.circleId, args.profileId);
+    const limit = Math.min(args.limit ?? 12, 30);
+    let posts: Doc<"communityPosts">[] = [];
 
-    const posts = await ctx.db
-      .query("communityPosts")
-      .withIndex("by_circle_created", (q) => q.eq("circleId", args.circleId!))
-      .order("desc")
-      .take(Math.min(args.limit ?? 12, 30));
+    if (args.circleId) {
+      await authorizeCircleMember(ctx, args.circleId, args.profileId);
+      posts = await ctx.db
+        .query("communityPosts")
+        .withIndex("by_circle_created", (q) => q.eq("circleId", args.circleId!))
+        .order("desc")
+        .take(limit);
+    } else if (args.friendId) {
+      const friendProfileId = await authorizeAcceptedFriend(ctx, args.profileId, args.friendId);
+      const outgoing = (await ctx.db
+        .query("communityPosts")
+        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+        .order("desc")
+        .take(80)).filter((post) => post.recipientProfileId === friendProfileId);
+      const incoming = (await ctx.db
+        .query("communityPosts")
+        .withIndex("by_recipient_profile_created", (q) => q.eq("recipientProfileId", args.profileId))
+        .order("desc")
+        .take(80)).filter((post) => post.profileId === friendProfileId);
+      posts = [...outgoing, ...incoming].sort((a, b) => b.createdAt - a.createdAt).slice(0, limit);
+    } else {
+      return [];
+    }
 
     const enriched = [];
     for (const post of posts) {
@@ -319,28 +338,51 @@ export const joinCircle = mutation({
 export const shareCheckin = mutation({
   args: {
     profileId: v.id("profiles"),
-    circleId: v.id("communityCircles"),
+    circleId: v.optional(v.id("communityCircles")),
+    friendIds: v.optional(v.array(v.id("communityFriends"))),
     checkinId: v.optional(v.id("checkins")),
     note: v.string(),
     passageReference: v.optional(v.string())
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
-    await authorizeCircleMember(ctx, args.circleId, args.profileId);
 
     if (args.checkinId) {
       const checkin = await ctx.db.get(args.checkinId);
       if (!checkin || checkin.profileId !== args.profileId) throw new Error("Check-in not found.");
     }
 
-    return await ctx.db.insert("communityPosts", {
-      circleId: args.circleId,
-      checkinId: args.checkinId,
+    return await shareCommunityNote(ctx, {
+      profile,
       profileId: args.profileId,
-      authorName: clampText(profile.displayName, 80) || "Bible student",
-      note: clampText(args.note, 1200),
-      passageReference: clampOptionalText(args.passageReference, 120),
-      createdAt: Date.now()
+      checkinId: args.checkinId,
+      circleId: args.circleId,
+      friendIds: args.friendIds,
+      note: args.note,
+      passageReference: args.passageReference,
+      source: "checkin"
+    });
+  }
+});
+
+export const shareInsight = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    circleId: v.optional(v.id("communityCircles")),
+    friendIds: v.optional(v.array(v.id("communityFriends"))),
+    note: v.string(),
+    passageReference: v.optional(v.string())
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    return await shareCommunityNote(ctx, {
+      profile,
+      profileId: args.profileId,
+      circleId: args.circleId,
+      friendIds: args.friendIds,
+      note: args.note,
+      passageReference: args.passageReference,
+      source: "studyInsight"
     });
   }
 });
@@ -355,7 +397,7 @@ export const reactToPost = mutation({
     await authorizeSignedInProfile(ctx, args.profileId);
     const post = await ctx.db.get(args.postId);
     if (!post) throw new Error("Shared check-in not found.");
-    await authorizeCircleMember(ctx, post.circleId, args.profileId);
+    await authorizePostViewer(ctx, post, args.profileId);
 
     const existing = await ctx.db
       .query("communityReactions")
@@ -388,7 +430,7 @@ export const removePost = mutation({
     await authorizeSignedInProfile(ctx, args.profileId);
     const post = await ctx.db.get(args.postId);
     if (!post) return false;
-    await authorizeCircleMember(ctx, post.circleId, args.profileId);
+    await authorizePostViewer(ctx, post, args.profileId);
     if (post.profileId !== args.profileId) throw new Error("Only the person who shared this check-in can remove it.");
 
     const reactions = await ctx.db
@@ -413,7 +455,7 @@ export const updatePost = mutation({
     await authorizeSignedInProfile(ctx, args.profileId);
     const post = await ctx.db.get(args.postId);
     if (!post) return false;
-    await authorizeCircleMember(ctx, post.circleId, args.profileId);
+    await authorizePostViewer(ctx, post, args.profileId);
     if (post.profileId !== args.profileId) throw new Error("Only the person who shared this check-in can edit it.");
 
     const nextNote = clampText(args.note, 1200);
@@ -505,6 +547,74 @@ async function authorizeCircleMember(ctx: QueryCtx | MutationCtx, circleId: Id<"
     .unique();
   if (!membership) throw new Error("You are not a member of this circle.");
   return membership;
+}
+
+async function authorizeAcceptedFriend(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">, friendId: Id<"communityFriends">) {
+  const friendship = await ctx.db.get(friendId);
+  if (!friendship || friendship.status !== "accepted") throw new Error("Accepted friend connection not found.");
+  if (friendship.requesterProfileId === profileId) return friendship.recipientProfileId;
+  if (friendship.recipientProfileId === profileId) return friendship.requesterProfileId;
+  throw new Error("Accepted friend connection not found.");
+}
+
+async function authorizePostViewer(ctx: QueryCtx | MutationCtx, post: Doc<"communityPosts">, profileId: Id<"profiles">) {
+  if (post.circleId) {
+    await authorizeCircleMember(ctx, post.circleId, profileId);
+    return true;
+  }
+  if (post.profileId === profileId || post.recipientProfileId === profileId) {
+    return true;
+  }
+  throw new Error("Shared post not found.");
+}
+
+async function shareCommunityNote(
+  ctx: MutationCtx,
+  args: {
+    profile: Doc<"profiles">;
+    profileId: Id<"profiles">;
+    circleId?: Id<"communityCircles">;
+    friendIds?: Id<"communityFriends">[];
+    checkinId?: Id<"checkins">;
+    note: string;
+    passageReference?: string;
+    source: "checkin" | "studyInsight";
+  }
+) {
+  const note = clampText(args.note, 1200);
+  if (!note) throw new Error("Write something before sharing.");
+
+  const friendIds = Array.from(new Set((args.friendIds || []).map((friendId) => String(friendId)))).slice(0, 10) as Id<"communityFriends">[];
+  const destinations: { circleId?: Id<"communityCircles">; recipientProfileId?: Id<"profiles"> }[] = [];
+
+  if (args.circleId) {
+    await authorizeCircleMember(ctx, args.circleId, args.profileId);
+    destinations.push({ circleId: args.circleId });
+  }
+
+  for (const friendId of friendIds) {
+    const recipientProfileId = await authorizeAcceptedFriend(ctx, args.profileId, friendId);
+    destinations.push({ recipientProfileId });
+  }
+
+  if (destinations.length === 0) throw new Error("Choose a friend or circle before sharing.");
+
+  const createdAt = Date.now();
+  const postIds = [];
+  for (const destination of destinations) {
+    postIds.push(await ctx.db.insert("communityPosts", {
+      ...destination,
+      checkinId: args.checkinId,
+      source: args.source,
+      profileId: args.profileId,
+      authorName: clampText(args.profile.displayName, 80) || "Bible student",
+      note,
+      passageReference: clampOptionalText(args.passageReference, 120),
+      createdAt
+    }));
+  }
+
+  return { count: postIds.length, postIds };
 }
 
 async function removeProfileReactionsInCircle(ctx: MutationCtx, profileId: Id<"profiles">, circleId: Id<"communityCircles">) {

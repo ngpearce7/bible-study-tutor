@@ -170,11 +170,11 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Information you provide",
-    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, check-ins, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared circle posts, and reactions."
+    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, check-ins, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared friend or circle posts, and reactions."
   },
   {
     title: "Faith and personal reflections",
-    body: "Your notes, journal entries, check-ins, shared circle posts, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. By choosing to save or share that content, you consent to the app storing and using it to provide the features you request. Please write thoughtfully and avoid adding information you would not want stored in the app."
+    body: "Your notes, journal entries, check-ins, shared friend or circle posts, and feedback may include religious beliefs, prayer needs, personal struggles, or other sensitive reflections. By choosing to save or share that content, you consent to the app storing and using it to provide the features you request. Please write thoughtfully and avoid adding information you would not want stored in the app."
   },
   {
     title: "How we use information",
@@ -206,11 +206,11 @@ const PRIVACY_POLICY_SECTIONS = [
   },
   {
     title: "Sharing from the app",
-    body: "The app can help you copy or share study insights, check-in messages, and the Bible Study Tutor link. It can also let you share check-ins inside invite-only private circles, where circle members can view and react to shared posts. We may count that a share, copy-link, QR-code arrival, post, or reaction happened. Once you share content outside the app, that outside service or recipient controls what happens to it."
+    body: "The app can help you copy or share study insights, check-in messages, and the Bible Study Tutor link. It can also let you share insights and check-ins with accepted friends or invite-only private circles, where the selected recipients can view and react to shared posts. We may count that a share, copy-link, QR-code arrival, post, or reaction happened. Once you share content outside the app, that outside service or recipient controls what happens to it."
   },
   {
     title: "Data retention and deletion",
-    body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, drafts, check-ins, and shared circle posts. Editing or deleting a shared post updates or removes it inside the app, but it cannot control content already copied, screenshotted, remembered, or shared outside the app. To request account deletion or broader data removal, contact support@biblestudytutor.org."
+    body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, drafts, check-ins, and shared friend or circle posts. Editing or deleting a shared post updates or removes it inside the app, but it cannot control content already copied, screenshotted, remembered, or shared outside the app. To request account deletion or broader data removal, contact support@biblestudytutor.org."
   },
   {
     title: "Access, correction, deletion, and complaints",
@@ -248,7 +248,7 @@ const TERMS_OF_SERVICE_SECTIONS = [
   },
   {
     title: "Your content",
-    body: "You keep ownership of the notes, reflections, check-ins, shared circle posts, reactions, and feedback you create. You give Bible Study Tutor permission to store and process that content so the app can provide its features, sync your account, improve the service, and respond to feedback."
+    body: "You keep ownership of the notes, reflections, check-ins, shared friend or circle posts, reactions, and feedback you create. You give Bible Study Tutor permission to store and process that content so the app can provide its features, sync your account, improve the service, and respond to feedback."
   },
   {
     title: "Private community use",
@@ -346,6 +346,7 @@ export default function Home() {
   const acceptCommunityFriend = useMutation((api as any).community.acceptFriend);
   const removeCommunityFriend = useMutation((api as any).community.removeFriend);
   const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
+  const shareStudyInsightToCommunity = useMutation((api as any).community.shareInsight);
   const reactToCommunityPost = useMutation((api as any).community.reactToPost);
   const removeCommunityPost = useMutation((api as any).community.removePost);
   const updateCommunityPost = useMutation((api as any).community.updatePost);
@@ -710,7 +711,14 @@ export default function Home() {
   const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
-  const communityFeed = useQuery((api as any).community.feed, COMMUNITY_CIRCLES_ENABLED && activeProfileId && targetCircleId ? { profileId: activeProfileId, circleId: targetCircleId, limit: 12 } : "skip");
+  const communityFeed = useQuery(
+    (api as any).community.feed,
+    COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated && communityTargetType === "circle" && targetCircleId
+      ? { profileId: activeProfileId, circleId: targetCircleId, limit: 12 }
+      : COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated && communityTargetType === "friend" && selectedFriendId
+        ? { profileId: activeProfileId, friendId: selectedFriendId, limit: 12 }
+        : "skip"
+  );
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
@@ -872,7 +880,7 @@ export default function Home() {
   const communityHistoryGroups = filteredCommunityHistoryCheckins.reduce((groups: { title: string; items: any[] }[], checkin: any) => {
     const sharedTo = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
     const title = sharedTo.length > 0
-      ? `Shared to ${sharedTo.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
+      ? `Shared to ${sharedTo.map((item: any) => item.circleName || item.friendName).filter(Boolean).join(", ")}`
       : "Private or friend check-ins";
     const existing = groups.find((group) => group.title === title);
     if (existing) {
@@ -1743,19 +1751,21 @@ export default function Home() {
     setCommunityStatus("Posting check-in...");
     const noteToSave = checkinNote.trim();
     const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && targetCircleId;
+    const shouldShareWithFriends = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "friend" && targetFriendIds.length > 0;
     try {
       const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "check-in", note: noteToSave, sentAt: Date.now() });
-      if (shouldShareWithCircle) {
+      if (shouldShareWithCircle || shouldShareWithFriends) {
         try {
           await shareCheckinToCircle({
             profileId: activeProfileId,
-            circleId: targetCircleId,
+            circleId: shouldShareWithCircle ? targetCircleId : undefined,
+            friendIds: shouldShareWithFriends ? targetFriendIds : undefined,
             checkinId,
             note: noteToSave,
             passageReference: passageText?.reference || passage
           });
         } catch {
-          setCommunityStatus("Saved privately, but could not post to the selected circle. Try selecting the circle again.");
+          setCommunityStatus("Saved privately, but could not post to the selected connection. Try selecting the friend or circle again.");
           trackUsage("checkin_saved", { tab: "accountability" });
           return;
         }
@@ -1763,7 +1773,9 @@ export default function Home() {
       setCommunityStatus(
         shouldShareWithCircle
           ? `Posted to ${selectedCommunityCircle?.name || "your circle"}`
-          : `Posted for ${activeCommunityTargetName || "your selected friend"}`
+          : shouldShareWithFriends
+            ? `Posted to ${activeCommunityTargetName || "your selected friend"}`
+            : "Saved privately"
       );
       trackUsage("checkin_saved", { tab: "accountability" });
       setCheckinNote("");
@@ -2187,6 +2199,44 @@ export default function Home() {
       setShareInsightStatus("Share sheet opened");
     } catch {
       setShareInsightStatus("Could not share from this device");
+    }
+  }
+
+  async function postStudyInsightToCommunity(noteOverride?: string) {
+    const insight = (noteOverride || shareNote || suggestedShareNote).trim();
+    if (!insight) {
+      setShareInsightStatus("Write an insight first.");
+      return;
+    }
+    if (!activeProfileId || !isAuthenticated) {
+      setShareInsightStatus("Sign in before sharing with a friend or circle.");
+      return;
+    }
+    if (!hasCommunityTarget) {
+      setShareInsightStatus("Choose a friend or circle in Community first.");
+      return;
+    }
+
+    const shouldShareWithCircle = communityTargetType === "circle" && targetCircleId;
+    const shouldShareWithFriends = communityTargetType === "friend" && targetFriendIds.length > 0;
+    if (!shouldShareWithCircle && !shouldShareWithFriends) {
+      setShareInsightStatus("Choose a friend or circle in Community first.");
+      return;
+    }
+
+    setShareInsightStatus("Posting insight...");
+    try {
+      await shareStudyInsightToCommunity({
+        profileId: activeProfileId,
+        circleId: shouldShareWithCircle ? targetCircleId : undefined,
+        friendIds: shouldShareWithFriends ? targetFriendIds : undefined,
+        note: insight,
+        passageReference: passageText?.reference || passage
+      });
+      setShareInsightStatus(`Insight posted to ${activeCommunityTargetName || "your selected connection"}.`);
+      trackUsage("study_insight_posted", { reference: passageText?.reference || passage, tab: "study" });
+    } catch {
+      setShareInsightStatus("Could not post that insight. Check the selected friend or circle.");
     }
   }
 
@@ -3687,9 +3737,28 @@ export default function Home() {
                     <Text style={styles.lastCheckinLabel}>Shareable insight</Text>
                     <Text style={styles.body}>{savedStudySummary.shareNote || "Study saved without a share note."}</Text>
                     {!!savedStudySummary.shareNote && (
-                      <View style={styles.shareInsightActions}>
-                        <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight(savedStudySummary.shareNote)} />
-                      </View>
+                      <>
+                        <View style={styles.shareInsightActions}>
+                          <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight(savedStudySummary.shareNote)} />
+                          <ResumeButton
+                            label={hasCommunityTarget ? `Post to ${activeCommunityTargetName}` : "Post to friend/circle"}
+                            icon="people-outline"
+                            onPress={() => postStudyInsightToCommunity(savedStudySummary.shareNote)}
+                          />
+                        </View>
+                        <Pressable
+                          onPress={() => {
+                            setCommunitySubView("encourage");
+                            setTab("accountability");
+                          }}
+                          style={styles.shareInsightTargetLink}
+                        >
+                          <Text style={styles.shareInsightTargetText}>
+                            {hasCommunityTarget ? `Selected: ${activeCommunityTargetName}` : "Choose a friend or circle in Community"}
+                          </Text>
+                        </Pressable>
+                        {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
+                      </>
                     )}
                   </View>
                   <View style={styles.savedSummaryPanel}>
@@ -3753,7 +3822,23 @@ export default function Home() {
                     />
                     <View style={styles.shareInsightActions}>
                       <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight()} />
+                      <ResumeButton
+                        label={hasCommunityTarget ? `Post to ${activeCommunityTargetName}` : "Post to friend/circle"}
+                        icon="people-outline"
+                        onPress={() => postStudyInsightToCommunity()}
+                      />
                     </View>
+                    <Pressable
+                      onPress={() => {
+                        setCommunitySubView("encourage");
+                        setTab("accountability");
+                      }}
+                      style={styles.shareInsightTargetLink}
+                    >
+                      <Text style={styles.shareInsightTargetText}>
+                        {hasCommunityTarget ? `Selected: ${activeCommunityTargetName}` : "Choose a friend or circle in Community"}
+                      </Text>
+                    </Pressable>
                     {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                   </View>
                   <View style={styles.buttonRow}>
@@ -3914,7 +3999,23 @@ export default function Home() {
                           />
                           <View style={styles.shareInsightActions}>
                             <ResumeButton label="Share insight" icon="share-outline" onPress={() => shareStudyInsight()} />
+                            <ResumeButton
+                              label={hasCommunityTarget ? `Post to ${activeCommunityTargetName}` : "Post to friend/circle"}
+                              icon="people-outline"
+                              onPress={() => postStudyInsightToCommunity()}
+                            />
                           </View>
+                          <Pressable
+                            onPress={() => {
+                              setCommunitySubView("encourage");
+                              setTab("accountability");
+                            }}
+                            style={styles.shareInsightTargetLink}
+                          >
+                            <Text style={styles.shareInsightTargetText}>
+                              {hasCommunityTarget ? `Selected: ${activeCommunityTargetName}` : "Choose a friend or circle in Community"}
+                            </Text>
+                          </Pressable>
                           {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                         </View>
                       )}
@@ -5288,8 +5389,8 @@ export default function Home() {
                     )}
                     <Text style={styles.helpIntro}>
                       {communityTargetType === "circle"
-                        ? "Saving can also post this check-in to the selected circle feed."
-                        : "Friends are one-to-one. Copy and send the message outside the app, then save your check-in history."}
+                        ? "Saving can post this check-in to the selected circle."
+                        : "Saving can post this check-in to your selected friend or friends."}
                     </Text>
                   </>
                 ) : (
@@ -5581,14 +5682,19 @@ export default function Home() {
                 )}
               </View>
               </View>
-              {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && communityTargetType === "circle" && selectedCommunityCircle && (
+              {COMMUNITY_CIRCLES_ENABLED && isAuthenticated && (
+                (communityTargetType === "circle" && selectedCommunityCircle) ||
+                (communityTargetType === "friend" && selectedFriendId && selectedCommunityFriends.length === 1)
+              ) && (
                 <>
                   <View style={styles.communityDivider} />
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="chatbubbles-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>{selectedCommunityCircle.name}</Text>
+                    <Text style={styles.feedbackTitle}>{activeCommunityTargetName}</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Shared check-ins from this private circle.</Text>
+                  <Text style={styles.helpIntro}>
+                    {communityTargetType === "friend" ? "Shared posts between you and this friend." : "Shared posts from this private circle."}
+                  </Text>
                   {Array.isArray(communityFeed) && communityFeed.length > 0 ? (
                     <View style={styles.circleFeedList}>
                       {communityFeed.map((post: any) => {
@@ -5656,8 +5762,8 @@ export default function Home() {
                     </View>
                   ) : (
                     <View style={styles.emptyCommunityBox}>
-                      <Text style={styles.communityTitle}>No shared check-ins yet</Text>
-                      <Text style={styles.helpIntro}>Save a check-in with circle sharing turned on to start the circle rhythm.</Text>
+                      <Text style={styles.communityTitle}>No shared posts yet</Text>
+                      <Text style={styles.helpIntro}>Post a check-in or study insight to begin this encouragement thread.</Text>
                     </View>
                   )}
                 </>
@@ -5724,7 +5830,7 @@ export default function Home() {
                             {group.items.map((checkin: any) => {
                               const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
                               const destinationText = sharedCircles.length > 0
-                                ? `Shared to ${sharedCircles.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
+                                ? `Shared to ${sharedCircles.map((item: any) => item.circleName || item.friendName).filter(Boolean).join(", ")}`
                                 : "Private check-in";
                               const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
                               const checkinIsEditing = editingRecentCheckinId === checkin._id;
@@ -5814,10 +5920,10 @@ export default function Home() {
               ) : (
                 <>
                   {visibleCheckins.map((checkin: any) => {
-                    const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
-                    const destinationText = sharedCircles.length > 0
-                      ? `Shared to ${sharedCircles.map((item: any) => item.circleName).filter(Boolean).join(", ")}`
-                      : "Private check-in";
+                      const sharedCircles = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
+                      const destinationText = sharedCircles.length > 0
+                        ? `Shared to ${sharedCircles.map((item: any) => item.circleName || item.friendName).filter(Boolean).join(", ")}`
+                        : "Private check-in";
                     const checkinDeletePending = pendingCheckinDeleteId === checkin._id;
                     const checkinIsEditing = editingRecentCheckinId === checkin._id;
                     return (
@@ -13951,6 +14057,16 @@ const styles = StyleSheet.create({
   shareInsightActions: {
     alignItems: "flex-start",
     marginTop: 10
+  },
+  shareInsightTargetLink: {
+    alignSelf: "flex-start",
+    marginTop: 8,
+    paddingVertical: 3
+  },
+  shareInsightTargetText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800"
   },
   savedSummaryBox: {
     alignItems: "flex-start",

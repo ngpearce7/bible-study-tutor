@@ -126,8 +126,10 @@ export default defineSchema({
     .index("by_requester_and_status", ["requesterProfileId", "status"])
     .index("by_recipient_and_status", ["recipientProfileId", "status"]),
   communityPosts: defineTable({
-    circleId: v.id("communityCircles"),
+    circleId: v.optional(v.id("communityCircles")),
+    recipientProfileId: v.optional(v.id("profiles")),
     checkinId: v.optional(v.id("checkins")),
+    source: v.optional(v.union(v.literal("checkin"), v.literal("studyInsight"))),
     profileId: v.id("profiles"),
     authorName: v.string(),
     note: v.string(),
@@ -135,6 +137,7 @@ export default defineSchema({
     createdAt: v.number()
   })
     .index("by_circle_created", ["circleId", "createdAt"])
+    .index("by_recipient_profile_created", ["recipientProfileId", "createdAt"])
     .index("by_profile_created", ["profileId", "createdAt"]),
   communityReactions: defineTable({
     postId: v.id("communityPosts"),

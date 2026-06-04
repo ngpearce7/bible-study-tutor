@@ -179,14 +179,26 @@ export const recentCheckins = query({
       const sharedPosts = profilePosts.filter((post) => post.checkinId === checkin._id);
       const sharedTo = [];
       for (const post of sharedPosts) {
-        const circle = await ctx.db.get(post.circleId);
-        if (!circle) continue;
-        sharedTo.push({
-          postId: post._id,
-          circleId: circle._id,
-          circleName: circle.name,
-          createdAt: post.createdAt
-        });
+        if (post.circleId) {
+          const circle = await ctx.db.get(post.circleId);
+          if (!circle) continue;
+          sharedTo.push({
+            postId: post._id,
+            circleId: circle._id,
+            circleName: circle.name,
+            destinationType: "circle",
+            createdAt: post.createdAt
+          });
+        } else if (post.recipientProfileId) {
+          const friendProfile = await ctx.db.get(post.recipientProfileId);
+          sharedTo.push({
+            postId: post._id,
+            friendProfileId: post.recipientProfileId,
+            friendName: friendProfile?.displayName || "Friend",
+            destinationType: "friend",
+            createdAt: post.createdAt
+          });
+        }
       }
       enriched.push({ ...checkin, sharedTo });
     }

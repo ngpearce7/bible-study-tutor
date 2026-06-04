@@ -2374,7 +2374,7 @@ export default function Home() {
     const editValue = itemIsPost ? editCommunityPostNote : editRecentCheckinNote;
     const saveBusy = itemIsPost ? isSavingCommunityPostEdit : isSavingRecentCheckinEdit;
     const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood || "check-in";
-    const authorText = itemIsPost ? item.authorLabel || "Posted by me" : "";
+    const authorText = item.authorLabel || "";
     const itemMeta = [
       new Date(item.createdAt).toLocaleDateString(),
       authorText,

@@ -200,7 +200,13 @@ export const recentCheckins = query({
           });
         }
       }
-      enriched.push({ ...checkin, itemType: "checkin", sharedTo });
+      enriched.push({
+        ...checkin,
+        itemType: "checkin",
+        authorLabel: "Posted by me",
+        canEdit: true,
+        sharedTo
+      });
     }
 
     const standalonePosts = profilePosts.filter((post) => !post.checkinId);

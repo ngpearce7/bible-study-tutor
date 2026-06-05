@@ -163,6 +163,11 @@ const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
   { name: "Africa", description: "Broad region only", count: 0, x: 52, y: 55, size: "small" },
   { name: "Asia", description: "Broad region only", count: 0, x: 70, y: 38, size: "small" }
 ];
+const COMMUNITY_STATUS_BUSY_PREFIXES = ["Posting", "Creating", "Looking", "Checking", "Accepting", "Joining", "Saving"];
+
+function communityStatusShouldHold(message: string) {
+  return COMMUNITY_STATUS_BUSY_PREFIXES.some((prefix) => message.startsWith(prefix));
+}
 const PRIVACY_POLICY_SECTIONS = [
   {
     title: "Who we are",
@@ -695,6 +700,34 @@ export default function Home() {
       if (readerTooltipTimerRef.current) clearTimeout(readerTooltipTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!communityStatus || communityStatusShouldHold(communityStatus)) return;
+    const timeout = setTimeout(() => {
+      setCommunityStatus("");
+      if (communityStatus.startsWith("Tap Confirm delete")) setPendingCheckinDeleteId(null);
+    }, communityStatus.startsWith("Tap ") ? 7000 : 4200);
+    return () => clearTimeout(timeout);
+  }, [communityStatus]);
+
+  useEffect(() => {
+    if (!friendStatus || communityStatusShouldHold(friendStatus)) return;
+    const timeout = setTimeout(() => {
+      setFriendStatus("");
+      if (friendStatus.startsWith("Tap Remove")) setPendingFriendRemoveId(null);
+    }, friendStatus.startsWith("Tap ") ? 7000 : 4200);
+    return () => clearTimeout(timeout);
+  }, [friendStatus]);
+
+  useEffect(() => {
+    if (!circleStatus || communityStatusShouldHold(circleStatus)) return;
+    const timeout = setTimeout(() => {
+      setCircleStatus("");
+      if (circleStatus.startsWith("Tap Leave")) setPendingCircleLeaveId(null);
+      if (circleStatus.startsWith("Tap Delete")) setPendingCircleDeleteId(null);
+    }, circleStatus.startsWith("Tap ") ? 7000 : 4200);
+    return () => clearTimeout(timeout);
+  }, [circleStatus]);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
 

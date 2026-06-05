@@ -459,6 +459,8 @@ export default function Home() {
   const [focusedCommunityItemId, setFocusedCommunityItemId] = useState("");
   const [friendToolsOpen, setFriendToolsOpen] = useState(false);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
+  const [mobileFriendsPanelOpen, setMobileFriendsPanelOpen] = useState(false);
+  const [mobileCirclesPanelOpen, setMobileCirclesPanelOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
   const [communitySubView, setCommunitySubView] = useState<"encourage" | "history">("encourage");
@@ -1173,6 +1175,22 @@ export default function Home() {
     memoryBlankTokens.every((token) => normalizeMemoryAnswer(memoryPracticeAnswers[token.index] || "") === normalizeMemoryAnswer(token.answer));
   const compactLayout = width < 900;
   const phoneLayout = width < 760;
+  const friendPanelSummary = !COMMUNITY_CIRCLES_ENABLED
+    ? "Coming soon"
+    : !isAuthenticated
+      ? "Sign in to add friends"
+      : acceptedCommunityFriends.length === 0 && pendingCommunityFriendInvites.length === 0
+        ? "No friends yet"
+        : `${acceptedCommunityFriends.length} friend${acceptedCommunityFriends.length === 1 ? "" : "s"}${pendingCommunityFriendInvites.length > 0 ? ` · ${pendingCommunityFriendInvites.length} pending` : ""}`;
+  const circlePanelSummary = !COMMUNITY_CIRCLES_ENABLED
+    ? "Coming soon"
+    : !isAuthenticated
+      ? "Sign in to join circles"
+      : (communityCircles || []).length === 0
+        ? "No circles yet"
+        : `${(communityCircles || []).length} circle${(communityCircles || []).length === 1 ? "" : "s"}`;
+  const showFriendsConnectionPanel = !phoneLayout || mobileFriendsPanelOpen;
+  const showCircleConnectionPanel = !phoneLayout || mobileCirclesPanelOpen;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -5604,15 +5622,29 @@ export default function Home() {
                 <>
               <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
               <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="person-add-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Friends</Text>
-                </View>
-                <Text style={styles.helpIntro}>
-                  Friends are registered Bible Study Tutor users you personally add by code or email. Share your code privately with someone you trust, then encourage one another without a public feed.
-                </Text>
-                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
+                <Pressable
+                  disabled={!phoneLayout}
+                  onPress={() => setMobileFriendsPanelOpen((open) => !open)}
+                  style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
+                >
+                  <View style={styles.mobileCommunityPanelTitleRow}>
+                    <Ionicons name="person-add-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Friends</Text>
+                  </View>
+                  {phoneLayout && (
+                    <View style={styles.mobileCommunityPanelSummaryRow}>
+                      <Text numberOfLines={1} style={styles.mobileCommunityPanelSummary}>{friendPanelSummary}</Text>
+                      <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                    </View>
+                  )}
+                </Pressable>
+                {showFriendsConnectionPanel && (
                   <>
+                    <Text style={styles.helpIntro}>
+                      Friends are registered Bible Study Tutor users you personally add by code or email. Share your code privately with someone you trust, then encourage one another without a public feed.
+                    </Text>
+                    {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
+                      <>
                     <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
                       <Text style={styles.circleManagementLabel}>Your friend code</Text>
                       <View style={styles.circleChip}>
@@ -5734,27 +5766,43 @@ export default function Home() {
                       </Pressable>
                     )}
                     {!!friendStatus && <Text style={styles.saveStatus}>{friendStatus}</Text>}
+                      </>
+                    ) : COMMUNITY_CIRCLES_ENABLED ? (
+                      <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                    ) : (
+                      <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
+                    )}
                   </>
-                ) : COMMUNITY_CIRCLES_ENABLED ? (
-                  <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                ) : (
-                  <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
                 )}
               </View>
               <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Private circle</Text>
-                </View>
-                <Text style={styles.helpIntro}>
-                {COMMUNITY_CIRCLES_ENABLED
-                  ? isAuthenticated
-                    ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple encouragement so you can encourage one another to keep drawing near to God."
-                    : "Sign in to create or join a small private circle where trusted people can share study thoughts, prayer points, and encouragement."
-                  : "Private circles are being prepared and will be enabled after the backend is ready."}
-                </Text>
-                {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
+                <Pressable
+                  disabled={!phoneLayout}
+                  onPress={() => setMobileCirclesPanelOpen((open) => !open)}
+                  style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
+                >
+                  <View style={styles.mobileCommunityPanelTitleRow}>
+                    <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
+                    <Text style={styles.feedbackTitle}>Private circle</Text>
+                  </View>
+                  {phoneLayout && (
+                    <View style={styles.mobileCommunityPanelSummaryRow}>
+                      <Text numberOfLines={1} style={styles.mobileCommunityPanelSummary}>{circlePanelSummary}</Text>
+                      <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                    </View>
+                  )}
+                </Pressable>
+                {showCircleConnectionPanel && (
                   <>
+                    <Text style={styles.helpIntro}>
+                    {COMMUNITY_CIRCLES_ENABLED
+                      ? isAuthenticated
+                        ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple encouragement so you can encourage one another to keep drawing near to God."
+                        : "Sign in to create or join a small private circle where trusted people can share study thoughts, prayer points, and encouragement."
+                      : "Private circles are being prepared and will be enabled after the backend is ready."}
+                    </Text>
+                    {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
+                      <>
                     {(communityCircles || []).length > 0 && (
                       <View style={styles.circleSelectorPanel}>
                         <View style={styles.circleSelectorHeader}>
@@ -5852,11 +5900,13 @@ export default function Home() {
                       )}
                       {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
                       </View>
+                      </>
+                    ) : COMMUNITY_CIRCLES_ENABLED ? (
+                      <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                    ) : (
+                      <Text style={styles.saveStatus}>Encouragements still save privately and can be copied or sent as before.</Text>
+                    )}
                   </>
-                ) : COMMUNITY_CIRCLES_ENABLED ? (
-                  <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                ) : (
-                  <Text style={styles.saveStatus}>Encouragements still save privately and can be copied or sent as before.</Text>
                 )}
               </View>
               </View>
@@ -13783,6 +13833,34 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     maxWidth: "100%",
     minWidth: 0
+  },
+  mobileCommunityPanelHeader: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 0,
+    minHeight: 42
+  },
+  mobileCommunityPanelTitleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 8
+  },
+  mobileCommunityPanelSummaryRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flex: 1,
+    gap: 6,
+    justifyContent: "flex-end",
+    minWidth: 0
+  },
+  mobileCommunityPanelSummary: {
+    color: colors.muted,
+    flexShrink: 1,
+    fontSize: 11,
+    fontWeight: "900",
+    lineHeight: 15,
+    textAlign: "right"
   },
   communityCircleBox: {
     backgroundColor: "#fffaf2",

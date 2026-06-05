@@ -5737,10 +5737,10 @@ export default function Home() {
                     <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
                       <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={styles.circleManagerToggle}>
                         <Ionicons name="person-add-outline" size={14} color={colors.oliveDark} />
-                        <Text style={styles.circleManageText}>{friendToolsOpen || acceptedCommunityFriends.length === 0 ? "Hide friend tools" : "Add or invite"}</Text>
-                        <Ionicons name={friendToolsOpen || acceptedCommunityFriends.length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                        <Text style={styles.circleManageText}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
+                        <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
                       </Pressable>
-                      {(friendToolsOpen || acceptedCommunityFriends.length === 0) && (
+                      {friendToolsOpen && (
                         <View style={styles.circleManagementContent}>
                           <Text style={styles.circleManagementLabel}>Your friend code</Text>
                           <View style={styles.circleChip}>

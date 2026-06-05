@@ -457,6 +457,7 @@ export default function Home() {
   const [isSavingCommunityPostEdit, setIsSavingCommunityPostEdit] = useState(false);
   const [communityReactionOverrides, setCommunityReactionOverrides] = useState<Record<string, { reactions: { amen: number; praying: number; encouraged: number }; myReactions: string[] }>>({});
   const [focusedCommunityItemId, setFocusedCommunityItemId] = useState("");
+  const [friendToolsOpen, setFriendToolsOpen] = useState(false);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
@@ -5734,42 +5735,51 @@ export default function Home() {
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                   <>
                     <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
-                      <Text style={styles.circleManagementLabel}>Your friend code</Text>
-                      <View style={styles.circleChip}>
-                        <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
-                          <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
-                          <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
-                            <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
-                            <Text style={styles.circleCopyText}>Copy</Text>
-                          </Pressable>
+                      <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={styles.circleManagerToggle}>
+                        <Ionicons name="person-add-outline" size={14} color={colors.oliveDark} />
+                        <Text style={styles.circleManageText}>{friendToolsOpen || acceptedCommunityFriends.length === 0 ? "Hide friend tools" : "Add or invite"}</Text>
+                        <Ionicons name={friendToolsOpen || acceptedCommunityFriends.length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                      </Pressable>
+                      {(friendToolsOpen || acceptedCommunityFriends.length === 0) && (
+                        <View style={styles.circleManagementContent}>
+                          <Text style={styles.circleManagementLabel}>Your friend code</Text>
+                          <View style={styles.circleChip}>
+                            <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
+                              <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
+                              <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
+                                <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
+                                <Text style={styles.circleCopyText}>Copy</Text>
+                              </Pressable>
+                            </View>
+                            <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
+                          </View>
+                          <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
+                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={styles.circleManagementLabel}>Add by friend code</Text>
+                              <TextInput
+                                value={friendCodeInput}
+                                onChangeText={(value) => setFriendCodeInput(value.toUpperCase())}
+                                placeholder="Friend code"
+                                autoCapitalize="characters"
+                                style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
+                              />
+                              <AppButton label="Add by code" variant="secondary" onPress={inviteFriendWithCode} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                            </View>
+                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={styles.circleManagementLabel}>Add by email</Text>
+                              <TextInput
+                                value={friendEmail}
+                                onChangeText={setFriendEmail}
+                                placeholder="Friend's account email"
+                                autoCapitalize="none"
+                                keyboardType="email-address"
+                                style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
+                              />
+                              <AppButton label="Send invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
+                            </View>
+                          </View>
                         </View>
-                        <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
-                      </View>
-                      <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
-                        <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                          <Text style={styles.circleManagementLabel}>Add by friend code</Text>
-                          <TextInput
-                            value={friendCodeInput}
-                            onChangeText={(value) => setFriendCodeInput(value.toUpperCase())}
-                            placeholder="Friend code"
-                            autoCapitalize="characters"
-                            style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
-                          />
-                          <AppButton label="Add by code" variant="secondary" onPress={inviteFriendWithCode} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                        </View>
-                        <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                          <Text style={styles.circleManagementLabel}>Add by email</Text>
-                          <TextInput
-                            value={friendEmail}
-                            onChangeText={setFriendEmail}
-                            placeholder="Friend's account email"
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
-                          />
-                          <AppButton label="Send invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
-                        </View>
-                      </View>
+                      )}
                     </View>
                     {acceptedCommunityFriends.length > 0 ? (
                       <View style={styles.circleSelectorPanel}>

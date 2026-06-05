@@ -5735,6 +5735,17 @@ export default function Home() {
                 {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                   <>
                     <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
+                      <Text style={styles.circleManagementLabel}>Your friend code</Text>
+                      <View style={styles.circleChip}>
+                        <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
+                          <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
+                          <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
+                            <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
+                            <Text style={styles.circleCopyText}>Copy</Text>
+                          </Pressable>
+                        </View>
+                        <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
+                      </View>
                       <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={styles.circleManagerToggle}>
                         <Ionicons name="person-add-outline" size={14} color={colors.oliveDark} />
                         <Text style={styles.circleManageText}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
@@ -5742,17 +5753,6 @@ export default function Home() {
                       </Pressable>
                       {friendToolsOpen && (
                         <View style={styles.circleManagementContent}>
-                          <Text style={styles.circleManagementLabel}>Your friend code</Text>
-                          <View style={styles.circleChip}>
-                            <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
-                              <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
-                              <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
-                                <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
-                                <Text style={styles.circleCopyText}>Copy</Text>
-                              </Pressable>
-                            </View>
-                            <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
-                          </View>
                           <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
                             <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
                               <Text style={styles.circleManagementLabel}>Add by friend code</Text>

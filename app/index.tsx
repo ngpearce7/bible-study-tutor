@@ -13509,7 +13509,7 @@ const styles = StyleSheet.create({
   },
   communityStepBlock: {
     gap: 6,
-    marginBottom: 14
+    marginBottom: 18
   },
   communitySubViewTabs: {
     alignSelf: "flex-start",
@@ -13519,7 +13519,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 4,
-    marginBottom: 14,
+    marginBottom: 18,
+    marginTop: 12,
     padding: 4
   },
   communitySubViewTab: {
@@ -13586,7 +13587,7 @@ const styles = StyleSheet.create({
   },
   phoneCommunityStepBlock: {
     gap: 6,
-    marginBottom: 10
+    marginBottom: 16
   },
   communityRecipientText: {
     color: colors.ink,
@@ -13824,12 +13825,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
+    marginBottom: 20,
     marginTop: 18
   },
   phoneCommunityConnectionGrid: {
     alignItems: "stretch",
     flexDirection: "column",
-    gap: 0,
+    gap: 8,
+    marginBottom: 22,
     width: "100%"
   },
   communityConnectionPanel: {
@@ -13879,7 +13882,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     gap: 10,
-    marginBottom: 12,
+    marginBottom: 14,
     padding: 12
   },
   circleManagementBox: {

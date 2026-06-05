@@ -13843,7 +13843,7 @@ const styles = StyleSheet.create({
   mobileCommunityPanelTitleRow: {
     alignItems: "center",
     flexDirection: "row",
-    flexShrink: 0,
+    flexShrink: 1,
     gap: 8
   },
   mobileCommunityPanelSummaryRow: {

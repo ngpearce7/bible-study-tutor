@@ -5602,127 +5602,6 @@ export default function Home() {
               </View>
               {communitySubView === "encourage" ? (
                 <>
-              <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
-                <View style={styles.communityStepHeader}>
-                  <View style={styles.communityStepBadge}>
-                    <Text style={styles.communityStepBadgeText}>1</Text>
-                  </View>
-                  <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
-                  </View>
-                </View>
-                {hasAvailableCommunityTarget ? (
-                  <>
-                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
-                      <View style={styles.communityTargetSelectTextBlock}>
-                        <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
-                      </View>
-                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
-                    </Pressable>
-                    {communityTargetPickerOpen && (
-                      <View style={styles.communityTargetPickerPanel}>
-                        {acceptedCommunityFriends.length > 0 && (
-                          <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
-                            {acceptedCommunityFriends.map((friend: any) => {
-                              const isTarget = communityTargetType === "friend" && targetFriendIds.some((id) => String(id) === String(friend._id));
-                              return (
-                                <Pressable
-                                  key={friend._id}
-                                  onPress={() => {
-                                    setCommunityTargetType("friend");
-                                    setTargetFriendIds((current) => {
-                                      const alreadySelected = current.some((id) => String(id) === String(friend._id));
-                                      return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
-                                    });
-                                  }}
-                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
-                                >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
-                                  <View style={styles.journalTitleBlock}>
-                                    <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
-                                    {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
-                                  </View>
-                                </Pressable>
-                              );
-                            })}
-                          </View>
-                        )}
-                        {(communityCircles || []).length > 0 && (
-                          <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Circles</Text>
-                            {(communityCircles || []).map((circle: any) => {
-                              const isTarget = communityTargetType === "circle" && String(targetCircleId) === String(circle._id);
-                              return (
-                                <Pressable
-                                  key={circle._id}
-                                  onPress={() => {
-                                    setCommunityTargetType("circle");
-                                    setTargetCircleId(circle._id);
-                                    setCommunityTargetPickerOpen(false);
-                                  }}
-                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
-                                >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
-                                  <View style={styles.journalTitleBlock}>
-                                    <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
-                                    <Text style={styles.circleChipMeta}>
-                                      {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
-                                    </Text>
-                                  </View>
-                                </Pressable>
-                              );
-                            })}
-                          </View>
-                        )}
-                      </View>
-                    )}
-                    <Text style={styles.helpIntro}>
-                      {communityTargetType === "circle"
-                        ? "Saving can post this encouragement to the selected circle."
-                        : "Saving can post this encouragement to your selected friend or friends."}
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Text style={styles.communityRecipientText}>No friend or circle selected</Text>
-                    <Text style={styles.helpIntro}>{`${friendlyName}, add a registered friend or join a private circle below.`}</Text>
-                  </>
-                )}
-              </View>
-              <View style={styles.communityStepHeader}>
-                <View style={styles.communityStepBadge}>
-                  <Text style={styles.communityStepBadgeText}>2</Text>
-                </View>
-                <View style={styles.journalTitleBlock}>
-                  <Text style={styles.feedbackTitle}>Write one honest update</Text>
-                </View>
-              </View>
-              <TextInput
-                multiline
-                value={checkinNote}
-                onChangeText={setCheckinNote}
-                placeholder="Example: I studied Psalm 23 and was reminded that God leads me one step at a time."
-                style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
-              />
-              <View style={[styles.sendNoteBox, phoneLayout && styles.phoneSendNoteBox]}>
-                <View style={styles.communityStepHeader}>
-                  <View style={styles.communityStepBadge}>
-                    <Text style={styles.communityStepBadgeText}>3</Text>
-                  </View>
-                  <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Post encouragement</Text>
-                  </View>
-                </View>
-                <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
-                <AppButton
-                  label={isSavingCheckin ? "Posting..." : "Post"}
-                  onPress={persistCheckin}
-                  style={phoneLayout && styles.phoneFullWidthButton}
-                  labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
-                />
-                {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
-              </View>
               <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
               <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <View style={styles.feedbackHeader}>
@@ -5980,6 +5859,127 @@ export default function Home() {
                   <Text style={styles.saveStatus}>Encouragements still save privately and can be copied or sent as before.</Text>
                 )}
               </View>
+              </View>
+              <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
+                <View style={styles.communityStepHeader}>
+                  <View style={styles.communityStepBadge}>
+                    <Text style={styles.communityStepBadgeText}>1</Text>
+                  </View>
+                  <View style={styles.journalTitleBlock}>
+                    <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
+                  </View>
+                </View>
+                {hasAvailableCommunityTarget ? (
+                  <>
+                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
+                      <View style={styles.communityTargetSelectTextBlock}>
+                        <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
+                      </View>
+                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                    </Pressable>
+                    {communityTargetPickerOpen && (
+                      <View style={styles.communityTargetPickerPanel}>
+                        {acceptedCommunityFriends.length > 0 && (
+                          <View style={styles.communityTargetPickerGroup}>
+                            <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
+                            {acceptedCommunityFriends.map((friend: any) => {
+                              const isTarget = communityTargetType === "friend" && targetFriendIds.some((id) => String(id) === String(friend._id));
+                              return (
+                                <Pressable
+                                  key={friend._id}
+                                  onPress={() => {
+                                    setCommunityTargetType("friend");
+                                    setTargetFriendIds((current) => {
+                                      const alreadySelected = current.some((id) => String(id) === String(friend._id));
+                                      return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
+                                    });
+                                  }}
+                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                >
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
+                                  <View style={styles.journalTitleBlock}>
+                                    <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
+                                    {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                        {(communityCircles || []).length > 0 && (
+                          <View style={styles.communityTargetPickerGroup}>
+                            <Text style={styles.circleManagementLabel}>Circles</Text>
+                            {(communityCircles || []).map((circle: any) => {
+                              const isTarget = communityTargetType === "circle" && String(targetCircleId) === String(circle._id);
+                              return (
+                                <Pressable
+                                  key={circle._id}
+                                  onPress={() => {
+                                    setCommunityTargetType("circle");
+                                    setTargetCircleId(circle._id);
+                                    setCommunityTargetPickerOpen(false);
+                                  }}
+                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                >
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
+                                  <View style={styles.journalTitleBlock}>
+                                    <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
+                                    <Text style={styles.circleChipMeta}>
+                                      {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
+                                    </Text>
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+                          </View>
+                        )}
+                      </View>
+                    )}
+                    <Text style={styles.helpIntro}>
+                      {communityTargetType === "circle"
+                        ? "Saving can post this encouragement to the selected circle."
+                        : "Saving can post this encouragement to your selected friend or friends."}
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.communityRecipientText}>No friend or circle selected</Text>
+                    <Text style={styles.helpIntro}>{`${friendlyName}, add a registered friend or join a private circle above.`}</Text>
+                  </>
+                )}
+              </View>
+              <View style={styles.communityStepHeader}>
+                <View style={styles.communityStepBadge}>
+                  <Text style={styles.communityStepBadgeText}>2</Text>
+                </View>
+                <View style={styles.journalTitleBlock}>
+                  <Text style={styles.feedbackTitle}>Write one honest update</Text>
+                </View>
+              </View>
+              <TextInput
+                multiline
+                value={checkinNote}
+                onChangeText={setCheckinNote}
+                placeholder="Example: I studied Psalm 23 and was reminded that God leads me one step at a time."
+                style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
+              />
+              <View style={[styles.sendNoteBox, phoneLayout && styles.phoneSendNoteBox]}>
+                <View style={styles.communityStepHeader}>
+                  <View style={styles.communityStepBadge}>
+                    <Text style={styles.communityStepBadgeText}>3</Text>
+                  </View>
+                  <View style={styles.journalTitleBlock}>
+                    <Text style={styles.feedbackTitle}>Post encouragement</Text>
+                  </View>
+                </View>
+                <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
+                <AppButton
+                  label={isSavingCheckin ? "Posting..." : "Post"}
+                  onPress={persistCheckin}
+                  style={phoneLayout && styles.phoneFullWidthButton}
+                  labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
+                />
+                {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
               </View>
                 </>
               ) : (

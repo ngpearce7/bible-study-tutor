@@ -5910,7 +5910,7 @@ export default function Home() {
                 )}
               </View>
               </View>
-              <View style={[styles.communityFocusBox, phoneLayout && styles.phoneCommunityFocusBox]}>
+              <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>1</Text>
@@ -6013,7 +6013,7 @@ export default function Home() {
                 placeholder="Example: I studied Psalm 23 and was reminded that God leads me one step at a time."
                 style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
               />
-              <View style={[styles.sendNoteBox, phoneLayout && styles.phoneSendNoteBox]}>
+              <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>3</Text>
@@ -13507,6 +13507,10 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     padding: 14
   },
+  communityStepBlock: {
+    gap: 6,
+    marginBottom: 14
+  },
   communitySubViewTabs: {
     alignSelf: "flex-start",
     backgroundColor: "#fffaf2",
@@ -13579,6 +13583,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     padding: 11
+  },
+  phoneCommunityStepBlock: {
+    gap: 6,
+    marginBottom: 10
   },
   communityRecipientText: {
     color: colors.ink,
@@ -13819,8 +13827,10 @@ const styles = StyleSheet.create({
     marginTop: 18
   },
   phoneCommunityConnectionGrid: {
+    alignItems: "stretch",
     flexDirection: "column",
-    gap: 0
+    gap: 0,
+    width: "100%"
   },
   communityConnectionPanel: {
     flex: 1,
@@ -13832,7 +13842,8 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 1,
     maxWidth: "100%",
-    minWidth: 0
+    minWidth: 0,
+    width: "100%"
   },
   mobileCommunityPanelHeader: {
     alignItems: "center",

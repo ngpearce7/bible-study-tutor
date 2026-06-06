@@ -15551,7 +15551,7 @@ const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   memoryDarkActiveCard: {
-    backgroundColor: "#242b2a",
+    backgroundColor: "#1b211f",
     borderColor: "rgba(201, 103, 80, 0.34)"
   },
   memoryDarkReviewPill: {

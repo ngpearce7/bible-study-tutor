@@ -490,6 +490,7 @@ export default function Home() {
   const [memoryHintsVisible, setMemoryHintsVisible] = useState(false);
   const [memoryHintLevels, setMemoryHintLevels] = useState<Record<number, number>>({});
   const [memoryStepTwoOffset, setMemoryStepTwoOffset] = useState(0);
+  const [memoryPracticeFocusKey, setMemoryPracticeFocusKey] = useState(0);
   const [pendingDeleteMemoryVerseId, setPendingDeleteMemoryVerseId] = useState("");
   const memoryBlankInputRefs = useRef<Record<number, TextInput | null>>({});
   const [passageStatus, setPassageStatus] = useState("Loading passage...");
@@ -1176,6 +1177,7 @@ export default function Home() {
     [memoryPracticeLevel, memoryPracticeText, memoryStepTwoOffset]
   );
   const memoryBlankTokens = memoryPracticeTokens.filter((token) => token.blank);
+  const firstMemoryBlankIndex = memoryBlankTokens[0]?.index ?? -1;
   const memoryPracticeAllCorrect =
     memoryBlankTokens.length > 0 &&
     memoryBlankTokens.every((token) => normalizeMemoryAnswer(memoryPracticeAnswers[token.index] || "") === normalizeMemoryAnswer(token.answer));
@@ -1221,6 +1223,16 @@ export default function Home() {
   useEffect(() => {
     if (compactLayout && tab === "bible") setReaderNavCollapsed(true);
   }, [compactLayout, tab]);
+
+  useEffect(() => {
+    if (!activeMemoryVerseId || memoryPracticeLevel <= 1 || firstMemoryBlankIndex < 0) return;
+
+    const timeout = setTimeout(() => {
+      memoryBlankInputRefs.current[firstMemoryBlankIndex]?.focus();
+    }, 120);
+
+    return () => clearTimeout(timeout);
+  }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel]);
 
   useEffect(() => {
     if (!bibleSearchBook) return;
@@ -3126,6 +3138,7 @@ export default function Home() {
     setMemoryHintsVisible(false);
     setMemoryHintLevels({});
     setMemoryStatus("");
+    setMemoryPracticeFocusKey((current) => current + 1);
     setTab("memory");
   }
 
@@ -3163,6 +3176,7 @@ export default function Home() {
     setMemoryPracticeChecked(false);
     setMemoryHintsVisible(false);
     setMemoryHintLevels({});
+    setMemoryPracticeFocusKey((current) => current + 1);
   }
 
   function showMoreMemoryHint(index: number) {
@@ -3197,7 +3211,9 @@ export default function Home() {
     const completedFinalStep = memoryPracticeLevel >= 3;
     await markMemoryPractice("got-it");
     if (completedFinalStep) {
+      const completedVerseId = String(activeMemoryVerse._id);
       setActiveMemoryVerseId("");
+      setExpandedMemoryVerseIds((current) => current.filter((id) => id !== completedVerseId));
       setMemoryStatus(`Well done${firstName ? `, ${firstName}` : ""}. You completed this verse from memory.`);
       return;
     }
@@ -3212,6 +3228,7 @@ export default function Home() {
     setMemoryHintsVisible(false);
     setMemoryHintLevels({});
     setMemoryPracticeResult(memoryPracticeLevel === 2 ? "Repeat step 2 with a fresh set of blanks." : "Repeat step 3 from the beginning.");
+    setMemoryPracticeFocusKey((current) => current + 1);
   }
 
   async function markMemoryPractice(result: "got-it") {

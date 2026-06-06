@@ -30,7 +30,8 @@ export const saveAccountSettings = mutation({
     email: v.optional(v.string()),
     weeklyGoal: v.optional(v.string()),
     accountabilityPartner: v.optional(v.string()),
-    preferredMethodId: v.optional(v.string())
+    preferredMethodId: v.optional(v.string()),
+    appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark")))
   },
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
@@ -43,6 +44,7 @@ export const saveAccountSettings = mutation({
       weeklyGoal: clampOptionalText(args.weeklyGoal, 300),
       accountabilityPartner: clampOptionalText(args.accountabilityPartner, 200),
       preferredMethodId: clampOptionalText(args.preferredMethodId, 80),
+      appearanceMode: args.appearanceMode,
       updatedAt: Date.now()
     });
 

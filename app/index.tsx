@@ -1239,6 +1239,10 @@ export default function Home() {
     setAccountEmail(profile.authEmail || "");
     setWeeklyGoal(profile.weeklyGoal || "");
     setPartner(profile.accountabilityPartner || "");
+    if (profile.appearanceMode === "light" || profile.appearanceMode === "dark") {
+      setAppearanceMode(profile.appearanceMode);
+      saveStoredAppearanceMode(profile.appearanceMode).catch(() => undefined);
+    }
   }, [profile]);
 
   useEffect(() => {
@@ -1693,11 +1697,34 @@ export default function Home() {
         email: accountEmail,
         weeklyGoal,
         accountabilityPartner: effectivePartner,
-        preferredMethodId: method.id
+        preferredMethodId: method.id,
+        appearanceMode
       });
       setAccountStatus("Account details saved");
     } catch {
       setAccountStatus("Could not save those details. Check the email is not already in use.");
+    }
+  }
+
+  async function chooseAppearanceMode(mode: StoredAppearanceMode) {
+    setAppearanceMode(mode);
+    saveStoredAppearanceMode(mode).catch(() => undefined);
+
+    if (!activeProfileId) return;
+
+    try {
+      await saveAccountSettings({
+        profileId: activeProfileId,
+        displayName,
+        email: accountEmail,
+        weeklyGoal,
+        accountabilityPartner: effectivePartner,
+        preferredMethodId: method.id,
+        appearanceMode: mode
+      });
+      setAccountStatus("Appearance saved");
+    } catch {
+      setAccountStatus("Appearance saved on this device only");
     }
   }
 
@@ -6410,10 +6437,7 @@ export default function Home() {
                     ] as const).map(([mode, label, description, icon]) => (
                       <Pressable
                         key={mode}
-                        onPress={() => {
-                          setAppearanceMode(mode);
-                          saveStoredAppearanceMode(mode).catch(() => undefined);
-                        }}
+                        onPress={() => chooseAppearanceMode(mode)}
                         style={[
                           styles.aiOptionCard,
                           styles.accountOptionCard,

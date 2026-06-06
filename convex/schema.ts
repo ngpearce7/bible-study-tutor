@@ -21,6 +21,7 @@ export default defineSchema({
     weeklyGoal: v.optional(v.string()),
     accountabilityPartner: v.optional(v.string()),
     preferredMethodId: v.optional(v.string()),
+    appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
     createdAt: v.number(),
     updatedAt: v.number()
   })

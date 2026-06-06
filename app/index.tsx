@@ -5973,7 +5973,7 @@ export default function Home() {
                 )}
               </View>
               </View>
-              <View style={[styles.communityStepBlock, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityStepBlock]}>
+              <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>1</Text>
@@ -6077,7 +6077,7 @@ export default function Home() {
                 placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
                 style={[styles.input, styles.textarea, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCheckinTextarea]}
               />
-              <View style={[styles.communityStepBlock, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityStepBlock]}>
+              <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>3</Text>
@@ -8834,7 +8834,7 @@ function NoteFormatToolbar({
         <Text style={[styles.noteFormatText, styles.noteFormatUnderline, darkMode && styles.accountDarkText, activeFormatSet.has("underline") && styles.activeNoteFormatText]}>U</Text>
       </Pressable>
       <Pressable {...pressProps("highlight")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.accountDarkText, activeFormatSet.has("highlight") && styles.activeNoteFormatText]}>H</Text>
+        <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, activeFormatSet.has("highlight") && styles.activeNoteFormatText, activeFormatSet.has("highlight") && styles.activeNoteHighlightFormatText]}>H</Text>
       </Pressable>
       <Pressable {...pressProps("bullet")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bullet") && styles.activeNoteFormatButton]}>
         <Ionicons name="list-outline" size={17} color={activeFormatSet.has("bullet") ? "white" : darkMode ? "#f7eddc" : colors.oliveDark} />
@@ -13251,6 +13251,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     overflow: "hidden",
     paddingHorizontal: 3
+  },
+  studyDarkNoteFormatHighlight: {
+    backgroundColor: "#e9b76a",
+    color: "#171b1c"
+  },
+  activeNoteHighlightFormatText: {
+    backgroundColor: "transparent",
+    color: "white"
   },
   noteFormatHelp: {
     color: colors.muted,

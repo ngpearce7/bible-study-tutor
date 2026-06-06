@@ -1205,6 +1205,7 @@ export default function Home() {
   const plansDarkMode = accountDarkMode;
   const methodsDarkMode = accountDarkMode;
   const memoryDarkMode = accountDarkMode;
+  const journalDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -6671,26 +6672,27 @@ export default function Home() {
         )}
 
         {tab === "journal" && (
-          <View>
+          <View style={journalDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Saved work</Eyebrow>
-            <Text style={styles.title}>{firstName ? `${firstName}, your study journal` : "Your study journal"}</Text>
-            <Text style={styles.titleSupport}>Return to what God has been teaching you through studies, highlights, reflections, and encouragements.</Text>
-            <View style={[styles.journalSearchBox, phoneLayout && styles.phoneJournalSearchBox]}>
+            <Text style={[styles.title, journalDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your study journal` : "Your study journal"}</Text>
+            <Text style={[styles.titleSupport, journalDarkMode && styles.accountDarkMutedText]}>Return to what God has been teaching you through studies, highlights, reflections, and encouragements.</Text>
+            <View style={[styles.journalSearchBox, phoneLayout && styles.phoneJournalSearchBox, journalDarkMode && styles.accountDarkInput]}>
               <Ionicons name="search-outline" size={18} color={colors.coral} />
               <TextInput
                 value={journalSearch}
                 onChangeText={setJournalSearch}
                 placeholder="Search passage, method, note, or answer"
-                style={[styles.journalSearchInput, phoneLayout && styles.phoneJournalSearchInput]}
+                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                style={[styles.journalSearchInput, phoneLayout && styles.phoneJournalSearchInput, journalDarkMode && styles.accountDarkText]}
               />
               {!!journalSearch.trim() && (
                 <Pressable onPress={() => setJournalSearch("")} style={styles.clearSearchButton}>
-                  <Ionicons name="close-outline" size={18} color={colors.muted} />
+                  <Ionicons name="close-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                 </Pressable>
               )}
             </View>
             <View style={[styles.journalViewRow, phoneLayout && styles.phoneJournalViewRow]}>
-              <View style={styles.journalViewToggle}>
+              <View style={[styles.journalViewToggle, journalDarkMode && styles.accountDarkSegmentedRow]}>
                 {[
                   ["list", "List", "list-outline"],
                   ["calendar", "Calendar", "calendar-outline"],
@@ -6701,14 +6703,14 @@ export default function Home() {
                     onPress={() => setJournalView(key as JournalView)}
                     style={[styles.journalViewButton, journalView === key && styles.activeJournalViewButton]}
                   >
-                    <Ionicons name={icon as any} size={15} color={journalView === key ? "white" : colors.oliveDark} />
-                    <Text style={[styles.journalViewText, journalView === key && styles.activeJournalViewText]}>{label}</Text>
+                    <Ionicons name={icon as any} size={15} color={journalView === key ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                    <Text style={[styles.journalViewText, journalDarkMode && styles.accountDarkMutedText, journalView === key && styles.activeJournalViewText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
               {!!journalDateFilterKey && (
-                <Pressable onPress={() => setJournalDateFilterKey("")} style={styles.clearDateFilterButton}>
-                  <Text style={styles.clearDateFilterText}>Clear date</Text>
+                <Pressable onPress={() => setJournalDateFilterKey("")} style={[styles.clearDateFilterButton, journalDarkMode && styles.homeDarkResumeButton]}>
+                  <Text style={[styles.clearDateFilterText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear date</Text>
                 </Pressable>
               )}
             </View>
@@ -6725,15 +6727,15 @@ export default function Home() {
                 <Pressable
                   key={key}
                   onPress={() => setJournalFilter(key as JournalFilter)}
-                  style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, journalFilter === key && styles.activeFilterChip]}
+                  style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, journalDarkMode && styles.printDarkOptionChip, journalFilter === key && styles.activeFilterChip]}
                 >
-                  <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, journalFilter === key && styles.activeFilterText]}>{label}</Text>
+                  <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, journalDarkMode && styles.accountDarkMutedText, journalFilter === key && styles.activeFilterText]}>{label}</Text>
                 </Pressable>
               ))}
             </View>
-            <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox]}>
+            <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox, journalDarkMode && styles.accountDarkSection]}>
               <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : "reader-outline"} size={18} color={colors.coral} />
-              <Text style={styles.journalGuideText}>{buildJournalGuideText(journalFilter, totalSavedHighlightCount)}</Text>
+              <Text style={[styles.journalGuideText, journalDarkMode && styles.accountDarkText]}>{buildJournalGuideText(journalFilter, totalSavedHighlightCount)}</Text>
             </View>
             {journalView === "calendar" && (
               <JournalCalendar
@@ -6743,6 +6745,7 @@ export default function Home() {
                 onSelectDate={setJournalDateFilterKey}
                 onPreviousMonth={() => setJournalCalendarMonth(addMonths(journalCalendarMonth, -1))}
                 onNextMonth={() => setJournalCalendarMonth(addMonths(journalCalendarMonth, 1))}
+                darkMode={journalDarkMode}
               />
             )}
             {journalView === "scripture" && (
@@ -6759,20 +6762,21 @@ export default function Home() {
                   setSelectedJournalScriptureBook(selected ? "" : book);
                   setSelectedJournalScriptureChapter(selected ? 0 : chapter);
                 }}
+                darkMode={journalDarkMode}
               />
             )}
             {!!journalDateFilterKey && (
-              <View style={styles.dateFilterNotice}>
+              <View style={[styles.dateFilterNotice, journalDarkMode && styles.accountDarkInsetBox]}>
                 <Ionicons name="calendar-outline" size={16} color={colors.coral} />
-                <Text style={styles.dateFilterText}>
+                <Text style={[styles.dateFilterText, journalDarkMode && styles.accountDarkText]}>
                   {`${formatJournalDateKey(journalDateFilterKey)} · ${selectedJournalDateEntryCount} entr${selectedJournalDateEntryCount === 1 ? "y" : "ies"}`}
                 </Text>
               </View>
             )}
             {!!selectedJournalScriptureBook && selectedJournalScriptureChapter > 0 && (
-              <View style={[styles.dateFilterNotice, styles.passageFilterNotice]}>
+              <View style={[styles.dateFilterNotice, styles.passageFilterNotice, journalDarkMode && styles.accountDarkInsetBox]}>
                 <Ionicons name="book-outline" size={16} color={colors.coral} />
-                <Text numberOfLines={1} style={[styles.dateFilterText, styles.passageFilterText]}>
+                <Text numberOfLines={1} style={[styles.dateFilterText, styles.passageFilterText, journalDarkMode && styles.accountDarkText]}>
                   {`${selectedJournalScriptureBook} ${selectedJournalScriptureChapter} · ${selectedJournalScriptureEntryCount} entr${selectedJournalScriptureEntryCount === 1 ? "y" : "ies"}`}
                 </Text>
                 <Pressable
@@ -6780,10 +6784,10 @@ export default function Home() {
                     setSelectedJournalScriptureBook("");
                     setSelectedJournalScriptureChapter(0);
                   }}
-                  style={styles.clearPassageFilterInlineButton}
+                  style={[styles.clearPassageFilterInlineButton, journalDarkMode && styles.homeDarkResumeButton]}
                 >
                   <Ionicons name="close-outline" size={14} color={colors.coral} />
-                  <Text style={styles.clearPassageFilterInlineText}>Clear</Text>
+                  <Text style={[styles.clearPassageFilterInlineText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                 </Pressable>
               </View>
             )}
@@ -6791,60 +6795,60 @@ export default function Home() {
               <Pressable
                 accessibilityRole="button"
                 onPress={() => setJournalFilter("reviews")}
-                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel]}
+                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel, journalDarkMode && styles.accountDarkSection]}
               >
-                <View style={styles.highlightLibraryIcon}>
+                <View style={[styles.highlightLibraryIcon, journalDarkMode && styles.homeDarkIconBubble]}>
                   <Ionicons name="refresh-circle-outline" size={19} color={colors.coral} />
                 </View>
                 <View style={styles.highlightLibraryCopy}>
-                  <Text style={styles.highlightLibraryTitle}>Studies ready to review</Text>
-                  <Text style={styles.highlightLibraryText}>
+                  <Text style={[styles.highlightLibraryTitle, journalDarkMode && styles.accountDarkTitle]}>Studies ready to review</Text>
+                  <Text style={[styles.highlightLibraryText, journalDarkMode && styles.accountDarkMutedText]}>
                     {`${dueStudyReviewCount} saved stud${dueStudyReviewCount === 1 ? "y is" : "ies are"} ready for a fresh look.`}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward-outline" size={18} color={colors.muted} />
+                <Ionicons name="chevron-forward-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             )}
             {journalFilter === "all" && (
               <Pressable
                 accessibilityRole="button"
                 onPress={() => setJournalFilter("highlights")}
-                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel]}
+                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel, journalDarkMode && styles.accountDarkSection]}
               >
-                <View style={styles.highlightLibraryIcon}>
+                <View style={[styles.highlightLibraryIcon, journalDarkMode && styles.homeDarkIconBubble]}>
                   <Ionicons name="color-wand-outline" size={19} color={colors.coral} />
                 </View>
                 <View style={styles.highlightLibraryCopy}>
-                  <Text style={styles.highlightLibraryTitle}>Highlight library</Text>
-                  <Text style={styles.highlightLibraryText}>
+                  <Text style={[styles.highlightLibraryTitle, journalDarkMode && styles.accountDarkTitle]}>Highlight library</Text>
+                  <Text style={[styles.highlightLibraryText, journalDarkMode && styles.accountDarkMutedText]}>
                     {totalSavedHighlightCount > 0
                       ? `${totalSavedHighlightCount} saved highlight${totalSavedHighlightCount === 1 ? "" : "s"} from your studies and drafts.`
                       : "Highlighted verses and notes will collect here once you save a study."}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward-outline" size={18} color={colors.muted} />
+                <Ionicons name="chevron-forward-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             )}
             {!!reflectionStatus && <Text style={styles.saveStatus}>{reflectionStatus}</Text>}
             {!!journalStatus && <Text style={styles.saveStatus}>{journalStatus}</Text>}
             {showDraftsSection && (
               <View style={styles.journalSection}>
-                <Text style={styles.sectionTitle}>In progress</Text>
+                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>In progress</Text>
                 {visibleDrafts.map((draft: any) => {
                   const draftEntryId = `draft:${draft._id}`;
                   const expanded = isJournalEntryExpanded(draftEntryId);
                   return (
-                    <Card key={draft._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
+                    <Card key={draft._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                       <Pressable onPress={() => toggleJournalEntryExpanded(draftEntryId)} style={styles.journalCompactHeader}>
                         <View style={styles.journalTitleBlock}>
-                          <Text style={styles.cardTitle}>{draft.passageReference || draft.passage}</Text>
-                          <Text style={styles.muted}>
+                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{draft.passageReference || draft.passage}</Text>
+                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
                             {draft.methodName} · Step {draft.stepIndex + 1} · Created {formatJournalCreatedDate(draft)}
                           </Text>
                         </View>
                         <View style={styles.journalStatusCluster}>
-                          <Text style={styles.draftPill}>Draft</Text>
-                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.muted} />
+                          <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>Draft</Text>
+                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {expanded && (
@@ -6854,23 +6858,24 @@ export default function Home() {
                             .slice(0, 2)
                             .map((item: any) => (
                               <View key={item.stepTitle}>
-                                <Text style={styles.body}>
+                                <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                   <Text style={styles.bold}>{item.stepTitle}: </Text>
                                 </Text>
-                                <FormattedNoteText text={item.answer} />
+                                <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
                               </View>
                             ))}
-                          <PassageMarkupSummary markups={draft.passageMarkups || []} />
+                          <PassageMarkupSummary markups={draft.passageMarkups || []} darkMode={journalDarkMode} />
                           <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
-                            <ResumeButton label="Resume into study" onPress={() => resumeDraft(draft)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
+                            <ResumeButton label="Resume into study" onPress={() => resumeDraft(draft)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                             <ResumeButton
                               label={pendingArchiveDraftId === draft._id ? "Confirm archive" : "Archive draft"}
                               icon="archive-outline"
                               onPress={() =>
                                 pendingArchiveDraftId === draft._id ? deleteDraft(draft._id) : setPendingArchiveDraftId(draft._id)
                               }
-                              style={phoneLayout && styles.phoneJournalActionButton}
-                              labelStyle={phoneLayout && styles.phoneJournalActionText}
+                              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                              iconColor={journalDarkMode ? "#e9b76a" : undefined}
                             />
                           </View>
                         </>
@@ -6882,64 +6887,68 @@ export default function Home() {
             )}
             {showHighlightsSection && (
               <View style={styles.journalSection}>
-                <Text style={styles.sectionTitle}>Highlights</Text>
-                <Text style={styles.sectionHelp}>Use Create reflection to turn marked verses into a key insight, prayer, and next step.</Text>
+                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>Highlights</Text>
+                <Text style={[styles.sectionHelp, journalDarkMode && styles.accountDarkMutedText]}>Use Create reflection to turn marked verses into a key insight, prayer, and next step.</Text>
                 {highlightJournalEntries.map((item) => {
                   const expanded = isJournalEntryExpanded(item.id) || activeReflectionEntryId === item.id;
                   return (
-                    <Card key={item.id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
+                    <Card key={item.id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                       <Pressable onPress={() => toggleJournalEntryExpanded(item.id)} style={styles.journalCompactHeader}>
                         <View style={styles.journalTitleBlock}>
-                          <Text style={styles.cardTitle}>{item.passage}</Text>
-                          <Text style={styles.muted}>
+                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{item.passage}</Text>
+                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
                             {item.methodName} · Created {formatJournalCreatedDate(item)}
                           </Text>
                         </View>
                         <View style={styles.journalStatusCluster}>
-                          <Text style={styles.draftPill}>{item.source === "draft" ? "Draft" : `${item.markups.length} highlight${item.markups.length === 1 ? "" : "s"}`}</Text>
-                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.muted} />
+                          <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{item.source === "draft" ? "Draft" : `${item.markups.length} highlight${item.markups.length === 1 ? "" : "s"}`}</Text>
+                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {expanded && (
                         <>
-                          <PassageMarkupSummary markups={item.markups} />
+                          <PassageMarkupSummary markups={item.markups} darkMode={journalDarkMode} />
                           {activeReflectionEntryId === item.id && (
-                            <View style={styles.reflectionBox}>
-                              <Text style={styles.lastCheckinLabel}>Create reflection</Text>
+                            <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Create reflection</Text>
                               <TextInput
                                 multiline
                                 value={reflectionInsight}
                                 onChangeText={setReflectionInsight}
                                 placeholder="Key insight"
-                                style={[styles.input, styles.reflectionInput]}
+                                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                               />
                               <TextInput
                                 multiline
                                 value={reflectionPrayer}
                                 onChangeText={setReflectionPrayer}
                                 placeholder="Prayer"
-                                style={[styles.input, styles.reflectionInput]}
+                                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                               />
                               <TextInput
                                 multiline
                                 value={reflectionNextStep}
                                 onChangeText={setReflectionNextStep}
                                 placeholder="Next step"
-                                style={[styles.input, styles.reflectionInput]}
+                                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                               />
                               <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
                                 <AppButton label={isSavingReflection ? "Saving..." : "Save reflection"} onPress={() => saveHighlightReflection(item)} />
-                                <AppButton label="Cancel" variant="secondary" onPress={() => setActiveReflectionEntryId("")} />
+                                <AppButton label="Cancel" variant="secondary" onPress={() => setActiveReflectionEntryId("")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />
                               </View>
                             </View>
                           )}
                           <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
-                            <ResumeButton label="Create reflection" icon="create-outline" onPress={() => startHighlightReflection(item)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
+                            <ResumeButton label="Create reflection" icon="create-outline" onPress={() => startHighlightReflection(item)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                             <ResumeButton
                               label="Revisit passage"
                               onPress={() => (item.source === "draft" ? resumeDraft(item.entry) : resumeSession(item.entry))}
-                              style={phoneLayout && styles.phoneJournalActionButton}
-                              labelStyle={phoneLayout && styles.phoneJournalActionText}
+                              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                              iconColor={journalDarkMode ? "#e9b76a" : undefined}
                             />
                           </View>
                         </>
@@ -6971,20 +6980,20 @@ export default function Home() {
                   : "Encouragement";
 
               return (
-                <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
+                <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.journalCompactHeader}>
                     <Pressable onPress={() => toggleJournalEntryExpanded(entryId)} style={styles.journalCompactTitleButton}>
                       <View style={styles.journalTitleBlock}>
-                        <Text style={styles.cardTitle}>{entryTitle}</Text>
-                        <Text style={styles.muted}>{entry.methodName ? `${entry.methodName} · Created ${formatJournalCreatedDate(entry)}` : `Created ${formatJournalCreatedDate(entry)}`}</Text>
+                        <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{entryTitle}</Text>
+                        <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>{entry.methodName ? `${entry.methodName} · Created ${formatJournalCreatedDate(entry)}` : `Created ${formatJournalCreatedDate(entry)}`}</Text>
                       </View>
-                      <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.muted} />
+                      <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                     <View style={styles.journalStatusCluster}>
-                      <Text style={[styles.draftPill, pinned && styles.pinnedJournalPill]}>{entryStatus}</Text>
+                      <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill, pinned && styles.pinnedJournalPill]}>{entryStatus}</Text>
                       {entry.answers && (
-                        <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, pinned && styles.activePinIconButton]}>
-                          <Ionicons name={pinned ? "bookmark" : "bookmark-outline"} size={16} color={pinned ? "white" : colors.oliveDark} />
+                        <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinIconButton]}>
+                          <Ionicons name={pinned ? "bookmark" : "bookmark-outline"} size={16} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
                         </Pressable>
                       )}
                     </View>
@@ -6993,42 +7002,47 @@ export default function Home() {
                     <>
                       {editing ? (
                         isHighlightReflection(entry) ? (
-                          <View style={styles.reflectionBox}>
-                            <Text style={styles.lastCheckinLabel}>Edit reflection</Text>
+                          <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                            <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Edit reflection</Text>
                             <TextInput
                               multiline
                               value={editReflectionPassage}
                               onChangeText={setEditReflectionPassage}
                               placeholder="Passage"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionHighlights}
                               onChangeText={setEditReflectionHighlights}
                               placeholder="Highlights"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionInsight}
                               onChangeText={setEditReflectionInsight}
                               placeholder="Key insight"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionPrayer}
                               onChangeText={setEditReflectionPrayer}
                               placeholder="Prayer"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionNextStep}
                               onChangeText={setEditReflectionNextStep}
                               placeholder="Next step"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                           </View>
                         ) : (
@@ -7037,35 +7051,37 @@ export default function Home() {
                             value={editJournalNote}
                             onChangeText={setEditJournalNote}
                             placeholder="Edit journal note"
-                            style={[styles.input, styles.textarea]}
+                            placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                            style={[styles.input, styles.textarea, journalDarkMode && styles.accountDarkInput]}
                           />
                         )
                       ) : entry.answers ? (
                         <>
                           {entry.reviewStatus === "scheduled" && (
-                            <View style={styles.studyReviewBox}>
+                            <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
                               <View style={styles.feedbackHeader}>
                                 <Ionicons name="refresh-circle-outline" size={18} color={colors.coral} />
-                                <Text style={styles.feedbackTitle}>{isStudyReviewDue(entry) ? "Ready to review" : "Review scheduled"}</Text>
+                                <Text style={[styles.feedbackTitle, journalDarkMode && styles.accountDarkTitle]}>{isStudyReviewDue(entry) ? "Ready to review" : "Review scheduled"}</Text>
                               </View>
-                              <Text style={styles.body}>
+                              <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                 {isStudyReviewDue(entry)
                                   ? "Revisit your notes, then add one fresh reflection."
                                   : `This study will return on ${formatReviewDate(entry.reviewAt)}.`}
                               </Text>
                               {activeStudyReviewId === rawEntryId && (
-                                <View style={styles.reflectionBox}>
-                                  <Text style={styles.lastCheckinLabel}>What do you notice now?</Text>
+                                <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkSection]}>
+                                  <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>What do you notice now?</Text>
                                   <TextInput
                                     multiline
                                     value={studyReviewNote}
                                     onChangeText={setStudyReviewNote}
                                     placeholder="A fresh insight, next step, or prayer after revisiting this study"
-                                    style={[styles.input, styles.reflectionInput]}
+                                    placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                    style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                                   />
                                   <View style={styles.journalActions}>
                                     <AppButton label="Save review" onPress={() => completeStudyReview(entry)} />
-                                    <AppButton label="Cancel" variant="secondary" onPress={() => setActiveStudyReviewId("")} />
+                                    <AppButton label="Cancel" variant="secondary" onPress={() => setActiveStudyReviewId("")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />
                                   </View>
                                 </View>
                               )}
@@ -7073,33 +7089,33 @@ export default function Home() {
                             </View>
                           )}
                           {entry.reviewStatus === "reviewed" && entry.reviewNote && (
-                            <View style={styles.studyReviewBox}>
-                              <Text style={styles.lastCheckinLabel}>Review reflection</Text>
-                              <Text style={styles.body}>{entry.reviewNote}</Text>
+                            <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Review reflection</Text>
+                              <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.reviewNote}</Text>
                             </View>
                           )}
                           {entry.shareNote && (
-                            <View style={styles.journalShareBox}>
-                              <Text style={styles.lastCheckinLabel}>Share note</Text>
-                              <Text style={styles.body}>{entry.shareNote}</Text>
+                            <View style={[styles.journalShareBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Share note</Text>
+                              <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.shareNote}</Text>
                             </View>
                           )}
-                          <PassageMarkupSummary markups={entry.passageMarkups || []} />
+                          <PassageMarkupSummary markups={entry.passageMarkups || []} darkMode={journalDarkMode} />
                           {entry.answers
                             .filter((item: any) => item.answer.trim())
                             .map((item: any) => (
                               <View key={item.stepTitle}>
-                                <Text style={styles.body}>
+                                <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                   <Text style={styles.bold}>{item.stepTitle}: </Text>
                                 </Text>
-                                <FormattedNoteText text={item.answer} />
+                                <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
                               </View>
                             ))}
                           {(entry.coachingMoments || []).length > 0 && (
-                            <View style={styles.journalShareBox}>
-                              <Text style={styles.lastCheckinLabel}>Accepted coaching</Text>
+                            <View style={[styles.journalShareBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Accepted coaching</Text>
                               {(entry.coachingMoments || []).map((item: any) => (
-                                <Text key={item.stepTitle + item.nextRevision} style={styles.body}>
+                                <Text key={item.stepTitle + item.nextRevision} style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                   <Text style={styles.bold}>{item.stepTitle}: </Text>
                                   {item.nextRevision}
                                 </Text>
@@ -7108,19 +7124,19 @@ export default function Home() {
                           )}
                         </>
                       ) : isHighlightReflection(entry) ? (
-                        <HighlightReflectionSummary note={entry.note || ""} />
+                        <HighlightReflectionSummary note={entry.note || ""} darkMode={journalDarkMode} />
                       ) : (
-                        <Text style={styles.body}>{entry.note || "No note added."}</Text>
+                        <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.note || "No note added."}</Text>
                       )}
                       <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
                         {editing ? (
                           <>
-                            <ResumeButton label={isSavingJournalEdit ? "Saving..." : "Save changes"} icon="checkmark-circle-outline" onPress={() => saveJournalEntryEdit(entry)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
-                            <ResumeButton label="Cancel" icon="close-outline" onPress={cancelEditJournalEntry} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
+                            <ResumeButton label={isSavingJournalEdit ? "Saving..." : "Save changes"} icon="checkmark-circle-outline" onPress={() => saveJournalEntryEdit(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
+                            <ResumeButton label="Cancel" icon="close-outline" onPress={cancelEditJournalEntry} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                           </>
                         ) : (
                           <>
-                            {entry.answers && <ResumeButton label="Revisit notes" onPress={() => resumeSession(entry)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />}
+                            {entry.answers && <ResumeButton label="Revisit notes" onPress={() => resumeSession(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />}
                             {entry.answers && entry.reviewStatus === "scheduled" && isStudyReviewDue(entry) && (
                               <ResumeButton
                                 label={activeStudyReviewId === rawEntryId ? "Hide review" : "Review now"}
@@ -7129,8 +7145,9 @@ export default function Home() {
                                   setActiveStudyReviewId(activeStudyReviewId === rawEntryId ? "" : rawEntryId);
                                   setStudyReviewNote("");
                                 }}
-                                style={phoneLayout && styles.phoneJournalActionButton}
-                                labelStyle={phoneLayout && styles.phoneJournalActionText}
+                                style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                                labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                                iconColor={journalDarkMode ? "#e9b76a" : undefined}
                               />
                             )}
                             {entry.answers && (
@@ -7138,24 +7155,26 @@ export default function Home() {
                                 label={reviewScheduleStudyId === rawEntryId ? "Hide schedule" : "Review later"}
                                 icon="calendar-outline"
                                 onPress={() => setReviewScheduleStudyId(reviewScheduleStudyId === rawEntryId ? "" : rawEntryId)}
-                                style={phoneLayout && styles.phoneJournalActionButton}
-                                labelStyle={phoneLayout && styles.phoneJournalActionText}
+                                style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                                labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                                iconColor={journalDarkMode ? "#e9b76a" : undefined}
                               />
                             )}
-                            {!entry.answers && <ResumeButton label="Edit entry" icon="create-outline" onPress={() => startEditJournalEntry(entry)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />}
+                            {!entry.answers && <ResumeButton label="Edit entry" icon="create-outline" onPress={() => startEditJournalEntry(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />}
                           </>
                         )}
                         <ResumeButton
                           label={pendingDeleteJournalEntryId === rawEntryId ? "Confirm delete" : "Delete entry"}
                           icon="trash-outline"
                           onPress={() => deleteJournalEntry(entry)}
-                          style={phoneLayout && styles.phoneJournalActionButton}
-                          labelStyle={phoneLayout && styles.phoneJournalActionText}
+                          style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                          iconColor={journalDarkMode ? "#e9b76a" : undefined}
                         />
                       </View>
                       {entry.answers && reviewScheduleStudyId === rawEntryId && (
-                        <View style={styles.reviewScheduleBox}>
-                          <Text style={styles.lastCheckinLabel}>Bring this study back</Text>
+                        <View style={[styles.reviewScheduleBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                          <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Bring this study back</Text>
                           <View style={styles.reviewPresetRow}>
                             {STUDY_REVIEW_OPTIONS.map((option) => (
                               <Pressable
@@ -7164,9 +7183,9 @@ export default function Home() {
                                   scheduleStudyReview(entry._id, option.id);
                                   setReviewScheduleStudyId("");
                                 }}
-                                style={styles.filterChip}
+                                style={[styles.filterChip, journalDarkMode && styles.printDarkOptionChip]}
                               >
-                                <Text style={styles.filterText}>{option.label}</Text>
+                                <Text style={[styles.filterText, journalDarkMode && styles.accountDarkMutedText]}>{option.label}</Text>
                               </Pressable>
                             ))}
                           </View>
@@ -7186,10 +7205,10 @@ export default function Home() {
               );
             })}
             {showJournalEmptyState && (
-              <View style={styles.emptyJournalBox}>
+              <View style={[styles.emptyJournalBox, journalDarkMode && styles.accountDarkSection]}>
                 <Ionicons name={journalSearchTerm ? "search-outline" : "reader-outline"} size={24} color={colors.coral} />
-                <Text style={styles.emptyJournalTitle}>{journalSearchTerm ? "No matching entries" : "No journal entries yet"}</Text>
-                <Text style={styles.emptyJournalText}>
+                <Text style={[styles.emptyJournalTitle, journalDarkMode && styles.accountDarkTitle]}>{journalSearchTerm ? "No matching entries" : "No journal entries yet"}</Text>
+                <Text style={[styles.emptyJournalText, journalDarkMode && styles.accountDarkMutedText]}>
                   {journalSearchTerm
                     ? "Try a passage, method name, answer phrase, or encouragement word."
                     : journalFilter === "drafts"
@@ -7200,7 +7219,7 @@ export default function Home() {
                           ? "Encouragements appear here after you save one from Community."
                           : `${friendlyName}, complete a study or save an encouragement to start building your journal.`}
                 </Text>
-                {!journalSearchTerm && <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} />}
+                {!journalSearchTerm && <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />}
               </View>
             )}
           </View>
@@ -8995,7 +9014,7 @@ function CollapsibleStudyPanel({
   );
 }
 
-function FormattedNoteText({ text }: { text: string }) {
+function FormattedNoteText({ text, darkMode = false }: { text: string; darkMode?: boolean }) {
   if (!text.trim()) return null;
   const displayText = Platform.OS === "web" ? text : richHtmlToMarkupText(text);
 
@@ -9003,6 +9022,7 @@ function FormattedNoteText({ text }: { text: string }) {
     return createElement("div", {
       style: {
         color: colors.ink,
+        ...(darkMode ? { color: "#f7eddc" } : {}),
         fontSize: 15,
         lineHeight: "21px",
         marginBottom: 8
@@ -9020,7 +9040,7 @@ function FormattedNoteText({ text }: { text: string }) {
         return (
           <View key={`${line}-${index}`} style={isBullet ? styles.formattedBulletRow : undefined}>
             {isBullet && <Text style={styles.formattedBullet}>•</Text>}
-            <Text style={[styles.body, isBullet && styles.formattedBulletText]}>{renderFormattedNoteSegments(content)}</Text>
+            <Text style={[styles.body, darkMode && styles.accountDarkText, isBullet && styles.formattedBulletText]}>{renderFormattedNoteSegments(content)}</Text>
           </View>
         );
       })}
@@ -9064,12 +9084,12 @@ function renderFormattedNoteSegments(text: string) {
   });
 }
 
-function PassageMarkupSummary({ markups }: { markups: PassageMarkupRecord[] }) {
+function PassageMarkupSummary({ markups, darkMode = false }: { markups: PassageMarkupRecord[]; darkMode?: boolean }) {
   if (!markups.length) return null;
 
   return (
-    <View style={styles.journalShareBox}>
-      <Text style={styles.lastCheckinLabel}>Highlights</Text>
+    <View style={[styles.journalShareBox, darkMode && styles.accountDarkInsetBox]}>
+      <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Highlights</Text>
       <View style={styles.markupSummaryRow}>
         {markups.map((markup) => {
           const option = PASSAGE_MARKUP_OPTIONS.find((item) => item.id === markup.kind);
@@ -9081,7 +9101,7 @@ function PassageMarkupSummary({ markups }: { markups: PassageMarkupRecord[] }) {
                   {markup.reference} · {markup.label}
                 </Text>
               </View>
-              {!!markup.note && <Text style={styles.markupSummaryNote}>{markup.note}</Text>}
+              {!!markup.note && <Text style={[styles.markupSummaryNote, darkMode && styles.accountDarkText]}>{markup.note}</Text>}
             </View>
           );
         })}
@@ -9096,7 +9116,8 @@ function JournalCalendar({
   selectedDateKey,
   onSelectDate,
   onPreviousMonth,
-  onNextMonth
+  onNextMonth,
+  darkMode = false
 }: {
   monthStart: number;
   items: JournalCalendarItem[];
@@ -9104,25 +9125,26 @@ function JournalCalendar({
   onSelectDate: (dateKey: string) => void;
   onPreviousMonth: () => void;
   onNextMonth: () => void;
+  darkMode?: boolean;
 }) {
   const cells = buildJournalCalendarCells(monthStart, items);
 
   return (
-    <View style={styles.journalCalendarBox}>
+    <View style={[styles.journalCalendarBox, darkMode && styles.accountDarkSection]}>
       <View style={styles.journalCalendarHeader}>
-        <Pressable onPress={onPreviousMonth} style={styles.calendarMonthButton}>
-          <Ionicons name="chevron-back-outline" size={18} color={colors.oliveDark} />
+        <Pressable onPress={onPreviousMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
+          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
-        <Text style={styles.journalCalendarTitle}>
+        <Text style={[styles.journalCalendarTitle, darkMode && styles.accountDarkTitle]}>
           {new Date(monthStart).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </Text>
-        <Pressable onPress={onNextMonth} style={styles.calendarMonthButton}>
-          <Ionicons name="chevron-forward-outline" size={18} color={colors.oliveDark} />
+        <Pressable onPress={onNextMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
+          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
       </View>
       <View style={styles.calendarWeekdayRow}>
         {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-          <Text key={`${day}-${index}`} style={styles.calendarWeekday}>{day}</Text>
+          <Text key={`${day}-${index}`} style={[styles.calendarWeekday, darkMode && styles.accountDarkMutedText]}>{day}</Text>
         ))}
       </View>
       <View style={styles.calendarGrid}>
@@ -9134,12 +9156,14 @@ function JournalCalendar({
               onPress={() => onSelectDate(selected ? "" : cell.dateKey)}
               style={[
                 styles.calendarDayCell,
+                darkMode && styles.journalDarkCalendarDayCell,
                 !cell.inMonth && styles.inactiveCalendarDayCell,
                 selected && styles.selectedCalendarDayCell,
-                cell.count > 0 && !selected && styles.activeCalendarDayCell
+                cell.count > 0 && !selected && styles.activeCalendarDayCell,
+                darkMode && cell.count > 0 && !selected && styles.journalDarkActiveCalendarDayCell
               ]}
             >
-              <Text style={[styles.calendarDayNumber, selected && styles.selectedCalendarDayNumber, !cell.inMonth && styles.inactiveCalendarDayNumber]}>
+              <Text style={[styles.calendarDayNumber, darkMode && styles.accountDarkText, selected && styles.selectedCalendarDayNumber, !cell.inMonth && styles.inactiveCalendarDayNumber]}>
                 {cell.day}
               </Text>
               {cell.count > 0 && (
@@ -9161,7 +9185,8 @@ function JournalScriptureBrowser({
   selectedBook,
   selectedChapter,
   onToggleBook,
-  onSelectChapter
+  onSelectChapter,
+  darkMode = false
 }: {
   sections: { title: string; books: { book: string; chapters: { chapter: number; entryCount: number; verseCount: number }[] }[] }[];
   expandedBook: string;
@@ -9169,21 +9194,22 @@ function JournalScriptureBrowser({
   selectedChapter: number;
   onToggleBook: (book: string) => void;
   onSelectChapter: (book: string, chapter: number) => void;
+  darkMode?: boolean;
 }) {
   const activeBookSet = new Set(sections.flatMap((section) => section.books.map((item) => item.book)));
 
   return (
-    <View style={styles.journalScriptureBox}>
+    <View style={[styles.journalScriptureBox, darkMode && styles.accountDarkSection]}>
       {sections.length === 0 ? (
         <View style={styles.emptyJournalScriptureBox}>
           <Ionicons name="book-outline" size={22} color={colors.coral} />
-          <Text style={styles.emptyJournalTitle}>No passage entries yet</Text>
-          <Text style={styles.emptyJournalText}>Saved studies, drafts, and highlights with scripture references will appear here.</Text>
+          <Text style={[styles.emptyJournalTitle, darkMode && styles.accountDarkTitle]}>No passage entries yet</Text>
+          <Text style={[styles.emptyJournalText, darkMode && styles.accountDarkMutedText]}>Saved studies, drafts, and highlights with scripture references will appear here.</Text>
         </View>
       ) : (
         sections.map((section) => (
           <View key={section.title} style={styles.journalScriptureSection}>
-            <Text style={styles.readerBookSectionTitle}>{section.title}</Text>
+            <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{section.title}</Text>
             <View style={styles.desktopReaderBookList}>
               {section.books.map(({ book, chapters }) => {
                 const expanded = expandedBook === book;
@@ -9194,17 +9220,19 @@ function JournalScriptureBrowser({
                       onPress={() => onToggleBook(book)}
                       style={[
                         styles.readerBookChip,
+                        darkMode && styles.printDarkOptionChip,
                         activeBookSet.has(book) && styles.journalScriptureActiveBookChip,
+                        darkMode && activeBookSet.has(book) && styles.journalDarkScriptureActiveBookChip,
                         selected && styles.activeReaderBookChip
                       ]}
                     >
-                      <Text style={[styles.readerBookText, selected && styles.activeReaderBookText]}>{book}</Text>
+                      <Text style={[styles.readerBookText, darkMode && styles.accountDarkMutedText, selected && styles.activeReaderBookText]}>{book}</Text>
                     </Pressable>
                     {expanded && (
-                      <View style={styles.desktopReaderChapterPanel}>
+                      <View style={[styles.desktopReaderChapterPanel, darkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.desktopReaderChapterHeader}>
-                          <Text style={styles.readerBookSectionTitle}>{book}</Text>
-                          <Text style={styles.readerChapterCountText}>{`${chapters.length} chapter${chapters.length === 1 ? "" : "s"}`}</Text>
+                          <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
+                          <Text style={[styles.readerChapterCountText, darkMode && styles.accountDarkMutedText]}>{`${chapters.length} chapter${chapters.length === 1 ? "" : "s"}`}</Text>
                         </View>
                         <View style={styles.desktopReaderChapterGrid}>
                           {chapters.map(({ chapter, entryCount, verseCount }) => {
@@ -9213,9 +9241,9 @@ function JournalScriptureBrowser({
                               <Pressable
                                 key={`${book}-${chapter}`}
                                 onPress={() => onSelectChapter(book, chapter)}
-                                style={[styles.journalScriptureChapterSquare, chapterSelected && styles.activeMobileReaderChapterSquare]}
+                                style={[styles.journalScriptureChapterSquare, darkMode && styles.printDarkOptionChip, chapterSelected && styles.activeMobileReaderChapterSquare]}
                               >
-                                <Text style={[styles.mobileReaderChapterText, chapterSelected && styles.activeMobileReaderChapterText]}>{chapter}</Text>
+                                <Text style={[styles.mobileReaderChapterText, darkMode && styles.accountDarkMutedText, chapterSelected && styles.activeMobileReaderChapterText]}>{chapter}</Text>
                                 <Text style={[styles.journalScriptureChapterCount, chapterSelected && styles.activeMobileReaderChapterText]}>
                                   {verseCount > 0 ? `${verseCount}v` : `${entryCount}e`}
                                 </Text>
@@ -9236,7 +9264,7 @@ function JournalScriptureBrowser({
   );
 }
 
-function HighlightReflectionSummary({ note }: { note: string }) {
+function HighlightReflectionSummary({ note, darkMode = false }: { note: string; darkMode?: boolean }) {
   const reflection = parseHighlightReflectionNote(note);
   const sections = [
     ["Key insight", reflection.keyInsight],
@@ -9245,31 +9273,31 @@ function HighlightReflectionSummary({ note }: { note: string }) {
   ].filter(([, value]) => value);
 
   if (!reflection.passage && !reflection.highlights && sections.length === 0) {
-    return <Text style={styles.body}>{note || "No note added."}</Text>;
+    return <Text style={[styles.body, darkMode && styles.accountDarkText]}>{note || "No note added."}</Text>;
   }
 
   return (
-    <View style={styles.reflectionSummaryBox}>
+    <View style={[styles.reflectionSummaryBox, darkMode && styles.accountDarkInsetBox]}>
       <View style={styles.reflectionSummaryHeader}>
         <Ionicons name="sparkles-outline" size={18} color={colors.coral} />
-        <Text style={styles.lastCheckinLabel}>Reflection</Text>
+        <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Reflection</Text>
       </View>
       {!!reflection.passage && (
         <View style={styles.reflectionSummarySection}>
           <Text style={styles.reflectionSummaryLabel}>Passage</Text>
-          <Text style={styles.body}>{reflection.passage}</Text>
+          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{reflection.passage}</Text>
         </View>
       )}
       {!!reflection.highlights && (
         <View style={styles.reflectionSummarySection}>
           <Text style={styles.reflectionSummaryLabel}>Highlights</Text>
-          <Text style={styles.body}>{reflection.highlights}</Text>
+          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{reflection.highlights}</Text>
         </View>
       )}
       {sections.map(([label, value]) => (
         <View key={label} style={styles.reflectionSummarySection}>
           <Text style={styles.reflectionSummaryLabel}>{label}</Text>
-          <Text style={styles.body}>{value}</Text>
+          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{value}</Text>
         </View>
       ))}
     </View>
@@ -15500,6 +15528,18 @@ const styles = StyleSheet.create({
     borderColor: "rgba(233, 183, 106, 0.34)",
     borderBottomColor: "#e9b76a",
     color: "#f7eddc"
+  },
+  journalDarkCalendarDayCell: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  journalDarkActiveCalendarDayCell: {
+    backgroundColor: "rgba(233, 183, 106, 0.12)",
+    borderColor: "rgba(233, 183, 106, 0.34)"
+  },
+  journalDarkScriptureActiveBookChip: {
+    backgroundColor: "rgba(233, 183, 106, 0.12)",
+    borderColor: "rgba(233, 183, 106, 0.34)"
   },
   studyDarkStepPanel: {
     backgroundColor: "#171b1c",

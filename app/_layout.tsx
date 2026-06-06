@@ -11,7 +11,7 @@ const SITE_DESCRIPTION =
   "A free Bible study app for desktop and mobile with Scripture reading, guided Bible study methods, printable worksheets, journaling, memory verses, highlights, and simple church encouragements.";
 const siteUrl = (process.env.EXPO_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 const siteImage = siteUrl ? `${siteUrl}/icon.png` : undefined;
-const structuredData = [
+const structuredDataItems = [
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -42,6 +42,10 @@ const structuredData = [
     logo: siteImage
   }
 ].map((item) => Object.fromEntries(Object.entries(item).filter(([, value]) => value !== undefined)));
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": structuredDataItems.map(({ ["@context"]: _context, ...item }) => item)
+};
 
 function resolveConvexUrl() {
   const configuredUrl = process.env.EXPO_PUBLIC_CONVEX_URL || "https://example.convex.cloud";

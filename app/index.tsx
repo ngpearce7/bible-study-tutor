@@ -1197,6 +1197,8 @@ export default function Home() {
   const showFriendsConnectionPanel = !phoneLayout || mobileFriendsPanelOpen;
   const showCircleConnectionPanel = !phoneLayout || mobileCirclesPanelOpen;
   const accountDarkMode = DARK_MODE_ENABLED && appearanceMode === "dark";
+  const homeDarkMode = accountDarkMode;
+  const helpDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -3675,16 +3677,16 @@ export default function Home() {
         ]}
       >
         {tab === "home" && (
-          <View style={[styles.homeLayout, compactLayout && styles.stackedLayout]}>
-            <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.homeHero}>
+          <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
+            <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.homeHero, homeDarkMode && styles.homeDarkHero]}>
                 <Eyebrow>Purpose</Eyebrow>
-                <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle]}>
+                <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle, homeDarkMode && styles.homeDarkHeroTitle]}>
                   {firstName ? `${firstName}, draw near.` : "Draw near."}
                   {"\n"}
-                  <Text style={styles.homeHeroTitleAccent}>Be shaped by Scripture.</Text>
+                  <Text style={[styles.homeHeroTitleAccent, homeDarkMode && styles.homeDarkHeroTitleAccent]}>Be shaped by Scripture.</Text>
                 </Text>
-                <Text style={styles.homeHeroText}>
+                <Text style={[styles.homeHeroText, homeDarkMode && styles.homeDarkHeroText]}>
                   Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, and review in one simple place.
                 </Text>
                 <View style={styles.homeActionRow}>
@@ -3694,54 +3696,54 @@ export default function Home() {
               </View>
 
               <View style={styles.homeScriptureGrid}>
-                <View style={styles.homeScriptureBlock}>
-                  <View style={styles.homeScriptureIcon}>
-                    <Ionicons name="heart-outline" size={20} color={colors.coral} />
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                  <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                    <Ionicons name="heart-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
-                  <Text style={styles.homeScriptureRef}>James 4:8</Text>
-                  <Text style={styles.homeScriptureQuote}>“Draw near to God, and he will draw near to you.”</Text>
-                  <Text style={styles.homeScriptureNote}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
+                  <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>James 4:8</Text>
+                  <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Draw near to God, and he will draw near to you.”</Text>
+                  <Text style={[styles.homeScriptureNote, homeDarkMode && styles.accountDarkMutedText]}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
                 </View>
-                <View style={styles.homeScriptureBlock}>
-                  <View style={styles.homeScriptureIcon}>
-                    <Ionicons name="book-outline" size={20} color={colors.coral} />
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                  <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                    <Ionicons name="book-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
-                  <Text style={styles.homeScriptureRef}>2 Timothy 3:16</Text>
-                  <Text style={styles.homeScriptureQuote}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
-                  <Text style={styles.homeScriptureNote}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
+                  <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>2 Timothy 3:16</Text>
+                  <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
+                  <Text style={[styles.homeScriptureNote, homeDarkMode && styles.accountDarkMutedText]}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
                 </View>
               </View>
 
-              <View style={styles.homePurposePanel}>
-                <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
-                <Text style={styles.homePurposeText}>
+              <View style={[styles.homePurposePanel, homeDarkMode && styles.homeDarkPurposePanel]}>
+                <Text style={[styles.homePurposeTitle, homeDarkMode && styles.accountDarkTitle]}>Free Bible study for everyday discipleship.</Text>
+                <Text style={[styles.homePurposeText, homeDarkMode && styles.accountDarkMutedText]}>
                   Built for individuals, small groups, and churches, Bible Study Tutor is free to use on desktop and mobile, with printable worksheets for anyone who prefers pen and paper.
                 </Text>
                 <View style={styles.homePurposePillRow}>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Free to use</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="gift-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Free to use</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Mobile ready</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="phone-portrait-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Mobile ready</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Desktop friendly</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="desktop-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Desktop friendly</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Printable worksheets</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="print-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Printable worksheets</Text>
                   </View>
                 </View>
               </View>
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
-              <Card style={styles.homeSideCard}>
-                <Text style={styles.homeSideTitle}>Today’s path</Text>
-                <Text style={styles.titleSupport}>{`${friendlyName}, take the next small faithful step.`}</Text>
+              <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
+                <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
+                <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
                 <View style={styles.homePathList}>
                   {[
                     ["Read", "Open the Bible reader and choose a passage.", "reader-outline", "bible"],
@@ -3750,30 +3752,30 @@ export default function Home() {
                     ["Reflect", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your journal connected to Scripture.", "journal-outline", "journal"],
                     ["Share", effectivePartner ? `Encourage ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
                   ].map(([title, detail, icon, target]) => (
-                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={styles.homePathItem}>
-                      <View style={styles.homePathIcon}>
-                        <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
+                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={[styles.homePathItem, homeDarkMode && styles.homeDarkPathItem]}>
+                      <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                        <Ionicons name={icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </View>
                       <View style={styles.homePathTextBlock}>
-                        <Text style={styles.homePathTitle}>{title}</Text>
-                        <Text style={styles.homePathDetail}>{detail}</Text>
+                        <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                        <Text style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{detail}</Text>
                       </View>
-                      <Ionicons name="chevron-forward-outline" size={16} color={colors.muted} />
+                      <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                   ))}
                 </View>
               </Card>
 
-              <Card style={styles.homeSideCard}>
-                <Text style={styles.homeSideTitle}>At a glance</Text>
+              <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
+                <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>At a glance</Text>
                 <View style={styles.homeMetricGrid}>
-                  <Metric value={stats?.currentStreak ?? 0} label="day rhythm" compact={phoneLayout} />
-                  <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} />
-                  <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} />
+                  <Metric value={stats?.currentStreak ?? 0} label="day rhythm" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
+                  <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
+                  <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
                 </View>
                 <View style={styles.homeSmallActions}>
-                  <ResumeButton label="Choose method" icon="layers-outline" onPress={() => setTab("methods")} />
-                  <ResumeButton label="Open plans" icon="calendar-outline" onPress={() => setTab("plans")} />
+                  <ResumeButton label="Choose method" icon="layers-outline" onPress={() => setTab("methods")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Open plans" icon="calendar-outline" onPress={() => setTab("plans")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
                 </View>
               </Card>
             </View>
@@ -6382,6 +6384,7 @@ export default function Home() {
                   open={openLegalSection === "privacy"}
                   sections={PRIVACY_POLICY_SECTIONS}
                   onToggle={() => setOpenLegalSection((current) => (current === "privacy" ? "" : "privacy"))}
+                  darkMode={accountDarkMode}
                 />
                 <LegalDocument
                   title="Terms of Service"
@@ -6389,6 +6392,7 @@ export default function Home() {
                   open={openLegalSection === "terms"}
                   sections={TERMS_OF_SERVICE_SECTIONS}
                   onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
+                  darkMode={accountDarkMode}
                 />
               </View>
               {isAuthenticated && (
@@ -7154,11 +7158,11 @@ export default function Home() {
         )}
 
         {tab === "help" && (
-          <View style={styles.helpPage}>
-            <Card style={styles.helpHeroCard}>
+          <View style={[styles.helpPage, helpDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.helpHeroCard, helpDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Help</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, start here` : "Start here"}</Text>
-              <Text style={styles.titleSupport}>
+              <Text style={[styles.title, helpDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, start here` : "Start here"}</Text>
+              <Text style={[styles.titleSupport, helpDarkMode && styles.accountDarkMutedText]}>
                 Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, share Scripture, and print worksheets for pen-and-paper study.
               </Text>
               <View style={styles.helpActionRow}>
@@ -7168,26 +7172,26 @@ export default function Home() {
               </View>
             </Card>
 
-            <Card style={[styles.helpShareCard, phoneLayout && styles.phoneHelpShareCard]}>
+            <Card style={[styles.helpShareCard, phoneLayout && styles.phoneHelpShareCard, helpDarkMode && styles.accountDarkMainCard]}>
               <View style={styles.helpShareCopy}>
                 <View style={styles.feedbackHeader}>
-                  <Ionicons name="qr-code-outline" size={19} color={colors.coral} />
-                  <Text style={styles.helpCardTitle}>Share Bible Study Tutor</Text>
+                  <Ionicons name="qr-code-outline" size={19} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                  <Text style={[styles.helpCardTitle, helpDarkMode && styles.accountDarkTitle]}>Share Bible Study Tutor</Text>
                 </View>
-                <Text style={styles.helpShareTitle}>Invite someone to study Scripture with you.</Text>
-                <Text style={styles.helpCardText}>
+                <Text style={[styles.helpShareTitle, helpDarkMode && styles.accountDarkTitle]}>Invite someone to study Scripture with you.</Text>
+                <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
                   Bible Study Tutor is free and works on desktop and mobile. Scan the QR code, copy the link, or send it straight to a friend, church group, or Bible study partner.
                 </Text>
-                <Text selectable style={styles.helpShareUrl}>biblestudytutor.org</Text>
+                <Text selectable style={[styles.helpShareUrl, helpDarkMode && styles.helpDarkShareUrl]}>biblestudytutor.org</Text>
                 <View style={styles.helpShareActions}>
-                  <ResumeButton label="Share app" icon="share-outline" onPress={shareAppLink} style={phoneLayout && styles.phoneHelpShareButton} labelStyle={phoneLayout && styles.phoneHelpShareButtonText} />
-                  <ResumeButton label="Copy link" icon="copy-outline" onPress={copyAppLink} style={phoneLayout && styles.phoneHelpShareButton} labelStyle={phoneLayout && styles.phoneHelpShareButtonText} />
+                  <ResumeButton label="Share app" icon="share-outline" onPress={shareAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Copy link" icon="copy-outline" onPress={copyAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#e9b76a" : undefined} />
                 </View>
                 {!!appShareStatus && <Text style={styles.saveStatus}>{appShareStatus}</Text>}
               </View>
-              <View style={styles.helpQrFrame}>
+              <View style={[styles.helpQrFrame, helpDarkMode && styles.helpDarkQrFrame]}>
                 <Image source={{ uri: APP_SHARE_QR_URI }} style={styles.helpQrImage} />
-                <Text style={styles.helpQrCaption}>Scan to open</Text>
+                <Text style={[styles.helpQrCaption, helpDarkMode && styles.accountDarkMutedText]}>Scan to open</Text>
               </View>
             </Card>
 
@@ -7198,11 +7202,11 @@ export default function Home() {
                 ["3", "Print when useful", "Create worksheets for pen-and-paper study, groups, or church handouts.", "print-outline"],
                 ["4", "Return later", "Review your journal, practise memory verses, and share encouragements.", "refresh-circle-outline"]
               ].map(([number, title, body, icon]) => (
-                <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard]}>
-                  <View style={styles.helpStepNumber}><Text style={styles.helpStepNumberText}>{number}</Text></View>
-                  <Ionicons name={icon as any} size={20} color={colors.coral} />
-                  <Text style={styles.helpCardTitle}>{title}</Text>
-                  <Text style={styles.helpCardText}>{body}</Text>
+                <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard, helpDarkMode && styles.accountDarkMainCard]}>
+                  <View style={[styles.helpStepNumber, helpDarkMode && styles.helpDarkStepNumber]}><Text style={styles.helpStepNumberText}>{number}</Text></View>
+                  <Ionicons name={icon as any} size={20} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                  <Text style={[styles.helpCardTitle, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                  <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
                 </Card>
               ))}
             </View>
@@ -7212,26 +7216,30 @@ export default function Home() {
                 title="Bible reader"
                 caption="Tap one verse, or tap another verse to select the whole range. The action bar lets you study, note, print, save, or memorize."
                 variant="bible"
+                darkMode={helpDarkMode}
               />
               <HelpScreenshot
                 title="Guided study"
                 caption="Follow the current step, write notes in the box, then save and continue. Focus mode hides extra panels."
                 variant="study"
+                darkMode={helpDarkMode}
               />
               <HelpScreenshot
                 title="Memory practice"
                 caption="Save a verse to Memory, then read it, fill every second word, and finally type the full verse."
                 variant="memory"
+                darkMode={helpDarkMode}
               />
               <HelpScreenshot
                 title="Journal review"
                 caption="Your saved studies, highlights, encouragements, and reflections collect here for later review."
                 variant="journal"
+                darkMode={helpDarkMode}
               />
             </View>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>Step-by-step guide</Text>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Step-by-step guide</Text>
               <View style={[styles.helpGuideGrid, phoneLayout && styles.phoneHelpGuideGrid]}>
                 {[
                   {
@@ -7331,16 +7339,16 @@ export default function Home() {
                     target: "home"
                   }
                 ].map((item) => (
-                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem]}>
+                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem, helpDarkMode && styles.helpDarkGuideItem]}>
                     <View style={[styles.feedbackHeader, phoneLayout && styles.phoneHelpGuideHeader]}>
-                      <Ionicons name={item.icon as any} size={18} color={colors.coral} />
-                      <Text style={styles.helpGuideTitle}>{item.title}</Text>
+                      <Ionicons name={item.icon as any} size={18} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                      <Text style={[styles.helpGuideTitle, helpDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
                     </View>
                     <View style={styles.helpGuideStepList}>
                       {item.steps.map((stepText, index) => (
-                        <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep]}>
-                          <Text style={styles.helpGuideStepNumber}>{index + 1}</Text>
-                          <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText]}>{stepText}</Text>
+                        <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep, helpDarkMode && styles.helpDarkGuideStep]}>
+                          <Text style={[styles.helpGuideStepNumber, helpDarkMode && styles.helpDarkGuideStepNumber]}>{index + 1}</Text>
+                          <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText, helpDarkMode && styles.accountDarkMutedText]}>{stepText}</Text>
                         </View>
                       ))}
                     </View>
@@ -7348,16 +7356,17 @@ export default function Home() {
                       label={item.action}
                       icon={item.icon}
                       onPress={() => setTab(item.target as Tab)}
-                      style={phoneLayout && styles.phoneHelpGuideAction}
-                      labelStyle={phoneLayout && styles.phoneHelpGuideActionText}
+                      style={[phoneLayout && styles.phoneHelpGuideAction, helpDarkMode && styles.homeDarkResumeButton]}
+                      labelStyle={[phoneLayout && styles.phoneHelpGuideActionText, helpDarkMode && styles.homeDarkResumeButtonText]}
+                      iconColor={helpDarkMode ? "#e9b76a" : undefined}
                     />
                   </View>
                 ))}
               </View>
             </Card>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>What each tab is for</Text>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>What each tab is for</Text>
               <View style={styles.helpTabGrid}>
                 {[
                   ["Home", "Your starting point and next best actions.", "home-outline"],
@@ -7370,19 +7379,19 @@ export default function Home() {
                   ["Journal", "Review saved studies, drafts, highlights, and encouragements.", "journal-outline"],
                   ["Account", "Manage your name, sign-in, translation, and privacy details.", "person-circle-outline"]
                 ].map(([title, body, icon]) => (
-                  <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem]}>
-                    <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
+                  <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem, helpDarkMode && styles.helpDarkTabItem]}>
+                    <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <View style={styles.helpTabCopy}>
-                      <Text style={styles.helpFaqQuestion}>{title}</Text>
-                      <Text style={styles.helpFaqAnswer}>{body}</Text>
+                      <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                      <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
                     </View>
                   </View>
                 ))}
               </View>
             </Card>
 
-            <Card style={styles.helpFaqCard}>
-              <Text style={styles.sectionTitle}>Common questions</Text>
+            <Card style={[styles.helpFaqCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Common questions</Text>
               {[
                 ["How do I make a note on a verse?", "In Bible, select a verse and tap Note. On mobile the note box opens in the bottom action panel."],
                 ["How do I study selected verses?", "Select one or more verses in Bible, then tap Study. The app opens Study with those verses loaded."],
@@ -7395,15 +7404,15 @@ export default function Home() {
                 ["How do I hide busy panels?", "Use Focus mode in Study, collapse the Bible reader panel, and use the small arrow controls on collapsible sections."],
                 ["Can I use the app without signing in?", "Yes. You can use a local profile, or sign in later to carry your work between devices."]
               ].map(([question, answer]) => (
-                <View key={question} style={styles.helpFaqItem}>
-                  <Text style={styles.helpFaqQuestion}>{question}</Text>
-                  <Text style={styles.helpFaqAnswer}>{answer}</Text>
+                <View key={question} style={[styles.helpFaqItem, helpDarkMode && styles.helpDarkFaqItem]}>
+                  <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{question}</Text>
+                  <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{answer}</Text>
                 </View>
               ))}
             </Card>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>Troubleshooting</Text>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Troubleshooting</Text>
               <View style={styles.helpTroubleList}>
                 {[
                   ["The screen feels crowded", "Use Study Focus mode, collapse side panels, or open the mobile menu only when you need it."],
@@ -7412,20 +7421,20 @@ export default function Home() {
                   ["I want to find an older study", "Open Journal and use search, Calendar view, or Scripture view."],
                   ["I am not signed in", "You can keep using a local profile. Sign in from Account when you want account-connected saving."]
                 ].map(([title, body]) => (
-                  <View key={title} style={styles.helpTroubleItem}>
-                    <Ionicons name="alert-circle-outline" size={17} color={colors.coral} />
+                  <View key={title} style={[styles.helpTroubleItem, helpDarkMode && styles.helpDarkTroubleItem]}>
+                    <Ionicons name="alert-circle-outline" size={17} color={helpDarkMode ? "#e9b76a" : colors.coral} />
                     <View style={styles.helpTabCopy}>
-                      <Text style={styles.helpFaqQuestion}>{title}</Text>
-                      <Text style={styles.helpFaqAnswer}>{body}</Text>
+                      <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                      <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
                     </View>
                   </View>
                 ))}
               </View>
             </Card>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>Send feedback</Text>
-              <Text style={styles.helpCardText}>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Send feedback</Text>
+              <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
                 Use this for bugs, confusing areas, suggestions, or encouragement. Feedback is saved with basic context so it can be reviewed without needing private study notes.
               </Text>
               <View style={styles.feedbackCategoryRow}>
@@ -7439,9 +7448,9 @@ export default function Home() {
                   <Pressable
                     key={key}
                     onPress={() => setFeedbackCategory(key as typeof feedbackCategory)}
-                    style={[styles.feedbackCategoryChip, feedbackCategory === key && styles.activeFeedbackCategoryChip]}
+                    style={[styles.feedbackCategoryChip, helpDarkMode && styles.helpDarkCategoryChip, feedbackCategory === key && styles.activeFeedbackCategoryChip, helpDarkMode && feedbackCategory === key && styles.accountDarkActiveOptionCard]}
                   >
-                    <Text style={[styles.feedbackCategoryText, feedbackCategory === key && styles.activeFeedbackCategoryText]}>{label}</Text>
+                    <Text style={[styles.feedbackCategoryText, helpDarkMode && styles.accountDarkTitle, feedbackCategory === key && styles.activeFeedbackCategoryText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -7450,7 +7459,8 @@ export default function Home() {
                 value={feedbackMessage}
                 onChangeText={setFeedbackMessage}
                 placeholder="What should be improved, fixed, or made clearer?"
-                style={[styles.input, styles.feedbackInput]}
+                placeholderTextColor={helpDarkMode ? "#9d927f" : undefined}
+                style={[styles.input, styles.feedbackInput, helpDarkMode && styles.accountDarkInput]}
               />
               <View style={styles.helpActionRow}>
                 <AppButton label="Send feedback" onPress={submitUserFeedback} style={phoneLayout && styles.phoneFullWidthButton} />
@@ -7729,27 +7739,37 @@ function getContextHelp(tab: Tab) {
   return help[tab];
 }
 
-function HelpScreenshot({ title, caption, variant }: { title: string; caption: string; variant: "bible" | "study" | "memory" | "journal" }) {
+function HelpScreenshot({
+  title,
+  caption,
+  variant,
+  darkMode = false
+}: {
+  title: string;
+  caption: string;
+  variant: "bible" | "study" | "memory" | "journal";
+  darkMode?: boolean;
+}) {
   return (
-    <Card style={styles.helpScreenshotCard}>
+    <Card style={[styles.helpScreenshotCard, darkMode && styles.accountDarkMainCard]}>
       <View style={styles.helpScreenshotHeader}>
-        <Text style={styles.helpCardTitle}>{title}</Text>
+        <Text style={[styles.helpCardTitle, darkMode && styles.accountDarkTitle]}>{title}</Text>
         <View style={styles.helpWindowDots}>
-          <View style={styles.helpWindowDot} />
-          <View style={styles.helpWindowDot} />
-          <View style={styles.helpWindowDot} />
+          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
+          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
+          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
         </View>
       </View>
-      <View style={styles.helpScreenshotFrame}>
+      <View style={[styles.helpScreenshotFrame, darkMode && styles.helpDarkScreenshotFrame]}>
         {variant === "bible" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>Psalms 23</Text>
-              <Text style={styles.helpScreenshotPill}>BSB</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Psalms 23</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>BSB</Text>
             </View>
-            <View style={styles.helpVerseLine}><Text style={styles.helpVerseNumber}>1</Text><View style={styles.helpLongLine} /></View>
-            <View style={[styles.helpVerseLine, styles.helpSelectedLine]}><Text style={styles.helpVerseNumber}>2</Text><View style={styles.helpShortLine} /></View>
-            <View style={styles.helpDockPreview}>
+            <View style={styles.helpVerseLine}><Text style={[styles.helpVerseNumber, darkMode && styles.homeDarkAccentText]}>1</Text><View style={[styles.helpLongLine, darkMode && styles.helpDarkLine]} /></View>
+            <View style={[styles.helpVerseLine, styles.helpSelectedLine, darkMode && styles.helpDarkSelectedLine]}><Text style={[styles.helpVerseNumber, darkMode && styles.homeDarkAccentText]}>2</Text><View style={[styles.helpShortLine, darkMode && styles.helpDarkLine]} /></View>
+            <View style={[styles.helpDockPreview, darkMode && styles.helpDarkDockPreview]}>
               <Text style={styles.helpDockButton}>Study</Text>
               <Text style={styles.helpDockButton}>Note</Text>
               <Text style={styles.helpDockButton}>Print</Text>
@@ -7760,30 +7780,30 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
         {variant === "study" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>Step 2 of 4</Text>
-              <Text style={styles.helpScreenshotPill}>SOAP</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Step 2 of 4</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>SOAP</Text>
             </View>
-            <View style={styles.helpTextAreaPreview}>
-              <View style={styles.helpLongLine} />
-              <View style={styles.helpMediumLine} />
-              <View style={styles.helpShortLine} />
+            <View style={[styles.helpTextAreaPreview, darkMode && styles.helpDarkTextAreaPreview]}>
+              <View style={[styles.helpLongLine, darkMode && styles.helpDarkLine]} />
+              <View style={[styles.helpMediumLine, darkMode && styles.helpDarkLine]} />
+              <View style={[styles.helpShortLine, darkMode && styles.helpDarkLine]} />
             </View>
             <View style={styles.helpToolbarPreview}>
-              {["B", "I", "U", "H"].map((item) => <Text key={item} style={styles.helpToolButton}>{item}</Text>)}
+              {["B", "I", "U", "H"].map((item) => <Text key={item} style={[styles.helpToolButton, darkMode && styles.helpDarkToolButton]}>{item}</Text>)}
             </View>
           </>
         )}
         {variant === "memory" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>John 3:16</Text>
-              <Text style={styles.helpScreenshotPill}>Step 2</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>John 3:16</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>Step 2</Text>
             </View>
             <View style={styles.helpMemoryLine}>
-              <View style={styles.helpBlankWord} />
-              <Text style={styles.helpMemoryWord}>so</Text>
-              <View style={styles.helpBlankWord} />
-              <Text style={styles.helpMemoryWord}>the</Text>
+              <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
+              <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>so</Text>
+              <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
+              <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>the</Text>
             </View>
             <Text style={styles.helpDockButton}>Check answers</Text>
           </>
@@ -7791,19 +7811,19 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
         {variant === "journal" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>Journal</Text>
-              <Text style={styles.helpScreenshotPill}>List</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Journal</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>List</Text>
             </View>
             {["Psalm 23", "James 1:5", "Encouragement"].map((item) => (
-              <View key={item} style={styles.helpJournalRow}>
-                <Text style={styles.helpJournalTitle}>{item}</Text>
-                <Ionicons name="chevron-down-outline" size={14} color={colors.muted} />
+              <View key={item} style={[styles.helpJournalRow, darkMode && styles.helpDarkJournalRow]}>
+                <Text style={[styles.helpJournalTitle, darkMode && styles.accountDarkTitle]}>{item}</Text>
+                <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#c8bda9" : colors.muted} />
               </View>
             ))}
           </>
         )}
       </View>
-      <Text style={styles.helpCardText}>{caption}</Text>
+      <Text style={[styles.helpCardText, darkMode && styles.accountDarkMutedText]}>{caption}</Text>
     </Card>
   );
 }
@@ -8203,11 +8223,25 @@ function formatAdminDate(value?: number) {
   return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-function Metric({ value, label, compact = false }: { value: number; label: string; compact?: boolean }) {
+function Metric({
+  value,
+  label,
+  compact = false,
+  style,
+  valueStyle,
+  labelStyle
+}: {
+  value: number;
+  label: string;
+  compact?: boolean;
+  style?: any;
+  valueStyle?: any;
+  labelStyle?: any;
+}) {
   return (
-    <View style={[styles.metric, compact && styles.phoneMemoryMetric]}>
-      <Text style={[styles.metricValue, compact && styles.phoneMemoryMetricValue]}>{value}</Text>
-      <Text numberOfLines={1} style={[styles.muted, compact && styles.phoneMemoryMetricLabel]}>{label}</Text>
+    <View style={[styles.metric, compact && styles.phoneMemoryMetric, style]}>
+      <Text style={[styles.metricValue, compact && styles.phoneMemoryMetricValue, valueStyle]}>{value}</Text>
+      <Text numberOfLines={1} style={[styles.muted, compact && styles.phoneMemoryMetricLabel, labelStyle]}>{label}</Text>
     </View>
   );
 }
@@ -8218,7 +8252,8 @@ function ResumeButton({
   icon = "return-up-forward-outline",
   variant = "default",
   style,
-  labelStyle
+  labelStyle,
+  iconColor
 }: {
   label: string;
   onPress: () => void;
@@ -8226,6 +8261,7 @@ function ResumeButton({
   variant?: "default" | "primary";
   style?: any;
   labelStyle?: any;
+  iconColor?: string;
 }) {
   const primary = variant === "primary";
 
@@ -8235,7 +8271,7 @@ function ResumeButton({
       onPress={onPress}
       style={({ pressed }) => [styles.resumeButton, primary && styles.primaryResumeButton, pressed && styles.resumeButtonPressed, style]}
     >
-      <Ionicons name={icon as any} size={17} color={primary ? "white" : colors.coral} />
+      <Ionicons name={icon as any} size={17} color={iconColor || (primary ? "white" : colors.coral)} />
       <Text style={[styles.resumeButtonText, primary && styles.primaryResumeButtonText, labelStyle]}>{label}</Text>
     </Pressable>
   );
@@ -8814,30 +8850,32 @@ function LegalDocument({
   icon,
   open,
   sections,
-  onToggle
+  onToggle,
+  darkMode = false
 }: {
   title: string;
   icon: string;
   open: boolean;
   sections: { title: string; body: string }[];
   onToggle: () => void;
+  darkMode?: boolean;
 }) {
   return (
-    <View style={styles.legalDocBox}>
+    <View style={[styles.legalDocBox, darkMode && styles.accountDarkLegalDocBox]}>
       <Pressable onPress={onToggle} style={styles.legalDocHeader}>
         <View style={styles.feedbackHeader}>
-          <Ionicons name={icon as any} size={18} color={colors.coral} />
-          <Text style={styles.feedbackTitle}>{title}</Text>
+          <Ionicons name={icon as any} size={18} color={darkMode ? "#e9b76a" : colors.coral} />
+          <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>{title}</Text>
         </View>
-        <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={colors.muted} />
+        <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={darkMode ? "#c8bda9" : colors.muted} />
       </Pressable>
       {open && (
         <View style={styles.legalDocBody}>
-          <Text style={styles.legalUpdatedText}>Last updated {LEGAL_LAST_UPDATED}</Text>
+          <Text style={[styles.legalUpdatedText, darkMode && styles.accountDarkMutedText]}>Last updated {LEGAL_LAST_UPDATED}</Text>
           {sections.map((section) => (
             <View key={section.title} style={styles.legalDocSection}>
-              <Text style={styles.legalDocSectionTitle}>{section.title}</Text>
-              <Text style={styles.legalDocText}>{section.body}</Text>
+              <Text style={[styles.legalDocSectionTitle, darkMode && styles.accountDarkTitle]}>{section.title}</Text>
+              <Text style={[styles.legalDocText, darkMode && styles.accountDarkMutedText]}>{section.body}</Text>
             </View>
           ))}
         </View>
@@ -11312,6 +11350,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 18
   },
+  homeDarkLayout: {
+    backgroundColor: "#171b1c"
+  },
   homeMainCard: {
     flex: 1,
     gap: 20,
@@ -11323,6 +11364,9 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingBottom: 18
   },
+  homeDarkHero: {
+    borderBottomColor: "rgba(233, 183, 106, 0.18)"
+  },
   homeHeroTitle: {
     color: colors.ink,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
@@ -11330,11 +11374,17 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     lineHeight: 48
   },
+  homeDarkHeroTitle: {
+    color: "#f7eddc"
+  },
   homeHeroTitleAccent: {
     color: colors.oliveDark,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
     fontStyle: "italic",
     fontWeight: "700"
+  },
+  homeDarkHeroTitleAccent: {
+    color: "#e9b76a"
   },
   phoneHomeHeroTitle: {
     fontSize: 34,
@@ -11347,6 +11397,9 @@ const styles = StyleSheet.create({
     lineHeight: 27,
     maxWidth: 720
   },
+  homeDarkHeroText: {
+    color: "#f7eddc"
+  },
   homePurposePanel: {
     backgroundColor: "#fffaf2",
     borderColor: "rgba(102, 114, 78, 0.22)",
@@ -11354,6 +11407,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     padding: 14
+  },
+  homeDarkPurposePanel: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homePurposeTitle: {
     color: colors.oliveDark,
@@ -11381,6 +11438,10 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 7
+  },
+  homeDarkPurposePill: {
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(233, 183, 106, 0.18)"
   },
   homePurposePillText: {
     color: colors.oliveDark,
@@ -11412,6 +11473,10 @@ const styles = StyleSheet.create({
     minWidth: 240,
     padding: 16
   },
+  homeDarkScriptureBlock: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   homeScriptureIcon: {
     alignItems: "center",
     backgroundColor: colors.panel,
@@ -11420,10 +11485,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 36
   },
+  homeDarkIconBubble: {
+    backgroundColor: "#2d352d"
+  },
   homeScriptureRef: {
     color: colors.coral,
     fontSize: 13,
     fontWeight: "900"
+  },
+  homeDarkAccentText: {
+    color: "#e9b76a"
   },
   homeScriptureQuote: {
     color: colors.ink,
@@ -11464,6 +11535,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     padding: 11
+  },
+  homeDarkPathItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  homeDarkMetric: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)",
+    borderWidth: 1
+  },
+  homeDarkMetricValue: {
+    color: "#e9b76a"
+  },
+  homeDarkResumeButton: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.26)"
+  },
+  homeDarkResumeButtonText: {
+    color: "#f7eddc"
   },
   homePathIcon: {
     alignItems: "center",
@@ -15146,6 +15236,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#1b211f",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
+  accountDarkLegalDocBox: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   accountDarkOptionCard: {
     backgroundColor: "#1b211f",
     borderColor: "rgba(233, 183, 106, 0.16)"
@@ -16570,6 +16664,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 7
   },
+  helpDarkShareUrl: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.24)",
+    color: "#e9b76a"
+  },
   helpShareActions: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -16593,6 +16692,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 7,
     padding: 11
+  },
+  helpDarkQrFrame: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpQrImage: {
     height: 168,
@@ -16635,6 +16738,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 28
   },
+  helpDarkStepNumber: {
+    backgroundColor: "#8f6a35"
+  },
   helpStepNumberText: {
     color: "white",
     fontSize: 13,
@@ -16675,6 +16781,9 @@ const styles = StyleSheet.create({
     height: 7,
     width: 7
   },
+  helpDarkWindowDot: {
+    backgroundColor: "rgba(233, 183, 106, 0.32)"
+  },
   helpScreenshotFrame: {
     backgroundColor: "#fffdf8",
     borderColor: colors.line,
@@ -16684,6 +16793,10 @@ const styles = StyleSheet.create({
     minHeight: 170,
     overflow: "hidden",
     padding: 12
+  },
+  helpDarkScreenshotFrame: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpScreenshotTopBar: {
     alignItems: "center",
@@ -16705,6 +16818,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4
   },
+  helpDarkScreenshotPill: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
+  },
   helpVerseLine: {
     alignItems: "center",
     flexDirection: "row",
@@ -16714,6 +16831,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4dfb6",
     borderRadius: 9,
     padding: 8
+  },
+  helpDarkSelectedLine: {
+    backgroundColor: "rgba(233, 183, 106, 0.14)"
   },
   helpVerseNumber: {
     color: colors.coral,
@@ -16725,6 +16845,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     height: 10,
     width: "78%"
+  },
+  helpDarkLine: {
+    backgroundColor: "rgba(247, 237, 220, 0.24)"
   },
   helpMediumLine: {
     backgroundColor: colors.line,
@@ -16748,6 +16871,10 @@ const styles = StyleSheet.create({
     marginTop: "auto",
     padding: 7
   },
+  helpDarkDockPreview: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
   helpDockButton: {
     backgroundColor: colors.oliveDark,
     borderRadius: 999,
@@ -16766,6 +16893,10 @@ const styles = StyleSheet.create({
     gap: 9,
     padding: 12
   },
+  helpDarkTextAreaPreview: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   helpToolbarPreview: {
     flexDirection: "row",
     gap: 6
@@ -16780,6 +16911,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 6
   },
+  helpDarkToolButton: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
+  },
   helpMemoryLine: {
     alignItems: "center",
     flexDirection: "row",
@@ -16791,6 +16926,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     height: 18,
     width: 48
+  },
+  helpDarkBlankWord: {
+    borderBottomColor: "#e9b76a"
   },
   helpMemoryWord: {
     color: colors.ink,
@@ -16807,6 +16945,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10
   },
+  helpDarkJournalRow: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   helpJournalTitle: {
     color: colors.ink,
     fontSize: 13,
@@ -16820,6 +16962,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     gap: 4,
     paddingTop: 10
+  },
+  helpDarkFaqItem: {
+    borderTopColor: "rgba(233, 183, 106, 0.16)"
   },
   helpFaqQuestion: {
     color: colors.ink,
@@ -16853,6 +16998,10 @@ const styles = StyleSheet.create({
     gap: 10,
     minWidth: 280,
     padding: 12
+  },
+  helpDarkGuideItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpGuideItem: {
     borderRadius: 10,
@@ -16892,6 +17041,10 @@ const styles = StyleSheet.create({
     gap: 9,
     padding: 8
   },
+  helpDarkGuideStep: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   helpGuideStepNumber: {
     backgroundColor: colors.sage,
     borderRadius: 999,
@@ -16902,6 +17055,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingVertical: 4,
     textAlign: "center"
+  },
+  helpDarkGuideStepNumber: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
   },
   helpGuideStepText: {
     color: colors.ink,
@@ -16937,6 +17094,10 @@ const styles = StyleSheet.create({
     padding: 11,
     width: "32%"
   },
+  helpDarkTabItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   phoneHelpTabItem: {
     minWidth: 0,
     width: "100%"
@@ -16958,6 +17119,10 @@ const styles = StyleSheet.create({
     gap: 9,
     padding: 11
   },
+  helpDarkTroubleItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   feedbackCategoryRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -16970,6 +17135,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 7
+  },
+  helpDarkCategoryChip: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   activeFeedbackCategoryChip: {
     backgroundColor: colors.oliveDark,

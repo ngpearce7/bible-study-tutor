@@ -1202,6 +1202,7 @@ export default function Home() {
   const helpDarkMode = accountDarkMode;
   const studyDarkMode = accountDarkMode;
   const bibleDarkMode = accountDarkMode;
+  const plansDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -5052,39 +5053,39 @@ export default function Home() {
         )}
 
         {tab === "plans" && (
-          <View>
+          <View style={plansDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Guided paths</Eyebrow>
-            <Text style={styles.title}>Study plans</Text>
-            <Text style={styles.titleSupport}>Choose an original seven-day path, then save each study to mark the day complete.</Text>
-            <View style={[styles.currentPlanWideBox, phoneLayout && styles.phoneCurrentPlanWideBox]}>
+            <Text style={[styles.title, plansDarkMode && styles.accountDarkTitle]}>Study plans</Text>
+            <Text style={[styles.titleSupport, plansDarkMode && styles.accountDarkMutedText]}>Choose an original seven-day path, then save each study to mark the day complete.</Text>
+            <View style={[styles.currentPlanWideBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
               <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
                 <View style={styles.journalTitleBlock}>
-                  <Text style={styles.cardTitle}>{selectedPlan.title}</Text>
-                  <Text style={styles.muted}>{selectedPlanComplete ? "Completed. Start again or choose a new plan." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
+                  <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{selectedPlan.title}</Text>
+                  <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{selectedPlanComplete ? "Completed. Start again or choose a new plan." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
                 </View>
-                <Text style={styles.draftPill}>{selectedPlanCompletedCount}/{selectedPlan.days.length}</Text>
+                <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{selectedPlanCompletedCount}/{selectedPlan.days.length}</Text>
               </View>
-              <View style={styles.planProgressTrack}>
+              <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
                 <View style={[styles.planProgressFill, { width: `${(selectedPlanCompletedCount / selectedPlan.days.length) * 100}%` }]} />
               </View>
               <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
-                <AppButton label={selectedPlanComplete ? "Restart current plan" : "Continue current plan"} onPress={() => selectedPlanComplete ? resetSelectedPlanProgress() : startPlanDay(selectedPlanNextDay)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                {selectedPlanCompletedCount > 0 && !selectedPlanComplete && <AppButton label="Reset progress" variant="secondary" onPress={() => resetSelectedPlanProgress()} style={phoneLayout && styles.phonePlanSecondaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                <AppButton label={selectedPlanComplete ? "Restart current plan" : "Continue current plan"} onPress={() => selectedPlanComplete ? resetSelectedPlanProgress() : startPlanDay(selectedPlanNextDay)} style={[phoneLayout && styles.phonePlanPrimaryButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
+                {selectedPlanCompletedCount > 0 && !selectedPlanComplete && <AppButton label="Reset progress" variant="secondary" onPress={() => resetSelectedPlanProgress()} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
               </View>
             </View>
             <View style={[styles.planPageGrid, phoneLayout && styles.phonePlanPageGrid]}>
               {studyPlans.map((plan) => {
                 const completedCount = plan.days.filter((day) => completedPlanDaySet.has(planDayKey(plan.id, day.day))).length;
                 return (
-                  <Card key={plan.id} style={[styles.planPageCard, phoneLayout && styles.phonePlanPageCard]}>
+                  <Card key={plan.id} style={[styles.planPageCard, phoneLayout && styles.phonePlanPageCard, plansDarkMode && styles.accountDarkMainCard]}>
                     <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
                       <View style={styles.journalTitleBlock}>
-                        <Text style={styles.cardTitle}>{plan.title}</Text>
-                        <Text style={styles.muted}>{plan.description}</Text>
+                        <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{plan.title}</Text>
+                        <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{plan.description}</Text>
                       </View>
-                      <Text style={styles.draftPill}>{completedCount}/{plan.days.length}</Text>
+                      <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
                     </View>
-                    <View style={styles.planProgressTrack}>
+                    <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
                       <View style={[styles.planProgressFill, { width: `${(completedCount / plan.days.length) * 100}%` }]} />
                     </View>
                     <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
@@ -5092,19 +5093,19 @@ export default function Home() {
                         setSelectedPlanId(plan.id);
                         const nextDay = plan.days.find((day) => !completedPlanDaySet.has(planDayKey(plan.id, day.day))) || plan.days[0];
                         completedCount === plan.days.length ? resetSelectedPlanProgress(plan.id) : startPlanDay(nextDay, plan.id);
-                      }} style={phoneLayout && styles.phonePlanResumeButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                      {completedCount > 0 && completedCount < plan.days.length && <ResumeButton label="Reset" icon="refresh-outline" onPress={() => resetSelectedPlanProgress(plan.id)} style={phoneLayout && styles.phonePlanResumeButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                      }} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />
+                      {completedCount > 0 && completedCount < plan.days.length && <ResumeButton label="Reset" icon="refresh-outline" onPress={() => resetSelectedPlanProgress(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
                     </View>
                     {plan.days.map((planDay) => {
                       const done = completedPlanDaySet.has(planDayKey(plan.id, planDay.day));
                       return (
-                        <Pressable key={planDay.day} onPress={() => startPlanDay(planDay, plan.id)} style={[styles.planPageDay, phoneLayout && styles.phonePlanPageDay, done && styles.completedPlanDayRow]}>
-                          <Text style={[styles.planDayBadge, done && styles.completedPlanDayBadge]}>{done ? "✓" : planDay.day}</Text>
+                        <Pressable key={planDay.day} onPress={() => startPlanDay(planDay, plan.id)} style={[styles.planPageDay, phoneLayout && styles.phonePlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
+                          <Text style={[styles.planDayBadge, done && styles.completedPlanDayBadge, plansDarkMode && !done && styles.plansDarkDayBadge]}>{done ? "✓" : planDay.day}</Text>
                           <View style={styles.planDayCopy}>
-                            <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle]}>{planDay.title}</Text>
-                            <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage]}>{planDay.passage} · {(methods.find((item) => item.id === planDay.methodId) || methods[0]).short}</Text>
+                            <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle]}>{planDay.title}</Text>
+                            <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{planDay.passage} · {(methods.find((item) => item.id === planDay.methodId) || methods[0]).short}</Text>
                           </View>
-                          <Ionicons name="arrow-forward-outline" size={16} color={colors.muted} />
+                          <Ionicons name="arrow-forward-outline" size={16} color={plansDarkMode ? "#c8bda9" : colors.muted} />
                         </Pressable>
                       );
                     })}
@@ -15415,6 +15416,25 @@ const styles = StyleSheet.create({
   bibleDarkMobileNoteEditor: {
     backgroundColor: "#1b211f",
     borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  plansDarkProgressTrack: {
+    backgroundColor: "#2d352d"
+  },
+  plansDarkDraftPill: {
+    backgroundColor: "#2d352d",
+    color: "#f7eddc"
+  },
+  plansDarkDayRow: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.14)",
+    borderWidth: 1
+  },
+  plansDarkCompletedDayRow: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.22)"
+  },
+  plansDarkDayBadge: {
+    backgroundColor: "#8f6a35"
   },
   studyDarkStepPanel: {
     backgroundColor: "#171b1c",

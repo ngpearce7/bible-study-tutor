@@ -5502,7 +5502,7 @@ export default function Home() {
                                 </Text>
                               </View>
                               <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
-                                <Text style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
+                                <Text style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill, memoryDarkMode && isMemoryVerseDue(verse) && styles.memoryDarkDueReviewPill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
                                 <Text style={[styles.draftPill, memoryDarkMode && styles.plansDarkDraftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>
                             </Pressable>
@@ -8387,6 +8387,7 @@ function MemoryBlank({
           styles.memoryBlankInput,
           darkMode && styles.memoryDarkBlankInput,
           correct && styles.correctMemoryBlankInput,
+          darkMode && correct && styles.memoryDarkCorrectBlankInput,
           incorrect && styles.incorrectMemoryBlankInput
         ]}
       />
@@ -15478,6 +15479,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#1b211f",
     color: "#f7eddc"
   },
+  memoryDarkDueReviewPill: {
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(201, 103, 80, 0.7)",
+    borderWidth: 1,
+    color: "#f2a08c"
+  },
   memoryDarkPracticeText: {
     backgroundColor: "#1b211f",
     color: "#f7eddc"
@@ -15486,6 +15493,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#1b211f"
   },
   memoryDarkBlankInput: {
+    color: "#f7eddc"
+  },
+  memoryDarkCorrectBlankInput: {
+    backgroundColor: "rgba(233, 183, 106, 0.14)",
+    borderColor: "rgba(233, 183, 106, 0.34)",
+    borderBottomColor: "#e9b76a",
     color: "#f7eddc"
   },
   studyDarkStepPanel: {

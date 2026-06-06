@@ -1207,6 +1207,7 @@ export default function Home() {
   const memoryDarkMode = accountDarkMode;
   const journalDarkMode = accountDarkMode;
   const communityDarkMode = accountDarkMode;
+  const adminDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -6547,75 +6548,77 @@ export default function Home() {
 
         {tab === "admin" && (
           adminStats ? (
-            <View>
+            <View style={adminDarkMode && styles.accountDarkLayout}>
               <Eyebrow>Administrator</Eyebrow>
-              <Text style={styles.title}>Admin insights</Text>
-              <Text style={styles.titleSupport}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
+              <Text style={[styles.title, adminDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
+              <Text style={[styles.titleSupport, adminDarkMode && styles.accountDarkMutedText]}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
 
               <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
-                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" />
-                <Metric value={adminStats.totals.signedInProfiles} label="signed in" />
-                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" />
-                <Metric value={adminStats.totals.newFeedback} label="new feedback" />
-                <Metric value={adminStats.totals.appShares || 0} label="app shares" />
-                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" />
-                <Metric value={adminStats.totals.events} label="events" />
-                <Metric value={adminStats.totals.localProfiles} label="local/test" />
+                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.signedInProfiles} label="signed in" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.newFeedback} label="new feedback" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.appShares || 0} label="app shares" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.events} label="events" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.localProfiles} label="local/test" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
               </View>
 
-              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="trash-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Account deletion requests</Text>
+                  <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>Account deletion requests</Text>
                 </View>
-                <Text style={styles.helpIntro}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
+                <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
                 <AdminDeletionRequestList
                   requests={adminStats.deletionRequests}
                   pendingConfirmId={pendingAdminDeletionRequestId}
                   onApprove={approveAdminDeletionRequest}
                   onCancel={cancelAdminDeletionRequest}
                   phoneLayout={phoneLayout}
+                  darkMode={adminDarkMode}
                 />
               </Card>
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="people-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>User directory</Text>
+                    <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>User directory</Text>
                   </View>
-                  <Text style={styles.helpIntro}>A privacy-safe list of profiles, account status, and activity counts.</Text>
+                  <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
                   <AdminUserDirectory
                     users={Array.isArray(adminUsers) ? adminUsers : []}
                     selectedProfileId={selectedAdminProfileId}
                     onSelect={setSelectedAdminProfileId}
                     phoneLayout={phoneLayout}
+                    darkMode={adminDarkMode}
                   />
                 </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>User summary</Text>
+                    <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>User summary</Text>
                   </View>
-                  <AdminUserDetail detail={adminUserDetail} phoneLayout={phoneLayout} />
+                  <AdminUserDetail detail={adminUserDetail} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
               </View>
 
-              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="receipt-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Admin audit log</Text>
+                  <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>Admin audit log</Text>
                 </View>
-                <Text style={styles.helpIntro}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
-                <AdminAuditLog entries={Array.isArray(adminAuditLog) ? adminAuditLog : []} phoneLayout={phoneLayout} />
+                <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
+                <AdminAuditLog entries={Array.isArray(adminAuditLog) ? adminAuditLog : []} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
               </Card>
 
-              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="information-circle-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Profile context</Text>
+                  <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>Profile context</Text>
                 </View>
-                <Text style={styles.helpIntro}>
+                <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>
                   Total raw profiles: {adminStats.totals.profiles}. This can include local test profiles and older device-only profiles, so active users and signed-in profiles are the better health signals.
                 </Text>
               </Card>
@@ -6626,52 +6629,53 @@ export default function Home() {
                 selectedRegion={selectedAdminRegion}
                 onSelectRegion={setSelectedAdminRegion}
                 phoneLayout={phoneLayout}
+                darkMode={adminDarkMode}
               />
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Top memory verses" items={adminStats.topMemory} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="Top memory verses" items={adminStats.topMemory} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Top study methods" items={adminStats.topMethods} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="Top study methods" items={adminStats.topMethods} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Bible searches" items={adminStats.topSearches} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="Bible searches" items={adminStats.topSearches} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} />
-                </Card>
-              </View>
-
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} phoneLayout={phoneLayout} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} phoneLayout={phoneLayout} />
-                  <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
               </View>
 
               <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <Text style={styles.lastCheckinLabel}>Latest feedback</Text>
-                  <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={markFeedbackStatus} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard]}>
-                  <Text style={styles.lastCheckinLabel}>Recent activity</Text>
-                  <AdminEventList events={adminStats.recentEvents} phoneLayout={phoneLayout} />
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
+                  <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
+                </Card>
+              </View>
+
+              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <Text style={[styles.lastCheckinLabel, adminDarkMode && styles.studyDarkAccentText]}>Latest feedback</Text>
+                  <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={markFeedbackStatus} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
+                </Card>
+                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
+                  <Text style={[styles.lastCheckinLabel, adminDarkMode && styles.studyDarkAccentText]}>Recent activity</Text>
+                  <AdminEventList events={adminStats.recentEvents} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
                 </Card>
               </View>
             </View>
           ) : (
-            <View>
+            <View style={adminDarkMode && styles.accountDarkLayout}>
               <Eyebrow>Administrator</Eyebrow>
-              <Text style={styles.title}>Admin insights</Text>
-              <Text style={styles.titleSupport}>Sign in with an administrator account to view app insights.</Text>
+              <Text style={[styles.title, adminDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
+              <Text style={[styles.titleSupport, adminDarkMode && styles.accountDarkMutedText]}>Sign in with an administrator account to view app insights.</Text>
               <AppButton label="Open account" onPress={() => setTab("account")} />
             </View>
           )
@@ -7915,24 +7919,24 @@ function HelpScreenshot({
   );
 }
 
-function AdminCountList({ title, items, phoneLayout = false }: { title: string; items?: { label: string; count: number }[]; phoneLayout?: boolean }) {
+function AdminCountList({ title, items, phoneLayout = false, darkMode = false }: { title: string; items?: { label: string; count: number }[]; phoneLayout?: boolean; darkMode?: boolean }) {
   const safeItems = Array.isArray(items) ? items : [];
   const visibleItems = phoneLayout ? safeItems.slice(0, 4) : safeItems;
 
   return (
     <View style={styles.adminCountList}>
-      <Text style={styles.lastCheckinLabel}>{title}</Text>
+      <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>{title}</Text>
       {safeItems.length === 0 ? (
-        <Text style={styles.helpIntro}>No data yet.</Text>
+        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No data yet.</Text>
       ) : (
         visibleItems.map((item) => (
-          <View key={item.label} style={[styles.adminCountRow, phoneLayout && styles.phoneAdminCountRow]}>
-            <Text numberOfLines={1} style={styles.adminCountLabel}>{item.label}</Text>
-            <Text style={styles.readerBookmarkCount}>{item.count}</Text>
+          <View key={item.label} style={[styles.adminCountRow, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminCountRow]}>
+            <Text numberOfLines={1} style={[styles.adminCountLabel, darkMode && styles.accountDarkText]}>{item.label}</Text>
+            <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>{item.count}</Text>
           </View>
         ))
       )}
-      {phoneLayout && safeItems.length > visibleItems.length && <Text style={styles.adminDirectorySummary}>Showing top {visibleItems.length} of {safeItems.length}.</Text>}
+      {phoneLayout && safeItems.length > visibleItems.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing top {visibleItems.length} of {safeItems.length}.</Text>}
     </View>
   );
 }
@@ -7942,35 +7946,37 @@ function AdminReachMap({
   regions,
   selectedRegion,
   onSelectRegion,
-  phoneLayout
+  phoneLayout,
+  darkMode = false
 }: {
   activeUsers: number;
   regions: AdminRegionInsight[];
   selectedRegion: string;
   onSelectRegion: (region: string) => void;
   phoneLayout: boolean;
+  darkMode?: boolean;
 }) {
   const selected = regions.find((region) => region.name === selectedRegion) || regions[0];
   const isRegionTrackingReady = regions.some((region) => region.count > 0);
 
   return (
-    <Card style={[styles.adminMapCard, phoneLayout && styles.phoneAdminDashboardCard]}>
+    <Card style={[styles.adminMapCard, darkMode && styles.accountDarkMainCard, phoneLayout && styles.phoneAdminDashboardCard]}>
       <View style={[styles.adminMapHeader, phoneLayout && styles.phoneAdminMapHeader]}>
         <View style={styles.adminMapTitleBlock}>
           <View style={styles.feedbackHeader}>
             <Ionicons name="earth-outline" size={18} color={colors.coral} />
-            <Text style={styles.feedbackTitle}>User reach map</Text>
+            <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User reach map</Text>
           </View>
-          <Text style={styles.helpIntro}>{phoneLayout ? "Broad regional insights only." : "Privacy-friendly regional insights. Exact user locations are not tracked."}</Text>
+          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Broad regional insights only." : "Privacy-friendly regional insights. Exact user locations are not tracked."}</Text>
         </View>
-        <View style={[styles.adminMapMetricPill, phoneLayout && styles.phoneAdminMapMetricPill]}>
-          <Text style={styles.adminMapMetricValue}>{activeUsers}</Text>
-          <Text style={styles.adminMapMetricLabel}>active 7d</Text>
+        <View style={[styles.adminMapMetricPill, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminMapMetricPill]}>
+          <Text style={[styles.adminMapMetricValue, darkMode && styles.accountDarkTitle]}>{activeUsers}</Text>
+          <Text style={[styles.adminMapMetricLabel, darkMode && styles.accountDarkMutedText]}>active 7d</Text>
         </View>
       </View>
 
       <View style={[styles.adminMapLayout, phoneLayout && styles.phoneAdminMapLayout]}>
-        <View style={[styles.adminMapCanvas, phoneLayout && styles.phoneAdminMapCanvas]}>
+        <View style={[styles.adminMapCanvas, darkMode && styles.adminDarkMapCanvas, phoneLayout && styles.phoneAdminMapCanvas]}>
           <Image source={{ uri: ADMIN_WORLD_MAP_URI }} resizeMode="contain" style={[styles.adminMapImage, phoneLayout && styles.phoneAdminMapImage]} />
           {regions.map((region) => (
             <Pressable
@@ -7989,31 +7995,31 @@ function AdminReachMap({
               <Text style={styles.adminMapHotspotText}>{region.count > 0 ? region.count : "•"}</Text>
             </Pressable>
           ))}
-          <View style={[styles.adminMapNote, phoneLayout && styles.phoneAdminMapNote]}>
-            <Ionicons name="shield-checkmark-outline" size={14} color={colors.oliveDark} />
-            <Text style={styles.adminMapNoteText}>Broad regions only</Text>
+          <View style={[styles.adminMapNote, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminMapNote]}>
+            <Ionicons name="shield-checkmark-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Text style={[styles.adminMapNoteText, darkMode && styles.accountDarkMutedText]}>Broad regions only</Text>
           </View>
         </View>
 
-        <View style={[styles.adminMapDetailPanel, phoneLayout && styles.phoneAdminMapDetailPanel]}>
-          <Text style={styles.lastCheckinLabel}>{selected.name}</Text>
-          <Text style={styles.helpIntro}>
+        <View style={[styles.adminMapDetailPanel, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminMapDetailPanel]}>
+          <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>{selected.name}</Text>
+          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>
             {isRegionTrackingReady
               ? `${selected.count} active user${selected.count === 1 ? "" : "s"} in this broad region.`
               : "Regional counts are not enabled yet. This panel shows where broad, privacy-safe reach data will appear."}
           </Text>
           {!phoneLayout && <View style={styles.adminMapDetailList}>
-            <View style={styles.adminMapDetailRow}>
-              <Text style={styles.adminMapDetailLabel}>Location detail</Text>
-              <Text style={styles.adminMapDetailValue}>Country/region only</Text>
+            <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkSection]}>
+              <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Location detail</Text>
+              <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>Country/region only</Text>
             </View>
-            <View style={styles.adminMapDetailRow}>
-              <Text style={styles.adminMapDetailLabel}>Exact addresses</Text>
-              <Text style={styles.adminMapDetailValue}>Not collected</Text>
+            <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkSection]}>
+              <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Exact addresses</Text>
+              <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>Not collected</Text>
             </View>
-            <View style={styles.adminMapDetailRow}>
-              <Text style={styles.adminMapDetailLabel}>Next step</Text>
-              <Text style={styles.adminMapDetailValue}>Optional region field</Text>
+            <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkSection]}>
+              <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Next step</Text>
+              <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>Optional region field</Text>
             </View>
           </View>}
         </View>
@@ -8022,35 +8028,35 @@ function AdminReachMap({
   );
 }
 
-function AdminFeedbackList({ feedback, onMarkStatus, phoneLayout = false }: { feedback: any[]; onMarkStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>; phoneLayout?: boolean }) {
-  if (feedback.length === 0) return <Text style={styles.helpIntro}>No feedback yet.</Text>;
+function AdminFeedbackList({ feedback, onMarkStatus, phoneLayout = false, darkMode = false }: { feedback: any[]; onMarkStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>; phoneLayout?: boolean; darkMode?: boolean }) {
+  if (feedback.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No feedback yet.</Text>;
   const visibleFeedback = phoneLayout ? feedback.slice(0, 3) : feedback;
 
   return (
     <View style={styles.adminFeedbackList}>
       {visibleFeedback.map((item: any) => (
-        <View key={item._id} style={[styles.adminFeedbackItem, phoneLayout && styles.phoneAdminFeedbackItem]}>
+        <View key={item._id} style={[styles.adminFeedbackItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminFeedbackItem]}>
           <View style={styles.journalHeader}>
-            <Text style={styles.helpFaqQuestion}>{item.category}</Text>
-            <Text style={styles.draftPill}>{item.status}</Text>
+            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{item.category}</Text>
+            <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{item.status}</Text>
           </View>
-          <Text style={styles.helpFaqAnswer}>{item.message}</Text>
-          <Text style={styles.adminEventMeta}>{formatAdminDate(item.createdAt)}{item.tab ? ` · ${item.tab}` : ""}</Text>
+          <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{item.message}</Text>
+          <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(item.createdAt)}{item.tab ? ` · ${item.tab}` : ""}</Text>
           <View style={styles.feedbackCategoryRow}>
             {["reviewed", "actioned", "ignored"].map((status) => (
-              <Pressable key={status} onPress={() => onMarkStatus({ feedbackId: item._id, status }).catch(() => undefined)} style={styles.feedbackCategoryChip}>
-                <Text style={styles.feedbackCategoryText}>{status}</Text>
+              <Pressable key={status} onPress={() => onMarkStatus({ feedbackId: item._id, status }).catch(() => undefined)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
+                <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{status}</Text>
               </Pressable>
             ))}
           </View>
         </View>
       ))}
-      {phoneLayout && feedback.length > visibleFeedback.length && <Text style={styles.adminDirectorySummary}>Showing latest {visibleFeedback.length} of {feedback.length}.</Text>}
+      {phoneLayout && feedback.length > visibleFeedback.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing latest {visibleFeedback.length} of {feedback.length}.</Text>}
     </View>
   );
 }
 
-function AdminUserDirectory({ users, selectedProfileId, onSelect, phoneLayout = false }: { users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void; phoneLayout?: boolean }) {
+function AdminUserDirectory({ users, selectedProfileId, onSelect, phoneLayout = false, darkMode = false }: { users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void; phoneLayout?: boolean; darkMode?: boolean }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion">("all");
   const [visibleCount, setVisibleCount] = useState(15);
@@ -8084,22 +8090,23 @@ function AdminUserDirectory({ users, selectedProfileId, onSelect, phoneLayout = 
     setVisibleCount(15);
   }, [filter, searchTerm, users.length]);
 
-  if (users.length === 0) return <Text style={styles.helpIntro}>No users found yet.</Text>;
+  if (users.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No users found yet.</Text>;
 
   return (
     <View style={styles.adminFeedbackList}>
-      <View style={styles.adminDirectoryTools}>
-        <View style={styles.adminDirectorySearchBox}>
+      <View style={[styles.adminDirectoryTools, darkMode && styles.accountDarkInsetBox]}>
+        <View style={[styles.adminDirectorySearchBox, darkMode && styles.accountDarkInput]}>
           <Ionicons name="search-outline" size={17} color={colors.coral} />
           <TextInput
             value={searchTerm}
             onChangeText={setSearchTerm}
             placeholder="Search name or email"
-            style={styles.adminDirectorySearchInput}
+            placeholderTextColor={darkMode ? "#8f8678" : undefined}
+            style={[styles.adminDirectorySearchInput, darkMode && styles.accountDarkText]}
           />
           {!!searchTerm && (
             <Pressable onPress={() => setSearchTerm("")} style={styles.clearSearchButton}>
-              <Ionicons name="close-outline" size={17} color={colors.muted} />
+              <Ionicons name="close-outline" size={17} color={darkMode ? "#c8bda9" : colors.muted} />
             </Pressable>
           )}
         </View>
@@ -8114,98 +8121,98 @@ function AdminUserDirectory({ users, selectedProfileId, onSelect, phoneLayout = 
             <Pressable
               key={key}
               onPress={() => setFilter(key as typeof filter)}
-              style={[styles.feedbackCategoryChip, filter === key && styles.activeFeedbackCategoryChip]}
+              style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip, filter === key && styles.activeFeedbackCategoryChip]}
             >
-              <Text style={[styles.feedbackCategoryText, filter === key && styles.activeFeedbackCategoryText]}>{label}</Text>
+              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText, filter === key && styles.activeFeedbackCategoryText]}>{label}</Text>
             </Pressable>
           ))}
         </View>
-        <Text style={styles.adminDirectorySummary}>
+        <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>
           Showing {visibleUsers.length} of {filteredUsers.length} matching users · {users.length} loaded
         </Text>
       </View>
 
       {visibleUsers.length === 0 ? (
-        <Text style={styles.helpIntro}>No users match this search or filter.</Text>
+        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No users match this search or filter.</Text>
       ) : visibleUsers.map((user) => (
         <Pressable
           key={user.profileId}
           onPress={() => onSelect(user.profileId)}
-          style={[styles.adminUserRow, phoneLayout && styles.phoneAdminUserRow, selectedProfileId === user.profileId && styles.activeAdminUserRow]}
+          style={[styles.adminUserRow, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminUserRow, selectedProfileId === user.profileId && styles.activeAdminUserRow, darkMode && selectedProfileId === user.profileId && styles.adminDarkActiveUserRow]}
         >
           <View style={styles.journalTitleBlock}>
-            <Text style={styles.helpFaqQuestion}>{user.displayName || "Bible student"}</Text>
-            <Text style={styles.adminEventMeta}>
+            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{user.displayName || "Bible student"}</Text>
+            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
               {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
             </Text>
           </View>
           <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
             {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
-            <Text style={styles.draftPill}>{user.signedIn ? "Account" : "Local"}</Text>
-            <Text style={styles.readerBookmarkCount}>{user.studies}</Text>
+            <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
+            <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>{user.studies}</Text>
           </View>
         </Pressable>
       ))}
 
       {visibleCount < filteredUsers.length && (
-        <Pressable onPress={() => setVisibleCount((count) => count + 15)} style={styles.adminDirectoryShowMore}>
-          <Text style={styles.feedbackCategoryText}>Show 15 more</Text>
-          <Ionicons name="chevron-down-outline" size={16} color={colors.oliveDark} />
+        <Pressable onPress={() => setVisibleCount((count) => count + 15)} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}>
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Show 15 more</Text>
+          <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
       )}
     </View>
   );
 }
 
-function AdminUserDetail({ detail, phoneLayout = false }: { detail: any; phoneLayout?: boolean }) {
-  if (detail === undefined) return <Text style={styles.helpIntro}>Choose a user to see their summary.</Text>;
-  if (!detail) return <Text style={styles.helpIntro}>Choose a user to see their summary.</Text>;
+function AdminUserDetail({ detail, phoneLayout = false, darkMode = false }: { detail: any; phoneLayout?: boolean; darkMode?: boolean }) {
+  if (detail === undefined) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose a user to see their summary.</Text>;
+  if (!detail) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose a user to see their summary.</Text>;
 
   return (
     <View style={styles.adminUserDetailBox}>
-      <Text style={styles.communityTitle}>{detail.displayName || "Bible student"}</Text>
-      <Text style={styles.helpIntro}>{detail.email || (detail.signedIn ? "Signed-in account" : "Local profile")}</Text>
+      <Text style={[styles.communityTitle, darkMode && styles.accountDarkTitle]}>{detail.displayName || "Bible student"}</Text>
+      <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{detail.email || (detail.signedIn ? "Signed-in account" : "Local profile")}</Text>
       <View style={[styles.adminMetricGrid, phoneLayout && styles.phoneAdminDetailMetricGrid]}>
-        <Metric value={detail.counts.studies} label="studies" compact={!phoneLayout} />
-        <Metric value={detail.counts.memoryVerses} label="memory" compact={!phoneLayout} />
-        <Metric value={detail.counts.checkins} label="encouragements" compact={!phoneLayout} />
-        <Metric value={detail.counts.feedback} label="feedback" compact={!phoneLayout} />
+        <Metric value={detail.counts.studies} label="studies" compact={!phoneLayout} style={darkMode && styles.accountDarkInsetBox} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={darkMode && styles.accountDarkMutedText} />
+        <Metric value={detail.counts.memoryVerses} label="memory" compact={!phoneLayout} style={darkMode && styles.accountDarkInsetBox} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={darkMode && styles.accountDarkMutedText} />
+        <Metric value={detail.counts.checkins} label="encouragements" compact={!phoneLayout} style={darkMode && styles.accountDarkInsetBox} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={darkMode && styles.accountDarkMutedText} />
+        <Metric value={detail.counts.feedback} label="feedback" compact={!phoneLayout} style={darkMode && styles.accountDarkInsetBox} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={darkMode && styles.accountDarkMutedText} />
       </View>
       <View style={styles.adminMapDetailList}>
-        <View style={styles.adminMapDetailRow}>
-          <Text style={styles.adminMapDetailLabel}>Created</Text>
-          <Text style={styles.adminMapDetailValue}>{formatAdminDate(detail.createdAt)}</Text>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Created</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{formatAdminDate(detail.createdAt)}</Text>
         </View>
-        <View style={styles.adminMapDetailRow}>
-          <Text style={styles.adminMapDetailLabel}>Last active</Text>
-          <Text style={styles.adminMapDetailValue}>{formatAdminDate(detail.lastActiveAt)}</Text>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Last active</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{formatAdminDate(detail.lastActiveAt)}</Text>
         </View>
-        <View style={styles.adminMapDetailRow}>
-          <Text style={styles.adminMapDetailLabel}>Active sessions</Text>
-          <Text style={styles.adminMapDetailValue}>{detail.activeSessions}</Text>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Active sessions</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{detail.activeSessions}</Text>
         </View>
-        <View style={styles.adminMapDetailRow}>
-          <Text style={styles.adminMapDetailLabel}>Deletion</Text>
-          <Text style={styles.adminMapDetailValue}>{detail.deletionStatus || "None"}</Text>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Deletion</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{detail.deletionStatus || "None"}</Text>
         </View>
       </View>
-      <AdminMiniActivity title="Recent activity" items={detail.recentActivity || []} />
-      <AdminMiniActivity title="Feedback history" items={detail.latestFeedback || []} />
+      <AdminMiniActivity title="Recent activity" items={detail.recentActivity || []} darkMode={darkMode} />
+      <AdminMiniActivity title="Feedback history" items={detail.latestFeedback || []} darkMode={darkMode} />
     </View>
   );
 }
 
-function AdminMiniActivity({ title, items }: { title: string; items: any[] }) {
+function AdminMiniActivity({ title, items, darkMode = false }: { title: string; items: any[]; darkMode?: boolean }) {
   return (
     <View style={styles.adminMiniActivityBox}>
-      <Text style={styles.lastCheckinLabel}>{title}</Text>
+      <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>{title}</Text>
       {items.length === 0 ? (
-        <Text style={styles.helpIntro}>No recent items.</Text>
+        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No recent items.</Text>
       ) : (
         items.map((item) => (
-          <View key={item._id} style={styles.adminEventItem}>
-            <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(item.eventType || item.category || "Activity")}</Text>
-            <Text style={styles.adminEventMeta}>{formatAdminDate(item.createdAt)}{item.status ? ` · ${item.status}` : ""}{item.tab ? ` · ${item.tab}` : ""}</Text>
+          <View key={item._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox]}>
+            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(item.eventType || item.category || "Activity")}</Text>
+            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(item.createdAt)}{item.status ? ` · ${item.status}` : ""}{item.tab ? ` · ${item.tab}` : ""}</Text>
           </View>
         ))
       )}
@@ -8213,23 +8220,23 @@ function AdminMiniActivity({ title, items }: { title: string; items: any[] }) {
   );
 }
 
-function AdminAuditLog({ entries, phoneLayout = false }: { entries: any[]; phoneLayout?: boolean }) {
-  if (entries.length === 0) return <Text style={styles.helpIntro}>No admin actions logged yet.</Text>;
+function AdminAuditLog({ entries, phoneLayout = false, darkMode = false }: { entries: any[]; phoneLayout?: boolean; darkMode?: boolean }) {
+  if (entries.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No admin actions logged yet.</Text>;
   const visibleEntries = phoneLayout ? entries.slice(0, 4) : entries;
 
   return (
     <View style={styles.adminFeedbackList}>
       {visibleEntries.map((entry) => (
-        <View key={entry._id} style={[styles.adminEventItem, phoneLayout && styles.phoneAdminEventItem]}>
+        <View key={entry._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={styles.journalHeader}>
-            <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(entry.action)}</Text>
-            <Text style={styles.adminEventMeta}>{formatAdminDate(entry.createdAt)}</Text>
+            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(entry.action)}</Text>
+            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(entry.createdAt)}</Text>
           </View>
-          <Text style={styles.helpFaqAnswer}>{entry.details || "Admin action"}</Text>
-          {!!entry.targetEmail && <Text style={styles.adminEventMeta}>{entry.targetEmail}</Text>}
+          <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{entry.details || "Admin action"}</Text>
+          {!!entry.targetEmail && <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{entry.targetEmail}</Text>}
         </View>
       ))}
-      {phoneLayout && entries.length > visibleEntries.length && <Text style={styles.adminDirectorySummary}>Showing latest {visibleEntries.length} of {entries.length}.</Text>}
+      {phoneLayout && entries.length > visibleEntries.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing latest {visibleEntries.length} of {entries.length}.</Text>}
     </View>
   );
 }
@@ -8239,36 +8246,38 @@ function AdminDeletionRequestList({
   pendingConfirmId,
   onApprove,
   onCancel,
-  phoneLayout = false
+  phoneLayout = false,
+  darkMode = false
 }: {
   requests: any[];
   pendingConfirmId: string;
   onApprove: (requestId: any) => void;
   onCancel: (requestId: any) => void;
   phoneLayout?: boolean;
+  darkMode?: boolean;
 }) {
-  if (requests.length === 0) return <Text style={styles.helpIntro}>No pending deletion requests.</Text>;
+  if (requests.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No pending deletion requests.</Text>;
 
   return (
     <View style={styles.adminFeedbackList}>
       {requests.map((item: any) => (
-        <View key={item._id} style={[styles.adminFeedbackItem, phoneLayout && styles.phoneAdminFeedbackItem]}>
+        <View key={item._id} style={[styles.adminFeedbackItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminFeedbackItem]}>
           <View style={styles.journalHeader}>
             <View style={styles.journalTitleBlock}>
-              <Text style={styles.helpFaqQuestion}>{item.displayName || "Bible student"}</Text>
-              <Text style={styles.adminEventMeta}>{item.email || "No account email"} · {formatAdminDate(item.requestedAt)}</Text>
+              <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{item.displayName || "Bible student"}</Text>
+              <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{item.email || "No account email"} · {formatAdminDate(item.requestedAt)}</Text>
             </View>
-            <Text style={styles.draftPill}>Pending</Text>
+            <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>Pending</Text>
           </View>
-          {!!item.note && <Text style={styles.helpFaqAnswer}>{item.note}</Text>}
+          {!!item.note && <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{item.note}</Text>}
           <View style={styles.feedbackCategoryRow}>
-            <Pressable onPress={() => onApprove(item._id)} style={[styles.feedbackCategoryChip, pendingConfirmId === item._id && styles.dangerActionChip]}>
-              <Text style={[styles.feedbackCategoryText, pendingConfirmId === item._id && styles.dangerActionText]}>
+            <Pressable onPress={() => onApprove(item._id)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip, pendingConfirmId === item._id && styles.dangerActionChip]}>
+              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText, pendingConfirmId === item._id && styles.dangerActionText]}>
                 {pendingConfirmId === item._id ? "Confirm delete" : "Approve deletion"}
               </Text>
             </Pressable>
-            <Pressable onPress={() => onCancel(item._id)} style={styles.feedbackCategoryChip}>
-              <Text style={styles.feedbackCategoryText}>Cancel request</Text>
+            <Pressable onPress={() => onCancel(item._id)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
+              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Cancel request</Text>
             </Pressable>
           </View>
         </View>
@@ -8277,22 +8286,22 @@ function AdminDeletionRequestList({
   );
 }
 
-function AdminEventList({ events, phoneLayout = false }: { events: { _id: string; eventType: string; reference?: string; methodName?: string; tab?: string; createdAt: number }[]; phoneLayout?: boolean }) {
-  if (events.length === 0) return <Text style={styles.helpIntro}>No recent activity yet.</Text>;
+function AdminEventList({ events, phoneLayout = false, darkMode = false }: { events: { _id: string; eventType: string; reference?: string; methodName?: string; tab?: string; createdAt: number }[]; phoneLayout?: boolean; darkMode?: boolean }) {
+  if (events.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No recent activity yet.</Text>;
   const visibleEvents = phoneLayout ? events.slice(0, 4) : events;
 
   return (
     <View style={styles.adminFeedbackList}>
       {visibleEvents.map((event) => (
-        <View key={event._id} style={[styles.adminEventItem, phoneLayout && styles.phoneAdminEventItem]}>
+        <View key={event._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={styles.journalHeader}>
-            <Text style={styles.helpFaqQuestion}>{prettyAdminEvent(event.eventType)}</Text>
-            <Text style={styles.adminEventMeta}>{formatAdminDate(event.createdAt)}</Text>
+            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(event.eventType)}</Text>
+            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(event.createdAt)}</Text>
           </View>
-          <Text style={styles.helpFaqAnswer}>{event.reference || event.methodName || event.tab || "App activity"}</Text>
+          <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{event.reference || event.methodName || event.tab || "App activity"}</Text>
         </View>
       ))}
-      {phoneLayout && events.length > visibleEvents.length && <Text style={styles.adminDirectorySummary}>Showing latest {visibleEvents.length} of {events.length}.</Text>}
+      {phoneLayout && events.length > visibleEvents.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing latest {visibleEvents.length} of {events.length}.</Text>}
     </View>
   );
 }
@@ -17627,6 +17636,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     position: "relative"
   },
+  adminDarkMapCanvas: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   phoneAdminMapCanvas: {
     flex: 0,
     flexShrink: 0,
@@ -17918,6 +17931,10 @@ const styles = StyleSheet.create({
   activeAdminUserRow: {
     backgroundColor: "#eef3e5",
     borderColor: colors.olive
+  },
+  adminDarkActiveUserRow: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.35)"
   },
   adminUserMetaPills: {
     alignItems: "flex-end",

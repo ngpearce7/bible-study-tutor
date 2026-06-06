@@ -6554,14 +6554,14 @@ export default function Home() {
               <Text style={[styles.titleSupport, adminDarkMode && styles.accountDarkMutedText]}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
 
               <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
-                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.signedInProfiles} label="signed in" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.newFeedback} label="new feedback" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.appShares || 0} label="app shares" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.events} label="events" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
-                <Metric value={adminStats.totals.localProfiles} label="local/test" style={adminDarkMode && styles.accountDarkSection} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={adminDarkMode && styles.accountDarkMutedText} />
+                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.signedInProfiles} label="signed in" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.newFeedback} label="new feedback" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.appShares || 0} label="app shares" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.events} label="events" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
+                <Metric value={adminStats.totals.localProfiles} label="local/test" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
               </View>
 
               <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
@@ -8325,7 +8325,8 @@ function Metric({
   compact = false,
   style,
   valueStyle,
-  labelStyle
+  labelStyle,
+  labelLines = 1
 }: {
   value: number;
   label: string;
@@ -8333,11 +8334,12 @@ function Metric({
   style?: any;
   valueStyle?: any;
   labelStyle?: any;
+  labelLines?: number;
 }) {
   return (
     <View style={[styles.metric, compact && styles.phoneMemoryMetric, style]}>
       <Text style={[styles.metricValue, compact && styles.phoneMemoryMetricValue, valueStyle]}>{value}</Text>
-      <Text numberOfLines={1} style={[styles.muted, compact && styles.phoneMemoryMetricLabel, labelStyle]}>{label}</Text>
+      <Text numberOfLines={labelLines} style={[styles.muted, compact && styles.phoneMemoryMetricLabel, labelStyle]}>{label}</Text>
     </View>
   );
 }
@@ -17772,6 +17774,17 @@ const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 14,
     marginTop: 14
+  },
+  adminDashboardMetric: {
+    flexBasis: 148,
+    flexGrow: 1,
+    justifyContent: "center",
+    minHeight: 92,
+    minWidth: 148
+  },
+  adminDashboardMetricLabel: {
+    lineHeight: 17,
+    marginTop: 2
   },
   phoneAdminDashboardGrid: {
     gap: 8,

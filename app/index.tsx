@@ -1201,6 +1201,7 @@ export default function Home() {
   const homeDarkMode = accountDarkMode;
   const helpDarkMode = accountDarkMode;
   const studyDarkMode = accountDarkMode;
+  const bibleDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -4465,13 +4466,14 @@ export default function Home() {
         )}
 
         {tab === "bible" && (
-          <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout]}>
+          <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
             <Card
               style={[
                 styles.bibleReaderNavCard,
                 readerNavCollapsed && styles.collapsedBibleReaderNavCard,
                 compactLayout && styles.fluidCard,
-                compactLayout && readerNavCollapsed && styles.compactCollapsedBibleReaderNavCard
+                compactLayout && readerNavCollapsed && styles.compactCollapsedBibleReaderNavCard,
+                bibleDarkMode && styles.accountDarkMainCard
               ]}
             >
               <Pressable
@@ -4480,33 +4482,33 @@ export default function Home() {
               >
                 {readerNavCollapsed ? (
                   <View style={[styles.collapsedReaderIconStack, compactLayout && styles.compactCollapsedReaderIconStack]}>
-                    <View style={styles.collapsedReaderIconButton}>
-                      <Ionicons name="book-outline" size={19} color={colors.oliveDark} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name="book-outline" size={19} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
-                    <View style={[styles.collapsedReaderIconButton, !bibleBookmarks.length && styles.inactiveCollapsedReaderIconButton]}>
-                      <Ionicons name={bibleBookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bibleBookmarks.length ? colors.coral : colors.muted} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble, !bibleBookmarks.length && styles.inactiveCollapsedReaderIconButton]}>
+                      <Ionicons name={bibleBookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bibleBookmarks.length ? (bibleDarkMode ? "#e9b76a" : colors.coral) : (bibleDarkMode ? "#c8bda9" : colors.muted)} />
                     </View>
-                    <View style={[styles.collapsedReaderIconButton, !readBibleChapterCount && styles.inactiveCollapsedReaderIconButton]}>
-                      <Ionicons name={readBibleChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readBibleChapterCount ? colors.oliveDark : colors.muted} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble, !readBibleChapterCount && styles.inactiveCollapsedReaderIconButton]}>
+                      <Ionicons name={readBibleChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readBibleChapterCount ? (bibleDarkMode ? "#e9b76a" : colors.oliveDark) : (bibleDarkMode ? "#c8bda9" : colors.muted)} />
                     </View>
-                    <View style={styles.collapsedReaderIconButton}>
-                      <Ionicons name="chevron-forward-outline" size={18} color={colors.muted} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name="chevron-forward-outline" size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                     </View>
                   </View>
                 ) : (
                   <>
                     <View style={styles.readerNavTitleBlock}>
                       <Eyebrow>Read Scripture</Eyebrow>
-                      <Text style={styles.title}>Bible reader</Text>
+                      <Text style={[styles.title, bibleDarkMode && styles.accountDarkTitle]}>Bible reader</Text>
                     </View>
-                    <Ionicons name="chevron-back-outline" size={18} color={colors.muted} />
+                    <Ionicons name="chevron-back-outline" size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                   </>
                 )}
               </Pressable>
               {!readerNavCollapsed && (
                 <>
-                  <Text style={styles.titleSupport}>Navigate by book and chapter, then send any chapter into Study when you want to slow down.</Text>
-                  <View style={styles.translationRow}>
+                  <Text style={[styles.titleSupport, bibleDarkMode && styles.accountDarkMutedText]}>Navigate by book and chapter, then send any chapter into Study when you want to slow down.</Text>
+                  <View style={[styles.translationRow, bibleDarkMode && styles.accountDarkSegmentedRow]}>
                     {BIBLE_TRANSLATIONS.map((translation) => (
                       <Pressable
                         key={translation.id}
@@ -4516,7 +4518,7 @@ export default function Home() {
                         }}
                         style={[styles.translationOption, bibleTranslation === translation.id && styles.activeTranslationOption]}
                       >
-                        <Text style={[styles.translationOptionText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
+                        <Text style={[styles.translationOptionText, bibleDarkMode && styles.accountDarkMutedText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
                           {translation.label}
                         </Text>
                       </Pressable>
@@ -4527,19 +4529,20 @@ export default function Home() {
                       value={readerBookSearch}
                       onChangeText={setReaderBookSearch}
                       placeholder="Find a book"
-                      style={styles.input}
+                      placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                      style={[styles.input, bibleDarkMode && styles.accountDarkInput]}
                     />
                   )}
                   {bibleReaderHistory.length > 1 && (
-                    <View style={styles.readerHistorySection}>
-                      <Pressable onPress={() => setReaderHistoryCollapsed((value) => !value)} style={styles.readerBookmarkHeader}>
+                    <View style={[styles.readerHistorySection, bibleDarkMode && styles.bibleDarkDividerSection]}>
+                      <Pressable onPress={() => setReaderHistoryCollapsed((value) => !value)} style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.readerBookmarkHeaderTitle}>
                           <Ionicons name="time-outline" size={15} color={colors.coral} />
-                          <Text style={styles.readerBookSectionTitle}>Recent</Text>
+                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Recent</Text>
                         </View>
                         <View style={styles.readerBookmarkHeaderMeta}>
-                          <Text style={styles.readerBookmarkCount}>{bibleReaderHistory.length - 1}</Text>
-                          <Ionicons name={readerHistoryCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={colors.muted} />
+                          <Text style={[styles.readerBookmarkCount, bibleDarkMode && styles.accountDarkMutedText]}>{bibleReaderHistory.length - 1}</Text>
+                          <Ionicons name={readerHistoryCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {!readerHistoryCollapsed && (
@@ -4554,11 +4557,11 @@ export default function Home() {
                               <Pressable
                                 key={`${item.book}-${item.chapter}-${item.translation}`}
                                 onPress={() => openBibleReaderHistoryItem(item)}
-                                style={styles.readerHistoryChip}
+                                style={[styles.readerHistoryChip, bibleDarkMode && styles.accountDarkInsetBox]}
                               >
-                                <Ionicons name="reader-outline" size={13} color={colors.oliveDark} />
-                                <Text numberOfLines={1} style={styles.readerHistoryText}>{item.reference}</Text>
-                                <Text style={styles.readerHistoryTranslation}>{item.translation.toUpperCase()}</Text>
+                                <Ionicons name="reader-outline" size={13} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Text numberOfLines={1} style={[styles.readerHistoryText, bibleDarkMode && styles.accountDarkTitle]}>{item.reference}</Text>
+                                <Text style={[styles.readerHistoryTranslation, bibleDarkMode && styles.accountDarkMutedText]}>{item.translation.toUpperCase()}</Text>
                               </Pressable>
                             ))}
                           </View>
@@ -4567,7 +4570,7 @@ export default function Home() {
                     </View>
                   )}
                   {bibleBookmarks.length > 0 && (
-                    <View style={styles.readerBookmarkSection}>
+                    <View style={[styles.readerBookmarkSection, bibleDarkMode && styles.bibleDarkDividerSection]}>
                       <Pressable
                         onPress={() => {
                           setBookmarksCollapsed((value) => {
@@ -4575,15 +4578,15 @@ export default function Home() {
                             return !value;
                           });
                         }}
-                        style={styles.readerBookmarkHeader}
+                        style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}
                       >
                         <View style={styles.readerBookmarkHeaderTitle}>
                           <Ionicons name="bookmark-outline" size={15} color={colors.coral} />
-                          <Text style={styles.readerBookSectionTitle}>Bookmarks & notes</Text>
+                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Bookmarks & notes</Text>
                         </View>
                         <View style={styles.readerBookmarkHeaderMeta}>
-                          <Text style={styles.readerBookmarkCount}>{bibleBookmarks.length}</Text>
-                          <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={colors.muted} />
+                          <Text style={[styles.readerBookmarkCount, bibleDarkMode && styles.accountDarkMutedText]}>{bibleBookmarks.length}</Text>
+                          <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {!bookmarksCollapsed && (
@@ -4592,24 +4595,25 @@ export default function Home() {
                             value={bookmarkSearch}
                             onChangeText={setBookmarkSearch}
                             placeholder="Search bookmarks or notes"
-                            style={[styles.input, styles.readerBookmarkSearchInput]}
+                            placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                            style={[styles.input, styles.readerBookmarkSearchInput, bibleDarkMode && styles.accountDarkInput]}
                           />
                           <Pressable
                             onPress={() => setBookmarkNotesOnly((value) => !value)}
-                            style={[styles.readerBookmarkFilterChip, bookmarkNotesOnly && styles.activeReaderBookChip]}
+                            style={[styles.readerBookmarkFilterChip, bibleDarkMode && styles.homeDarkResumeButton, bookmarkNotesOnly && styles.activeReaderBookChip]}
                           >
-                            <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : colors.oliveDark} />
-                            <Text style={[styles.readerBookmarkFilterText, bookmarkNotesOnly && styles.activeReaderBookText]}>With notes</Text>
+                            <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                            <Text style={[styles.readerBookmarkFilterText, bibleDarkMode && styles.homeDarkResumeButtonText, bookmarkNotesOnly && styles.activeReaderBookText]}>With notes</Text>
                           </Pressable>
                           {visibleBibleBookmarks.map((bookmark) => (
                             <View key={bookmark.id} style={styles.readerBookmarkItem}>
                               <View style={styles.readerBookmarkRow}>
-                                <Pressable onPress={() => openBibleBookmark(bookmark)} style={styles.readerBookmarkOpen}>
-                                  <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? colors.oliveDark : colors.coral} />
-                                  <Text style={styles.readerBookmarkText}>{bookmark.reference}</Text>
+                                <Pressable onPress={() => openBibleBookmark(bookmark)} style={[styles.readerBookmarkOpen, bibleDarkMode && styles.accountDarkInsetBox]}>
+                                  <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? (bibleDarkMode ? "#e9b76a" : colors.oliveDark) : (bibleDarkMode ? "#e9b76a" : colors.coral)} />
+                                  <Text style={[styles.readerBookmarkText, bibleDarkMode && styles.accountDarkTitle]}>{bookmark.reference}</Text>
                                 </Pressable>
-                                <Pressable onPress={() => openBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
-                                  <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : colors.oliveDark} />
+                                <Pressable onPress={() => openBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, bibleDarkMode && styles.homeDarkIconBubble, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
+                                  <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
                                 </Pressable>
                                 <Pressable onPress={() => removeBibleBookmark(bookmark.id)} style={styles.readerBookmarkRemove}>
                                   <Ionicons name="close-outline" size={15} color={colors.muted} />
@@ -4622,15 +4626,16 @@ export default function Home() {
                                     onChangeText={setBookmarkNoteDraft}
                                     placeholder="Add a note"
                                     multiline
-                                    style={[styles.input, styles.readerBookmarkNoteInput, phoneLayout && styles.mobileReaderBookmarkNoteInput]}
+                                    placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                                    style={[styles.input, styles.readerBookmarkNoteInput, phoneLayout && styles.mobileReaderBookmarkNoteInput, bibleDarkMode && styles.accountDarkInput]}
                                   />
                                   <View style={styles.readerBookmarkNoteActions}>
-                                    <Pressable onPress={() => saveBookmarkNote(bookmark.id)} style={styles.inlineReaderBookmarkButton}>
-                                      <Text style={styles.inlineReaderBookmarkText}>Save note</Text>
+                                    <Pressable onPress={() => saveBookmarkNote(bookmark.id)} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                                      <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Save note</Text>
                                     </Pressable>
                                     {!!bookmark.note?.trim() && (
-                                      <Pressable onPress={() => deleteBookmarkNote(bookmark.id)} style={styles.clearMarkupButton}>
-                                        <Text style={styles.clearMarkupText}>Delete note</Text>
+                                      <Pressable onPress={() => deleteBookmarkNote(bookmark.id)} style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                                        <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Delete note</Text>
                                       </Pressable>
                                     )}
                                     <Pressable
@@ -4639,9 +4644,9 @@ export default function Home() {
                                         setBookmarkNoteDraft("");
                                         dismissMobileInputFocus();
                                       }}
-                                      style={styles.clearMarkupButton}
+                                      style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                                     >
-                                      <Text style={styles.clearMarkupText}>Cancel</Text>
+                                      <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
                                     </Pressable>
                                   </View>
                                 </View>
@@ -4650,13 +4655,13 @@ export default function Home() {
                           ))}
                           {filteredBibleBookmarks.length > 3 && (
                             <Pressable onPress={() => setBookmarksExpanded((value) => !value)} style={styles.readerBookmarkExpandButton}>
-                              <Text style={styles.readerBookmarkExpandText}>
+                              <Text style={[styles.readerBookmarkExpandText, bibleDarkMode && styles.studyDarkAccentText]}>
                                 {bookmarksExpanded ? "Show latest 3" : `Show all ${filteredBibleBookmarks.length}`}
                               </Text>
-                              <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
+                              <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                             </Pressable>
                           )}
-                          {!visibleBibleBookmarks.length && <Text style={styles.muted}>No matching bookmarks.</Text>}
+                          {!visibleBibleBookmarks.length && <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>No matching bookmarks.</Text>}
                         </>
                       )}
                     </View>
@@ -4670,10 +4675,10 @@ export default function Home() {
                         <View key={section.id} style={styles.mobileReaderDropdown}>
                           <Pressable
                             onPress={() => setReaderMobileMenu((current) => current === section.id ? null : section.id)}
-                            style={styles.mobileReaderDropdownButton}
+                            style={[styles.mobileReaderDropdownButton, bibleDarkMode && styles.accountDarkInsetBox]}
                           >
-                            <Text style={styles.mobileReaderDropdownText}>{section.title}</Text>
-                            <Ionicons name={readerMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
+                            <Text style={[styles.mobileReaderDropdownText, bibleDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                            <Ionicons name={readerMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                           </Pressable>
                           {readerMobileMenu === section.id && (
                             <>
@@ -4682,21 +4687,21 @@ export default function Home() {
                                   <View key={book} style={[styles.mobileReaderBookBlock, expandedMobileReaderBook === book && styles.expandedMobileReaderBookBlock]}>
                                     <Pressable
                                       onPress={() => selectMobileReaderBook(book)}
-                                      style={[styles.mobileReaderBookOption, readerBook === book && styles.activeMobileReaderBookOption]}
+                                      style={[styles.mobileReaderBookOption, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && styles.activeMobileReaderBookOption]}
                                     >
-                                      <Text style={[styles.mobileReaderBookText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
+                                      <Text style={[styles.mobileReaderBookText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
                                     </Pressable>
                                     {expandedMobileReaderBook === book && (
-                                      <View style={styles.mobileReaderChapterPanel}>
-                                        <Text style={styles.readerBookSectionTitle}>{book}</Text>
+                                      <View style={[styles.mobileReaderChapterPanel, bibleDarkMode && styles.accountDarkSection]}>
+                                        <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{book}</Text>
                                         <View style={styles.mobileReaderChapterGrid}>
                                           {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
                                             <Pressable
                                               key={chapter}
                                               onPress={() => selectReaderChapter(chapter, book)}
-                                              style={[styles.mobileReaderChapterSquare, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
+                                              style={[styles.mobileReaderChapterSquare, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
                                             >
-                                              <Text style={[styles.mobileReaderChapterText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
+                                              <Text style={[styles.mobileReaderChapterText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
                                             </Pressable>
                                           ))}
                                         </View>
@@ -4714,30 +4719,30 @@ export default function Home() {
                     <View style={styles.readerBookSections}>
                       {readerBookSections.map((section) => (
                         <View key={section.title} style={styles.readerBookSection}>
-                          <Text style={styles.readerBookSectionTitle}>{section.title}</Text>
+                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
                           <View style={styles.desktopReaderBookList}>
                             {section.books.map((book) => (
                               <View key={book} style={[styles.desktopReaderBookBlock, expandedMobileReaderBook === book && styles.expandedDesktopReaderBookBlock]}>
                                 <Pressable
                                   onPress={() => selectReaderBook(book)}
-                                  style={[styles.readerBookChip, readerBook === book && styles.activeReaderBookChip]}
+                                  style={[styles.readerBookChip, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && styles.activeReaderBookChip]}
                                 >
-                                  <Text style={[styles.readerBookText, readerBook === book && styles.activeReaderBookText]}>{book}</Text>
+                                  <Text style={[styles.readerBookText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && styles.activeReaderBookText]}>{book}</Text>
                                 </Pressable>
                                 {expandedMobileReaderBook === book && (
-                                  <View style={styles.desktopReaderChapterPanel}>
+                                  <View style={[styles.desktopReaderChapterPanel, bibleDarkMode && styles.accountDarkSection]}>
                                     <View style={styles.desktopReaderChapterHeader}>
-                                      <Text style={styles.readerBookSectionTitle}>{book}</Text>
-                                      <Text style={styles.readerChapterCountText}>{BIBLE_CHAPTER_COUNTS[book] || 1} chapters</Text>
+                                      <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{book}</Text>
+                                      <Text style={[styles.readerChapterCountText, bibleDarkMode && styles.accountDarkMutedText]}>{BIBLE_CHAPTER_COUNTS[book] || 1} chapters</Text>
                                     </View>
                                     <View style={styles.desktopReaderChapterGrid}>
                                       {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
                                         <Pressable
                                           key={chapter}
                                           onPress={() => selectReaderChapter(chapter, book)}
-                                          style={[styles.mobileReaderChapterSquare, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
+                                          style={[styles.mobileReaderChapterSquare, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
                                         >
-                                          <Text style={[styles.mobileReaderChapterText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
+                                          <Text style={[styles.mobileReaderChapterText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
                                         </Pressable>
                                       ))}
                                     </View>
@@ -4748,35 +4753,36 @@ export default function Home() {
                           </View>
                         </View>
                       ))}
-                      {!readerBookSections.length && <Text style={styles.muted}>No matching books found.</Text>}
+                      {!readerBookSections.length && <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>No matching books found.</Text>}
                     </View>
                   )}
                 </>
               )}
             </Card>
 
-            <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.bibleSearchPanel}>
+            <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.bibleSearchPanel, bibleDarkMode && styles.accountDarkSection]}>
                 <Pressable onPress={() => setBibleSearchCollapsed((value) => !value)} style={styles.bibleSearchHeader}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="search-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Search Scripture</Text>
+                    <Ionicons name="search-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, bibleDarkMode && styles.studyDarkAccentText]}>Search Scripture</Text>
                   </View>
                   <View style={styles.bibleSearchHeaderMeta}>
-                    <Text style={styles.bibleSearchTranslationText}>{bibleSearchTranslation}</Text>
-                    <Ionicons name={bibleSearchCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={colors.muted} />
+                    <Text style={[styles.bibleSearchTranslationText, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchTranslation}</Text>
+                    <Ionicons name={bibleSearchCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                   </View>
                 </Pressable>
                 {!bibleSearchCollapsed && (
                   <>
-                    <Text style={styles.helpIntro}>Search exact words, close wording, themes, ideas, or questions. Results split by testament unless you choose one.</Text>
+                    <Text style={[styles.helpIntro, bibleDarkMode && styles.accountDarkMutedText]}>Search exact words, close wording, themes, ideas, or questions. Results split by testament unless you choose one.</Text>
                     <View style={[styles.bibleSearchInputRow, phoneLayout && styles.phoneBibleSearchInputRow]}>
                       <TextInput
                         value={bibleSearchQuery}
                         onChangeText={setBibleSearchQuery}
                         onSubmitEditing={runBibleSearch}
                         placeholder="Try “draw near”, “anxiety”, or “what does Scripture teach?”"
-                        style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput]}
+                        placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                        style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput, bibleDarkMode && styles.accountDarkInput]}
                       />
                       <AppButton label="Search" onPress={runBibleSearch} style={phoneLayout && styles.phoneBibleSearchButton} />
                     </View>
@@ -4789,18 +4795,18 @@ export default function Home() {
                         <Pressable
                           key={scope}
                           onPress={() => setBibleSearchScope(scope as BibleSearchScope)}
-                          style={[styles.bibleSearchChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
+                          style={[styles.bibleSearchChip, bibleDarkMode && styles.printDarkOptionChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
                         >
-                          <Text style={[styles.bibleSearchChipText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
+                          <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
                         </Pressable>
                       ))}
                       <View style={[styles.bibleSearchRefineRow, phoneLayout && styles.phoneBibleSearchRefineRow]}>
                         <Pressable
                           onPress={() => setBibleSearchExact((value) => !value)}
-                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
+                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleDarkMode && styles.printDarkOptionChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
                         >
-                          <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : colors.oliveDark} />
-                          <Text style={[styles.bibleSearchChipText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
+                          <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                          <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
                         </Pressable>
                         <View style={[styles.bibleSearchBookFilter, phoneLayout && styles.phoneBibleSearchBookFilter]}>
                           {Platform.OS === "web" ? (
@@ -4808,7 +4814,7 @@ export default function Home() {
                               aria-label="Book filter"
                               value={bibleSearchBook}
                               onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
-                              style={StyleSheet.flatten([styles.bibleSearchSelect, phoneLayout && styles.phoneBibleSearchSelect]) as any}
+                              style={StyleSheet.flatten([styles.bibleSearchSelect, phoneLayout && styles.phoneBibleSearchSelect, bibleDarkMode && styles.bibleDarkSearchSelect]) as any}
                             >
                               <option value="">Any book</option>
                               {bibleSearchBookOptions.map((book) => (
@@ -4817,12 +4823,12 @@ export default function Home() {
                             </select>
                           ) : (
                             <>
-                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, phoneLayout && styles.phoneBibleSearchSelectButton]}>
-                                <Text numberOfLines={1} style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
-                                <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
+                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, phoneLayout && styles.phoneBibleSearchSelectButton, bibleDarkMode && styles.printDarkOptionChip]}>
+                                <Text numberOfLines={1} style={[styles.bibleSearchSelectText, bibleDarkMode && styles.accountDarkText]}>{bibleSearchBook || "Any book"}</Text>
+                                <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                               </Pressable>
                               {bibleSearchBookMenuOpen && (
-                                <View style={styles.bibleSearchSelectMenu}>
+                                <View style={[styles.bibleSearchSelectMenu, bibleDarkMode && styles.accountDarkSection]}>
                                 <Pressable
                                   onPress={() => {
                                     setBibleSearchBook("");
@@ -4830,7 +4836,7 @@ export default function Home() {
                                   }}
                                   style={styles.bibleSearchSelectOption}
                                 >
-                                  <Text style={styles.bibleSearchSelectOptionText}>Any book</Text>
+                                  <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText]}>Any book</Text>
                                 </Pressable>
                                 {bibleSearchBookOptions.map((book) => (
                                   <Pressable
@@ -4841,7 +4847,7 @@ export default function Home() {
                                     }}
                                     style={[styles.bibleSearchSelectOption, bibleSearchBook === book && styles.activeBibleSearchSelectOption]}
                                   >
-                                    <Text style={[styles.bibleSearchSelectOptionText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
+                                    <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
                                   </Pressable>
                                 ))}
                                 </View>
@@ -4855,21 +4861,21 @@ export default function Home() {
                 )}
                 {!bibleSearchCollapsed && !!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
                 {!bibleSearchCollapsed && !!bibleSearchActiveQuery && bibleTranslation === "bsb" && (
-                  <Text style={styles.bibleSearchFootnote}>Search uses WEB text while the reader can stay on BSB.</Text>
+                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>Search uses WEB text while the reader can stay on BSB.</Text>
                 )}
                 {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
                   <View key={section.title} style={styles.bibleSearchResultSection}>
-                    <Text style={styles.readerBookSectionTitle}>{section.title}</Text>
+                    <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
                     {section.results.map((result) => (
-                      <View key={result.id} style={styles.bibleSearchResultCard}>
+                      <View key={result.id} style={[styles.bibleSearchResultCard, bibleDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.bibleSearchResultHeader}>
-                          <Text style={styles.bibleSearchResultReference}>{`${result.book} ${result.chapter}:${result.verse}`}</Text>
-                          <Text style={styles.bibleSearchSourceQuery}>{result.sourceQuery}</Text>
+                          <Text style={[styles.bibleSearchResultReference, bibleDarkMode && styles.accountDarkTitle]}>{`${result.book} ${result.chapter}:${result.verse}`}</Text>
+                          <Text style={[styles.bibleSearchSourceQuery, bibleDarkMode && styles.accountDarkMutedText]}>{result.sourceQuery}</Text>
                         </View>
-                        <Text style={styles.bibleSearchResultText}>{result.text}</Text>
+                        <Text style={[styles.bibleSearchResultText, bibleDarkMode && styles.accountDarkText]}>{result.text}</Text>
                         <View style={styles.bibleSearchResultActions}>
-                          <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} />
-                          <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} />
+                          <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
+                          <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
                         </View>
                       </View>
                     ))}
@@ -4881,29 +4887,29 @@ export default function Home() {
                 <View>
                   <Eyebrow>{bibleTranslation.toUpperCase()}</Eyebrow>
                   <View style={styles.readerTitleRow}>
-                    <Text style={styles.stepTitle}>{readerStudyReference}</Text>
+                    <Text style={[styles.stepTitle, bibleDarkMode && styles.accountDarkTitle]}>{readerStudyReference}</Text>
                     {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={colors.coral} />}
                   </View>
                 </View>
-                <AppButton label={selectedReaderVerses.length ? "Study selected" : "Study this"} variant="secondary" onPress={openReaderChapterInStudy} />
+                <AppButton label={selectedReaderVerses.length ? "Study selected" : "Study this"} variant="secondary" onPress={openReaderChapterInStudy} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} />
               </View>
               {selectedReaderVerses.length > 0 && (
-                <View style={styles.readerSelectionBar}>
-                  <Text style={styles.readerSelectionText}>{`${selectedReaderVerses.length} verse${selectedReaderVerses.length === 1 ? "" : "s"} selected`}</Text>
+                <View style={[styles.readerSelectionBar, bibleDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.readerSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{`${selectedReaderVerses.length} verse${selectedReaderVerses.length === 1 ? "" : "s"} selected`}</Text>
                   <Pressable
                     onPress={clearReaderSelection}
-                    style={styles.clearMarkupButton}
+                    style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                   >
-                    <Text style={styles.clearMarkupText}>Clear</Text>
+                    <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                   </Pressable>
                 </View>
               )}
               <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>
-                <Pressable accessibilityRole="button" {...readerIconHoverProps("Previous chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(-1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton]}>
-                  <Ionicons name="chevron-back-outline" size={18} color={colors.oliveDark} />
+                <Pressable accessibilityRole="button" {...readerIconHoverProps("Previous chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(-1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                  <Ionicons name="chevron-back-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                 </Pressable>
-                <View style={[styles.readerChapterControl, phoneLayout && styles.phoneReaderChapterControl]}>
-                  <Text numberOfLines={1} style={[styles.readerChapterLabel, phoneLayout && styles.phoneReaderChapterLabel]}>
+                <View style={[styles.readerChapterControl, phoneLayout && styles.phoneReaderChapterControl, bibleDarkMode && styles.accountDarkInsetBox]}>
+                  <Text numberOfLines={1} style={[styles.readerChapterLabel, phoneLayout && styles.phoneReaderChapterLabel, bibleDarkMode && styles.accountDarkMutedText]}>
                     {phoneLayout ? "Ch" : "Ch."}
                   </Text>
                   <TextInput
@@ -4913,9 +4919,9 @@ export default function Home() {
                     onSubmitEditing={() => commitReaderChapter()}
                     keyboardType="number-pad"
                     selectTextOnFocus
-                    style={[styles.readerChapterInput, phoneLayout && styles.phoneReaderChapterInput]}
+                    style={[styles.readerChapterInput, phoneLayout && styles.phoneReaderChapterInput, bibleDarkMode && styles.accountDarkInput]}
                   />
-                  <Text numberOfLines={1} style={[styles.readerChapterCountText, phoneLayout && styles.phoneReaderChapterCountText]}>
+                  <Text numberOfLines={1} style={[styles.readerChapterCountText, phoneLayout && styles.phoneReaderChapterCountText, bibleDarkMode && styles.accountDarkMutedText]}>
                     {phoneLayout ? `/ ${readerChapterCount}` : `of ${readerChapterCount}`}
                   </Text>
                 </View>
@@ -4926,9 +4932,9 @@ export default function Home() {
                     hideReaderTooltip();
                     toggleReaderChapterRead();
                   }}
-                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, currentChapterRead && styles.activeReaderReadButton]}
+                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble, currentChapterRead && styles.activeReaderReadButton]}
                 >
-                  <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : colors.oliveDark} />
+                  <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -4937,17 +4943,17 @@ export default function Home() {
                     hideReaderTooltip();
                     saveBibleBookmark();
                   }}
-                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, currentChapterBookmarked && styles.activeReaderBookmarkButton]}
+                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble, currentChapterBookmarked && styles.activeReaderBookmarkButton]}
                 >
-                  <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : colors.oliveDark} />
+                  <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
                 </Pressable>
-                <Pressable accessibilityRole="button" {...readerIconHoverProps("Next chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton]}>
-                  <Ionicons name="chevron-forward-outline" size={18} color={colors.oliveDark} />
+                <Pressable accessibilityRole="button" {...readerIconHoverProps("Next chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                  <Ionicons name="chevron-forward-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                 </Pressable>
               </View>
               {Platform.OS === "web" && !!readerIconTooltip && <Text style={styles.readerIconTooltip}>{readerIconTooltip}</Text>}
               <View style={styles.readerProgressRow}>
-                <Text style={styles.readerProgressText}>{`${readBibleChapterCount} chapter${readBibleChapterCount === 1 ? "" : "s"} read`}</Text>
+                <Text style={[styles.readerProgressText, bibleDarkMode && styles.accountDarkMutedText]}>{`${readBibleChapterCount} chapter${readBibleChapterCount === 1 ? "" : "s"} read`}</Text>
                 {readBibleChapterCount > 0 && (
                   <Pressable onPress={clearBibleReadingProgress} style={styles.readerProgressClearButton}>
                     <Text style={styles.readerProgressClearText}>Clear all</Text>
@@ -4955,15 +4961,15 @@ export default function Home() {
                 )}
               </View>
               {readerPassage?.verses?.length ? (
-                <View style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock]}>
+                <View style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock, bibleDarkMode && styles.accountDarkInsetBox]}>
                   {readerPassage.verses.map((verse) => (
                     <View key={`${verse.chapter}-${verse.verse}`}>
                       <Pressable
                         onPress={() => toggleReaderVerse(verse.verse)}
-                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow]}
+                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, bibleDarkMode && styles.bibleDarkVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow]}
                       >
                         <Text style={[styles.readerVerseNumber, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>
-                        <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText]}>{verse.text}</Text>
+                        <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText, bibleDarkMode && !selectedReaderVerses.includes(verse.verse) && styles.accountDarkText]}>{verse.text}</Text>
                         <View style={[styles.readerVerseIconRow, phoneLayout && styles.phoneReaderVerseIconRow]}>
                           {readerMemoryVerseKeys.has(verseMarkupKey(verse)) && (
                             <Ionicons name="sparkles" size={15} color={colors.coral} />
@@ -4972,33 +4978,33 @@ export default function Home() {
                             <Ionicons name="bookmark" size={15} color={colors.coral} />
                           )}
                           {isReaderVerseBookmarkNoted(verse.verse, bibleBookmarks, readerBook, readerChapter) && (
-                            <Ionicons name="document-text" size={15} color={colors.oliveDark} />
+                            <Ionicons name="document-text" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                           )}
                         </View>
                       </Pressable>
                       {!phoneLayout && selectedReaderVerses.length > 0 && verse.verse === activeReaderActionVerse && (
-                        <View style={styles.inlineReaderActionBar}>
-                          <Text style={styles.readerSelectionText}>{readerStudyReference}</Text>
+                        <View style={[styles.inlineReaderActionBar, bibleDarkMode && styles.studyDarkFloatingBar]}>
+                          <Text style={[styles.readerSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerStudyReference}</Text>
                           <View style={styles.inlineReaderActions}>
                             <Pressable onPress={openReaderChapterInStudy} style={styles.inlineReaderStudyButton}>
                               <Text style={styles.inlineReaderStudyText}>Study selected</Text>
                             </Pressable>
                             <Pressable
                               onPress={() => saveBibleBookmark(selectedReaderVerses)}
-                              style={[styles.inlineReaderBookmarkButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
+                              style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
                             >
-                              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : colors.oliveDark} />
-                              <Text style={[styles.inlineReaderBookmarkText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>
+                              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>
                                 {currentSelectionBookmarked ? "Bookmarked" : "Bookmark"}
                               </Text>
                             </Pressable>
-                            <Pressable onPress={openSelectedReaderNote} style={[styles.inlineReaderBookmarkButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
-                              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
-                              <Text style={[styles.inlineReaderBookmarkText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
+                            <Pressable onPress={openSelectedReaderNote} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
+                              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
                             </Pressable>
-                            <Pressable onPress={openReaderWorksheetOptions} style={styles.inlineReaderBookmarkButton}>
-                              <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
-                              <Text style={styles.inlineReaderBookmarkText}>Print</Text>
+                            <Pressable onPress={openReaderWorksheetOptions} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                              <Ionicons name="print-outline" size={14} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Print</Text>
                             </Pressable>
                             <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.memoryReaderButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
                               <Ionicons name="sparkles-outline" size={14} color="white" />
@@ -5006,38 +5012,38 @@ export default function Home() {
                             </Pressable>
                             <Pressable
                               onPress={clearReaderSelection}
-                              style={styles.clearMarkupButton}
+                              style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                             >
-                              <Text style={styles.clearMarkupText}>Clear</Text>
+                              <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                             </Pressable>
                           </View>
                         </View>
                       )}
                     </View>
                   ))}
-                  <View style={styles.readerBottomNav}>
-                    <Pressable onPress={() => moveReaderChapter(-1)} style={styles.readerBottomNavButton}>
-                      <Ionicons name="chevron-back-outline" size={15} color={colors.oliveDark} />
-                      <Text style={styles.readerBottomNavText}>Previous</Text>
+                  <View style={[styles.readerBottomNav, bibleDarkMode && styles.bibleDarkDividerSection]}>
+                    <Pressable onPress={() => moveReaderChapter(-1)} style={[styles.readerBottomNavButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                      <Ionicons name="chevron-back-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
                     </Pressable>
-                    <Pressable onPress={toggleReaderChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, currentChapterRead && styles.activeReaderReadButton]}>
-                      <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : colors.oliveDark} />
-                      <Text style={[styles.readerBottomNavText, currentChapterRead && styles.activeReaderReadButtonText]}>
+                    <Pressable onPress={toggleReaderChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, bibleDarkMode && styles.homeDarkResumeButton, currentChapterRead && styles.activeReaderReadButton]}>
+                      <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText, currentChapterRead && styles.activeReaderReadButtonText]}>
                         {currentChapterRead ? "Chapter read" : "Mark read"}
                       </Text>
                     </Pressable>
-                    <Pressable onPress={() => moveReaderChapter(1)} style={styles.readerBottomNavButton}>
-                      <Text style={styles.readerBottomNavText}>Next</Text>
-                      <Ionicons name="chevron-forward-outline" size={15} color={colors.oliveDark} />
+                    <Pressable onPress={() => moveReaderChapter(1)} style={[styles.readerBottomNavButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Next</Text>
+                      <Ionicons name="chevron-forward-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   </View>
-                  <Text style={styles.translationNote}>
+                  <Text style={[styles.translationNote, bibleDarkMode && styles.accountDarkMutedText]}>
                     {readerPassage.translation_name} · {readerPassage.translation_note || "Public Domain"}
                   </Text>
                 </View>
               ) : (
                 <View style={styles.passageStatusBox}>
-                  <Text style={styles.muted}>{readerStatus}</Text>
+                  <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>{readerStatus}</Text>
                 </View>
               )}
               {!!readerMemoryStatus && <Text style={styles.saveStatus}>{readerMemoryStatus}</Text>}
@@ -7515,8 +7521,8 @@ export default function Home() {
         )}
       </ScrollView>
       {showMobileReaderSelectionDock && (
-        <View style={styles.mobileReaderSelectionDock}>
-          <Text numberOfLines={1} style={styles.mobileReaderSelectionText}>{readerMemoryStatus || readerStudyReference}</Text>
+        <View style={[styles.mobileReaderSelectionDock, bibleDarkMode && styles.bibleDarkMobileSelectionDock]}>
+          <Text numberOfLines={1} style={[styles.mobileReaderSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerMemoryStatus || readerStudyReference}</Text>
           <View style={styles.mobileReaderSelectionActions}>
             <Pressable onPress={openReaderChapterInStudy} style={[styles.mobileReaderSelectionButton, styles.primaryMobileReaderSelectionButton]}>
               <Ionicons name="book-outline" size={15} color="white" />
@@ -7524,18 +7530,18 @@ export default function Home() {
             </Pressable>
             <Pressable
               onPress={() => saveBibleBookmark(selectedReaderVerses)}
-              style={[styles.mobileReaderSelectionButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
+              style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
             >
-              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={15} color={currentSelectionBookmarked ? "white" : colors.oliveDark} />
-              <Text style={[styles.mobileReaderSelectionButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>Save</Text>
+              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={15} color={currentSelectionBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>Save</Text>
             </Pressable>
-            <Pressable onPress={openSelectedReaderNote} style={[styles.mobileReaderSelectionButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
-              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
-              <Text style={[styles.mobileReaderSelectionButtonText, currentSelectionBookmark?.note?.trim() && styles.primaryMobileReaderSelectionButtonText]}>Note</Text>
+            <Pressable onPress={openSelectedReaderNote} style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
+              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={currentSelectionBookmark?.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmark?.note?.trim() && styles.primaryMobileReaderSelectionButtonText]}>Note</Text>
             </Pressable>
-            <Pressable onPress={openReaderWorksheetOptions} style={styles.mobileReaderSelectionButton}>
-              <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
-              <Text style={styles.mobileReaderSelectionButtonText}>Print</Text>
+            <Pressable onPress={openReaderWorksheetOptions} style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+              <Ionicons name="print-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Print</Text>
             </Pressable>
             <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.mobileReaderSelectionButton, styles.mobileReaderMemoryButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
               <Ionicons name="sparkles-outline" size={15} color="white" />
@@ -7545,27 +7551,28 @@ export default function Home() {
             </Pressable>
             <Pressable
               onPress={clearReaderSelection}
-              style={styles.mobileReaderSelectionIconButton}
+              style={[styles.mobileReaderSelectionIconButton, bibleDarkMode && styles.homeDarkIconBubble]}
             >
-              <Ionicons name="close-outline" size={17} color={colors.muted} />
+              <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
             </Pressable>
           </View>
           {currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id && (
-            <View style={styles.mobileReaderNoteEditor}>
+            <View style={[styles.mobileReaderNoteEditor, bibleDarkMode && styles.bibleDarkMobileNoteEditor]}>
               <TextInput
                 multiline
                 value={bookmarkNoteDraft}
                 onChangeText={setBookmarkNoteDraft}
                 placeholder="Add a note for these verses"
-                style={[styles.input, styles.readerBookmarkNoteInput, styles.mobileReaderBookmarkNoteInput]}
+                placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                style={[styles.input, styles.readerBookmarkNoteInput, styles.mobileReaderBookmarkNoteInput, bibleDarkMode && styles.accountDarkInput]}
               />
               <View style={styles.readerBookmarkNoteActions}>
-                <Pressable onPress={() => saveBookmarkNote(currentSelectionBookmark.id)} style={styles.inlineReaderBookmarkButton}>
-                  <Text style={styles.inlineReaderBookmarkText}>Save note</Text>
+                <Pressable onPress={() => saveBookmarkNote(currentSelectionBookmark.id)} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                  <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Save note</Text>
                 </Pressable>
                 {!!currentSelectionBookmark.note?.trim() && (
-                  <Pressable onPress={() => deleteBookmarkNote(currentSelectionBookmark.id)} style={styles.clearMarkupButton}>
-                    <Text style={styles.clearMarkupText}>Delete note</Text>
+                  <Pressable onPress={() => deleteBookmarkNote(currentSelectionBookmark.id)} style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                    <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Delete note</Text>
                   </Pressable>
                 )}
                 <Pressable
@@ -7574,9 +7581,9 @@ export default function Home() {
                     setBookmarkNoteDraft("");
                     dismissMobileInputFocus();
                   }}
-                  style={styles.clearMarkupButton}
+                  style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                 >
-                  <Text style={styles.clearMarkupText}>Close</Text>
+                  <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Close</Text>
                 </Pressable>
               </View>
             </View>
@@ -15386,6 +15393,28 @@ const styles = StyleSheet.create({
   studyDarkFloatingBar: {
     backgroundColor: "#202625",
     borderColor: "rgba(233, 183, 106, 0.22)"
+  },
+  bibleDarkDividerSection: {
+    borderBottomColor: "rgba(233, 183, 106, 0.16)",
+    borderTopColor: "rgba(233, 183, 106, 0.16)"
+  },
+  bibleDarkSearchSelect: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)",
+    color: "#f7eddc"
+  },
+  bibleDarkVerseRow: {
+    backgroundColor: "rgba(247, 237, 220, 0.035)"
+  },
+  bibleDarkMobileSelectionDock: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.26)",
+    shadowColor: "#000",
+    shadowOpacity: 0.22
+  },
+  bibleDarkMobileNoteEditor: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkStepPanel: {
     backgroundColor: "#171b1c",

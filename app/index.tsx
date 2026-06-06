@@ -1206,6 +1206,7 @@ export default function Home() {
   const methodsDarkMode = accountDarkMode;
   const memoryDarkMode = accountDarkMode;
   const journalDarkMode = accountDarkMode;
+  const communityDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -2532,16 +2533,16 @@ export default function Home() {
         onPress={() => {
           if (!itemIsEditing) setFocusedCommunityItemId((current) => String(current) === String(item._id) ? "" : String(item._id));
         }}
-        style={[styles.checkinHistoryItem, focusedItem && styles.focusedCheckinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}
+        style={[styles.checkinHistoryItem, communityDarkMode && styles.accountDarkInsetBox, focusedItem && styles.focusedCheckinHistoryItem, communityDarkMode && focusedItem && styles.accountDarkSection, phoneLayout && styles.phoneCheckinHistoryItem]}
         accessibilityRole="button"
         accessibilityLabel={showActionRow ? "Hide post actions" : "Show post actions"}
       >
         <View style={styles.checkinHistoryHeader}>
           <View style={styles.checkinHistoryMeta}>
             <View style={styles.checkinTitleRow}>
-              <Text style={styles.checkinMood}>{itemLabel}</Text>
+              <Text style={[styles.checkinMood, communityDarkMode && styles.accountDarkTitle]}>{itemLabel}</Text>
             </View>
-            <Text style={styles.checkinDestinationText}>{itemMeta}</Text>
+            <Text style={[styles.checkinDestinationText, communityDarkMode && styles.accountDarkMutedText]}>{itemMeta}</Text>
           </View>
         </View>
         {itemIsEditing ? (
@@ -2549,10 +2550,11 @@ export default function Home() {
             value={editValue}
             onChangeText={itemIsPost ? setEditCommunityPostNote : setEditRecentCheckinNote}
             multiline
-            style={[styles.input, styles.checkinEditInput]}
+            placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+            style={[styles.input, styles.checkinEditInput, communityDarkMode && styles.accountDarkInput]}
           />
         ) : (
-          <Text style={styles.lastCheckinText}>{item.note || "No note added."}</Text>
+          <Text style={[styles.lastCheckinText, communityDarkMode && styles.accountDarkText]}>{item.note || "No note added."}</Text>
         )}
         {(reactionPostId && !itemIsEditing) || showActionRow ? (
           <View style={[styles.communityPostFooterRow, phoneLayout && styles.phoneCommunityPostFooterRow]}>
@@ -2567,12 +2569,12 @@ export default function Home() {
                         event.stopPropagation?.();
                         toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions);
                       }}
-                      style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
+                      style={[styles.circleReactionChip, communityDarkMode && styles.accountDarkSection, active && styles.activeCircleReactionChip]}
                       accessibilityLabel={`${reaction.label} reaction`}
                     >
                       <Text style={styles.circleReactionSymbol}>{reaction.symbol}</Text>
                       {reaction.count > 0 && (
-                        <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
+                        <Text style={[styles.circleReactionText, communityDarkMode && styles.accountDarkMutedText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
                       )}
                     </Pressable>
                   );
@@ -2589,19 +2591,19 @@ export default function Home() {
                   >
                     <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
                   </Pressable>
-                  <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
-                    <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
+                  <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel="Cancel edit">
+                    <Ionicons name="close-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                   </Pressable>
                 </>
               ) : (
                 <>
-                  <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
-                    <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
+                  <Pressable onPress={() => copyPastCheckinMessage(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
+                    <Ionicons name="copy-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                   </Pressable>
                   {canEditItem && (
                     <>
-                      <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
-                        <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                      <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
+                        <Ionicons name="create-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
                       <Pressable
                         onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
@@ -5657,12 +5659,12 @@ export default function Home() {
         )}
 
         {tab === "accountability" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, communityDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, communityDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Community</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
-              <Text style={styles.titleSupport}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
-              <View style={styles.communitySubViewTabs}>
+              <Text style={[styles.title, communityDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
+              <Text style={[styles.titleSupport, communityDarkMode && styles.accountDarkMutedText]}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
+              <View style={[styles.communitySubViewTabs, communityDarkMode && styles.accountDarkSegmentedRow]}>
                 {[
                   ["encourage", "Encourage"],
                   ["history", "History"]
@@ -5672,14 +5674,14 @@ export default function Home() {
                     onPress={() => setCommunitySubView(key as "encourage" | "history")}
                     style={[styles.communitySubViewTab, communitySubView === key && styles.activeCommunitySubViewTab]}
                   >
-                    <Text style={[styles.communitySubViewTabText, communitySubView === key && styles.activeCommunitySubViewTabText]}>{label}</Text>
+                    <Text style={[styles.communitySubViewTabText, communityDarkMode && styles.accountDarkMutedText, communitySubView === key && styles.activeCommunitySubViewTabText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
               {communitySubView === "encourage" ? (
                 <>
               <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
-              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <Pressable
                   disabled={!phoneLayout}
                   onPress={() => setMobileFriendsPanelOpen((open) => !open)}
@@ -5687,62 +5689,64 @@ export default function Home() {
                 >
                   <View style={styles.mobileCommunityPanelTitleRow}>
                     <Ionicons name="person-add-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Friends</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Friends</Text>
                   </View>
                   {phoneLayout && (
                     <View style={styles.mobileCommunityPanelSummaryRow}>
-                      <Text numberOfLines={1} style={styles.mobileCommunityPanelSummary}>{friendPanelSummary}</Text>
-                      <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                      <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{friendPanelSummary}</Text>
+                      <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
                   )}
                 </Pressable>
                 {showFriendsConnectionPanel && (
                   <>
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                       Friends are registered Bible Study Tutor users you personally add by code or email. Share your code privately with someone you trust, then encourage one another without a public feed.
                     </Text>
                     {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                       <>
-                    <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
-                      <Text style={styles.circleManagementLabel}>Your friend code</Text>
-                      <View style={styles.circleChip}>
+                    <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
+                      <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your friend code</Text>
+                      <View style={[styles.circleChip, communityDarkMode && styles.accountDarkSection]}>
                         <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
-                          <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
-                          <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
-                            <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
-                            <Text style={styles.circleCopyText}>Copy</Text>
+                          <Text style={[styles.circleInviteCodeText, communityDarkMode && styles.accountDarkTitle]}>{myFriendCode || "Loading..."}</Text>
+                          <Pressable onPress={copyFriendCode} style={[styles.circleCopyButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                            <Ionicons name="copy-outline" size={13} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                            <Text style={[styles.circleCopyText, communityDarkMode && styles.homeDarkResumeButtonText]}>Copy</Text>
                           </Pressable>
                         </View>
-                        <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
+                        <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>Share this code privately so another registered user can add you as a friend.</Text>
                       </View>
-                      <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={styles.circleManagerToggle}>
-                        <Ionicons name="person-add-outline" size={14} color={colors.oliveDark} />
-                        <Text style={styles.circleManageText}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
-                        <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                      <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
+                        <Ionicons name="person-add-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
+                        <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
                       {friendToolsOpen && (
                         <View style={styles.circleManagementContent}>
                           <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.circleManagementLabel}>Add by friend code</Text>
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Add by friend code</Text>
                               <TextInput
                                 value={friendCodeInput}
                                 onChangeText={(value) => setFriendCodeInput(value.toUpperCase())}
                                 placeholder="Friend code"
                                 autoCapitalize="characters"
-                                style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
+                                placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]}
                               />
                               <AppButton label="Add by code" variant="secondary" onPress={inviteFriendWithCode} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.circleManagementLabel}>Add by email</Text>
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Add by email</Text>
                               <TextInput
                                 value={friendEmail}
                                 onChangeText={setFriendEmail}
                                 placeholder="Friend's account email"
                                 autoCapitalize="none"
                                 keyboardType="email-address"
-                                style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
+                                placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]}
                               />
                               <AppButton label="Send invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
@@ -5751,10 +5755,10 @@ export default function Home() {
                       )}
                     </View>
                     {acceptedCommunityFriends.length > 0 ? (
-                      <View style={styles.circleSelectorPanel}>
+                      <View style={[styles.circleSelectorPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.circleSelectorHeader}>
-                          <Text style={styles.circleManagementLabel}>Your friends</Text>
-                          <Text style={styles.circleCountText}>{acceptedCommunityFriends.length} accepted</Text>
+                          <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your friends</Text>
+                          <Text style={[styles.circleCountText, communityDarkMode && styles.accountDarkMutedText]}>{acceptedCommunityFriends.length} accepted</Text>
                         </View>
                         <View style={styles.circleList}>
                           {acceptedCommunityFriends.map((friend: any) => {
@@ -5766,10 +5770,10 @@ export default function Home() {
                                   setSelectedFriendId(friend._id);
                                   setPendingFriendRemoveId(null);
                                 }}
-                                style={[styles.circleChip, friendIsSelected && styles.activeCircleChip]}
+                                style={[styles.circleChip, communityDarkMode && styles.accountDarkSection, friendIsSelected && styles.activeCircleChip]}
                               >
-                                <Text style={[styles.circleChipTitle, friendIsSelected && styles.activeCircleChipText]}>{friend.name}</Text>
-                                <Text style={[styles.circleChipMeta, friendIsSelected && styles.activeCircleChipText]}>
+                                <Text style={[styles.circleChipTitle, communityDarkMode && styles.accountDarkTitle, friendIsSelected && styles.activeCircleChipText]}>{friend.name}</Text>
+                                <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText, friendIsSelected && styles.activeCircleChipText]}>
                                   {friendIsSelected ? "Selected for management" : "Tap to manage"}{friend.email ? ` · ${friend.email}` : ""}
                                 </Text>
                               </Pressable>
@@ -5778,25 +5782,25 @@ export default function Home() {
                         </View>
                       </View>
                     ) : (
-                      <View style={styles.emptyCommunityBox}>
-                        <Text style={styles.communityTitle}>No accepted friends yet</Text>
-                        <Text style={styles.helpIntro}>Invite a registered user by email, or accept an invite below.</Text>
+                      <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No accepted friends yet</Text>
+                        <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Invite a registered user by email, or accept an invite below.</Text>
                       </View>
                     )}
                     {pendingCommunityFriendInvites.length > 0 && (
-                      <View style={styles.circleSelectorPanel}>
-                        <Text style={styles.circleManagementLabel}>Pending friend invites</Text>
+                      <View style={[styles.circleSelectorPanel, communityDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Pending friend invites</Text>
                         <View style={styles.circleList}>
                           {pendingCommunityFriendInvites.map((friend: any) => (
-                            <View key={friend._id} style={styles.circleChip}>
-                              <Text style={styles.circleChipTitle}>{friend.name}</Text>
-                              <Text style={styles.circleChipMeta}>
+                            <View key={friend._id} style={[styles.circleChip, communityDarkMode && styles.accountDarkSection]}>
+                              <Text style={[styles.circleChipTitle, communityDarkMode && styles.accountDarkTitle]}>{friend.name}</Text>
+                              <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>
                                 {friend.direction === "received" ? "Waiting for you to accept" : "Invite sent"}{friend.email ? ` · ${friend.email}` : ""}
                               </Text>
                               <View style={styles.circleManagementRow}>
                                 {friend.direction === "received" && (
-                                  <Pressable onPress={() => acceptFriendInvite(friend)} style={styles.circleManageButton}>
-                                    <Text style={styles.circleManageText}>Accept</Text>
+                                  <Pressable onPress={() => acceptFriendInvite(friend)} style={[styles.circleManageButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                                    <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>Accept</Text>
                                   </Pressable>
                                 )}
                                 <Pressable
@@ -5823,17 +5827,17 @@ export default function Home() {
                         </Text>
                       </Pressable>
                     )}
-                    {!!friendStatus && <Text style={styles.saveStatus}>{friendStatus}</Text>}
+                    {!!friendStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{friendStatus}</Text>}
                       </>
                     ) : COMMUNITY_CIRCLES_ENABLED ? (
                       <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                     ) : (
-                      <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
+                      <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>Friends will be enabled after the backend is ready.</Text>
                     )}
                   </>
                 )}
               </View>
-              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <Pressable
                   disabled={!phoneLayout}
                   onPress={() => setMobileCirclesPanelOpen((open) => !open)}
@@ -5841,18 +5845,18 @@ export default function Home() {
                 >
                   <View style={styles.mobileCommunityPanelTitleRow}>
                     <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Private circle</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Private circle</Text>
                   </View>
                   {phoneLayout && (
                     <View style={styles.mobileCommunityPanelSummaryRow}>
-                      <Text numberOfLines={1} style={styles.mobileCommunityPanelSummary}>{circlePanelSummary}</Text>
-                      <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                      <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{circlePanelSummary}</Text>
+                      <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
                   )}
                 </Pressable>
                 {showCircleConnectionPanel && (
                   <>
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                     {COMMUNITY_CIRCLES_ENABLED
                       ? isAuthenticated
                         ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple encouragement so you can encourage one another to keep drawing near to God."
@@ -5862,16 +5866,16 @@ export default function Home() {
                     {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                       <>
                     {(communityCircles || []).length > 0 && (
-                      <View style={styles.circleSelectorPanel}>
+                      <View style={[styles.circleSelectorPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.circleSelectorHeader}>
-                          <Text style={styles.circleManagementLabel}>Your circles</Text>
-                          <Text style={styles.circleCountText}>{(communityCircles || []).length} saved</Text>
+                          <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your circles</Text>
+                          <Text style={[styles.circleCountText, communityDarkMode && styles.accountDarkMutedText]}>{(communityCircles || []).length} saved</Text>
                         </View>
                         <View style={styles.circleList}>
                           {(communityCircles || []).map((circle: any) => {
                             const circleIsSelected = String(selectedCircleId) === String(circle._id);
                             return (
-                              <View key={circle._id} style={[styles.circleChip, circleIsSelected && styles.activeCircleChip]}>
+                              <View key={circle._id} style={[styles.circleChip, communityDarkMode && styles.accountDarkSection, circleIsSelected && styles.activeCircleChip]}>
                                 <Pressable
                                   onPress={() => {
                                     setSelectedCircleId(circleIsSelected ? null : circle._id);
@@ -5881,23 +5885,23 @@ export default function Home() {
                                   style={styles.circleChipHeader}
                                 >
                                   <View style={styles.journalTitleBlock}>
-                                    <Text style={[styles.circleChipTitle, circleIsSelected && styles.activeCircleChipText]}>{circle.name}</Text>
-                                    <Text style={[styles.circleChipMeta, circleIsSelected && styles.activeCircleChipText]}>
+                                    <Text style={[styles.circleChipTitle, communityDarkMode && styles.accountDarkTitle, circleIsSelected && styles.activeCircleChipText]}>{circle.name}</Text>
+                                    <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText, circleIsSelected && styles.activeCircleChipText]}>
                                       {circleIsSelected ? "Managing this circle" : "Tap to manage"} · {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · {circle.canDelete ? "Owner" : "Member"}
                                     </Text>
                                   </View>
-                                  <Ionicons name={circleIsSelected ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={circleIsSelected ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={communityDarkMode && !circleIsSelected ? "#e9b76a" : colors.oliveDark} />
                                 </Pressable>
                                 {circleIsSelected && (
                                   <View style={styles.circleInlineManagement}>
                                     <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
-                                      <Text style={styles.circleManagementLabel}>Invite code</Text>
-                                      <Text style={styles.circleInviteCodeText}>{circle.inviteCode}</Text>
+                                      <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Invite code</Text>
+                                      <Text style={[styles.circleInviteCodeText, communityDarkMode && styles.accountDarkTitle]}>{circle.inviteCode}</Text>
                                     </View>
                                     <View style={styles.circleManagementRow}>
-                                      <Pressable onPress={() => copyCircleInviteCode(circle.inviteCode)} style={styles.circleCopyButton}>
-                                        <Ionicons name="copy-outline" size={14} color={colors.oliveDark} />
-                                        <Text style={styles.circleCopyText}>Copy invite</Text>
+                                      <Pressable onPress={() => copyCircleInviteCode(circle.inviteCode)} style={[styles.circleCopyButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                                        <Ionicons name="copy-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                        <Text style={[styles.circleCopyText, communityDarkMode && styles.homeDarkResumeButtonText]}>Copy invite</Text>
                                       </Pressable>
                                       {circle.canDelete ? (
                                         <Pressable
@@ -5928,68 +5932,68 @@ export default function Home() {
                       </View>
                     )}
                     {(communityCircles || []).length === 0 && (
-                      <View style={styles.emptyCommunityBox}>
-                        <Text style={styles.communityTitle}>No private circles yet</Text>
-                        <Text style={styles.helpIntro}>Create one or join with an invite code when you are ready.</Text>
+                      <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No private circles yet</Text>
+                        <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Create one or join with an invite code when you are ready.</Text>
                       </View>
                     )}
-                    <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
-                      <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
-                        <Ionicons name="settings-outline" size={14} color={colors.oliveDark} />
-                        <Text style={styles.circleManageText}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
-                        <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                    <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
+                      <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
+                        <Ionicons name="settings-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
+                        <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
                       {(circleManagerOpen || (communityCircles || []).length === 0) && (
                         <View style={styles.circleManagementContent}>
-                          <Text style={styles.circleManagementLabel}>Create or join a circle</Text>
+                          <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Create or join a circle</Text>
                           <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.lastCheckinLabel}>Create</Text>
-                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={[styles.input, phoneLayout && styles.phoneCommunityInput]} />
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.lastCheckinLabel, communityDarkMode && styles.studyDarkAccentText]}>Create</Text>
+                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" placeholderTextColor={communityDarkMode ? "#8f8678" : undefined} style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]} />
                               <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.lastCheckinLabel}>Join</Text>
-                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={[styles.input, phoneLayout && styles.phoneCommunityInput]} />
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.lastCheckinLabel, communityDarkMode && styles.studyDarkAccentText]}>Join</Text>
+                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" placeholderTextColor={communityDarkMode ? "#8f8678" : undefined} autoCapitalize="characters" style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]} />
                               <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
                           </View>
                         </View>
                       )}
-                      {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
+                      {!!circleStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{circleStatus}</Text>}
                       </View>
                       </>
                     ) : COMMUNITY_CIRCLES_ENABLED ? (
                       <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                     ) : (
-                      <Text style={styles.saveStatus}>Encouragements still save privately and can be copied or sent as before.</Text>
+                      <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>Encouragements still save privately and can be copied or sent as before.</Text>
                     )}
                   </>
                 )}
               </View>
               </View>
-              <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
+              <View style={[styles.communityStepBlock, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>1</Text>
                   </View>
                   <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Choose a friend or circle</Text>
                   </View>
                 </View>
                 {hasAvailableCommunityTarget ? (
                   <>
-                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
+                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={[styles.communityTargetSelect, communityDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.communityTargetSelectTextBlock}>
-                        <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
+                        <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>{activeCommunityTargetName || "Choose a connection"}</Text>
                       </View>
-                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                     {communityTargetPickerOpen && (
-                      <View style={styles.communityTargetPickerPanel}>
+                      <View style={[styles.communityTargetPickerPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                         {acceptedCommunityFriends.length > 0 && (
                           <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
+                            <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Friends - select one or more</Text>
                             {acceptedCommunityFriends.map((friend: any) => {
                               const isTarget = communityTargetType === "friend" && targetFriendIds.some((id) => String(id) === String(friend._id));
                               return (
@@ -6002,12 +6006,12 @@ export default function Home() {
                                       return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
                                     });
                                   }}
-                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                  style={[styles.communityTargetOption, communityDarkMode && styles.accountDarkSection, isTarget && styles.activeCommunityTargetOption]}
                                 >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={communityDarkMode && !isTarget ? "#e9b76a" : colors.oliveDark} />
                                   <View style={styles.journalTitleBlock}>
-                                    <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
-                                    {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
+                                    <Text style={[styles.communityTargetOptionTitle, communityDarkMode && styles.accountDarkTitle]}>{friend.name}</Text>
+                                    {!!friend.email && <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>{friend.email}</Text>}
                                   </View>
                                 </Pressable>
                               );
@@ -6016,7 +6020,7 @@ export default function Home() {
                         )}
                         {(communityCircles || []).length > 0 && (
                           <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Circles</Text>
+                            <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Circles</Text>
                             {(communityCircles || []).map((circle: any) => {
                               const isTarget = communityTargetType === "circle" && String(targetCircleId) === String(circle._id);
                               return (
@@ -6027,12 +6031,12 @@ export default function Home() {
                                     setTargetCircleId(circle._id);
                                     setCommunityTargetPickerOpen(false);
                                   }}
-                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                  style={[styles.communityTargetOption, communityDarkMode && styles.accountDarkSection, isTarget && styles.activeCommunityTargetOption]}
                                 >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={communityDarkMode && !isTarget ? "#e9b76a" : colors.oliveDark} />
                                   <View style={styles.journalTitleBlock}>
-                                    <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
-                                    <Text style={styles.circleChipMeta}>
+                                    <Text style={[styles.communityTargetOptionTitle, communityDarkMode && styles.accountDarkTitle]}>{circle.name}</Text>
+                                    <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>
                                       {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
                                     </Text>
                                   </View>
@@ -6043,7 +6047,7 @@ export default function Home() {
                         )}
                       </View>
                     )}
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                       {communityTargetType === "circle"
                         ? "Saving can post this encouragement to the selected circle."
                         : "Saving can post this encouragement to your selected friend or friends."}
@@ -6051,8 +6055,8 @@ export default function Home() {
                   </>
                 ) : (
                   <>
-                    <Text style={styles.communityRecipientText}>No friend or circle selected</Text>
-                    <Text style={styles.helpIntro}>{`${friendlyName}, add a registered friend or join a private circle above.`}</Text>
+                    <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>No friend or circle selected</Text>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, add a registered friend or join a private circle above.`}</Text>
                   </>
                 )}
               </View>
@@ -6061,7 +6065,7 @@ export default function Home() {
                   <Text style={styles.communityStepBadgeText}>2</Text>
                 </View>
                 <View style={styles.journalTitleBlock}>
-                  <Text style={styles.feedbackTitle}>Write one honest update</Text>
+                  <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Write one honest update</Text>
                 </View>
               </View>
               <TextInput
@@ -6069,34 +6073,35 @@ export default function Home() {
                 value={checkinNote}
                 onChangeText={setCheckinNote}
                 placeholder="Example: I studied Psalm 23 and was reminded that God leads me one step at a time."
-                style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
+                placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+                style={[styles.input, styles.textarea, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCheckinTextarea]}
               />
-              <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
+              <View style={[styles.communityStepBlock, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
                   <View style={styles.communityStepBadge}>
                     <Text style={styles.communityStepBadgeText}>3</Text>
                   </View>
                   <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Post encouragement</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Post encouragement</Text>
                   </View>
                 </View>
-                <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
+                <Text style={[styles.shareMessageText, communityDarkMode && styles.accountDarkText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
                 <AppButton
                   label={isSavingCheckin ? "Posting..." : "Post"}
                   onPress={persistCheckin}
                   style={phoneLayout && styles.phoneFullWidthButton}
                   labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
                 />
-                {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
+                {!!communityStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{communityStatus}</Text>}
               </View>
                 </>
               ) : (
-                <View style={styles.communityHistoryPanel}>
+                <View style={[styles.communityHistoryPanel, communityDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="albums-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Encouragement history</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Encouragement history</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
+                  <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
                   <View style={styles.communityHistoryFilterRow}>
                     {[
                       ["all", "All"],
@@ -6109,9 +6114,9 @@ export default function Home() {
                           setCommunityHistoryFilter(key as "all" | "private" | "circles");
                           if (key !== "circles") setCommunityHistoryCircleId("all");
                         }}
-                        style={[styles.filterChip, communityHistoryFilter === key && styles.activeFilterChip]}
+                        style={[styles.filterChip, communityDarkMode && styles.printDarkOptionChip, communityHistoryFilter === key && styles.activeFilterChip]}
                       >
-                        <Text style={[styles.filterText, communityHistoryFilter === key && styles.activeFilterText]}>{label}</Text>
+                        <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryFilter === key && styles.activeFilterText]}>{label}</Text>
                       </Pressable>
                     ))}
                   </View>
@@ -6119,33 +6124,33 @@ export default function Home() {
                     <View style={styles.communityHistoryFilterRow}>
                       <Pressable
                         onPress={() => setCommunityHistoryCircleId("all")}
-                        style={[styles.filterChip, communityHistoryCircleId === "all" && styles.activeFilterChip]}
+                        style={[styles.filterChip, communityDarkMode && styles.printDarkOptionChip, communityHistoryCircleId === "all" && styles.activeFilterChip]}
                       >
-                        <Text style={[styles.filterText, communityHistoryCircleId === "all" && styles.activeFilterText]}>All circles</Text>
+                        <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryCircleId === "all" && styles.activeFilterText]}>All circles</Text>
                       </Pressable>
                       {communityHistoryCircleOptions.map((circle) => (
                         <Pressable
                           key={circle.circleId}
                           onPress={() => setCommunityHistoryCircleId(circle.circleId)}
-                          style={[styles.filterChip, communityHistoryCircleId === circle.circleId && styles.activeFilterChip]}
+                          style={[styles.filterChip, communityDarkMode && styles.printDarkOptionChip, communityHistoryCircleId === circle.circleId && styles.activeFilterChip]}
                         >
-                          <Text style={[styles.filterText, communityHistoryCircleId === circle.circleId && styles.activeFilterText]}>{circle.circleName}</Text>
+                          <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryCircleId === circle.circleId && styles.activeFilterText]}>{circle.circleName}</Text>
                         </Pressable>
                       ))}
                     </View>
                   )}
                   {communityHistoryGroups.length === 0 ? (
-                    <View style={styles.emptyCommunityBox}>
-                      <Text style={styles.communityTitle}>No posts found</Text>
-                      <Text style={styles.helpIntro}>Try another filter, or post a new encouragement or study insight.</Text>
+                    <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                      <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No posts found</Text>
+                      <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Try another filter, or post a new encouragement or study insight.</Text>
                     </View>
                   ) : (
                     <View style={styles.communityHistoryGroupList}>
                       {communityHistoryGroups.map((group) => (
-                        <View key={group.title} style={styles.communityHistoryGroup}>
+                        <View key={group.title} style={[styles.communityHistoryGroup, communityDarkMode && styles.accountDarkInsetBox]}>
                           <View style={styles.circleSelectorHeader}>
-                            <Text style={styles.circleManagementLabel}>{group.title}</Text>
-                            <Text style={styles.circleCountText}>{group.items.length}</Text>
+                            <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>{group.title}</Text>
+                            <Text style={[styles.circleCountText, communityDarkMode && styles.accountDarkMutedText]}>{group.items.length}</Text>
                           </View>
                           <View style={styles.circleList}>
                             {group.items.map((item: any) => renderCommunityHistoryItem(item))}
@@ -6154,36 +6159,36 @@ export default function Home() {
                       ))}
                     </View>
                   )}
-                  {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
+                  {!!communityStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{communityStatus}</Text>}
                 </View>
               )}
             </Card>
 
-            {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.communityGoalBox}>
+            {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard, communityDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.communityGoalBox, communityDarkMode && styles.accountDarkSection]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Community boundary</Text>
+                  <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Community boundary</Text>
                 </View>
-                <Text style={styles.helpIntro}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
+                <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
               </View>
               <View style={styles.communityDivider} />
               <View style={styles.feedbackHeader}>
                 <Ionicons name="time-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Recent encouragements</Text>
+                  <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Recent encouragements</Text>
               </View>
               {(checkins || []).length === 0 ? (
-                <View style={styles.emptyCommunityBox}>
-                  <Text style={styles.communityTitle}>No encouragements yet</Text>
-                  <Text style={styles.helpIntro}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
+                <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                  <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No encouragements yet</Text>
+                  <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
                 </View>
               ) : (
                 <>
                   {visibleCheckins.map((item: any) => renderCommunityHistoryItem(item))}
                   {(checkins || []).length > 3 && (
-                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={styles.communityShowMoreButton}>
-                      <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
-                      <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
+                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={[styles.communityShowMoreButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                      <Text style={[styles.communityShowMoreText, communityDarkMode && styles.homeDarkResumeButtonText]}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
+                      <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   )}
                 </>

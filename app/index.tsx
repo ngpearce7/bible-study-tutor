@@ -3867,7 +3867,18 @@ export default function Home() {
                         onPress={() => goToStudyStep(index)}
                         style={[styles.studyProgressPill, studyDarkMode && styles.studyDarkProgressPill, stepAnswered && styles.completedStudyProgressPill, studyDarkMode && stepAnswered && styles.studyDarkCompletedProgressPill, active && styles.activeStudyProgressPill]}
                       >
-                        <Text style={[styles.studyProgressNumber, studyDarkMode && styles.studyDarkProgressNumber, stepAnswered && styles.completedStudyProgressNumber, active && styles.activeStudyProgressNumber]}>{index + 1}</Text>
+                        <Text
+                          style={[
+                            styles.studyProgressNumber,
+                            studyDarkMode && styles.studyDarkProgressNumber,
+                            stepAnswered && styles.completedStudyProgressNumber,
+                            studyDarkMode && stepAnswered && styles.studyDarkCompletedProgressNumber,
+                            active && styles.activeStudyProgressNumber,
+                            studyDarkMode && active && styles.studyDarkActiveProgressNumber
+                          ]}
+                        >
+                          {index + 1}
+                        </Text>
                         <Text style={[styles.studyProgressText, studyDarkMode && styles.accountDarkMutedText, stepAnswered && styles.completedStudyProgressText, studyDarkMode && stepAnswered && styles.accountDarkTitle, active && styles.activeStudyProgressText]} numberOfLines={1}>
                           {item.title}
                         </Text>
@@ -7574,37 +7585,37 @@ export default function Home() {
       )}
       {printWorksheetRequest && (
         <View style={styles.printOptionsOverlay}>
-          <Pressable style={styles.printOptionsScrim} onPress={() => setPrintWorksheetRequest(null)} />
-          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard]}>
+          <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPrintWorksheetRequest(null)} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
-                <Text style={styles.printOptionsTitle}>Print worksheet</Text>
-                <Text style={styles.printOptionsSubtitle}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Print worksheet</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
                   {printWorksheetRequest.reference} · {methods.find((item) => item.id === printWorksheetMethodId)?.short || method.short} · {printWorksheetRequest.translation}
                 </Text>
               </View>
               <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.markupCloseButton}>
-                <Ionicons name="close-outline" size={19} color={colors.muted} />
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
 
             <View style={styles.printOptionGroup}>
-              <Text style={styles.printOptionLabel}>Method</Text>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Method</Text>
               <View style={styles.printOptionChipRow}>
                 {methods.map((item) => (
                   <Pressable
                     key={item.id}
                     onPress={() => setPrintWorksheetMethodId(item.id)}
-                    style={[styles.printOptionChip, printWorksheetMethodId === item.id && styles.activePrintOptionChip]}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, printWorksheetMethodId === item.id && styles.activePrintOptionChip]}
                   >
-                    <Text style={[styles.printOptionChipText, printWorksheetMethodId === item.id && styles.activePrintOptionChipText]}>{item.short}</Text>
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, printWorksheetMethodId === item.id && styles.activePrintOptionChipText]}>{item.short}</Text>
                   </Pressable>
                 ))}
               </View>
             </View>
 
             <View style={styles.printOptionGroup}>
-              <Text style={styles.printOptionLabel}>Writing space</Text>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Writing space</Text>
               <View style={styles.printOptionChipRow}>
                 {[
                   ["standard", "Standard"],
@@ -7613,16 +7624,16 @@ export default function Home() {
                   <Pressable
                     key={key}
                     onPress={() => setPrintWorksheetWritingSpace(key as WorksheetWritingSpace)}
-                    style={[styles.printOptionChip, printWorksheetWritingSpace === key && styles.activePrintOptionChip]}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, printWorksheetWritingSpace === key && styles.activePrintOptionChip]}
                   >
-                    <Text style={[styles.printOptionChipText, printWorksheetWritingSpace === key && styles.activePrintOptionChipText]}>{label}</Text>
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, printWorksheetWritingSpace === key && styles.activePrintOptionChipText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
             </View>
 
             <View style={styles.printOptionGroup}>
-              <Text style={styles.printOptionLabel}>Include</Text>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Include</Text>
               <View style={styles.printOptionToggleList}>
                 {[
                   ["memory", "Memory verse"],
@@ -7635,8 +7646,8 @@ export default function Home() {
                       onPress={() => setPrintWorksheetIncludes((current) => ({ ...current, [key]: !current[key as keyof typeof current] }))}
                       style={styles.printOptionToggle}
                     >
-                      <Ionicons name={active ? "checkbox" : "square-outline"} size={19} color={active ? colors.coral : colors.muted} />
-                      <Text style={styles.printOptionToggleText}>{label}</Text>
+                      <Ionicons name={active ? "checkbox" : "square-outline"} size={19} color={active ? (accountDarkMode ? "#e9b76a" : colors.coral) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
+                      <Text style={[styles.printOptionToggleText, accountDarkMode && styles.accountDarkText]}>{label}</Text>
                     </Pressable>
                   );
                 })}
@@ -7644,8 +7655,8 @@ export default function Home() {
             </View>
 
             <View style={styles.printOptionsActions}>
-              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.printOptionsCancelButton}>
-                <Text style={styles.printOptionsCancelText}>Cancel</Text>
+              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.homeDarkResumeButton]}>
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
               </Pressable>
               <ResumeButton label="Open worksheet" icon="open-outline" onPress={openPrintableWorksheet} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
@@ -15354,8 +15365,16 @@ const styles = StyleSheet.create({
     borderColor: "rgba(233, 183, 106, 0.2)"
   },
   studyDarkProgressNumber: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#2d352d",
     color: "#e9b76a"
+  },
+  studyDarkCompletedProgressNumber: {
+    backgroundColor: "#e9b76a",
+    color: "#171b1c"
+  },
+  studyDarkActiveProgressNumber: {
+    backgroundColor: "#f7eddc",
+    color: "#171b1c"
   },
   studyDarkScriptureBox: {
     backgroundColor: "#1b211f",
@@ -17751,6 +17770,9 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0
   },
+  printDarkOptionsScrim: {
+    backgroundColor: "rgba(0, 0, 0, 0.56)"
+  },
   printOptionsCard: {
     alignSelf: "center",
     backgroundColor: colors.panel,
@@ -17815,6 +17837,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 34,
     paddingHorizontal: 12
+  },
+  printDarkOptionChip: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
   },
   activePrintOptionChip: {
     backgroundColor: colors.oliveDark,

@@ -6204,39 +6204,6 @@ export default function Home() {
               <Eyebrow>Account & access</Eyebrow>
               <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your profile and feedback choices"}</Text>
               <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>Keep your details current so the app can speak to you personally and help you draw near to God.</Text>
-              {DARK_MODE_ENABLED && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Appearance</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Try dark mode first in Account. Once it feels right, we can extend it carefully to the rest of the app.</Text>
-                  <View style={styles.accountOptionGrid}>
-                    {([
-                      ["light", "Light", "Warm study colours", "sunny-outline"],
-                      ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"]
-                    ] as const).map(([mode, label, description, icon]) => (
-                      <Pressable
-                        key={mode}
-                        onPress={() => {
-                          setAppearanceMode(mode);
-                          saveStoredAppearanceMode(mode).catch(() => undefined);
-                        }}
-                        style={[
-                          styles.aiOptionCard,
-                          styles.accountOptionCard,
-                          accountDarkMode && styles.accountDarkOptionCard,
-                          appearanceMode === mode && styles.activeAiOptionCard,
-                          accountDarkMode && appearanceMode === mode && styles.accountDarkActiveOptionCard
-                        ]}
-                      >
-                        <Ionicons name={appearanceMode === mode ? "checkmark-circle" : icon} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        <View style={styles.aiOptionCopy}>
-                          <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{label}</Text>
-                          <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{description}</Text>
-                        </View>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              )}
               <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Sign in</Text>
                 {isAuthenticated ? (
@@ -6431,6 +6398,39 @@ export default function Home() {
                   </Text>
                 </View>
               )}
+              {DARK_MODE_ENABLED && (
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Appearance</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Choose the app display that feels easiest to read.</Text>
+                  <View style={styles.accountOptionGrid}>
+                    {([
+                      ["light", "Light", "Warm study colours", "sunny-outline"],
+                      ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"]
+                    ] as const).map(([mode, label, description, icon]) => (
+                      <Pressable
+                        key={mode}
+                        onPress={() => {
+                          setAppearanceMode(mode);
+                          saveStoredAppearanceMode(mode).catch(() => undefined);
+                        }}
+                        style={[
+                          styles.aiOptionCard,
+                          styles.accountOptionCard,
+                          accountDarkMode && styles.accountDarkOptionCard,
+                          appearanceMode === mode && styles.activeAiOptionCard,
+                          accountDarkMode && appearanceMode === mode && styles.accountDarkActiveOptionCard
+                        ]}
+                      >
+                        <Ionicons name={appearanceMode === mode ? "checkmark-circle" : icon} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <View style={styles.aiOptionCopy}>
+                          <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{label}</Text>
+                          <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{description}</Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              )}
               <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Legal</Text>
                 <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
@@ -6511,7 +6511,7 @@ export default function Home() {
                   </View>
                   <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>Encouragements live in Community</Text>
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Set your weekly goal and encouragement person or group from the Community tab.</Text>
-                  <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} />
+                  <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
                 </View>
                 <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
@@ -6527,17 +6527,17 @@ export default function Home() {
                       <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
                     </View>
                     <View style={styles.adminMetricGrid}>
-                      <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact />
-                      <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact />
-                      <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact />
-                      <Metric value={adminStats.totals.newFeedback} label="new feedback" compact />
-                      <Metric value={adminStats.totals.appShares || 0} label="app shares" compact />
-                      <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
+                      <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
+                      <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
+                      <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
+                      <Metric value={adminStats.totals.newFeedback} label="new feedback" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
+                      <Metric value={adminStats.totals.appShares || 0} label="app shares" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
+                      <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
                     </View>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                       Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
                     </Text>
-                    <ResumeButton label="Open full insights" icon="analytics-outline" onPress={() => setTab("admin")} />
+                    <ResumeButton label="Open full insights" icon="analytics-outline" onPress={() => setTab("admin")} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
                   </View>
                 )}
               </Card>

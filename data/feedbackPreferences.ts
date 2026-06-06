@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
+export type StoredAppearanceMode = "light" | "dark";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
 export type StoredBibleReadChapters = Record<string, number[]>;
@@ -33,6 +34,7 @@ const studyFocusModeKey = "bible-study-tutor-study-focus-mode";
 const tutorCoachingEnabledKey = "bible-study-tutor-coaching-enabled";
 const collapsedStudyPanelsKey = "bible-study-tutor-collapsed-study-panels";
 const customWritingPromptsKey = "bible-study-tutor-custom-writing-prompts";
+const appearanceModeKey = "bible-study-tutor-appearance-mode";
 const defaultCollapsedStudyPanels: StoredCollapsedStudyPanels = {
   community: false,
   plan: false,
@@ -47,6 +49,15 @@ export async function getStoredBibleTranslation(): Promise<StoredBibleTranslatio
 
 export async function saveStoredBibleTranslation(translation: StoredBibleTranslation) {
   await setStoredValue(bibleTranslationKey, translation);
+}
+
+export async function getStoredAppearanceMode(): Promise<StoredAppearanceMode> {
+  const stored = await getStoredValue(appearanceModeKey);
+  return stored === "dark" ? "dark" : "light";
+}
+
+export async function saveStoredAppearanceMode(mode: StoredAppearanceMode) {
+  await setStoredValue(appearanceModeKey, mode);
 }
 
 export async function getStoredBibleReaderPosition(): Promise<StoredBibleReaderPosition | null> {

@@ -7655,7 +7655,7 @@ export default function Home() {
             </View>
 
             <View style={styles.printOptionsActions}>
-              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.homeDarkResumeButton]}>
+              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
                 <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
               </Pressable>
               <ResumeButton label="Open worksheet" icon="open-outline" onPress={openPrintableWorksheet} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
@@ -17880,6 +17880,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 38,
     paddingHorizontal: 12
+  },
+  printDarkCancelButton: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.32)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 16
   },
   printOptionsCancelText: {
     color: colors.muted,

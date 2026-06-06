@@ -156,6 +156,7 @@ const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thum
 const APP_SHARE_URL = "https://biblestudytutor.org";
 const APP_SHARE_QR_TARGET_URL = `${APP_SHARE_URL}/?shared=qr`;
 const APP_SHARE_QR_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
+const APP_SHARE_QR_DARK_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&color=E9B76A&bgcolor=1B211F&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
 type AdminRegionInsight = { name: string; description: string; count: number; x: number; y: number; size: "small" | "medium" | "large" };
 const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
   { name: "Australia", description: "Broad region only", count: 0, x: 79, y: 73, size: "large" },
@@ -7208,7 +7209,7 @@ export default function Home() {
                 {!!appShareStatus && <Text style={styles.saveStatus}>{appShareStatus}</Text>}
               </View>
               <View style={[styles.helpQrFrame, helpDarkMode && styles.helpDarkQrFrame]}>
-                <Image source={{ uri: APP_SHARE_QR_URI }} style={styles.helpQrImage} />
+                <Image source={{ uri: helpDarkMode ? APP_SHARE_QR_DARK_URI : APP_SHARE_QR_URI }} style={styles.helpQrImage} />
                 <Text style={[styles.helpQrCaption, helpDarkMode && styles.accountDarkMutedText]}>Scan to open</Text>
               </View>
             </Card>

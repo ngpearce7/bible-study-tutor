@@ -1203,6 +1203,7 @@ export default function Home() {
   const studyDarkMode = accountDarkMode;
   const bibleDarkMode = accountDarkMode;
   const plansDarkMode = accountDarkMode;
+  const methodsDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -5116,29 +5117,29 @@ export default function Home() {
           </View>
         )}
         {tab === "methods" && (
-          <View>
+          <View style={methodsDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Practice library</Eyebrow>
-            <Text style={styles.title}>Choose how you want to learn</Text>
-            <Text style={styles.titleSupport}>Tap the info button to see when to use a method, how it works, and a worked example.</Text>
-            <View style={styles.currentMethodStrip}>
+            <Text style={[styles.title, methodsDarkMode && styles.accountDarkTitle]}>Choose how you want to learn</Text>
+            <Text style={[styles.titleSupport, methodsDarkMode && styles.accountDarkMutedText]}>Tap the info button to see when to use a method, how it works, and a worked example.</Text>
+            <View style={[styles.currentMethodStrip, methodsDarkMode && styles.accountDarkSection]}>
               <View style={styles.currentMethodCopy}>
-                <Text style={styles.methodInfoLabel}>Current method</Text>
-                <Text style={styles.currentMethodTitle}>{method.short} · {method.name}</Text>
+                <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Current method</Text>
+                <Text style={[styles.currentMethodTitle, methodsDarkMode && styles.accountDarkTitle]}>{method.short} · {method.name}</Text>
               </View>
               <View style={styles.currentMethodActions}>
                 <AppButton label="Continue study" onPress={() => setTab("study")} style={styles.currentMethodButton} labelStyle={styles.currentMethodButtonLabel} />
-                <AppButton label="Details" variant="secondary" onPress={() => setActiveMethodInfoId(method.id)} style={styles.currentMethodButton} labelStyle={styles.currentMethodButtonLabel} />
+                <AppButton label="Details" variant="secondary" onPress={() => setActiveMethodInfoId(method.id)} style={[styles.currentMethodButton, methodsDarkMode && styles.homeDarkResumeButton]} labelStyle={[styles.currentMethodButtonLabel, methodsDarkMode && styles.homeDarkResumeButtonText]} />
               </View>
             </View>
             <View style={styles.methodLibraryToolbar}>
-              <Pressable accessibilityRole="button" onPress={() => setMethodChooserOpen((value) => !value)} style={styles.methodToolbarButton}>
-                <Ionicons name="sparkles-outline" size={16} color={colors.oliveDark} />
-                <Text style={styles.methodToolbarButtonText}>Help me choose</Text>
-                <Text style={styles.methodToolbarBadge}>{recommendedMethod.short}</Text>
+              <Pressable accessibilityRole="button" onPress={() => setMethodChooserOpen((value) => !value)} style={[styles.methodToolbarButton, methodsDarkMode && styles.homeDarkResumeButton]}>
+                <Ionicons name="sparkles-outline" size={16} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Text style={[styles.methodToolbarButtonText, methodsDarkMode && styles.homeDarkResumeButtonText]}>Help me choose</Text>
+                <Text style={[styles.methodToolbarBadge, methodsDarkMode && styles.methodsDarkBadge]}>{recommendedMethod.short}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" onPress={() => setMethodFilterOpen((value) => !value)} style={styles.methodToolbarButton}>
-                <Ionicons name="filter-outline" size={16} color={colors.oliveDark} />
-                <Text style={styles.methodToolbarButtonText}>{`Filter: ${methodFilter}`}</Text>
+              <Pressable accessibilityRole="button" onPress={() => setMethodFilterOpen((value) => !value)} style={[styles.methodToolbarButton, methodsDarkMode && styles.homeDarkResumeButton]}>
+                <Ionicons name="filter-outline" size={16} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Text style={[styles.methodToolbarButtonText, methodsDarkMode && styles.homeDarkResumeButtonText]}>{`Filter: ${methodFilter}`}</Text>
               </Pressable>
             </View>
             {methodFilterOpen && (
@@ -5152,23 +5153,23 @@ export default function Home() {
                         setMethodFilter(filter);
                         setMethodFilterOpen(false);
                       }}
-                      style={[styles.methodFilterChip, methodFilter === filter && styles.activeMethodFilterChip]}
+                      style={[styles.methodFilterChip, methodsDarkMode && styles.printDarkOptionChip, methodFilter === filter && styles.activeMethodFilterChip]}
                     >
-                      <Text style={[styles.methodFilterText, methodFilter === filter && styles.activeMethodFilterText]}>{filter}</Text>
+                      <Text style={[styles.methodFilterText, methodsDarkMode && styles.accountDarkMutedText, methodFilter === filter && styles.activeMethodFilterText]}>{filter}</Text>
                     </Pressable>
                   ))}
                 </View>
               </View>
             )}
             {methodChooserOpen && (
-              <Card style={styles.methodRecommendPanel}>
+              <Card style={[styles.methodRecommendPanel, methodsDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.methodRecommendHeader}>
                   <View style={styles.methodRecommendTitleBlock}>
-                    <Text style={styles.methodInfoLabel}>Help me choose</Text>
-                    <Text style={styles.methodRecommendTitle}>{recommendedMethod.name}</Text>
-                    <Text style={styles.methodRecommendReason}>{selectedMethodRecommendation.reason}</Text>
+                    <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Help me choose</Text>
+                    <Text style={[styles.methodRecommendTitle, methodsDarkMode && styles.accountDarkTitle]}>{recommendedMethod.name}</Text>
+                    <Text style={[styles.methodRecommendReason, methodsDarkMode && styles.accountDarkMutedText]}>{selectedMethodRecommendation.reason}</Text>
                   </View>
-                  <Text style={styles.badge}>{recommendedMethod.short}</Text>
+                  <Text style={[styles.badge, methodsDarkMode && styles.methodsDarkBadge]}>{recommendedMethod.short}</Text>
                 </View>
                 <View style={styles.methodRecommendChoices}>
                   {methodRecommendations.map((item) => (
@@ -5176,9 +5177,9 @@ export default function Home() {
                     key={item.id}
                     accessibilityRole="button"
                     onPress={() => setMethodRecommendationId(item.id)}
-                    style={[styles.methodRecommendChoice, methodRecommendationId === item.id && styles.activeMethodRecommendChoice]}
+                    style={[styles.methodRecommendChoice, methodsDarkMode && styles.printDarkOptionChip, methodRecommendationId === item.id && styles.activeMethodRecommendChoice]}
                   >
-                    <Text style={[styles.methodRecommendChoiceText, methodRecommendationId === item.id && styles.activeMethodRecommendChoiceText]}>{item.label}</Text>
+                    <Text style={[styles.methodRecommendChoiceText, methodsDarkMode && styles.accountDarkMutedText, methodRecommendationId === item.id && styles.activeMethodRecommendChoiceText]}>{item.label}</Text>
                   </Pressable>
                   ))}
                 </View>
@@ -5190,55 +5191,55 @@ export default function Home() {
                       setTab("study");
                     }}
                   />
-                  <AppButton label="View details" variant="secondary" onPress={() => setActiveMethodInfoId(recommendedMethod.id)} />
-                  <AppButton label="Hide" variant="secondary" onPress={() => setMethodChooserOpen(false)} />
+                  <AppButton label="View details" variant="secondary" onPress={() => setActiveMethodInfoId(recommendedMethod.id)} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label="Hide" variant="secondary" onPress={() => setMethodChooserOpen(false)} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
                 </View>
               </Card>
             )}
             {activeMethodInfo && (
-              <Card style={styles.methodInfoPanel}>
+              <Card style={[styles.methodInfoPanel, methodsDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.methodInfoHeader}>
                   <View style={styles.methodInfoTitleBlock}>
-                    <Text style={styles.badge}>{activeMethodInfo.short}</Text>
-                    <Text style={styles.cardTitle}>{activeMethodInfo.name}</Text>
-                    <Text style={styles.muted}>{activeMethodInfo.tone}</Text>
+                    <Text style={[styles.badge, methodsDarkMode && styles.methodsDarkBadge]}>{activeMethodInfo.short}</Text>
+                    <Text style={[styles.cardTitle, methodsDarkMode && styles.accountDarkTitle]}>{activeMethodInfo.name}</Text>
+                    <Text style={[styles.muted, methodsDarkMode && styles.accountDarkMutedText]}>{activeMethodInfo.tone}</Text>
                   </View>
-                  <Pressable accessibilityRole="button" onPress={() => setActiveMethodInfoId("")} style={styles.methodIconButton}>
-                    <Ionicons name="close-outline" size={18} color={colors.oliveDark} />
+                  <Pressable accessibilityRole="button" onPress={() => setActiveMethodInfoId("")} style={[styles.methodIconButton, methodsDarkMode && styles.homeDarkIconBubble]}>
+                    <Ionicons name="close-outline" size={18} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
                   </Pressable>
                 </View>
-                <Text style={styles.body}>{activeMethodInfo.detail?.purpose || activeMethodInfo.description}</Text>
+                <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{activeMethodInfo.detail?.purpose || activeMethodInfo.description}</Text>
                 <View style={styles.methodInfoSection}>
-                  <Text style={styles.methodInfoLabel}>Best for</Text>
+                  <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Best for</Text>
                   <View style={styles.methodFitRow}>
                     {(activeMethodInfo.labels || activeMethodInfo.detail?.bestFor || [activeMethodInfo.tone]).map((fit) => (
-                      <Text key={fit} style={styles.methodFitPill}>{fit}</Text>
+                      <Text key={fit} style={[styles.methodFitPill, methodsDarkMode && styles.methodsDarkPill]}>{fit}</Text>
                     ))}
                   </View>
                 </View>
                 <View style={styles.methodInfoSection}>
-                  <Text style={styles.methodInfoLabel}>How it works</Text>
+                  <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>How it works</Text>
                   {activeMethodInfo.steps.map((methodStep, index) => (
-                    <View key={`${activeMethodInfo.id}-${methodStep.title}`} style={styles.methodStepPreview}>
+                    <View key={`${activeMethodInfo.id}-${methodStep.title}`} style={[styles.methodStepPreview, methodsDarkMode && styles.accountDarkInsetBox]}>
                       <Text style={styles.methodStepNumber}>{index + 1}</Text>
                       <View style={styles.methodStepCopy}>
-                        <Text style={styles.methodStepTitle}>{methodStep.title}</Text>
-                        <Text style={styles.methodStepText}>{methodStep.action}</Text>
+                        <Text style={[styles.methodStepTitle, methodsDarkMode && styles.accountDarkTitle]}>{methodStep.title}</Text>
+                        <Text style={[styles.methodStepText, methodsDarkMode && styles.accountDarkMutedText]}>{methodStep.action}</Text>
                       </View>
                     </View>
                   ))}
                 </View>
                 <View style={styles.methodInfoSection}>
-                  <Text style={styles.methodInfoLabel}>Example</Text>
+                  <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Example</Text>
                   <Text style={styles.methodExamplePassage}>{activeMethodInfo.detail?.examplePassage || "Psalm 23"}</Text>
                   {(activeMethodInfo.detail?.exampleWalkthrough || activeMethodInfo.steps.map((methodStep) => `${methodStep.title}: ${methodStep.example}`)).map((line) => (
-                    <Text key={line} style={styles.methodExampleLine}>{line}</Text>
+                    <Text key={line} style={[styles.methodExampleLine, methodsDarkMode && styles.accountDarkText]}>{line}</Text>
                   ))}
                 </View>
                 {!!activeMethodInfo.detail?.watchFor && (
-                  <View style={styles.methodWatchBox}>
+                  <View style={[styles.methodWatchBox, methodsDarkMode && styles.methodsDarkWatchBox]}>
                     <Ionicons name="alert-circle-outline" size={17} color={colors.coral} />
-                    <Text style={styles.methodWatchText}>{activeMethodInfo.detail.watchFor}</Text>
+                    <Text style={[styles.methodWatchText, methodsDarkMode && styles.accountDarkText]}>{activeMethodInfo.detail.watchFor}</Text>
                   </View>
                 )}
                 <View style={styles.methodInfoActions}>
@@ -5250,31 +5251,31 @@ export default function Home() {
                       setTab("study");
                     }}
                   />
-                  <AppButton label="Try example" variant="secondary" onPress={() => startMethodExample(activeMethodInfo.id)} />
-                  <AppButton label="Close" variant="secondary" onPress={() => setActiveMethodInfoId("")} />
+                  <AppButton label="Try example" variant="secondary" onPress={() => startMethodExample(activeMethodInfo.id)} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label="Close" variant="secondary" onPress={() => setActiveMethodInfoId("")} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
                 </View>
               </Card>
             )}
             <View style={styles.methodGrid}>
               {visibleMethods.map((item) => (
-                <Card key={item.id} style={[styles.methodCard, phoneLayout && styles.phoneMethodCard]}>
+                <Card key={item.id} style={[styles.methodCard, phoneLayout && styles.phoneMethodCard, methodsDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.methodCardHeader}>
-                    <Text style={styles.badge}>{item.short}</Text>
-                    <Pressable accessibilityRole="button" accessibilityLabel={`About ${item.short}`} onPress={() => setActiveMethodInfoId(item.id)} style={styles.methodIconButton}>
-                      <Ionicons name="information-circle-outline" size={18} color={colors.oliveDark} />
+                    <Text style={[styles.badge, methodsDarkMode && styles.methodsDarkBadge]}>{item.short}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel={`About ${item.short}`} onPress={() => setActiveMethodInfoId(item.id)} style={[styles.methodIconButton, methodsDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name="information-circle-outline" size={18} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   </View>
-                  <Text style={styles.cardTitle}>{item.name}</Text>
-                  <Text style={styles.muted}>{item.tone}</Text>
+                  <Text style={[styles.cardTitle, methodsDarkMode && styles.accountDarkTitle]}>{item.name}</Text>
+                  <Text style={[styles.muted, methodsDarkMode && styles.accountDarkMutedText]}>{item.tone}</Text>
                   <View style={styles.methodLabelRow}>
                     {(item.labels || [item.tone]).slice(0, 3).map((label) => (
-                      <Text key={`${item.id}-${label}`} style={styles.methodLabelPill}>{label}</Text>
+                      <Text key={`${item.id}-${label}`} style={[styles.methodLabelPill, methodsDarkMode && styles.methodsDarkPill]}>{label}</Text>
                     ))}
                   </View>
-                  <Text style={styles.body}>{item.description}</Text>
+                  <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{item.description}</Text>
                   <View style={styles.methodStepCountRow}>
                     <Ionicons name="list-outline" size={15} color={colors.coral} />
-                    <Text style={styles.methodStepCountText}>{`${item.steps.length} guided steps`}</Text>
+                    <Text style={[styles.methodStepCountText, methodsDarkMode && styles.accountDarkMutedText]}>{`${item.steps.length} guided steps`}</Text>
                   </View>
                   <View style={styles.methodCardAction}>
                     <AppButton
@@ -5284,14 +5285,16 @@ export default function Home() {
                         switchMethod(item.id);
                         setTab("study");
                       }}
+                      style={methodsDarkMode && styles.homeDarkResumeButton}
+                      labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText}
                     />
                   </View>
                 </Card>
               ))}
               {!visibleMethods.length && (
-                <Card style={styles.emptyMethodCard}>
-                  <Text style={styles.emptyJournalTitle}>No methods match this filter</Text>
-                  <Text style={styles.emptyJournalText}>Choose another focus to keep browsing.</Text>
+                <Card style={[styles.emptyMethodCard, methodsDarkMode && styles.accountDarkMainCard]}>
+                  <Text style={[styles.emptyJournalTitle, methodsDarkMode && styles.accountDarkTitle]}>No methods match this filter</Text>
+                  <Text style={[styles.emptyJournalText, methodsDarkMode && styles.accountDarkMutedText]}>Choose another focus to keep browsing.</Text>
                 </Card>
               )}
             </View>
@@ -15435,6 +15438,19 @@ const styles = StyleSheet.create({
   },
   plansDarkDayBadge: {
     backgroundColor: "#8f6a35"
+  },
+  methodsDarkBadge: {
+    backgroundColor: "#2d352d",
+    color: "#f7eddc"
+  },
+  methodsDarkPill: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)",
+    color: "#f7eddc"
+  },
+  methodsDarkWatchBox: {
+    backgroundColor: "rgba(201, 103, 80, 0.12)",
+    borderColor: "rgba(201, 103, 80, 0.32)"
   },
   studyDarkStepPanel: {
     backgroundColor: "#171b1c",

@@ -3604,31 +3604,31 @@ export default function Home() {
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
 
   return (
-    <View style={[styles.screen, compactLayout && styles.compactScreen]}>
+    <View style={[styles.screen, accountDarkMode && styles.appDarkScreen, compactLayout && styles.compactScreen]}>
       {phoneLayout && (
-        <View style={styles.mobileMenuBar}>
+        <View style={[styles.mobileMenuBar, accountDarkMode && styles.appDarkMobileMenuBar]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={mobileMenuOpen ? "Close menu" : "Open menu"}
             onPress={() => setMobileMenuOpen((value) => !value)}
-            style={styles.mobileMenuButton}
+            style={[styles.mobileMenuButton, accountDarkMode && styles.appDarkMobileMenuButton]}
           >
-            <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={colors.oliveDark} />
+            <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
           </Pressable>
           <View style={styles.mobileMenuTitleBlock}>
-            <Text style={styles.mobileMenuTitle}>Bible Study Tutor</Text>
-            <Text style={styles.mobileMenuSubtitle}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+            <Text style={[styles.mobileMenuTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
+            <Text style={[styles.mobileMenuSubtitle, accountDarkMode && styles.accountDarkMutedText]}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
           </View>
         </View>
       )}
 
-      <View style={[styles.sidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
+      <View style={[styles.sidebar, accountDarkMode && styles.appDarkSidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
         <View style={styles.brandRow}>
-          <View style={styles.brandMark}>
+          <View style={[styles.brandMark, accountDarkMode && styles.appDarkBrandMark]}>
             <Text style={styles.brandMarkText}>BT</Text>
           </View>
           <View style={styles.brandCopy}>
-            <Text style={styles.brandTitle}>Bible Study Tutor</Text>
+            <Text style={[styles.brandTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
           </View>
         </View>
 
@@ -3652,24 +3652,24 @@ export default function Home() {
                 setTab(key as Tab);
                 if (phoneLayout) setMobileMenuOpen(false);
               }}
-              style={[styles.tab, tab === key && styles.activeTab]}
+              style={[styles.tab, accountDarkMode && styles.appDarkTab, tab === key && styles.activeTab, accountDarkMode && tab === key && styles.appDarkActiveTab]}
             >
-              <Ionicons name={icon as any} size={18} color={tab === key ? colors.oliveDark : colors.muted} />
-              <Text style={[styles.tabLabel, tab === key && styles.activeTabLabel]}>{label}</Text>
+              <Ionicons name={icon as any} size={18} color={tab === key ? (accountDarkMode ? "#e9b76a" : colors.oliveDark) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
+              <Text style={[styles.tabLabel, accountDarkMode && styles.appDarkTabLabel, tab === key && styles.activeTabLabel, accountDarkMode && tab === key && styles.appDarkActiveTabLabel]}>{label}</Text>
             </Pressable>
           ))}
         </View>
 
         {!compactLayout && (
           <>
-            <Card style={styles.todayCard}>
+            <Card style={[styles.todayCard, accountDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Today</Eyebrow>
-              <Text style={styles.streakNumber}>{stats?.currentStreak ?? 0}</Text>
-              <Text style={styles.muted}>day rhythm</Text>
-              <View style={styles.progressTrack}>
+              <Text style={[styles.streakNumber, accountDarkMode && styles.accountDarkTitle]}>{stats?.currentStreak ?? 0}</Text>
+              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>day rhythm</Text>
+              <View style={[styles.progressTrack, accountDarkMode && styles.appDarkProgressTrack]}>
                 <View style={[styles.progressFill, { width: `${progress}%` }]} />
               </View>
-              <Text style={styles.muted}>{effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
+              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
             </Card>
 
           </>
@@ -3680,6 +3680,7 @@ export default function Home() {
         ref={appScrollRef}
         contentContainerStyle={[
           styles.content,
+          accountDarkMode && styles.appDarkContent,
           phoneLayout && styles.phoneContent,
           showMobileReaderSelectionDock && styles.contentWithMobileReaderDock,
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
@@ -11310,6 +11311,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     position: "relative"
   },
+  appDarkScreen: {
+    backgroundColor: "#171b1c"
+  },
   compactScreen: {
     flexDirection: "column"
   },
@@ -11323,6 +11327,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10
   },
+  appDarkMobileMenuBar: {
+    backgroundColor: "#1b211f",
+    borderBottomColor: "rgba(233, 183, 106, 0.18)"
+  },
   mobileMenuButton: {
     alignItems: "center",
     backgroundColor: colors.panel,
@@ -11332,6 +11340,10 @@ const styles = StyleSheet.create({
     height: 42,
     justifyContent: "center",
     width: 42
+  },
+  appDarkMobileMenuButton: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.22)"
   },
   mobileMenuTitleBlock: {
     flex: 1,
@@ -11354,6 +11366,10 @@ const styles = StyleSheet.create({
     gap: 22,
     padding: 16,
     width: 200
+  },
+  appDarkSidebar: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
   },
   compactSidebar: {
     borderBottomWidth: 1,
@@ -11386,6 +11402,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 48
   },
+  appDarkBrandMark: {
+    backgroundColor: "#8f6a35"
+  },
   brandMarkText: {
     color: "white",
     fontWeight: "800"
@@ -11413,15 +11432,28 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 12
   },
+  appDarkTab: {
+    borderColor: "rgba(233, 183, 106, 0.08)"
+  },
   activeTab: {
     backgroundColor: colors.blush
+  },
+  appDarkActiveTab: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.28)"
   },
   tabLabel: {
     color: colors.muted,
     fontWeight: "700"
   },
+  appDarkTabLabel: {
+    color: "#c8bda9"
+  },
   activeTabLabel: {
     color: colors.coral
+  },
+  appDarkActiveTabLabel: {
+    color: "#e9b76a"
   },
   todayCard: {
     marginTop: 0
@@ -11438,6 +11470,9 @@ const styles = StyleSheet.create({
     marginVertical: 14,
     overflow: "hidden"
   },
+  appDarkProgressTrack: {
+    backgroundColor: "#151a19"
+  },
   progressFill: {
     backgroundColor: colors.coral,
     height: "100%"
@@ -11446,6 +11481,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     minWidth: 0,
     padding: 24
+  },
+  appDarkContent: {
+    backgroundColor: "#171b1c"
   },
   phoneContent: {
     padding: 14

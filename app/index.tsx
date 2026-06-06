@@ -3691,7 +3691,13 @@ export default function Home() {
                 </Text>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a study" onPress={() => setTab("study")} style={phoneLayout && styles.homePhoneActionButton} />
-                  <AppButton label="Read Scripture" variant="secondary" onPress={() => setTab("bible")} style={phoneLayout && styles.homePhoneActionButton} />
+                  <AppButton
+                    label="Read Scripture"
+                    variant="secondary"
+                    onPress={() => setTab("bible")}
+                    style={[phoneLayout && styles.homePhoneActionButton, homeDarkMode && styles.homeDarkResumeButton]}
+                    labelStyle={homeDarkMode && styles.homeDarkResumeButtonText}
+                  />
                 </View>
               </View>
 
@@ -7167,8 +7173,20 @@ export default function Home() {
               </Text>
               <View style={styles.helpActionRow}>
                 <AppButton label="Read the Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneFullWidthButton} />
-                <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} style={phoneLayout && styles.phoneFullWidthButton} />
-                <AppButton label="Open journal" variant="secondary" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneFullWidthButton} />
+                <AppButton
+                  label="Start a study"
+                  variant="secondary"
+                  onPress={() => setTab("study")}
+                  style={[phoneLayout && styles.phoneFullWidthButton, helpDarkMode && styles.homeDarkResumeButton]}
+                  labelStyle={helpDarkMode && styles.homeDarkResumeButtonText}
+                />
+                <AppButton
+                  label="Open journal"
+                  variant="secondary"
+                  onPress={() => setTab("journal")}
+                  style={[phoneLayout && styles.phoneFullWidthButton, helpDarkMode && styles.homeDarkResumeButton]}
+                  labelStyle={helpDarkMode && styles.homeDarkResumeButtonText}
+                />
               </View>
             </Card>
 

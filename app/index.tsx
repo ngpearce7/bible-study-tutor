@@ -1204,6 +1204,7 @@ export default function Home() {
   const bibleDarkMode = accountDarkMode;
   const plansDarkMode = accountDarkMode;
   const methodsDarkMode = accountDarkMode;
+  const memoryDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -5302,55 +5303,55 @@ export default function Home() {
         )}
 
         {tab === "memory" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Memory</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
+              <Text style={[styles.title, memoryDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
               {!phoneMemoryFocusMode && (
                 <>
-                  <Text style={styles.titleSupport}>Hide a little at a time and carry Scripture with you through the day.</Text>
+                  <Text style={[styles.titleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>
                   <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
-                    <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} />
-                    <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} />
-                    <Metric value={(memoryVerses || []).filter((item: any) => isMemoryVerseMemorized(item)).length} label="memorized" compact={phoneLayout} />
+                    <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+                    <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+                    <Metric value={(memoryVerses || []).filter((item: any) => isMemoryVerseMemorized(item)).length} label="memorized" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                   </View>
                 </>
               )}
               {phoneMemoryFocusMode && (
-                <View style={styles.memoryFocusBanner}>
+                <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
                   <Ionicons name="school-outline" size={18} color={colors.coral} />
-                  <Text style={styles.memoryFocusBannerText}>Practice mode. Close or finish this verse to return to your saved list.</Text>
+                  <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>Practice mode. Close or finish this verse to return to your saved list.</Text>
                 </View>
               )}
               {!!memoryStatus && <Text style={styles.saveStatus}>{memoryStatus}</Text>}
               {(memoryVerses || []).length === 0 ? (
-                <View style={styles.emptyJournalBox}>
+                <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                   <Ionicons name="sparkles-outline" size={24} color={colors.coral} />
-                  <Text style={styles.emptyJournalTitle}>No memory verses yet</Text>
-                  <Text style={styles.emptyJournalText}>{`${friendlyName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.`}</Text>
+                  <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No memory verses yet</Text>
+                  <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.`}</Text>
                   <View style={styles.emptyMemoryActions}>
                     <AppButton label="Open Bible" onPress={() => setTab("bible")} />
-                    <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} />
+                    <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                   </View>
                 </View>
               ) : (
                 <View style={styles.memoryList}>
                   {!phoneMemoryFocusMode && (
-                    <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox]}>
+                    <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox, memoryDarkMode && styles.accountDarkSection]}>
                       <View style={styles.addMemoryCopy}>
                         <View style={styles.feedbackHeader}>
                           <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
-                          <Text style={styles.feedbackTitle}>Add memory verses</Text>
+                          <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Add memory verses</Text>
                         </View>
-                        <Text style={styles.addMemoryText}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
+                        <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
                       </View>
                       <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
                         <AppButton label="Find in Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddButton} />
-                        <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={phoneLayout && styles.phoneMemoryAddButton} />
+                        <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                       </View>
                     </View>
                   )}
-                  {!phoneMemoryFocusMode && <View style={styles.memoryViewToggle}>
+                  {!phoneMemoryFocusMode && <View style={[styles.memoryViewToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                     {[
                       ["review", "Review"],
                       ["browse", "Browse"]
@@ -5360,13 +5361,13 @@ export default function Home() {
                         onPress={() => setMemoryView(key as MemoryView)}
                         style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
                       >
-                        <Text style={[styles.memoryViewText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
+                        <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
                       </Pressable>
                     ))}
                   </View>}
                   {!phoneMemoryFocusMode && (
-                    <View style={styles.memoryListTools}>
-                      <Text style={styles.muted}>Saved verses open compact by default so the list is easier to scan.</Text>
+                    <View style={[styles.memoryListTools, memoryDarkMode && styles.accountDarkSection]}>
+                      <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Saved verses open compact by default so the list is easier to scan.</Text>
                       <ResumeButton
                         label={memoryCardsExpanded ? "Compact list" : "Expand all"}
                         icon={memoryCardsExpanded ? "contract-outline" : "expand-outline"}
@@ -5374,38 +5375,40 @@ export default function Home() {
                           setMemoryCardsExpanded((expanded) => !expanded);
                           setExpandedMemoryVerseIds([]);
                         }}
-                        style={phoneLayout && styles.phoneMemoryListToolButton}
-                        labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                        style={[phoneLayout && styles.phoneMemoryListToolButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                        labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                       />
                     </View>
                   )}
                   {!phoneMemoryFocusMode && memoryView === "browse" && (
                     <>
-                      <View style={styles.journalSearchBox}>
+                      <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
                         <Ionicons name="search-outline" size={18} color={colors.coral} />
                         <TextInput
                           value={memorySearch}
                           onChangeText={setMemorySearch}
                           placeholder="Search reference or verse text"
-                          style={styles.journalSearchInput}
+                          placeholderTextColor={memoryDarkMode ? "#8f8678" : undefined}
+                          style={[styles.journalSearchInput, memoryDarkMode && styles.accountDarkText]}
                         />
                         {!!memorySearch.trim() && (
                           <Pressable onPress={() => setMemorySearch("")} style={styles.clearSearchButton}>
-                            <Ionicons name="close-outline" size={18} color={colors.muted} />
+                            <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#c8bda9" : colors.muted} />
                           </Pressable>
                         )}
                       </View>
-                      <View style={styles.memoryDiscoverBlock}>
-                        <Text style={styles.memoryDiscoverLabel}>Books saved</Text>
+                      <View style={[styles.memoryDiscoverBlock, memoryDarkMode && styles.accountDarkSection]}>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Books saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
                             onPress={() => {
                               setMemoryBookFilter("all");
                               setMemoryChapterFilter("all");
                             }}
-                            style={[styles.filterChip, memoryBookFilter === "all" && styles.activeFilterChip]}
+                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === "all" && styles.activeFilterChip]}
                           >
-                            <Text style={[styles.filterText, memoryBookFilter === "all" && styles.activeFilterText]}>All books</Text>
+                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === "all" && styles.activeFilterText]}>All books</Text>
                           </Pressable>
                           {memoryBookOptions.map((book) => (
                             <Pressable
@@ -5414,35 +5417,35 @@ export default function Home() {
                                 setMemoryBookFilter(book.book);
                                 setMemoryChapterFilter("all");
                               }}
-                              style={[styles.filterChip, memoryBookFilter === book.book && styles.activeFilterChip]}
+                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === book.book && styles.activeFilterChip]}
                             >
-                              <Text style={[styles.filterText, memoryBookFilter === book.book && styles.activeFilterText]}>
+                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book.book && styles.activeFilterText]}>
                                 {book.book} ({book.count})
                               </Text>
                             </Pressable>
                           ))}
                         </View>
-                        <Text style={styles.memoryDiscoverLabel}>Chapters saved</Text>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Chapters saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
                             onPress={() => setMemoryChapterFilter("all")}
-                            style={[styles.filterChip, memoryChapterFilter === "all" && styles.activeFilterChip]}
+                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryChapterFilter === "all" && styles.activeFilterChip]}
                           >
-                            <Text style={[styles.filterText, memoryChapterFilter === "all" && styles.activeFilterText]}>All chapters</Text>
+                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryChapterFilter === "all" && styles.activeFilterText]}>All chapters</Text>
                           </Pressable>
                           {memoryChapterOptions.map((chapter) => (
                             <Pressable
                               key={chapter.key}
                               onPress={() => setMemoryChapterFilter(chapter.key)}
-                              style={[styles.filterChip, memoryChapterFilter === chapter.key && styles.activeFilterChip]}
+                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryChapterFilter === chapter.key && styles.activeFilterChip]}
                             >
-                              <Text style={[styles.filterText, memoryChapterFilter === chapter.key && styles.activeFilterText]}>
+                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryChapterFilter === chapter.key && styles.activeFilterText]}>
                                 {chapter.label} ({chapter.count})
                               </Text>
                             </Pressable>
                           ))}
                         </View>
-                        <Text style={styles.memoryDiscoverLabel}>Status</Text>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Status</Text>
                         <View style={styles.filterRow}>
                           {[
                             ["all", "All"],
@@ -5453,9 +5456,9 @@ export default function Home() {
                             <Pressable
                               key={key}
                               onPress={() => setMemoryBrowseStatusFilter(key as MemoryBrowseStatusFilter)}
-                              style={[styles.filterChip, memoryBrowseStatusFilter === key && styles.activeFilterChip]}
+                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBrowseStatusFilter === key && styles.activeFilterChip]}
                             >
-                              <Text style={[styles.filterText, memoryBrowseStatusFilter === key && styles.activeFilterText]}>{label}</Text>
+                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBrowseStatusFilter === key && styles.activeFilterText]}>{label}</Text>
                             </Pressable>
                           ))}
                         </View>
@@ -5467,10 +5470,10 @@ export default function Home() {
                       {!phoneMemoryFocusMode && (
                         <>
                           <View style={styles.memorySectionHeader}>
-                            <Text style={styles.memorySectionTitle}>{section.title}</Text>
-                            <Text style={styles.memorySectionCount}>{section.verses.length}</Text>
+                            <Text style={[styles.memorySectionTitle, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                            <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
                           </View>
-                          <Text style={styles.muted}>{section.description}</Text>
+                          <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
                         </>
                       )}
                       {section.verses.map((verse: any) => {
@@ -5480,7 +5483,7 @@ export default function Home() {
                         const cardExpanded = memoryCardsExpanded || expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen;
 
                         return (
-                          <View key={verse._id} style={[styles.memoryCard, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard]}>
+                          <View key={verse._id} style={[styles.memoryCard, memoryDarkMode && styles.accountDarkSection, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard, memoryDarkMode && practicing && styles.memoryDarkActiveCard]}>
                             <Pressable
                               onPress={() => {
                                 setExpandedMemoryVerseIds((current) =>
@@ -5491,26 +5494,26 @@ export default function Home() {
                             >
                               <View style={styles.journalTitleBlock}>
                                 <View style={styles.memoryReferenceRow}>
-                                  <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle]}>{verse.reference}</Text>
+                                  <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
                                   <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={colors.coral} />
                                 </View>
-                                <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel]}>
+                                <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
                                   {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
                                 </Text>
                               </View>
                               <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
-                                <Text style={[styles.reviewDatePill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
-                                <Text style={[styles.draftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
+                                <Text style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
+                                <Text style={[styles.draftPill, memoryDarkMode && styles.plansDarkDraftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>
                             </Pressable>
-                            {!cardExpanded && <Text numberOfLines={1} style={styles.memoryVersePreview}>{verse.verseText}</Text>}
+                            {!cardExpanded && <Text numberOfLines={1} style={[styles.memoryVersePreview, memoryDarkMode && styles.accountDarkMutedText]}>{verse.verseText}</Text>}
                             {cardExpanded && (
                               <>
                             {practicing ? (
-                              <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice]}>
+                              <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice, memoryDarkMode && styles.accountDarkInsetBox]}>
                                 <View style={[styles.memoryPracticeHeader, phoneLayout && styles.phoneMemoryPracticeHeader]}>
-                                  <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
-                                  <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow]}>
+                                  <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle, memoryDarkMode && styles.accountDarkMutedText]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
+                                  <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                                     {[1, 2, 3].map((level) => (
                                       <Pressable
                                         key={level}
@@ -5519,7 +5522,7 @@ export default function Home() {
                                       >
                                         <Text
                                           numberOfLines={1}
-                                          style={[styles.memoryStepText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}
+                                          style={[styles.memoryStepText, memoryDarkMode && styles.accountDarkMutedText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}
                                         >
                                           {phoneLayout ? level : `Step ${level}`}
                                         </Text>
@@ -5528,9 +5531,9 @@ export default function Home() {
                                   </View>
                                 </View>
                                 {memoryPracticeLevel === 1 ? (
-                                  <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText]}>{memoryPracticeText}</Text>
+                                  <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText, memoryDarkMode && styles.memoryDarkPracticeText]}>{memoryPracticeText}</Text>
                                 ) : (
-                                  <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox]}>
+                                  <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox, memoryDarkMode && styles.memoryDarkFillBox]}>
                                     {memoryPracticeTokens.map((token) => {
                                       const blankIndex = token.blank ? memoryBlankTokens.findIndex((item) => item.index === token.index) : -1;
                                       return token.blank ? (
@@ -5549,9 +5552,10 @@ export default function Home() {
                                           onMoreHint={() => showMoreMemoryHint(token.index)}
                                           returnKeyType={blankIndex === memoryBlankTokens.length - 1 ? "done" : "next"}
                                           compact={phoneLayout}
+                                          darkMode={memoryDarkMode}
                                         />
                                       ) : (
-                                        <Text key={token.index} style={styles.memoryPracticeWord}>{token.text}</Text>
+                                        <Text key={token.index} style={[styles.memoryPracticeWord, memoryDarkMode && styles.accountDarkText]}>{token.text}</Text>
                                       );
                                     })}
                                   </View>
@@ -5572,55 +5576,58 @@ export default function Home() {
                                       labelStyle={phoneLayout && styles.phoneMemoryActionText}
                                     />
                                   ) : (
-                                    <ResumeButton label={memoryPracticeLevel === 1 ? "Ready for Step 2" : "Check answers"} icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                    <ResumeButton label={memoryPracticeLevel === 1 ? "Ready for Step 2" : "Check answers"} icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   )}
                                   {memoryPracticeLevel > 1 && (
-                                    <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                    <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   )}
                                   {memoryPracticeLevel > 1 && !memoryPracticeAllCorrect && (
                                     <ResumeButton
                                       label={memoryHintsVisible ? "Hide hints" : "Show hints"}
                                       icon="bulb-outline"
                                       onPress={() => setMemoryHintsVisible((visible) => !visible)}
-                                      style={phoneLayout && styles.phoneMemoryActionButton}
-                                      labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                                      style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                      labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                      iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                     />
                                   )}
-                                  <ResumeButton label="Close" icon="close-outline" onPress={() => setActiveMemoryVerseId("")} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  <ResumeButton label="Close" icon="close-outline" onPress={() => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                 </View>
                               </View>
                             ) : (
                               <>
-                                <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText]}>{verse.verseText}</Text>
-                                {!!verse.note && <Text style={styles.muted}>{verse.note}</Text>}
+                                <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText, memoryDarkMode && styles.accountDarkText]}>{verse.verseText}</Text>
+                                {!!verse.note && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{verse.note}</Text>}
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
-                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   <ResumeButton
                                     label={reviewOpen ? "Hide review" : "Change review"}
                                     icon="calendar-outline"
                                     onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
-                                    style={phoneLayout && styles.phoneMemoryActionButton}
-                                    labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                   />
                                   <ResumeButton
                                     label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
                                     icon="trash-outline"
                                     onPress={() => deleteMemoryVerse(verse)}
-                                    style={phoneLayout && styles.phoneMemoryActionButton}
-                                    labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                   />
                                 </View>
                                 {reviewOpen && (
-                                  <View style={styles.reviewScheduleBox}>
-                                    <Text style={styles.memoryDiscoverLabel}>Review again</Text>
+                                  <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                    <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review again</Text>
                                     <View style={styles.filterRow}>
                                       {MEMORY_REVIEW_OPTIONS.map((option) => (
                                         <Pressable
                                           key={option.id}
                                           onPress={() => scheduleMemoryVerseReview(verse, option.id)}
-                                          style={[styles.filterChip, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterChip]}
+                                          style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterChip]}
                                         >
-                                          <Text style={[styles.filterText, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                          <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterText]}>{option.label}</Text>
                                         </Pressable>
                                       ))}
                                     </View>
@@ -5636,10 +5643,10 @@ export default function Home() {
                     </View>
                   ))}
                   {memoryView === "browse" && memoryBrowseSections.length === 0 && (
-                    <View style={styles.emptyJournalBox}>
+                    <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="search-outline" size={24} color={colors.coral} />
-                      <Text style={styles.emptyJournalTitle}>No saved verses found</Text>
-                      <Text style={styles.emptyJournalText}>Try a book, chapter, reference, or a phrase from the verse.</Text>
+                      <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No saved verses found</Text>
+                      <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>Try a book, chapter, reference, or a phrase from the verse.</Text>
                     </View>
                   )}
                 </View>
@@ -8343,7 +8350,8 @@ function MemoryBlank({
   onSubmit,
   onMoreHint,
   returnKeyType = "next",
-  compact = false
+  compact = false,
+  darkMode = false
 }: {
   token: { index: number; answer: string };
   value: string;
@@ -8356,6 +8364,7 @@ function MemoryBlank({
   onMoreHint: () => void;
   returnKeyType?: "next" | "done";
   compact?: boolean;
+  darkMode?: boolean;
 }) {
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
   const normalizedValue = normalizeMemoryAnswer(value);
@@ -8376,6 +8385,7 @@ function MemoryBlank({
         returnKeyType={returnKeyType}
         style={[
           styles.memoryBlankInput,
+          darkMode && styles.memoryDarkBlankInput,
           correct && styles.correctMemoryBlankInput,
           incorrect && styles.incorrectMemoryBlankInput
         ]}
@@ -8385,7 +8395,7 @@ function MemoryBlank({
           <Text style={styles.memoryHintText}>{memoryHintText(token.answer, hintLevel)}</Text>
           {canShowMoreHint && (
             <Pressable onPress={onMoreHint} style={styles.moreMemoryHintButton}>
-              <Text style={styles.moreMemoryHintText}>Hint</Text>
+              <Text style={[styles.moreMemoryHintText, darkMode && styles.accountDarkMutedText]}>Hint</Text>
             </Pressable>
           )}
         </View>
@@ -15451,6 +15461,32 @@ const styles = StyleSheet.create({
   methodsDarkWatchBox: {
     backgroundColor: "rgba(201, 103, 80, 0.12)",
     borderColor: "rgba(201, 103, 80, 0.32)"
+  },
+  memoryDarkFocusBanner: {
+    backgroundColor: "rgba(201, 103, 80, 0.12)",
+    borderColor: "rgba(201, 103, 80, 0.32)"
+  },
+  memoryDarkCountPill: {
+    backgroundColor: "#2d352d",
+    color: "#f7eddc"
+  },
+  memoryDarkActiveCard: {
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(201, 103, 80, 0.34)"
+  },
+  memoryDarkReviewPill: {
+    backgroundColor: "#1b211f",
+    color: "#f7eddc"
+  },
+  memoryDarkPracticeText: {
+    backgroundColor: "#1b211f",
+    color: "#f7eddc"
+  },
+  memoryDarkFillBox: {
+    backgroundColor: "#1b211f"
+  },
+  memoryDarkBlankInput: {
+    color: "#f7eddc"
   },
   studyDarkStepPanel: {
     backgroundColor: "#171b1c",

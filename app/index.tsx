@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -24,6 +24,7 @@ type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
 type WorksheetWritingSpace = "standard" | "more";
+const DARK_MODE_ENABLED = true;
 type AnswerMap = Record<string, string>;
 type BibleTranslationId = "bsb" | "web" | "kjv";
 type AuthFlow = "signIn" | "signUp";
@@ -155,6 +156,7 @@ const ADMIN_WORLD_MAP_URI = "https://upload.wikimedia.org/wikipedia/commons/thum
 const APP_SHARE_URL = "https://biblestudytutor.org";
 const APP_SHARE_QR_TARGET_URL = `${APP_SHARE_URL}/?shared=qr`;
 const APP_SHARE_QR_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
+const APP_SHARE_QR_DARK_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&color=E9B76A&bgcolor=1B211F&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
 type AdminRegionInsight = { name: string; description: string; count: number; x: number; y: number; size: "small" | "medium" | "large" };
 const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
   { name: "Australia", description: "Broad region only", count: 0, x: 79, y: 73, size: "large" },
@@ -546,6 +548,7 @@ export default function Home() {
   const [editReflectionNextStep, setEditReflectionNextStep] = useState("");
   const [isSavingJournalEdit, setIsSavingJournalEdit] = useState(false);
   const [bibleTranslation, setBibleTranslation] = useState<BibleTranslationId>("bsb");
+  const [appearanceMode, setAppearanceMode] = useState<StoredAppearanceMode>("light");
   const [readerBook, setReaderBook] = useState("Genesis");
   const [readerChapter, setReaderChapter] = useState(1);
   const [readerChapterDraft, setReaderChapterDraft] = useState("1");
@@ -666,6 +669,9 @@ export default function Home() {
       .catch(() => undefined);
     getStoredBibleTranslation()
       .then(setBibleTranslation)
+      .catch(() => undefined);
+    getStoredAppearanceMode()
+      .then(setAppearanceMode)
       .catch(() => undefined);
     getStoredBibleReaderPosition()
       .then((position) => {
@@ -1191,6 +1197,16 @@ export default function Home() {
         : `${(communityCircles || []).length} circle${(communityCircles || []).length === 1 ? "" : "s"}`;
   const showFriendsConnectionPanel = !phoneLayout || mobileFriendsPanelOpen;
   const showCircleConnectionPanel = !phoneLayout || mobileCirclesPanelOpen;
+  const accountDarkMode = DARK_MODE_ENABLED && appearanceMode === "dark";
+  const homeDarkMode = accountDarkMode;
+  const helpDarkMode = accountDarkMode;
+  const studyDarkMode = accountDarkMode;
+  const bibleDarkMode = accountDarkMode;
+  const plansDarkMode = accountDarkMode;
+  const methodsDarkMode = accountDarkMode;
+  const memoryDarkMode = accountDarkMode;
+  const journalDarkMode = accountDarkMode;
+  const communityDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
@@ -2387,21 +2403,21 @@ export default function Home() {
 
   function renderShareInsightCommunityControls(noteOverride?: string) {
     return (
-      <View style={styles.shareInsightCommunityBox}>
-        <Text style={styles.circleManagementLabel}>Post inside Bible Study Tutor</Text>
+      <View style={[styles.shareInsightCommunityBox, accountDarkMode && styles.accountDarkInsetBox]}>
+        <Text style={[styles.circleManagementLabel, accountDarkMode && styles.studyDarkAccentText]}>Post inside Bible Study Tutor</Text>
         {hasAvailableCommunityTarget ? (
           <>
-            <Pressable onPress={() => setShareInsightTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
+            <Pressable onPress={() => setShareInsightTargetPickerOpen((open) => !open)} style={[styles.communityTargetSelect, accountDarkMode && styles.accountDarkInput]}>
               <View style={styles.communityTargetSelectTextBlock}>
-                <Text style={styles.communityRecipientText}>{hasShareInsightTarget ? activeShareInsightTargetName : "Choose friends or a circle"}</Text>
+                <Text style={[styles.communityRecipientText, accountDarkMode && styles.accountDarkText]}>{hasShareInsightTarget ? activeShareInsightTargetName : "Choose friends or a circle"}</Text>
               </View>
-              <Ionicons name={shareInsightTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+              <Ionicons name={shareInsightTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
             </Pressable>
             {shareInsightTargetPickerOpen && (
-              <View style={styles.communityTargetPickerPanel}>
+              <View style={[styles.communityTargetPickerPanel, accountDarkMode && styles.accountDarkSection]}>
                 {acceptedCommunityFriends.length > 0 && (
                   <View style={styles.communityTargetPickerGroup}>
-                    <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
+                    <Text style={[styles.circleManagementLabel, accountDarkMode && styles.studyDarkAccentText]}>Friends - select one or more</Text>
                     {acceptedCommunityFriends.map((friend: any) => {
                       const isTarget = shareInsightTargetType === "friend" && shareInsightFriendIds.some((id) => String(id) === String(friend._id));
                       return (
@@ -2416,12 +2432,12 @@ export default function Home() {
                               return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
                             });
                           }}
-                          style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                          style={[styles.communityTargetOption, accountDarkMode && styles.accountDarkInsetBox, isTarget && styles.activeCommunityTargetOption]}
                         >
-                          <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
+                          <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                           <View style={styles.journalTitleBlock}>
-                            <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
-                            {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
+                            <Text style={[styles.communityTargetOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{friend.name}</Text>
+                            {!!friend.email && <Text style={[styles.circleChipMeta, accountDarkMode && styles.accountDarkMutedText]}>{friend.email}</Text>}
                           </View>
                         </Pressable>
                       );
@@ -2430,7 +2446,7 @@ export default function Home() {
                 )}
                 {(communityCircles || []).length > 0 && (
                   <View style={styles.communityTargetPickerGroup}>
-                    <Text style={styles.circleManagementLabel}>Circles</Text>
+                    <Text style={[styles.circleManagementLabel, accountDarkMode && styles.studyDarkAccentText]}>Circles</Text>
                     {(communityCircles || []).map((circle: any) => {
                       const isTarget = shareInsightTargetType === "circle" && String(shareInsightCircleId) === String(circle._id);
                       return (
@@ -2443,12 +2459,12 @@ export default function Home() {
                             setShareInsightTargetPickerOpen(false);
                             setShareInsightPostedReady(false);
                           }}
-                          style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                          style={[styles.communityTargetOption, accountDarkMode && styles.accountDarkInsetBox, isTarget && styles.activeCommunityTargetOption]}
                         >
-                          <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
+                          <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                           <View style={styles.journalTitleBlock}>
-                            <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
-                            <Text style={styles.circleChipMeta}>
+                            <Text style={[styles.communityTargetOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{circle.name}</Text>
+                            <Text style={[styles.circleChipMeta, accountDarkMode && styles.accountDarkMutedText]}>
                               {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
                             </Text>
                           </View>
@@ -2470,12 +2486,12 @@ export default function Home() {
                   postStudyInsightToCommunity(noteOverride);
                 }
               }}
-              style={phoneLayout && styles.phoneFullWidthButton}
-              labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
+              style={[phoneLayout && styles.phoneFullWidthButton, accountDarkMode && styles.homeDarkResumeButton]}
+              labelStyle={[phoneLayout && styles.phoneCommunityButtonLabel, accountDarkMode && styles.homeDarkResumeButtonText]}
             />
           </>
         ) : (
-          <Text style={styles.helpIntro}>Add a friend or join a private circle before posting an insight inside the app.</Text>
+          <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Add a friend or join a private circle before posting an insight inside the app.</Text>
         )}
       </View>
     );
@@ -2517,16 +2533,16 @@ export default function Home() {
         onPress={() => {
           if (!itemIsEditing) setFocusedCommunityItemId((current) => String(current) === String(item._id) ? "" : String(item._id));
         }}
-        style={[styles.checkinHistoryItem, focusedItem && styles.focusedCheckinHistoryItem, phoneLayout && styles.phoneCheckinHistoryItem]}
+        style={[styles.checkinHistoryItem, communityDarkMode && styles.accountDarkInsetBox, focusedItem && styles.focusedCheckinHistoryItem, communityDarkMode && focusedItem && styles.accountDarkSection, phoneLayout && styles.phoneCheckinHistoryItem]}
         accessibilityRole="button"
         accessibilityLabel={showActionRow ? "Hide post actions" : "Show post actions"}
       >
         <View style={styles.checkinHistoryHeader}>
           <View style={styles.checkinHistoryMeta}>
             <View style={styles.checkinTitleRow}>
-              <Text style={styles.checkinMood}>{itemLabel}</Text>
+              <Text style={[styles.checkinMood, communityDarkMode && styles.accountDarkTitle]}>{itemLabel}</Text>
             </View>
-            <Text style={styles.checkinDestinationText}>{itemMeta}</Text>
+            <Text style={[styles.checkinDestinationText, communityDarkMode && styles.accountDarkMutedText]}>{itemMeta}</Text>
           </View>
         </View>
         {itemIsEditing ? (
@@ -2534,10 +2550,11 @@ export default function Home() {
             value={editValue}
             onChangeText={itemIsPost ? setEditCommunityPostNote : setEditRecentCheckinNote}
             multiline
-            style={[styles.input, styles.checkinEditInput]}
+            placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+            style={[styles.input, styles.checkinEditInput, communityDarkMode && styles.accountDarkInput]}
           />
         ) : (
-          <Text style={styles.lastCheckinText}>{item.note || "No note added."}</Text>
+          <Text style={[styles.lastCheckinText, communityDarkMode && styles.accountDarkText]}>{item.note || "No note added."}</Text>
         )}
         {(reactionPostId && !itemIsEditing) || showActionRow ? (
           <View style={[styles.communityPostFooterRow, phoneLayout && styles.phoneCommunityPostFooterRow]}>
@@ -2552,12 +2569,12 @@ export default function Home() {
                         event.stopPropagation?.();
                         toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions);
                       }}
-                      style={[styles.circleReactionChip, active && styles.activeCircleReactionChip]}
+                      style={[styles.circleReactionChip, communityDarkMode && styles.accountDarkSection, active && styles.activeCircleReactionChip]}
                       accessibilityLabel={`${reaction.label} reaction`}
                     >
                       <Text style={styles.circleReactionSymbol}>{reaction.symbol}</Text>
                       {reaction.count > 0 && (
-                        <Text style={[styles.circleReactionText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
+                        <Text style={[styles.circleReactionText, communityDarkMode && styles.accountDarkMutedText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
                       )}
                     </Pressable>
                   );
@@ -2574,19 +2591,19 @@ export default function Home() {
                   >
                     <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
                   </Pressable>
-                  <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={styles.checkinIconButton} accessibilityLabel="Cancel edit">
-                    <Ionicons name="close-outline" size={16} color={colors.oliveDark} />
+                  <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel="Cancel edit">
+                    <Ionicons name="close-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                   </Pressable>
                 </>
               ) : (
                 <>
-                  <Pressable onPress={() => copyPastCheckinMessage(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
-                    <Ionicons name="copy-outline" size={16} color={colors.oliveDark} />
+                  <Pressable onPress={() => copyPastCheckinMessage(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
+                    <Ionicons name="copy-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                   </Pressable>
                   {canEditItem && (
                     <>
-                      <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={styles.checkinIconButton} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
-                        <Ionicons name="create-outline" size={16} color={colors.oliveDark} />
+                      <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
+                        <Ionicons name="create-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
                       <Pressable
                         onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
@@ -3587,31 +3604,31 @@ export default function Home() {
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
 
   return (
-    <View style={[styles.screen, compactLayout && styles.compactScreen]}>
+    <View style={[styles.screen, accountDarkMode && styles.appDarkScreen, compactLayout && styles.compactScreen]}>
       {phoneLayout && (
-        <View style={styles.mobileMenuBar}>
+        <View style={[styles.mobileMenuBar, accountDarkMode && styles.appDarkMobileMenuBar]}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={mobileMenuOpen ? "Close menu" : "Open menu"}
             onPress={() => setMobileMenuOpen((value) => !value)}
-            style={styles.mobileMenuButton}
+            style={[styles.mobileMenuButton, accountDarkMode && styles.appDarkMobileMenuButton]}
           >
-            <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={colors.oliveDark} />
+            <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
           </Pressable>
           <View style={styles.mobileMenuTitleBlock}>
-            <Text style={styles.mobileMenuTitle}>Bible Study Tutor</Text>
-            <Text style={styles.mobileMenuSubtitle}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
+            <Text style={[styles.mobileMenuTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
+            <Text style={[styles.mobileMenuSubtitle, accountDarkMode && styles.accountDarkMutedText]}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
           </View>
         </View>
       )}
 
-      <View style={[styles.sidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
+      <View style={[styles.sidebar, accountDarkMode && styles.appDarkSidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
         <View style={styles.brandRow}>
-          <View style={styles.brandMark}>
+          <View style={[styles.brandMark, accountDarkMode && styles.appDarkBrandMark]}>
             <Text style={styles.brandMarkText}>BT</Text>
           </View>
           <View style={styles.brandCopy}>
-            <Text style={styles.brandTitle}>Bible Study Tutor</Text>
+            <Text style={[styles.brandTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
           </View>
         </View>
 
@@ -3635,24 +3652,24 @@ export default function Home() {
                 setTab(key as Tab);
                 if (phoneLayout) setMobileMenuOpen(false);
               }}
-              style={[styles.tab, tab === key && styles.activeTab]}
+              style={[styles.tab, accountDarkMode && styles.appDarkTab, tab === key && styles.activeTab, accountDarkMode && tab === key && styles.appDarkActiveTab]}
             >
-              <Ionicons name={icon as any} size={18} color={tab === key ? colors.oliveDark : colors.muted} />
-              <Text style={[styles.tabLabel, tab === key && styles.activeTabLabel]}>{label}</Text>
+              <Ionicons name={icon as any} size={18} color={tab === key ? (accountDarkMode ? "#e9b76a" : colors.oliveDark) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
+              <Text style={[styles.tabLabel, accountDarkMode && styles.appDarkTabLabel, tab === key && styles.activeTabLabel, accountDarkMode && tab === key && styles.appDarkActiveTabLabel]}>{label}</Text>
             </Pressable>
           ))}
         </View>
 
         {!compactLayout && (
           <>
-            <Card style={styles.todayCard}>
+            <Card style={[styles.todayCard, accountDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Today</Eyebrow>
-              <Text style={styles.streakNumber}>{stats?.currentStreak ?? 0}</Text>
-              <Text style={styles.muted}>day rhythm</Text>
-              <View style={styles.progressTrack}>
+              <Text style={[styles.streakNumber, accountDarkMode && styles.accountDarkTitle]}>{stats?.currentStreak ?? 0}</Text>
+              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>day rhythm</Text>
+              <View style={[styles.progressTrack, accountDarkMode && styles.appDarkProgressTrack]}>
                 <View style={[styles.progressFill, { width: `${progress}%` }]} />
               </View>
-              <Text style={styles.muted}>{effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
+              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
             </Card>
 
           </>
@@ -3663,79 +3680,86 @@ export default function Home() {
         ref={appScrollRef}
         contentContainerStyle={[
           styles.content,
+          accountDarkMode && styles.appDarkContent,
           phoneLayout && styles.phoneContent,
           showMobileReaderSelectionDock && styles.contentWithMobileReaderDock,
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
         ]}
       >
         {tab === "home" && (
-          <View style={[styles.homeLayout, compactLayout && styles.stackedLayout]}>
-            <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.homeHero}>
+          <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
+            <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.homeHero, homeDarkMode && styles.homeDarkHero]}>
                 <Eyebrow>Purpose</Eyebrow>
-                <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle]}>
+                <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle, homeDarkMode && styles.homeDarkHeroTitle]}>
                   {firstName ? `${firstName}, draw near.` : "Draw near."}
                   {"\n"}
-                  <Text style={styles.homeHeroTitleAccent}>Be shaped by Scripture.</Text>
+                  <Text style={[styles.homeHeroTitleAccent, homeDarkMode && styles.homeDarkHeroTitleAccent]}>Be shaped by Scripture.</Text>
                 </Text>
-                <Text style={styles.homeHeroText}>
+                <Text style={[styles.homeHeroText, homeDarkMode && styles.homeDarkHeroText]}>
                   Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, and review in one simple place.
                 </Text>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a study" onPress={() => setTab("study")} style={phoneLayout && styles.homePhoneActionButton} />
-                  <AppButton label="Read Scripture" variant="secondary" onPress={() => setTab("bible")} style={phoneLayout && styles.homePhoneActionButton} />
+                  <AppButton
+                    label="Read Scripture"
+                    variant="secondary"
+                    onPress={() => setTab("bible")}
+                    style={[phoneLayout && styles.homePhoneActionButton, homeDarkMode && styles.homeDarkResumeButton]}
+                    labelStyle={homeDarkMode && styles.homeDarkResumeButtonText}
+                  />
                 </View>
               </View>
 
               <View style={styles.homeScriptureGrid}>
-                <View style={styles.homeScriptureBlock}>
-                  <View style={styles.homeScriptureIcon}>
-                    <Ionicons name="heart-outline" size={20} color={colors.coral} />
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                  <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                    <Ionicons name="heart-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
-                  <Text style={styles.homeScriptureRef}>James 4:8</Text>
-                  <Text style={styles.homeScriptureQuote}>“Draw near to God, and he will draw near to you.”</Text>
-                  <Text style={styles.homeScriptureNote}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
+                  <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>James 4:8</Text>
+                  <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Draw near to God, and he will draw near to you.”</Text>
+                  <Text style={[styles.homeScriptureNote, homeDarkMode && styles.accountDarkMutedText]}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
                 </View>
-                <View style={styles.homeScriptureBlock}>
-                  <View style={styles.homeScriptureIcon}>
-                    <Ionicons name="book-outline" size={20} color={colors.coral} />
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                  <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                    <Ionicons name="book-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
-                  <Text style={styles.homeScriptureRef}>2 Timothy 3:16</Text>
-                  <Text style={styles.homeScriptureQuote}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
-                  <Text style={styles.homeScriptureNote}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
+                  <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>2 Timothy 3:16</Text>
+                  <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
+                  <Text style={[styles.homeScriptureNote, homeDarkMode && styles.accountDarkMutedText]}>The tools are here to help Scripture teach, correct, train, and form a steady life with God.</Text>
                 </View>
               </View>
 
-              <View style={styles.homePurposePanel}>
-                <Text style={styles.homePurposeTitle}>Free Bible study for everyday discipleship.</Text>
-                <Text style={styles.homePurposeText}>
+              <View style={[styles.homePurposePanel, homeDarkMode && styles.homeDarkPurposePanel]}>
+                <Text style={[styles.homePurposeTitle, homeDarkMode && styles.accountDarkTitle]}>Free Bible study for everyday discipleship.</Text>
+                <Text style={[styles.homePurposeText, homeDarkMode && styles.accountDarkMutedText]}>
                   Built for individuals, small groups, and churches, Bible Study Tutor is free to use on desktop and mobile, with printable worksheets for anyone who prefers pen and paper.
                 </Text>
                 <View style={styles.homePurposePillRow}>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="gift-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Free to use</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="gift-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Free to use</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="phone-portrait-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Mobile ready</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="phone-portrait-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Mobile ready</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="desktop-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Desktop friendly</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="desktop-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Desktop friendly</Text>
                   </View>
-                  <View style={styles.homePurposePill}>
-                    <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
-                    <Text style={styles.homePurposePillText}>Printable worksheets</Text>
+                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
+                    <Ionicons name="print-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Printable worksheets</Text>
                   </View>
                 </View>
               </View>
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
-              <Card style={styles.homeSideCard}>
-                <Text style={styles.homeSideTitle}>Today’s path</Text>
-                <Text style={styles.titleSupport}>{`${friendlyName}, take the next small faithful step.`}</Text>
+              <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
+                <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
+                <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
                 <View style={styles.homePathList}>
                   {[
                     ["Read", "Open the Bible reader and choose a passage.", "reader-outline", "bible"],
@@ -3744,30 +3768,30 @@ export default function Home() {
                     ["Reflect", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your journal connected to Scripture.", "journal-outline", "journal"],
                     ["Share", effectivePartner ? `Encourage ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
                   ].map(([title, detail, icon, target]) => (
-                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={styles.homePathItem}>
-                      <View style={styles.homePathIcon}>
-                        <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
+                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={[styles.homePathItem, homeDarkMode && styles.homeDarkPathItem]}>
+                      <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                        <Ionicons name={icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </View>
                       <View style={styles.homePathTextBlock}>
-                        <Text style={styles.homePathTitle}>{title}</Text>
-                        <Text style={styles.homePathDetail}>{detail}</Text>
+                        <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                        <Text style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{detail}</Text>
                       </View>
-                      <Ionicons name="chevron-forward-outline" size={16} color={colors.muted} />
+                      <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                   ))}
                 </View>
               </Card>
 
-              <Card style={styles.homeSideCard}>
-                <Text style={styles.homeSideTitle}>At a glance</Text>
+              <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
+                <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>At a glance</Text>
                 <View style={styles.homeMetricGrid}>
-                  <Metric value={stats?.currentStreak ?? 0} label="day rhythm" compact={phoneLayout} />
-                  <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} />
-                  <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} />
+                  <Metric value={stats?.currentStreak ?? 0} label="day rhythm" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
+                  <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
+                  <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
                 </View>
                 <View style={styles.homeSmallActions}>
-                  <ResumeButton label="Choose method" icon="layers-outline" onPress={() => setTab("methods")} />
-                  <ResumeButton label="Open plans" icon="calendar-outline" onPress={() => setTab("plans")} />
+                  <ResumeButton label="Choose method" icon="layers-outline" onPress={() => setTab("methods")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Open plans" icon="calendar-outline" onPress={() => setTab("plans")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
                 </View>
               </Card>
             </View>
@@ -3775,35 +3799,35 @@ export default function Home() {
         )}
 
         {tab === "study" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard]}>
-              <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout, studyDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard, studyDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader, studyDarkMode && styles.studyDarkGuidedHeader]}>
                 <View style={[styles.studyGuidedTopRow, phoneLayout && styles.phoneStudyGuidedTopRow]}>
                   <View style={[styles.studyGuidedTitleBlock, phoneLayout && styles.phoneStudyGuidedTitleBlock]}>
                     <Eyebrow>Guided study</Eyebrow>
-                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
+                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
                   </View>
                   <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
-                    <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={styles.compactMethodPicker}>
-                      <Text style={styles.compactMethodLabel}>Method</Text>
-                      <Text style={styles.compactMethodCurrent}>{method.short}</Text>
-                      <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                    <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={[styles.compactMethodPicker, studyDarkMode && styles.studyDarkPillControl]}>
+                      <Text style={[styles.compactMethodLabel, studyDarkMode && styles.studyDarkAccentText]}>Method</Text>
+                      <Text style={[styles.compactMethodCurrent, studyDarkMode && styles.accountDarkTitle]}>{method.short}</Text>
+                      <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   </View>
                   <Pressable onPress={() => {
                     const nextValue = !studyFocusMode;
                     setStudyFocusMode(nextValue);
                     saveStoredStudyFocusMode(nextValue).catch(() => undefined);
-                  }} style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyFocusMode && styles.activeTogglePill]}>
-                    <Text style={[styles.toggleText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
+                  }} style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyDarkMode && styles.studyDarkTogglePill, studyFocusMode && styles.activeTogglePill]}>
+                    <Text style={[styles.toggleText, studyDarkMode && styles.accountDarkMutedText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
                   </Pressable>
                 </View>
                 <View style={[styles.studyGuidedDescriptionRow, phoneLayout && styles.phoneStudyGuidedDescriptionRow]}>
-                  {!studyFocusMode && <Text style={styles.titleSupport}>{`${method.description} Take your time and let the passage lead.`}</Text>}
+                  {!studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
                 </View>
               </View>
               {studyMethodPickerOpen && (
-                <View style={styles.compactMethodMenu}>
+                <View style={[styles.compactMethodMenu, studyDarkMode && styles.accountDarkInsetBox]}>
                   {methods.map((item) => (
                     <Pressable
                       key={item.id}
@@ -3811,9 +3835,9 @@ export default function Home() {
                         switchMethod(item.id);
                         setStudyMethodPickerOpen(false);
                       }}
-                      style={[styles.compactMethodChip, method.id === item.id && styles.activeCompactMethodChip]}
+                      style={[styles.compactMethodChip, studyDarkMode && styles.studyDarkMethodChip, method.id === item.id && styles.activeCompactMethodChip]}
                     >
-                      <Text style={[styles.compactMethodText, method.id === item.id && styles.activeCompactMethodText]}>{item.short}</Text>
+                      <Text style={[styles.compactMethodText, studyDarkMode && styles.accountDarkMutedText, method.id === item.id && styles.activeCompactMethodText]}>{item.short}</Text>
                     </Pressable>
                   ))}
                 </View>
@@ -3821,15 +3845,16 @@ export default function Home() {
 
               {!studyFocusMode && (
                 <>
-                  <View style={styles.smartPassageBox}>
-                    <View style={styles.smartPassageHeader}>
-                      <Ionicons name="search-outline" size={20} color={colors.coral} />
+                  <View style={[styles.smartPassageBox, studyDarkMode && styles.studyDarkSmartPassageBox]}>
+                    <View style={[styles.smartPassageHeader, studyDarkMode && styles.accountDarkInput]}>
+                      <Ionicons name="search-outline" size={20} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                       <TextInput
                         value={passageQuery}
                         onChangeText={setPassageQuery}
                         onSubmitEditing={() => applyPassageQuery()}
                         placeholder="Try “Jn 3:16”, “Ps 23”, or “1 Thes 1:1”"
-                        style={styles.smartPassageInput}
+                        placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+                        style={[styles.smartPassageInput, studyDarkMode && styles.accountDarkText]}
                       />
                       <Pressable onPress={() => applyPassageQuery()} style={styles.useInlineButton}>
                         <Text style={styles.useInlineText}>Use</Text>
@@ -3848,10 +3873,21 @@ export default function Home() {
                       <Pressable
                         key={item.title}
                         onPress={() => goToStudyStep(index)}
-                        style={[styles.studyProgressPill, stepAnswered && styles.completedStudyProgressPill, active && styles.activeStudyProgressPill]}
+                        style={[styles.studyProgressPill, studyDarkMode && styles.studyDarkProgressPill, stepAnswered && styles.completedStudyProgressPill, studyDarkMode && stepAnswered && styles.studyDarkCompletedProgressPill, active && styles.activeStudyProgressPill]}
                       >
-                        <Text style={[styles.studyProgressNumber, stepAnswered && styles.completedStudyProgressNumber, active && styles.activeStudyProgressNumber]}>{index + 1}</Text>
-                        <Text style={[styles.studyProgressText, stepAnswered && styles.completedStudyProgressText, active && styles.activeStudyProgressText]} numberOfLines={1}>
+                        <Text
+                          style={[
+                            styles.studyProgressNumber,
+                            studyDarkMode && styles.studyDarkProgressNumber,
+                            stepAnswered && styles.completedStudyProgressNumber,
+                            studyDarkMode && stepAnswered && styles.studyDarkCompletedProgressNumber,
+                            active && styles.activeStudyProgressNumber,
+                            studyDarkMode && active && styles.studyDarkActiveProgressNumber
+                          ]}
+                        >
+                          {index + 1}
+                        </Text>
+                        <Text style={[styles.studyProgressText, studyDarkMode && styles.accountDarkMutedText, stepAnswered && styles.completedStudyProgressText, studyDarkMode && stepAnswered && styles.accountDarkTitle, active && styles.activeStudyProgressText]} numberOfLines={1}>
                           {item.title}
                         </Text>
                       </Pressable>
@@ -3860,13 +3896,13 @@ export default function Home() {
                 </View>
               )}
 
-              <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyPhase === "study" && styles.attachedScriptureBox, studyFocusMode && styles.focusScriptureBox]}>
+              <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyPhase === "study" && styles.attachedScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
                 <View style={styles.scriptureHeader}>
                   <View>
                     <Eyebrow>Passage text</Eyebrow>
-                    <Text style={styles.scriptureReference}>{passageText?.reference || passage}</Text>
+                    <Text style={[styles.scriptureReference, studyDarkMode && styles.accountDarkTitle]}>{passageText?.reference || passage}</Text>
                   </View>
-                  <View style={styles.translationControls}>
+                  <View style={[styles.translationControls, studyDarkMode && styles.accountDarkSegmentedRow]}>
                     {BIBLE_TRANSLATIONS.map((translation) => (
                       <Pressable
                         key={translation.id}
@@ -3876,7 +3912,7 @@ export default function Home() {
                         }}
                         style={[styles.translationOption, bibleTranslation === translation.id && styles.activeTranslationOption]}
                       >
-                        <Text style={[styles.translationOptionText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
+                        <Text style={[styles.translationOptionText, studyDarkMode && styles.accountDarkMutedText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
                           {translation.label}
                         </Text>
                       </Pressable>
@@ -3887,7 +3923,7 @@ export default function Home() {
                   <>
                     {passageText.verses?.length ? (
                       <>
-                        <Text style={styles.markupHelp}>Tap one or more verses, then choose a highlight label.</Text>
+                        <Text style={[styles.markupHelp, studyDarkMode && styles.accountDarkMutedText]}>Tap one or more verses, then choose a highlight label.</Text>
                         <View style={styles.verseList}>
                           {passageText.verses.map((verse) => {
                             const key = verseMarkupKey(verse);
@@ -3903,13 +3939,14 @@ export default function Home() {
                                   style={[
                                     styles.verseRow,
                                     phoneLayout && styles.phoneVerseRow,
+                                    !markupOption && studyDarkMode && styles.studyDarkVerseRow,
                                     markupOption && { backgroundColor: markupOption.background, borderColor: markupOption.background },
                                     selected && styles.selectedVerseRow
                                   ]}
                                 >
                                   <Text style={[styles.verseNumber, phoneLayout && styles.phoneVerseNumber, markupOption && { color: markupOption.color }]}>{verse.verse}</Text>
                                   <View style={styles.verseTextBlock}>
-                                    <Text style={[styles.verseText, phoneLayout && styles.phoneVerseText, markupOption && { color: markupOption.color }]}>{verse.text.trim()}</Text>
+                                    <Text style={[styles.verseText, phoneLayout && styles.phoneVerseText, studyDarkMode && !markupOption && styles.accountDarkText, markupOption && { color: markupOption.color }]}>{verse.text.trim()}</Text>
                                   </View>
                                   {savedToMemory && (
                                     <View style={styles.memoryVerseBadge}>
@@ -3919,13 +3956,13 @@ export default function Home() {
                                   )}
                                 </Pressable>
                                 {selectedVerses.length > 0 && key === activeStudyMarkupVerseKey && (
-                                  <View style={[styles.inlineReaderActionBar, styles.inlineStudyMarkupBar, phoneLayout && styles.phoneInlineStudyMarkupBar]}>
+                                  <View style={[styles.inlineReaderActionBar, styles.inlineStudyMarkupBar, phoneLayout && styles.phoneInlineStudyMarkupBar, studyDarkMode && styles.studyDarkFloatingBar]}>
                                     <View style={styles.selectedMarkupHeader}>
-                                      <Text style={styles.readerSelectionText}>
+                                      <Text style={[styles.readerSelectionText, studyDarkMode && styles.accountDarkTitle]}>
                                         {selectedVerses.length === 1 ? `Verse ${selectedVerses[0].verse} selected` : `${selectedVerses.length} verses selected`}
                                       </Text>
                                       <Pressable onPress={() => setSelectedVerseKeys([])} style={styles.selectedMarkupCloseButton}>
-                                        <Ionicons name="close-outline" size={18} color={colors.oliveDark} />
+                                        <Ionicons name="close-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                                       </Pressable>
                                     </View>
                                     <View style={[styles.markupOptionsRow, styles.compactMarkupOptionsRow]}>
@@ -3946,30 +3983,31 @@ export default function Home() {
                                     </View>
                                     <View style={styles.inlineReaderActions}>
                                       {selectedMarkupKinds.length > 0 && (
-                                        <Pressable onPress={clearVerseMarkup} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton]}>
-                                          <Ionicons name="remove-circle-outline" size={14} color={colors.oliveDark} />
-                                          <Text style={styles.inlineReaderBookmarkText}>Unmark</Text>
+                                        <Pressable onPress={clearVerseMarkup} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                                          <Ionicons name="remove-circle-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                          <Text style={[styles.inlineReaderBookmarkText, studyDarkMode && styles.homeDarkResumeButtonText]}>Unmark</Text>
                                         </Pressable>
                                       )}
                                       <Pressable onPress={saveSelectedVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, styles.memoryReaderButton, selectedVersesAlreadyInMemory && styles.savedMemoryButton]}>
                                         <Ionicons name="sparkles-outline" size={14} color="white" />
                                         <Text style={styles.memoryReaderButtonText}>{selectedVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
                                       </Pressable>
-                                      <Pressable onPress={openStudyWorksheetOptions} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton]}>
-                                        <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
-                                        <Text style={styles.inlineReaderBookmarkText}>Print</Text>
+                                      <Pressable onPress={openStudyWorksheetOptions} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                                        <Ionicons name="print-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                        <Text style={[styles.inlineReaderBookmarkText, studyDarkMode && styles.homeDarkResumeButtonText]}>Print</Text>
                                       </Pressable>
                                     </View>
                                     {!!memoryStatus && <Text style={styles.saveStatus}>{memoryStatus}</Text>}
                                     {!!selectedHighlightedVerseKey && (
-                                      <View style={styles.markupNoteBox}>
+                                      <View style={[styles.markupNoteBox, studyDarkMode && styles.accountDarkInsetBox]}>
                                         <Text style={styles.markupNoteLabel}>Verse note</Text>
                                         <TextInput
                                           multiline
                                           value={passageMarkupNotes[selectedHighlightedVerseKey] || ""}
                                           onChangeText={updateSelectedVerseNote}
                                           placeholder="Why did this verse stand out?"
-                                          style={[styles.input, styles.markupNoteInput]}
+                                          placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+                                          style={[styles.input, styles.markupNoteInput, studyDarkMode && styles.accountDarkInput]}
                                         />
                                       </View>
                                     )}
@@ -3980,9 +4018,9 @@ export default function Home() {
                           })}
                         </View>
                         {selectedVerses.length === 0 && highlightedVerseCount > 0 && (
-                          <View style={[styles.markupToolbar, phoneLayout && styles.phoneMarkupToolbar]}>
+                          <View style={[styles.markupToolbar, phoneLayout && styles.phoneMarkupToolbar, studyDarkMode && styles.accountDarkInsetBox]}>
                             <View style={styles.markupToolbarHeader}>
-                              <Text style={styles.markupToolbarTitle}>
+                              <Text style={[styles.markupToolbarTitle, studyDarkMode && styles.accountDarkTitle]}>
                                 {selectedVerses.length === 0
                                   ? "Highlight key"
                                   : selectedVerses.length === 1
@@ -3995,7 +4033,7 @@ export default function Home() {
                                 </Pressable>
                               )}
                             </View>
-                            {selectedVerses.length === 0 && <Text style={styles.markupToolbarHelp}>Select one or more verses to add or change highlights.</Text>}
+                            {selectedVerses.length === 0 && <Text style={[styles.markupToolbarHelp, studyDarkMode && styles.accountDarkMutedText]}>Select one or more verses to add or change highlights.</Text>}
                             <View style={styles.markupOptionsRow}>
                               {PASSAGE_MARKUP_OPTIONS.map((option) => (
                                 <Pressable
@@ -4050,9 +4088,9 @@ export default function Home() {
                         )}
                       </>
                     ) : (
-                      <Text style={styles.scriptureText}>{passageText.text.trim()}</Text>
+                      <Text style={[styles.scriptureText, studyDarkMode && styles.accountDarkText]}>{passageText.text.trim()}</Text>
                     )}
-                    <Text style={styles.translationNote}>
+                    <Text style={[styles.translationNote, studyDarkMode && styles.accountDarkMutedText]}>
                       {passageText.translation_name} · {passageText.translation_note || "Public Domain"}
                     </Text>
                     {passageText.verses?.length ? (
@@ -4061,15 +4099,16 @@ export default function Home() {
                           label={selectedVerses.length ? "Print selected worksheet" : "Print worksheet"}
                           icon="print-outline"
                           onPress={openStudyWorksheetOptions}
-                          style={phoneLayout && styles.phoneStudyPrintButton}
-                          labelStyle={phoneLayout && styles.phoneStudyPrintButtonText}
+                          style={[phoneLayout && styles.phoneStudyPrintButton, studyDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={[phoneLayout && styles.phoneStudyPrintButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}
+                          iconColor={studyDarkMode ? "#e9b76a" : undefined}
                         />
                       </View>
                     ) : null}
                   </>
                 ) : (
                   <View style={styles.passageStatusBox}>
-                    <Text style={styles.muted}>{passageStatus}</Text>
+                    <Text style={[styles.muted, studyDarkMode && styles.accountDarkMutedText]}>{passageStatus}</Text>
                     {passageStatus.startsWith("I couldn't") && (
                       <Pressable onPress={() => setPassageReloadKey((value) => value + 1)} style={styles.retryLink}>
                         <Ionicons name="refresh-outline" size={15} color={colors.coral} />
@@ -4081,33 +4120,33 @@ export default function Home() {
               </View>
 
               {studyPhase === "saved" && savedStudySummary ? (
-                <View style={styles.savedSummaryBox}>
-                  <View style={styles.savedSummaryIcon}>
+                <View style={[styles.savedSummaryBox, studyDarkMode && styles.accountDarkInsetBox]}>
+                  <View style={[styles.savedSummaryIcon, studyDarkMode && styles.homeDarkIconBubble]}>
                     <Ionicons name="checkmark-circle-outline" size={30} color={colors.coral} />
                   </View>
                   <Eyebrow>Study saved</Eyebrow>
-                  <Text style={styles.stepTitle}>{firstName ? `Well done, ${firstName}.` : "Well done."}</Text>
-                  <Text style={styles.reviewMeta}>{savedStudySummary.passage}</Text>
-                  <Text style={styles.reviewMeta}>{savedStudySummary.methodName}</Text>
+                  <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `Well done, ${firstName}.` : "Well done."}</Text>
+                  <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{savedStudySummary.passage}</Text>
+                  <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{savedStudySummary.methodName}</Text>
                   <View style={[styles.savedSummaryGrid, phoneLayout && styles.phoneSavedSummaryGrid]}>
-                    <Metric value={1} label="study saved" compact={phoneLayout} />
-                    <Metric value={savedStudySummary.highlightCount} label="highlights" compact={phoneLayout} />
+                    <Metric value={1} label="study saved" compact={phoneLayout} style={studyDarkMode && styles.homeDarkMetric} valueStyle={studyDarkMode && styles.homeDarkMetricValue} labelStyle={studyDarkMode && styles.accountDarkMutedText} />
+                    <Metric value={savedStudySummary.highlightCount} label="highlights" compact={phoneLayout} style={studyDarkMode && styles.homeDarkMetric} valueStyle={studyDarkMode && styles.homeDarkMetricValue} labelStyle={studyDarkMode && styles.accountDarkMutedText} />
                   </View>
                   {!!savedStudySummary.completedPlanDay && (
-                    <View style={styles.savedSummaryPanel}>
-                      <Text style={styles.lastCheckinLabel}>Plan progress</Text>
-                      <Text style={styles.body}>{savedStudySummary.completedPlanDay} marked complete.</Text>
+                    <View style={[styles.savedSummaryPanel, studyDarkMode && styles.accountDarkSection]}>
+                      <Text style={[styles.lastCheckinLabel, studyDarkMode && styles.studyDarkAccentText]}>Plan progress</Text>
+                      <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{savedStudySummary.completedPlanDay} marked complete.</Text>
                     </View>
                   )}
-                  <View style={styles.savedSummaryPanel}>
-                    <Text style={styles.lastCheckinLabel}>Shareable insight</Text>
-                    <Text style={styles.body}>{savedStudySummary.shareNote || "Study saved without a share note."}</Text>
+                  <View style={[styles.savedSummaryPanel, studyDarkMode && styles.accountDarkSection]}>
+                    <Text style={[styles.lastCheckinLabel, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
+                    <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{savedStudySummary.shareNote || "Study saved without a share note."}</Text>
                     {!!savedStudySummary.shareNote && renderShareInsightCommunityControls(savedStudySummary.shareNote)}
                     {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                   </View>
-                  <View style={styles.savedSummaryPanel}>
-                    <Text style={styles.lastCheckinLabel}>Review later</Text>
-                    <Text style={styles.body}>
+                  <View style={[styles.savedSummaryPanel, studyDarkMode && styles.accountDarkSection]}>
+                    <Text style={[styles.lastCheckinLabel, studyDarkMode && styles.studyDarkAccentText]}>Review later</Text>
+                    <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>
                       {savedStudySummary.reviewAt
                         ? `This study is set for review on ${formatReviewDate(savedStudySummary.reviewAt)}.`
                         : "Choose when you want this study to come back into your Journal."}
@@ -4117,9 +4156,9 @@ export default function Home() {
                         <Pressable
                           key={option.id}
                           onPress={() => scheduleStudyReview(savedStudySummary.sessionId, option.id)}
-                          style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip]}
+                          style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, studyDarkMode && styles.homeDarkResumeButton]}
                         >
-                          <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText]}>{option.label}</Text>
+                          <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, studyDarkMode && styles.homeDarkResumeButtonText]}>{option.label}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -4138,31 +4177,32 @@ export default function Home() {
                   </View>
                 </View>
               ) : studyPhase === "review" ? (
-                <View style={styles.reviewBox}>
+                <View style={[styles.reviewBox, studyDarkMode && styles.accountDarkInsetBox]}>
                   <Eyebrow>Review before saving</Eyebrow>
-                  <Text style={styles.stepTitle}>{passageText?.reference || passage}</Text>
-                  <Text style={styles.reviewMeta}>{method.name}</Text>
+                  <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{passageText?.reference || passage}</Text>
+                  <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{method.name}</Text>
                   <View style={styles.reviewAnswers}>
                     {sessionAnswers
                       .filter((item) => item.answer.trim())
                       .map((item) => (
-                        <View key={item.stepTitle} style={styles.reviewAnswer}>
-                          <Text style={styles.reviewStepTitle}>{item.stepTitle}</Text>
+                        <View key={item.stepTitle} style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
+                          <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>{item.stepTitle}</Text>
                           <FormattedNoteText text={item.answer} />
                         </View>
                       ))}
                   </View>
-                  <View style={styles.shareInsightBox}>
+                  <View style={[styles.shareInsightBox, studyDarkMode && styles.accountDarkSection]}>
                     <View style={styles.feedbackHeader}>
                       <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
-                      <Text style={styles.feedbackTitle}>Shareable insight</Text>
+                      <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
                     </View>
                     <TextInput
                       multiline
                       value={shareNote}
                       onChangeText={setShareNote}
                       placeholder={suggestedShareNote || "Today I noticed..."}
-                      style={[styles.input, styles.shareInput]}
+                      placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+                      style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
                     />
                     {renderShareInsightCommunityControls()}
                     {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
@@ -4173,46 +4213,46 @@ export default function Home() {
                   </View>
                 </View>
               ) : (
-                <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel]}>
-                  <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox]}>
+                <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel]}>
+                  <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox, studyDarkMode && styles.accountDarkSection]}>
                     <View style={styles.instructionHeader}>
                       <View style={styles.instructionHeaderCopy} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
                         <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
-                        <Text style={styles.stepTitle}>{step.title}</Text>
+                        <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
                         <Text style={styles.instructionKicker}>Do this now</Text>
-                        <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText]}>{step.action}</Text>
+                        <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
                       </View>
-                      <Pressable onPress={() => setInstructionsCollapsed((value) => !value)} style={styles.collapseButton}>
-                        <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={colors.oliveDark} />
-                        <Text style={styles.collapseButtonText}>{instructionsCollapsed ? "Show" : "Hide"}</Text>
+                      <Pressable onPress={() => setInstructionsCollapsed((value) => !value)} style={[styles.collapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                        <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Show" : "Hide"}</Text>
                       </Pressable>
                     </View>
                     {!instructionsCollapsed && (
                       <>
-                        <Text style={styles.body}>{step.prompt}</Text>
+                        <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{step.prompt}</Text>
                         <View style={styles.checklist}>
                           {step.checklist.map((item) => (
                             <View key={item} style={styles.checkItem}>
                               <Ionicons name="checkmark-circle-outline" size={18} color={colors.olive} />
-                              <Text style={styles.checkText}>{item}</Text>
+                              <Text style={[styles.checkText, studyDarkMode && styles.accountDarkMutedText]}>{item}</Text>
                             </View>
                           ))}
                         </View>
                         {step.responseType === "text" && (
-                          <View style={styles.outputBox}>
-                            <Text style={styles.outputLabel}>What to write</Text>
-                            <Text style={styles.outputText}>{step.output}</Text>
+                          <View style={[styles.outputBox, studyDarkMode && styles.accountDarkInsetBox]}>
+                            <Text style={[styles.outputLabel, studyDarkMode && styles.studyDarkAccentText]}>What to write</Text>
+                            <Text style={[styles.outputText, studyDarkMode && styles.accountDarkText]}>{step.output}</Text>
                           </View>
                         )}
                       </>
                     )}
                   </View>
                   {step.responseType === "none" ? (
-                    <View style={styles.readyBox}>
+                    <View style={[styles.readyBox, studyDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="book-outline" size={22} color={colors.coral} />
                       <View style={styles.readyCopy}>
-                        <Text style={styles.readyTitle}>No response needed for this step.</Text>
-                        <Text style={styles.readyText}>Take your time with the passage. When you have completed the checklist, move to the next guided step.</Text>
+                        <Text style={[styles.readyTitle, studyDarkMode && styles.accountDarkTitle]}>No response needed for this step.</Text>
+                        <Text style={[styles.readyText, studyDarkMode && styles.accountDarkMutedText]}>Take your time with the passage. When you have completed the checklist, move to the next guided step.</Text>
                       </View>
                     </View>
                   ) : (
@@ -4240,6 +4280,7 @@ export default function Home() {
                             scriptureInsertStatus={scriptureInsertStatus}
                             scriptureInsertFocusKey={scriptureInsertFocusKey}
                             onInsertScripture={insertDetectedScripture}
+                            darkMode={studyDarkMode}
                           />
                           {!showCoaching && (
                             <Pressable
@@ -4247,24 +4288,24 @@ export default function Home() {
                                 setShowCoaching(true);
                                 saveStoredTutorCoachingEnabled(true).catch(() => undefined);
                               }}
-                              style={styles.collapsedCoachingBox}
+                              style={[styles.collapsedCoachingBox, studyDarkMode && styles.accountDarkSection]}
                             >
                               <View style={styles.coachingHeaderRow}>
                                 <View style={styles.feedbackHeader}>
                                   <Ionicons name="sparkles-outline" size={17} color={colors.coral} />
-                                  <Text style={styles.feedbackTitle}>Tutor coaching is off</Text>
+                                  <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Tutor coaching is off</Text>
                                 </View>
                                 <Text style={styles.coachingToggleBadge}>Off</Text>
                               </View>
-                              <Text style={styles.collapsedCoachingText}>Tap to show gentle writing feedback for this step.</Text>
+                              <Text style={[styles.collapsedCoachingText, studyDarkMode && styles.accountDarkMutedText]}>Tap to show gentle writing feedback for this step.</Text>
                             </Pressable>
                           )}
                           {showCoaching && (
-                            <View style={styles.coachingBox}>
+                            <View style={[styles.coachingBox, studyDarkMode && styles.accountDarkSection]}>
                               <View style={styles.coachingHeaderRow}>
                                 <View style={styles.feedbackHeader}>
                                   <Ionicons name="bulb-outline" size={18} color={colors.coral} />
-                                  <Text style={styles.feedbackTitle}>Coaching feedback</Text>
+                                  <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Coaching feedback</Text>
                                 </View>
                                 <Pressable onPress={() => {
                                   setShowCoaching(false);
@@ -4277,25 +4318,25 @@ export default function Home() {
                                 currentCoaching.map((item) => (
                                   <View key={item} style={styles.coachingItem}>
                                     <Ionicons name="ellipse" size={7} color={colors.olive} />
-                                    <Text style={styles.coachingText}>{item}</Text>
+                                    <Text style={[styles.coachingText, studyDarkMode && styles.accountDarkMutedText]}>{item}</Text>
                                   </View>
                                 ))
                               ) : (
-                                <Text style={styles.coachingText}>Start writing and local coaching will respond to this step.</Text>
+                                <Text style={[styles.coachingText, studyDarkMode && styles.accountDarkMutedText]}>Start writing and local coaching will respond to this step.</Text>
                               )}
                             </View>
                           )}
                           {answeredSteps.length > 0 && (
-                            <View style={styles.savedStepBox}>
-                              <Text style={styles.savedStepTitle}>Saved responses</Text>
+                            <View style={[styles.savedStepBox, studyDarkMode && styles.accountDarkSection]}>
+                              <Text style={[styles.savedStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Saved responses</Text>
                               <View style={styles.savedStepRow}>
                                 {answeredSteps.map((item) => (
                                   <Pressable
                                     key={item.index}
                                     onPress={() => goToStudyStep(item.index)}
-                                    style={[styles.savedStepChip, stepIndex === item.index && styles.activeSavedStepChip]}
+                                    style={[styles.savedStepChip, studyDarkMode && styles.studyDarkMethodChip, stepIndex === item.index && styles.activeSavedStepChip]}
                                   >
-                                    <Text style={[styles.savedStepChipText, stepIndex === item.index && styles.activeSavedStepChipText]}>
+                                    <Text style={[styles.savedStepChipText, studyDarkMode && styles.accountDarkMutedText, stepIndex === item.index && styles.activeSavedStepChipText]}>
                                       Step {item.index + 1}
                                     </Text>
                                   </Pressable>
@@ -4310,18 +4351,19 @@ export default function Home() {
                         </View>
                       </View>
                       {stepIndex === method.steps.length - 1 && (
-                        <View style={styles.shareInsightBox}>
+                        <View style={[styles.shareInsightBox, studyDarkMode && styles.accountDarkSection]}>
                           <View style={styles.feedbackHeader}>
                             <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
-                            <Text style={styles.feedbackTitle}>Shareable insight</Text>
+                            <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
                           </View>
-                          <Text style={styles.helpIntro}>End with one honest note you could bring to a partner or group.</Text>
+                          <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>End with one honest note you could bring to a partner or group.</Text>
                           <TextInput
                             multiline
                             value={shareNote}
                             onChangeText={setShareNote}
                             placeholder={suggestedShareNote || "Today I noticed..."}
-                            style={[styles.input, styles.shareInput]}
+                            placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+                            style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
                           />
                           {renderShareInsightCommunityControls()}
                           {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
@@ -4335,8 +4377,8 @@ export default function Home() {
                         label="Back"
                         variant="secondary"
                         onPress={() => goToStudyStep(stepIndex - 1)}
-                        style={phoneLayout && styles.studyStepBackButton}
-                        labelStyle={phoneLayout && styles.studyStepButtonLabel}
+                        style={[phoneLayout && styles.studyStepBackButton, studyDarkMode && styles.homeDarkResumeButton]}
+                        labelStyle={[phoneLayout && styles.studyStepButtonLabel, studyDarkMode && styles.homeDarkResumeButtonText]}
                       />
                     ) : (
                       <View style={[styles.hiddenBackButtonSpace, phoneLayout && styles.studyStepBackButton]} />
@@ -4351,8 +4393,8 @@ export default function Home() {
                       label="Fresh start"
                       variant="secondary"
                       onPress={resetCurrentStudy}
-                      style={phoneLayout && styles.studyStepFreshButton}
-                      labelStyle={phoneLayout && styles.studyStepButtonLabel}
+                      style={[phoneLayout && styles.studyStepFreshButton, studyDarkMode && styles.homeDarkResumeButton]}
+                      labelStyle={[phoneLayout && styles.studyStepButtonLabel, studyDarkMode && styles.homeDarkResumeButtonText]}
                     />
                   </View>
                 </View>
@@ -4360,25 +4402,26 @@ export default function Home() {
             </Card>
 
             {!studyFocusMode && (
-            <Card style={[styles.memoryCoachCard, compactLayout && styles.fluidCard]}>
+            <Card style={[styles.memoryCoachCard, compactLayout && styles.fluidCard, studyDarkMode && styles.accountDarkMainCard]}>
               <CollapsibleStudyPanel
                 title="Study helps"
                 icon="library-outline"
                 collapsed={collapsedStudyPanels.helps}
                 onToggle={() => toggleStudyPanel("helps")}
                 style={styles.studyHelpsBox}
+                darkMode={studyDarkMode}
               >
-                <Text style={styles.helpIntro}>Use these after you have written your own observations.</Text>
+                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Use these after you have written your own observations.</Text>
                 {studyHelps.map((help) => (
-                  <Pressable key={help.title} onPress={() => Linking.openURL(help.url)} style={styles.helpLink}>
-                    <View style={styles.helpIcon}>
-                      <Ionicons name={help.icon as any} size={17} color={colors.oliveDark} />
+                  <Pressable key={help.title} onPress={() => Linking.openURL(help.url)} style={[styles.helpLink, studyDarkMode && styles.accountDarkInsetBox]}>
+                    <View style={[styles.helpIcon, studyDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name={help.icon as any} size={17} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
                     <View style={styles.helpTextBlock}>
-                      <Text style={styles.helpTitle}>{help.title}</Text>
-                      <Text style={styles.helpDescription}>{help.description}</Text>
+                      <Text style={[styles.helpTitle, studyDarkMode && styles.accountDarkTitle]}>{help.title}</Text>
+                      <Text style={[styles.helpDescription, studyDarkMode && styles.accountDarkMutedText]}>{help.description}</Text>
                     </View>
-                    <Ionicons name="open-outline" size={16} color={colors.muted} />
+                    <Ionicons name="open-outline" size={16} color={studyDarkMode ? "#c8bda9" : colors.muted} />
                   </Pressable>
                 ))}
               </CollapsibleStudyPanel>
@@ -4388,13 +4431,14 @@ export default function Home() {
                 collapsed={collapsedStudyPanels.plan}
                 onToggle={() => toggleStudyPanel("plan")}
                 style={styles.studyPlansBox}
+                darkMode={studyDarkMode}
               >
-                <Text style={styles.communityTitle}>{selectedPlan.title}</Text>
-                <Text style={styles.helpIntro}>{selectedPlanComplete ? "Plan complete. Start another path when you are ready." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
-                <Text style={styles.planProgressText}>{selectedPlanCompletedCount} of {selectedPlan.days.length} complete</Text>
+                <Text style={[styles.communityTitle, studyDarkMode && styles.accountDarkTitle]}>{selectedPlan.title}</Text>
+                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>{selectedPlanComplete ? "Plan complete. Start another path when you are ready." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
+                <Text style={[styles.planProgressText, studyDarkMode && styles.studyDarkAccentText]}>{selectedPlanCompletedCount} of {selectedPlan.days.length} complete</Text>
                 <View style={styles.planActionRow}>
-                  <ResumeButton label={selectedPlanComplete ? "Open plans" : "Continue"} icon={selectedPlanComplete ? "calendar-outline" : "play-outline"} onPress={() => selectedPlanComplete ? setTab("plans") : startPlanDay(selectedPlanNextDay)} />
-                  <ResumeButton label="All plans" icon="list-outline" onPress={() => setTab("plans")} />
+                  <ResumeButton label={selectedPlanComplete ? "Open plans" : "Continue"} icon={selectedPlanComplete ? "calendar-outline" : "play-outline"} onPress={() => selectedPlanComplete ? setTab("plans") : startPlanDay(selectedPlanNextDay)} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="All plans" icon="list-outline" onPress={() => setTab("plans")} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
                 </View>
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
@@ -4403,8 +4447,9 @@ export default function Home() {
                 collapsed={collapsedStudyPanels.feedback}
                 onToggle={() => toggleStudyPanel("feedback")}
                 style={styles.feedbackOptionsBox}
+                darkMode={studyDarkMode}
               >
-                <Text style={styles.helpIntro}>
+                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>
                   {showCoaching
                     ? "Free local coaching is on. It uses built-in prompts only."
                     : "Free local coaching is off for the study screen."}
@@ -4417,6 +4462,9 @@ export default function Home() {
                     setShowCoaching(nextValue);
                     saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
                   }}
+                  style={studyDarkMode && styles.homeDarkResumeButton}
+                  labelStyle={studyDarkMode && styles.homeDarkResumeButtonText}
+                  iconColor={studyDarkMode ? "#e9b76a" : undefined}
                 />
               </CollapsibleStudyPanel>
             </Card>
@@ -4425,13 +4473,14 @@ export default function Home() {
         )}
 
         {tab === "bible" && (
-          <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout]}>
+          <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
             <Card
               style={[
                 styles.bibleReaderNavCard,
                 readerNavCollapsed && styles.collapsedBibleReaderNavCard,
                 compactLayout && styles.fluidCard,
-                compactLayout && readerNavCollapsed && styles.compactCollapsedBibleReaderNavCard
+                compactLayout && readerNavCollapsed && styles.compactCollapsedBibleReaderNavCard,
+                bibleDarkMode && styles.accountDarkMainCard
               ]}
             >
               <Pressable
@@ -4440,33 +4489,33 @@ export default function Home() {
               >
                 {readerNavCollapsed ? (
                   <View style={[styles.collapsedReaderIconStack, compactLayout && styles.compactCollapsedReaderIconStack]}>
-                    <View style={styles.collapsedReaderIconButton}>
-                      <Ionicons name="book-outline" size={19} color={colors.oliveDark} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name="book-outline" size={19} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
-                    <View style={[styles.collapsedReaderIconButton, !bibleBookmarks.length && styles.inactiveCollapsedReaderIconButton]}>
-                      <Ionicons name={bibleBookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bibleBookmarks.length ? colors.coral : colors.muted} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble, !bibleBookmarks.length && styles.inactiveCollapsedReaderIconButton]}>
+                      <Ionicons name={bibleBookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bibleBookmarks.length ? (bibleDarkMode ? "#e9b76a" : colors.coral) : (bibleDarkMode ? "#c8bda9" : colors.muted)} />
                     </View>
-                    <View style={[styles.collapsedReaderIconButton, !readBibleChapterCount && styles.inactiveCollapsedReaderIconButton]}>
-                      <Ionicons name={readBibleChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readBibleChapterCount ? colors.oliveDark : colors.muted} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble, !readBibleChapterCount && styles.inactiveCollapsedReaderIconButton]}>
+                      <Ionicons name={readBibleChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readBibleChapterCount ? (bibleDarkMode ? "#e9b76a" : colors.oliveDark) : (bibleDarkMode ? "#c8bda9" : colors.muted)} />
                     </View>
-                    <View style={styles.collapsedReaderIconButton}>
-                      <Ionicons name="chevron-forward-outline" size={18} color={colors.muted} />
+                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name="chevron-forward-outline" size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                     </View>
                   </View>
                 ) : (
                   <>
                     <View style={styles.readerNavTitleBlock}>
                       <Eyebrow>Read Scripture</Eyebrow>
-                      <Text style={styles.title}>Bible reader</Text>
+                      <Text style={[styles.title, bibleDarkMode && styles.accountDarkTitle]}>Bible reader</Text>
                     </View>
-                    <Ionicons name="chevron-back-outline" size={18} color={colors.muted} />
+                    <Ionicons name="chevron-back-outline" size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                   </>
                 )}
               </Pressable>
               {!readerNavCollapsed && (
                 <>
-                  <Text style={styles.titleSupport}>Navigate by book and chapter, then send any chapter into Study when you want to slow down.</Text>
-                  <View style={styles.translationRow}>
+                  <Text style={[styles.titleSupport, bibleDarkMode && styles.accountDarkMutedText]}>Navigate by book and chapter, then send any chapter into Study when you want to slow down.</Text>
+                  <View style={[styles.translationRow, bibleDarkMode && styles.accountDarkSegmentedRow]}>
                     {BIBLE_TRANSLATIONS.map((translation) => (
                       <Pressable
                         key={translation.id}
@@ -4476,7 +4525,7 @@ export default function Home() {
                         }}
                         style={[styles.translationOption, bibleTranslation === translation.id && styles.activeTranslationOption]}
                       >
-                        <Text style={[styles.translationOptionText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
+                        <Text style={[styles.translationOptionText, bibleDarkMode && styles.accountDarkMutedText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
                           {translation.label}
                         </Text>
                       </Pressable>
@@ -4487,19 +4536,20 @@ export default function Home() {
                       value={readerBookSearch}
                       onChangeText={setReaderBookSearch}
                       placeholder="Find a book"
-                      style={styles.input}
+                      placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                      style={[styles.input, bibleDarkMode && styles.accountDarkInput]}
                     />
                   )}
                   {bibleReaderHistory.length > 1 && (
-                    <View style={styles.readerHistorySection}>
-                      <Pressable onPress={() => setReaderHistoryCollapsed((value) => !value)} style={styles.readerBookmarkHeader}>
+                    <View style={[styles.readerHistorySection, bibleDarkMode && styles.bibleDarkDividerSection]}>
+                      <Pressable onPress={() => setReaderHistoryCollapsed((value) => !value)} style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.readerBookmarkHeaderTitle}>
                           <Ionicons name="time-outline" size={15} color={colors.coral} />
-                          <Text style={styles.readerBookSectionTitle}>Recent</Text>
+                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Recent</Text>
                         </View>
                         <View style={styles.readerBookmarkHeaderMeta}>
-                          <Text style={styles.readerBookmarkCount}>{bibleReaderHistory.length - 1}</Text>
-                          <Ionicons name={readerHistoryCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={colors.muted} />
+                          <Text style={[styles.readerBookmarkCount, bibleDarkMode && styles.accountDarkMutedText]}>{bibleReaderHistory.length - 1}</Text>
+                          <Ionicons name={readerHistoryCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {!readerHistoryCollapsed && (
@@ -4514,11 +4564,11 @@ export default function Home() {
                               <Pressable
                                 key={`${item.book}-${item.chapter}-${item.translation}`}
                                 onPress={() => openBibleReaderHistoryItem(item)}
-                                style={styles.readerHistoryChip}
+                                style={[styles.readerHistoryChip, bibleDarkMode && styles.accountDarkInsetBox]}
                               >
-                                <Ionicons name="reader-outline" size={13} color={colors.oliveDark} />
-                                <Text numberOfLines={1} style={styles.readerHistoryText}>{item.reference}</Text>
-                                <Text style={styles.readerHistoryTranslation}>{item.translation.toUpperCase()}</Text>
+                                <Ionicons name="reader-outline" size={13} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Text numberOfLines={1} style={[styles.readerHistoryText, bibleDarkMode && styles.accountDarkTitle]}>{item.reference}</Text>
+                                <Text style={[styles.readerHistoryTranslation, bibleDarkMode && styles.accountDarkMutedText]}>{item.translation.toUpperCase()}</Text>
                               </Pressable>
                             ))}
                           </View>
@@ -4527,7 +4577,7 @@ export default function Home() {
                     </View>
                   )}
                   {bibleBookmarks.length > 0 && (
-                    <View style={styles.readerBookmarkSection}>
+                    <View style={[styles.readerBookmarkSection, bibleDarkMode && styles.bibleDarkDividerSection]}>
                       <Pressable
                         onPress={() => {
                           setBookmarksCollapsed((value) => {
@@ -4535,15 +4585,15 @@ export default function Home() {
                             return !value;
                           });
                         }}
-                        style={styles.readerBookmarkHeader}
+                        style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}
                       >
                         <View style={styles.readerBookmarkHeaderTitle}>
                           <Ionicons name="bookmark-outline" size={15} color={colors.coral} />
-                          <Text style={styles.readerBookSectionTitle}>Bookmarks & notes</Text>
+                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Bookmarks & notes</Text>
                         </View>
                         <View style={styles.readerBookmarkHeaderMeta}>
-                          <Text style={styles.readerBookmarkCount}>{bibleBookmarks.length}</Text>
-                          <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={colors.muted} />
+                          <Text style={[styles.readerBookmarkCount, bibleDarkMode && styles.accountDarkMutedText]}>{bibleBookmarks.length}</Text>
+                          <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {!bookmarksCollapsed && (
@@ -4552,24 +4602,25 @@ export default function Home() {
                             value={bookmarkSearch}
                             onChangeText={setBookmarkSearch}
                             placeholder="Search bookmarks or notes"
-                            style={[styles.input, styles.readerBookmarkSearchInput]}
+                            placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                            style={[styles.input, styles.readerBookmarkSearchInput, bibleDarkMode && styles.accountDarkInput]}
                           />
                           <Pressable
                             onPress={() => setBookmarkNotesOnly((value) => !value)}
-                            style={[styles.readerBookmarkFilterChip, bookmarkNotesOnly && styles.activeReaderBookChip]}
+                            style={[styles.readerBookmarkFilterChip, bibleDarkMode && styles.homeDarkResumeButton, bookmarkNotesOnly && styles.activeReaderBookChip]}
                           >
-                            <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : colors.oliveDark} />
-                            <Text style={[styles.readerBookmarkFilterText, bookmarkNotesOnly && styles.activeReaderBookText]}>With notes</Text>
+                            <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                            <Text style={[styles.readerBookmarkFilterText, bibleDarkMode && styles.homeDarkResumeButtonText, bookmarkNotesOnly && styles.activeReaderBookText]}>With notes</Text>
                           </Pressable>
                           {visibleBibleBookmarks.map((bookmark) => (
                             <View key={bookmark.id} style={styles.readerBookmarkItem}>
                               <View style={styles.readerBookmarkRow}>
-                                <Pressable onPress={() => openBibleBookmark(bookmark)} style={styles.readerBookmarkOpen}>
-                                  <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? colors.oliveDark : colors.coral} />
-                                  <Text style={styles.readerBookmarkText}>{bookmark.reference}</Text>
+                                <Pressable onPress={() => openBibleBookmark(bookmark)} style={[styles.readerBookmarkOpen, bibleDarkMode && styles.accountDarkInsetBox]}>
+                                  <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? (bibleDarkMode ? "#e9b76a" : colors.oliveDark) : (bibleDarkMode ? "#e9b76a" : colors.coral)} />
+                                  <Text style={[styles.readerBookmarkText, bibleDarkMode && styles.accountDarkTitle]}>{bookmark.reference}</Text>
                                 </Pressable>
-                                <Pressable onPress={() => openBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
-                                  <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : colors.oliveDark} />
+                                <Pressable onPress={() => openBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, bibleDarkMode && styles.homeDarkIconBubble, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
+                                  <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
                                 </Pressable>
                                 <Pressable onPress={() => removeBibleBookmark(bookmark.id)} style={styles.readerBookmarkRemove}>
                                   <Ionicons name="close-outline" size={15} color={colors.muted} />
@@ -4582,15 +4633,16 @@ export default function Home() {
                                     onChangeText={setBookmarkNoteDraft}
                                     placeholder="Add a note"
                                     multiline
-                                    style={[styles.input, styles.readerBookmarkNoteInput, phoneLayout && styles.mobileReaderBookmarkNoteInput]}
+                                    placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                                    style={[styles.input, styles.readerBookmarkNoteInput, phoneLayout && styles.mobileReaderBookmarkNoteInput, bibleDarkMode && styles.accountDarkInput]}
                                   />
                                   <View style={styles.readerBookmarkNoteActions}>
-                                    <Pressable onPress={() => saveBookmarkNote(bookmark.id)} style={styles.inlineReaderBookmarkButton}>
-                                      <Text style={styles.inlineReaderBookmarkText}>Save note</Text>
+                                    <Pressable onPress={() => saveBookmarkNote(bookmark.id)} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                                      <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Save note</Text>
                                     </Pressable>
                                     {!!bookmark.note?.trim() && (
-                                      <Pressable onPress={() => deleteBookmarkNote(bookmark.id)} style={styles.clearMarkupButton}>
-                                        <Text style={styles.clearMarkupText}>Delete note</Text>
+                                      <Pressable onPress={() => deleteBookmarkNote(bookmark.id)} style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                                        <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Delete note</Text>
                                       </Pressable>
                                     )}
                                     <Pressable
@@ -4599,9 +4651,9 @@ export default function Home() {
                                         setBookmarkNoteDraft("");
                                         dismissMobileInputFocus();
                                       }}
-                                      style={styles.clearMarkupButton}
+                                      style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                                     >
-                                      <Text style={styles.clearMarkupText}>Cancel</Text>
+                                      <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
                                     </Pressable>
                                   </View>
                                 </View>
@@ -4610,13 +4662,13 @@ export default function Home() {
                           ))}
                           {filteredBibleBookmarks.length > 3 && (
                             <Pressable onPress={() => setBookmarksExpanded((value) => !value)} style={styles.readerBookmarkExpandButton}>
-                              <Text style={styles.readerBookmarkExpandText}>
+                              <Text style={[styles.readerBookmarkExpandText, bibleDarkMode && styles.studyDarkAccentText]}>
                                 {bookmarksExpanded ? "Show latest 3" : `Show all ${filteredBibleBookmarks.length}`}
                               </Text>
-                              <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
+                              <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                             </Pressable>
                           )}
-                          {!visibleBibleBookmarks.length && <Text style={styles.muted}>No matching bookmarks.</Text>}
+                          {!visibleBibleBookmarks.length && <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>No matching bookmarks.</Text>}
                         </>
                       )}
                     </View>
@@ -4630,10 +4682,10 @@ export default function Home() {
                         <View key={section.id} style={styles.mobileReaderDropdown}>
                           <Pressable
                             onPress={() => setReaderMobileMenu((current) => current === section.id ? null : section.id)}
-                            style={styles.mobileReaderDropdownButton}
+                            style={[styles.mobileReaderDropdownButton, bibleDarkMode && styles.accountDarkInsetBox]}
                           >
-                            <Text style={styles.mobileReaderDropdownText}>{section.title}</Text>
-                            <Ionicons name={readerMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
+                            <Text style={[styles.mobileReaderDropdownText, bibleDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                            <Ionicons name={readerMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                           </Pressable>
                           {readerMobileMenu === section.id && (
                             <>
@@ -4642,21 +4694,21 @@ export default function Home() {
                                   <View key={book} style={[styles.mobileReaderBookBlock, expandedMobileReaderBook === book && styles.expandedMobileReaderBookBlock]}>
                                     <Pressable
                                       onPress={() => selectMobileReaderBook(book)}
-                                      style={[styles.mobileReaderBookOption, readerBook === book && styles.activeMobileReaderBookOption]}
+                                      style={[styles.mobileReaderBookOption, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && styles.activeMobileReaderBookOption]}
                                     >
-                                      <Text style={[styles.mobileReaderBookText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
+                                      <Text style={[styles.mobileReaderBookText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
                                     </Pressable>
                                     {expandedMobileReaderBook === book && (
-                                      <View style={styles.mobileReaderChapterPanel}>
-                                        <Text style={styles.readerBookSectionTitle}>{book}</Text>
+                                      <View style={[styles.mobileReaderChapterPanel, bibleDarkMode && styles.accountDarkSection]}>
+                                        <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{book}</Text>
                                         <View style={styles.mobileReaderChapterGrid}>
                                           {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
                                             <Pressable
                                               key={chapter}
                                               onPress={() => selectReaderChapter(chapter, book)}
-                                              style={[styles.mobileReaderChapterSquare, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
+                                              style={[styles.mobileReaderChapterSquare, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
                                             >
-                                              <Text style={[styles.mobileReaderChapterText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
+                                              <Text style={[styles.mobileReaderChapterText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
                                             </Pressable>
                                           ))}
                                         </View>
@@ -4674,30 +4726,30 @@ export default function Home() {
                     <View style={styles.readerBookSections}>
                       {readerBookSections.map((section) => (
                         <View key={section.title} style={styles.readerBookSection}>
-                          <Text style={styles.readerBookSectionTitle}>{section.title}</Text>
+                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
                           <View style={styles.desktopReaderBookList}>
                             {section.books.map((book) => (
                               <View key={book} style={[styles.desktopReaderBookBlock, expandedMobileReaderBook === book && styles.expandedDesktopReaderBookBlock]}>
                                 <Pressable
                                   onPress={() => selectReaderBook(book)}
-                                  style={[styles.readerBookChip, readerBook === book && styles.activeReaderBookChip]}
+                                  style={[styles.readerBookChip, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && styles.activeReaderBookChip]}
                                 >
-                                  <Text style={[styles.readerBookText, readerBook === book && styles.activeReaderBookText]}>{book}</Text>
+                                  <Text style={[styles.readerBookText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && styles.activeReaderBookText]}>{book}</Text>
                                 </Pressable>
                                 {expandedMobileReaderBook === book && (
-                                  <View style={styles.desktopReaderChapterPanel}>
+                                  <View style={[styles.desktopReaderChapterPanel, bibleDarkMode && styles.accountDarkSection]}>
                                     <View style={styles.desktopReaderChapterHeader}>
-                                      <Text style={styles.readerBookSectionTitle}>{book}</Text>
-                                      <Text style={styles.readerChapterCountText}>{BIBLE_CHAPTER_COUNTS[book] || 1} chapters</Text>
+                                      <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{book}</Text>
+                                      <Text style={[styles.readerChapterCountText, bibleDarkMode && styles.accountDarkMutedText]}>{BIBLE_CHAPTER_COUNTS[book] || 1} chapters</Text>
                                     </View>
                                     <View style={styles.desktopReaderChapterGrid}>
                                       {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
                                         <Pressable
                                           key={chapter}
                                           onPress={() => selectReaderChapter(chapter, book)}
-                                          style={[styles.mobileReaderChapterSquare, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
+                                          style={[styles.mobileReaderChapterSquare, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
                                         >
-                                          <Text style={[styles.mobileReaderChapterText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
+                                          <Text style={[styles.mobileReaderChapterText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
                                         </Pressable>
                                       ))}
                                     </View>
@@ -4708,35 +4760,36 @@ export default function Home() {
                           </View>
                         </View>
                       ))}
-                      {!readerBookSections.length && <Text style={styles.muted}>No matching books found.</Text>}
+                      {!readerBookSections.length && <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>No matching books found.</Text>}
                     </View>
                   )}
                 </>
               )}
             </Card>
 
-            <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.bibleSearchPanel}>
+            <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.bibleSearchPanel, bibleDarkMode && styles.accountDarkSection]}>
                 <Pressable onPress={() => setBibleSearchCollapsed((value) => !value)} style={styles.bibleSearchHeader}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="search-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Search Scripture</Text>
+                    <Ionicons name="search-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, bibleDarkMode && styles.studyDarkAccentText]}>Search Scripture</Text>
                   </View>
                   <View style={styles.bibleSearchHeaderMeta}>
-                    <Text style={styles.bibleSearchTranslationText}>{bibleSearchTranslation}</Text>
-                    <Ionicons name={bibleSearchCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={colors.muted} />
+                    <Text style={[styles.bibleSearchTranslationText, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchTranslation}</Text>
+                    <Ionicons name={bibleSearchCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                   </View>
                 </Pressable>
                 {!bibleSearchCollapsed && (
                   <>
-                    <Text style={styles.helpIntro}>Search exact words, close wording, themes, ideas, or questions. Results split by testament unless you choose one.</Text>
+                    <Text style={[styles.helpIntro, bibleDarkMode && styles.accountDarkMutedText]}>Search exact words, close wording, themes, ideas, or questions. Results split by testament unless you choose one.</Text>
                     <View style={[styles.bibleSearchInputRow, phoneLayout && styles.phoneBibleSearchInputRow]}>
                       <TextInput
                         value={bibleSearchQuery}
                         onChangeText={setBibleSearchQuery}
                         onSubmitEditing={runBibleSearch}
                         placeholder="Try “draw near”, “anxiety”, or “what does Scripture teach?”"
-                        style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput]}
+                        placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                        style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput, bibleDarkMode && styles.accountDarkInput]}
                       />
                       <AppButton label="Search" onPress={runBibleSearch} style={phoneLayout && styles.phoneBibleSearchButton} />
                     </View>
@@ -4749,18 +4802,18 @@ export default function Home() {
                         <Pressable
                           key={scope}
                           onPress={() => setBibleSearchScope(scope as BibleSearchScope)}
-                          style={[styles.bibleSearchChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
+                          style={[styles.bibleSearchChip, bibleDarkMode && styles.printDarkOptionChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
                         >
-                          <Text style={[styles.bibleSearchChipText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
+                          <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
                         </Pressable>
                       ))}
                       <View style={[styles.bibleSearchRefineRow, phoneLayout && styles.phoneBibleSearchRefineRow]}>
                         <Pressable
                           onPress={() => setBibleSearchExact((value) => !value)}
-                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
+                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleDarkMode && styles.printDarkOptionChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
                         >
-                          <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : colors.oliveDark} />
-                          <Text style={[styles.bibleSearchChipText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
+                          <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                          <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
                         </Pressable>
                         <View style={[styles.bibleSearchBookFilter, phoneLayout && styles.phoneBibleSearchBookFilter]}>
                           {Platform.OS === "web" ? (
@@ -4768,7 +4821,7 @@ export default function Home() {
                               aria-label="Book filter"
                               value={bibleSearchBook}
                               onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
-                              style={StyleSheet.flatten([styles.bibleSearchSelect, phoneLayout && styles.phoneBibleSearchSelect]) as any}
+                              style={StyleSheet.flatten([styles.bibleSearchSelect, phoneLayout && styles.phoneBibleSearchSelect, bibleDarkMode && styles.bibleDarkSearchSelect]) as any}
                             >
                               <option value="">Any book</option>
                               {bibleSearchBookOptions.map((book) => (
@@ -4777,12 +4830,12 @@ export default function Home() {
                             </select>
                           ) : (
                             <>
-                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, phoneLayout && styles.phoneBibleSearchSelectButton]}>
-                                <Text numberOfLines={1} style={styles.bibleSearchSelectText}>{bibleSearchBook || "Any book"}</Text>
-                                <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.muted} />
+                              <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, phoneLayout && styles.phoneBibleSearchSelectButton, bibleDarkMode && styles.printDarkOptionChip]}>
+                                <Text numberOfLines={1} style={[styles.bibleSearchSelectText, bibleDarkMode && styles.accountDarkText]}>{bibleSearchBook || "Any book"}</Text>
+                                <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
                               </Pressable>
                               {bibleSearchBookMenuOpen && (
-                                <View style={styles.bibleSearchSelectMenu}>
+                                <View style={[styles.bibleSearchSelectMenu, bibleDarkMode && styles.accountDarkSection]}>
                                 <Pressable
                                   onPress={() => {
                                     setBibleSearchBook("");
@@ -4790,7 +4843,7 @@ export default function Home() {
                                   }}
                                   style={styles.bibleSearchSelectOption}
                                 >
-                                  <Text style={styles.bibleSearchSelectOptionText}>Any book</Text>
+                                  <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText]}>Any book</Text>
                                 </Pressable>
                                 {bibleSearchBookOptions.map((book) => (
                                   <Pressable
@@ -4801,7 +4854,7 @@ export default function Home() {
                                     }}
                                     style={[styles.bibleSearchSelectOption, bibleSearchBook === book && styles.activeBibleSearchSelectOption]}
                                   >
-                                    <Text style={[styles.bibleSearchSelectOptionText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
+                                    <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
                                   </Pressable>
                                 ))}
                                 </View>
@@ -4815,21 +4868,21 @@ export default function Home() {
                 )}
                 {!bibleSearchCollapsed && !!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
                 {!bibleSearchCollapsed && !!bibleSearchActiveQuery && bibleTranslation === "bsb" && (
-                  <Text style={styles.bibleSearchFootnote}>Search uses WEB text while the reader can stay on BSB.</Text>
+                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>Search uses WEB text while the reader can stay on BSB.</Text>
                 )}
                 {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
                   <View key={section.title} style={styles.bibleSearchResultSection}>
-                    <Text style={styles.readerBookSectionTitle}>{section.title}</Text>
+                    <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
                     {section.results.map((result) => (
-                      <View key={result.id} style={styles.bibleSearchResultCard}>
+                      <View key={result.id} style={[styles.bibleSearchResultCard, bibleDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.bibleSearchResultHeader}>
-                          <Text style={styles.bibleSearchResultReference}>{`${result.book} ${result.chapter}:${result.verse}`}</Text>
-                          <Text style={styles.bibleSearchSourceQuery}>{result.sourceQuery}</Text>
+                          <Text style={[styles.bibleSearchResultReference, bibleDarkMode && styles.accountDarkTitle]}>{`${result.book} ${result.chapter}:${result.verse}`}</Text>
+                          <Text style={[styles.bibleSearchSourceQuery, bibleDarkMode && styles.accountDarkMutedText]}>{result.sourceQuery}</Text>
                         </View>
-                        <Text style={styles.bibleSearchResultText}>{result.text}</Text>
+                        <Text style={[styles.bibleSearchResultText, bibleDarkMode && styles.accountDarkText]}>{result.text}</Text>
                         <View style={styles.bibleSearchResultActions}>
-                          <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} />
-                          <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} />
+                          <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
+                          <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
                         </View>
                       </View>
                     ))}
@@ -4841,29 +4894,29 @@ export default function Home() {
                 <View>
                   <Eyebrow>{bibleTranslation.toUpperCase()}</Eyebrow>
                   <View style={styles.readerTitleRow}>
-                    <Text style={styles.stepTitle}>{readerStudyReference}</Text>
+                    <Text style={[styles.stepTitle, bibleDarkMode && styles.accountDarkTitle]}>{readerStudyReference}</Text>
                     {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={colors.coral} />}
                   </View>
                 </View>
-                <AppButton label={selectedReaderVerses.length ? "Study selected" : "Study this"} variant="secondary" onPress={openReaderChapterInStudy} />
+                <AppButton label={selectedReaderVerses.length ? "Study selected" : "Study this"} variant="secondary" onPress={openReaderChapterInStudy} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} />
               </View>
               {selectedReaderVerses.length > 0 && (
-                <View style={styles.readerSelectionBar}>
-                  <Text style={styles.readerSelectionText}>{`${selectedReaderVerses.length} verse${selectedReaderVerses.length === 1 ? "" : "s"} selected`}</Text>
+                <View style={[styles.readerSelectionBar, bibleDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.readerSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{`${selectedReaderVerses.length} verse${selectedReaderVerses.length === 1 ? "" : "s"} selected`}</Text>
                   <Pressable
                     onPress={clearReaderSelection}
-                    style={styles.clearMarkupButton}
+                    style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                   >
-                    <Text style={styles.clearMarkupText}>Clear</Text>
+                    <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                   </Pressable>
                 </View>
               )}
               <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>
-                <Pressable accessibilityRole="button" {...readerIconHoverProps("Previous chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(-1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton]}>
-                  <Ionicons name="chevron-back-outline" size={18} color={colors.oliveDark} />
+                <Pressable accessibilityRole="button" {...readerIconHoverProps("Previous chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(-1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                  <Ionicons name="chevron-back-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                 </Pressable>
-                <View style={[styles.readerChapterControl, phoneLayout && styles.phoneReaderChapterControl]}>
-                  <Text numberOfLines={1} style={[styles.readerChapterLabel, phoneLayout && styles.phoneReaderChapterLabel]}>
+                <View style={[styles.readerChapterControl, phoneLayout && styles.phoneReaderChapterControl, bibleDarkMode && styles.accountDarkInsetBox]}>
+                  <Text numberOfLines={1} style={[styles.readerChapterLabel, phoneLayout && styles.phoneReaderChapterLabel, bibleDarkMode && styles.accountDarkMutedText]}>
                     {phoneLayout ? "Ch" : "Ch."}
                   </Text>
                   <TextInput
@@ -4873,9 +4926,9 @@ export default function Home() {
                     onSubmitEditing={() => commitReaderChapter()}
                     keyboardType="number-pad"
                     selectTextOnFocus
-                    style={[styles.readerChapterInput, phoneLayout && styles.phoneReaderChapterInput]}
+                    style={[styles.readerChapterInput, phoneLayout && styles.phoneReaderChapterInput, bibleDarkMode && styles.accountDarkInput]}
                   />
-                  <Text numberOfLines={1} style={[styles.readerChapterCountText, phoneLayout && styles.phoneReaderChapterCountText]}>
+                  <Text numberOfLines={1} style={[styles.readerChapterCountText, phoneLayout && styles.phoneReaderChapterCountText, bibleDarkMode && styles.accountDarkMutedText]}>
                     {phoneLayout ? `/ ${readerChapterCount}` : `of ${readerChapterCount}`}
                   </Text>
                 </View>
@@ -4886,9 +4939,9 @@ export default function Home() {
                     hideReaderTooltip();
                     toggleReaderChapterRead();
                   }}
-                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, currentChapterRead && styles.activeReaderReadButton]}
+                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble, currentChapterRead && styles.activeReaderReadButton]}
                 >
-                  <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : colors.oliveDark} />
+                  <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -4897,17 +4950,17 @@ export default function Home() {
                     hideReaderTooltip();
                     saveBibleBookmark();
                   }}
-                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, currentChapterBookmarked && styles.activeReaderBookmarkButton]}
+                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble, currentChapterBookmarked && styles.activeReaderBookmarkButton]}
                 >
-                  <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : colors.oliveDark} />
+                  <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
                 </Pressable>
-                <Pressable accessibilityRole="button" {...readerIconHoverProps("Next chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton]}>
-                  <Ionicons name="chevron-forward-outline" size={18} color={colors.oliveDark} />
+                <Pressable accessibilityRole="button" {...readerIconHoverProps("Next chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
+                  <Ionicons name="chevron-forward-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                 </Pressable>
               </View>
               {Platform.OS === "web" && !!readerIconTooltip && <Text style={styles.readerIconTooltip}>{readerIconTooltip}</Text>}
               <View style={styles.readerProgressRow}>
-                <Text style={styles.readerProgressText}>{`${readBibleChapterCount} chapter${readBibleChapterCount === 1 ? "" : "s"} read`}</Text>
+                <Text style={[styles.readerProgressText, bibleDarkMode && styles.accountDarkMutedText]}>{`${readBibleChapterCount} chapter${readBibleChapterCount === 1 ? "" : "s"} read`}</Text>
                 {readBibleChapterCount > 0 && (
                   <Pressable onPress={clearBibleReadingProgress} style={styles.readerProgressClearButton}>
                     <Text style={styles.readerProgressClearText}>Clear all</Text>
@@ -4915,15 +4968,15 @@ export default function Home() {
                 )}
               </View>
               {readerPassage?.verses?.length ? (
-                <View style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock]}>
+                <View style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock, bibleDarkMode && styles.accountDarkInsetBox]}>
                   {readerPassage.verses.map((verse) => (
                     <View key={`${verse.chapter}-${verse.verse}`}>
                       <Pressable
                         onPress={() => toggleReaderVerse(verse.verse)}
-                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow]}
+                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, bibleDarkMode && styles.bibleDarkVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow]}
                       >
                         <Text style={[styles.readerVerseNumber, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>
-                        <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText]}>{verse.text}</Text>
+                        <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText, bibleDarkMode && !selectedReaderVerses.includes(verse.verse) && styles.accountDarkText]}>{verse.text}</Text>
                         <View style={[styles.readerVerseIconRow, phoneLayout && styles.phoneReaderVerseIconRow]}>
                           {readerMemoryVerseKeys.has(verseMarkupKey(verse)) && (
                             <Ionicons name="sparkles" size={15} color={colors.coral} />
@@ -4932,33 +4985,33 @@ export default function Home() {
                             <Ionicons name="bookmark" size={15} color={colors.coral} />
                           )}
                           {isReaderVerseBookmarkNoted(verse.verse, bibleBookmarks, readerBook, readerChapter) && (
-                            <Ionicons name="document-text" size={15} color={colors.oliveDark} />
+                            <Ionicons name="document-text" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                           )}
                         </View>
                       </Pressable>
                       {!phoneLayout && selectedReaderVerses.length > 0 && verse.verse === activeReaderActionVerse && (
-                        <View style={styles.inlineReaderActionBar}>
-                          <Text style={styles.readerSelectionText}>{readerStudyReference}</Text>
+                        <View style={[styles.inlineReaderActionBar, bibleDarkMode && styles.studyDarkFloatingBar]}>
+                          <Text style={[styles.readerSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerStudyReference}</Text>
                           <View style={styles.inlineReaderActions}>
                             <Pressable onPress={openReaderChapterInStudy} style={styles.inlineReaderStudyButton}>
                               <Text style={styles.inlineReaderStudyText}>Study selected</Text>
                             </Pressable>
                             <Pressable
                               onPress={() => saveBibleBookmark(selectedReaderVerses)}
-                              style={[styles.inlineReaderBookmarkButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
+                              style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
                             >
-                              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : colors.oliveDark} />
-                              <Text style={[styles.inlineReaderBookmarkText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>
+                              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>
                                 {currentSelectionBookmarked ? "Bookmarked" : "Bookmark"}
                               </Text>
                             </Pressable>
-                            <Pressable onPress={openSelectedReaderNote} style={[styles.inlineReaderBookmarkButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
-                              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
-                              <Text style={[styles.inlineReaderBookmarkText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
+                            <Pressable onPress={openSelectedReaderNote} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
+                              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
                             </Pressable>
-                            <Pressable onPress={openReaderWorksheetOptions} style={styles.inlineReaderBookmarkButton}>
-                              <Ionicons name="print-outline" size={14} color={colors.oliveDark} />
-                              <Text style={styles.inlineReaderBookmarkText}>Print</Text>
+                            <Pressable onPress={openReaderWorksheetOptions} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                              <Ionicons name="print-outline" size={14} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Print</Text>
                             </Pressable>
                             <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.memoryReaderButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
                               <Ionicons name="sparkles-outline" size={14} color="white" />
@@ -4966,38 +5019,38 @@ export default function Home() {
                             </Pressable>
                             <Pressable
                               onPress={clearReaderSelection}
-                              style={styles.clearMarkupButton}
+                              style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                             >
-                              <Text style={styles.clearMarkupText}>Clear</Text>
+                              <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                             </Pressable>
                           </View>
                         </View>
                       )}
                     </View>
                   ))}
-                  <View style={styles.readerBottomNav}>
-                    <Pressable onPress={() => moveReaderChapter(-1)} style={styles.readerBottomNavButton}>
-                      <Ionicons name="chevron-back-outline" size={15} color={colors.oliveDark} />
-                      <Text style={styles.readerBottomNavText}>Previous</Text>
+                  <View style={[styles.readerBottomNav, bibleDarkMode && styles.bibleDarkDividerSection]}>
+                    <Pressable onPress={() => moveReaderChapter(-1)} style={[styles.readerBottomNavButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                      <Ionicons name="chevron-back-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
                     </Pressable>
-                    <Pressable onPress={toggleReaderChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, currentChapterRead && styles.activeReaderReadButton]}>
-                      <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : colors.oliveDark} />
-                      <Text style={[styles.readerBottomNavText, currentChapterRead && styles.activeReaderReadButtonText]}>
+                    <Pressable onPress={toggleReaderChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, bibleDarkMode && styles.homeDarkResumeButton, currentChapterRead && styles.activeReaderReadButton]}>
+                      <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText, currentChapterRead && styles.activeReaderReadButtonText]}>
                         {currentChapterRead ? "Chapter read" : "Mark read"}
                       </Text>
                     </Pressable>
-                    <Pressable onPress={() => moveReaderChapter(1)} style={styles.readerBottomNavButton}>
-                      <Text style={styles.readerBottomNavText}>Next</Text>
-                      <Ionicons name="chevron-forward-outline" size={15} color={colors.oliveDark} />
+                    <Pressable onPress={() => moveReaderChapter(1)} style={[styles.readerBottomNavButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Next</Text>
+                      <Ionicons name="chevron-forward-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   </View>
-                  <Text style={styles.translationNote}>
+                  <Text style={[styles.translationNote, bibleDarkMode && styles.accountDarkMutedText]}>
                     {readerPassage.translation_name} · {readerPassage.translation_note || "Public Domain"}
                   </Text>
                 </View>
               ) : (
                 <View style={styles.passageStatusBox}>
-                  <Text style={styles.muted}>{readerStatus}</Text>
+                  <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>{readerStatus}</Text>
                 </View>
               )}
               {!!readerMemoryStatus && <Text style={styles.saveStatus}>{readerMemoryStatus}</Text>}
@@ -5006,39 +5059,39 @@ export default function Home() {
         )}
 
         {tab === "plans" && (
-          <View>
+          <View style={plansDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Guided paths</Eyebrow>
-            <Text style={styles.title}>Study plans</Text>
-            <Text style={styles.titleSupport}>Choose an original seven-day path, then save each study to mark the day complete.</Text>
-            <View style={[styles.currentPlanWideBox, phoneLayout && styles.phoneCurrentPlanWideBox]}>
+            <Text style={[styles.title, plansDarkMode && styles.accountDarkTitle]}>Study plans</Text>
+            <Text style={[styles.titleSupport, plansDarkMode && styles.accountDarkMutedText]}>Choose an original seven-day path, then save each study to mark the day complete.</Text>
+            <View style={[styles.currentPlanWideBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
               <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
                 <View style={styles.journalTitleBlock}>
-                  <Text style={styles.cardTitle}>{selectedPlan.title}</Text>
-                  <Text style={styles.muted}>{selectedPlanComplete ? "Completed. Start again or choose a new plan." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
+                  <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{selectedPlan.title}</Text>
+                  <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{selectedPlanComplete ? "Completed. Start again or choose a new plan." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
                 </View>
-                <Text style={styles.draftPill}>{selectedPlanCompletedCount}/{selectedPlan.days.length}</Text>
+                <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{selectedPlanCompletedCount}/{selectedPlan.days.length}</Text>
               </View>
-              <View style={styles.planProgressTrack}>
+              <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
                 <View style={[styles.planProgressFill, { width: `${(selectedPlanCompletedCount / selectedPlan.days.length) * 100}%` }]} />
               </View>
               <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
-                <AppButton label={selectedPlanComplete ? "Restart current plan" : "Continue current plan"} onPress={() => selectedPlanComplete ? resetSelectedPlanProgress() : startPlanDay(selectedPlanNextDay)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                {selectedPlanCompletedCount > 0 && !selectedPlanComplete && <AppButton label="Reset progress" variant="secondary" onPress={() => resetSelectedPlanProgress()} style={phoneLayout && styles.phonePlanSecondaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                <AppButton label={selectedPlanComplete ? "Restart current plan" : "Continue current plan"} onPress={() => selectedPlanComplete ? resetSelectedPlanProgress() : startPlanDay(selectedPlanNextDay)} style={[phoneLayout && styles.phonePlanPrimaryButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
+                {selectedPlanCompletedCount > 0 && !selectedPlanComplete && <AppButton label="Reset progress" variant="secondary" onPress={() => resetSelectedPlanProgress()} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
               </View>
             </View>
             <View style={[styles.planPageGrid, phoneLayout && styles.phonePlanPageGrid]}>
               {studyPlans.map((plan) => {
                 const completedCount = plan.days.filter((day) => completedPlanDaySet.has(planDayKey(plan.id, day.day))).length;
                 return (
-                  <Card key={plan.id} style={[styles.planPageCard, phoneLayout && styles.phonePlanPageCard]}>
+                  <Card key={plan.id} style={[styles.planPageCard, phoneLayout && styles.phonePlanPageCard, plansDarkMode && styles.accountDarkMainCard]}>
                     <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
                       <View style={styles.journalTitleBlock}>
-                        <Text style={styles.cardTitle}>{plan.title}</Text>
-                        <Text style={styles.muted}>{plan.description}</Text>
+                        <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{plan.title}</Text>
+                        <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{plan.description}</Text>
                       </View>
-                      <Text style={styles.draftPill}>{completedCount}/{plan.days.length}</Text>
+                      <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
                     </View>
-                    <View style={styles.planProgressTrack}>
+                    <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
                       <View style={[styles.planProgressFill, { width: `${(completedCount / plan.days.length) * 100}%` }]} />
                     </View>
                     <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
@@ -5046,19 +5099,19 @@ export default function Home() {
                         setSelectedPlanId(plan.id);
                         const nextDay = plan.days.find((day) => !completedPlanDaySet.has(planDayKey(plan.id, day.day))) || plan.days[0];
                         completedCount === plan.days.length ? resetSelectedPlanProgress(plan.id) : startPlanDay(nextDay, plan.id);
-                      }} style={phoneLayout && styles.phonePlanResumeButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                      {completedCount > 0 && completedCount < plan.days.length && <ResumeButton label="Reset" icon="refresh-outline" onPress={() => resetSelectedPlanProgress(plan.id)} style={phoneLayout && styles.phonePlanResumeButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                      }} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />
+                      {completedCount > 0 && completedCount < plan.days.length && <ResumeButton label="Reset" icon="refresh-outline" onPress={() => resetSelectedPlanProgress(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
                     </View>
                     {plan.days.map((planDay) => {
                       const done = completedPlanDaySet.has(planDayKey(plan.id, planDay.day));
                       return (
-                        <Pressable key={planDay.day} onPress={() => startPlanDay(planDay, plan.id)} style={[styles.planPageDay, phoneLayout && styles.phonePlanPageDay, done && styles.completedPlanDayRow]}>
-                          <Text style={[styles.planDayBadge, done && styles.completedPlanDayBadge]}>{done ? "✓" : planDay.day}</Text>
+                        <Pressable key={planDay.day} onPress={() => startPlanDay(planDay, plan.id)} style={[styles.planPageDay, phoneLayout && styles.phonePlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
+                          <Text style={[styles.planDayBadge, done && styles.completedPlanDayBadge, plansDarkMode && !done && styles.plansDarkDayBadge]}>{done ? "✓" : planDay.day}</Text>
                           <View style={styles.planDayCopy}>
-                            <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle]}>{planDay.title}</Text>
-                            <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage]}>{planDay.passage} · {(methods.find((item) => item.id === planDay.methodId) || methods[0]).short}</Text>
+                            <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle]}>{planDay.title}</Text>
+                            <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{planDay.passage} · {(methods.find((item) => item.id === planDay.methodId) || methods[0]).short}</Text>
                           </View>
-                          <Ionicons name="arrow-forward-outline" size={16} color={colors.muted} />
+                          <Ionicons name="arrow-forward-outline" size={16} color={plansDarkMode ? "#c8bda9" : colors.muted} />
                         </Pressable>
                       );
                     })}
@@ -5069,29 +5122,29 @@ export default function Home() {
           </View>
         )}
         {tab === "methods" && (
-          <View>
+          <View style={methodsDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Practice library</Eyebrow>
-            <Text style={styles.title}>Choose how you want to learn</Text>
-            <Text style={styles.titleSupport}>Tap the info button to see when to use a method, how it works, and a worked example.</Text>
-            <View style={styles.currentMethodStrip}>
+            <Text style={[styles.title, methodsDarkMode && styles.accountDarkTitle]}>Choose how you want to learn</Text>
+            <Text style={[styles.titleSupport, methodsDarkMode && styles.accountDarkMutedText]}>Tap the info button to see when to use a method, how it works, and a worked example.</Text>
+            <View style={[styles.currentMethodStrip, methodsDarkMode && styles.accountDarkSection]}>
               <View style={styles.currentMethodCopy}>
-                <Text style={styles.methodInfoLabel}>Current method</Text>
-                <Text style={styles.currentMethodTitle}>{method.short} · {method.name}</Text>
+                <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Current method</Text>
+                <Text style={[styles.currentMethodTitle, methodsDarkMode && styles.accountDarkTitle]}>{method.short} · {method.name}</Text>
               </View>
               <View style={styles.currentMethodActions}>
                 <AppButton label="Continue study" onPress={() => setTab("study")} style={styles.currentMethodButton} labelStyle={styles.currentMethodButtonLabel} />
-                <AppButton label="Details" variant="secondary" onPress={() => setActiveMethodInfoId(method.id)} style={styles.currentMethodButton} labelStyle={styles.currentMethodButtonLabel} />
+                <AppButton label="Details" variant="secondary" onPress={() => setActiveMethodInfoId(method.id)} style={[styles.currentMethodButton, methodsDarkMode && styles.homeDarkResumeButton]} labelStyle={[styles.currentMethodButtonLabel, methodsDarkMode && styles.homeDarkResumeButtonText]} />
               </View>
             </View>
             <View style={styles.methodLibraryToolbar}>
-              <Pressable accessibilityRole="button" onPress={() => setMethodChooserOpen((value) => !value)} style={styles.methodToolbarButton}>
-                <Ionicons name="sparkles-outline" size={16} color={colors.oliveDark} />
-                <Text style={styles.methodToolbarButtonText}>Help me choose</Text>
-                <Text style={styles.methodToolbarBadge}>{recommendedMethod.short}</Text>
+              <Pressable accessibilityRole="button" onPress={() => setMethodChooserOpen((value) => !value)} style={[styles.methodToolbarButton, methodsDarkMode && styles.homeDarkResumeButton]}>
+                <Ionicons name="sparkles-outline" size={16} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Text style={[styles.methodToolbarButtonText, methodsDarkMode && styles.homeDarkResumeButtonText]}>Help me choose</Text>
+                <Text style={[styles.methodToolbarBadge, methodsDarkMode && styles.methodsDarkBadge]}>{recommendedMethod.short}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" onPress={() => setMethodFilterOpen((value) => !value)} style={styles.methodToolbarButton}>
-                <Ionicons name="filter-outline" size={16} color={colors.oliveDark} />
-                <Text style={styles.methodToolbarButtonText}>{`Filter: ${methodFilter}`}</Text>
+              <Pressable accessibilityRole="button" onPress={() => setMethodFilterOpen((value) => !value)} style={[styles.methodToolbarButton, methodsDarkMode && styles.homeDarkResumeButton]}>
+                <Ionicons name="filter-outline" size={16} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Text style={[styles.methodToolbarButtonText, methodsDarkMode && styles.homeDarkResumeButtonText]}>{`Filter: ${methodFilter}`}</Text>
               </Pressable>
             </View>
             {methodFilterOpen && (
@@ -5105,23 +5158,23 @@ export default function Home() {
                         setMethodFilter(filter);
                         setMethodFilterOpen(false);
                       }}
-                      style={[styles.methodFilterChip, methodFilter === filter && styles.activeMethodFilterChip]}
+                      style={[styles.methodFilterChip, methodsDarkMode && styles.printDarkOptionChip, methodFilter === filter && styles.activeMethodFilterChip]}
                     >
-                      <Text style={[styles.methodFilterText, methodFilter === filter && styles.activeMethodFilterText]}>{filter}</Text>
+                      <Text style={[styles.methodFilterText, methodsDarkMode && styles.accountDarkMutedText, methodFilter === filter && styles.activeMethodFilterText]}>{filter}</Text>
                     </Pressable>
                   ))}
                 </View>
               </View>
             )}
             {methodChooserOpen && (
-              <Card style={styles.methodRecommendPanel}>
+              <Card style={[styles.methodRecommendPanel, methodsDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.methodRecommendHeader}>
                   <View style={styles.methodRecommendTitleBlock}>
-                    <Text style={styles.methodInfoLabel}>Help me choose</Text>
-                    <Text style={styles.methodRecommendTitle}>{recommendedMethod.name}</Text>
-                    <Text style={styles.methodRecommendReason}>{selectedMethodRecommendation.reason}</Text>
+                    <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Help me choose</Text>
+                    <Text style={[styles.methodRecommendTitle, methodsDarkMode && styles.accountDarkTitle]}>{recommendedMethod.name}</Text>
+                    <Text style={[styles.methodRecommendReason, methodsDarkMode && styles.accountDarkMutedText]}>{selectedMethodRecommendation.reason}</Text>
                   </View>
-                  <Text style={styles.badge}>{recommendedMethod.short}</Text>
+                  <Text style={[styles.badge, methodsDarkMode && styles.methodsDarkBadge]}>{recommendedMethod.short}</Text>
                 </View>
                 <View style={styles.methodRecommendChoices}>
                   {methodRecommendations.map((item) => (
@@ -5129,9 +5182,9 @@ export default function Home() {
                     key={item.id}
                     accessibilityRole="button"
                     onPress={() => setMethodRecommendationId(item.id)}
-                    style={[styles.methodRecommendChoice, methodRecommendationId === item.id && styles.activeMethodRecommendChoice]}
+                    style={[styles.methodRecommendChoice, methodsDarkMode && styles.printDarkOptionChip, methodRecommendationId === item.id && styles.activeMethodRecommendChoice]}
                   >
-                    <Text style={[styles.methodRecommendChoiceText, methodRecommendationId === item.id && styles.activeMethodRecommendChoiceText]}>{item.label}</Text>
+                    <Text style={[styles.methodRecommendChoiceText, methodsDarkMode && styles.accountDarkMutedText, methodRecommendationId === item.id && styles.activeMethodRecommendChoiceText]}>{item.label}</Text>
                   </Pressable>
                   ))}
                 </View>
@@ -5143,55 +5196,55 @@ export default function Home() {
                       setTab("study");
                     }}
                   />
-                  <AppButton label="View details" variant="secondary" onPress={() => setActiveMethodInfoId(recommendedMethod.id)} />
-                  <AppButton label="Hide" variant="secondary" onPress={() => setMethodChooserOpen(false)} />
+                  <AppButton label="View details" variant="secondary" onPress={() => setActiveMethodInfoId(recommendedMethod.id)} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label="Hide" variant="secondary" onPress={() => setMethodChooserOpen(false)} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
                 </View>
               </Card>
             )}
             {activeMethodInfo && (
-              <Card style={styles.methodInfoPanel}>
+              <Card style={[styles.methodInfoPanel, methodsDarkMode && styles.accountDarkMainCard]}>
                 <View style={styles.methodInfoHeader}>
                   <View style={styles.methodInfoTitleBlock}>
-                    <Text style={styles.badge}>{activeMethodInfo.short}</Text>
-                    <Text style={styles.cardTitle}>{activeMethodInfo.name}</Text>
-                    <Text style={styles.muted}>{activeMethodInfo.tone}</Text>
+                    <Text style={[styles.badge, methodsDarkMode && styles.methodsDarkBadge]}>{activeMethodInfo.short}</Text>
+                    <Text style={[styles.cardTitle, methodsDarkMode && styles.accountDarkTitle]}>{activeMethodInfo.name}</Text>
+                    <Text style={[styles.muted, methodsDarkMode && styles.accountDarkMutedText]}>{activeMethodInfo.tone}</Text>
                   </View>
-                  <Pressable accessibilityRole="button" onPress={() => setActiveMethodInfoId("")} style={styles.methodIconButton}>
-                    <Ionicons name="close-outline" size={18} color={colors.oliveDark} />
+                  <Pressable accessibilityRole="button" onPress={() => setActiveMethodInfoId("")} style={[styles.methodIconButton, methodsDarkMode && styles.homeDarkIconBubble]}>
+                    <Ionicons name="close-outline" size={18} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
                   </Pressable>
                 </View>
-                <Text style={styles.body}>{activeMethodInfo.detail?.purpose || activeMethodInfo.description}</Text>
+                <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{activeMethodInfo.detail?.purpose || activeMethodInfo.description}</Text>
                 <View style={styles.methodInfoSection}>
-                  <Text style={styles.methodInfoLabel}>Best for</Text>
+                  <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Best for</Text>
                   <View style={styles.methodFitRow}>
                     {(activeMethodInfo.labels || activeMethodInfo.detail?.bestFor || [activeMethodInfo.tone]).map((fit) => (
-                      <Text key={fit} style={styles.methodFitPill}>{fit}</Text>
+                      <Text key={fit} style={[styles.methodFitPill, methodsDarkMode && styles.methodsDarkPill]}>{fit}</Text>
                     ))}
                   </View>
                 </View>
                 <View style={styles.methodInfoSection}>
-                  <Text style={styles.methodInfoLabel}>How it works</Text>
+                  <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>How it works</Text>
                   {activeMethodInfo.steps.map((methodStep, index) => (
-                    <View key={`${activeMethodInfo.id}-${methodStep.title}`} style={styles.methodStepPreview}>
+                    <View key={`${activeMethodInfo.id}-${methodStep.title}`} style={[styles.methodStepPreview, methodsDarkMode && styles.accountDarkInsetBox]}>
                       <Text style={styles.methodStepNumber}>{index + 1}</Text>
                       <View style={styles.methodStepCopy}>
-                        <Text style={styles.methodStepTitle}>{methodStep.title}</Text>
-                        <Text style={styles.methodStepText}>{methodStep.action}</Text>
+                        <Text style={[styles.methodStepTitle, methodsDarkMode && styles.accountDarkTitle]}>{methodStep.title}</Text>
+                        <Text style={[styles.methodStepText, methodsDarkMode && styles.accountDarkMutedText]}>{methodStep.action}</Text>
                       </View>
                     </View>
                   ))}
                 </View>
                 <View style={styles.methodInfoSection}>
-                  <Text style={styles.methodInfoLabel}>Example</Text>
+                  <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Example</Text>
                   <Text style={styles.methodExamplePassage}>{activeMethodInfo.detail?.examplePassage || "Psalm 23"}</Text>
                   {(activeMethodInfo.detail?.exampleWalkthrough || activeMethodInfo.steps.map((methodStep) => `${methodStep.title}: ${methodStep.example}`)).map((line) => (
-                    <Text key={line} style={styles.methodExampleLine}>{line}</Text>
+                    <Text key={line} style={[styles.methodExampleLine, methodsDarkMode && styles.accountDarkText]}>{line}</Text>
                   ))}
                 </View>
                 {!!activeMethodInfo.detail?.watchFor && (
-                  <View style={styles.methodWatchBox}>
+                  <View style={[styles.methodWatchBox, methodsDarkMode && styles.methodsDarkWatchBox]}>
                     <Ionicons name="alert-circle-outline" size={17} color={colors.coral} />
-                    <Text style={styles.methodWatchText}>{activeMethodInfo.detail.watchFor}</Text>
+                    <Text style={[styles.methodWatchText, methodsDarkMode && styles.accountDarkText]}>{activeMethodInfo.detail.watchFor}</Text>
                   </View>
                 )}
                 <View style={styles.methodInfoActions}>
@@ -5203,31 +5256,31 @@ export default function Home() {
                       setTab("study");
                     }}
                   />
-                  <AppButton label="Try example" variant="secondary" onPress={() => startMethodExample(activeMethodInfo.id)} />
-                  <AppButton label="Close" variant="secondary" onPress={() => setActiveMethodInfoId("")} />
+                  <AppButton label="Try example" variant="secondary" onPress={() => startMethodExample(activeMethodInfo.id)} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label="Close" variant="secondary" onPress={() => setActiveMethodInfoId("")} style={methodsDarkMode && styles.homeDarkResumeButton} labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText} />
                 </View>
               </Card>
             )}
             <View style={styles.methodGrid}>
               {visibleMethods.map((item) => (
-                <Card key={item.id} style={[styles.methodCard, phoneLayout && styles.phoneMethodCard]}>
+                <Card key={item.id} style={[styles.methodCard, phoneLayout && styles.phoneMethodCard, methodsDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.methodCardHeader}>
-                    <Text style={styles.badge}>{item.short}</Text>
-                    <Pressable accessibilityRole="button" accessibilityLabel={`About ${item.short}`} onPress={() => setActiveMethodInfoId(item.id)} style={styles.methodIconButton}>
-                      <Ionicons name="information-circle-outline" size={18} color={colors.oliveDark} />
+                    <Text style={[styles.badge, methodsDarkMode && styles.methodsDarkBadge]}>{item.short}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel={`About ${item.short}`} onPress={() => setActiveMethodInfoId(item.id)} style={[styles.methodIconButton, methodsDarkMode && styles.homeDarkIconBubble]}>
+                      <Ionicons name="information-circle-outline" size={18} color={methodsDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   </View>
-                  <Text style={styles.cardTitle}>{item.name}</Text>
-                  <Text style={styles.muted}>{item.tone}</Text>
+                  <Text style={[styles.cardTitle, methodsDarkMode && styles.accountDarkTitle]}>{item.name}</Text>
+                  <Text style={[styles.muted, methodsDarkMode && styles.accountDarkMutedText]}>{item.tone}</Text>
                   <View style={styles.methodLabelRow}>
                     {(item.labels || [item.tone]).slice(0, 3).map((label) => (
-                      <Text key={`${item.id}-${label}`} style={styles.methodLabelPill}>{label}</Text>
+                      <Text key={`${item.id}-${label}`} style={[styles.methodLabelPill, methodsDarkMode && styles.methodsDarkPill]}>{label}</Text>
                     ))}
                   </View>
-                  <Text style={styles.body}>{item.description}</Text>
+                  <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{item.description}</Text>
                   <View style={styles.methodStepCountRow}>
                     <Ionicons name="list-outline" size={15} color={colors.coral} />
-                    <Text style={styles.methodStepCountText}>{`${item.steps.length} guided steps`}</Text>
+                    <Text style={[styles.methodStepCountText, methodsDarkMode && styles.accountDarkMutedText]}>{`${item.steps.length} guided steps`}</Text>
                   </View>
                   <View style={styles.methodCardAction}>
                     <AppButton
@@ -5237,14 +5290,16 @@ export default function Home() {
                         switchMethod(item.id);
                         setTab("study");
                       }}
+                      style={methodsDarkMode && styles.homeDarkResumeButton}
+                      labelStyle={methodsDarkMode && styles.homeDarkResumeButtonText}
                     />
                   </View>
                 </Card>
               ))}
               {!visibleMethods.length && (
-                <Card style={styles.emptyMethodCard}>
-                  <Text style={styles.emptyJournalTitle}>No methods match this filter</Text>
-                  <Text style={styles.emptyJournalText}>Choose another focus to keep browsing.</Text>
+                <Card style={[styles.emptyMethodCard, methodsDarkMode && styles.accountDarkMainCard]}>
+                  <Text style={[styles.emptyJournalTitle, methodsDarkMode && styles.accountDarkTitle]}>No methods match this filter</Text>
+                  <Text style={[styles.emptyJournalText, methodsDarkMode && styles.accountDarkMutedText]}>Choose another focus to keep browsing.</Text>
                 </Card>
               )}
             </View>
@@ -5252,55 +5307,55 @@ export default function Home() {
         )}
 
         {tab === "memory" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Memory</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
+              <Text style={[styles.title, memoryDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
               {!phoneMemoryFocusMode && (
                 <>
-                  <Text style={styles.titleSupport}>Hide a little at a time and carry Scripture with you through the day.</Text>
+                  <Text style={[styles.titleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>
                   <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
-                    <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} />
-                    <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} />
-                    <Metric value={(memoryVerses || []).filter((item: any) => isMemoryVerseMemorized(item)).length} label="memorized" compact={phoneLayout} />
+                    <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+                    <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+                    <Metric value={(memoryVerses || []).filter((item: any) => isMemoryVerseMemorized(item)).length} label="memorized" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                   </View>
                 </>
               )}
               {phoneMemoryFocusMode && (
-                <View style={styles.memoryFocusBanner}>
+                <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
                   <Ionicons name="school-outline" size={18} color={colors.coral} />
-                  <Text style={styles.memoryFocusBannerText}>Practice mode. Close or finish this verse to return to your saved list.</Text>
+                  <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>Practice mode. Close or finish this verse to return to your saved list.</Text>
                 </View>
               )}
               {!!memoryStatus && <Text style={styles.saveStatus}>{memoryStatus}</Text>}
               {(memoryVerses || []).length === 0 ? (
-                <View style={styles.emptyJournalBox}>
+                <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                   <Ionicons name="sparkles-outline" size={24} color={colors.coral} />
-                  <Text style={styles.emptyJournalTitle}>No memory verses yet</Text>
-                  <Text style={styles.emptyJournalText}>{`${friendlyName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.`}</Text>
+                  <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No memory verses yet</Text>
+                  <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.`}</Text>
                   <View style={styles.emptyMemoryActions}>
                     <AppButton label="Open Bible" onPress={() => setTab("bible")} />
-                    <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} />
+                    <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                   </View>
                 </View>
               ) : (
                 <View style={styles.memoryList}>
                   {!phoneMemoryFocusMode && (
-                    <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox]}>
+                    <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox, memoryDarkMode && styles.accountDarkSection]}>
                       <View style={styles.addMemoryCopy}>
                         <View style={styles.feedbackHeader}>
                           <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
-                          <Text style={styles.feedbackTitle}>Add memory verses</Text>
+                          <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Add memory verses</Text>
                         </View>
-                        <Text style={styles.addMemoryText}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
+                        <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
                       </View>
                       <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
                         <AppButton label="Find in Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddButton} />
-                        <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={phoneLayout && styles.phoneMemoryAddButton} />
+                        <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                       </View>
                     </View>
                   )}
-                  {!phoneMemoryFocusMode && <View style={styles.memoryViewToggle}>
+                  {!phoneMemoryFocusMode && <View style={[styles.memoryViewToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                     {[
                       ["review", "Review"],
                       ["browse", "Browse"]
@@ -5310,13 +5365,13 @@ export default function Home() {
                         onPress={() => setMemoryView(key as MemoryView)}
                         style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
                       >
-                        <Text style={[styles.memoryViewText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
+                        <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
                       </Pressable>
                     ))}
                   </View>}
                   {!phoneMemoryFocusMode && (
-                    <View style={styles.memoryListTools}>
-                      <Text style={styles.muted}>Saved verses open compact by default so the list is easier to scan.</Text>
+                    <View style={[styles.memoryListTools, memoryDarkMode && styles.accountDarkSection]}>
+                      <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Saved verses open compact by default so the list is easier to scan.</Text>
                       <ResumeButton
                         label={memoryCardsExpanded ? "Compact list" : "Expand all"}
                         icon={memoryCardsExpanded ? "contract-outline" : "expand-outline"}
@@ -5324,38 +5379,40 @@ export default function Home() {
                           setMemoryCardsExpanded((expanded) => !expanded);
                           setExpandedMemoryVerseIds([]);
                         }}
-                        style={phoneLayout && styles.phoneMemoryListToolButton}
-                        labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                        style={[phoneLayout && styles.phoneMemoryListToolButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                        labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                       />
                     </View>
                   )}
                   {!phoneMemoryFocusMode && memoryView === "browse" && (
                     <>
-                      <View style={styles.journalSearchBox}>
+                      <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
                         <Ionicons name="search-outline" size={18} color={colors.coral} />
                         <TextInput
                           value={memorySearch}
                           onChangeText={setMemorySearch}
                           placeholder="Search reference or verse text"
-                          style={styles.journalSearchInput}
+                          placeholderTextColor={memoryDarkMode ? "#8f8678" : undefined}
+                          style={[styles.journalSearchInput, memoryDarkMode && styles.accountDarkText]}
                         />
                         {!!memorySearch.trim() && (
                           <Pressable onPress={() => setMemorySearch("")} style={styles.clearSearchButton}>
-                            <Ionicons name="close-outline" size={18} color={colors.muted} />
+                            <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#c8bda9" : colors.muted} />
                           </Pressable>
                         )}
                       </View>
-                      <View style={styles.memoryDiscoverBlock}>
-                        <Text style={styles.memoryDiscoverLabel}>Books saved</Text>
+                      <View style={[styles.memoryDiscoverBlock, memoryDarkMode && styles.accountDarkSection]}>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Books saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
                             onPress={() => {
                               setMemoryBookFilter("all");
                               setMemoryChapterFilter("all");
                             }}
-                            style={[styles.filterChip, memoryBookFilter === "all" && styles.activeFilterChip]}
+                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === "all" && styles.activeFilterChip]}
                           >
-                            <Text style={[styles.filterText, memoryBookFilter === "all" && styles.activeFilterText]}>All books</Text>
+                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === "all" && styles.activeFilterText]}>All books</Text>
                           </Pressable>
                           {memoryBookOptions.map((book) => (
                             <Pressable
@@ -5364,35 +5421,35 @@ export default function Home() {
                                 setMemoryBookFilter(book.book);
                                 setMemoryChapterFilter("all");
                               }}
-                              style={[styles.filterChip, memoryBookFilter === book.book && styles.activeFilterChip]}
+                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === book.book && styles.activeFilterChip]}
                             >
-                              <Text style={[styles.filterText, memoryBookFilter === book.book && styles.activeFilterText]}>
+                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book.book && styles.activeFilterText]}>
                                 {book.book} ({book.count})
                               </Text>
                             </Pressable>
                           ))}
                         </View>
-                        <Text style={styles.memoryDiscoverLabel}>Chapters saved</Text>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Chapters saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
                             onPress={() => setMemoryChapterFilter("all")}
-                            style={[styles.filterChip, memoryChapterFilter === "all" && styles.activeFilterChip]}
+                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryChapterFilter === "all" && styles.activeFilterChip]}
                           >
-                            <Text style={[styles.filterText, memoryChapterFilter === "all" && styles.activeFilterText]}>All chapters</Text>
+                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryChapterFilter === "all" && styles.activeFilterText]}>All chapters</Text>
                           </Pressable>
                           {memoryChapterOptions.map((chapter) => (
                             <Pressable
                               key={chapter.key}
                               onPress={() => setMemoryChapterFilter(chapter.key)}
-                              style={[styles.filterChip, memoryChapterFilter === chapter.key && styles.activeFilterChip]}
+                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryChapterFilter === chapter.key && styles.activeFilterChip]}
                             >
-                              <Text style={[styles.filterText, memoryChapterFilter === chapter.key && styles.activeFilterText]}>
+                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryChapterFilter === chapter.key && styles.activeFilterText]}>
                                 {chapter.label} ({chapter.count})
                               </Text>
                             </Pressable>
                           ))}
                         </View>
-                        <Text style={styles.memoryDiscoverLabel}>Status</Text>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Status</Text>
                         <View style={styles.filterRow}>
                           {[
                             ["all", "All"],
@@ -5403,9 +5460,9 @@ export default function Home() {
                             <Pressable
                               key={key}
                               onPress={() => setMemoryBrowseStatusFilter(key as MemoryBrowseStatusFilter)}
-                              style={[styles.filterChip, memoryBrowseStatusFilter === key && styles.activeFilterChip]}
+                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBrowseStatusFilter === key && styles.activeFilterChip]}
                             >
-                              <Text style={[styles.filterText, memoryBrowseStatusFilter === key && styles.activeFilterText]}>{label}</Text>
+                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBrowseStatusFilter === key && styles.activeFilterText]}>{label}</Text>
                             </Pressable>
                           ))}
                         </View>
@@ -5417,10 +5474,10 @@ export default function Home() {
                       {!phoneMemoryFocusMode && (
                         <>
                           <View style={styles.memorySectionHeader}>
-                            <Text style={styles.memorySectionTitle}>{section.title}</Text>
-                            <Text style={styles.memorySectionCount}>{section.verses.length}</Text>
+                            <Text style={[styles.memorySectionTitle, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                            <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
                           </View>
-                          <Text style={styles.muted}>{section.description}</Text>
+                          <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
                         </>
                       )}
                       {section.verses.map((verse: any) => {
@@ -5430,7 +5487,7 @@ export default function Home() {
                         const cardExpanded = memoryCardsExpanded || expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen;
 
                         return (
-                          <View key={verse._id} style={[styles.memoryCard, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard]}>
+                          <View key={verse._id} style={[styles.memoryCard, memoryDarkMode && styles.accountDarkSection, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard, memoryDarkMode && practicing && styles.memoryDarkActiveCard]}>
                             <Pressable
                               onPress={() => {
                                 setExpandedMemoryVerseIds((current) =>
@@ -5441,26 +5498,26 @@ export default function Home() {
                             >
                               <View style={styles.journalTitleBlock}>
                                 <View style={styles.memoryReferenceRow}>
-                                  <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle]}>{verse.reference}</Text>
+                                  <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
                                   <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={colors.coral} />
                                 </View>
-                                <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel]}>
+                                <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
                                   {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
                                 </Text>
                               </View>
                               <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
-                                <Text style={[styles.reviewDatePill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
-                                <Text style={[styles.draftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
+                                <Text style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill, memoryDarkMode && isMemoryVerseDue(verse) && styles.memoryDarkDueReviewPill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
+                                <Text style={[styles.draftPill, memoryDarkMode && styles.plansDarkDraftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>
                             </Pressable>
-                            {!cardExpanded && <Text numberOfLines={1} style={styles.memoryVersePreview}>{verse.verseText}</Text>}
+                            {!cardExpanded && <Text numberOfLines={1} style={[styles.memoryVersePreview, memoryDarkMode && styles.accountDarkMutedText]}>{verse.verseText}</Text>}
                             {cardExpanded && (
                               <>
                             {practicing ? (
-                              <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice]}>
+                              <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice, memoryDarkMode && styles.accountDarkInsetBox]}>
                                 <View style={[styles.memoryPracticeHeader, phoneLayout && styles.phoneMemoryPracticeHeader]}>
-                                  <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
-                                  <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow]}>
+                                  <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle, memoryDarkMode && styles.accountDarkMutedText]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
+                                  <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                                     {[1, 2, 3].map((level) => (
                                       <Pressable
                                         key={level}
@@ -5469,7 +5526,7 @@ export default function Home() {
                                       >
                                         <Text
                                           numberOfLines={1}
-                                          style={[styles.memoryStepText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}
+                                          style={[styles.memoryStepText, memoryDarkMode && styles.accountDarkMutedText, phoneLayout && styles.phoneMemoryStepText, memoryPracticeLevel === level && styles.activeMemoryStepText]}
                                         >
                                           {phoneLayout ? level : `Step ${level}`}
                                         </Text>
@@ -5478,9 +5535,9 @@ export default function Home() {
                                   </View>
                                 </View>
                                 {memoryPracticeLevel === 1 ? (
-                                  <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText]}>{memoryPracticeText}</Text>
+                                  <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText, memoryDarkMode && styles.memoryDarkPracticeText]}>{memoryPracticeText}</Text>
                                 ) : (
-                                  <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox]}>
+                                  <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox, memoryDarkMode && styles.memoryDarkFillBox]}>
                                     {memoryPracticeTokens.map((token) => {
                                       const blankIndex = token.blank ? memoryBlankTokens.findIndex((item) => item.index === token.index) : -1;
                                       return token.blank ? (
@@ -5499,9 +5556,10 @@ export default function Home() {
                                           onMoreHint={() => showMoreMemoryHint(token.index)}
                                           returnKeyType={blankIndex === memoryBlankTokens.length - 1 ? "done" : "next"}
                                           compact={phoneLayout}
+                                          darkMode={memoryDarkMode}
                                         />
                                       ) : (
-                                        <Text key={token.index} style={styles.memoryPracticeWord}>{token.text}</Text>
+                                        <Text key={token.index} style={[styles.memoryPracticeWord, memoryDarkMode && styles.accountDarkText]}>{token.text}</Text>
                                       );
                                     })}
                                   </View>
@@ -5522,55 +5580,58 @@ export default function Home() {
                                       labelStyle={phoneLayout && styles.phoneMemoryActionText}
                                     />
                                   ) : (
-                                    <ResumeButton label={memoryPracticeLevel === 1 ? "Ready for Step 2" : "Check answers"} icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                    <ResumeButton label={memoryPracticeLevel === 1 ? "Ready for Step 2" : "Check answers"} icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   )}
                                   {memoryPracticeLevel > 1 && (
-                                    <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                    <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   )}
                                   {memoryPracticeLevel > 1 && !memoryPracticeAllCorrect && (
                                     <ResumeButton
                                       label={memoryHintsVisible ? "Hide hints" : "Show hints"}
                                       icon="bulb-outline"
                                       onPress={() => setMemoryHintsVisible((visible) => !visible)}
-                                      style={phoneLayout && styles.phoneMemoryActionButton}
-                                      labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                                      style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                      labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                      iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                     />
                                   )}
-                                  <ResumeButton label="Close" icon="close-outline" onPress={() => setActiveMemoryVerseId("")} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  <ResumeButton label="Close" icon="close-outline" onPress={() => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                 </View>
                               </View>
                             ) : (
                               <>
-                                <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText]}>{verse.verseText}</Text>
-                                {!!verse.note && <Text style={styles.muted}>{verse.note}</Text>}
+                                <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText, memoryDarkMode && styles.accountDarkText]}>{verse.verseText}</Text>
+                                {!!verse.note && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{verse.note}</Text>}
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
-                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   <ResumeButton
                                     label={reviewOpen ? "Hide review" : "Change review"}
                                     icon="calendar-outline"
                                     onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
-                                    style={phoneLayout && styles.phoneMemoryActionButton}
-                                    labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                   />
                                   <ResumeButton
                                     label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
                                     icon="trash-outline"
                                     onPress={() => deleteMemoryVerse(verse)}
-                                    style={phoneLayout && styles.phoneMemoryActionButton}
-                                    labelStyle={phoneLayout && styles.phoneMemoryActionText}
+                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                   />
                                 </View>
                                 {reviewOpen && (
-                                  <View style={styles.reviewScheduleBox}>
-                                    <Text style={styles.memoryDiscoverLabel}>Review again</Text>
+                                  <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                    <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review again</Text>
                                     <View style={styles.filterRow}>
                                       {MEMORY_REVIEW_OPTIONS.map((option) => (
                                         <Pressable
                                           key={option.id}
                                           onPress={() => scheduleMemoryVerseReview(verse, option.id)}
-                                          style={[styles.filterChip, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterChip]}
+                                          style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterChip]}
                                         >
-                                          <Text style={[styles.filterText, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                          <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterText]}>{option.label}</Text>
                                         </Pressable>
                                       ))}
                                     </View>
@@ -5586,10 +5647,10 @@ export default function Home() {
                     </View>
                   ))}
                   {memoryView === "browse" && memoryBrowseSections.length === 0 && (
-                    <View style={styles.emptyJournalBox}>
+                    <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="search-outline" size={24} color={colors.coral} />
-                      <Text style={styles.emptyJournalTitle}>No saved verses found</Text>
-                      <Text style={styles.emptyJournalText}>Try a book, chapter, reference, or a phrase from the verse.</Text>
+                      <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No saved verses found</Text>
+                      <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>Try a book, chapter, reference, or a phrase from the verse.</Text>
                     </View>
                   )}
                 </View>
@@ -5599,12 +5660,12 @@ export default function Home() {
         )}
 
         {tab === "accountability" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, communityDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, communityDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Community</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
-              <Text style={styles.titleSupport}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
-              <View style={styles.communitySubViewTabs}>
+              <Text style={[styles.title, communityDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
+              <Text style={[styles.titleSupport, communityDarkMode && styles.accountDarkMutedText]}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
+              <View style={[styles.communitySubViewTabs, communityDarkMode && styles.accountDarkSegmentedRow]}>
                 {[
                   ["encourage", "Encourage"],
                   ["history", "History"]
@@ -5614,14 +5675,14 @@ export default function Home() {
                     onPress={() => setCommunitySubView(key as "encourage" | "history")}
                     style={[styles.communitySubViewTab, communitySubView === key && styles.activeCommunitySubViewTab]}
                   >
-                    <Text style={[styles.communitySubViewTabText, communitySubView === key && styles.activeCommunitySubViewTabText]}>{label}</Text>
+                    <Text style={[styles.communitySubViewTabText, communityDarkMode && styles.accountDarkMutedText, communitySubView === key && styles.activeCommunitySubViewTabText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
               {communitySubView === "encourage" ? (
                 <>
               <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
-              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <Pressable
                   disabled={!phoneLayout}
                   onPress={() => setMobileFriendsPanelOpen((open) => !open)}
@@ -5629,62 +5690,64 @@ export default function Home() {
                 >
                   <View style={styles.mobileCommunityPanelTitleRow}>
                     <Ionicons name="person-add-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Friends</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Friends</Text>
                   </View>
                   {phoneLayout && (
                     <View style={styles.mobileCommunityPanelSummaryRow}>
-                      <Text numberOfLines={1} style={styles.mobileCommunityPanelSummary}>{friendPanelSummary}</Text>
-                      <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                      <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{friendPanelSummary}</Text>
+                      <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
                   )}
                 </Pressable>
                 {showFriendsConnectionPanel && (
                   <>
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                       Friends are registered Bible Study Tutor users you personally add by code or email. Share your code privately with someone you trust, then encourage one another without a public feed.
                     </Text>
                     {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                       <>
-                    <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
-                      <Text style={styles.circleManagementLabel}>Your friend code</Text>
-                      <View style={styles.circleChip}>
+                    <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
+                      <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your friend code</Text>
+                      <View style={[styles.circleChip, communityDarkMode && styles.accountDarkSection]}>
                         <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
-                          <Text style={styles.circleInviteCodeText}>{myFriendCode || "Loading..."}</Text>
-                          <Pressable onPress={copyFriendCode} style={styles.circleCopyButton}>
-                            <Ionicons name="copy-outline" size={13} color={colors.oliveDark} />
-                            <Text style={styles.circleCopyText}>Copy</Text>
+                          <Text style={[styles.circleInviteCodeText, communityDarkMode && styles.accountDarkTitle]}>{myFriendCode || "Loading..."}</Text>
+                          <Pressable onPress={copyFriendCode} style={[styles.circleCopyButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                            <Ionicons name="copy-outline" size={13} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                            <Text style={[styles.circleCopyText, communityDarkMode && styles.homeDarkResumeButtonText]}>Copy</Text>
                           </Pressable>
                         </View>
-                        <Text style={styles.circleChipMeta}>Share this code privately so another registered user can add you as a friend.</Text>
+                        <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>Share this code privately so another registered user can add you as a friend.</Text>
                       </View>
-                      <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={styles.circleManagerToggle}>
-                        <Ionicons name="person-add-outline" size={14} color={colors.oliveDark} />
-                        <Text style={styles.circleManageText}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
-                        <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                      <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
+                        <Ionicons name="person-add-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
+                        <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
                       {friendToolsOpen && (
                         <View style={styles.circleManagementContent}>
                           <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.circleManagementLabel}>Add by friend code</Text>
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Add by friend code</Text>
                               <TextInput
                                 value={friendCodeInput}
                                 onChangeText={(value) => setFriendCodeInput(value.toUpperCase())}
                                 placeholder="Friend code"
                                 autoCapitalize="characters"
-                                style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
+                                placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]}
                               />
                               <AppButton label="Add by code" variant="secondary" onPress={inviteFriendWithCode} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.circleManagementLabel}>Add by email</Text>
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Add by email</Text>
                               <TextInput
                                 value={friendEmail}
                                 onChangeText={setFriendEmail}
                                 placeholder="Friend's account email"
                                 autoCapitalize="none"
                                 keyboardType="email-address"
-                                style={[styles.input, phoneLayout && styles.phoneCommunityInput]}
+                                placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]}
                               />
                               <AppButton label="Send invite" variant="secondary" onPress={inviteFriend} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
@@ -5693,10 +5756,10 @@ export default function Home() {
                       )}
                     </View>
                     {acceptedCommunityFriends.length > 0 ? (
-                      <View style={styles.circleSelectorPanel}>
+                      <View style={[styles.circleSelectorPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.circleSelectorHeader}>
-                          <Text style={styles.circleManagementLabel}>Your friends</Text>
-                          <Text style={styles.circleCountText}>{acceptedCommunityFriends.length} accepted</Text>
+                          <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your friends</Text>
+                          <Text style={[styles.circleCountText, communityDarkMode && styles.accountDarkMutedText]}>{acceptedCommunityFriends.length} accepted</Text>
                         </View>
                         <View style={styles.circleList}>
                           {acceptedCommunityFriends.map((friend: any) => {
@@ -5708,10 +5771,10 @@ export default function Home() {
                                   setSelectedFriendId(friend._id);
                                   setPendingFriendRemoveId(null);
                                 }}
-                                style={[styles.circleChip, friendIsSelected && styles.activeCircleChip]}
+                                style={[styles.circleChip, communityDarkMode && styles.accountDarkSection, friendIsSelected && styles.activeCircleChip]}
                               >
-                                <Text style={[styles.circleChipTitle, friendIsSelected && styles.activeCircleChipText]}>{friend.name}</Text>
-                                <Text style={[styles.circleChipMeta, friendIsSelected && styles.activeCircleChipText]}>
+                                <Text style={[styles.circleChipTitle, communityDarkMode && styles.accountDarkTitle, friendIsSelected && styles.activeCircleChipText]}>{friend.name}</Text>
+                                <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText, friendIsSelected && styles.activeCircleChipText]}>
                                   {friendIsSelected ? "Selected for management" : "Tap to manage"}{friend.email ? ` · ${friend.email}` : ""}
                                 </Text>
                               </Pressable>
@@ -5720,25 +5783,25 @@ export default function Home() {
                         </View>
                       </View>
                     ) : (
-                      <View style={styles.emptyCommunityBox}>
-                        <Text style={styles.communityTitle}>No accepted friends yet</Text>
-                        <Text style={styles.helpIntro}>Invite a registered user by email, or accept an invite below.</Text>
+                      <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No accepted friends yet</Text>
+                        <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Invite a registered user by email, or accept an invite below.</Text>
                       </View>
                     )}
                     {pendingCommunityFriendInvites.length > 0 && (
-                      <View style={styles.circleSelectorPanel}>
-                        <Text style={styles.circleManagementLabel}>Pending friend invites</Text>
+                      <View style={[styles.circleSelectorPanel, communityDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Pending friend invites</Text>
                         <View style={styles.circleList}>
                           {pendingCommunityFriendInvites.map((friend: any) => (
-                            <View key={friend._id} style={styles.circleChip}>
-                              <Text style={styles.circleChipTitle}>{friend.name}</Text>
-                              <Text style={styles.circleChipMeta}>
+                            <View key={friend._id} style={[styles.circleChip, communityDarkMode && styles.accountDarkSection]}>
+                              <Text style={[styles.circleChipTitle, communityDarkMode && styles.accountDarkTitle]}>{friend.name}</Text>
+                              <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>
                                 {friend.direction === "received" ? "Waiting for you to accept" : "Invite sent"}{friend.email ? ` · ${friend.email}` : ""}
                               </Text>
                               <View style={styles.circleManagementRow}>
                                 {friend.direction === "received" && (
-                                  <Pressable onPress={() => acceptFriendInvite(friend)} style={styles.circleManageButton}>
-                                    <Text style={styles.circleManageText}>Accept</Text>
+                                  <Pressable onPress={() => acceptFriendInvite(friend)} style={[styles.circleManageButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                                    <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>Accept</Text>
                                   </Pressable>
                                 )}
                                 <Pressable
@@ -5765,17 +5828,17 @@ export default function Home() {
                         </Text>
                       </Pressable>
                     )}
-                    {!!friendStatus && <Text style={styles.saveStatus}>{friendStatus}</Text>}
+                    {!!friendStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{friendStatus}</Text>}
                       </>
                     ) : COMMUNITY_CIRCLES_ENABLED ? (
                       <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                     ) : (
-                      <Text style={styles.saveStatus}>Friends will be enabled after the backend is ready.</Text>
+                      <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>Friends will be enabled after the backend is ready.</Text>
                     )}
                   </>
                 )}
               </View>
-              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, phoneLayout && styles.phoneCommunityConnectionPanel]}>
+              <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <Pressable
                   disabled={!phoneLayout}
                   onPress={() => setMobileCirclesPanelOpen((open) => !open)}
@@ -5783,18 +5846,18 @@ export default function Home() {
                 >
                   <View style={styles.mobileCommunityPanelTitleRow}>
                     <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Private circle</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Private circle</Text>
                   </View>
                   {phoneLayout && (
                     <View style={styles.mobileCommunityPanelSummaryRow}>
-                      <Text numberOfLines={1} style={styles.mobileCommunityPanelSummary}>{circlePanelSummary}</Text>
-                      <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                      <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{circlePanelSummary}</Text>
+                      <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </View>
                   )}
                 </Pressable>
                 {showCircleConnectionPanel && (
                   <>
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                     {COMMUNITY_CIRCLES_ENABLED
                       ? isAuthenticated
                         ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple encouragement so you can encourage one another to keep drawing near to God."
@@ -5804,16 +5867,16 @@ export default function Home() {
                     {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                       <>
                     {(communityCircles || []).length > 0 && (
-                      <View style={styles.circleSelectorPanel}>
+                      <View style={[styles.circleSelectorPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.circleSelectorHeader}>
-                          <Text style={styles.circleManagementLabel}>Your circles</Text>
-                          <Text style={styles.circleCountText}>{(communityCircles || []).length} saved</Text>
+                          <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your circles</Text>
+                          <Text style={[styles.circleCountText, communityDarkMode && styles.accountDarkMutedText]}>{(communityCircles || []).length} saved</Text>
                         </View>
                         <View style={styles.circleList}>
                           {(communityCircles || []).map((circle: any) => {
                             const circleIsSelected = String(selectedCircleId) === String(circle._id);
                             return (
-                              <View key={circle._id} style={[styles.circleChip, circleIsSelected && styles.activeCircleChip]}>
+                              <View key={circle._id} style={[styles.circleChip, communityDarkMode && styles.accountDarkSection, circleIsSelected && styles.activeCircleChip]}>
                                 <Pressable
                                   onPress={() => {
                                     setSelectedCircleId(circleIsSelected ? null : circle._id);
@@ -5823,23 +5886,23 @@ export default function Home() {
                                   style={styles.circleChipHeader}
                                 >
                                   <View style={styles.journalTitleBlock}>
-                                    <Text style={[styles.circleChipTitle, circleIsSelected && styles.activeCircleChipText]}>{circle.name}</Text>
-                                    <Text style={[styles.circleChipMeta, circleIsSelected && styles.activeCircleChipText]}>
+                                    <Text style={[styles.circleChipTitle, communityDarkMode && styles.accountDarkTitle, circleIsSelected && styles.activeCircleChipText]}>{circle.name}</Text>
+                                    <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText, circleIsSelected && styles.activeCircleChipText]}>
                                       {circleIsSelected ? "Managing this circle" : "Tap to manage"} · {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · {circle.canDelete ? "Owner" : "Member"}
                                     </Text>
                                   </View>
-                                  <Ionicons name={circleIsSelected ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={circleIsSelected ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={communityDarkMode && !circleIsSelected ? "#e9b76a" : colors.oliveDark} />
                                 </Pressable>
                                 {circleIsSelected && (
                                   <View style={styles.circleInlineManagement}>
                                     <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
-                                      <Text style={styles.circleManagementLabel}>Invite code</Text>
-                                      <Text style={styles.circleInviteCodeText}>{circle.inviteCode}</Text>
+                                      <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Invite code</Text>
+                                      <Text style={[styles.circleInviteCodeText, communityDarkMode && styles.accountDarkTitle]}>{circle.inviteCode}</Text>
                                     </View>
                                     <View style={styles.circleManagementRow}>
-                                      <Pressable onPress={() => copyCircleInviteCode(circle.inviteCode)} style={styles.circleCopyButton}>
-                                        <Ionicons name="copy-outline" size={14} color={colors.oliveDark} />
-                                        <Text style={styles.circleCopyText}>Copy invite</Text>
+                                      <Pressable onPress={() => copyCircleInviteCode(circle.inviteCode)} style={[styles.circleCopyButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                                        <Ionicons name="copy-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                        <Text style={[styles.circleCopyText, communityDarkMode && styles.homeDarkResumeButtonText]}>Copy invite</Text>
                                       </Pressable>
                                       {circle.canDelete ? (
                                         <Pressable
@@ -5870,41 +5933,41 @@ export default function Home() {
                       </View>
                     )}
                     {(communityCircles || []).length === 0 && (
-                      <View style={styles.emptyCommunityBox}>
-                        <Text style={styles.communityTitle}>No private circles yet</Text>
-                        <Text style={styles.helpIntro}>Create one or join with an invite code when you are ready.</Text>
+                      <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No private circles yet</Text>
+                        <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Create one or join with an invite code when you are ready.</Text>
                       </View>
                     )}
-                    <View style={[styles.circleManagementBox, phoneLayout && styles.phoneCircleManagementBox]}>
-                      <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={styles.circleManagerToggle}>
-                        <Ionicons name="settings-outline" size={14} color={colors.oliveDark} />
-                        <Text style={styles.circleManageText}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
-                        <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={colors.oliveDark} />
+                    <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
+                      <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
+                        <Ionicons name="settings-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
+                        <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
                       {(circleManagerOpen || (communityCircles || []).length === 0) && (
                         <View style={styles.circleManagementContent}>
-                          <Text style={styles.circleManagementLabel}>Create or join a circle</Text>
+                          <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Create or join a circle</Text>
                           <View style={[styles.circleActionGrid, phoneLayout && styles.phoneCircleActionGrid]}>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.lastCheckinLabel}>Create</Text>
-                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" style={[styles.input, phoneLayout && styles.phoneCommunityInput]} />
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.lastCheckinLabel, communityDarkMode && styles.studyDarkAccentText]}>Create</Text>
+                              <TextInput value={circleName} onChangeText={setCircleName} placeholder="Circle name" placeholderTextColor={communityDarkMode ? "#8f8678" : undefined} style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]} />
                               <AppButton label="Create circle" variant="secondary" onPress={createCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
-                            <View style={[styles.circleActionBox, phoneLayout && styles.phoneCircleActionBox]}>
-                              <Text style={styles.lastCheckinLabel}>Join</Text>
-                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" autoCapitalize="characters" style={[styles.input, phoneLayout && styles.phoneCommunityInput]} />
+                            <View style={[styles.circleActionBox, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCircleActionBox]}>
+                              <Text style={[styles.lastCheckinLabel, communityDarkMode && styles.studyDarkAccentText]}>Join</Text>
+                              <TextInput value={circleInviteCode} onChangeText={(value) => setCircleInviteCode(value.toUpperCase())} placeholder="Invite code" placeholderTextColor={communityDarkMode ? "#8f8678" : undefined} autoCapitalize="characters" style={[styles.input, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCommunityInput]} />
                               <AppButton label="Join circle" variant="secondary" onPress={joinCircle} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                             </View>
                           </View>
                         </View>
                       )}
-                      {!!circleStatus && <Text style={styles.saveStatus}>{circleStatus}</Text>}
+                      {!!circleStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{circleStatus}</Text>}
                       </View>
                       </>
                     ) : COMMUNITY_CIRCLES_ENABLED ? (
                       <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
                     ) : (
-                      <Text style={styles.saveStatus}>Encouragements still save privately and can be copied or sent as before.</Text>
+                      <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>Encouragements still save privately and can be copied or sent as before.</Text>
                     )}
                   </>
                 )}
@@ -5916,22 +5979,22 @@ export default function Home() {
                     <Text style={styles.communityStepBadgeText}>1</Text>
                   </View>
                   <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Choose a friend or circle</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Choose a friend or circle</Text>
                   </View>
                 </View>
                 {hasAvailableCommunityTarget ? (
                   <>
-                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={styles.communityTargetSelect}>
+                    <Pressable onPress={() => setCommunityTargetPickerOpen((open) => !open)} style={[styles.communityTargetSelect, communityDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.communityTargetSelectTextBlock}>
-                        <Text style={styles.communityRecipientText}>{activeCommunityTargetName || "Choose a connection"}</Text>
+                        <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>{activeCommunityTargetName || "Choose a connection"}</Text>
                       </View>
-                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.oliveDark} />
+                      <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                     {communityTargetPickerOpen && (
-                      <View style={styles.communityTargetPickerPanel}>
+                      <View style={[styles.communityTargetPickerPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                         {acceptedCommunityFriends.length > 0 && (
                           <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Friends - select one or more</Text>
+                            <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Friends - select one or more</Text>
                             {acceptedCommunityFriends.map((friend: any) => {
                               const isTarget = communityTargetType === "friend" && targetFriendIds.some((id) => String(id) === String(friend._id));
                               return (
@@ -5944,12 +6007,12 @@ export default function Home() {
                                       return alreadySelected ? current.filter((id) => String(id) !== String(friend._id)) : [...current, friend._id];
                                     });
                                   }}
-                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                  style={[styles.communityTargetOption, communityDarkMode && styles.accountDarkSection, isTarget && styles.activeCommunityTargetOption]}
                                 >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={communityDarkMode && !isTarget ? "#e9b76a" : colors.oliveDark} />
                                   <View style={styles.journalTitleBlock}>
-                                    <Text style={styles.communityTargetOptionTitle}>{friend.name}</Text>
-                                    {!!friend.email && <Text style={styles.circleChipMeta}>{friend.email}</Text>}
+                                    <Text style={[styles.communityTargetOptionTitle, communityDarkMode && styles.accountDarkTitle]}>{friend.name}</Text>
+                                    {!!friend.email && <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>{friend.email}</Text>}
                                   </View>
                                 </Pressable>
                               );
@@ -5958,7 +6021,7 @@ export default function Home() {
                         )}
                         {(communityCircles || []).length > 0 && (
                           <View style={styles.communityTargetPickerGroup}>
-                            <Text style={styles.circleManagementLabel}>Circles</Text>
+                            <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Circles</Text>
                             {(communityCircles || []).map((circle: any) => {
                               const isTarget = communityTargetType === "circle" && String(targetCircleId) === String(circle._id);
                               return (
@@ -5969,12 +6032,12 @@ export default function Home() {
                                     setTargetCircleId(circle._id);
                                     setCommunityTargetPickerOpen(false);
                                   }}
-                                  style={[styles.communityTargetOption, isTarget && styles.activeCommunityTargetOption]}
+                                  style={[styles.communityTargetOption, communityDarkMode && styles.accountDarkSection, isTarget && styles.activeCommunityTargetOption]}
                                 >
-                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={colors.oliveDark} />
+                                  <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={communityDarkMode && !isTarget ? "#e9b76a" : colors.oliveDark} />
                                   <View style={styles.journalTitleBlock}>
-                                    <Text style={styles.communityTargetOptionTitle}>{circle.name}</Text>
-                                    <Text style={styles.circleChipMeta}>
+                                    <Text style={[styles.communityTargetOptionTitle, communityDarkMode && styles.accountDarkTitle]}>{circle.name}</Text>
+                                    <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>
                                       {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"}
                                     </Text>
                                   </View>
@@ -5985,7 +6048,7 @@ export default function Home() {
                         )}
                       </View>
                     )}
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                       {communityTargetType === "circle"
                         ? "Saving can post this encouragement to the selected circle."
                         : "Saving can post this encouragement to your selected friend or friends."}
@@ -5993,8 +6056,8 @@ export default function Home() {
                   </>
                 ) : (
                   <>
-                    <Text style={styles.communityRecipientText}>No friend or circle selected</Text>
-                    <Text style={styles.helpIntro}>{`${friendlyName}, add a registered friend or join a private circle above.`}</Text>
+                    <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>No friend or circle selected</Text>
+                    <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, add a registered friend or join a private circle above.`}</Text>
                   </>
                 )}
               </View>
@@ -6003,7 +6066,7 @@ export default function Home() {
                   <Text style={styles.communityStepBadgeText}>2</Text>
                 </View>
                 <View style={styles.journalTitleBlock}>
-                  <Text style={styles.feedbackTitle}>Write one honest update</Text>
+                  <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Write one honest update</Text>
                 </View>
               </View>
               <TextInput
@@ -6011,7 +6074,8 @@ export default function Home() {
                 value={checkinNote}
                 onChangeText={setCheckinNote}
                 placeholder="Example: I studied Psalm 23 and was reminded that God leads me one step at a time."
-                style={[styles.input, styles.textarea, phoneLayout && styles.phoneCheckinTextarea]}
+                placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+                style={[styles.input, styles.textarea, communityDarkMode && styles.accountDarkInput, phoneLayout && styles.phoneCheckinTextarea]}
               />
               <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
                 <View style={styles.communityStepHeader}>
@@ -6019,26 +6083,26 @@ export default function Home() {
                     <Text style={styles.communityStepBadgeText}>3</Text>
                   </View>
                   <View style={styles.journalTitleBlock}>
-                    <Text style={styles.feedbackTitle}>Post encouragement</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Post encouragement</Text>
                   </View>
                 </View>
-                <Text style={[styles.shareMessageText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
+                <Text style={[styles.shareMessageText, communityDarkMode && styles.accountDarkText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
                 <AppButton
                   label={isSavingCheckin ? "Posting..." : "Post"}
                   onPress={persistCheckin}
                   style={phoneLayout && styles.phoneFullWidthButton}
                   labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
                 />
-                {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
+                {!!communityStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{communityStatus}</Text>}
               </View>
                 </>
               ) : (
-                <View style={styles.communityHistoryPanel}>
+                <View style={[styles.communityHistoryPanel, communityDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="albums-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Encouragement history</Text>
+                    <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Encouragement history</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
+                  <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
                   <View style={styles.communityHistoryFilterRow}>
                     {[
                       ["all", "All"],
@@ -6051,9 +6115,9 @@ export default function Home() {
                           setCommunityHistoryFilter(key as "all" | "private" | "circles");
                           if (key !== "circles") setCommunityHistoryCircleId("all");
                         }}
-                        style={[styles.filterChip, communityHistoryFilter === key && styles.activeFilterChip]}
+                        style={[styles.filterChip, communityDarkMode && styles.printDarkOptionChip, communityHistoryFilter === key && styles.activeFilterChip]}
                       >
-                        <Text style={[styles.filterText, communityHistoryFilter === key && styles.activeFilterText]}>{label}</Text>
+                        <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryFilter === key && styles.activeFilterText]}>{label}</Text>
                       </Pressable>
                     ))}
                   </View>
@@ -6061,33 +6125,33 @@ export default function Home() {
                     <View style={styles.communityHistoryFilterRow}>
                       <Pressable
                         onPress={() => setCommunityHistoryCircleId("all")}
-                        style={[styles.filterChip, communityHistoryCircleId === "all" && styles.activeFilterChip]}
+                        style={[styles.filterChip, communityDarkMode && styles.printDarkOptionChip, communityHistoryCircleId === "all" && styles.activeFilterChip]}
                       >
-                        <Text style={[styles.filterText, communityHistoryCircleId === "all" && styles.activeFilterText]}>All circles</Text>
+                        <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryCircleId === "all" && styles.activeFilterText]}>All circles</Text>
                       </Pressable>
                       {communityHistoryCircleOptions.map((circle) => (
                         <Pressable
                           key={circle.circleId}
                           onPress={() => setCommunityHistoryCircleId(circle.circleId)}
-                          style={[styles.filterChip, communityHistoryCircleId === circle.circleId && styles.activeFilterChip]}
+                          style={[styles.filterChip, communityDarkMode && styles.printDarkOptionChip, communityHistoryCircleId === circle.circleId && styles.activeFilterChip]}
                         >
-                          <Text style={[styles.filterText, communityHistoryCircleId === circle.circleId && styles.activeFilterText]}>{circle.circleName}</Text>
+                          <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryCircleId === circle.circleId && styles.activeFilterText]}>{circle.circleName}</Text>
                         </Pressable>
                       ))}
                     </View>
                   )}
                   {communityHistoryGroups.length === 0 ? (
-                    <View style={styles.emptyCommunityBox}>
-                      <Text style={styles.communityTitle}>No posts found</Text>
-                      <Text style={styles.helpIntro}>Try another filter, or post a new encouragement or study insight.</Text>
+                    <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                      <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No posts found</Text>
+                      <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Try another filter, or post a new encouragement or study insight.</Text>
                     </View>
                   ) : (
                     <View style={styles.communityHistoryGroupList}>
                       {communityHistoryGroups.map((group) => (
-                        <View key={group.title} style={styles.communityHistoryGroup}>
+                        <View key={group.title} style={[styles.communityHistoryGroup, communityDarkMode && styles.accountDarkInsetBox]}>
                           <View style={styles.circleSelectorHeader}>
-                            <Text style={styles.circleManagementLabel}>{group.title}</Text>
-                            <Text style={styles.circleCountText}>{group.items.length}</Text>
+                            <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>{group.title}</Text>
+                            <Text style={[styles.circleCountText, communityDarkMode && styles.accountDarkMutedText]}>{group.items.length}</Text>
                           </View>
                           <View style={styles.circleList}>
                             {group.items.map((item: any) => renderCommunityHistoryItem(item))}
@@ -6096,36 +6160,36 @@ export default function Home() {
                       ))}
                     </View>
                   )}
-                  {!!communityStatus && <Text style={styles.saveStatus}>{communityStatus}</Text>}
+                  {!!communityStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{communityStatus}</Text>}
                 </View>
               )}
             </Card>
 
-            {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
-              <View style={styles.communityGoalBox}>
+            {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard, communityDarkMode && styles.accountDarkMainCard]}>
+              <View style={[styles.communityGoalBox, communityDarkMode && styles.accountDarkSection]}>
                 <View style={styles.feedbackHeader}>
                   <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Community boundary</Text>
+                  <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Community boundary</Text>
                 </View>
-                <Text style={styles.helpIntro}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
+                <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
               </View>
               <View style={styles.communityDivider} />
               <View style={styles.feedbackHeader}>
                 <Ionicons name="time-outline" size={18} color={colors.coral} />
-                  <Text style={styles.feedbackTitle}>Recent encouragements</Text>
+                  <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Recent encouragements</Text>
               </View>
               {(checkins || []).length === 0 ? (
-                <View style={styles.emptyCommunityBox}>
-                  <Text style={styles.communityTitle}>No encouragements yet</Text>
-                  <Text style={styles.helpIntro}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
+                <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
+                  <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No encouragements yet</Text>
+                  <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
                 </View>
               ) : (
                 <>
                   {visibleCheckins.map((item: any) => renderCommunityHistoryItem(item))}
                   {(checkins || []).length > 3 && (
-                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={styles.communityShowMoreButton}>
-                      <Text style={styles.communityShowMoreText}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
-                      <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={colors.oliveDark} />
+                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={[styles.communityShowMoreButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                      <Text style={[styles.communityShowMoreText, communityDarkMode && styles.homeDarkResumeButtonText]}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
+                      <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   )}
                 </>
@@ -6135,31 +6199,64 @@ export default function Home() {
         )}
 
         {tab === "account" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard]}>
+          <View style={[styles.layout, compactLayout && styles.stackedLayout, accountDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Account & access</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, your profile` : "Your profile and feedback choices"}</Text>
-              <Text style={styles.titleSupport}>Keep your details current so the app can speak to you personally and help you draw near to God.</Text>
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Sign in</Text>
+              <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your profile and feedback choices"}</Text>
+              <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>Keep your details current so the app can speak to you personally and help you draw near to God.</Text>
+              {DARK_MODE_ENABLED && (
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Appearance</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Try dark mode first in Account. Once it feels right, we can extend it carefully to the rest of the app.</Text>
+                  <View style={styles.accountOptionGrid}>
+                    {([
+                      ["light", "Light", "Warm study colours", "sunny-outline"],
+                      ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"]
+                    ] as const).map(([mode, label, description, icon]) => (
+                      <Pressable
+                        key={mode}
+                        onPress={() => {
+                          setAppearanceMode(mode);
+                          saveStoredAppearanceMode(mode).catch(() => undefined);
+                        }}
+                        style={[
+                          styles.aiOptionCard,
+                          styles.accountOptionCard,
+                          accountDarkMode && styles.accountDarkOptionCard,
+                          appearanceMode === mode && styles.activeAiOptionCard,
+                          accountDarkMode && appearanceMode === mode && styles.accountDarkActiveOptionCard
+                        ]}
+                      >
+                        <Ionicons name={appearanceMode === mode ? "checkmark-circle" : icon} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <View style={styles.aiOptionCopy}>
+                          <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{label}</Text>
+                          <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{description}</Text>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              )}
+              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Sign in</Text>
                 {isAuthenticated ? (
                   <>
                     <View style={styles.signedInBadgeRow}>
-                      <View style={styles.signedInBadge}>
-                        <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "checkmark-circle-outline"} size={16} color={colors.oliveDark} />
-                        <Text style={styles.signedInBadgeText}>{`Signed in with ${accountProviderLabel}`}</Text>
+                      <View style={[styles.signedInBadge, accountDarkMode && styles.accountDarkBadge]}>
+                        <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "checkmark-circle-outline"} size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.signedInBadgeText, accountDarkMode && styles.accountDarkBadgeText]}>{`Signed in with ${accountProviderLabel}`}</Text>
                       </View>
                     </View>
-                    <Text style={styles.helpIntro}>{`${accountIdentityLabel}. New studies, drafts, and encouragements can follow this account across devices.`}</Text>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`${accountIdentityLabel}. New studies, drafts, and encouragements can follow this account across devices.`}</Text>
                     <AppButton label="Sign out" onPress={submitSignOut} />
                   </>
                 ) : (
                   <>
-                    <Text style={styles.helpIntro}>Create an account to carry your study journal between phone, web, and desktop. Adding your name helps the app feel more personal as you draw near to God.</Text>
-                    <View style={styles.freeAccountBox}>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Create an account to carry your study journal between phone, web, and desktop. Adding your name helps the app feel more personal as you draw near to God.</Text>
+                    <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="gift-outline" size={18} color={colors.coral} />
-                        <Text style={styles.feedbackTitle}>Why create a free account?</Text>
+                        <Ionicons name="gift-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Why create a free account?</Text>
                       </View>
                       {[
                         "Keep your studies, journal, highlights, memory verses, and reading progress connected to you.",
@@ -6167,17 +6264,17 @@ export default function Home() {
                         "Keep the app personal, with encouragement using your name."
                       ].map((benefit) => (
                         <View key={benefit} style={styles.freeAccountBenefitRow}>
-                          <Ionicons name="checkmark-circle-outline" size={16} color={colors.oliveDark} />
-                          <Text style={styles.freeAccountBenefitText}>{benefit}</Text>
+                          <Ionicons name="checkmark-circle-outline" size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          <Text style={[styles.freeAccountBenefitText, accountDarkMode && styles.accountDarkText]}>{benefit}</Text>
                         </View>
                       ))}
                     </View>
-                    <View style={styles.authFlowRow}>
-                      <Pressable onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton]}>
-                        <Text style={[styles.authFlowText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
+                    <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
+                      <Pressable onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
+                        <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
                       </Pressable>
-                      <Pressable onPress={() => setAuthFlow("signUp")} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton]}>
-                        <Text style={[styles.authFlowText, authFlow === "signUp" && styles.activeAuthFlowText]}>Create account</Text>
+                      <Pressable onPress={() => setAuthFlow("signUp")} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signUp" && styles.accountDarkActiveSegment]}>
+                        <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signUp" && styles.activeAuthFlowText]}>Create account</Text>
                       </Pressable>
                     </View>
                     {authFlow === "signUp" && (
@@ -6186,7 +6283,8 @@ export default function Home() {
                         onChangeText={setAuthName}
                         autoCapitalize="words"
                         placeholder="Your name"
-                        style={styles.input}
+                        placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                        style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                       />
                     )}
                     <TextInput
@@ -6195,7 +6293,8 @@ export default function Home() {
                       autoCapitalize="none"
                       keyboardType="email-address"
                       placeholder="Email"
-                      style={styles.input}
+                      placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                      style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                     />
                     <TextInput
                       value={authPassword}
@@ -6203,7 +6302,8 @@ export default function Home() {
                       autoCapitalize="none"
                       secureTextEntry
                       placeholder="Password"
-                      style={styles.input}
+                      placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                      style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                     />
                     <AppButton label={authFlow === "signIn" ? "Sign in" : "Create account"} onPress={submitAuth} />
                   </>
@@ -6211,33 +6311,35 @@ export default function Home() {
                 {!!authStatus && <Text style={styles.saveStatus}>{authStatus}</Text>}
               </View>
               {isAuthenticated && (
-                <View style={styles.accountSection}>
-                  <Text style={styles.sectionTitle}>Personal details</Text>
-                  <Text style={styles.helpIntro}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
-                  <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" style={styles.input} />
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Personal details</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
+                  <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, accountDarkMode && styles.accountDarkInput]} />
                   <TextInput
                     value={accountEmail}
                     onChangeText={setAccountEmail}
                     autoCapitalize="none"
                     keyboardType="email-address"
                     placeholder="Email"
-                    style={styles.input}
+                    placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                    style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                   />
                   <AppButton label="Save details" onPress={persistAccountSettings} />
                   {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
                 </View>
               )}
               {isAuthenticated && profile?.authProvider === "password" && (
-                <View style={styles.accountSection}>
-                  <Text style={styles.sectionTitle}>Change password</Text>
-                  <Text style={styles.helpIntro}>Use this if you signed in with email and password.</Text>
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Change password</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Use this if you signed in with email and password.</Text>
                   <TextInput
                     value={currentAccountPassword}
                     onChangeText={setCurrentAccountPassword}
                     autoCapitalize="none"
                     secureTextEntry
                     placeholder="Current password"
-                    style={styles.input}
+                    placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                    style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                   />
                   <TextInput
                     value={newAccountPassword}
@@ -6245,15 +6347,16 @@ export default function Home() {
                     autoCapitalize="none"
                     secureTextEntry
                     placeholder="New password"
-                    style={styles.input}
+                    placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                    style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                   />
                   <AppButton label="Update password" onPress={submitPasswordChange} />
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Bible translations</Text>
-                <Text style={styles.helpIntro}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
+              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Bible translations</Text>
+                <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
                 <View style={styles.accountOptionGrid}>
                   {BIBLE_TRANSLATIONS.map((translation) => (
                     <Pressable
@@ -6262,30 +6365,30 @@ export default function Home() {
                         setBibleTranslation(translation.id);
                         saveStoredBibleTranslation(translation.id).catch(() => undefined);
                       }}
-                      style={[styles.aiOptionCard, styles.accountOptionCard, bibleTranslation === translation.id && styles.activeAiOptionCard]}
+                      style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, bibleTranslation === translation.id && styles.activeAiOptionCard, accountDarkMode && bibleTranslation === translation.id && styles.accountDarkActiveOptionCard]}
                     >
-                      <Ionicons name={bibleTranslation === translation.id ? "checkmark-circle" : "book-outline"} size={20} color={colors.oliveDark} />
+                      <Ionicons name={bibleTranslation === translation.id ? "checkmark-circle" : "book-outline"} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                       <View style={styles.aiOptionCopy}>
-                        <Text style={styles.aiOptionTitle}>{translation.label}</Text>
-                        <Text style={styles.aiOptionText}>{translation.name}</Text>
+                        <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{translation.label}</Text>
+                        <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{translation.name}</Text>
                       </View>
                     </Pressable>
                   ))}
                 </View>
-                <View style={styles.translationLockedBox}>
+                <View style={[styles.translationLockedBox, accountDarkMode && styles.accountDarkInsetBox]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="heart-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Why these translations?</Text>
+                    <Ionicons name="heart-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Why these translations?</Text>
                   </View>
-                  <Text style={styles.helpIntro}>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     Bible Study Tutor is intentionally free and built for churches, groups, and personal study. These translations let the app support reading, study notes, memory verses, journaling, and printable worksheets without putting commercial Bible licensing costs onto users.
                   </Text>
                 </View>
               </View>
               {isAuthenticated && (
-                <View style={styles.accountSection}>
-                  <Text style={styles.sectionTitle}>Coaching preference</Text>
-                  <Text style={styles.helpIntro}>
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Coaching preference</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     Free local coaching gives gentle prompts while studying. It does not use paid AI credits, send your notes to an AI provider, or require an AI account.
                   </Text>
                   <Pressable
@@ -6294,49 +6397,50 @@ export default function Home() {
                       setShowCoaching(nextValue);
                       saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
                     }}
-                    style={[styles.aiOptionCard, styles.accountOptionCard, showCoaching && styles.activeAiOptionCard]}
+                    style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, showCoaching && styles.activeAiOptionCard, accountDarkMode && showCoaching && styles.accountDarkActiveOptionCard]}
                   >
-                    <Ionicons name={showCoaching ? "bulb" : "bulb-outline"} size={20} color={colors.oliveDark} />
+                    <Ionicons name={showCoaching ? "bulb" : "bulb-outline"} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <View style={styles.aiOptionCopy}>
-                      <Text style={styles.aiOptionTitle}>{showCoaching ? "Coaching is on" : "Coaching is off"}</Text>
-                      <Text style={styles.aiOptionText}>{showCoaching ? "Tap to hide coaching prompts in Study." : "Tap to show coaching prompts in Study."}</Text>
+                      <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{showCoaching ? "Coaching is on" : "Coaching is off"}</Text>
+                      <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{showCoaching ? "Tap to hide coaching prompts in Study." : "Tap to show coaching prompts in Study."}</Text>
                     </View>
                   </Pressable>
                 </View>
               )}
               {isAuthenticated && (
-                <View style={styles.accountSection}>
-                  <Text style={styles.sectionTitle}>Your saved data</Text>
-                  <Text style={styles.helpIntro}>
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Your saved data</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
                   </Text>
                   <View style={styles.savedDataGrid}>
                     {savedDataItems.map((item) => (
-                      <View key={item.label} style={styles.savedDataItem}>
-                        <View style={styles.savedDataIcon}>
-                          <Ionicons name={item.icon as any} size={17} color={colors.oliveDark} />
+                      <View key={item.label} style={[styles.savedDataItem, accountDarkMode && styles.accountDarkSavedDataItem]}>
+                        <View style={[styles.savedDataIcon, accountDarkMode && styles.accountDarkSavedDataIcon]}>
+                          <Ionicons name={item.icon as any} size={17} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                         </View>
                         <View style={styles.savedDataCopy}>
-                          <Text style={styles.savedDataValue}>{item.value}</Text>
-                          <Text style={styles.savedDataLabel}>{item.label}</Text>
+                          <Text style={[styles.savedDataValue, accountDarkMode && styles.accountDarkTitle]}>{item.value}</Text>
+                          <Text style={[styles.savedDataLabel, accountDarkMode && styles.accountDarkMutedText]}>{item.label}</Text>
                         </View>
                       </View>
                     ))}
                   </View>
-                  <Text style={styles.helpIntro}>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     Account-linked studies, drafts, encouragements, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
                   </Text>
                 </View>
               )}
-              <View style={styles.accountSection}>
-                <Text style={styles.sectionTitle}>Legal</Text>
-                <Text style={styles.helpIntro}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
+              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Legal</Text>
+                <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
                 <LegalDocument
                   title="Privacy Policy"
                   icon="shield-checkmark-outline"
                   open={openLegalSection === "privacy"}
                   sections={PRIVACY_POLICY_SECTIONS}
                   onToggle={() => setOpenLegalSection((current) => (current === "privacy" ? "" : "privacy"))}
+                  darkMode={accountDarkMode}
                 />
                 <LegalDocument
                   title="Terms of Service"
@@ -6344,30 +6448,31 @@ export default function Home() {
                   open={openLegalSection === "terms"}
                   sections={TERMS_OF_SERVICE_SECTIONS}
                   onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
+                  darkMode={accountDarkMode}
                 />
               </View>
               {isAuthenticated && (
-                <View style={styles.accountSection}>
-                  <Text style={styles.sectionTitle}>Account deletion</Text>
-                  <Text style={styles.helpIntro}>
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Account deletion</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
                   </Text>
                   {accountDeletionRequest ? (
-                    <View style={styles.deletionRequestBox}>
+                    <View style={[styles.deletionRequestBox, accountDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="time-outline" size={18} color={colors.coral} />
-                        <Text style={styles.feedbackTitle}>Deletion request pending</Text>
+                        <Ionicons name="time-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Deletion request pending</Text>
                       </View>
-                      <Text style={styles.helpIntro}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
+                      <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
                       <AppButton label="Cancel request" variant="secondary" onPress={cancelOwnAccountDeletionRequest} />
                     </View>
                   ) : (
-                    <View style={styles.deletionRequestBox}>
+                    <View style={[styles.deletionRequestBox, accountDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="warning-outline" size={18} color={colors.coral} />
-                        <Text style={styles.feedbackTitle}>Before requesting deletion</Text>
+                        <Ionicons name="warning-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Before requesting deletion</Text>
                       </View>
-                      <Text style={styles.helpIntro}>Approved deletion removes your profile, studies, drafts, encouragements, memory verses, feedback, usage events, and sign-in records where connected.</Text>
+                      <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Approved deletion removes your profile, studies, drafts, encouragements, memory verses, feedback, usage events, and sign-in records where connected.</Text>
                       <AppButton
                         label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
                         variant="secondary"
@@ -6380,46 +6485,46 @@ export default function Home() {
               )}
             </Card>
             {isAuthenticated && (
-              <Card style={[styles.coachCard, compactLayout && styles.fluidCard]}>
-                <View style={styles.accountStatusBox}>
+              <Card style={[styles.coachCard, compactLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
+                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "person-circle-outline"} size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Account status</Text>
+                    <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "person-circle-outline"} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Account status</Text>
                   </View>
-                  <Text style={styles.communityTitle}>{`Signed in with ${accountProviderLabel}`}</Text>
-                  <Text style={styles.helpIntro}>
+                  <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>{`Signed in with ${accountProviderLabel}`}</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     {`${accountIdentityLabel} is connected for cross-device sync.`}
                   </Text>
                 </View>
-                <View style={styles.accountStatusBox}>
+                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="cloud-done-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Save status</Text>
+                    <Ionicons name="cloud-done-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Save status</Text>
                   </View>
-                  <Text style={styles.communityTitle}>{backendStatusLabel}</Text>
-                  <Text style={styles.helpIntro}>{backendStatusDetail}</Text>
+                  <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>{backendStatusLabel}</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{backendStatusDetail}</Text>
                 </View>
-                <View style={styles.accountStatusBox}>
+                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="people-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Community settings</Text>
+                    <Ionicons name="people-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Community settings</Text>
                   </View>
-                  <Text style={styles.communityTitle}>Encouragements live in Community</Text>
-                  <Text style={styles.helpIntro}>Set your weekly goal and encouragement person or group from the Community tab.</Text>
+                  <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>Encouragements live in Community</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Set your weekly goal and encouragement person or group from the Community tab.</Text>
                   <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} />
                 </View>
-                <View style={styles.accountStatusBox}>
+                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
-                    <Text style={styles.feedbackTitle}>Privacy</Text>
+                    <Ionicons name="shield-checkmark-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Privacy</Text>
                   </View>
-                  <Text style={styles.helpIntro}>Free coaching stays local. Study notes are not sent to an AI provider or paid API service.</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Free coaching stays local. Study notes are not sent to an AI provider or paid API service.</Text>
                 </View>
                 {adminStats && (
-                  <View style={styles.accountStatusBox}>
+                  <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                     <View style={styles.feedbackHeader}>
-                      <Ionicons name="analytics-outline" size={18} color={colors.coral} />
-                      <Text style={styles.feedbackTitle}>Admin insights</Text>
+                      <Ionicons name="analytics-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                      <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
                     </View>
                     <View style={styles.adminMetricGrid}>
                       <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact />
@@ -6429,7 +6534,7 @@ export default function Home() {
                       <Metric value={adminStats.totals.appShares || 0} label="app shares" compact />
                       <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact />
                     </View>
-                    <Text style={styles.helpIntro}>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                       Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
                     </Text>
                     <ResumeButton label="Open full insights" icon="analytics-outline" onPress={() => setTab("admin")} />
@@ -6573,26 +6678,27 @@ export default function Home() {
         )}
 
         {tab === "journal" && (
-          <View>
+          <View style={journalDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Saved work</Eyebrow>
-            <Text style={styles.title}>{firstName ? `${firstName}, your study journal` : "Your study journal"}</Text>
-            <Text style={styles.titleSupport}>Return to what God has been teaching you through studies, highlights, reflections, and encouragements.</Text>
-            <View style={[styles.journalSearchBox, phoneLayout && styles.phoneJournalSearchBox]}>
+            <Text style={[styles.title, journalDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your study journal` : "Your study journal"}</Text>
+            <Text style={[styles.titleSupport, journalDarkMode && styles.accountDarkMutedText]}>Return to what God has been teaching you through studies, highlights, reflections, and encouragements.</Text>
+            <View style={[styles.journalSearchBox, phoneLayout && styles.phoneJournalSearchBox, journalDarkMode && styles.accountDarkInput]}>
               <Ionicons name="search-outline" size={18} color={colors.coral} />
               <TextInput
                 value={journalSearch}
                 onChangeText={setJournalSearch}
                 placeholder="Search passage, method, note, or answer"
-                style={[styles.journalSearchInput, phoneLayout && styles.phoneJournalSearchInput]}
+                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                style={[styles.journalSearchInput, phoneLayout && styles.phoneJournalSearchInput, journalDarkMode && styles.accountDarkText]}
               />
               {!!journalSearch.trim() && (
                 <Pressable onPress={() => setJournalSearch("")} style={styles.clearSearchButton}>
-                  <Ionicons name="close-outline" size={18} color={colors.muted} />
+                  <Ionicons name="close-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                 </Pressable>
               )}
             </View>
             <View style={[styles.journalViewRow, phoneLayout && styles.phoneJournalViewRow]}>
-              <View style={styles.journalViewToggle}>
+              <View style={[styles.journalViewToggle, journalDarkMode && styles.accountDarkSegmentedRow]}>
                 {[
                   ["list", "List", "list-outline"],
                   ["calendar", "Calendar", "calendar-outline"],
@@ -6603,14 +6709,14 @@ export default function Home() {
                     onPress={() => setJournalView(key as JournalView)}
                     style={[styles.journalViewButton, journalView === key && styles.activeJournalViewButton]}
                   >
-                    <Ionicons name={icon as any} size={15} color={journalView === key ? "white" : colors.oliveDark} />
-                    <Text style={[styles.journalViewText, journalView === key && styles.activeJournalViewText]}>{label}</Text>
+                    <Ionicons name={icon as any} size={15} color={journalView === key ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                    <Text style={[styles.journalViewText, journalDarkMode && styles.accountDarkMutedText, journalView === key && styles.activeJournalViewText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
               {!!journalDateFilterKey && (
-                <Pressable onPress={() => setJournalDateFilterKey("")} style={styles.clearDateFilterButton}>
-                  <Text style={styles.clearDateFilterText}>Clear date</Text>
+                <Pressable onPress={() => setJournalDateFilterKey("")} style={[styles.clearDateFilterButton, journalDarkMode && styles.homeDarkResumeButton]}>
+                  <Text style={[styles.clearDateFilterText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear date</Text>
                 </Pressable>
               )}
             </View>
@@ -6627,15 +6733,15 @@ export default function Home() {
                 <Pressable
                   key={key}
                   onPress={() => setJournalFilter(key as JournalFilter)}
-                  style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, journalFilter === key && styles.activeFilterChip]}
+                  style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, journalDarkMode && styles.printDarkOptionChip, journalFilter === key && styles.activeFilterChip]}
                 >
-                  <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, journalFilter === key && styles.activeFilterText]}>{label}</Text>
+                  <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, journalDarkMode && styles.accountDarkMutedText, journalFilter === key && styles.activeFilterText]}>{label}</Text>
                 </Pressable>
               ))}
             </View>
-            <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox]}>
+            <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox, journalDarkMode && styles.accountDarkSection]}>
               <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : "reader-outline"} size={18} color={colors.coral} />
-              <Text style={styles.journalGuideText}>{buildJournalGuideText(journalFilter, totalSavedHighlightCount)}</Text>
+              <Text style={[styles.journalGuideText, journalDarkMode && styles.accountDarkText]}>{buildJournalGuideText(journalFilter, totalSavedHighlightCount)}</Text>
             </View>
             {journalView === "calendar" && (
               <JournalCalendar
@@ -6645,6 +6751,7 @@ export default function Home() {
                 onSelectDate={setJournalDateFilterKey}
                 onPreviousMonth={() => setJournalCalendarMonth(addMonths(journalCalendarMonth, -1))}
                 onNextMonth={() => setJournalCalendarMonth(addMonths(journalCalendarMonth, 1))}
+                darkMode={journalDarkMode}
               />
             )}
             {journalView === "scripture" && (
@@ -6661,20 +6768,21 @@ export default function Home() {
                   setSelectedJournalScriptureBook(selected ? "" : book);
                   setSelectedJournalScriptureChapter(selected ? 0 : chapter);
                 }}
+                darkMode={journalDarkMode}
               />
             )}
             {!!journalDateFilterKey && (
-              <View style={styles.dateFilterNotice}>
+              <View style={[styles.dateFilterNotice, journalDarkMode && styles.accountDarkInsetBox]}>
                 <Ionicons name="calendar-outline" size={16} color={colors.coral} />
-                <Text style={styles.dateFilterText}>
+                <Text style={[styles.dateFilterText, journalDarkMode && styles.accountDarkText]}>
                   {`${formatJournalDateKey(journalDateFilterKey)} · ${selectedJournalDateEntryCount} entr${selectedJournalDateEntryCount === 1 ? "y" : "ies"}`}
                 </Text>
               </View>
             )}
             {!!selectedJournalScriptureBook && selectedJournalScriptureChapter > 0 && (
-              <View style={[styles.dateFilterNotice, styles.passageFilterNotice]}>
+              <View style={[styles.dateFilterNotice, styles.passageFilterNotice, journalDarkMode && styles.accountDarkInsetBox]}>
                 <Ionicons name="book-outline" size={16} color={colors.coral} />
-                <Text numberOfLines={1} style={[styles.dateFilterText, styles.passageFilterText]}>
+                <Text numberOfLines={1} style={[styles.dateFilterText, styles.passageFilterText, journalDarkMode && styles.accountDarkText]}>
                   {`${selectedJournalScriptureBook} ${selectedJournalScriptureChapter} · ${selectedJournalScriptureEntryCount} entr${selectedJournalScriptureEntryCount === 1 ? "y" : "ies"}`}
                 </Text>
                 <Pressable
@@ -6682,10 +6790,10 @@ export default function Home() {
                     setSelectedJournalScriptureBook("");
                     setSelectedJournalScriptureChapter(0);
                   }}
-                  style={styles.clearPassageFilterInlineButton}
+                  style={[styles.clearPassageFilterInlineButton, journalDarkMode && styles.homeDarkResumeButton]}
                 >
                   <Ionicons name="close-outline" size={14} color={colors.coral} />
-                  <Text style={styles.clearPassageFilterInlineText}>Clear</Text>
+                  <Text style={[styles.clearPassageFilterInlineText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                 </Pressable>
               </View>
             )}
@@ -6693,60 +6801,60 @@ export default function Home() {
               <Pressable
                 accessibilityRole="button"
                 onPress={() => setJournalFilter("reviews")}
-                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel]}
+                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel, journalDarkMode && styles.accountDarkSection]}
               >
-                <View style={styles.highlightLibraryIcon}>
+                <View style={[styles.highlightLibraryIcon, journalDarkMode && styles.homeDarkIconBubble]}>
                   <Ionicons name="refresh-circle-outline" size={19} color={colors.coral} />
                 </View>
                 <View style={styles.highlightLibraryCopy}>
-                  <Text style={styles.highlightLibraryTitle}>Studies ready to review</Text>
-                  <Text style={styles.highlightLibraryText}>
+                  <Text style={[styles.highlightLibraryTitle, journalDarkMode && styles.accountDarkTitle]}>Studies ready to review</Text>
+                  <Text style={[styles.highlightLibraryText, journalDarkMode && styles.accountDarkMutedText]}>
                     {`${dueStudyReviewCount} saved stud${dueStudyReviewCount === 1 ? "y is" : "ies are"} ready for a fresh look.`}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward-outline" size={18} color={colors.muted} />
+                <Ionicons name="chevron-forward-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             )}
             {journalFilter === "all" && (
               <Pressable
                 accessibilityRole="button"
                 onPress={() => setJournalFilter("highlights")}
-                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel]}
+                style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel, journalDarkMode && styles.accountDarkSection]}
               >
-                <View style={styles.highlightLibraryIcon}>
+                <View style={[styles.highlightLibraryIcon, journalDarkMode && styles.homeDarkIconBubble]}>
                   <Ionicons name="color-wand-outline" size={19} color={colors.coral} />
                 </View>
                 <View style={styles.highlightLibraryCopy}>
-                  <Text style={styles.highlightLibraryTitle}>Highlight library</Text>
-                  <Text style={styles.highlightLibraryText}>
+                  <Text style={[styles.highlightLibraryTitle, journalDarkMode && styles.accountDarkTitle]}>Highlight library</Text>
+                  <Text style={[styles.highlightLibraryText, journalDarkMode && styles.accountDarkMutedText]}>
                     {totalSavedHighlightCount > 0
                       ? `${totalSavedHighlightCount} saved highlight${totalSavedHighlightCount === 1 ? "" : "s"} from your studies and drafts.`
                       : "Highlighted verses and notes will collect here once you save a study."}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward-outline" size={18} color={colors.muted} />
+                <Ionicons name="chevron-forward-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             )}
             {!!reflectionStatus && <Text style={styles.saveStatus}>{reflectionStatus}</Text>}
             {!!journalStatus && <Text style={styles.saveStatus}>{journalStatus}</Text>}
             {showDraftsSection && (
               <View style={styles.journalSection}>
-                <Text style={styles.sectionTitle}>In progress</Text>
+                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>In progress</Text>
                 {visibleDrafts.map((draft: any) => {
                   const draftEntryId = `draft:${draft._id}`;
                   const expanded = isJournalEntryExpanded(draftEntryId);
                   return (
-                    <Card key={draft._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
+                    <Card key={draft._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                       <Pressable onPress={() => toggleJournalEntryExpanded(draftEntryId)} style={styles.journalCompactHeader}>
                         <View style={styles.journalTitleBlock}>
-                          <Text style={styles.cardTitle}>{draft.passageReference || draft.passage}</Text>
-                          <Text style={styles.muted}>
+                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{draft.passageReference || draft.passage}</Text>
+                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
                             {draft.methodName} · Step {draft.stepIndex + 1} · Created {formatJournalCreatedDate(draft)}
                           </Text>
                         </View>
                         <View style={styles.journalStatusCluster}>
-                          <Text style={styles.draftPill}>Draft</Text>
-                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.muted} />
+                          <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>Draft</Text>
+                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {expanded && (
@@ -6756,23 +6864,24 @@ export default function Home() {
                             .slice(0, 2)
                             .map((item: any) => (
                               <View key={item.stepTitle}>
-                                <Text style={styles.body}>
+                                <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                   <Text style={styles.bold}>{item.stepTitle}: </Text>
                                 </Text>
-                                <FormattedNoteText text={item.answer} />
+                                <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
                               </View>
                             ))}
-                          <PassageMarkupSummary markups={draft.passageMarkups || []} />
+                          <PassageMarkupSummary markups={draft.passageMarkups || []} darkMode={journalDarkMode} />
                           <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
-                            <ResumeButton label="Resume into study" onPress={() => resumeDraft(draft)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
+                            <ResumeButton label="Resume into study" onPress={() => resumeDraft(draft)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                             <ResumeButton
                               label={pendingArchiveDraftId === draft._id ? "Confirm archive" : "Archive draft"}
                               icon="archive-outline"
                               onPress={() =>
                                 pendingArchiveDraftId === draft._id ? deleteDraft(draft._id) : setPendingArchiveDraftId(draft._id)
                               }
-                              style={phoneLayout && styles.phoneJournalActionButton}
-                              labelStyle={phoneLayout && styles.phoneJournalActionText}
+                              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                              iconColor={journalDarkMode ? "#e9b76a" : undefined}
                             />
                           </View>
                         </>
@@ -6784,64 +6893,68 @@ export default function Home() {
             )}
             {showHighlightsSection && (
               <View style={styles.journalSection}>
-                <Text style={styles.sectionTitle}>Highlights</Text>
-                <Text style={styles.sectionHelp}>Use Create reflection to turn marked verses into a key insight, prayer, and next step.</Text>
+                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>Highlights</Text>
+                <Text style={[styles.sectionHelp, journalDarkMode && styles.accountDarkMutedText]}>Use Create reflection to turn marked verses into a key insight, prayer, and next step.</Text>
                 {highlightJournalEntries.map((item) => {
                   const expanded = isJournalEntryExpanded(item.id) || activeReflectionEntryId === item.id;
                   return (
-                    <Card key={item.id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
+                    <Card key={item.id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                       <Pressable onPress={() => toggleJournalEntryExpanded(item.id)} style={styles.journalCompactHeader}>
                         <View style={styles.journalTitleBlock}>
-                          <Text style={styles.cardTitle}>{item.passage}</Text>
-                          <Text style={styles.muted}>
+                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{item.passage}</Text>
+                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
                             {item.methodName} · Created {formatJournalCreatedDate(item)}
                           </Text>
                         </View>
                         <View style={styles.journalStatusCluster}>
-                          <Text style={styles.draftPill}>{item.source === "draft" ? "Draft" : `${item.markups.length} highlight${item.markups.length === 1 ? "" : "s"}`}</Text>
-                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.muted} />
+                          <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{item.source === "draft" ? "Draft" : `${item.markups.length} highlight${item.markups.length === 1 ? "" : "s"}`}</Text>
+                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                         </View>
                       </Pressable>
                       {expanded && (
                         <>
-                          <PassageMarkupSummary markups={item.markups} />
+                          <PassageMarkupSummary markups={item.markups} darkMode={journalDarkMode} />
                           {activeReflectionEntryId === item.id && (
-                            <View style={styles.reflectionBox}>
-                              <Text style={styles.lastCheckinLabel}>Create reflection</Text>
+                            <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Create reflection</Text>
                               <TextInput
                                 multiline
                                 value={reflectionInsight}
                                 onChangeText={setReflectionInsight}
                                 placeholder="Key insight"
-                                style={[styles.input, styles.reflectionInput]}
+                                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                               />
                               <TextInput
                                 multiline
                                 value={reflectionPrayer}
                                 onChangeText={setReflectionPrayer}
                                 placeholder="Prayer"
-                                style={[styles.input, styles.reflectionInput]}
+                                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                               />
                               <TextInput
                                 multiline
                                 value={reflectionNextStep}
                                 onChangeText={setReflectionNextStep}
                                 placeholder="Next step"
-                                style={[styles.input, styles.reflectionInput]}
+                                placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                               />
                               <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
                                 <AppButton label={isSavingReflection ? "Saving..." : "Save reflection"} onPress={() => saveHighlightReflection(item)} />
-                                <AppButton label="Cancel" variant="secondary" onPress={() => setActiveReflectionEntryId("")} />
+                                <AppButton label="Cancel" variant="secondary" onPress={() => setActiveReflectionEntryId("")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />
                               </View>
                             </View>
                           )}
                           <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
-                            <ResumeButton label="Create reflection" icon="create-outline" onPress={() => startHighlightReflection(item)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
+                            <ResumeButton label="Create reflection" icon="create-outline" onPress={() => startHighlightReflection(item)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                             <ResumeButton
                               label="Revisit passage"
                               onPress={() => (item.source === "draft" ? resumeDraft(item.entry) : resumeSession(item.entry))}
-                              style={phoneLayout && styles.phoneJournalActionButton}
-                              labelStyle={phoneLayout && styles.phoneJournalActionText}
+                              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                              iconColor={journalDarkMode ? "#e9b76a" : undefined}
                             />
                           </View>
                         </>
@@ -6873,20 +6986,20 @@ export default function Home() {
                   : "Encouragement";
 
               return (
-                <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard]}>
+                <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.journalCompactHeader}>
                     <Pressable onPress={() => toggleJournalEntryExpanded(entryId)} style={styles.journalCompactTitleButton}>
                       <View style={styles.journalTitleBlock}>
-                        <Text style={styles.cardTitle}>{entryTitle}</Text>
-                        <Text style={styles.muted}>{entry.methodName ? `${entry.methodName} · Created ${formatJournalCreatedDate(entry)}` : `Created ${formatJournalCreatedDate(entry)}`}</Text>
+                        <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{entryTitle}</Text>
+                        <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>{entry.methodName ? `${entry.methodName} · Created ${formatJournalCreatedDate(entry)}` : `Created ${formatJournalCreatedDate(entry)}`}</Text>
                       </View>
-                      <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={colors.muted} />
+                      <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                     <View style={styles.journalStatusCluster}>
-                      <Text style={[styles.draftPill, pinned && styles.pinnedJournalPill]}>{entryStatus}</Text>
+                      <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill, pinned && styles.pinnedJournalPill]}>{entryStatus}</Text>
                       {entry.answers && (
-                        <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, pinned && styles.activePinIconButton]}>
-                          <Ionicons name={pinned ? "bookmark" : "bookmark-outline"} size={16} color={pinned ? "white" : colors.oliveDark} />
+                        <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinIconButton]}>
+                          <Ionicons name={pinned ? "bookmark" : "bookmark-outline"} size={16} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
                         </Pressable>
                       )}
                     </View>
@@ -6895,42 +7008,47 @@ export default function Home() {
                     <>
                       {editing ? (
                         isHighlightReflection(entry) ? (
-                          <View style={styles.reflectionBox}>
-                            <Text style={styles.lastCheckinLabel}>Edit reflection</Text>
+                          <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                            <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Edit reflection</Text>
                             <TextInput
                               multiline
                               value={editReflectionPassage}
                               onChangeText={setEditReflectionPassage}
                               placeholder="Passage"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionHighlights}
                               onChangeText={setEditReflectionHighlights}
                               placeholder="Highlights"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionInsight}
                               onChangeText={setEditReflectionInsight}
                               placeholder="Key insight"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionPrayer}
                               onChangeText={setEditReflectionPrayer}
                               placeholder="Prayer"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                             <TextInput
                               multiline
                               value={editReflectionNextStep}
                               onChangeText={setEditReflectionNextStep}
                               placeholder="Next step"
-                              style={[styles.input, styles.reflectionInput]}
+                              placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                              style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                             />
                           </View>
                         ) : (
@@ -6939,35 +7057,37 @@ export default function Home() {
                             value={editJournalNote}
                             onChangeText={setEditJournalNote}
                             placeholder="Edit journal note"
-                            style={[styles.input, styles.textarea]}
+                            placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                            style={[styles.input, styles.textarea, journalDarkMode && styles.accountDarkInput]}
                           />
                         )
                       ) : entry.answers ? (
                         <>
                           {entry.reviewStatus === "scheduled" && (
-                            <View style={styles.studyReviewBox}>
+                            <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
                               <View style={styles.feedbackHeader}>
                                 <Ionicons name="refresh-circle-outline" size={18} color={colors.coral} />
-                                <Text style={styles.feedbackTitle}>{isStudyReviewDue(entry) ? "Ready to review" : "Review scheduled"}</Text>
+                                <Text style={[styles.feedbackTitle, journalDarkMode && styles.accountDarkTitle]}>{isStudyReviewDue(entry) ? "Ready to review" : "Review scheduled"}</Text>
                               </View>
-                              <Text style={styles.body}>
+                              <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                 {isStudyReviewDue(entry)
                                   ? "Revisit your notes, then add one fresh reflection."
                                   : `This study will return on ${formatReviewDate(entry.reviewAt)}.`}
                               </Text>
                               {activeStudyReviewId === rawEntryId && (
-                                <View style={styles.reflectionBox}>
-                                  <Text style={styles.lastCheckinLabel}>What do you notice now?</Text>
+                                <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkSection]}>
+                                  <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>What do you notice now?</Text>
                                   <TextInput
                                     multiline
                                     value={studyReviewNote}
                                     onChangeText={setStudyReviewNote}
                                     placeholder="A fresh insight, next step, or prayer after revisiting this study"
-                                    style={[styles.input, styles.reflectionInput]}
+                                    placeholderTextColor={journalDarkMode ? "#8f8678" : undefined}
+                                    style={[styles.input, styles.reflectionInput, journalDarkMode && styles.accountDarkInput]}
                                   />
                                   <View style={styles.journalActions}>
                                     <AppButton label="Save review" onPress={() => completeStudyReview(entry)} />
-                                    <AppButton label="Cancel" variant="secondary" onPress={() => setActiveStudyReviewId("")} />
+                                    <AppButton label="Cancel" variant="secondary" onPress={() => setActiveStudyReviewId("")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />
                                   </View>
                                 </View>
                               )}
@@ -6975,33 +7095,33 @@ export default function Home() {
                             </View>
                           )}
                           {entry.reviewStatus === "reviewed" && entry.reviewNote && (
-                            <View style={styles.studyReviewBox}>
-                              <Text style={styles.lastCheckinLabel}>Review reflection</Text>
-                              <Text style={styles.body}>{entry.reviewNote}</Text>
+                            <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Review reflection</Text>
+                              <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.reviewNote}</Text>
                             </View>
                           )}
                           {entry.shareNote && (
-                            <View style={styles.journalShareBox}>
-                              <Text style={styles.lastCheckinLabel}>Share note</Text>
-                              <Text style={styles.body}>{entry.shareNote}</Text>
+                            <View style={[styles.journalShareBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Share note</Text>
+                              <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.shareNote}</Text>
                             </View>
                           )}
-                          <PassageMarkupSummary markups={entry.passageMarkups || []} />
+                          <PassageMarkupSummary markups={entry.passageMarkups || []} darkMode={journalDarkMode} />
                           {entry.answers
                             .filter((item: any) => item.answer.trim())
                             .map((item: any) => (
                               <View key={item.stepTitle}>
-                                <Text style={styles.body}>
+                                <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                   <Text style={styles.bold}>{item.stepTitle}: </Text>
                                 </Text>
-                                <FormattedNoteText text={item.answer} />
+                                <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
                               </View>
                             ))}
                           {(entry.coachingMoments || []).length > 0 && (
-                            <View style={styles.journalShareBox}>
-                              <Text style={styles.lastCheckinLabel}>Accepted coaching</Text>
+                            <View style={[styles.journalShareBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Accepted coaching</Text>
                               {(entry.coachingMoments || []).map((item: any) => (
-                                <Text key={item.stepTitle + item.nextRevision} style={styles.body}>
+                                <Text key={item.stepTitle + item.nextRevision} style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                   <Text style={styles.bold}>{item.stepTitle}: </Text>
                                   {item.nextRevision}
                                 </Text>
@@ -7010,19 +7130,19 @@ export default function Home() {
                           )}
                         </>
                       ) : isHighlightReflection(entry) ? (
-                        <HighlightReflectionSummary note={entry.note || ""} />
+                        <HighlightReflectionSummary note={entry.note || ""} darkMode={journalDarkMode} />
                       ) : (
-                        <Text style={styles.body}>{entry.note || "No note added."}</Text>
+                        <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.note || "No note added."}</Text>
                       )}
                       <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
                         {editing ? (
                           <>
-                            <ResumeButton label={isSavingJournalEdit ? "Saving..." : "Save changes"} icon="checkmark-circle-outline" onPress={() => saveJournalEntryEdit(entry)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
-                            <ResumeButton label="Cancel" icon="close-outline" onPress={cancelEditJournalEntry} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />
+                            <ResumeButton label={isSavingJournalEdit ? "Saving..." : "Save changes"} icon="checkmark-circle-outline" onPress={() => saveJournalEntryEdit(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
+                            <ResumeButton label="Cancel" icon="close-outline" onPress={cancelEditJournalEntry} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                           </>
                         ) : (
                           <>
-                            {entry.answers && <ResumeButton label="Revisit notes" onPress={() => resumeSession(entry)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />}
+                            {entry.answers && <ResumeButton label="Revisit notes" onPress={() => resumeSession(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />}
                             {entry.answers && entry.reviewStatus === "scheduled" && isStudyReviewDue(entry) && (
                               <ResumeButton
                                 label={activeStudyReviewId === rawEntryId ? "Hide review" : "Review now"}
@@ -7031,8 +7151,9 @@ export default function Home() {
                                   setActiveStudyReviewId(activeStudyReviewId === rawEntryId ? "" : rawEntryId);
                                   setStudyReviewNote("");
                                 }}
-                                style={phoneLayout && styles.phoneJournalActionButton}
-                                labelStyle={phoneLayout && styles.phoneJournalActionText}
+                                style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                                labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                                iconColor={journalDarkMode ? "#e9b76a" : undefined}
                               />
                             )}
                             {entry.answers && (
@@ -7040,24 +7161,26 @@ export default function Home() {
                                 label={reviewScheduleStudyId === rawEntryId ? "Hide schedule" : "Review later"}
                                 icon="calendar-outline"
                                 onPress={() => setReviewScheduleStudyId(reviewScheduleStudyId === rawEntryId ? "" : rawEntryId)}
-                                style={phoneLayout && styles.phoneJournalActionButton}
-                                labelStyle={phoneLayout && styles.phoneJournalActionText}
+                                style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                                labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                                iconColor={journalDarkMode ? "#e9b76a" : undefined}
                               />
                             )}
-                            {!entry.answers && <ResumeButton label="Edit entry" icon="create-outline" onPress={() => startEditJournalEntry(entry)} style={phoneLayout && styles.phoneJournalActionButton} labelStyle={phoneLayout && styles.phoneJournalActionText} />}
+                            {!entry.answers && <ResumeButton label="Edit entry" icon="create-outline" onPress={() => startEditJournalEntry(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />}
                           </>
                         )}
                         <ResumeButton
                           label={pendingDeleteJournalEntryId === rawEntryId ? "Confirm delete" : "Delete entry"}
                           icon="trash-outline"
                           onPress={() => deleteJournalEntry(entry)}
-                          style={phoneLayout && styles.phoneJournalActionButton}
-                          labelStyle={phoneLayout && styles.phoneJournalActionText}
+                          style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                          iconColor={journalDarkMode ? "#e9b76a" : undefined}
                         />
                       </View>
                       {entry.answers && reviewScheduleStudyId === rawEntryId && (
-                        <View style={styles.reviewScheduleBox}>
-                          <Text style={styles.lastCheckinLabel}>Bring this study back</Text>
+                        <View style={[styles.reviewScheduleBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                          <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Bring this study back</Text>
                           <View style={styles.reviewPresetRow}>
                             {STUDY_REVIEW_OPTIONS.map((option) => (
                               <Pressable
@@ -7066,9 +7189,9 @@ export default function Home() {
                                   scheduleStudyReview(entry._id, option.id);
                                   setReviewScheduleStudyId("");
                                 }}
-                                style={styles.filterChip}
+                                style={[styles.filterChip, journalDarkMode && styles.printDarkOptionChip]}
                               >
-                                <Text style={styles.filterText}>{option.label}</Text>
+                                <Text style={[styles.filterText, journalDarkMode && styles.accountDarkMutedText]}>{option.label}</Text>
                               </Pressable>
                             ))}
                           </View>
@@ -7088,10 +7211,10 @@ export default function Home() {
               );
             })}
             {showJournalEmptyState && (
-              <View style={styles.emptyJournalBox}>
+              <View style={[styles.emptyJournalBox, journalDarkMode && styles.accountDarkSection]}>
                 <Ionicons name={journalSearchTerm ? "search-outline" : "reader-outline"} size={24} color={colors.coral} />
-                <Text style={styles.emptyJournalTitle}>{journalSearchTerm ? "No matching entries" : "No journal entries yet"}</Text>
-                <Text style={styles.emptyJournalText}>
+                <Text style={[styles.emptyJournalTitle, journalDarkMode && styles.accountDarkTitle]}>{journalSearchTerm ? "No matching entries" : "No journal entries yet"}</Text>
+                <Text style={[styles.emptyJournalText, journalDarkMode && styles.accountDarkMutedText]}>
                   {journalSearchTerm
                     ? "Try a passage, method name, answer phrase, or encouragement word."
                     : journalFilter === "drafts"
@@ -7102,47 +7225,59 @@ export default function Home() {
                           ? "Encouragements appear here after you save one from Community."
                           : `${friendlyName}, complete a study or save an encouragement to start building your journal.`}
                 </Text>
-                {!journalSearchTerm && <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} />}
+                {!journalSearchTerm && <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />}
               </View>
             )}
           </View>
         )}
 
         {tab === "help" && (
-          <View style={styles.helpPage}>
-            <Card style={styles.helpHeroCard}>
+          <View style={[styles.helpPage, helpDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.helpHeroCard, helpDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Help</Eyebrow>
-              <Text style={styles.title}>{firstName ? `${firstName}, start here` : "Start here"}</Text>
-              <Text style={styles.titleSupport}>
+              <Text style={[styles.title, helpDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, start here` : "Start here"}</Text>
+              <Text style={[styles.titleSupport, helpDarkMode && styles.accountDarkMutedText]}>
                 Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, share Scripture, and print worksheets for pen-and-paper study.
               </Text>
               <View style={styles.helpActionRow}>
                 <AppButton label="Read the Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneFullWidthButton} />
-                <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} style={phoneLayout && styles.phoneFullWidthButton} />
-                <AppButton label="Open journal" variant="secondary" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneFullWidthButton} />
+                <AppButton
+                  label="Start a study"
+                  variant="secondary"
+                  onPress={() => setTab("study")}
+                  style={[phoneLayout && styles.phoneFullWidthButton, helpDarkMode && styles.homeDarkResumeButton]}
+                  labelStyle={helpDarkMode && styles.homeDarkResumeButtonText}
+                />
+                <AppButton
+                  label="Open journal"
+                  variant="secondary"
+                  onPress={() => setTab("journal")}
+                  style={[phoneLayout && styles.phoneFullWidthButton, helpDarkMode && styles.homeDarkResumeButton]}
+                  labelStyle={helpDarkMode && styles.homeDarkResumeButtonText}
+                />
               </View>
             </Card>
 
-            <Card style={[styles.helpShareCard, phoneLayout && styles.phoneHelpShareCard]}>
+            <Card style={[styles.helpShareCard, phoneLayout && styles.phoneHelpShareCard, helpDarkMode && styles.accountDarkMainCard]}>
               <View style={styles.helpShareCopy}>
                 <View style={styles.feedbackHeader}>
-                  <Ionicons name="qr-code-outline" size={19} color={colors.coral} />
-                  <Text style={styles.helpCardTitle}>Share Bible Study Tutor</Text>
+                  <Ionicons name="qr-code-outline" size={19} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                  <Text style={[styles.helpCardTitle, helpDarkMode && styles.accountDarkTitle]}>Share Bible Study Tutor</Text>
                 </View>
-                <Text style={styles.helpShareTitle}>Invite someone to study Scripture with you.</Text>
-                <Text style={styles.helpCardText}>
+                <Text style={[styles.helpShareTitle, helpDarkMode && styles.accountDarkTitle]}>Invite someone to study Scripture with you.</Text>
+                <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
                   Bible Study Tutor is free and works on desktop and mobile. Scan the QR code, copy the link, or send it straight to a friend, church group, or Bible study partner.
                 </Text>
-                <Text selectable style={styles.helpShareUrl}>biblestudytutor.org</Text>
+                <Text selectable style={[styles.helpShareUrl, helpDarkMode && styles.helpDarkShareUrl]}>biblestudytutor.org</Text>
                 <View style={styles.helpShareActions}>
-                  <ResumeButton label="Share app" icon="share-outline" onPress={shareAppLink} style={phoneLayout && styles.phoneHelpShareButton} labelStyle={phoneLayout && styles.phoneHelpShareButtonText} />
-                  <ResumeButton label="Copy link" icon="copy-outline" onPress={copyAppLink} style={phoneLayout && styles.phoneHelpShareButton} labelStyle={phoneLayout && styles.phoneHelpShareButtonText} />
+                  <ResumeButton label="Share app" icon="share-outline" onPress={shareAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Copy link" icon="copy-outline" onPress={copyAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#e9b76a" : undefined} />
                 </View>
                 {!!appShareStatus && <Text style={styles.saveStatus}>{appShareStatus}</Text>}
               </View>
-              <View style={styles.helpQrFrame}>
-                <Image source={{ uri: APP_SHARE_QR_URI }} style={styles.helpQrImage} />
-                <Text style={styles.helpQrCaption}>Scan to open</Text>
+              <View style={[styles.helpQrFrame, helpDarkMode && styles.helpDarkQrFrame]}>
+                <Image source={{ uri: helpDarkMode ? APP_SHARE_QR_DARK_URI : APP_SHARE_QR_URI }} style={styles.helpQrImage} />
+                <Text style={[styles.helpQrCaption, helpDarkMode && styles.accountDarkMutedText]}>Scan to open</Text>
               </View>
             </Card>
 
@@ -7153,11 +7288,11 @@ export default function Home() {
                 ["3", "Print when useful", "Create worksheets for pen-and-paper study, groups, or church handouts.", "print-outline"],
                 ["4", "Return later", "Review your journal, practise memory verses, and share encouragements.", "refresh-circle-outline"]
               ].map(([number, title, body, icon]) => (
-                <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard]}>
-                  <View style={styles.helpStepNumber}><Text style={styles.helpStepNumberText}>{number}</Text></View>
-                  <Ionicons name={icon as any} size={20} color={colors.coral} />
-                  <Text style={styles.helpCardTitle}>{title}</Text>
-                  <Text style={styles.helpCardText}>{body}</Text>
+                <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard, helpDarkMode && styles.accountDarkMainCard]}>
+                  <View style={[styles.helpStepNumber, helpDarkMode && styles.helpDarkStepNumber]}><Text style={styles.helpStepNumberText}>{number}</Text></View>
+                  <Ionicons name={icon as any} size={20} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                  <Text style={[styles.helpCardTitle, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                  <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
                 </Card>
               ))}
             </View>
@@ -7167,26 +7302,30 @@ export default function Home() {
                 title="Bible reader"
                 caption="Tap one verse, or tap another verse to select the whole range. The action bar lets you study, note, print, save, or memorize."
                 variant="bible"
+                darkMode={helpDarkMode}
               />
               <HelpScreenshot
                 title="Guided study"
                 caption="Follow the current step, write notes in the box, then save and continue. Focus mode hides extra panels."
                 variant="study"
+                darkMode={helpDarkMode}
               />
               <HelpScreenshot
                 title="Memory practice"
                 caption="Save a verse to Memory, then read it, fill every second word, and finally type the full verse."
                 variant="memory"
+                darkMode={helpDarkMode}
               />
               <HelpScreenshot
                 title="Journal review"
                 caption="Your saved studies, highlights, encouragements, and reflections collect here for later review."
                 variant="journal"
+                darkMode={helpDarkMode}
               />
             </View>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>Step-by-step guide</Text>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Step-by-step guide</Text>
               <View style={[styles.helpGuideGrid, phoneLayout && styles.phoneHelpGuideGrid]}>
                 {[
                   {
@@ -7286,16 +7425,16 @@ export default function Home() {
                     target: "home"
                   }
                 ].map((item) => (
-                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem]}>
+                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem, helpDarkMode && styles.helpDarkGuideItem]}>
                     <View style={[styles.feedbackHeader, phoneLayout && styles.phoneHelpGuideHeader]}>
-                      <Ionicons name={item.icon as any} size={18} color={colors.coral} />
-                      <Text style={styles.helpGuideTitle}>{item.title}</Text>
+                      <Ionicons name={item.icon as any} size={18} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                      <Text style={[styles.helpGuideTitle, helpDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
                     </View>
                     <View style={styles.helpGuideStepList}>
                       {item.steps.map((stepText, index) => (
-                        <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep]}>
-                          <Text style={styles.helpGuideStepNumber}>{index + 1}</Text>
-                          <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText]}>{stepText}</Text>
+                        <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep, helpDarkMode && styles.helpDarkGuideStep]}>
+                          <Text style={[styles.helpGuideStepNumber, helpDarkMode && styles.helpDarkGuideStepNumber]}>{index + 1}</Text>
+                          <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText, helpDarkMode && styles.accountDarkMutedText]}>{stepText}</Text>
                         </View>
                       ))}
                     </View>
@@ -7303,16 +7442,17 @@ export default function Home() {
                       label={item.action}
                       icon={item.icon}
                       onPress={() => setTab(item.target as Tab)}
-                      style={phoneLayout && styles.phoneHelpGuideAction}
-                      labelStyle={phoneLayout && styles.phoneHelpGuideActionText}
+                      style={[phoneLayout && styles.phoneHelpGuideAction, helpDarkMode && styles.homeDarkResumeButton]}
+                      labelStyle={[phoneLayout && styles.phoneHelpGuideActionText, helpDarkMode && styles.homeDarkResumeButtonText]}
+                      iconColor={helpDarkMode ? "#e9b76a" : undefined}
                     />
                   </View>
                 ))}
               </View>
             </Card>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>What each tab is for</Text>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>What each tab is for</Text>
               <View style={styles.helpTabGrid}>
                 {[
                   ["Home", "Your starting point and next best actions.", "home-outline"],
@@ -7325,19 +7465,19 @@ export default function Home() {
                   ["Journal", "Review saved studies, drafts, highlights, and encouragements.", "journal-outline"],
                   ["Account", "Manage your name, sign-in, translation, and privacy details.", "person-circle-outline"]
                 ].map(([title, body, icon]) => (
-                  <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem]}>
-                    <Ionicons name={icon as any} size={17} color={colors.oliveDark} />
+                  <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem, helpDarkMode && styles.helpDarkTabItem]}>
+                    <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <View style={styles.helpTabCopy}>
-                      <Text style={styles.helpFaqQuestion}>{title}</Text>
-                      <Text style={styles.helpFaqAnswer}>{body}</Text>
+                      <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                      <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
                     </View>
                   </View>
                 ))}
               </View>
             </Card>
 
-            <Card style={styles.helpFaqCard}>
-              <Text style={styles.sectionTitle}>Common questions</Text>
+            <Card style={[styles.helpFaqCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Common questions</Text>
               {[
                 ["How do I make a note on a verse?", "In Bible, select a verse and tap Note. On mobile the note box opens in the bottom action panel."],
                 ["How do I study selected verses?", "Select one or more verses in Bible, then tap Study. The app opens Study with those verses loaded."],
@@ -7350,15 +7490,15 @@ export default function Home() {
                 ["How do I hide busy panels?", "Use Focus mode in Study, collapse the Bible reader panel, and use the small arrow controls on collapsible sections."],
                 ["Can I use the app without signing in?", "Yes. You can use a local profile, or sign in later to carry your work between devices."]
               ].map(([question, answer]) => (
-                <View key={question} style={styles.helpFaqItem}>
-                  <Text style={styles.helpFaqQuestion}>{question}</Text>
-                  <Text style={styles.helpFaqAnswer}>{answer}</Text>
+                <View key={question} style={[styles.helpFaqItem, helpDarkMode && styles.helpDarkFaqItem]}>
+                  <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{question}</Text>
+                  <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{answer}</Text>
                 </View>
               ))}
             </Card>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>Troubleshooting</Text>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Troubleshooting</Text>
               <View style={styles.helpTroubleList}>
                 {[
                   ["The screen feels crowded", "Use Study Focus mode, collapse side panels, or open the mobile menu only when you need it."],
@@ -7367,20 +7507,20 @@ export default function Home() {
                   ["I want to find an older study", "Open Journal and use search, Calendar view, or Scripture view."],
                   ["I am not signed in", "You can keep using a local profile. Sign in from Account when you want account-connected saving."]
                 ].map(([title, body]) => (
-                  <View key={title} style={styles.helpTroubleItem}>
-                    <Ionicons name="alert-circle-outline" size={17} color={colors.coral} />
+                  <View key={title} style={[styles.helpTroubleItem, helpDarkMode && styles.helpDarkTroubleItem]}>
+                    <Ionicons name="alert-circle-outline" size={17} color={helpDarkMode ? "#e9b76a" : colors.coral} />
                     <View style={styles.helpTabCopy}>
-                      <Text style={styles.helpFaqQuestion}>{title}</Text>
-                      <Text style={styles.helpFaqAnswer}>{body}</Text>
+                      <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                      <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
                     </View>
                   </View>
                 ))}
               </View>
             </Card>
 
-            <Card style={styles.helpSectionCard}>
-              <Text style={styles.sectionTitle}>Send feedback</Text>
-              <Text style={styles.helpCardText}>
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Send feedback</Text>
+              <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
                 Use this for bugs, confusing areas, suggestions, or encouragement. Feedback is saved with basic context so it can be reviewed without needing private study notes.
               </Text>
               <View style={styles.feedbackCategoryRow}>
@@ -7394,9 +7534,9 @@ export default function Home() {
                   <Pressable
                     key={key}
                     onPress={() => setFeedbackCategory(key as typeof feedbackCategory)}
-                    style={[styles.feedbackCategoryChip, feedbackCategory === key && styles.activeFeedbackCategoryChip]}
+                    style={[styles.feedbackCategoryChip, helpDarkMode && styles.helpDarkCategoryChip, feedbackCategory === key && styles.activeFeedbackCategoryChip, helpDarkMode && feedbackCategory === key && styles.accountDarkActiveOptionCard]}
                   >
-                    <Text style={[styles.feedbackCategoryText, feedbackCategory === key && styles.activeFeedbackCategoryText]}>{label}</Text>
+                    <Text style={[styles.feedbackCategoryText, helpDarkMode && styles.accountDarkTitle, feedbackCategory === key && styles.activeFeedbackCategoryText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
@@ -7405,7 +7545,8 @@ export default function Home() {
                 value={feedbackMessage}
                 onChangeText={setFeedbackMessage}
                 placeholder="What should be improved, fixed, or made clearer?"
-                style={[styles.input, styles.feedbackInput]}
+                placeholderTextColor={helpDarkMode ? "#9d927f" : undefined}
+                style={[styles.input, styles.feedbackInput, helpDarkMode && styles.accountDarkInput]}
               />
               <View style={styles.helpActionRow}>
                 <AppButton label="Send feedback" onPress={submitUserFeedback} style={phoneLayout && styles.phoneFullWidthButton} />
@@ -7416,8 +7557,8 @@ export default function Home() {
         )}
       </ScrollView>
       {showMobileReaderSelectionDock && (
-        <View style={styles.mobileReaderSelectionDock}>
-          <Text numberOfLines={1} style={styles.mobileReaderSelectionText}>{readerMemoryStatus || readerStudyReference}</Text>
+        <View style={[styles.mobileReaderSelectionDock, bibleDarkMode && styles.bibleDarkMobileSelectionDock]}>
+          <Text numberOfLines={1} style={[styles.mobileReaderSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerMemoryStatus || readerStudyReference}</Text>
           <View style={styles.mobileReaderSelectionActions}>
             <Pressable onPress={openReaderChapterInStudy} style={[styles.mobileReaderSelectionButton, styles.primaryMobileReaderSelectionButton]}>
               <Ionicons name="book-outline" size={15} color="white" />
@@ -7425,18 +7566,18 @@ export default function Home() {
             </Pressable>
             <Pressable
               onPress={() => saveBibleBookmark(selectedReaderVerses)}
-              style={[styles.mobileReaderSelectionButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
+              style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
             >
-              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={15} color={currentSelectionBookmarked ? "white" : colors.oliveDark} />
-              <Text style={[styles.mobileReaderSelectionButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>Save</Text>
+              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={15} color={currentSelectionBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>Save</Text>
             </Pressable>
-            <Pressable onPress={openSelectedReaderNote} style={[styles.mobileReaderSelectionButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
-              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={currentSelectionBookmark?.note?.trim() ? "white" : colors.oliveDark} />
-              <Text style={[styles.mobileReaderSelectionButtonText, currentSelectionBookmark?.note?.trim() && styles.primaryMobileReaderSelectionButtonText]}>Note</Text>
+            <Pressable onPress={openSelectedReaderNote} style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
+              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={currentSelectionBookmark?.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmark?.note?.trim() && styles.primaryMobileReaderSelectionButtonText]}>Note</Text>
             </Pressable>
-            <Pressable onPress={openReaderWorksheetOptions} style={styles.mobileReaderSelectionButton}>
-              <Ionicons name="print-outline" size={15} color={colors.oliveDark} />
-              <Text style={styles.mobileReaderSelectionButtonText}>Print</Text>
+            <Pressable onPress={openReaderWorksheetOptions} style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+              <Ionicons name="print-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Print</Text>
             </Pressable>
             <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.mobileReaderSelectionButton, styles.mobileReaderMemoryButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
               <Ionicons name="sparkles-outline" size={15} color="white" />
@@ -7446,27 +7587,28 @@ export default function Home() {
             </Pressable>
             <Pressable
               onPress={clearReaderSelection}
-              style={styles.mobileReaderSelectionIconButton}
+              style={[styles.mobileReaderSelectionIconButton, bibleDarkMode && styles.homeDarkIconBubble]}
             >
-              <Ionicons name="close-outline" size={17} color={colors.muted} />
+              <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
             </Pressable>
           </View>
           {currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id && (
-            <View style={styles.mobileReaderNoteEditor}>
+            <View style={[styles.mobileReaderNoteEditor, bibleDarkMode && styles.bibleDarkMobileNoteEditor]}>
               <TextInput
                 multiline
                 value={bookmarkNoteDraft}
                 onChangeText={setBookmarkNoteDraft}
                 placeholder="Add a note for these verses"
-                style={[styles.input, styles.readerBookmarkNoteInput, styles.mobileReaderBookmarkNoteInput]}
+                placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
+                style={[styles.input, styles.readerBookmarkNoteInput, styles.mobileReaderBookmarkNoteInput, bibleDarkMode && styles.accountDarkInput]}
               />
               <View style={styles.readerBookmarkNoteActions}>
-                <Pressable onPress={() => saveBookmarkNote(currentSelectionBookmark.id)} style={styles.inlineReaderBookmarkButton}>
-                  <Text style={styles.inlineReaderBookmarkText}>Save note</Text>
+                <Pressable onPress={() => saveBookmarkNote(currentSelectionBookmark.id)} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                  <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Save note</Text>
                 </Pressable>
                 {!!currentSelectionBookmark.note?.trim() && (
-                  <Pressable onPress={() => deleteBookmarkNote(currentSelectionBookmark.id)} style={styles.clearMarkupButton}>
-                    <Text style={styles.clearMarkupText}>Delete note</Text>
+                  <Pressable onPress={() => deleteBookmarkNote(currentSelectionBookmark.id)} style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}>
+                    <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Delete note</Text>
                   </Pressable>
                 )}
                 <Pressable
@@ -7475,9 +7617,9 @@ export default function Home() {
                     setBookmarkNoteDraft("");
                     dismissMobileInputFocus();
                   }}
-                  style={styles.clearMarkupButton}
+                  style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
                 >
-                  <Text style={styles.clearMarkupText}>Close</Text>
+                  <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Close</Text>
                 </Pressable>
               </View>
             </View>
@@ -7486,37 +7628,37 @@ export default function Home() {
       )}
       {printWorksheetRequest && (
         <View style={styles.printOptionsOverlay}>
-          <Pressable style={styles.printOptionsScrim} onPress={() => setPrintWorksheetRequest(null)} />
-          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard]}>
+          <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPrintWorksheetRequest(null)} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
-                <Text style={styles.printOptionsTitle}>Print worksheet</Text>
-                <Text style={styles.printOptionsSubtitle}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Print worksheet</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
                   {printWorksheetRequest.reference} · {methods.find((item) => item.id === printWorksheetMethodId)?.short || method.short} · {printWorksheetRequest.translation}
                 </Text>
               </View>
               <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.markupCloseButton}>
-                <Ionicons name="close-outline" size={19} color={colors.muted} />
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
 
             <View style={styles.printOptionGroup}>
-              <Text style={styles.printOptionLabel}>Method</Text>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Method</Text>
               <View style={styles.printOptionChipRow}>
                 {methods.map((item) => (
                   <Pressable
                     key={item.id}
                     onPress={() => setPrintWorksheetMethodId(item.id)}
-                    style={[styles.printOptionChip, printWorksheetMethodId === item.id && styles.activePrintOptionChip]}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, printWorksheetMethodId === item.id && styles.activePrintOptionChip]}
                   >
-                    <Text style={[styles.printOptionChipText, printWorksheetMethodId === item.id && styles.activePrintOptionChipText]}>{item.short}</Text>
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, printWorksheetMethodId === item.id && styles.activePrintOptionChipText]}>{item.short}</Text>
                   </Pressable>
                 ))}
               </View>
             </View>
 
             <View style={styles.printOptionGroup}>
-              <Text style={styles.printOptionLabel}>Writing space</Text>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Writing space</Text>
               <View style={styles.printOptionChipRow}>
                 {[
                   ["standard", "Standard"],
@@ -7525,16 +7667,16 @@ export default function Home() {
                   <Pressable
                     key={key}
                     onPress={() => setPrintWorksheetWritingSpace(key as WorksheetWritingSpace)}
-                    style={[styles.printOptionChip, printWorksheetWritingSpace === key && styles.activePrintOptionChip]}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, printWorksheetWritingSpace === key && styles.activePrintOptionChip]}
                   >
-                    <Text style={[styles.printOptionChipText, printWorksheetWritingSpace === key && styles.activePrintOptionChipText]}>{label}</Text>
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, printWorksheetWritingSpace === key && styles.activePrintOptionChipText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
             </View>
 
             <View style={styles.printOptionGroup}>
-              <Text style={styles.printOptionLabel}>Include</Text>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Include</Text>
               <View style={styles.printOptionToggleList}>
                 {[
                   ["memory", "Memory verse"],
@@ -7547,8 +7689,8 @@ export default function Home() {
                       onPress={() => setPrintWorksheetIncludes((current) => ({ ...current, [key]: !current[key as keyof typeof current] }))}
                       style={styles.printOptionToggle}
                     >
-                      <Ionicons name={active ? "checkbox" : "square-outline"} size={19} color={active ? colors.coral : colors.muted} />
-                      <Text style={styles.printOptionToggleText}>{label}</Text>
+                      <Ionicons name={active ? "checkbox" : "square-outline"} size={19} color={active ? (accountDarkMode ? "#e9b76a" : colors.coral) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
+                      <Text style={[styles.printOptionToggleText, accountDarkMode && styles.accountDarkText]}>{label}</Text>
                     </Pressable>
                   );
                 })}
@@ -7556,8 +7698,8 @@ export default function Home() {
             </View>
 
             <View style={styles.printOptionsActions}>
-              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.printOptionsCancelButton}>
-                <Text style={styles.printOptionsCancelText}>Cancel</Text>
+              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
               </Pressable>
               <ResumeButton label="Open worksheet" icon="open-outline" onPress={openPrintableWorksheet} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
@@ -7684,27 +7826,37 @@ function getContextHelp(tab: Tab) {
   return help[tab];
 }
 
-function HelpScreenshot({ title, caption, variant }: { title: string; caption: string; variant: "bible" | "study" | "memory" | "journal" }) {
+function HelpScreenshot({
+  title,
+  caption,
+  variant,
+  darkMode = false
+}: {
+  title: string;
+  caption: string;
+  variant: "bible" | "study" | "memory" | "journal";
+  darkMode?: boolean;
+}) {
   return (
-    <Card style={styles.helpScreenshotCard}>
+    <Card style={[styles.helpScreenshotCard, darkMode && styles.accountDarkMainCard]}>
       <View style={styles.helpScreenshotHeader}>
-        <Text style={styles.helpCardTitle}>{title}</Text>
+        <Text style={[styles.helpCardTitle, darkMode && styles.accountDarkTitle]}>{title}</Text>
         <View style={styles.helpWindowDots}>
-          <View style={styles.helpWindowDot} />
-          <View style={styles.helpWindowDot} />
-          <View style={styles.helpWindowDot} />
+          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
+          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
+          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
         </View>
       </View>
-      <View style={styles.helpScreenshotFrame}>
+      <View style={[styles.helpScreenshotFrame, darkMode && styles.helpDarkScreenshotFrame]}>
         {variant === "bible" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>Psalms 23</Text>
-              <Text style={styles.helpScreenshotPill}>BSB</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Psalms 23</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>BSB</Text>
             </View>
-            <View style={styles.helpVerseLine}><Text style={styles.helpVerseNumber}>1</Text><View style={styles.helpLongLine} /></View>
-            <View style={[styles.helpVerseLine, styles.helpSelectedLine]}><Text style={styles.helpVerseNumber}>2</Text><View style={styles.helpShortLine} /></View>
-            <View style={styles.helpDockPreview}>
+            <View style={styles.helpVerseLine}><Text style={[styles.helpVerseNumber, darkMode && styles.homeDarkAccentText]}>1</Text><View style={[styles.helpLongLine, darkMode && styles.helpDarkLine]} /></View>
+            <View style={[styles.helpVerseLine, styles.helpSelectedLine, darkMode && styles.helpDarkSelectedLine]}><Text style={[styles.helpVerseNumber, darkMode && styles.homeDarkAccentText]}>2</Text><View style={[styles.helpShortLine, darkMode && styles.helpDarkLine]} /></View>
+            <View style={[styles.helpDockPreview, darkMode && styles.helpDarkDockPreview]}>
               <Text style={styles.helpDockButton}>Study</Text>
               <Text style={styles.helpDockButton}>Note</Text>
               <Text style={styles.helpDockButton}>Print</Text>
@@ -7715,30 +7867,30 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
         {variant === "study" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>Step 2 of 4</Text>
-              <Text style={styles.helpScreenshotPill}>SOAP</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Step 2 of 4</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>SOAP</Text>
             </View>
-            <View style={styles.helpTextAreaPreview}>
-              <View style={styles.helpLongLine} />
-              <View style={styles.helpMediumLine} />
-              <View style={styles.helpShortLine} />
+            <View style={[styles.helpTextAreaPreview, darkMode && styles.helpDarkTextAreaPreview]}>
+              <View style={[styles.helpLongLine, darkMode && styles.helpDarkLine]} />
+              <View style={[styles.helpMediumLine, darkMode && styles.helpDarkLine]} />
+              <View style={[styles.helpShortLine, darkMode && styles.helpDarkLine]} />
             </View>
             <View style={styles.helpToolbarPreview}>
-              {["B", "I", "U", "H"].map((item) => <Text key={item} style={styles.helpToolButton}>{item}</Text>)}
+              {["B", "I", "U", "H"].map((item) => <Text key={item} style={[styles.helpToolButton, darkMode && styles.helpDarkToolButton]}>{item}</Text>)}
             </View>
           </>
         )}
         {variant === "memory" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>John 3:16</Text>
-              <Text style={styles.helpScreenshotPill}>Step 2</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>John 3:16</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>Step 2</Text>
             </View>
             <View style={styles.helpMemoryLine}>
-              <View style={styles.helpBlankWord} />
-              <Text style={styles.helpMemoryWord}>so</Text>
-              <View style={styles.helpBlankWord} />
-              <Text style={styles.helpMemoryWord}>the</Text>
+              <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
+              <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>so</Text>
+              <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
+              <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>the</Text>
             </View>
             <Text style={styles.helpDockButton}>Check answers</Text>
           </>
@@ -7746,19 +7898,19 @@ function HelpScreenshot({ title, caption, variant }: { title: string; caption: s
         {variant === "journal" && (
           <>
             <View style={styles.helpScreenshotTopBar}>
-              <Text style={styles.helpScreenshotLabel}>Journal</Text>
-              <Text style={styles.helpScreenshotPill}>List</Text>
+              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Journal</Text>
+              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>List</Text>
             </View>
             {["Psalm 23", "James 1:5", "Encouragement"].map((item) => (
-              <View key={item} style={styles.helpJournalRow}>
-                <Text style={styles.helpJournalTitle}>{item}</Text>
-                <Ionicons name="chevron-down-outline" size={14} color={colors.muted} />
+              <View key={item} style={[styles.helpJournalRow, darkMode && styles.helpDarkJournalRow]}>
+                <Text style={[styles.helpJournalTitle, darkMode && styles.accountDarkTitle]}>{item}</Text>
+                <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#c8bda9" : colors.muted} />
               </View>
             ))}
           </>
         )}
       </View>
-      <Text style={styles.helpCardText}>{caption}</Text>
+      <Text style={[styles.helpCardText, darkMode && styles.accountDarkMutedText]}>{caption}</Text>
     </Card>
   );
 }
@@ -8158,11 +8310,25 @@ function formatAdminDate(value?: number) {
   return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-function Metric({ value, label, compact = false }: { value: number; label: string; compact?: boolean }) {
+function Metric({
+  value,
+  label,
+  compact = false,
+  style,
+  valueStyle,
+  labelStyle
+}: {
+  value: number;
+  label: string;
+  compact?: boolean;
+  style?: any;
+  valueStyle?: any;
+  labelStyle?: any;
+}) {
   return (
-    <View style={[styles.metric, compact && styles.phoneMemoryMetric]}>
-      <Text style={[styles.metricValue, compact && styles.phoneMemoryMetricValue]}>{value}</Text>
-      <Text numberOfLines={1} style={[styles.muted, compact && styles.phoneMemoryMetricLabel]}>{label}</Text>
+    <View style={[styles.metric, compact && styles.phoneMemoryMetric, style]}>
+      <Text style={[styles.metricValue, compact && styles.phoneMemoryMetricValue, valueStyle]}>{value}</Text>
+      <Text numberOfLines={1} style={[styles.muted, compact && styles.phoneMemoryMetricLabel, labelStyle]}>{label}</Text>
     </View>
   );
 }
@@ -8173,7 +8339,8 @@ function ResumeButton({
   icon = "return-up-forward-outline",
   variant = "default",
   style,
-  labelStyle
+  labelStyle,
+  iconColor
 }: {
   label: string;
   onPress: () => void;
@@ -8181,6 +8348,7 @@ function ResumeButton({
   variant?: "default" | "primary";
   style?: any;
   labelStyle?: any;
+  iconColor?: string;
 }) {
   const primary = variant === "primary";
 
@@ -8190,7 +8358,7 @@ function ResumeButton({
       onPress={onPress}
       style={({ pressed }) => [styles.resumeButton, primary && styles.primaryResumeButton, pressed && styles.resumeButtonPressed, style]}
     >
-      <Ionicons name={icon as any} size={17} color={primary ? "white" : colors.coral} />
+      <Ionicons name={icon as any} size={17} color={iconColor || (primary ? "white" : colors.coral)} />
       <Text style={[styles.resumeButtonText, primary && styles.primaryResumeButtonText, labelStyle]}>{label}</Text>
     </Pressable>
   );
@@ -8207,7 +8375,8 @@ function MemoryBlank({
   onSubmit,
   onMoreHint,
   returnKeyType = "next",
-  compact = false
+  compact = false,
+  darkMode = false
 }: {
   token: { index: number; answer: string };
   value: string;
@@ -8220,6 +8389,7 @@ function MemoryBlank({
   onMoreHint: () => void;
   returnKeyType?: "next" | "done";
   compact?: boolean;
+  darkMode?: boolean;
 }) {
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
   const normalizedValue = normalizeMemoryAnswer(value);
@@ -8240,7 +8410,9 @@ function MemoryBlank({
         returnKeyType={returnKeyType}
         style={[
           styles.memoryBlankInput,
+          darkMode && styles.memoryDarkBlankInput,
           correct && styles.correctMemoryBlankInput,
+          darkMode && correct && styles.memoryDarkCorrectBlankInput,
           incorrect && styles.incorrectMemoryBlankInput
         ]}
       />
@@ -8249,7 +8421,7 @@ function MemoryBlank({
           <Text style={styles.memoryHintText}>{memoryHintText(token.answer, hintLevel)}</Text>
           {canShowMoreHint && (
             <Pressable onPress={onMoreHint} style={styles.moreMemoryHintButton}>
-              <Text style={styles.moreMemoryHintText}>Hint</Text>
+              <Text style={[styles.moreMemoryHintText, darkMode && styles.accountDarkMutedText]}>Hint</Text>
             </Pressable>
           )}
         </View>
@@ -8262,17 +8434,19 @@ function ScriptureInsertPrompt({
   reference,
   status,
   onInsert,
-  compact = false
+  compact = false,
+  darkMode = false
 }: {
   reference: string;
   status?: string;
   onInsert?: () => void;
   compact?: boolean;
+  darkMode?: boolean;
 }) {
   return (
-    <View style={[styles.scriptureInsertBox, compact && styles.compactScriptureInsertBox]}>
-      <Ionicons name="book-outline" size={17} color={colors.coral} />
-      <Text style={styles.scriptureInsertText}>{status || `Add text for ${reference}`}</Text>
+    <View style={[styles.scriptureInsertBox, compact && styles.compactScriptureInsertBox, darkMode && styles.accountDarkSection]}>
+      <Ionicons name="book-outline" size={17} color={darkMode ? "#e9b76a" : colors.coral} />
+      <Text style={[styles.scriptureInsertText, darkMode && styles.accountDarkText]}>{status || `Add text for ${reference}`}</Text>
       <Pressable onPress={() => onInsert?.()} style={styles.scriptureInsertButton}>
         <Text style={styles.scriptureInsertButtonText}>Insert</Text>
       </Pressable>
@@ -8296,7 +8470,8 @@ function StudyNoteEditor({
   scriptureInsertStatus,
   scriptureInsertFocusKey,
   onInsertScripture,
-  phoneLayout = false
+  phoneLayout = false,
+  darkMode = false
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -8314,6 +8489,7 @@ function StudyNoteEditor({
   scriptureInsertFocusKey?: number;
   onInsertScripture?: () => void;
   phoneLayout?: boolean;
+  darkMode?: boolean;
 }) {
   const editorRef = useRef<any>(null);
   const editorWrapRef = useRef<any>(null);
@@ -8383,6 +8559,7 @@ function StudyNoteEditor({
           onAddCustomPrompt={onAddCustomWritingPrompt}
           onRemoveCustomPrompt={onRemoveCustomWritingPrompt}
           compact={phoneLayout}
+          darkMode={darkMode}
         />
         <TextInput
           ref={nativeInputRef}
@@ -8392,12 +8569,13 @@ function StudyNoteEditor({
           selection={nativeSelection}
           onSelectionChange={(event) => updateNativeSelection(event.nativeEvent.selection)}
           placeholder={placeholder}
-          style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea]}
+          placeholderTextColor={darkMode ? "#8f8678" : undefined}
+          style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
         />
         {!!scriptureReference && (
-          <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={onInsertScripture} />
+          <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={onInsertScripture} darkMode={darkMode} />
         )}
-        <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} />
+        <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} darkMode={darkMode} />
       </>
     );
   }
@@ -8510,6 +8688,7 @@ function StudyNoteEditor({
         onAddCustomPrompt={onAddCustomWritingPrompt}
         onRemoveCustomPrompt={onRemoveCustomWritingPrompt}
         compact={phoneLayout}
+        darkMode={darkMode}
       />
       {createElement("div", {
         ref: editorRef,
@@ -8536,10 +8715,10 @@ function StudyNoteEditor({
           onSelect: updateActiveNoteFormats,
           onFocus: updateActiveNoteFormats,
           style: {
-          backgroundColor: "#fffaf2",
-          border: `1px solid ${colors.line}`,
+          backgroundColor: darkMode ? "#151a19" : "#fffaf2",
+          border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
           borderRadius: 11,
-          color: colors.ink,
+          color: darkMode ? "#f7eddc" : colors.ink,
           lineHeight: "22px",
           marginBottom: 14,
           minHeight: studyFocusMode ? (phoneLayout ? 220 : 260) : (phoneLayout ? 170 : 150),
@@ -8560,7 +8739,8 @@ function StudyNoteEditor({
             reference: scriptureReference,
             status: scriptureInsertStatus,
             onInsert: onInsertScripture,
-            compact: true
+            compact: true,
+            darkMode
           })
         })}
       <NoteFormatToolbar
@@ -8573,6 +8753,7 @@ function StudyNoteEditor({
         }}
         activeFormats={activeNoteFormats}
         compact={phoneLayout}
+        darkMode={darkMode}
       />
     </View>
   );
@@ -8581,11 +8762,13 @@ function StudyNoteEditor({
 function NoteFormatToolbar({
   onFormat,
   activeFormats = [],
-  compact = false
+  compact = false,
+  darkMode = false
 }: {
   onFormat: (kind: NoteFormatKind) => void;
   activeFormats?: NoteFormatKind[];
   compact?: boolean;
+  darkMode?: boolean;
 }) {
   const [hoveredFormat, setHoveredFormat] = useState<NoteFormatKind | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -8639,22 +8822,22 @@ function NoteFormatToolbar({
       : { accessibilityLabel: formatLabels[kind], onPressIn: () => onFormat(kind) };
 
   return (
-    <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar]}>
+    <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar, darkMode && styles.accountDarkSection]}>
       <View style={styles.noteFormatButtonRow}>
-      <Pressable {...pressProps("bold")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, activeFormatSet.has("bold") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatBold, activeFormatSet.has("bold") && styles.activeNoteFormatText]}>B</Text>
+      <Pressable {...pressProps("bold")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bold") && styles.activeNoteFormatButton]}>
+        <Text style={[styles.noteFormatText, styles.noteFormatBold, darkMode && styles.accountDarkText, activeFormatSet.has("bold") && styles.activeNoteFormatText]}>B</Text>
       </Pressable>
-      <Pressable {...pressProps("italic")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, activeFormatSet.has("italic") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatItalic, activeFormatSet.has("italic") && styles.activeNoteFormatText]}>I</Text>
+      <Pressable {...pressProps("italic")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("italic") && styles.activeNoteFormatButton]}>
+        <Text style={[styles.noteFormatText, styles.noteFormatItalic, darkMode && styles.accountDarkText, activeFormatSet.has("italic") && styles.activeNoteFormatText]}>I</Text>
       </Pressable>
-      <Pressable {...pressProps("underline")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, activeFormatSet.has("underline") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatUnderline, activeFormatSet.has("underline") && styles.activeNoteFormatText]}>U</Text>
+      <Pressable {...pressProps("underline")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("underline") && styles.activeNoteFormatButton]}>
+        <Text style={[styles.noteFormatText, styles.noteFormatUnderline, darkMode && styles.accountDarkText, activeFormatSet.has("underline") && styles.activeNoteFormatText]}>U</Text>
       </Pressable>
-      <Pressable {...pressProps("highlight")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatHighlight, activeFormatSet.has("highlight") && styles.activeNoteFormatText]}>H</Text>
+      <Pressable {...pressProps("highlight")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
+        <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, activeFormatSet.has("highlight") && styles.activeNoteFormatText, activeFormatSet.has("highlight") && styles.activeNoteHighlightFormatText]}>H</Text>
       </Pressable>
-      <Pressable {...pressProps("bullet")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, activeFormatSet.has("bullet") && styles.activeNoteFormatButton]}>
-        <Ionicons name="list-outline" size={17} color={activeFormatSet.has("bullet") ? "white" : colors.oliveDark} />
+      <Pressable {...pressProps("bullet")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bullet") && styles.activeNoteFormatButton]}>
+        <Ionicons name="list-outline" size={17} color={activeFormatSet.has("bullet") ? "white" : darkMode ? "#f7eddc" : colors.oliveDark} />
       </Pressable>
       </View>
       {Platform.OS === "web" && hoveredFormat && <Text style={styles.noteFormatTooltip}>{formatLabels[hoveredFormat]}</Text>}
@@ -8669,7 +8852,8 @@ function WritingPromptChips({
   onInsert,
   onAddCustomPrompt,
   onRemoveCustomPrompt,
-  compact = false
+  compact = false,
+  darkMode = false
 }: {
   prompts: string[];
   customPrompts?: string[];
@@ -8678,6 +8862,7 @@ function WritingPromptChips({
   onAddCustomPrompt?: (prompt: string) => boolean;
   onRemoveCustomPrompt?: (prompt: string) => void;
   compact?: boolean;
+  darkMode?: boolean;
 }) {
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [draftPrompt, setDraftPrompt] = useState("");
@@ -8694,26 +8879,26 @@ function WritingPromptChips({
   };
 
   return (
-    <View style={[styles.writingPromptBox, compact && styles.compactWritingPromptBox]}>
+    <View style={[styles.writingPromptBox, compact && styles.compactWritingPromptBox, darkMode && styles.accountDarkSection]}>
       <View style={[styles.writingPromptHeader, compact && styles.compactWritingPromptHeader]}>
-        <Text style={styles.writingPromptLabel}>Note starters</Text>
+        <Text style={[styles.writingPromptLabel, darkMode && styles.studyDarkAccentText]}>Note starters</Text>
         {!!onAddCustomPrompt && (
           <Pressable onPress={() => setIsCustomizing((current) => !current)} style={[styles.customizePromptButton, compact && styles.compactCustomizePromptButton]}>
-            <Ionicons name={isCustomizing ? "close-outline" : "create-outline"} size={14} color={colors.coral} />
+            <Ionicons name={isCustomizing ? "close-outline" : "create-outline"} size={14} color={darkMode ? "#e9b76a" : colors.coral} />
             <Text style={styles.customizePromptText}>{isCustomizing ? "Close" : compact ? "Edit" : "Customize"}</Text>
           </Pressable>
         )}
       </View>
       <View style={[styles.writingPromptRow, compact && styles.compactWritingPromptRow]}>
         {prompts.map((prompt) => (
-          <View key={prompt} style={[styles.writingPromptChip, compact && styles.compactWritingPromptChip]}>
+          <View key={prompt} style={[styles.writingPromptChip, compact && styles.compactWritingPromptChip, darkMode && styles.studyDarkMethodChip]}>
             <Pressable onPress={() => onInsert(prompt)} style={[styles.writingPromptInsert, compact && styles.compactWritingPromptInsert]}>
-              {!compact && <Ionicons name="add-circle-outline" size={15} color={colors.oliveDark} />}
-              <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText]} numberOfLines={1}>{prompt}</Text>
+              {!compact && <Ionicons name="add-circle-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />}
+              <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText, darkMode && styles.accountDarkText]} numberOfLines={1}>{prompt}</Text>
             </Pressable>
             {customPromptSet.has(prompt) && !!onRemoveCustomPrompt && (
               <Pressable onPress={() => onRemoveCustomPrompt(prompt)} style={[styles.removePromptButton, compact && styles.compactRemovePromptButton]}>
-                <Ionicons name="close-outline" size={14} color={colors.oliveDark} />
+                <Ionicons name="close-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
               </Pressable>
             )}
           </View>
@@ -8725,14 +8910,15 @@ function WritingPromptChips({
             value={draftPrompt}
             onChangeText={setDraftPrompt}
             placeholder="Add your own starter phrase"
-            style={styles.customPromptInput}
+            placeholderTextColor={darkMode ? "#8f8678" : undefined}
+            style={[styles.customPromptInput, darkMode && styles.accountDarkInput]}
           />
           <Pressable onPress={addPrompt} style={styles.addPromptButton}>
             <Text style={styles.addPromptText}>Add</Text>
           </Pressable>
         </View>
       )}
-      {!!status && <Text style={styles.writingPromptStatus}>{status}</Text>}
+      {!!status && <Text style={[styles.writingPromptStatus, darkMode && styles.accountDarkMutedText]}>{status}</Text>}
     </View>
   );
 }
@@ -8769,30 +8955,32 @@ function LegalDocument({
   icon,
   open,
   sections,
-  onToggle
+  onToggle,
+  darkMode = false
 }: {
   title: string;
   icon: string;
   open: boolean;
   sections: { title: string; body: string }[];
   onToggle: () => void;
+  darkMode?: boolean;
 }) {
   return (
-    <View style={styles.legalDocBox}>
+    <View style={[styles.legalDocBox, darkMode && styles.accountDarkLegalDocBox]}>
       <Pressable onPress={onToggle} style={styles.legalDocHeader}>
         <View style={styles.feedbackHeader}>
-          <Ionicons name={icon as any} size={18} color={colors.coral} />
-          <Text style={styles.feedbackTitle}>{title}</Text>
+          <Ionicons name={icon as any} size={18} color={darkMode ? "#e9b76a" : colors.coral} />
+          <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>{title}</Text>
         </View>
-        <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={colors.muted} />
+        <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={darkMode ? "#c8bda9" : colors.muted} />
       </Pressable>
       {open && (
         <View style={styles.legalDocBody}>
-          <Text style={styles.legalUpdatedText}>Last updated {LEGAL_LAST_UPDATED}</Text>
+          <Text style={[styles.legalUpdatedText, darkMode && styles.accountDarkMutedText]}>Last updated {LEGAL_LAST_UPDATED}</Text>
           {sections.map((section) => (
             <View key={section.title} style={styles.legalDocSection}>
-              <Text style={styles.legalDocSectionTitle}>{section.title}</Text>
-              <Text style={styles.legalDocText}>{section.body}</Text>
+              <Text style={[styles.legalDocSectionTitle, darkMode && styles.accountDarkTitle]}>{section.title}</Text>
+              <Text style={[styles.legalDocText, darkMode && styles.accountDarkMutedText]}>{section.body}</Text>
             </View>
           ))}
         </View>
@@ -8807,6 +8995,7 @@ function CollapsibleStudyPanel({
   collapsed,
   onToggle,
   style,
+  darkMode = false,
   children
 }: {
   title: string;
@@ -8814,23 +9003,24 @@ function CollapsibleStudyPanel({
   collapsed: boolean;
   onToggle: () => void;
   style: any;
+  darkMode?: boolean;
   children: any;
 }) {
   return (
-    <View style={style}>
+    <View style={[style, darkMode && styles.accountDarkSection]}>
       <Pressable onPress={onToggle} style={styles.collapsiblePanelHeader}>
         <View style={[styles.feedbackHeader, styles.collapsiblePanelTitle]}>
-          <Ionicons name={icon as any} size={18} color={colors.coral} />
-          <Text style={styles.feedbackTitle}>{title}</Text>
+          <Ionicons name={icon as any} size={18} color={darkMode ? "#e9b76a" : colors.coral} />
+          <Text style={[styles.feedbackTitle, darkMode && styles.studyDarkAccentText]}>{title}</Text>
         </View>
-        <Ionicons name={collapsed ? "chevron-down-outline" : "chevron-up-outline"} size={17} color={colors.muted} />
+        <Ionicons name={collapsed ? "chevron-down-outline" : "chevron-up-outline"} size={17} color={darkMode ? "#c8bda9" : colors.muted} />
       </Pressable>
       {!collapsed && children}
     </View>
   );
 }
 
-function FormattedNoteText({ text }: { text: string }) {
+function FormattedNoteText({ text, darkMode = false }: { text: string; darkMode?: boolean }) {
   if (!text.trim()) return null;
   const displayText = Platform.OS === "web" ? text : richHtmlToMarkupText(text);
 
@@ -8838,6 +9028,7 @@ function FormattedNoteText({ text }: { text: string }) {
     return createElement("div", {
       style: {
         color: colors.ink,
+        ...(darkMode ? { color: "#f7eddc" } : {}),
         fontSize: 15,
         lineHeight: "21px",
         marginBottom: 8
@@ -8855,7 +9046,7 @@ function FormattedNoteText({ text }: { text: string }) {
         return (
           <View key={`${line}-${index}`} style={isBullet ? styles.formattedBulletRow : undefined}>
             {isBullet && <Text style={styles.formattedBullet}>•</Text>}
-            <Text style={[styles.body, isBullet && styles.formattedBulletText]}>{renderFormattedNoteSegments(content)}</Text>
+            <Text style={[styles.body, darkMode && styles.accountDarkText, isBullet && styles.formattedBulletText]}>{renderFormattedNoteSegments(content)}</Text>
           </View>
         );
       })}
@@ -8899,12 +9090,12 @@ function renderFormattedNoteSegments(text: string) {
   });
 }
 
-function PassageMarkupSummary({ markups }: { markups: PassageMarkupRecord[] }) {
+function PassageMarkupSummary({ markups, darkMode = false }: { markups: PassageMarkupRecord[]; darkMode?: boolean }) {
   if (!markups.length) return null;
 
   return (
-    <View style={styles.journalShareBox}>
-      <Text style={styles.lastCheckinLabel}>Highlights</Text>
+    <View style={[styles.journalShareBox, darkMode && styles.accountDarkInsetBox]}>
+      <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Highlights</Text>
       <View style={styles.markupSummaryRow}>
         {markups.map((markup) => {
           const option = PASSAGE_MARKUP_OPTIONS.find((item) => item.id === markup.kind);
@@ -8916,7 +9107,7 @@ function PassageMarkupSummary({ markups }: { markups: PassageMarkupRecord[] }) {
                   {markup.reference} · {markup.label}
                 </Text>
               </View>
-              {!!markup.note && <Text style={styles.markupSummaryNote}>{markup.note}</Text>}
+              {!!markup.note && <Text style={[styles.markupSummaryNote, darkMode && styles.accountDarkText]}>{markup.note}</Text>}
             </View>
           );
         })}
@@ -8931,7 +9122,8 @@ function JournalCalendar({
   selectedDateKey,
   onSelectDate,
   onPreviousMonth,
-  onNextMonth
+  onNextMonth,
+  darkMode = false
 }: {
   monthStart: number;
   items: JournalCalendarItem[];
@@ -8939,25 +9131,26 @@ function JournalCalendar({
   onSelectDate: (dateKey: string) => void;
   onPreviousMonth: () => void;
   onNextMonth: () => void;
+  darkMode?: boolean;
 }) {
   const cells = buildJournalCalendarCells(monthStart, items);
 
   return (
-    <View style={styles.journalCalendarBox}>
+    <View style={[styles.journalCalendarBox, darkMode && styles.accountDarkSection]}>
       <View style={styles.journalCalendarHeader}>
-        <Pressable onPress={onPreviousMonth} style={styles.calendarMonthButton}>
-          <Ionicons name="chevron-back-outline" size={18} color={colors.oliveDark} />
+        <Pressable onPress={onPreviousMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
+          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
-        <Text style={styles.journalCalendarTitle}>
+        <Text style={[styles.journalCalendarTitle, darkMode && styles.accountDarkTitle]}>
           {new Date(monthStart).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </Text>
-        <Pressable onPress={onNextMonth} style={styles.calendarMonthButton}>
-          <Ionicons name="chevron-forward-outline" size={18} color={colors.oliveDark} />
+        <Pressable onPress={onNextMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
+          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
       </View>
       <View style={styles.calendarWeekdayRow}>
         {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-          <Text key={`${day}-${index}`} style={styles.calendarWeekday}>{day}</Text>
+          <Text key={`${day}-${index}`} style={[styles.calendarWeekday, darkMode && styles.accountDarkMutedText]}>{day}</Text>
         ))}
       </View>
       <View style={styles.calendarGrid}>
@@ -8969,12 +9162,14 @@ function JournalCalendar({
               onPress={() => onSelectDate(selected ? "" : cell.dateKey)}
               style={[
                 styles.calendarDayCell,
+                darkMode && styles.journalDarkCalendarDayCell,
                 !cell.inMonth && styles.inactiveCalendarDayCell,
                 selected && styles.selectedCalendarDayCell,
-                cell.count > 0 && !selected && styles.activeCalendarDayCell
+                cell.count > 0 && !selected && styles.activeCalendarDayCell,
+                darkMode && cell.count > 0 && !selected && styles.journalDarkActiveCalendarDayCell
               ]}
             >
-              <Text style={[styles.calendarDayNumber, selected && styles.selectedCalendarDayNumber, !cell.inMonth && styles.inactiveCalendarDayNumber]}>
+              <Text style={[styles.calendarDayNumber, darkMode && styles.accountDarkText, selected && styles.selectedCalendarDayNumber, !cell.inMonth && styles.inactiveCalendarDayNumber]}>
                 {cell.day}
               </Text>
               {cell.count > 0 && (
@@ -8996,7 +9191,8 @@ function JournalScriptureBrowser({
   selectedBook,
   selectedChapter,
   onToggleBook,
-  onSelectChapter
+  onSelectChapter,
+  darkMode = false
 }: {
   sections: { title: string; books: { book: string; chapters: { chapter: number; entryCount: number; verseCount: number }[] }[] }[];
   expandedBook: string;
@@ -9004,21 +9200,22 @@ function JournalScriptureBrowser({
   selectedChapter: number;
   onToggleBook: (book: string) => void;
   onSelectChapter: (book: string, chapter: number) => void;
+  darkMode?: boolean;
 }) {
   const activeBookSet = new Set(sections.flatMap((section) => section.books.map((item) => item.book)));
 
   return (
-    <View style={styles.journalScriptureBox}>
+    <View style={[styles.journalScriptureBox, darkMode && styles.accountDarkSection]}>
       {sections.length === 0 ? (
         <View style={styles.emptyJournalScriptureBox}>
           <Ionicons name="book-outline" size={22} color={colors.coral} />
-          <Text style={styles.emptyJournalTitle}>No passage entries yet</Text>
-          <Text style={styles.emptyJournalText}>Saved studies, drafts, and highlights with scripture references will appear here.</Text>
+          <Text style={[styles.emptyJournalTitle, darkMode && styles.accountDarkTitle]}>No passage entries yet</Text>
+          <Text style={[styles.emptyJournalText, darkMode && styles.accountDarkMutedText]}>Saved studies, drafts, and highlights with scripture references will appear here.</Text>
         </View>
       ) : (
         sections.map((section) => (
           <View key={section.title} style={styles.journalScriptureSection}>
-            <Text style={styles.readerBookSectionTitle}>{section.title}</Text>
+            <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{section.title}</Text>
             <View style={styles.desktopReaderBookList}>
               {section.books.map(({ book, chapters }) => {
                 const expanded = expandedBook === book;
@@ -9029,17 +9226,19 @@ function JournalScriptureBrowser({
                       onPress={() => onToggleBook(book)}
                       style={[
                         styles.readerBookChip,
+                        darkMode && styles.printDarkOptionChip,
                         activeBookSet.has(book) && styles.journalScriptureActiveBookChip,
+                        darkMode && activeBookSet.has(book) && styles.journalDarkScriptureActiveBookChip,
                         selected && styles.activeReaderBookChip
                       ]}
                     >
-                      <Text style={[styles.readerBookText, selected && styles.activeReaderBookText]}>{book}</Text>
+                      <Text style={[styles.readerBookText, darkMode && styles.accountDarkMutedText, selected && styles.activeReaderBookText]}>{book}</Text>
                     </Pressable>
                     {expanded && (
-                      <View style={styles.desktopReaderChapterPanel}>
+                      <View style={[styles.desktopReaderChapterPanel, darkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.desktopReaderChapterHeader}>
-                          <Text style={styles.readerBookSectionTitle}>{book}</Text>
-                          <Text style={styles.readerChapterCountText}>{`${chapters.length} chapter${chapters.length === 1 ? "" : "s"}`}</Text>
+                          <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
+                          <Text style={[styles.readerChapterCountText, darkMode && styles.accountDarkMutedText]}>{`${chapters.length} chapter${chapters.length === 1 ? "" : "s"}`}</Text>
                         </View>
                         <View style={styles.desktopReaderChapterGrid}>
                           {chapters.map(({ chapter, entryCount, verseCount }) => {
@@ -9048,9 +9247,9 @@ function JournalScriptureBrowser({
                               <Pressable
                                 key={`${book}-${chapter}`}
                                 onPress={() => onSelectChapter(book, chapter)}
-                                style={[styles.journalScriptureChapterSquare, chapterSelected && styles.activeMobileReaderChapterSquare]}
+                                style={[styles.journalScriptureChapterSquare, darkMode && styles.printDarkOptionChip, chapterSelected && styles.activeMobileReaderChapterSquare]}
                               >
-                                <Text style={[styles.mobileReaderChapterText, chapterSelected && styles.activeMobileReaderChapterText]}>{chapter}</Text>
+                                <Text style={[styles.mobileReaderChapterText, darkMode && styles.accountDarkMutedText, chapterSelected && styles.activeMobileReaderChapterText]}>{chapter}</Text>
                                 <Text style={[styles.journalScriptureChapterCount, chapterSelected && styles.activeMobileReaderChapterText]}>
                                   {verseCount > 0 ? `${verseCount}v` : `${entryCount}e`}
                                 </Text>
@@ -9071,7 +9270,7 @@ function JournalScriptureBrowser({
   );
 }
 
-function HighlightReflectionSummary({ note }: { note: string }) {
+function HighlightReflectionSummary({ note, darkMode = false }: { note: string; darkMode?: boolean }) {
   const reflection = parseHighlightReflectionNote(note);
   const sections = [
     ["Key insight", reflection.keyInsight],
@@ -9080,31 +9279,31 @@ function HighlightReflectionSummary({ note }: { note: string }) {
   ].filter(([, value]) => value);
 
   if (!reflection.passage && !reflection.highlights && sections.length === 0) {
-    return <Text style={styles.body}>{note || "No note added."}</Text>;
+    return <Text style={[styles.body, darkMode && styles.accountDarkText]}>{note || "No note added."}</Text>;
   }
 
   return (
-    <View style={styles.reflectionSummaryBox}>
+    <View style={[styles.reflectionSummaryBox, darkMode && styles.accountDarkInsetBox]}>
       <View style={styles.reflectionSummaryHeader}>
         <Ionicons name="sparkles-outline" size={18} color={colors.coral} />
-        <Text style={styles.lastCheckinLabel}>Reflection</Text>
+        <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Reflection</Text>
       </View>
       {!!reflection.passage && (
         <View style={styles.reflectionSummarySection}>
           <Text style={styles.reflectionSummaryLabel}>Passage</Text>
-          <Text style={styles.body}>{reflection.passage}</Text>
+          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{reflection.passage}</Text>
         </View>
       )}
       {!!reflection.highlights && (
         <View style={styles.reflectionSummarySection}>
           <Text style={styles.reflectionSummaryLabel}>Highlights</Text>
-          <Text style={styles.body}>{reflection.highlights}</Text>
+          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{reflection.highlights}</Text>
         </View>
       )}
       {sections.map(([label, value]) => (
         <View key={label} style={styles.reflectionSummarySection}>
           <Text style={styles.reflectionSummaryLabel}>{label}</Text>
-          <Text style={styles.body}>{value}</Text>
+          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{value}</Text>
         </View>
       ))}
     </View>
@@ -11112,6 +11311,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     position: "relative"
   },
+  appDarkScreen: {
+    backgroundColor: "#171b1c"
+  },
   compactScreen: {
     flexDirection: "column"
   },
@@ -11125,6 +11327,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10
   },
+  appDarkMobileMenuBar: {
+    backgroundColor: "#1b211f",
+    borderBottomColor: "rgba(233, 183, 106, 0.18)"
+  },
   mobileMenuButton: {
     alignItems: "center",
     backgroundColor: colors.panel,
@@ -11134,6 +11340,10 @@ const styles = StyleSheet.create({
     height: 42,
     justifyContent: "center",
     width: 42
+  },
+  appDarkMobileMenuButton: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.22)"
   },
   mobileMenuTitleBlock: {
     flex: 1,
@@ -11156,6 +11366,10 @@ const styles = StyleSheet.create({
     gap: 22,
     padding: 16,
     width: 200
+  },
+  appDarkSidebar: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
   },
   compactSidebar: {
     borderBottomWidth: 1,
@@ -11188,6 +11402,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 48
   },
+  appDarkBrandMark: {
+    backgroundColor: "#8f6a35"
+  },
   brandMarkText: {
     color: "white",
     fontWeight: "800"
@@ -11215,15 +11432,28 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingHorizontal: 12
   },
+  appDarkTab: {
+    borderColor: "rgba(233, 183, 106, 0.08)"
+  },
   activeTab: {
     backgroundColor: colors.blush
+  },
+  appDarkActiveTab: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.28)"
   },
   tabLabel: {
     color: colors.muted,
     fontWeight: "700"
   },
+  appDarkTabLabel: {
+    color: "#c8bda9"
+  },
   activeTabLabel: {
     color: colors.coral
+  },
+  appDarkActiveTabLabel: {
+    color: "#e9b76a"
   },
   todayCard: {
     marginTop: 0
@@ -11240,6 +11470,9 @@ const styles = StyleSheet.create({
     marginVertical: 14,
     overflow: "hidden"
   },
+  appDarkProgressTrack: {
+    backgroundColor: "#151a19"
+  },
   progressFill: {
     backgroundColor: colors.coral,
     height: "100%"
@@ -11248,6 +11481,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     minWidth: 0,
     padding: 24
+  },
+  appDarkContent: {
+    backgroundColor: "#171b1c"
   },
   phoneContent: {
     padding: 14
@@ -11267,6 +11503,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 18
   },
+  homeDarkLayout: {
+    backgroundColor: "#171b1c"
+  },
   homeMainCard: {
     flex: 1,
     gap: 20,
@@ -11278,6 +11517,9 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingBottom: 18
   },
+  homeDarkHero: {
+    borderBottomColor: "rgba(233, 183, 106, 0.18)"
+  },
   homeHeroTitle: {
     color: colors.ink,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
@@ -11285,11 +11527,17 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     lineHeight: 48
   },
+  homeDarkHeroTitle: {
+    color: "#f7eddc"
+  },
   homeHeroTitleAccent: {
     color: colors.oliveDark,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
     fontStyle: "italic",
     fontWeight: "700"
+  },
+  homeDarkHeroTitleAccent: {
+    color: "#e9b76a"
   },
   phoneHomeHeroTitle: {
     fontSize: 34,
@@ -11302,6 +11550,9 @@ const styles = StyleSheet.create({
     lineHeight: 27,
     maxWidth: 720
   },
+  homeDarkHeroText: {
+    color: "#f7eddc"
+  },
   homePurposePanel: {
     backgroundColor: "#fffaf2",
     borderColor: "rgba(102, 114, 78, 0.22)",
@@ -11309,6 +11560,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     padding: 14
+  },
+  homeDarkPurposePanel: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homePurposeTitle: {
     color: colors.oliveDark,
@@ -11336,6 +11591,10 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 7
+  },
+  homeDarkPurposePill: {
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(233, 183, 106, 0.18)"
   },
   homePurposePillText: {
     color: colors.oliveDark,
@@ -11367,6 +11626,10 @@ const styles = StyleSheet.create({
     minWidth: 240,
     padding: 16
   },
+  homeDarkScriptureBlock: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   homeScriptureIcon: {
     alignItems: "center",
     backgroundColor: colors.panel,
@@ -11375,10 +11638,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 36
   },
+  homeDarkIconBubble: {
+    backgroundColor: "#2d352d"
+  },
   homeScriptureRef: {
     color: colors.coral,
     fontSize: 13,
     fontWeight: "900"
+  },
+  homeDarkAccentText: {
+    color: "#e9b76a"
   },
   homeScriptureQuote: {
     color: colors.ink,
@@ -11419,6 +11688,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     padding: 11
+  },
+  homeDarkPathItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  homeDarkMetric: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)",
+    borderWidth: 1
+  },
+  homeDarkMetricValue: {
+    color: "#e9b76a"
+  },
+  homeDarkResumeButton: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.26)"
+  },
+  homeDarkResumeButtonText: {
+    color: "#f7eddc"
   },
   homePathIcon: {
     alignItems: "center",
@@ -12963,6 +13251,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     overflow: "hidden",
     paddingHorizontal: 3
+  },
+  studyDarkNoteFormatHighlight: {
+    backgroundColor: "#e9b76a",
+    color: "#171b1c"
+  },
+  activeNoteHighlightFormatText: {
+    backgroundColor: "transparent",
+    color: "white"
   },
   noteFormatHelp: {
     color: colors.muted,
@@ -15084,6 +15380,226 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 14
   },
+  accountDarkLayout: {
+    backgroundColor: "#171b1c"
+  },
+  accountDarkMainCard: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.18)",
+    shadowColor: "#000000",
+    shadowOpacity: 0.2
+  },
+  accountDarkSection: {
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  accountDarkInsetBox: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  accountDarkLegalDocBox: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  accountDarkOptionCard: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  accountDarkActiveOptionCard: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.48)"
+  },
+  accountDarkInput: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.2)",
+    color: "#f7eddc"
+  },
+  accountDarkTitle: {
+    color: "#f7eddc"
+  },
+  accountDarkText: {
+    color: "#f7eddc"
+  },
+  accountDarkMutedText: {
+    color: "#c8bda9"
+  },
+  accountDarkBadge: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.45)"
+  },
+  accountDarkBadgeText: {
+    color: "#f7eddc"
+  },
+  accountDarkSegmentedRow: {
+    backgroundColor: "#171b1c"
+  },
+  accountDarkActiveSegment: {
+    backgroundColor: "#8f6a35"
+  },
+  studyDarkGuidedHeader: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  studyDarkPillControl: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.22)"
+  },
+  studyDarkTogglePill: {
+    backgroundColor: "#151a19"
+  },
+  studyDarkAccentText: {
+    color: "#e9b76a"
+  },
+  studyDarkMethodChip: {
+    backgroundColor: "#2d352d"
+  },
+  studyDarkSmartPassageBox: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.34)"
+  },
+  studyDarkProgressPill: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.14)"
+  },
+  studyDarkCompletedProgressPill: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.2)"
+  },
+  studyDarkProgressNumber: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
+  },
+  studyDarkCompletedProgressNumber: {
+    backgroundColor: "#e9b76a",
+    color: "#171b1c"
+  },
+  studyDarkActiveProgressNumber: {
+    backgroundColor: "#f7eddc",
+    color: "#171b1c"
+  },
+  studyDarkScriptureBox: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  studyDarkVerseRow: {
+    backgroundColor: "rgba(247, 237, 220, 0.04)"
+  },
+  studyDarkFloatingBar: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.22)"
+  },
+  bibleDarkDividerSection: {
+    borderBottomColor: "rgba(233, 183, 106, 0.16)",
+    borderTopColor: "rgba(233, 183, 106, 0.16)"
+  },
+  bibleDarkSearchSelect: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)",
+    color: "#f7eddc"
+  },
+  bibleDarkVerseRow: {
+    backgroundColor: "rgba(247, 237, 220, 0.035)"
+  },
+  bibleDarkMobileSelectionDock: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.26)",
+    shadowColor: "#000",
+    shadowOpacity: 0.22
+  },
+  bibleDarkMobileNoteEditor: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  plansDarkProgressTrack: {
+    backgroundColor: "#2d352d"
+  },
+  plansDarkDraftPill: {
+    backgroundColor: "#2d352d",
+    color: "#f7eddc"
+  },
+  plansDarkDayRow: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.14)",
+    borderWidth: 1
+  },
+  plansDarkCompletedDayRow: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.22)"
+  },
+  plansDarkDayBadge: {
+    backgroundColor: "#8f6a35"
+  },
+  methodsDarkBadge: {
+    backgroundColor: "#2d352d",
+    color: "#f7eddc"
+  },
+  methodsDarkPill: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)",
+    color: "#f7eddc"
+  },
+  methodsDarkWatchBox: {
+    backgroundColor: "rgba(201, 103, 80, 0.12)",
+    borderColor: "rgba(201, 103, 80, 0.32)"
+  },
+  memoryDarkFocusBanner: {
+    backgroundColor: "rgba(201, 103, 80, 0.12)",
+    borderColor: "rgba(201, 103, 80, 0.32)"
+  },
+  memoryDarkCountPill: {
+    backgroundColor: "#2d352d",
+    color: "#f7eddc"
+  },
+  memoryDarkActiveCard: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(201, 103, 80, 0.34)"
+  },
+  memoryDarkReviewPill: {
+    backgroundColor: "#1b211f",
+    color: "#f7eddc"
+  },
+  memoryDarkDueReviewPill: {
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(201, 103, 80, 0.7)",
+    borderWidth: 1,
+    color: "#f2a08c"
+  },
+  memoryDarkPracticeText: {
+    backgroundColor: "#1b211f",
+    color: "#f7eddc"
+  },
+  memoryDarkFillBox: {
+    backgroundColor: "#1b211f"
+  },
+  memoryDarkBlankInput: {
+    color: "#f7eddc"
+  },
+  memoryDarkCorrectBlankInput: {
+    backgroundColor: "rgba(233, 183, 106, 0.14)",
+    borderColor: "rgba(233, 183, 106, 0.34)",
+    borderBottomColor: "#e9b76a",
+    color: "#f7eddc"
+  },
+  journalDarkCalendarDayCell: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  journalDarkActiveCalendarDayCell: {
+    backgroundColor: "rgba(233, 183, 106, 0.12)",
+    borderColor: "rgba(233, 183, 106, 0.34)"
+  },
+  journalDarkScriptureActiveBookChip: {
+    backgroundColor: "rgba(233, 183, 106, 0.12)",
+    borderColor: "rgba(233, 183, 106, 0.34)"
+  },
+  studyDarkStepPanel: {
+    backgroundColor: "#171b1c",
+    borderColor: "rgba(233, 183, 106, 0.24)"
+  },
+  studyDarkFormatButton: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.2)"
+  },
   signedInBadgeRow: {
     alignItems: "flex-start",
     marginBottom: 10
@@ -16473,6 +16989,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 7
   },
+  helpDarkShareUrl: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.24)",
+    color: "#e9b76a"
+  },
   helpShareActions: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -16496,6 +17017,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 7,
     padding: 11
+  },
+  helpDarkQrFrame: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpQrImage: {
     height: 168,
@@ -16538,6 +17063,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 28
   },
+  helpDarkStepNumber: {
+    backgroundColor: "#8f6a35"
+  },
   helpStepNumberText: {
     color: "white",
     fontSize: 13,
@@ -16578,6 +17106,9 @@ const styles = StyleSheet.create({
     height: 7,
     width: 7
   },
+  helpDarkWindowDot: {
+    backgroundColor: "rgba(233, 183, 106, 0.32)"
+  },
   helpScreenshotFrame: {
     backgroundColor: "#fffdf8",
     borderColor: colors.line,
@@ -16587,6 +17118,10 @@ const styles = StyleSheet.create({
     minHeight: 170,
     overflow: "hidden",
     padding: 12
+  },
+  helpDarkScreenshotFrame: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpScreenshotTopBar: {
     alignItems: "center",
@@ -16608,6 +17143,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4
   },
+  helpDarkScreenshotPill: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
+  },
   helpVerseLine: {
     alignItems: "center",
     flexDirection: "row",
@@ -16617,6 +17156,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4dfb6",
     borderRadius: 9,
     padding: 8
+  },
+  helpDarkSelectedLine: {
+    backgroundColor: "rgba(233, 183, 106, 0.14)"
   },
   helpVerseNumber: {
     color: colors.coral,
@@ -16628,6 +17170,9 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     height: 10,
     width: "78%"
+  },
+  helpDarkLine: {
+    backgroundColor: "rgba(247, 237, 220, 0.24)"
   },
   helpMediumLine: {
     backgroundColor: colors.line,
@@ -16651,6 +17196,10 @@ const styles = StyleSheet.create({
     marginTop: "auto",
     padding: 7
   },
+  helpDarkDockPreview: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
   helpDockButton: {
     backgroundColor: colors.oliveDark,
     borderRadius: 999,
@@ -16669,6 +17218,10 @@ const styles = StyleSheet.create({
     gap: 9,
     padding: 12
   },
+  helpDarkTextAreaPreview: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   helpToolbarPreview: {
     flexDirection: "row",
     gap: 6
@@ -16683,6 +17236,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 6
   },
+  helpDarkToolButton: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
+  },
   helpMemoryLine: {
     alignItems: "center",
     flexDirection: "row",
@@ -16694,6 +17251,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     height: 18,
     width: 48
+  },
+  helpDarkBlankWord: {
+    borderBottomColor: "#e9b76a"
   },
   helpMemoryWord: {
     color: colors.ink,
@@ -16710,6 +17270,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10
   },
+  helpDarkJournalRow: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   helpJournalTitle: {
     color: colors.ink,
     fontSize: 13,
@@ -16723,6 +17287,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     gap: 4,
     paddingTop: 10
+  },
+  helpDarkFaqItem: {
+    borderTopColor: "rgba(233, 183, 106, 0.16)"
   },
   helpFaqQuestion: {
     color: colors.ink,
@@ -16756,6 +17323,10 @@ const styles = StyleSheet.create({
     gap: 10,
     minWidth: 280,
     padding: 12
+  },
+  helpDarkGuideItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpGuideItem: {
     borderRadius: 10,
@@ -16795,6 +17366,10 @@ const styles = StyleSheet.create({
     gap: 9,
     padding: 8
   },
+  helpDarkGuideStep: {
+    backgroundColor: "#202625",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   helpGuideStepNumber: {
     backgroundColor: colors.sage,
     borderRadius: 999,
@@ -16805,6 +17380,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingVertical: 4,
     textAlign: "center"
+  },
+  helpDarkGuideStepNumber: {
+    backgroundColor: "#2d352d",
+    color: "#e9b76a"
   },
   helpGuideStepText: {
     color: colors.ink,
@@ -16840,6 +17419,10 @@ const styles = StyleSheet.create({
     padding: 11,
     width: "32%"
   },
+  helpDarkTabItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   phoneHelpTabItem: {
     minWidth: 0,
     width: "100%"
@@ -16861,6 +17444,10 @@ const styles = StyleSheet.create({
     gap: 9,
     padding: 11
   },
+  helpDarkTroubleItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   feedbackCategoryRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -16873,6 +17460,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 7
+  },
+  helpDarkCategoryChip: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
   },
   activeFeedbackCategoryChip: {
     backgroundColor: colors.oliveDark,
@@ -16920,6 +17511,10 @@ const styles = StyleSheet.create({
     minWidth: 150,
     padding: 10
   },
+  accountDarkSavedDataItem: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
   savedDataIcon: {
     alignItems: "center",
     backgroundColor: "#eef3e5",
@@ -16927,6 +17522,9 @@ const styles = StyleSheet.create({
     height: 32,
     justifyContent: "center",
     width: 32
+  },
+  accountDarkSavedDataIcon: {
+    backgroundColor: "#2d352d"
   },
   savedDataCopy: {
     flex: 1,
@@ -17377,6 +17975,9 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0
   },
+  printDarkOptionsScrim: {
+    backgroundColor: "rgba(0, 0, 0, 0.56)"
+  },
   printOptionsCard: {
     alignSelf: "center",
     backgroundColor: colors.panel,
@@ -17442,6 +18043,10 @@ const styles = StyleSheet.create({
     minHeight: 34,
     paddingHorizontal: 12
   },
+  printDarkOptionChip: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
   activePrintOptionChip: {
     backgroundColor: colors.oliveDark,
     borderColor: colors.oliveDark
@@ -17480,6 +18085,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 38,
     paddingHorizontal: 12
+  },
+  printDarkCancelButton: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.32)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 16
   },
   printOptionsCancelText: {
     color: colors.muted,

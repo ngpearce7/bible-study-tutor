@@ -5341,7 +5341,7 @@ export default function Home() {
               <Text style={[styles.title, memoryDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
               {!phoneMemoryFocusMode && (
                 <>
-                  <Text style={[styles.titleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>
+                  <Text style={[styles.titleSupport, styles.memoryTitleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>
                   <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
                     <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                     <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
@@ -6551,13 +6551,13 @@ export default function Home() {
                       <Ionicons name="analytics-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
                       <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
                     </View>
-                    <View style={styles.adminMetricGrid}>
-                      <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
-                      <Metric value={adminStats.totals.signedInProfiles} label="signed-in" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
-                      <Metric value={adminStats.totals.profilesWithStudies} label="with studies" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
-                      <Metric value={adminStats.totals.newFeedback} label="new feedback" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
-                      <Metric value={adminStats.totals.appShares || 0} label="app shares" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
-                      <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" compact style={accountDarkMode && styles.accountDarkInsetBox} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={accountDarkMode && styles.accountDarkMutedText} />
+                    <View style={[styles.adminMetricGrid, styles.accountAdminMetricGrid]}>
+                      <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" labelLines={2} compact style={[styles.accountAdminMetricTile, accountDarkMode && styles.accountDarkInsetBox]} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={[styles.accountAdminMetricLabel, accountDarkMode && styles.accountDarkMutedText]} />
+                      <Metric value={adminStats.totals.signedInProfiles} label="signed in" labelLines={2} compact style={[styles.accountAdminMetricTile, accountDarkMode && styles.accountDarkInsetBox]} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={[styles.accountAdminMetricLabel, accountDarkMode && styles.accountDarkMutedText]} />
+                      <Metric value={adminStats.totals.profilesWithStudies} label="with studies" labelLines={2} compact style={[styles.accountAdminMetricTile, accountDarkMode && styles.accountDarkInsetBox]} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={[styles.accountAdminMetricLabel, accountDarkMode && styles.accountDarkMutedText]} />
+                      <Metric value={adminStats.totals.newFeedback} label="new feedback" labelLines={2} compact style={[styles.accountAdminMetricTile, accountDarkMode && styles.accountDarkInsetBox]} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={[styles.accountAdminMetricLabel, accountDarkMode && styles.accountDarkMutedText]} />
+                      <Metric value={adminStats.totals.appShares || 0} label="app shares" labelLines={2} compact style={[styles.accountAdminMetricTile, accountDarkMode && styles.accountDarkInsetBox]} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={[styles.accountAdminMetricLabel, accountDarkMode && styles.accountDarkMutedText]} />
+                      <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" labelLines={2} compact style={[styles.accountAdminMetricTile, accountDarkMode && styles.accountDarkInsetBox]} valueStyle={accountDarkMode && styles.accountDarkTitle} labelStyle={[styles.accountAdminMetricLabel, accountDarkMode && styles.accountDarkMutedText]} />
                     </View>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                       Raw profiles: {adminStats.totals.profiles} total · {adminStats.totals.localProfiles} local/test · {adminStats.totals.events} recent events tracked.
@@ -15813,6 +15813,20 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 14
   },
+  accountAdminMetricGrid: {
+    gap: 10
+  },
+  accountAdminMetricTile: {
+    flexBasis: 112,
+    flexGrow: 1,
+    justifyContent: "center",
+    minHeight: 78,
+    minWidth: 112
+  },
+  accountAdminMetricLabel: {
+    lineHeight: 15,
+    marginTop: 2
+  },
   memoryList: {
     gap: 12
   },
@@ -16522,6 +16536,9 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
     marginBottom: 16
+  },
+  memoryTitleSupport: {
+    marginBottom: 12
   },
   phoneMemoryMetricGrid: {
     flexWrap: "nowrap",

@@ -6408,9 +6408,9 @@ export default function Home() {
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                     A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
                   </Text>
-                  <View style={styles.savedDataGrid}>
+                  <View style={[styles.savedDataGrid, phoneLayout && styles.phoneSavedDataGrid]}>
                     {savedDataItems.map((item) => (
-                      <View key={item.label} style={[styles.savedDataItem, accountDarkMode && styles.accountDarkSavedDataItem]}>
+                      <View key={item.label} style={[styles.savedDataItem, phoneLayout && styles.phoneSavedDataItem, accountDarkMode && styles.accountDarkSavedDataItem]}>
                         <View style={[styles.savedDataIcon, accountDarkMode && styles.accountDarkSavedDataIcon]}>
                           <Ionicons name={item.icon as any} size={17} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                         </View>
@@ -17551,6 +17551,10 @@ const styles = StyleSheet.create({
     gap: 10,
     marginVertical: 10
   },
+  phoneSavedDataGrid: {
+    flexDirection: "column",
+    flexWrap: "nowrap"
+  },
   savedDataItem: {
     alignItems: "center",
     backgroundColor: "#fff6eb",
@@ -17562,6 +17566,11 @@ const styles = StyleSheet.create({
     gap: 9,
     minWidth: 150,
     padding: 10
+  },
+  phoneSavedDataItem: {
+    flexBasis: "auto",
+    minWidth: 0,
+    width: "100%"
   },
   accountDarkSavedDataItem: {
     backgroundColor: "#1b211f",

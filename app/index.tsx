@@ -8749,6 +8749,15 @@ function StudyNoteTiptapEditor({
   const lastHtmlRef = useRef(value || "");
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
+  const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string } | null>(null);
+
+  const syncTiptapState = (editor: Editor) => {
+    const textBeforeCursor = getTiptapTextBeforeCursor(editor);
+    setLocalScriptureMatch(findTypedScriptureReferenceMatch(textBeforeCursor));
+    setActiveNoteFormats(getTiptapActiveFormats(editor));
+    updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+    return textBeforeCursor;
+  };
 
   const editor = useEditor({
     extensions: [
@@ -8773,16 +8782,12 @@ function StudyNoteTiptapEditor({
     onUpdate: ({ editor }) => {
       const nextHtml = sanitizeEditorHtml(editor.getHTML());
       lastHtmlRef.current = nextHtml;
-      onChange(nextHtml, getTiptapTextBeforeCursor(editor));
-      setActiveNoteFormats(getTiptapActiveFormats(editor));
-      updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+      onChange(nextHtml, syncTiptapState(editor));
     },
     onSelectionUpdate: ({ editor }) => {
       const { from, to } = editor.state.selection;
       onSelectionChange({ start: from, end: to });
-      setActiveNoteFormats(getTiptapActiveFormats(editor));
-      onChange(sanitizeEditorHtml(editor.getHTML()), getTiptapTextBeforeCursor(editor));
-      updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+      onChange(sanitizeEditorHtml(editor.getHTML()), syncTiptapState(editor));
     }
   });
 
@@ -8807,8 +8812,10 @@ function StudyNoteTiptapEditor({
 
   const insertScriptureWeb = async () => {
     if (!editor) return;
-    const typedReference = scriptureTypedReference || scriptureReference;
-    const result = await onInsertScripture?.({ reference: scriptureReference, typedReference });
+    const liveMatch = findTypedScriptureReferenceMatch(getTiptapTextBeforeCursor(editor)) || localScriptureMatch;
+    const reference = liveMatch?.reference || scriptureReference;
+    const typedReference = liveMatch?.typed || scriptureTypedReference || scriptureReference;
+    const result = await onInsertScripture?.({ reference, typedReference });
     if (!result) return;
 
     const { from } = editor.state.selection;
@@ -8827,9 +8834,8 @@ function StudyNoteTiptapEditor({
 
     const nextHtml = sanitizeEditorHtml(editor.getHTML());
     lastHtmlRef.current = nextHtml;
-    onChange(nextHtml, getTiptapTextBeforeCursor(editor));
-    setActiveNoteFormats(getTiptapActiveFormats(editor));
-    updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+    setLocalScriptureMatch(null);
+    onChange(nextHtml, syncTiptapState(editor));
   };
 
   const applyTiptapFormat = (kind: NoteFormatKind) => {
@@ -8854,6 +8860,7 @@ function StudyNoteTiptapEditor({
     outline: "none",
     overflow: "hidden"
   };
+  const visibleScriptureReference = localScriptureMatch?.reference || scriptureReference || "";
 
   return (
     <View ref={wrapRef} style={styles.studyNoteEditorWrap}>
@@ -8871,7 +8878,7 @@ function StudyNoteTiptapEditor({
         darkMode={darkMode}
       />
       {createElement("div", { style: editorStyle, children: createElement(EditorContent, { editor }) })}
-      {!!scriptureReference &&
+      {!!visibleScriptureReference &&
         createElement("div", {
           style: {
             position: "absolute",
@@ -8880,7 +8887,7 @@ function StudyNoteTiptapEditor({
             zIndex: 20
           },
           children: createElement(ScriptureInsertPrompt, {
-            reference: scriptureReference,
+            reference: visibleScriptureReference,
             status: scriptureInsertStatus,
             onInsert: insertScriptureWeb,
             compact: true,

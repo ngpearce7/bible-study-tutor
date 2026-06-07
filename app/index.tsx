@@ -10418,7 +10418,7 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
   if (!match) return { textBeforeCursor, match: null };
 
   const textAfterMatch = textBeforeCursor.slice(match.end);
-  if (!/^[\s.,;:)]{0,2}$/.test(textAfterMatch)) {
+  if (textAfterMatch.length > 0) {
     return { textBeforeCursor, match: null };
   }
 

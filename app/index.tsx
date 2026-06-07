@@ -8685,7 +8685,9 @@ function StudyNoteEditor({
   const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
   const [highlightPickerOpen, setHighlightPickerOpen] = useState(false);
   const [nativeDismissedReference, setNativeDismissedReference] = useState("");
+  const nativeSelectionKey = `${nativeSelection.start}:${nativeSelection.end}`;
   const nativeTextSelected = nativeSelection.start !== nativeSelection.end;
+  const [dismissedNativeMiniBarKey, setDismissedNativeMiniBarKey] = useState("");
 
   useEffect(() => {
     if (!profileScriptureInsertSettings) return;
@@ -8718,9 +8720,11 @@ function StudyNoteEditor({
   };
 
   const updateNativeSelection = (selection: { start: number; end: number }) => {
+    const nextKey = `${selection.start}:${selection.end}`;
     nativeSelectionRef.current = selection;
     if (selection.start !== selection.end) lastNativeTextSelectionRef.current = selection;
     setNativeSelection(selection);
+    if (nextKey !== dismissedNativeMiniBarKey) setDismissedNativeMiniBarKey("");
     onSelectionChange(selection);
   };
 
@@ -8809,16 +8813,20 @@ function StudyNoteEditor({
         value={value}
         onChangeText={updateNativeText}
         selection={nativeSelection}
+        onPressIn={() => {
+          if (nativeTextSelected) setDismissedNativeMiniBarKey(nativeSelectionKey);
+        }}
         onSelectionChange={(event) => updateNativeSelection(event.nativeEvent.selection)}
         placeholder={placeholder}
         placeholderTextColor={darkMode ? "#8f8678" : undefined}
         style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
       />
-      {phoneLayout && nativeTextSelected && (
+      {phoneLayout && nativeTextSelected && dismissedNativeMiniBarKey !== nativeSelectionKey && (
         <MobileNoteFormatBar
           onFormat={formatNativeNote}
           highlightColor={scriptureInsertSettings.highlightColor}
           onOpenHighlightPicker={() => setHighlightPickerOpen(true)}
+          onDismiss={() => setDismissedNativeMiniBarKey(nativeSelectionKey)}
           darkMode={darkMode}
         />
       )}
@@ -8918,6 +8926,8 @@ function StudyNoteTiptapEditor({
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
   const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string; from: number; to: number } | null>(null);
   const [selectedTextActive, setSelectedTextActive] = useState(false);
+  const [selectedTextRangeKey, setSelectedTextRangeKey] = useState("");
+  const [dismissedMobileMiniBarKey, setDismissedMobileMiniBarKey] = useState("");
   const [dismissedScriptureKey, setDismissedScriptureKey] = useState("");
   const scriptureInsertSettingsRef = useRef(scriptureInsertSettings);
   const dismissedScriptureKeyRef = useRef(dismissedScriptureKey);
@@ -8938,9 +8948,14 @@ function StudyNoteTiptapEditor({
     const nextMatch = !scriptureInsertSettingsRef.current.disabled && matchKey !== dismissedScriptureKeyRef.current ? cursorMatch.match : null;
     const nextFormats = getTiptapActiveFormats(editor);
     const nextSelectedTextActive = !editor.state.selection.empty;
+    const nextSelectedTextRangeKey = nextSelectedTextActive ? `${editor.state.selection.from}:${editor.state.selection.to}` : "";
 
     setLocalScriptureMatch((current) => scriptureEditorMatchesEqual(current, nextMatch) ? current : nextMatch);
     setActiveNoteFormats((current) => noteFormatArraysEqual(current, nextFormats) ? current : nextFormats);
+    setSelectedTextRangeKey((current) => {
+      if (current !== nextSelectedTextRangeKey) setDismissedMobileMiniBarKey("");
+      return current === nextSelectedTextRangeKey ? current : nextSelectedTextRangeKey;
+    });
     setSelectedTextActive((current) => current === nextSelectedTextActive ? current : nextSelectedTextActive);
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
@@ -9123,11 +9138,12 @@ function StudyNoteTiptapEditor({
         darkMode={darkMode}
       />
       {createElement("div", { style: editorStyle, children: createElement(EditorContent, { editor }) })}
-      {phoneLayout && selectedTextActive && (
+      {phoneLayout && selectedTextActive && dismissedMobileMiniBarKey !== selectedTextRangeKey && (
         <MobileNoteFormatBar
           onFormat={applyTiptapFormat}
           highlightColor={scriptureInsertSettings.highlightColor}
           onOpenHighlightPicker={onOpenHighlightPicker}
+          onDismiss={() => setDismissedMobileMiniBarKey(selectedTextRangeKey)}
           darkMode={darkMode}
         />
       )}
@@ -9183,11 +9199,13 @@ function MobileNoteFormatBar({
   onFormat,
   highlightColor,
   onOpenHighlightPicker,
+  onDismiss,
   darkMode = false
 }: {
   onFormat: (kind: NoteFormatKind) => void;
   highlightColor: string;
   onOpenHighlightPicker: () => void;
+  onDismiss?: () => void;
   darkMode?: boolean;
 }) {
   return (
@@ -9210,6 +9228,11 @@ function MobileNoteFormatBar({
       <Pressable onPress={() => onFormat("bullet")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Bullet list">
         <Ionicons name="list-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
       </Pressable>
+      {!!onDismiss && (
+        <Pressable onPress={onDismiss} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Hide mini editor">
+          <Ionicons name="close-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -9530,8 +9553,10 @@ function NoteHighlightColorPicker({
     setStatus("Saving...");
     try {
       await onSelect(draftColor);
+      onClose();
     } catch {
       setStatus("Saved on this device only.");
+      onClose();
     }
   };
 
@@ -14273,17 +14298,17 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 6,
     justifyContent: "center",
-    left: 8,
+    marginBottom: 12,
+    marginTop: -4,
     padding: 6,
-    position: "absolute",
-    right: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 14,
-    top: 10,
+    width: "100%",
     zIndex: 80
   },
   mobileNoteFormatButton: {

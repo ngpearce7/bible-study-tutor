@@ -8750,12 +8750,15 @@ function StudyNoteTiptapEditor({
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
   const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string; from: number; to: number } | null>(null);
+  const [detectedEditorReferences, setDetectedEditorReferences] = useState<{ reference: string; typed: string; from: number; to: number }[]>([]);
 
   const syncTiptapState = (editor: Editor) => {
     const cursorMatch = findTiptapScriptureReferenceBeforeCursor(editor);
-    const documentMatch = findTiptapScriptureReferenceInDocument(editor);
+    const documentMatches = findTiptapScriptureReferencesInDocument(editor);
+    const documentMatch = chooseNearestTiptapScriptureReference(documentMatches, editor.state.selection.from);
     const textBeforeCursor = cursorMatch.textBeforeCursor;
     setLocalScriptureMatch(cursorMatch.match || documentMatch);
+    setDetectedEditorReferences(documentMatches.slice(-8).reverse());
     setActiveNoteFormats(getTiptapActiveFormats(editor));
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
@@ -8838,9 +8841,14 @@ function StudyNoteTiptapEditor({
     editor.chain().focus().insertContent(`${prefix}${prompt} `).run();
   };
 
-  const insertScriptureWeb = async () => {
+  const insertScriptureWeb = async (chosenMatch?: { reference: string; typed: string; from: number; to: number }) => {
     if (!editor) return;
-    const liveMatch = findTiptapScriptureReferenceBeforeCursor(editor).match || localScriptureMatch || findTiptapScriptureReferenceInDocument(editor);
+    const documentMatches = findTiptapScriptureReferencesInDocument(editor);
+    const liveMatch =
+      chosenMatch ||
+      findTiptapScriptureReferenceBeforeCursor(editor).match ||
+      localScriptureMatch ||
+      chooseNearestTiptapScriptureReference(documentMatches, editor.state.selection.from);
     const reference = liveMatch?.reference || scriptureReference;
     const typedReference = liveMatch?.typed || scriptureTypedReference || scriptureReference;
     const result = await onInsertScripture?.({ reference, typedReference });
@@ -8862,6 +8870,7 @@ function StudyNoteTiptapEditor({
     const nextHtml = sanitizeEditorHtml(editor.getHTML());
     lastHtmlRef.current = nextHtml;
     setLocalScriptureMatch(null);
+    setDetectedEditorReferences([]);
     onChange(nextHtml, syncTiptapState(editor));
   };
 
@@ -8921,6 +8930,25 @@ function StudyNoteTiptapEditor({
             darkMode
           })
         })}
+      {detectedEditorReferences.length > 0 && (
+        <View style={[styles.detectedScriptureRow, darkMode && styles.accountDarkSection]}>
+          <View style={styles.detectedScriptureHeader}>
+            <Ionicons name="book-outline" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
+            <Text style={[styles.detectedScriptureTitle, darkMode && styles.accountDarkText]}>Detected references</Text>
+          </View>
+          <View style={styles.detectedScriptureChips}>
+            {detectedEditorReferences.map((match, index) => (
+              <Pressable
+                key={`${match.reference}-${match.from}-${index}`}
+                onPress={() => insertScriptureWeb(match)}
+                style={[styles.detectedScriptureChip, darkMode && styles.studyDarkFormatButton]}
+              >
+                <Text style={[styles.detectedScriptureChipText, darkMode && styles.accountDarkText]}>{match.reference}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      )}
       <NoteFormatToolbar
         onFormat={applyTiptapFormat}
         activeFormats={activeNoteFormats}
@@ -10419,8 +10447,7 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
   };
 }
 
-function findTiptapScriptureReferenceInDocument(editor: Editor) {
-  const cursor = editor.state.selection.from;
+function findTiptapScriptureReferencesInDocument(editor: Editor) {
   const pieces: string[] = [];
   const positions: number[] = [];
 
@@ -10434,20 +10461,23 @@ function findTiptapScriptureReferenceInDocument(editor: Editor) {
   });
 
   const plainText = pieces.join("");
-  const matches = findTypedScriptureReferenceMatches(plainText);
-  const match = matches
-    .map((item) => ({
-      ...item,
-      distance: Math.min(Math.abs(cursor - (positions[item.start] || 1)), Math.abs(cursor - ((positions[item.end - 1] || 1) + 1)))
-    }))
-    .sort((a, b) => a.distance - b.distance || b.start - a.start)[0];
-  if (!match) return null;
-
-  return {
+  return findTypedScriptureReferenceMatches(plainText).map((match) => ({
     ...match,
     from: Math.max(1, positions[match.start] ?? 1),
     to: Math.max(1, (positions[match.end - 1] ?? positions[match.start] ?? 1) + 1)
-  };
+  }));
+}
+
+function chooseNearestTiptapScriptureReference(
+  matches: { reference: string; typed: string; from: number; to: number }[],
+  cursor: number
+) {
+  return matches
+    .map((match) => ({
+      ...match,
+      distance: cursor >= match.from && cursor <= match.to ? 0 : Math.min(Math.abs(cursor - match.from), Math.abs(cursor - match.to))
+    }))
+    .sort((a, b) => a.distance - b.distance || b.from - a.from)[0] || null;
 }
 
 function getTiptapActiveFormats(editor: Editor): NoteFormatKind[] {
@@ -13646,6 +13676,44 @@ const styles = StyleSheet.create({
     gap: 7,
     marginTop: 0,
     padding: 9
+  },
+  detectedScriptureRow: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    marginBottom: 12,
+    marginTop: -6,
+    padding: 9
+  },
+  detectedScriptureHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7
+  },
+  detectedScriptureTitle: {
+    color: colors.ink,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  detectedScriptureChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  detectedScriptureChip: {
+    backgroundColor: "white",
+    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 6
+  },
+  detectedScriptureChipText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   noteFormatButtonRow: {
     alignItems: "center",

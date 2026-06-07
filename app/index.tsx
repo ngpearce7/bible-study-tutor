@@ -66,7 +66,7 @@ type JournalScriptureItem = {
   chapter: number;
   verses: number[];
 };
-type NoteFormatKind = "bold" | "italic" | "underline" | "highlight" | "bullet";
+type NoteFormatKind = "undo" | "redo" | "bold" | "italic" | "underline" | "highlight" | "bullet";
 type SavedStudySummary = {
   sessionId?: any;
   passage: string;
@@ -2810,6 +2810,8 @@ export default function Home() {
   }
 
   function applyNoteFormat(kind: NoteFormatKind, forcedSelection?: { start: number; end: number } | null) {
+    if (kind === "undo" || kind === "redo") return;
+
     const currentAnswer = answers[answerKey] || "";
     const activeSelection = getCurrentAnswerSelection(currentAnswer, forcedSelection, answerSelection, lastAnswerSelection);
     const start = activeSelection.start;
@@ -8562,6 +8564,7 @@ function StudyNoteEditor({
   const nativeInputRef = useRef<any>(null);
   const editorHtmlRef = useRef<string | null>(null);
   const editorSelectionRef = useRef<any>(null);
+  const scriptureTypedRangeRef = useRef<any>(null);
   const nativeSelectionRef = useRef({ start: value.length, end: value.length });
   const lastNativeTextSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
@@ -8671,6 +8674,14 @@ function StudyNoteEditor({
     const documentRef = (globalThis as any).document;
     if (!editor) return;
     editor.focus();
+    if (command === "undo" || command === "redo") {
+      documentRef?.execCommand?.(command, false, commandValue);
+      const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
+      editorHtmlRef.current = nextHtml;
+      onChange(nextHtml, textBeforeWebCaret());
+      setActiveNoteFormats(readActiveNoteFormats(editor));
+      return;
+    }
     const hasSelectedText = restoreEditorSelection();
     if (command === "highlightSelection") {
       if (hasSelectedText) toggleNoteHighlight(editor);
@@ -8735,10 +8746,18 @@ function StudyNoteEditor({
 
   const notifyWebEditorChange = () => {
     const editor = editorRef.current;
+    const documentRef = (globalThis as any).document;
     if (!editor) return;
     const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
+    const beforeCaret = textBeforeWebCaret();
     editorHtmlRef.current = nextHtml;
-    onChange(nextHtml, textBeforeWebCaret());
+    if (documentRef) {
+      const detected = findTypedScriptureReferenceMatch(beforeCaret);
+      const activeRange = editorSelectionRef.current?.cloneRange?.();
+      scriptureTypedRangeRef.current =
+        detected && activeRange ? rangeForTextBeforeCaret(editor, activeRange, detected.typed, documentRef) : null;
+    }
+    onChange(nextHtml, beforeCaret);
   };
 
   const textBeforeWebCaret = () => {
@@ -8788,21 +8807,27 @@ function StudyNoteEditor({
   };
 
   const insertScriptureWeb = async () => {
-    const result = await onInsertScripture?.();
     const editor = editorRef.current;
     const documentRef = (globalThis as any).document;
     const selection = (globalThis as any).getSelection?.();
-    if (!result || !editor || !documentRef || !selection) return;
+    if (!editor || !documentRef || !selection) return;
 
     editor.focus();
     restoreEditorSelection();
     const currentRange = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : editorSelectionRef.current?.cloneRange?.();
-    if (currentRange && editor.contains(currentRange.commonAncestorContainer)) {
-      const typedRange = rangeForTextBeforeCaret(editor, currentRange, result.typedReference || result.reference, documentRef);
-      if (typedRange) {
-        selection.removeAllRanges();
-        selection.addRange(typedRange);
-      }
+    const savedTypedRange = scriptureTypedRangeRef.current?.cloneRange?.();
+    const result = await onInsertScripture?.();
+    if (!result) return;
+
+    const typedRange =
+      savedTypedRange && editor.contains(savedTypedRange.commonAncestorContainer)
+        ? savedTypedRange
+        : currentRange && editor.contains(currentRange.commonAncestorContainer)
+          ? rangeForTextBeforeCaret(editor, currentRange, result.typedReference || result.reference, documentRef)
+          : null;
+    if (typedRange) {
+      selection.removeAllRanges();
+      selection.addRange(typedRange);
     }
 
     const html = richScriptureExpansion(result.reference, result.text);
@@ -8815,6 +8840,7 @@ function StudyNoteEditor({
     const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
     editorHtmlRef.current = nextHtml;
     editorSelectionRef.current = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+    scriptureTypedRangeRef.current = null;
     onChange(nextHtml, textBeforeWebCaret());
     updateScripturePopoverPosition();
     setActiveNoteFormats(readActiveNoteFormats(editor));
@@ -8838,12 +8864,10 @@ function StudyNoteEditor({
         suppressContentEditableWarning: true,
         "aria-label": placeholder,
         "data-placeholder": placeholder,
-        onInput: (event: any) => {
-          const nextHtml = sanitizeEditorHtml(event.currentTarget.innerHTML || "");
-          editorHtmlRef.current = nextHtml;
-          onChange(nextHtml, textBeforeWebCaret());
-          updateScripturePopoverPosition();
+        onInput: () => {
           updateActiveNoteFormats();
+          notifyWebEditorChange();
+          updateScripturePopoverPosition();
         },
         onBlur: (event: any) => {
           const nextHtml = sanitizeEditorHtml(event.currentTarget.innerHTML || "");
@@ -8852,24 +8876,24 @@ function StudyNoteEditor({
           onChange(nextHtml, textBeforeWebCaret());
         },
           onKeyUp: () => {
+            updateActiveNoteFormats();
             notifyWebEditorChange();
             updateScripturePopoverPosition();
-            updateActiveNoteFormats();
           },
           onMouseUp: () => {
+            updateActiveNoteFormats();
             notifyWebEditorChange();
             updateScripturePopoverPosition();
-            updateActiveNoteFormats();
           },
           onPointerUp: () => {
+            updateActiveNoteFormats();
             notifyWebEditorChange();
             updateScripturePopoverPosition();
-            updateActiveNoteFormats();
           },
           onTouchEnd: () => {
+            updateActiveNoteFormats();
             notifyWebEditorChange();
             updateScripturePopoverPosition();
-            updateActiveNoteFormats();
           },
           onSelect: updateActiveNoteFormats,
           onFocus: () => {
@@ -8907,6 +8931,8 @@ function StudyNoteEditor({
         })}
       <NoteFormatToolbar
         onFormat={(kind) => {
+          if (kind === "undo") runCommand("undo");
+          if (kind === "redo") runCommand("redo");
           if (kind === "bold") runCommand("bold");
           if (kind === "italic") runCommand("italic");
           if (kind === "underline") runCommand("underline");
@@ -8936,6 +8962,8 @@ function NoteFormatToolbar({
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeFormatSet = new Set(activeFormats);
   const formatLabels: Record<NoteFormatKind, string> = {
+    undo: "Undo",
+    redo: "Redo",
     bold: "Bold",
     italic: "Italic",
     underline: "Underline",
@@ -8986,6 +9014,16 @@ function NoteFormatToolbar({
   return (
     <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar, darkMode && styles.accountDarkSection]}>
       <View style={styles.noteFormatButtonRow}>
+      {Platform.OS === "web" && (
+        <>
+          <Pressable {...pressProps("undo")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]}>
+            <Ionicons name="arrow-undo-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+          </Pressable>
+          <Pressable {...pressProps("redo")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]}>
+            <Ionicons name="arrow-redo-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+          </Pressable>
+        </>
+      )}
       <Pressable {...pressProps("bold")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bold") && styles.activeNoteFormatButton]}>
         <Text style={[styles.noteFormatText, styles.noteFormatBold, darkMode && styles.accountDarkText, activeFormatSet.has("bold") && styles.activeNoteFormatText]}>B</Text>
       </Pressable>
@@ -10169,7 +10207,7 @@ function findTypedScriptureReferenceMatch(text: string) {
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(/\s+/g, " ")
     .trimEnd();
-  const searchText = cleaned.slice(-160);
+  const searchText = cleaned.slice(-600);
   const referencePattern = /(?:^|\s)((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,2}\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*$)/gi;
   const matches = Array.from(searchText.matchAll(referencePattern));
 
@@ -10229,6 +10267,18 @@ function replaceTypedReferenceBeforeIndex(value: string, typedReference: string,
 function rangeForTextBeforeCaret(root: any, caretRange: any, typedReference: string, documentRef: any) {
   const typed = typedReference.trim();
   if (!root || !caretRange || !typed || !documentRef) return null;
+
+  if (caretRange.endContainer?.nodeType === 3) {
+    const text = caretRange.endContainer.textContent || "";
+    const localBeforeCaret = text.slice(0, caretRange.endOffset);
+    const localStart = localBeforeCaret.toLowerCase().lastIndexOf(typed.toLowerCase());
+    if (localStart >= 0) {
+      const localRange = documentRef.createRange();
+      localRange.setStart(caretRange.endContainer, localStart);
+      localRange.setEnd(caretRange.endContainer, localStart + typed.length);
+      return localRange;
+    }
+  }
 
   const beforeRange = documentRef.createRange();
   beforeRange.selectNodeContents(root);
@@ -10326,6 +10376,7 @@ function readActiveNoteFormats(editor?: any): NoteFormatKind[] {
   if (documentRef.queryCommandState("italic")) formats.push("italic");
   if (documentRef.queryCommandState("underline")) formats.push("underline");
   if (documentRef.queryCommandState("insertUnorderedList")) formats.push("bullet");
+  if (closestNoteHighlight(selection.anchorNode, editor)) formats.push("highlight");
 
   return formats;
 }
@@ -10336,7 +10387,16 @@ function toggleNoteHighlight(editor: any) {
   if (!documentRef || !selection?.rangeCount) return;
 
   const range = selection.getRangeAt(0);
-  if (range.collapsed || !editor?.contains?.(range.commonAncestorContainer)) return;
+  if (!editor?.contains?.(range.commonAncestorContainer)) return;
+
+  if (range.collapsed) {
+    const activeHighlight = closestNoteHighlight(range.startContainer, editor);
+    if (activeHighlight) {
+      unwrapElement(activeHighlight);
+      editor.normalize?.();
+    }
+    return;
+  }
 
   const highlightedElements = findSelectedNoteHighlights(editor, range);
   if (highlightedElements.length > 0) {
@@ -10406,6 +10466,15 @@ function isNoteHighlightElement(element: any) {
   const style = (globalThis as any).getComputedStyle?.(element);
   const color = `${element.style?.backgroundColor || ""} ${style?.backgroundColor || ""}`.toLowerCase().replace(/\s+/g, "");
   return element.tagName?.toLowerCase() === "mark" || color.includes("rgb(244,223,182)") || color.includes("#f4dfb6");
+}
+
+function closestNoteHighlight(node: any, editor: any) {
+  let element = node?.nodeType === 1 ? node : node?.parentElement;
+  while (element && element !== editor) {
+    if (isNoteHighlightElement(element)) return element;
+    element = element.parentElement;
+  }
+  return null;
 }
 
 function unwrapElement(element: any) {
@@ -11217,6 +11286,11 @@ function getCurrentAnswerSelection(
 }
 
 function formatPlainNoteValue(answer: string, kind: NoteFormatKind, selection: { start: number; end: number }) {
+  if (kind === "undo" || kind === "redo") {
+    const cursor = Math.max(0, Math.min(answer.length, selection.end));
+    return { nextValue: answer, nextSelection: { start: cursor, end: cursor } };
+  }
+
   const length = answer.length;
   const start = Math.max(0, Math.min(length, Math.min(selection.start, selection.end)));
   const end = Math.max(0, Math.min(length, Math.max(selection.start, selection.end)));

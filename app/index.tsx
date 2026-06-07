@@ -10191,6 +10191,10 @@ function findTypedScriptureReference(text: string) {
 }
 
 function findTypedScriptureReferenceMatch(text: string) {
+  return findTypedScriptureReferenceMatches(text).at(-1) || null;
+}
+
+function findTypedScriptureReferenceMatches(text: string) {
   const cleaned = stripNoteFormatting(text)
     .replace(/[\u200B-\u200D\uFEFF]/g, "")
     .replace(/\s+/g, " ")
@@ -10198,20 +10202,34 @@ function findTypedScriptureReferenceMatch(text: string) {
   const searchText = cleaned.slice(-600);
   const referencePattern = /((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,5})\s+(\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*)/gi;
   const matches = Array.from(searchText.matchAll(referencePattern));
-  const trailingReference = matches.at(-1);
-  const bookText = trailingReference?.[1]?.replace(/[.,;:!?)]*$/g, "").trim();
-  const verseText = trailingReference?.[2]?.trim();
-  if (!bookText || !verseText) return null;
+  const results: { reference: string; typed: string; start: number; end: number }[] = [];
 
-  const bookWords = bookText.split(/\s+/).filter(Boolean);
-  for (let index = 0; index < bookWords.length; index += 1) {
-    const candidateBook = bookWords.slice(index).join(" ");
-    const typed = `${candidateBook} ${verseText}`;
-    const parsed = parsePassageQuery(typed).reference;
-    if (parseBsbPassageReference(parsed)) return { reference: parsed, typed };
+  for (const match of matches) {
+    const rawBookText = match[1] || "";
+    const bookText = rawBookText.replace(/[.,;:!?)]*$/g, "").trim();
+    const verseText = match[2]?.trim();
+    if (!bookText || !verseText) continue;
+
+    const bookWords = bookText.split(/\s+/).filter(Boolean);
+    for (let index = 0; index < bookWords.length; index += 1) {
+      const candidateBook = bookWords.slice(index).join(" ");
+      const typed = `${candidateBook} ${verseText}`;
+      const parsed = parsePassageQuery(typed).reference;
+      if (!parseBsbPassageReference(parsed)) continue;
+
+      const rawBookOffset = rawBookText.toLowerCase().lastIndexOf(candidateBook.toLowerCase());
+      const matchStart = Math.max(0, (match.index || 0) + rawBookOffset);
+      results.push({
+        reference: parsed,
+        typed,
+        start: matchStart,
+        end: matchStart + typed.length
+      });
+      break;
+    }
   }
 
-  return null;
+  return results;
 }
 
 function expandScriptureReference(currentAnswer: string, reference: string, verseText: string, useRichHtml = false, typedReference?: string) {
@@ -10382,16 +10400,11 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
   const documentStart = 1;
   const scanFrom = Math.max(documentStart, from - 700);
   const textBeforeCursor = editor.state.doc.textBetween(scanFrom, from, "\n");
-  const match = findTypedScriptureReferenceMatch(textBeforeCursor);
+  const match = findTypedScriptureReferenceMatches(textBeforeCursor).at(-1);
   if (!match) return { textBeforeCursor, match: null };
 
-  const typedIndex = textBeforeCursor.toLowerCase().lastIndexOf(match.typed.toLowerCase());
-  if (typedIndex < 0) return { textBeforeCursor, match: null };
-
-  const matchedPrefix = textBeforeCursor.slice(0, typedIndex);
-  const matchedText = textBeforeCursor.slice(typedIndex, typedIndex + match.typed.length);
-  const fromPosition = scanFrom + matchedPrefix.length;
-  const toPosition = fromPosition + matchedText.length;
+  const fromPosition = scanFrom + match.start;
+  const toPosition = scanFrom + match.end;
 
   return {
     textBeforeCursor,
@@ -10404,6 +10417,7 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
 }
 
 function findTiptapScriptureReferenceInDocument(editor: Editor) {
+  const cursor = editor.state.selection.from;
   const pieces: string[] = [];
   const positions: number[] = [];
 
@@ -10417,16 +10431,19 @@ function findTiptapScriptureReferenceInDocument(editor: Editor) {
   });
 
   const plainText = pieces.join("");
-  const match = findTypedScriptureReferenceMatch(plainText);
+  const matches = findTypedScriptureReferenceMatches(plainText);
+  const match = matches
+    .map((item) => ({
+      ...item,
+      distance: Math.min(Math.abs(cursor - (positions[item.start] || 1)), Math.abs(cursor - ((positions[item.end - 1] || 1) + 1)))
+    }))
+    .sort((a, b) => a.distance - b.distance || b.start - a.start)[0];
   if (!match) return null;
-
-  const typedIndex = plainText.toLowerCase().lastIndexOf(match.typed.toLowerCase());
-  if (typedIndex < 0) return null;
 
   return {
     ...match,
-    from: Math.max(1, positions[typedIndex] ?? 1),
-    to: Math.max(1, (positions[typedIndex + match.typed.length - 1] ?? positions[typedIndex] ?? 1) + 1)
+    from: Math.max(1, positions[match.start] ?? 1),
+    to: Math.max(1, (positions[match.end - 1] ?? positions[match.start] ?? 1) + 1)
   };
 }
 

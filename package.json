@@ -18,7 +18,7 @@
   "dependencies": {
     "@auth/core": "^0.37.0",
     "@convex-dev/auth": "^0.0.92",
-    "@expo/vector-icons": "^15.0.3",
+    "@expo/vector-icons": "14.1.0",
     "@tiptap/extension-highlight": "^3.26.0",
     "@tiptap/extension-underline": "^3.26.0",
     "@tiptap/react": "^3.26.0",

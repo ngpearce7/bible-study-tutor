@@ -11,6 +11,14 @@ const passageMarkup = v.object({
   verse: v.number()
 });
 
+const scriptureInsertSettings = v.object({
+  disabled: v.boolean(),
+  bold: v.boolean(),
+  italic: v.boolean(),
+  color: v.string(),
+  referencePosition: v.union(v.literal("front"), v.literal("end"))
+});
+
 export default defineSchema({
   ...authTables,
   profiles: defineTable({
@@ -22,6 +30,7 @@ export default defineSchema({
     accountabilityPartner: v.optional(v.string()),
     preferredMethodId: v.optional(v.string()),
     appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
+    scriptureInsertSettings: v.optional(scriptureInsertSettings),
     createdAt: v.number(),
     updatedAt: v.number()
   })

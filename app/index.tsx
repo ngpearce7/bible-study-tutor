@@ -376,6 +376,7 @@ export default function Home() {
   const deleteSessionMutation = useMutation(api.study.deleteSession);
   const savePlan = useMutation(api.accountability.savePlan);
   const saveAccountSettings = useMutation(api.accountability.saveAccountSettings);
+  const saveScriptureInsertSettings = useMutation((api as any).accountability.saveScriptureInsertSettings);
   const changePassword = useAction(api.accountability.changePassword);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
   const deleteCheckinMutation = useMutation(api.accountability.deleteCheckin);
@@ -4374,6 +4375,11 @@ export default function Home() {
                             scriptureInsertStatus={scriptureInsertStatus}
                             scriptureInsertFocusKey={scriptureInsertFocusKey}
                             onInsertScripture={insertDetectedScripture}
+                            profileScriptureInsertSettings={(profile as any)?.scriptureInsertSettings}
+                            onSaveScriptureInsertSettings={async (settings) => {
+                              if (!activeProfileId) return;
+                              await saveScriptureInsertSettings({ profileId: activeProfileId, settings });
+                            }}
                             darkMode={studyDarkMode}
                           />
                           {!showCoaching && (
@@ -8605,6 +8611,8 @@ function StudyNoteEditor({
   scriptureInsertStatus,
   scriptureInsertFocusKey,
   onInsertScripture,
+  profileScriptureInsertSettings,
+  onSaveScriptureInsertSettings,
   phoneLayout = false,
   darkMode = false
 }: {
@@ -8624,6 +8632,8 @@ function StudyNoteEditor({
   scriptureInsertStatus?: string;
   scriptureInsertFocusKey?: number;
   onInsertScripture?: (request?: ScriptureInsertRequest) => Promise<ScriptureInsertResult | null | undefined>;
+  profileScriptureInsertSettings?: Partial<ScriptureInsertSettings> | null;
+  onSaveScriptureInsertSettings?: (settings: ScriptureInsertSettings) => Promise<void>;
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
@@ -8633,11 +8643,25 @@ function StudyNoteEditor({
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
   const [scriptureInsertSettings, setScriptureInsertSettings] = useState<ScriptureInsertSettings>(() => getStoredScriptureInsertSettings());
   const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
+  const [scriptureSettingsAnchor, setScriptureSettingsAnchor] = useState<{ left: number; top: number } | null>(null);
   const [nativeDismissedReference, setNativeDismissedReference] = useState("");
 
-  const updateScriptureInsertSettings = (nextSettings: ScriptureInsertSettings) => {
+  useEffect(() => {
+    if (!profileScriptureInsertSettings) return;
+    const nextSettings = normalizeScriptureInsertSettings(profileScriptureInsertSettings);
     setScriptureInsertSettings(nextSettings);
     saveStoredScriptureInsertSettings(nextSettings);
+  }, [profileScriptureInsertSettings]);
+
+  const saveScriptureSettings = async (nextSettings: ScriptureInsertSettings) => {
+    setScriptureInsertSettings(nextSettings);
+    saveStoredScriptureInsertSettings(nextSettings);
+    await onSaveScriptureInsertSettings?.(nextSettings);
+  };
+
+  const openScriptureSettings = (event?: any) => {
+    setScriptureSettingsAnchor(getEditorSettingsAnchor(event));
+    setScriptureSettingsOpen(true);
   };
 
   const insertWritingPromptNative = (prompt: string) => {
@@ -8702,9 +8726,10 @@ function StudyNoteEditor({
         scriptureInsertFocusKey={scriptureInsertFocusKey}
         onInsertScripture={onInsertScripture}
         scriptureInsertSettings={scriptureInsertSettings}
-        onUpdateScriptureInsertSettings={updateScriptureInsertSettings}
+        onSaveScriptureInsertSettings={saveScriptureSettings}
         scriptureSettingsOpen={scriptureSettingsOpen}
-        onOpenScriptureSettings={() => setScriptureSettingsOpen(true)}
+        scriptureSettingsAnchor={scriptureSettingsAnchor}
+        onOpenScriptureSettings={openScriptureSettings}
         onCloseScriptureSettings={() => setScriptureSettingsOpen(false)}
         phoneLayout={phoneLayout}
         darkMode={darkMode}
@@ -8750,11 +8775,12 @@ function StudyNoteEditor({
           darkMode={darkMode}
         />
       )}
-      <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} onOpenSettings={() => setScriptureSettingsOpen(true)} compact={phoneLayout} darkMode={darkMode} />
+      <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} onOpenSettings={openScriptureSettings} compact={phoneLayout} darkMode={darkMode} />
       {scriptureSettingsOpen && (
         <ScriptureInsertSettingsDialog
           settings={scriptureInsertSettings}
-          onChange={updateScriptureInsertSettings}
+          onSave={saveScriptureSettings}
+          anchorPosition={scriptureSettingsAnchor}
           onClose={() => setScriptureSettingsOpen(false)}
           darkMode={darkMode}
           phoneLayout={phoneLayout}
@@ -8779,8 +8805,9 @@ function StudyNoteTiptapEditor({
   scriptureInsertFocusKey,
   onInsertScripture,
   scriptureInsertSettings,
-  onUpdateScriptureInsertSettings,
+  onSaveScriptureInsertSettings,
   scriptureSettingsOpen,
+  scriptureSettingsAnchor,
   onOpenScriptureSettings,
   onCloseScriptureSettings,
   phoneLayout = false,
@@ -8800,9 +8827,10 @@ function StudyNoteTiptapEditor({
   scriptureInsertFocusKey?: number;
   onInsertScripture?: (request?: ScriptureInsertRequest) => Promise<ScriptureInsertResult | null | undefined>;
   scriptureInsertSettings: ScriptureInsertSettings;
-  onUpdateScriptureInsertSettings: (settings: ScriptureInsertSettings) => void;
+  onSaveScriptureInsertSettings: (settings: ScriptureInsertSettings) => Promise<void>;
   scriptureSettingsOpen: boolean;
-  onOpenScriptureSettings: () => void;
+  scriptureSettingsAnchor: { left: number; top: number } | null;
+  onOpenScriptureSettings: (event?: any) => void;
   onCloseScriptureSettings: () => void;
   phoneLayout?: boolean;
   darkMode?: boolean;
@@ -9028,7 +9056,8 @@ function StudyNoteTiptapEditor({
       {scriptureSettingsOpen && (
         <ScriptureInsertSettingsDialog
           settings={scriptureInsertSettings}
-          onChange={onUpdateScriptureInsertSettings}
+          onSave={onSaveScriptureInsertSettings}
+          anchorPosition={scriptureSettingsAnchor}
           onClose={onCloseScriptureSettings}
           darkMode={darkMode}
           phoneLayout={phoneLayout}
@@ -9049,7 +9078,7 @@ function NoteFormatToolbar({
   onFormat: (kind: NoteFormatKind) => void;
   activeFormats?: NoteFormatKind[];
   highlightActive?: boolean;
-  onOpenSettings?: () => void;
+  onOpenSettings?: (event?: any) => void;
   compact?: boolean;
   darkMode?: boolean;
 }) {
@@ -9138,7 +9167,7 @@ function NoteFormatToolbar({
           </Pressable>
         </View>
         {!!onOpenSettings && (
-          <Pressable onPress={onOpenSettings} style={[styles.noteFormatButton, styles.noteSettingsButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Editor settings">
+          <Pressable onPress={(event) => onOpenSettings(event)} style={[styles.noteFormatButton, styles.noteSettingsButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Editor settings">
             <Ionicons name="settings-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
           </Pressable>
         )}
@@ -9150,23 +9179,47 @@ function NoteFormatToolbar({
 
 function ScriptureInsertSettingsDialog({
   settings,
-  onChange,
+  onSave,
+  anchorPosition,
   onClose,
   darkMode = false,
   phoneLayout = false
 }: {
   settings: ScriptureInsertSettings;
-  onChange: (settings: ScriptureInsertSettings) => void;
+  onSave: (settings: ScriptureInsertSettings) => Promise<void>;
+  anchorPosition?: { left: number; top: number } | null;
   onClose: () => void;
   darkMode?: boolean;
   phoneLayout?: boolean;
 }) {
-  const update = (patch: Partial<ScriptureInsertSettings>) => onChange({ ...settings, ...patch });
+  const [draft, setDraft] = useState(settings);
+  const [saveStatus, setSaveStatus] = useState("");
+  const update = (patch: Partial<ScriptureInsertSettings>) => setDraft((current) => ({ ...current, ...patch }));
+  const cardAnchorStyle =
+    Platform.OS === "web" && anchorPosition && !phoneLayout
+      ? { left: anchorPosition.left, marginTop: 0, position: "absolute" as any, top: anchorPosition.top, width: 520 }
+      : null;
+
+  useEffect(() => {
+    setDraft(settings);
+    setSaveStatus("");
+  }, [settings]);
+
+  const saveSettings = async () => {
+    setSaveStatus("Saving...");
+    try {
+      await onSave(draft);
+      setSaveStatus("Saved");
+      onClose();
+    } catch {
+      setSaveStatus("Saved on this device only.");
+    }
+  };
 
   return (
     <View style={[styles.printOptionsOverlay, Platform.OS === "web" && styles.webEditorSettingsOverlay]}>
       <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
-      <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard]}>
+      <View style={[styles.printOptionsCard, styles.editorSettingsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard, cardAnchorStyle]}>
         <View style={styles.printOptionsHeader}>
           <View style={styles.printOptionsTitleBlock}>
             <Text style={[styles.printOptionsTitle, darkMode && styles.accountDarkTitle]}>Editor settings</Text>
@@ -9180,19 +9233,19 @@ function ScriptureInsertSettingsDialog({
         </View>
 
         <View style={styles.scriptureSettingList}>
-          <Pressable onPress={() => update({ disabled: !settings.disabled })} style={styles.scriptureSettingToggle}>
-            <Ionicons name={settings.disabled ? "checkbox" : "square-outline"} size={20} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Pressable onPress={() => update({ disabled: !draft.disabled })} style={styles.scriptureSettingToggle}>
+            <Ionicons name={draft.disabled ? "checkbox" : "square-outline"} size={20} color={darkMode ? "#e9b76a" : colors.oliveDark} />
             <Text style={[styles.printOptionToggleText, darkMode && styles.accountDarkText]}>Disable scripture insert popup</Text>
           </Pressable>
 
           <View style={styles.printOptionGroup}>
             <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Inserted scripture style</Text>
             <View style={styles.printOptionChipRow}>
-              <Pressable onPress={() => update({ bold: !settings.bold })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.bold && styles.activePrintOptionChip]}>
-                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.bold && styles.activePrintOptionChipText]}>Bold</Text>
+              <Pressable onPress={() => update({ bold: !draft.bold })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.bold && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.bold && styles.activePrintOptionChipText]}>Bold</Text>
               </Pressable>
-              <Pressable onPress={() => update({ italic: !settings.italic })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.italic && styles.activePrintOptionChip]}>
-                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.italic && styles.activePrintOptionChipText]}>Italic</Text>
+              <Pressable onPress={() => update({ italic: !draft.italic })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.italic && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.italic && styles.activePrintOptionChipText]}>Italic</Text>
               </Pressable>
             </View>
           </View>
@@ -9201,7 +9254,7 @@ function ScriptureInsertSettingsDialog({
             <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Colour</Text>
             <View style={styles.printOptionChipRow}>
               {SCRIPTURE_INSERT_COLOR_OPTIONS.map((option) => {
-                const active = settings.color === option.value;
+                const active = draft.color === option.value;
                 return (
                   <Pressable key={option.value} onPress={() => update({ color: option.value })} style={[styles.scriptureColorOption, active && styles.activeScriptureColorOption, darkMode && styles.printDarkOptionChip]}>
                     <View style={[styles.scriptureColorSwatch, { backgroundColor: option.value }]} />
@@ -9215,14 +9268,24 @@ function ScriptureInsertSettingsDialog({
           <View style={styles.printOptionGroup}>
             <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Reference position</Text>
             <View style={styles.printOptionChipRow}>
-              <Pressable onPress={() => update({ referencePosition: "front" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.referencePosition === "front" && styles.activePrintOptionChip]}>
-                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.referencePosition === "front" && styles.activePrintOptionChipText]}>At front</Text>
+              <Pressable onPress={() => update({ referencePosition: "front" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.referencePosition === "front" && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.referencePosition === "front" && styles.activePrintOptionChipText]}>At front</Text>
               </Pressable>
-              <Pressable onPress={() => update({ referencePosition: "end" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.referencePosition === "end" && styles.activePrintOptionChip]}>
-                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.referencePosition === "end" && styles.activePrintOptionChipText]}>At end</Text>
+              <Pressable onPress={() => update({ referencePosition: "end" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.referencePosition === "end" && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.referencePosition === "end" && styles.activePrintOptionChipText]}>At end</Text>
               </Pressable>
             </View>
           </View>
+        </View>
+
+        <View style={styles.printOptionsActions}>
+          {!!saveStatus && <Text style={[styles.editorSettingsStatus, darkMode && styles.accountDarkMutedText]}>{saveStatus}</Text>}
+          <Pressable onPress={onClose} style={[styles.printOptionsCancelButton, darkMode && styles.printDarkCancelButton]}>
+            <Text style={[styles.printOptionsCancelText, darkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+          </Pressable>
+          <Pressable onPress={saveSettings} style={styles.editorSettingsSaveButton}>
+            <Text style={styles.editorSettingsSaveText}>Save</Text>
+          </Pressable>
         </View>
       </View>
     </View>
@@ -10504,6 +10567,21 @@ function normalizeScriptureInsertSettings(value: Partial<ScriptureInsertSettings
 
 function getScriptureMatchKey(match: { reference: string; from: number; to: number }) {
   return `${match.reference}|${match.from}|${match.to}`;
+}
+
+function getEditorSettingsAnchor(event?: any) {
+  if (Platform.OS !== "web" || typeof window === "undefined") return null;
+  const nativeEvent = event?.nativeEvent || event;
+  const pageX = Number(nativeEvent?.pageX ?? nativeEvent?.clientX);
+  const pageY = Number(nativeEvent?.pageY ?? nativeEvent?.clientY);
+  if (!Number.isFinite(pageX) || !Number.isFinite(pageY)) return null;
+
+  const width = 520;
+  const padding = 14;
+  return {
+    left: Math.max(padding, Math.min(pageX - width + 44, window.innerWidth - width - padding)),
+    top: Math.max(padding, Math.min(pageY + 12, window.innerHeight - 520))
+  };
 }
 
 function replaceTypedReferenceBeforeIndex(value: string, typedReference: string, insertion: string, caretEnd: number) {
@@ -18766,6 +18844,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.16,
     shadowRadius: 24,
     width: "88%"
+  },
+  editorSettingsCard: {
+    maxWidth: 520
+  },
+  editorSettingsStatus: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "800",
+    minWidth: 120
+  },
+  editorSettingsSaveButton: {
+    alignItems: "center",
+    backgroundColor: colors.coral,
+    borderRadius: 999,
+    justifyContent: "center",
+    minHeight: 38,
+    paddingHorizontal: 18
+  },
+  editorSettingsSaveText: {
+    color: "white",
+    fontSize: 13,
+    fontWeight: "900"
   },
   phonePrintOptionsCard: {
     marginTop: 68,

@@ -78,6 +78,33 @@ export const saveAccountSettings = mutation({
   }
 });
 
+export const saveScriptureInsertSettings = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    settings: v.object({
+      disabled: v.boolean(),
+      bold: v.boolean(),
+      italic: v.boolean(),
+      color: v.string(),
+      referencePosition: v.union(v.literal("front"), v.literal("end"))
+    })
+  },
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId);
+
+    await ctx.db.patch(args.profileId, {
+      scriptureInsertSettings: {
+        disabled: args.settings.disabled,
+        bold: args.settings.bold,
+        italic: args.settings.italic,
+        color: clampText(args.settings.color, 40),
+        referencePosition: args.settings.referencePosition
+      },
+      updatedAt: Date.now()
+    });
+  }
+});
+
 export const changePassword = action({
   args: {
     email: v.string(),

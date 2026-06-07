@@ -8643,7 +8643,7 @@ function StudyNoteEditor({
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
   const [scriptureInsertSettings, setScriptureInsertSettings] = useState<ScriptureInsertSettings>(() => getStoredScriptureInsertSettings());
   const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
-  const [scriptureSettingsAnchor, setScriptureSettingsAnchor] = useState<{ left: number; top: number } | null>(null);
+  const [scriptureSettingsAnchor, setScriptureSettingsAnchor] = useState<{ left: number; top: number; width?: number; maxHeight?: number } | null>(null);
   const [nativeDismissedReference, setNativeDismissedReference] = useState("");
 
   useEffect(() => {
@@ -8829,7 +8829,7 @@ function StudyNoteTiptapEditor({
   scriptureInsertSettings: ScriptureInsertSettings;
   onSaveScriptureInsertSettings: (settings: ScriptureInsertSettings) => Promise<void>;
   scriptureSettingsOpen: boolean;
-  scriptureSettingsAnchor: { left: number; top: number } | null;
+  scriptureSettingsAnchor: { left: number; top: number; width?: number; maxHeight?: number } | null;
   onOpenScriptureSettings: (event?: any) => void;
   onCloseScriptureSettings: () => void;
   phoneLayout?: boolean;
@@ -9201,7 +9201,7 @@ function ScriptureInsertSettingsDialog({
 }: {
   settings: ScriptureInsertSettings;
   onSave: (settings: ScriptureInsertSettings) => Promise<void>;
-  anchorPosition?: { left: number; top: number } | null;
+  anchorPosition?: { left: number; top: number; width?: number; maxHeight?: number } | null;
   onClose: () => void;
   darkMode?: boolean;
   phoneLayout?: boolean;
@@ -9211,7 +9211,15 @@ function ScriptureInsertSettingsDialog({
   const update = (patch: Partial<ScriptureInsertSettings>) => setDraft((current) => ({ ...current, ...patch }));
   const cardAnchorStyle =
     Platform.OS === "web" && anchorPosition && !phoneLayout
-      ? { left: anchorPosition.left, marginTop: 0, position: "absolute" as any, top: anchorPosition.top, width: 520 }
+      ? {
+          left: anchorPosition.left,
+          marginTop: 0,
+          maxHeight: anchorPosition.maxHeight,
+          overflowY: "auto" as any,
+          position: "absolute" as any,
+          top: anchorPosition.top,
+          width: anchorPosition.width || 520
+        }
       : null;
 
   useEffect(() => {
@@ -9246,7 +9254,7 @@ function ScriptureInsertSettingsDialog({
           </Pressable>
         </View>
 
-        <View style={styles.scriptureSettingList}>
+        <ScrollView style={styles.editorSettingsScrollArea} contentContainerStyle={styles.scriptureSettingList}>
           <Pressable onPress={() => update({ disabled: !draft.disabled })} style={styles.scriptureSettingToggle}>
             <Ionicons name={draft.disabled ? "checkbox" : "square-outline"} size={20} color={darkMode ? "#e9b76a" : colors.oliveDark} />
             <Text style={[styles.printOptionToggleText, darkMode && styles.accountDarkText]}>Disable scripture insert popup</Text>
@@ -9290,7 +9298,7 @@ function ScriptureInsertSettingsDialog({
               </Pressable>
             </View>
           </View>
-        </View>
+        </ScrollView>
 
         <View style={styles.printOptionsActions}>
           {!!saveStatus && <Text style={[styles.editorSettingsStatus, darkMode && styles.accountDarkMutedText]}>{saveStatus}</Text>}
@@ -10586,15 +10594,20 @@ function getScriptureMatchKey(match: { reference: string; from: number; to: numb
 function getEditorSettingsAnchor(event?: any) {
   if (Platform.OS !== "web" || typeof window === "undefined") return null;
   const nativeEvent = event?.nativeEvent || event;
-  const pageX = Number(nativeEvent?.pageX ?? nativeEvent?.clientX);
-  const pageY = Number(nativeEvent?.pageY ?? nativeEvent?.clientY);
-  if (!Number.isFinite(pageX) || !Number.isFinite(pageY)) return null;
+  const targetRect = event?.currentTarget?.getBoundingClientRect?.() || event?.target?.getBoundingClientRect?.();
+  const clickX = Number(nativeEvent?.clientX ?? targetRect?.right ?? nativeEvent?.pageX);
+  const clickY = Number(nativeEvent?.clientY ?? targetRect?.bottom ?? nativeEvent?.pageY);
+  if (!Number.isFinite(clickX) || !Number.isFinite(clickY)) return null;
 
-  const width = 520;
   const padding = 14;
+  const width = Math.min(520, Math.max(280, window.innerWidth - padding * 2));
+  const maxHeight = Math.max(260, window.innerHeight - padding * 2);
+  const estimatedHeight = Math.min(430, maxHeight);
   return {
-    left: Math.max(padding, Math.min(pageX - width + 44, window.innerWidth - width - padding)),
-    top: Math.max(padding, Math.min(pageY + 12, window.innerHeight - 520))
+    left: Math.max(padding, Math.min(clickX - width + 44, window.innerWidth - width - padding)),
+    maxHeight,
+    top: Math.max(padding, Math.min(clickY + 10, window.innerHeight - estimatedHeight - padding)),
+    width
   };
 }
 
@@ -16058,6 +16071,9 @@ const styles = StyleSheet.create({
   scriptureSettingList: {
     gap: 14
   },
+  editorSettingsScrollArea: {
+    flexShrink: 1
+  },
   scriptureSettingToggle: {
     alignItems: "center",
     flexDirection: "row",
@@ -18879,7 +18895,8 @@ const styles = StyleSheet.create({
     width: "88%"
   },
   editorSettingsCard: {
-    maxWidth: 520
+    maxWidth: 520,
+    overflow: "hidden"
   },
   editorSettingsStatus: {
     color: colors.muted,
@@ -18984,6 +19001,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
+    flexShrink: 0,
     gap: 10,
     justifyContent: "flex-end"
   },

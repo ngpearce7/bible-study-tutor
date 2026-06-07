@@ -87,6 +87,10 @@ type ScriptureInsertResult = {
   text: string;
   typedReference?: string;
 };
+type ScriptureInsertRequest = {
+  reference?: string;
+  typedReference?: string;
+};
 
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
   { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
@@ -2872,27 +2876,29 @@ export default function Home() {
     setScriptureInsertStatus("");
   }
 
-  async function insertDetectedScripture(): Promise<ScriptureInsertResult | null> {
-    if (!detectedScriptureReference) return null;
+  async function insertDetectedScripture(request?: ScriptureInsertRequest): Promise<ScriptureInsertResult | null> {
+    const requestedReference = request?.reference || detectedScriptureReference;
+    const requestedTypedReference = request?.typedReference || detectedScriptureTypedReference || requestedReference;
+    if (!requestedReference) return null;
 
     const controller = new AbortController();
-    setScriptureInsertStatus(`Finding ${detectedScriptureReference}...`);
+    setScriptureInsertStatus(`Finding ${requestedReference}...`);
     try {
       const passageResult =
         bibleTranslation === "bsb"
-          ? await fetchBsbPassage(detectedScriptureReference, controller.signal)
-          : await fetchBibleApiPassage(detectedScriptureReference, bibleTranslation, controller.signal);
+          ? await fetchBsbPassage(requestedReference, controller.signal)
+          : await fetchBibleApiPassage(requestedReference, bibleTranslation, controller.signal);
       setDetectedScriptureReference("");
       setDetectedScriptureTypedReference("");
       setScriptureInsertStatus(`Inserted ${passageResult.reference}`);
       setScriptureInsertFocusKey((key) => key + 1);
       return {
-        reference: passageResult.reference || detectedScriptureReference,
+        reference: passageResult.reference || requestedReference,
         text: passageResult.text,
-        typedReference: detectedScriptureTypedReference || detectedScriptureReference
+        typedReference: requestedTypedReference
       };
     } catch {
-      setScriptureInsertStatus(`Could not find ${detectedScriptureReference}`);
+      setScriptureInsertStatus(`Could not find ${requestedReference}`);
       return null;
     }
   }
@@ -4338,6 +4344,7 @@ export default function Home() {
                             onAddCustomWritingPrompt={addCustomWritingPrompt}
                             onRemoveCustomWritingPrompt={removeCustomWritingPrompt}
                             scriptureReference={detectedScriptureReference}
+                            scriptureTypedReference={detectedScriptureTypedReference}
                             scriptureInsertStatus={scriptureInsertStatus}
                             scriptureInsertFocusKey={scriptureInsertFocusKey}
                             onInsertScripture={insertDetectedScripture}
@@ -8535,6 +8542,7 @@ function StudyNoteEditor({
   onAddCustomWritingPrompt,
   onRemoveCustomWritingPrompt,
   scriptureReference,
+  scriptureTypedReference,
   scriptureInsertStatus,
   scriptureInsertFocusKey,
   onInsertScripture,
@@ -8553,9 +8561,10 @@ function StudyNoteEditor({
   onAddCustomWritingPrompt?: (prompt: string) => boolean;
   onRemoveCustomWritingPrompt?: (prompt: string) => void;
   scriptureReference?: string;
+  scriptureTypedReference?: string;
   scriptureInsertStatus?: string;
   scriptureInsertFocusKey?: number;
-  onInsertScripture?: () => Promise<ScriptureInsertResult | null | undefined>;
+  onInsertScripture?: (request?: ScriptureInsertRequest) => Promise<ScriptureInsertResult | null | undefined>;
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
@@ -8565,6 +8574,8 @@ function StudyNoteEditor({
   const editorHtmlRef = useRef<string | null>(null);
   const editorSelectionRef = useRef<any>(null);
   const scriptureTypedRangeRef = useRef<any>(null);
+  const undoStackRef = useRef<string[]>([]);
+  const redoStackRef = useRef<string[]>([]);
   const nativeSelectionRef = useRef({ start: value.length, end: value.length });
   const lastNativeTextSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
@@ -8618,7 +8629,7 @@ function StudyNoteEditor({
   };
 
   const insertScriptureNative = async () => {
-    const result = await onInsertScripture?.();
+    const result = await onInsertScripture?.({ reference: scriptureReference, typedReference: scriptureTypedReference || scriptureReference });
     if (!result) return;
 
     const caretEnd = nativeSelectionRef.current.end;
@@ -8675,16 +8686,14 @@ function StudyNoteEditor({
     if (!editor) return;
     editor.focus();
     if (command === "undo" || command === "redo") {
-      documentRef?.execCommand?.(command, false, commandValue);
-      const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
-      editorHtmlRef.current = nextHtml;
-      onChange(nextHtml, textBeforeWebCaret());
+      applyEditorHistory(command);
       setActiveNoteFormats(readActiveNoteFormats(editor));
       return;
     }
     const hasSelectedText = restoreEditorSelection();
     if (command === "highlightSelection") {
-      if (hasSelectedText) toggleNoteHighlight(editor);
+      recordEditorHistory();
+      toggleNoteHighlight(editor);
       const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
       editorHtmlRef.current = nextHtml;
       onChange(nextHtml);
@@ -8697,12 +8706,45 @@ function StudyNoteEditor({
       return;
     }
 
+    recordEditorHistory();
     documentRef?.execCommand?.(command, false, commandValue);
 
     const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
     editorHtmlRef.current = nextHtml;
     onChange(nextHtml);
     setActiveNoteFormats(readActiveNoteFormats(editor));
+  };
+
+  const recordEditorHistory = () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const currentHtml = sanitizeEditorHtml(editor.innerHTML || "");
+    const stack = undoStackRef.current;
+    if (stack[stack.length - 1] !== currentHtml) undoStackRef.current = [...stack.slice(-24), currentHtml];
+    redoStackRef.current = [];
+  };
+
+  const applyEditorHistory = (direction: "undo" | "redo") => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    const source = direction === "undo" ? undoStackRef.current : redoStackRef.current;
+    const target = direction === "undo" ? redoStackRef : undoStackRef;
+    const previousHtml = source[source.length - 1];
+    if (previousHtml === undefined) return;
+
+    if (direction === "undo") {
+      undoStackRef.current = source.slice(0, -1);
+    } else {
+      redoStackRef.current = source.slice(0, -1);
+    }
+
+    const currentHtml = sanitizeEditorHtml(editor.innerHTML || "");
+    target.current = [...target.current.slice(-24), currentHtml];
+    editor.innerHTML = previousHtml;
+    editorHtmlRef.current = previousHtml;
+    onChange(previousHtml, stripNoteFormatting(previousHtml));
+    moveCaretToEnd(editor);
   };
 
   const saveEditorSelection = () => {
@@ -8783,6 +8825,7 @@ function StudyNoteEditor({
 
     editor.focus();
     restoreEditorSelection();
+    recordEditorHistory();
     const currentText = editor.textContent || "";
     const prefix = currentText.trim() ? "\n" : "";
     const textNode = documentRef.createTextNode(`${prefix}${prompt} `);
@@ -8816,8 +8859,10 @@ function StudyNoteEditor({
     restoreEditorSelection();
     const currentRange = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : editorSelectionRef.current?.cloneRange?.();
     const savedTypedRange = scriptureTypedRangeRef.current?.cloneRange?.();
-    const result = await onInsertScripture?.();
+    const typedFromRange = savedTypedRange?.toString?.().trim?.() || scriptureTypedReference || "";
+    const result = await onInsertScripture?.({ reference: scriptureReference, typedReference: typedFromRange || scriptureReference });
     if (!result) return;
+    recordEditorHistory();
 
     const typedRange =
       savedTypedRange && editor.contains(savedTypedRange.commonAncestorContainer)

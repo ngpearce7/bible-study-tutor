@@ -10184,7 +10184,7 @@ function parsePassageQuery(query: string) {
   if (!resolved) return { reference: normalized };
 
   const rest = resolved.rest;
-  const parts = rest.match(/^(\d+)?(?:\s+|:)?(\d+)?(?:-(\d+))?/);
+  const parts = rest.match(/^(\d+)?(?:\s+|:)?(\d+)?(?:-(\d+))?$/);
   const chapter = parts?.[1] || "";
   const startVerse = parts?.[2] || "";
   const endVerse = parts?.[3] || "";
@@ -10223,6 +10223,8 @@ function findTypedScriptureReferenceMatches(text: string) {
     }));
     const recentTokens = precedingTokens.slice(-7);
 
+    const candidates: { reference: string; typed: string; start: number; end: number }[] = [];
+
     for (let index = 0; index < recentTokens.length; index += 1) {
       const candidateTokens = recentTokens.slice(index);
       const candidateBook = candidateTokens.map((token) => token.text).join(" ");
@@ -10231,14 +10233,16 @@ function findTypedScriptureReferenceMatches(text: string) {
       if (!parseBsbPassageReference(parsed)) continue;
 
       const matchStart = candidateTokens[0].start;
-      results.push({
+      candidates.push({
         reference: parsed,
         typed: searchText.slice(matchStart, verseEnd).trim(),
         start: searchStart + matchStart,
         end: searchStart + verseEnd
       });
-      break;
     }
+
+    const bestCandidate = candidates.sort((a, b) => b.start - a.start || b.typed.length - a.typed.length)[0];
+    if (bestCandidate) results.push(bestCandidate);
   }
 
   return results;

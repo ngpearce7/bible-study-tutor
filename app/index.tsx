@@ -8927,6 +8927,7 @@ function StudyNoteTiptapEditor({
   const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string; from: number; to: number } | null>(null);
   const [selectedTextActive, setSelectedTextActive] = useState(false);
   const [selectedTextRangeKey, setSelectedTextRangeKey] = useState("");
+  const [mobileMiniBarPosition, setMobileMiniBarPosition] = useState({ left: 8, top: 0 });
   const [dismissedMobileMiniBarKey, setDismissedMobileMiniBarKey] = useState("");
   const [dismissedScriptureKey, setDismissedScriptureKey] = useState("");
   const scriptureInsertSettingsRef = useRef(scriptureInsertSettings);
@@ -8957,6 +8958,7 @@ function StudyNoteTiptapEditor({
       return current === nextSelectedTextRangeKey ? current : nextSelectedTextRangeKey;
     });
     setSelectedTextActive((current) => current === nextSelectedTextActive ? current : nextSelectedTextActive);
+    if (nextSelectedTextActive) updateTiptapMobileMiniBarPosition(editor, wrapRef.current, setMobileMiniBarPosition);
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
   };
@@ -9144,6 +9146,11 @@ function StudyNoteTiptapEditor({
           highlightColor={scriptureInsertSettings.highlightColor}
           onOpenHighlightPicker={onOpenHighlightPicker}
           onDismiss={() => setDismissedMobileMiniBarKey(selectedTextRangeKey)}
+          floating
+          style={{
+            left: mobileMiniBarPosition.left,
+            top: mobileMiniBarPosition.top
+          }}
           darkMode={darkMode}
         />
       )}
@@ -9200,16 +9207,20 @@ function MobileNoteFormatBar({
   highlightColor,
   onOpenHighlightPicker,
   onDismiss,
+  floating = false,
+  style,
   darkMode = false
 }: {
   onFormat: (kind: NoteFormatKind) => void;
   highlightColor: string;
   onOpenHighlightPicker: () => void;
   onDismiss?: () => void;
+  floating?: boolean;
+  style?: any;
   darkMode?: boolean;
 }) {
   return (
-    <View style={[styles.mobileNoteFormatBar, darkMode && styles.accountDarkSection]}>
+    <View style={[styles.mobileNoteFormatBar, floating && styles.floatingMobileNoteFormatBar, darkMode && styles.accountDarkSection, style]}>
       <Pressable onPress={() => onFormat("bold")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Bold">
         <Text style={[styles.noteFormatText, styles.noteFormatBold, darkMode && styles.accountDarkText]}>B</Text>
       </Pressable>
@@ -9375,8 +9386,6 @@ function NoteFormatToolbar({
         } as any)
       : {
           accessibilityLabel: "Highlight",
-          delayLongPress: 700,
-          onLongPress: onOpenHighlightPicker,
           onPress: () => onFormat("highlight")
         };
 
@@ -11117,6 +11126,31 @@ function updateTiptapScripturePopoverPosition(
 
   const left = Math.max(8, Math.min(coords.left - wrapperRect.left + 24, wrapperRect.width - 260));
   const top = Math.max(editorRect.top - wrapperRect.top + 8, coords.top - wrapperRect.top - 46);
+  setPosition((current) => Math.abs(current.left - left) < 1 && Math.abs(current.top - top) < 1 ? current : { left, top });
+}
+
+function updateTiptapMobileMiniBarPosition(
+  editor: Editor,
+  wrapper: any,
+  setPosition: Dispatch<SetStateAction<{ left: number; top: number }>>
+) {
+  if (!wrapper || editor.state.selection.empty) return;
+
+  const view = editor.view;
+  let coords;
+  try {
+    coords = view.coordsAtPos(editor.state.selection.to);
+  } catch {
+    return;
+  }
+
+  const wrapperRect = wrapper.getBoundingClientRect?.();
+  const editorRect = view.dom.getBoundingClientRect?.();
+  if (!coords || !wrapperRect || !editorRect) return;
+
+  const estimatedWidth = 292;
+  const left = Math.max(8, Math.min(coords.left - wrapperRect.left - estimatedWidth / 2, wrapperRect.width - estimatedWidth - 8));
+  const top = Math.max(editorRect.top - wrapperRect.top + 8, coords.bottom - wrapperRect.top + 10);
   setPosition((current) => Math.abs(current.left - left) < 1 && Math.abs(current.top - top) < 1 ? current : { left, top });
 }
 
@@ -14310,6 +14344,13 @@ const styles = StyleSheet.create({
     shadowRadius: 14,
     width: "100%",
     zIndex: 80
+  },
+  floatingMobileNoteFormatBar: {
+    marginBottom: 0,
+    marginTop: 0,
+    maxWidth: 292,
+    position: "absolute",
+    width: 292
   },
   mobileNoteFormatButton: {
     alignItems: "center",

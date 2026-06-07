@@ -8763,6 +8763,9 @@ function StudyNoteTiptapEditor({
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
   };
+  const syncTiptapStateSoon = (editor: Editor) => {
+    setTimeout(() => syncTiptapState(editor), 0);
+  };
 
   const editor = useEditor({
     extensions: [
@@ -8784,31 +8787,34 @@ function StudyNoteTiptapEditor({
         class: "bst-note-editor"
       },
       handleDOMEvents: {
-        keyup: (_view, event) => {
-          setTimeout(() => {
-            if (editor) syncTiptapState(editor);
-          }, 0);
+        keyup: () => {
+          if (editor) syncTiptapStateSoon(editor);
+          return false;
+        },
+        input: () => {
+          if (editor) syncTiptapStateSoon(editor);
+          return false;
+        },
+        paste: () => {
+          if (editor) syncTiptapStateSoon(editor);
           return false;
         },
         click: () => {
-          setTimeout(() => {
-            if (editor) syncTiptapState(editor);
-          }, 0);
+          if (editor) syncTiptapStateSoon(editor);
           return false;
         },
         focus: () => {
-          setTimeout(() => {
-            if (editor) syncTiptapState(editor);
-          }, 0);
+          if (editor) syncTiptapStateSoon(editor);
           return false;
         },
         touchend: () => {
-          setTimeout(() => {
-            if (editor) syncTiptapState(editor);
-          }, 0);
+          if (editor) syncTiptapStateSoon(editor);
           return false;
         }
       }
+    },
+    onCreate: ({ editor }) => {
+      syncTiptapStateSoon(editor);
     },
     onUpdate: ({ editor }) => {
       const nextHtml = sanitizeEditorHtml(editor.getHTML());
@@ -8828,6 +8834,7 @@ function StudyNoteTiptapEditor({
     if (currentHtml === value) return;
     editor.commands.setContent(value || "", { emitUpdate: false });
     lastHtmlRef.current = value || "";
+    syncTiptapStateSoon(editor);
   }, [editor, value]);
 
   useEffect(() => {

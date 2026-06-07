@@ -12,7 +12,7 @@ import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { createElement, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
@@ -8843,6 +8843,7 @@ function StudyNoteTiptapEditor({
   const [dismissedScriptureKey, setDismissedScriptureKey] = useState("");
   const scriptureInsertSettingsRef = useRef(scriptureInsertSettings);
   const dismissedScriptureKeyRef = useRef(dismissedScriptureKey);
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     scriptureInsertSettingsRef.current = scriptureInsertSettings;
@@ -8856,14 +8857,27 @@ function StudyNoteTiptapEditor({
     const cursorMatch = findTiptapScriptureReferenceBeforeCursor(editor);
     const textBeforeCursor = cursorMatch.textBeforeCursor;
     const matchKey = cursorMatch.match ? getScriptureMatchKey(cursorMatch.match) : "";
-    setLocalScriptureMatch(!scriptureInsertSettingsRef.current.disabled && matchKey !== dismissedScriptureKeyRef.current ? cursorMatch.match : null);
-    setActiveNoteFormats(getTiptapActiveFormats(editor));
+    const nextMatch = !scriptureInsertSettingsRef.current.disabled && matchKey !== dismissedScriptureKeyRef.current ? cursorMatch.match : null;
+    const nextFormats = getTiptapActiveFormats(editor);
+
+    setLocalScriptureMatch((current) => scriptureEditorMatchesEqual(current, nextMatch) ? current : nextMatch);
+    setActiveNoteFormats((current) => noteFormatArraysEqual(current, nextFormats) ? current : nextFormats);
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
   };
   const syncTiptapStateSoon = (editor: Editor) => {
-    setTimeout(() => syncTiptapState(editor), 0);
+    if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+    syncTimeoutRef.current = setTimeout(() => {
+      syncTimeoutRef.current = null;
+      if (!editor.isDestroyed) syncTiptapState(editor);
+    }, 16);
   };
+
+  useEffect(() => {
+    return () => {
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+    };
+  }, []);
 
   const editor = useEditor({
     extensions: [
@@ -10756,21 +10770,40 @@ function getTiptapActiveFormats(editor: Editor): NoteFormatKind[] {
   return formats;
 }
 
+function scriptureEditorMatchesEqual(
+  left: { reference: string; typed: string; from: number; to: number } | null,
+  right: { reference: string; typed: string; from: number; to: number } | null
+) {
+  if (left === right) return true;
+  if (!left || !right) return false;
+  return left.reference === right.reference && left.typed === right.typed && left.from === right.from && left.to === right.to;
+}
+
+function noteFormatArraysEqual(left: NoteFormatKind[], right: NoteFormatKind[]) {
+  if (left.length !== right.length) return false;
+  return left.every((format, index) => format === right[index]);
+}
+
 function updateTiptapScripturePopoverPosition(
   editor: Editor,
   wrapper: any,
-  setPosition: (position: { left: number; top: number }) => void
+  setPosition: Dispatch<SetStateAction<{ left: number; top: number }>>
 ) {
   if (!wrapper) return;
   const view = editor.view;
-  const coords = view.coordsAtPos(editor.state.selection.from);
+  let coords;
+  try {
+    coords = view.coordsAtPos(editor.state.selection.from);
+  } catch {
+    return;
+  }
   const wrapperRect = wrapper.getBoundingClientRect?.();
   const editorRect = view.dom.getBoundingClientRect?.();
   if (!coords || !wrapperRect || !editorRect) return;
 
   const left = Math.max(8, Math.min(coords.left - wrapperRect.left + 24, wrapperRect.width - 260));
   const top = Math.max(editorRect.top - wrapperRect.top + 8, coords.top - wrapperRect.top - 46);
-  setPosition({ left, top });
+  setPosition((current) => Math.abs(current.left - left) < 1 && Math.abs(current.top - top) < 1 ? current : { left, top });
 }
 
 function readActiveNoteFormats(editor?: any): NoteFormatKind[] {

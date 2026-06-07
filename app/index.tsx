@@ -8751,6 +8751,19 @@ function StudyNoteTiptapEditor({
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
   const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string; from: number; to: number } | null>(null);
   const [detectedEditorReferences, setDetectedEditorReferences] = useState<{ reference: string; typed: string; from: number; to: number }[]>([]);
+  const fallbackDetectedReferences = useMemo(() => {
+    const seen = new Set<string>();
+    return findTypedScriptureReferenceMatches(stripNoteFormatting(value))
+      .reverse()
+      .filter((match) => {
+        const key = `${match.reference}|${match.typed}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 8)
+      .map((match) => ({ reference: match.reference, typed: match.typed, from: 0, to: 0 }));
+  }, [value]);
 
   const syncTiptapState = (editor: Editor) => {
     const cursorMatch = findTiptapScriptureReferenceBeforeCursor(editor);
@@ -8851,8 +8864,14 @@ function StudyNoteTiptapEditor({
   const insertScriptureWeb = async (chosenMatch?: { reference: string; typed: string; from: number; to: number }) => {
     if (!editor) return;
     const documentMatches = findTiptapScriptureReferencesInDocument(editor);
+    const resolvedChosenMatch =
+      chosenMatch && chosenMatch.from > 0
+        ? chosenMatch
+        : chosenMatch
+          ? documentMatches.find((match) => match.reference === chosenMatch.reference && match.typed.toLowerCase() === chosenMatch.typed.toLowerCase()) || documentMatches.find((match) => match.reference === chosenMatch.reference)
+          : null;
     const liveMatch =
-      chosenMatch ||
+      resolvedChosenMatch ||
       findTiptapScriptureReferenceBeforeCursor(editor).match ||
       localScriptureMatch ||
       chooseNearestTiptapScriptureReference(documentMatches, editor.state.selection.from);
@@ -8904,6 +8923,7 @@ function StudyNoteTiptapEditor({
     overflow: "hidden"
   };
   const visibleScriptureReference = localScriptureMatch?.reference || scriptureReference || "";
+  const visibleDetectedReferences = detectedEditorReferences.length > 0 ? detectedEditorReferences : fallbackDetectedReferences;
 
   return (
     <View ref={wrapRef} style={styles.studyNoteEditorWrap}>
@@ -8937,14 +8957,14 @@ function StudyNoteTiptapEditor({
             darkMode
           })
         })}
-      {detectedEditorReferences.length > 0 && (
+      {visibleDetectedReferences.length > 0 && (
         <View style={[styles.detectedScriptureRow, darkMode && styles.accountDarkSection]}>
           <View style={styles.detectedScriptureHeader}>
             <Ionicons name="book-outline" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
             <Text style={[styles.detectedScriptureTitle, darkMode && styles.accountDarkText]}>Detected references</Text>
           </View>
           <View style={styles.detectedScriptureChips}>
-            {detectedEditorReferences.map((match, index) => (
+            {visibleDetectedReferences.map((match, index) => (
               <Pressable
                 key={`${match.reference}-${match.from}-${index}`}
                 onPress={() => insertScriptureWeb(match)}

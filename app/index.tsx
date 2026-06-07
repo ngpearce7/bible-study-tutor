@@ -82,6 +82,11 @@ type PrintableWorksheetRequest = {
   translation: string;
   verses: BibleVerse[];
 };
+type ScriptureInsertResult = {
+  reference: string;
+  text: string;
+  typedReference?: string;
+};
 
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
   { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
@@ -2865,8 +2870,8 @@ export default function Home() {
     setScriptureInsertStatus("");
   }
 
-  async function insertDetectedScripture() {
-    if (!detectedScriptureReference) return;
+  async function insertDetectedScripture(): Promise<ScriptureInsertResult | null> {
+    if (!detectedScriptureReference) return null;
 
     const controller = new AbortController();
     setScriptureInsertStatus(`Finding ${detectedScriptureReference}...`);
@@ -2875,22 +2880,18 @@ export default function Home() {
         bibleTranslation === "bsb"
           ? await fetchBsbPassage(detectedScriptureReference, controller.signal)
           : await fetchBibleApiPassage(detectedScriptureReference, bibleTranslation, controller.signal);
-      setAnswers((current) => ({
-        ...current,
-        [answerKey]: expandScriptureReference(
-          current[answerKey] || "",
-          detectedScriptureReference,
-          passageResult.text,
-          Platform.OS === "web",
-          detectedScriptureTypedReference
-        )
-      }));
       setDetectedScriptureReference("");
       setDetectedScriptureTypedReference("");
       setScriptureInsertStatus(`Inserted ${passageResult.reference}`);
       setScriptureInsertFocusKey((key) => key + 1);
+      return {
+        reference: passageResult.reference || detectedScriptureReference,
+        text: passageResult.text,
+        typedReference: detectedScriptureTypedReference || detectedScriptureReference
+      };
     } catch {
       setScriptureInsertStatus(`Could not find ${detectedScriptureReference}`);
+      return null;
     }
   }
 
@@ -8552,7 +8553,7 @@ function StudyNoteEditor({
   scriptureReference?: string;
   scriptureInsertStatus?: string;
   scriptureInsertFocusKey?: number;
-  onInsertScripture?: () => void;
+  onInsertScripture?: () => Promise<ScriptureInsertResult | null | undefined>;
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
@@ -8613,6 +8614,20 @@ function StudyNoteEditor({
     setTimeout(() => nativeInputRef.current?.focus?.(), 50);
   };
 
+  const insertScriptureNative = async () => {
+    const result = await onInsertScripture?.();
+    if (!result) return;
+
+    const caretEnd = nativeSelectionRef.current.end;
+    const inserted = plainScriptureExpansion(result.reference, result.text);
+    const { nextValue, nextSelection } = replaceTypedReferenceBeforeIndex(value, result.typedReference || result.reference, inserted, caretEnd);
+    onChange(nextValue, nextValue.slice(0, nextSelection.end));
+    nativeSelectionRef.current = nextSelection;
+    setNativeSelection(nextSelection);
+    onSelectionChange(nextSelection);
+    setTimeout(() => nativeInputRef.current?.focus?.(), 50);
+  };
+
   if (Platform.OS !== "web") {
     const updateNativeText = (nextValue: string) => {
       const lengthDelta = nextValue.length - value.length;
@@ -8644,7 +8659,7 @@ function StudyNoteEditor({
           style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
         />
         {!!scriptureReference && (
-          <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={onInsertScripture} darkMode={darkMode} />
+          <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={insertScriptureNative} darkMode={darkMode} />
         )}
         <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} darkMode={darkMode} />
       </>
@@ -8772,6 +8787,39 @@ function StudyNoteEditor({
     setActiveNoteFormats(readActiveNoteFormats(editor));
   };
 
+  const insertScriptureWeb = async () => {
+    const result = await onInsertScripture?.();
+    const editor = editorRef.current;
+    const documentRef = (globalThis as any).document;
+    const selection = (globalThis as any).getSelection?.();
+    if (!result || !editor || !documentRef || !selection) return;
+
+    editor.focus();
+    restoreEditorSelection();
+    const currentRange = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : editorSelectionRef.current?.cloneRange?.();
+    if (currentRange && editor.contains(currentRange.commonAncestorContainer)) {
+      const typedRange = rangeForTextBeforeCaret(editor, currentRange, result.typedReference || result.reference, documentRef);
+      if (typedRange) {
+        selection.removeAllRanges();
+        selection.addRange(typedRange);
+      }
+    }
+
+    const html = richScriptureExpansion(result.reference, result.text);
+    const inserted = insertHtmlAtSelection(html, documentRef, selection, editor);
+    if (!inserted) {
+      editor.insertAdjacentHTML("beforeend", html);
+      moveCaretToEnd(editor);
+    }
+
+    const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
+    editorHtmlRef.current = nextHtml;
+    editorSelectionRef.current = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+    onChange(nextHtml, textBeforeWebCaret());
+    updateScripturePopoverPosition();
+    setActiveNoteFormats(readActiveNoteFormats(editor));
+  };
+
   return (
     <View ref={editorWrapRef} style={styles.studyNoteEditorWrap}>
       <WritingPromptChips
@@ -8851,7 +8899,7 @@ function StudyNoteEditor({
           children: createElement(ScriptureInsertPrompt, {
             reference: scriptureReference,
             status: scriptureInsertStatus,
-            onInsert: onInsertScripture,
+            onInsert: insertScriptureWeb,
             compact: true,
             darkMode
           })
@@ -10153,6 +10201,91 @@ function expandScriptureReference(currentAnswer: string, reference: string, vers
   }
 
   return `${currentAnswer.trimEnd()}${currentAnswer.trim() ? "\n\n" : ""}${plainExpansion}`;
+}
+
+function plainScriptureExpansion(reference: string, verseText: string) {
+  return `*${reference} — "${verseText.trim().replace(/\s+/g, " ")}"* `;
+}
+
+function richScriptureExpansion(reference: string, verseText: string) {
+  return `<em>${escapeHtml(reference)} — "${escapeHtml(verseText.trim().replace(/\s+/g, " "))}"</em>&nbsp;`;
+}
+
+function replaceTypedReferenceBeforeIndex(value: string, typedReference: string, insertion: string, caretEnd: number) {
+  const beforeCaret = value.slice(0, caretEnd);
+  const typed = typedReference.trim();
+  const start = typed ? beforeCaret.toLowerCase().lastIndexOf(typed.toLowerCase()) : -1;
+  const replaceStart = start >= 0 ? start : Math.max(0, caretEnd - typed.length);
+  const replaceEnd = start >= 0 ? start + typed.length : caretEnd;
+  const nextValue = `${value.slice(0, replaceStart)}${insertion}${value.slice(replaceEnd)}`;
+  const cursor = replaceStart + insertion.length;
+  return {
+    nextValue,
+    nextSelection: { start: cursor, end: cursor }
+  };
+}
+
+function rangeForTextBeforeCaret(root: any, caretRange: any, typedReference: string, documentRef: any) {
+  const typed = typedReference.trim();
+  if (!root || !caretRange || !typed || !documentRef) return null;
+
+  const beforeRange = documentRef.createRange();
+  beforeRange.selectNodeContents(root);
+  beforeRange.setEnd(caretRange.endContainer, caretRange.endOffset);
+  const beforeText = beforeRange.toString();
+  const startOffset = beforeText.toLowerCase().lastIndexOf(typed.toLowerCase());
+  if (startOffset < 0) return null;
+
+  const endOffset = startOffset + typed.length;
+  const startPoint = domPointForTextOffset(root, startOffset, documentRef);
+  const endPoint = domPointForTextOffset(root, endOffset, documentRef);
+  if (!startPoint || !endPoint) return null;
+
+  const range = documentRef.createRange();
+  range.setStart(startPoint.node, startPoint.offset);
+  range.setEnd(endPoint.node, endPoint.offset);
+  return range;
+}
+
+function domPointForTextOffset(root: any, offset: number, documentRef: any) {
+  const walker = documentRef.createTreeWalker(root, 4);
+  let remaining = Math.max(0, offset);
+  let node = walker.nextNode();
+  let lastNode = null;
+
+  while (node) {
+    const length = node.textContent?.length || 0;
+    if (remaining <= length) return { node, offset: remaining };
+    remaining -= length;
+    lastNode = node;
+    node = walker.nextNode();
+  }
+
+  return lastNode ? { node: lastNode, offset: lastNode.textContent?.length || 0 } : null;
+}
+
+function insertHtmlAtSelection(html: string, documentRef: any, selection: any, root: any) {
+  if (!documentRef || !selection?.rangeCount) return false;
+  const range = selection.getRangeAt(0);
+  if (!root.contains(range.commonAncestorContainer)) return false;
+
+  const template = documentRef.createElement("template");
+  template.innerHTML = html;
+  const fragment = template.content.cloneNode(true);
+  const lastNode = fragment.lastChild;
+  range.deleteContents();
+  range.insertNode(fragment);
+
+  if (lastNode) {
+    const nextRange = documentRef.createRange();
+    nextRange.setStartAfter(lastNode);
+    nextRange.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(nextRange);
+  }
+
+  root.normalize?.();
+  return true;
 }
 
 function escapeRegExp(value: string) {

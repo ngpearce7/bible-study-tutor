@@ -8753,8 +8753,9 @@ function StudyNoteTiptapEditor({
 
   const syncTiptapState = (editor: Editor) => {
     const cursorMatch = findTiptapScriptureReferenceBeforeCursor(editor);
+    const documentMatch = findTiptapScriptureReferenceInDocument(editor);
     const textBeforeCursor = cursorMatch.textBeforeCursor;
-    setLocalScriptureMatch(cursorMatch.match);
+    setLocalScriptureMatch(cursorMatch.match || documentMatch);
     setActiveNoteFormats(getTiptapActiveFormats(editor));
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
@@ -8839,7 +8840,7 @@ function StudyNoteTiptapEditor({
 
   const insertScriptureWeb = async () => {
     if (!editor) return;
-    const liveMatch = findTiptapScriptureReferenceBeforeCursor(editor).match || localScriptureMatch;
+    const liveMatch = findTiptapScriptureReferenceBeforeCursor(editor).match || localScriptureMatch || findTiptapScriptureReferenceInDocument(editor);
     const reference = liveMatch?.reference || scriptureReference;
     const typedReference = liveMatch?.typed || scriptureTypedReference || scriptureReference;
     const result = await onInsertScripture?.({ reference, typedReference });
@@ -10195,7 +10196,9 @@ function findTypedScriptureReferenceMatch(text: string) {
     .replace(/\s+/g, " ")
     .trimEnd();
   const searchText = cleaned.slice(-600);
-  const trailingReference = searchText.match(/((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,5})\s+(\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*$)/i);
+  const referencePattern = /((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,5})\s+(\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*)/gi;
+  const matches = Array.from(searchText.matchAll(referencePattern));
+  const trailingReference = matches.at(-1);
   const bookText = trailingReference?.[1]?.replace(/[.,;:!?)]*$/g, "").trim();
   const verseText = trailingReference?.[2]?.trim();
   if (!bookText || !verseText) return null;
@@ -10397,6 +10400,33 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
       from: Math.max(documentStart, fromPosition),
       to: Math.max(documentStart, Math.min(from, toPosition))
     }
+  };
+}
+
+function findTiptapScriptureReferenceInDocument(editor: Editor) {
+  const pieces: string[] = [];
+  const positions: number[] = [];
+
+  editor.state.doc.descendants((node, position) => {
+    if (!node.isText || !node.text) return true;
+    for (let index = 0; index < node.text.length; index += 1) {
+      pieces.push(node.text[index]);
+      positions.push(position + index);
+    }
+    return true;
+  });
+
+  const plainText = pieces.join("");
+  const match = findTypedScriptureReferenceMatch(plainText);
+  if (!match) return null;
+
+  const typedIndex = plainText.toLowerCase().lastIndexOf(match.typed.toLowerCase());
+  if (typedIndex < 0) return null;
+
+  return {
+    ...match,
+    from: Math.max(1, positions[typedIndex] ?? 1),
+    to: Math.max(1, (positions[typedIndex + match.typed.length - 1] ?? positions[typedIndex] ?? 1) + 1)
   };
 }
 

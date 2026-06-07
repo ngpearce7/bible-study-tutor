@@ -1,5 +1,6 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Mark, mergeAttributes } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
@@ -71,6 +72,36 @@ type JournalScriptureItem = {
   verses: number[];
 };
 type NoteFormatKind = "undo" | "redo" | "bold" | "italic" | "underline" | "highlight" | "bullet";
+
+const ScriptureTextColor = Mark.create({
+  name: "scriptureTextColor",
+  addAttributes() {
+    return {
+      color: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-scripture-color") || element.style.color || null,
+        renderHTML: (attributes) =>
+          attributes.color ? { "data-scripture-color": attributes.color, style: `color: ${attributes.color}` } : {}
+      }
+    };
+  },
+  parseHTML() {
+    return [
+      { tag: "span[data-scripture-color]" },
+      {
+        tag: "span",
+        getAttrs: (element) => {
+          const color = (element as HTMLElement).style.color;
+          return color ? { color } : false;
+        }
+      }
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ["span", mergeAttributes(HTMLAttributes), 0];
+  }
+});
+
 type SavedStudySummary = {
   sessionId?: any;
   passage: string;
@@ -8882,7 +8913,8 @@ function StudyNoteTiptapEditor({
         blockquote: false
       }),
       Underline,
-      Highlight.configure({ multicolor: true })
+      Highlight.configure({ multicolor: true }),
+      ScriptureTextColor
     ],
     content: value || "",
     immediatelyRender: false,
@@ -10530,7 +10562,7 @@ function plainScriptureExpansion(reference: string, verseText: string, settings:
 function richScriptureExpansion(reference: string, verseText: string, settings: ScriptureInsertSettings = DEFAULT_SCRIPTURE_INSERT_SETTINGS) {
   const text = verseText.trim().replace(/\s+/g, " ");
   const content = settings.referencePosition === "end" ? `"${text}" — ${reference}` : `${reference} — "${text}"`;
-  const style = settings.color ? ` style="color:${escapeHtml(settings.color)}"` : "";
+  const style = settings.color ? ` data-scripture-color="${escapeHtml(settings.color)}" style="color: ${escapeHtml(settings.color)}"` : "";
   const wrapped = `${settings.bold ? "<strong>" : ""}${settings.italic ? "<em>" : ""}${escapeHtml(content)}${settings.italic ? "</em>" : ""}${settings.bold ? "</strong>" : ""}`;
   return `<span${style}>${wrapped}</span>&nbsp;`;
 }
@@ -10708,9 +10740,9 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
   const { from } = editor.state.selection;
   if (!editor.state.selection.empty) return { textBeforeCursor: "", match: null };
 
-  const documentStart = 1;
-  const scanFrom = Math.max(documentStart, from - 700);
-  const textBeforeCursor = editor.state.doc.textBetween(scanFrom, from, "\n");
+  const textMap = getTiptapTextMapBeforeCursor(editor, from);
+  const scanStart = Math.max(0, textMap.text.length - 700);
+  const textBeforeCursor = textMap.text.slice(scanStart);
   const match = findTypedScriptureReferenceMatches(textBeforeCursor).at(-1);
   if (!match) return { textBeforeCursor, match: null };
 
@@ -10719,17 +10751,46 @@ function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
     return { textBeforeCursor, match: null };
   }
 
-  const fromPosition = scanFrom + match.start;
-  const toPosition = scanFrom + match.end;
+  const mappedStart = textMap.positions[scanStart + match.start];
+  const mappedEnd = textMap.positions[scanStart + match.end - 1];
+  if (!Number.isFinite(mappedStart) || !Number.isFinite(mappedEnd)) return { textBeforeCursor, match: null };
 
   return {
     textBeforeCursor,
     match: {
       ...match,
-      from: Math.max(documentStart, fromPosition),
-      to: Math.max(documentStart, Math.min(from, toPosition))
+      from: mappedStart,
+      to: Math.min(from, mappedEnd + 1)
     }
   };
+}
+
+function getTiptapTextMapBeforeCursor(editor: Editor, cursorPosition: number) {
+  let text = "";
+  const positions: number[] = [];
+
+  editor.state.doc.descendants((node, pos) => {
+    if (pos >= cursorPosition) return false;
+
+    if (node.isText) {
+      const nodeText = node.text || "";
+      const end = Math.min(nodeText.length, Math.max(0, cursorPosition - pos));
+      for (let index = 0; index < end; index += 1) {
+        text += nodeText[index];
+        positions.push(pos + index);
+      }
+      return false;
+    }
+
+    if (node.isBlock && text && !text.endsWith("\n")) {
+      text += "\n";
+      positions.push(Math.max(1, pos));
+    }
+
+    return true;
+  });
+
+  return { text, positions };
 }
 
 function getTiptapActiveFormats(editor: Editor): NoteFormatKind[] {

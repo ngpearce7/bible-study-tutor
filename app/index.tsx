@@ -10195,12 +10195,15 @@ function findTypedScriptureReferenceMatch(text: string) {
     .replace(/\s+/g, " ")
     .trimEnd();
   const searchText = cleaned.slice(-600);
-  const referencePattern = /(?:^|\s)((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,2}\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*$)/gi;
-  const matches = Array.from(searchText.matchAll(referencePattern));
+  const trailingReference = searchText.match(/((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,5})\s+(\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*$)/i);
+  const bookText = trailingReference?.[1]?.replace(/[.,;:!?)]*$/g, "").trim();
+  const verseText = trailingReference?.[2]?.trim();
+  if (!bookText || !verseText) return null;
 
-  for (const match of matches.reverse()) {
-    const typed = match[1]?.trim();
-    if (!typed) continue;
+  const bookWords = bookText.split(/\s+/).filter(Boolean);
+  for (let index = 0; index < bookWords.length; index += 1) {
+    const candidateBook = bookWords.slice(index).join(" ");
+    const typed = `${candidateBook} ${verseText}`;
     const parsed = parsePassageQuery(typed).reference;
     if (parseBsbPassageReference(parsed)) return { reference: parsed, typed };
   }

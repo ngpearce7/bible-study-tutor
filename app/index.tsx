@@ -10195,35 +10195,38 @@ function findTypedScriptureReferenceMatch(text: string) {
 }
 
 function findTypedScriptureReferenceMatches(text: string) {
-  const cleaned = stripNoteFormatting(text)
-    .replace(/[\u200B-\u200D\uFEFF]/g, "")
-    .replace(/\s+/g, " ")
-    .trimEnd();
-  const searchText = cleaned.slice(-600);
-  const referencePattern = /((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,5})\s+(\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*)/gi;
-  const matches = Array.from(searchText.matchAll(referencePattern));
+  const cleaned = stripNoteFormatting(text).replace(/[\u200B-\u200D\uFEFF]/g, "");
+  const searchStart = Math.max(0, cleaned.length - 1500);
+  const searchText = cleaned.slice(searchStart);
+  const versePattern = /\d{1,3}:\d{1,3}(?:-\d{1,3})?/g;
+  const verseMatches = Array.from(searchText.matchAll(versePattern));
   const results: { reference: string; typed: string; start: number; end: number }[] = [];
 
-  for (const match of matches) {
-    const rawBookText = match[1] || "";
-    const bookText = rawBookText.replace(/[.,;:!?)]*$/g, "").trim();
-    const verseText = match[2]?.trim();
-    if (!bookText || !verseText) continue;
+  for (const verseMatch of verseMatches) {
+    const verseText = verseMatch[0];
+    const verseStart = verseMatch.index || 0;
+    const verseEnd = verseStart + verseText.length;
+    const precedingText = searchText.slice(0, verseStart);
+    const precedingTokens = Array.from(precedingText.matchAll(/[1-3]|[A-Za-z.]+/g)).map((tokenMatch) => ({
+      text: tokenMatch[0],
+      start: tokenMatch.index || 0,
+      end: (tokenMatch.index || 0) + tokenMatch[0].length
+    }));
+    const recentTokens = precedingTokens.slice(-7);
 
-    const bookWords = bookText.split(/\s+/).filter(Boolean);
-    for (let index = 0; index < bookWords.length; index += 1) {
-      const candidateBook = bookWords.slice(index).join(" ");
+    for (let index = 0; index < recentTokens.length; index += 1) {
+      const candidateTokens = recentTokens.slice(index);
+      const candidateBook = candidateTokens.map((token) => token.text).join(" ");
       const typed = `${candidateBook} ${verseText}`;
       const parsed = parsePassageQuery(typed).reference;
       if (!parseBsbPassageReference(parsed)) continue;
 
-      const rawBookOffset = rawBookText.toLowerCase().lastIndexOf(candidateBook.toLowerCase());
-      const matchStart = Math.max(0, (match.index || 0) + rawBookOffset);
+      const matchStart = candidateTokens[0].start;
       results.push({
         reference: parsed,
-        typed,
-        start: matchStart,
-        end: matchStart + typed.length
+        typed: searchText.slice(matchStart, verseEnd).trim(),
+        start: searchStart + matchStart,
+        end: searchStart + verseEnd
       });
       break;
     }

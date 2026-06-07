@@ -8643,7 +8643,6 @@ function StudyNoteEditor({
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
   const [scriptureInsertSettings, setScriptureInsertSettings] = useState<ScriptureInsertSettings>(() => getStoredScriptureInsertSettings());
   const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
-  const [scriptureSettingsAnchor, setScriptureSettingsAnchor] = useState<{ left: number; top: number; width?: number; maxHeight?: number } | null>(null);
   const [nativeDismissedReference, setNativeDismissedReference] = useState("");
 
   useEffect(() => {
@@ -8659,8 +8658,7 @@ function StudyNoteEditor({
     await onSaveScriptureInsertSettings?.(nextSettings);
   };
 
-  const openScriptureSettings = (event?: any) => {
-    setScriptureSettingsAnchor(getEditorSettingsAnchor(event));
+  const openScriptureSettings = () => {
     setScriptureSettingsOpen(true);
   };
 
@@ -8728,7 +8726,6 @@ function StudyNoteEditor({
         scriptureInsertSettings={scriptureInsertSettings}
         onSaveScriptureInsertSettings={saveScriptureSettings}
         scriptureSettingsOpen={scriptureSettingsOpen}
-        scriptureSettingsAnchor={scriptureSettingsAnchor}
         onOpenScriptureSettings={openScriptureSettings}
         onCloseScriptureSettings={() => setScriptureSettingsOpen(false)}
         phoneLayout={phoneLayout}
@@ -8780,7 +8777,6 @@ function StudyNoteEditor({
         <ScriptureInsertSettingsDialog
           settings={scriptureInsertSettings}
           onSave={saveScriptureSettings}
-          anchorPosition={scriptureSettingsAnchor}
           onClose={() => setScriptureSettingsOpen(false)}
           darkMode={darkMode}
           phoneLayout={phoneLayout}
@@ -8807,7 +8803,6 @@ function StudyNoteTiptapEditor({
   scriptureInsertSettings,
   onSaveScriptureInsertSettings,
   scriptureSettingsOpen,
-  scriptureSettingsAnchor,
   onOpenScriptureSettings,
   onCloseScriptureSettings,
   phoneLayout = false,
@@ -8829,7 +8824,6 @@ function StudyNoteTiptapEditor({
   scriptureInsertSettings: ScriptureInsertSettings;
   onSaveScriptureInsertSettings: (settings: ScriptureInsertSettings) => Promise<void>;
   scriptureSettingsOpen: boolean;
-  scriptureSettingsAnchor: { left: number; top: number; width?: number; maxHeight?: number } | null;
   onOpenScriptureSettings: (event?: any) => void;
   onCloseScriptureSettings: () => void;
   phoneLayout?: boolean;
@@ -9071,7 +9065,6 @@ function StudyNoteTiptapEditor({
         <ScriptureInsertSettingsDialog
           settings={scriptureInsertSettings}
           onSave={onSaveScriptureInsertSettings}
-          anchorPosition={scriptureSettingsAnchor}
           onClose={onCloseScriptureSettings}
           darkMode={darkMode}
           phoneLayout={phoneLayout}
@@ -9194,14 +9187,12 @@ function NoteFormatToolbar({
 function ScriptureInsertSettingsDialog({
   settings,
   onSave,
-  anchorPosition,
   onClose,
   darkMode = false,
   phoneLayout = false
 }: {
   settings: ScriptureInsertSettings;
   onSave: (settings: ScriptureInsertSettings) => Promise<void>;
-  anchorPosition?: { left: number; top: number; width?: number; maxHeight?: number } | null;
   onClose: () => void;
   darkMode?: boolean;
   phoneLayout?: boolean;
@@ -9209,18 +9200,6 @@ function ScriptureInsertSettingsDialog({
   const [draft, setDraft] = useState(settings);
   const [saveStatus, setSaveStatus] = useState("");
   const update = (patch: Partial<ScriptureInsertSettings>) => setDraft((current) => ({ ...current, ...patch }));
-  const cardAnchorStyle =
-    Platform.OS === "web" && anchorPosition && !phoneLayout
-      ? {
-          left: anchorPosition.left,
-          marginTop: 0,
-          maxHeight: anchorPosition.maxHeight,
-          overflowY: "auto" as any,
-          position: "absolute" as any,
-          top: anchorPosition.top,
-          width: anchorPosition.width || 520
-        }
-      : null;
 
   useEffect(() => {
     setDraft(settings);
@@ -9239,9 +9218,9 @@ function ScriptureInsertSettingsDialog({
   };
 
   return (
-    <View style={[styles.printOptionsOverlay, Platform.OS === "web" && styles.webEditorSettingsOverlay]}>
+    <View style={styles.printOptionsOverlay}>
       <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
-      <View style={[styles.printOptionsCard, styles.editorSettingsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard, cardAnchorStyle]}>
+      <View style={[styles.printOptionsCard, styles.editorSettingsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.printOptionsHeader}>
           <View style={styles.printOptionsTitleBlock}>
             <Text style={[styles.printOptionsTitle, darkMode && styles.accountDarkTitle]}>Editor settings</Text>
@@ -10589,26 +10568,6 @@ function normalizeScriptureInsertSettings(value: Partial<ScriptureInsertSettings
 
 function getScriptureMatchKey(match: { reference: string; from: number; to: number }) {
   return `${match.reference}|${match.from}|${match.to}`;
-}
-
-function getEditorSettingsAnchor(event?: any) {
-  if (Platform.OS !== "web" || typeof window === "undefined") return null;
-  const nativeEvent = event?.nativeEvent || event;
-  const targetRect = event?.currentTarget?.getBoundingClientRect?.() || event?.target?.getBoundingClientRect?.();
-  const clickX = Number(nativeEvent?.clientX ?? targetRect?.right ?? nativeEvent?.pageX);
-  const clickY = Number(nativeEvent?.clientY ?? targetRect?.bottom ?? nativeEvent?.pageY);
-  if (!Number.isFinite(clickX) || !Number.isFinite(clickY)) return null;
-
-  const padding = 14;
-  const width = Math.min(520, Math.max(280, window.innerWidth - padding * 2));
-  const maxHeight = Math.max(260, window.innerHeight - padding * 2);
-  const estimatedHeight = Math.min(430, maxHeight);
-  return {
-    left: Math.max(padding, Math.min(clickX - width + 44, window.innerWidth - width - padding)),
-    maxHeight,
-    top: Math.max(padding, Math.min(clickY + 10, window.innerHeight - estimatedHeight - padding)),
-    width
-  };
 }
 
 function replaceTypedReferenceBeforeIndex(value: string, typedReference: string, insertion: string, caretEnd: number) {
@@ -16104,9 +16063,6 @@ const styles = StyleSheet.create({
   },
   scriptureColorActiveText: {
     color: colors.coral
-  },
-  webEditorSettingsOverlay: {
-    position: "fixed" as any
   },
   readyCopy: {
     flex: 1

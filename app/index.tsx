@@ -1,5 +1,9 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Highlight from "@tiptap/extension-highlight";
+import Underline from "@tiptap/extension-underline";
+import { EditorContent, useEditor, type Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
@@ -8593,36 +8597,10 @@ function StudyNoteEditor({
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
-  const editorRef = useRef<any>(null);
-  const editorWrapRef = useRef<any>(null);
   const nativeInputRef = useRef<any>(null);
-  const editorHtmlRef = useRef<string | null>(null);
-  const editorSelectionRef = useRef<any>(null);
-  const scriptureTypedRangeRef = useRef<any>(null);
-  const undoStackRef = useRef<string[]>([]);
-  const redoStackRef = useRef<string[]>([]);
   const nativeSelectionRef = useRef({ start: value.length, end: value.length });
   const lastNativeTextSelectionRef = useRef<{ start: number; end: number } | null>(null);
-  const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
-  const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
-  const [highlightModeActive, setHighlightModeActive] = useState(false);
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
-
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    const editor = editorRef.current;
-    if (!editor || editorHtmlRef.current === value) return;
-    editor.innerHTML = value;
-    editorHtmlRef.current = value;
-  }, [value]);
-
-  useEffect(() => {
-    if (Platform.OS !== "web" || !scriptureInsertFocusKey) return;
-    const editor = editorRef.current;
-    if (!editor) return;
-    editor.focus();
-    moveCaretToEnd(editor);
-  }, [scriptureInsertFocusKey]);
 
   const insertWritingPromptNative = (prompt: string) => {
     const nextValue = value.trim() ? `${value.trimEnd()}\n${prompt} ` : `${prompt} `;
@@ -8647,6 +8625,7 @@ function StudyNoteEditor({
         : lastNativeTextSelectionRef.current || currentSelection;
     const { nextValue, nextSelection } = formatPlainNoteValue(value, kind, usableSelection);
     onChange(nextValue);
+    onFormat(kind);
     lastNativeTextSelectionRef.current = null;
     nativeSelectionRef.current = nextSelection;
     setNativeSelection(nextSelection);
@@ -8668,263 +8647,219 @@ function StudyNoteEditor({
     setTimeout(() => nativeInputRef.current?.focus?.(), 50);
   };
 
-  if (Platform.OS !== "web") {
-    const updateNativeText = (nextValue: string) => {
-      const lengthDelta = nextValue.length - value.length;
-      const estimatedCaretEnd = Math.max(0, Math.min(nextValue.length, nativeSelectionRef.current.end + lengthDelta));
-      onChange(nextValue, nextValue.slice(0, estimatedCaretEnd));
-    };
-
+  if (Platform.OS === "web") {
     return (
-      <>
-        <WritingPromptChips
-          prompts={writingPrompts}
-          customPrompts={customWritingPrompts}
-          status={writingPromptStatus}
-          onInsert={insertWritingPromptNative}
-          onAddCustomPrompt={onAddCustomWritingPrompt}
-          onRemoveCustomPrompt={onRemoveCustomWritingPrompt}
-          compact={phoneLayout}
-          darkMode={darkMode}
-        />
-        <TextInput
-          ref={nativeInputRef}
-          multiline
-          value={value}
-          onChangeText={updateNativeText}
-          selection={nativeSelection}
-          onSelectionChange={(event) => updateNativeSelection(event.nativeEvent.selection)}
-          placeholder={placeholder}
-          placeholderTextColor={darkMode ? "#8f8678" : undefined}
-          style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
-        />
-        {!!scriptureReference && (
-          <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={insertScriptureNative} darkMode={darkMode} />
-        )}
-        <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} darkMode={darkMode} />
-      </>
+      <StudyNoteTiptapEditor
+        value={value}
+        onChange={onChange}
+        onSelectionChange={onSelectionChange}
+        placeholder={placeholder}
+        studyFocusMode={studyFocusMode}
+        writingPrompts={writingPrompts}
+        customWritingPrompts={customWritingPrompts}
+        writingPromptStatus={writingPromptStatus}
+        onAddCustomWritingPrompt={onAddCustomWritingPrompt}
+        onRemoveCustomWritingPrompt={onRemoveCustomWritingPrompt}
+        scriptureReference={scriptureReference}
+        scriptureTypedReference={scriptureTypedReference}
+        scriptureInsertStatus={scriptureInsertStatus}
+        scriptureInsertFocusKey={scriptureInsertFocusKey}
+        onInsertScripture={onInsertScripture}
+        phoneLayout={phoneLayout}
+        darkMode={darkMode}
+      />
     );
   }
 
-  const runCommand = (command: string, commandValue?: string) => {
-    const editor = editorRef.current;
-    const documentRef = (globalThis as any).document;
-    if (!editor) return;
-    editor.focus();
-    if (command === "undo" || command === "redo") {
-      applyEditorHistory(command);
-      setActiveNoteFormats(readActiveNoteFormats(editor));
-      return;
-    }
-    const hasSelectedText = restoreEditorSelection();
-    if (command === "highlightSelection") {
-      recordEditorHistory();
-      const nextHighlightActive = toggleNoteHighlight(editor);
-      const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
-      editorHtmlRef.current = nextHtml;
-      onChange(nextHtml);
-      setHighlightModeActive(nextHighlightActive);
-      setActiveNoteFormats(readActiveNoteFormats(editor));
-      return;
-    }
-
-    if (!hasSelectedText && ["bold", "italic", "underline"].includes(command)) {
-      setActiveNoteFormats(readActiveNoteFormats(editor));
-      return;
-    }
-
-    recordEditorHistory();
-    documentRef?.execCommand?.(command, false, commandValue);
-
-    const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
-    editorHtmlRef.current = nextHtml;
-    onChange(nextHtml);
-    setActiveNoteFormats(readActiveNoteFormats(editor));
-  };
-
-  const recordEditorHistory = () => {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const currentHtml = sanitizeEditorHtml(editor.innerHTML || "");
-    const stack = undoStackRef.current;
-    if (stack[stack.length - 1] !== currentHtml) undoStackRef.current = [...stack.slice(-24), currentHtml];
-    redoStackRef.current = [];
-  };
-
-  const applyEditorHistory = (direction: "undo" | "redo") => {
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    const source = direction === "undo" ? undoStackRef.current : redoStackRef.current;
-    const target = direction === "undo" ? redoStackRef : undoStackRef;
-    const previousHtml = source[source.length - 1];
-    if (previousHtml === undefined) return;
-
-    if (direction === "undo") {
-      undoStackRef.current = source.slice(0, -1);
-    } else {
-      redoStackRef.current = source.slice(0, -1);
-    }
-
-    const currentHtml = sanitizeEditorHtml(editor.innerHTML || "");
-    target.current = [...target.current.slice(-24), currentHtml];
-    editor.innerHTML = previousHtml;
-    editorHtmlRef.current = previousHtml;
-    onChange(previousHtml, stripNoteFormatting(previousHtml));
-    moveCaretToEnd(editor);
-  };
-
-  const saveEditorSelection = () => {
-    const editor = editorRef.current;
-    const selection = (globalThis as any).getSelection?.();
-    if (!editor || !selection?.rangeCount || !selection.anchorNode || !editor.contains(selection.anchorNode)) return;
-    editorSelectionRef.current = selection.getRangeAt(0).cloneRange();
-  };
-
-  const restoreEditorSelection = () => {
-    const editor = editorRef.current;
-    const selection = (globalThis as any).getSelection?.();
-    const range = editorSelectionRef.current;
-    if (!editor || !selection || !range || !editor.contains(range.commonAncestorContainer)) return false;
-
-    selection.removeAllRanges();
-    selection.addRange(range);
-    return !range.collapsed;
-  };
-
-  const updateScripturePopoverPosition = () => {
-    const selection = (globalThis as any).getSelection?.();
-    const wrapper = editorWrapRef.current;
-    const editor = editorRef.current;
-    if (!selection || !selection.rangeCount || !wrapper || !editor) return;
-    if (!editor.contains(selection.anchorNode)) return;
-
-    const range = selection.getRangeAt(0).cloneRange();
-    const rect = range.getBoundingClientRect();
-    const wrapperRect = wrapper.getBoundingClientRect();
-    const editorRect = editor.getBoundingClientRect();
-    const left = Math.max(8, Math.min(rect.left - wrapperRect.left + 24, wrapperRect.width - 260));
-    const top = Math.max(editorRect.top - wrapperRect.top + 8, rect.top - wrapperRect.top - 46);
-    setScripturePopoverPosition({ left, top });
-  };
-
-  const updateActiveNoteFormats = () => {
-    saveEditorSelection();
-    const nextFormats = readActiveNoteFormats(editorRef.current);
-    setActiveNoteFormats(nextFormats);
-    setHighlightModeActive(nextFormats.includes("highlight"));
-  };
-
-  const notifyWebEditorChange = () => {
-    const editor = editorRef.current;
-    const documentRef = (globalThis as any).document;
-    if (!editor) return;
-    const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
-    const beforeCaret = textBeforeWebCaret();
-    editorHtmlRef.current = nextHtml;
-    if (documentRef) {
-      const detected = findTypedScriptureReferenceMatch(beforeCaret);
-      const activeRange = editorSelectionRef.current?.cloneRange?.();
-      scriptureTypedRangeRef.current =
-        detected && activeRange ? rangeForTextBeforeCaret(editor, activeRange, detected.typed, documentRef) : null;
-    }
-    onChange(nextHtml, beforeCaret);
-  };
-
-  const textBeforeWebCaret = () => {
-    const editor = editorRef.current;
-    const selection = (globalThis as any).getSelection?.();
-    const documentRef = (globalThis as any).document;
-    if (!editor || !selection?.rangeCount || !documentRef || !selection.anchorNode || !editor.contains(selection.anchorNode)) {
-      return editor?.textContent || "";
-    }
-
-    const range = selection.getRangeAt(0).cloneRange();
-    const beforeRange = documentRef.createRange();
-    beforeRange.selectNodeContents(editor);
-    beforeRange.setEnd(range.endContainer, range.endOffset);
-    return beforeRange.toString();
-  };
-
-  const insertWritingPromptWeb = (prompt: string) => {
-    const editor = editorRef.current;
-    const documentRef = (globalThis as any).document;
-    const selection = (globalThis as any).getSelection?.();
-    if (!editor || !documentRef || !selection) return;
-
-    editor.focus();
-    restoreEditorSelection();
-    recordEditorHistory();
-    const currentText = editor.textContent || "";
-    const prefix = currentText.trim() ? "\n" : "";
-    const textNode = documentRef.createTextNode(`${prefix}${prompt} `);
-    const range = selection.rangeCount ? selection.getRangeAt(0) : documentRef.createRange();
-    if (!selection.rangeCount || !editor.contains(range.commonAncestorContainer)) {
-      range.selectNodeContents(editor);
-      range.collapse(false);
-    }
-    range.deleteContents();
-    range.insertNode(textNode);
-    range.setStartAfter(textNode);
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
-    editor.normalize?.();
-
-    const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
-    editorHtmlRef.current = nextHtml;
-    editorSelectionRef.current = range.cloneRange();
-    onChange(nextHtml);
-    setActiveNoteFormats(readActiveNoteFormats(editor));
-  };
-
-  const insertScriptureWeb = async () => {
-    const editor = editorRef.current;
-    const documentRef = (globalThis as any).document;
-    const selection = (globalThis as any).getSelection?.();
-    if (!editor || !documentRef || !selection) return;
-
-    editor.focus();
-    restoreEditorSelection();
-    const currentRange = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : editorSelectionRef.current?.cloneRange?.();
-    const savedTypedRange = scriptureTypedRangeRef.current?.cloneRange?.();
-    const typedFromRange = savedTypedRange?.toString?.().trim?.() || scriptureTypedReference || "";
-    const result = await onInsertScripture?.({ reference: scriptureReference, typedReference: typedFromRange || scriptureReference });
-    if (!result) return;
-    recordEditorHistory();
-
-    const typedRange =
-      savedTypedRange && editor.contains(savedTypedRange.commonAncestorContainer)
-        ? savedTypedRange
-        : currentRange && editor.contains(currentRange.commonAncestorContainer)
-          ? rangeForTextBeforeCaret(editor, currentRange, result.typedReference || result.reference, documentRef)
-          : null;
-    if (typedRange) {
-      selection.removeAllRanges();
-      selection.addRange(typedRange);
-    }
-
-    const html = richScriptureExpansion(result.reference, result.text);
-    const inserted = insertHtmlAtSelection(html, documentRef, selection, editor);
-    if (!inserted) {
-      const replaced = replaceTypedReferenceInEditorHtml(editor, result.typedReference || result.reference, html);
-      if (!replaced) {
-        editor.insertAdjacentHTML("beforeend", html);
-        moveCaretToEnd(editor);
-      }
-    }
-
-    const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
-    editorHtmlRef.current = nextHtml;
-    editorSelectionRef.current = selection.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
-    scriptureTypedRangeRef.current = null;
-    onChange(nextHtml, textBeforeWebCaret());
-    updateScripturePopoverPosition();
-    setActiveNoteFormats(readActiveNoteFormats(editor));
+  const updateNativeText = (nextValue: string) => {
+    const lengthDelta = nextValue.length - value.length;
+    const estimatedCaretEnd = Math.max(0, Math.min(nextValue.length, nativeSelectionRef.current.end + lengthDelta));
+    onChange(nextValue, nextValue.slice(0, estimatedCaretEnd));
   };
 
   return (
-    <View ref={editorWrapRef} style={styles.studyNoteEditorWrap}>
+    <>
+      <WritingPromptChips
+        prompts={writingPrompts}
+        customPrompts={customWritingPrompts}
+        status={writingPromptStatus}
+        onInsert={insertWritingPromptNative}
+        onAddCustomPrompt={onAddCustomWritingPrompt}
+        onRemoveCustomPrompt={onRemoveCustomWritingPrompt}
+        compact={phoneLayout}
+        darkMode={darkMode}
+      />
+      <TextInput
+        ref={nativeInputRef}
+        multiline
+        value={value}
+        onChangeText={updateNativeText}
+        selection={nativeSelection}
+        onSelectionChange={(event) => updateNativeSelection(event.nativeEvent.selection)}
+        placeholder={placeholder}
+        placeholderTextColor={darkMode ? "#8f8678" : undefined}
+        style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
+      />
+      {!!scriptureReference && (
+        <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={insertScriptureNative} darkMode={darkMode} />
+      )}
+      <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} darkMode={darkMode} />
+    </>
+  );
+}
+
+function StudyNoteTiptapEditor({
+  value,
+  onChange,
+  onSelectionChange,
+  placeholder,
+  studyFocusMode,
+  writingPrompts = [],
+  customWritingPrompts = [],
+  writingPromptStatus,
+  onAddCustomWritingPrompt,
+  onRemoveCustomWritingPrompt,
+  scriptureReference,
+  scriptureTypedReference,
+  scriptureInsertStatus,
+  scriptureInsertFocusKey,
+  onInsertScripture,
+  phoneLayout = false,
+  darkMode = false
+}: {
+  value: string;
+  onChange: (value: string, plainText?: string) => void;
+  onSelectionChange: (selection: { start: number; end: number }) => void;
+  placeholder: string;
+  studyFocusMode: boolean;
+  writingPrompts?: string[];
+  customWritingPrompts?: string[];
+  writingPromptStatus?: string;
+  onAddCustomWritingPrompt?: (prompt: string) => boolean;
+  onRemoveCustomWritingPrompt?: (prompt: string) => void;
+  scriptureReference?: string;
+  scriptureTypedReference?: string;
+  scriptureInsertStatus?: string;
+  scriptureInsertFocusKey?: number;
+  onInsertScripture?: (request?: ScriptureInsertRequest) => Promise<ScriptureInsertResult | null | undefined>;
+  phoneLayout?: boolean;
+  darkMode?: boolean;
+}) {
+  const wrapRef = useRef<any>(null);
+  const lastHtmlRef = useRef(value || "");
+  const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
+  const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        heading: false,
+        codeBlock: false,
+        horizontalRule: false,
+        blockquote: false
+      }),
+      Underline,
+      Highlight.configure({ multicolor: true })
+    ],
+    content: value || "",
+    immediatelyRender: false,
+    editorProps: {
+      attributes: {
+        "aria-label": placeholder,
+        "data-placeholder": placeholder,
+        class: "bst-note-editor"
+      }
+    },
+    onUpdate: ({ editor }) => {
+      const nextHtml = sanitizeEditorHtml(editor.getHTML());
+      lastHtmlRef.current = nextHtml;
+      onChange(nextHtml, getTiptapTextBeforeCursor(editor));
+      setActiveNoteFormats(getTiptapActiveFormats(editor));
+      updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+    },
+    onSelectionUpdate: ({ editor }) => {
+      const { from, to } = editor.state.selection;
+      onSelectionChange({ start: from, end: to });
+      setActiveNoteFormats(getTiptapActiveFormats(editor));
+      onChange(sanitizeEditorHtml(editor.getHTML()), getTiptapTextBeforeCursor(editor));
+      updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+    }
+  });
+
+  useEffect(() => {
+    if (!editor || lastHtmlRef.current === value) return;
+    const currentHtml = sanitizeEditorHtml(editor.getHTML());
+    if (currentHtml === value) return;
+    editor.commands.setContent(value || "", { emitUpdate: false });
+    lastHtmlRef.current = value || "";
+  }, [editor, value]);
+
+  useEffect(() => {
+    if (!editor || !scriptureInsertFocusKey) return;
+    editor.commands.focus("end");
+  }, [editor, scriptureInsertFocusKey]);
+
+  const insertWritingPromptWeb = (prompt: string) => {
+    if (!editor) return;
+    const prefix = editor.getText().trim() ? "\n" : "";
+    editor.chain().focus().insertContent(`${prefix}${prompt} `).run();
+  };
+
+  const insertScriptureWeb = async () => {
+    if (!editor) return;
+    const typedReference = scriptureTypedReference || scriptureReference;
+    const result = await onInsertScripture?.({ reference: scriptureReference, typedReference });
+    if (!result) return;
+
+    const { from } = editor.state.selection;
+    const typed = (result.typedReference || typedReference || result.reference).trim();
+    const beforeCursor = getTiptapTextBeforeCursor(editor);
+    const deleteFrom = typed && beforeCursor.toLowerCase().endsWith(typed.toLowerCase()) ? Math.max(1, from - typed.length) : from;
+    const html = richScriptureExpansion(result.reference, result.text);
+
+    editor
+      .chain()
+      .focus()
+      .deleteRange({ from: deleteFrom, to: from })
+      .insertContent(html)
+      .insertContent(" ")
+      .run();
+
+    const nextHtml = sanitizeEditorHtml(editor.getHTML());
+    lastHtmlRef.current = nextHtml;
+    onChange(nextHtml, getTiptapTextBeforeCursor(editor));
+    setActiveNoteFormats(getTiptapActiveFormats(editor));
+    updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
+  };
+
+  const applyTiptapFormat = (kind: NoteFormatKind) => {
+    if (!editor) return;
+    if (kind === "undo") editor.chain().focus().undo().run();
+    if (kind === "redo") editor.chain().focus().redo().run();
+    if (kind === "bold") editor.chain().focus().toggleBold().run();
+    if (kind === "italic") editor.chain().focus().toggleItalic().run();
+    if (kind === "underline") editor.chain().focus().toggleUnderline().run();
+    if (kind === "highlight") editor.chain().focus().toggleHighlight({ color: "#f4dfb6" }).run();
+    if (kind === "bullet") editor.chain().focus().toggleBulletList().run();
+    setActiveNoteFormats(getTiptapActiveFormats(editor));
+  };
+
+  const editorStyle = {
+    backgroundColor: darkMode ? "#151a19" : "#fffaf2",
+    border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
+    borderRadius: 11,
+    color: darkMode ? "#f7eddc" : colors.ink,
+    marginBottom: 14,
+    minHeight: studyFocusMode ? (phoneLayout ? 220 : 260) : phoneLayout ? 170 : 150,
+    outline: "none",
+    overflow: "hidden"
+  };
+
+  return (
+    <View ref={wrapRef} style={styles.studyNoteEditorWrap}>
+      {createElement("style", {
+        children: `.bst-note-editor{box-sizing:border-box;min-height:${editorStyle.minHeight}px;padding:${phoneLayout ? "15px" : "14px"};outline:none;line-height:22px;white-space:pre-wrap;color:inherit}.bst-note-editor p{margin:0 0 10px}.bst-note-editor p:last-child{margin-bottom:0}.bst-note-editor ul{margin:0 0 10px 20px;padding:0}.bst-note-editor mark{border-radius:4px;padding:0 2px}.bst-note-editor:empty:before{content:attr(data-placeholder);color:${darkMode ? "#8f8678" : "#7c7162"};pointer-events:none}`
+      })}
       <WritingPromptChips
         prompts={writingPrompts}
         customPrompts={customWritingPrompts}
@@ -8935,61 +8870,7 @@ function StudyNoteEditor({
         compact={phoneLayout}
         darkMode={darkMode}
       />
-      {createElement("div", {
-        ref: editorRef,
-        contentEditable: true,
-        suppressContentEditableWarning: true,
-        "aria-label": placeholder,
-        "data-placeholder": placeholder,
-        onInput: () => {
-          updateActiveNoteFormats();
-          notifyWebEditorChange();
-          updateScripturePopoverPosition();
-        },
-        onBlur: (event: any) => {
-          const nextHtml = sanitizeEditorHtml(event.currentTarget.innerHTML || "");
-          if (editorHtmlRef.current === nextHtml) return;
-          editorHtmlRef.current = nextHtml;
-          onChange(nextHtml, textBeforeWebCaret());
-        },
-          onKeyUp: () => {
-            updateActiveNoteFormats();
-            notifyWebEditorChange();
-            updateScripturePopoverPosition();
-          },
-          onMouseUp: () => {
-            updateActiveNoteFormats();
-            notifyWebEditorChange();
-            updateScripturePopoverPosition();
-          },
-          onPointerUp: () => {
-            updateActiveNoteFormats();
-            notifyWebEditorChange();
-            updateScripturePopoverPosition();
-          },
-          onTouchEnd: () => {
-            updateActiveNoteFormats();
-            notifyWebEditorChange();
-            updateScripturePopoverPosition();
-          },
-          onSelect: updateActiveNoteFormats,
-          onFocus: () => {
-            notifyWebEditorChange();
-            updateActiveNoteFormats();
-          },
-          style: {
-          backgroundColor: darkMode ? "#151a19" : "#fffaf2",
-          border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
-          borderRadius: 11,
-          color: darkMode ? "#f7eddc" : colors.ink,
-          lineHeight: "22px",
-          marginBottom: 14,
-          minHeight: studyFocusMode ? (phoneLayout ? 220 : 260) : (phoneLayout ? 170 : 150),
-          outline: "none",
-          padding: phoneLayout ? "15px" : "14px",
-          whiteSpace: "pre-wrap"
-        }
-      })}
+      {createElement("div", { style: editorStyle, children: createElement(EditorContent, { editor }) })}
       {!!scriptureReference &&
         createElement("div", {
           style: {
@@ -9007,17 +8888,9 @@ function StudyNoteEditor({
           })
         })}
       <NoteFormatToolbar
-        onFormat={(kind) => {
-          if (kind === "undo") runCommand("undo");
-          if (kind === "redo") runCommand("redo");
-          if (kind === "bold") runCommand("bold");
-          if (kind === "italic") runCommand("italic");
-          if (kind === "underline") runCommand("underline");
-          if (kind === "highlight") runCommand("highlightSelection");
-          if (kind === "bullet") runCommand("insertUnorderedList");
-        }}
+        onFormat={applyTiptapFormat}
         activeFormats={activeNoteFormats}
-        highlightActive={highlightModeActive}
+        highlightActive={activeNoteFormats.includes("highlight")}
         compact={phoneLayout}
         darkMode={darkMode}
       />
@@ -10458,6 +10331,38 @@ function moveCaretToEnd(element: any) {
   range.collapse(false);
   selection.removeAllRanges();
   selection.addRange(range);
+}
+
+function getTiptapTextBeforeCursor(editor: Editor) {
+  const { from } = editor.state.selection;
+  return editor.state.doc.textBetween(0, from, "\n");
+}
+
+function getTiptapActiveFormats(editor: Editor): NoteFormatKind[] {
+  const formats: NoteFormatKind[] = [];
+  if (editor.isActive("bold")) formats.push("bold");
+  if (editor.isActive("italic")) formats.push("italic");
+  if (editor.isActive("underline")) formats.push("underline");
+  if (editor.isActive("highlight")) formats.push("highlight");
+  if (editor.isActive("bulletList")) formats.push("bullet");
+  return formats;
+}
+
+function updateTiptapScripturePopoverPosition(
+  editor: Editor,
+  wrapper: any,
+  setPosition: (position: { left: number; top: number }) => void
+) {
+  if (!wrapper) return;
+  const view = editor.view;
+  const coords = view.coordsAtPos(editor.state.selection.from);
+  const wrapperRect = wrapper.getBoundingClientRect?.();
+  const editorRect = view.dom.getBoundingClientRect?.();
+  if (!coords || !wrapperRect || !editorRect) return;
+
+  const left = Math.max(8, Math.min(coords.left - wrapperRect.left + 24, wrapperRect.width - 260));
+  const top = Math.max(editorRect.top - wrapperRect.top + 8, coords.top - wrapperRect.top - 46);
+  setPosition({ left, top });
 }
 
 function readActiveNoteFormats(editor?: any): NoteFormatKind[] {

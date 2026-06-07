@@ -8518,6 +8518,31 @@ function ScriptureInsertPrompt({
   compact?: boolean;
   darkMode?: boolean;
 }) {
+  if (Platform.OS === "web") {
+    return (
+      <View style={[styles.scriptureInsertBox, compact && styles.compactScriptureInsertBox, darkMode && styles.accountDarkSection]}>
+        <Ionicons name="book-outline" size={17} color={darkMode ? "#e9b76a" : colors.coral} />
+        <Text style={[styles.scriptureInsertText, darkMode && styles.accountDarkText]}>{status || `Add text for ${reference}`}</Text>
+        {createElement("button", {
+          type: "button",
+          onMouseDown: (event: any) => event.preventDefault(),
+          onClick: () => onInsert?.(),
+          style: {
+            backgroundColor: colors.coral,
+            border: "none",
+            borderRadius: 999,
+            color: "white",
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 900,
+            padding: "7px 10px"
+          },
+          children: "Insert"
+        })}
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.scriptureInsertBox, compact && styles.compactScriptureInsertBox, darkMode && styles.accountDarkSection]}>
       <Ionicons name="book-outline" size={17} color={darkMode ? "#e9b76a" : colors.coral} />
@@ -8580,6 +8605,7 @@ function StudyNoteEditor({
   const lastNativeTextSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
+  const [highlightModeActive, setHighlightModeActive] = useState(false);
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
 
   useEffect(() => {
@@ -8693,10 +8719,11 @@ function StudyNoteEditor({
     const hasSelectedText = restoreEditorSelection();
     if (command === "highlightSelection") {
       recordEditorHistory();
-      toggleNoteHighlight(editor);
+      const nextHighlightActive = toggleNoteHighlight(editor);
       const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
       editorHtmlRef.current = nextHtml;
       onChange(nextHtml);
+      setHighlightModeActive(nextHighlightActive);
       setActiveNoteFormats(readActiveNoteFormats(editor));
       return;
     }
@@ -8783,7 +8810,9 @@ function StudyNoteEditor({
 
   const updateActiveNoteFormats = () => {
     saveEditorSelection();
-    setActiveNoteFormats(readActiveNoteFormats(editorRef.current));
+    const nextFormats = readActiveNoteFormats(editorRef.current);
+    setActiveNoteFormats(nextFormats);
+    setHighlightModeActive(nextFormats.includes("highlight"));
   };
 
   const notifyWebEditorChange = () => {
@@ -8878,8 +8907,11 @@ function StudyNoteEditor({
     const html = richScriptureExpansion(result.reference, result.text);
     const inserted = insertHtmlAtSelection(html, documentRef, selection, editor);
     if (!inserted) {
-      editor.insertAdjacentHTML("beforeend", html);
-      moveCaretToEnd(editor);
+      const replaced = replaceTypedReferenceInEditorHtml(editor, result.typedReference || result.reference, html);
+      if (!replaced) {
+        editor.insertAdjacentHTML("beforeend", html);
+        moveCaretToEnd(editor);
+      }
     }
 
     const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
@@ -8985,6 +9017,7 @@ function StudyNoteEditor({
           if (kind === "bullet") runCommand("insertUnorderedList");
         }}
         activeFormats={activeNoteFormats}
+        highlightActive={highlightModeActive}
         compact={phoneLayout}
         darkMode={darkMode}
       />
@@ -8995,17 +9028,20 @@ function StudyNoteEditor({
 function NoteFormatToolbar({
   onFormat,
   activeFormats = [],
+  highlightActive = false,
   compact = false,
   darkMode = false
 }: {
   onFormat: (kind: NoteFormatKind) => void;
   activeFormats?: NoteFormatKind[];
+  highlightActive?: boolean;
   compact?: boolean;
   darkMode?: boolean;
 }) {
   const [hoveredFormat, setHoveredFormat] = useState<NoteFormatKind | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeFormatSet = new Set(activeFormats);
+  if (highlightActive) activeFormatSet.add("highlight");
   const formatLabels: Record<NoteFormatKind, string> = {
     undo: "Undo",
     redo: "Redo",
@@ -10384,6 +10420,21 @@ function insertHtmlAtSelection(html: string, documentRef: any, selection: any, r
   return true;
 }
 
+function replaceTypedReferenceInEditorHtml(editor: any, typedReference: string, html: string) {
+  const typed = typedReference.trim();
+  if (!editor || !typed) return false;
+
+  const currentHtml = editor.innerHTML || "";
+  const pattern = new RegExp(escapeRegExp(escapeHtml(typed)), "gi");
+  const matches = Array.from(currentHtml.matchAll(pattern)) as RegExpMatchArray[];
+  const latest = matches.at(-1);
+  if (!latest?.index && latest?.index !== 0) return false;
+
+  editor.innerHTML = `${currentHtml.slice(0, latest.index)}${html}${currentHtml.slice(latest.index + latest[0].length)}`;
+  moveCaretToEnd(editor);
+  return true;
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -10429,18 +10480,19 @@ function readActiveNoteFormats(editor?: any): NoteFormatKind[] {
 function toggleNoteHighlight(editor: any) {
   const documentRef = (globalThis as any).document;
   const selection = (globalThis as any).getSelection?.();
-  if (!documentRef || !selection?.rangeCount) return;
+  if (!documentRef || !selection?.rangeCount) return false;
 
   const range = selection.getRangeAt(0);
-  if (!editor?.contains?.(range.commonAncestorContainer)) return;
+  if (!editor?.contains?.(range.commonAncestorContainer)) return false;
 
   if (range.collapsed) {
     const activeHighlight = closestNoteHighlight(range.startContainer, editor);
     if (activeHighlight) {
       unwrapElement(activeHighlight);
       editor.normalize?.();
+      return false;
     }
-    return;
+    return false;
   }
 
   const highlightedElements = findSelectedNoteHighlights(editor, range);
@@ -10460,7 +10512,7 @@ function toggleNoteHighlight(editor: any) {
     afterRange.collapse(true);
     selection.addRange(afterRange);
     editor.normalize?.();
-    return;
+    return false;
   }
 
   const mark = documentRef.createElement("mark");
@@ -10477,8 +10529,10 @@ function toggleNoteHighlight(editor: any) {
     afterRange.collapse(true);
     selection.addRange(afterRange);
     editor.normalize?.();
+    return true;
   } catch {
     documentRef.execCommand?.("backColor", false, "#f4dfb6");
+    return true;
   }
 }
 

@@ -8749,11 +8749,12 @@ function StudyNoteTiptapEditor({
   const lastHtmlRef = useRef(value || "");
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
-  const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string } | null>(null);
+  const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string; from: number; to: number } | null>(null);
 
   const syncTiptapState = (editor: Editor) => {
-    const textBeforeCursor = getTiptapTextBeforeCursor(editor);
-    setLocalScriptureMatch(findTypedScriptureReferenceMatch(textBeforeCursor));
+    const cursorMatch = findTiptapScriptureReferenceBeforeCursor(editor);
+    const textBeforeCursor = cursorMatch.textBeforeCursor;
+    setLocalScriptureMatch(cursorMatch.match);
     setActiveNoteFormats(getTiptapActiveFormats(editor));
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
@@ -8777,6 +8778,32 @@ function StudyNoteTiptapEditor({
         "aria-label": placeholder,
         "data-placeholder": placeholder,
         class: "bst-note-editor"
+      },
+      handleDOMEvents: {
+        keyup: (_view, event) => {
+          setTimeout(() => {
+            if (editor) syncTiptapState(editor);
+          }, 0);
+          return false;
+        },
+        click: () => {
+          setTimeout(() => {
+            if (editor) syncTiptapState(editor);
+          }, 0);
+          return false;
+        },
+        focus: () => {
+          setTimeout(() => {
+            if (editor) syncTiptapState(editor);
+          }, 0);
+          return false;
+        },
+        touchend: () => {
+          setTimeout(() => {
+            if (editor) syncTiptapState(editor);
+          }, 0);
+          return false;
+        }
       }
     },
     onUpdate: ({ editor }) => {
@@ -8787,7 +8814,7 @@ function StudyNoteTiptapEditor({
     onSelectionUpdate: ({ editor }) => {
       const { from, to } = editor.state.selection;
       onSelectionChange({ start: from, end: to });
-      onChange(sanitizeEditorHtml(editor.getHTML()), syncTiptapState(editor));
+      syncTiptapState(editor);
     }
   });
 
@@ -8812,22 +8839,21 @@ function StudyNoteTiptapEditor({
 
   const insertScriptureWeb = async () => {
     if (!editor) return;
-    const liveMatch = findTypedScriptureReferenceMatch(getTiptapTextBeforeCursor(editor)) || localScriptureMatch;
+    const liveMatch = findTiptapScriptureReferenceBeforeCursor(editor).match || localScriptureMatch;
     const reference = liveMatch?.reference || scriptureReference;
     const typedReference = liveMatch?.typed || scriptureTypedReference || scriptureReference;
     const result = await onInsertScripture?.({ reference, typedReference });
     if (!result) return;
 
     const { from } = editor.state.selection;
-    const typed = (result.typedReference || typedReference || result.reference).trim();
-    const beforeCursor = getTiptapTextBeforeCursor(editor);
-    const deleteFrom = typed && beforeCursor.toLowerCase().endsWith(typed.toLowerCase()) ? Math.max(1, from - typed.length) : from;
+    const deleteFrom = liveMatch?.from || from;
+    const deleteTo = liveMatch?.to || from;
     const html = richScriptureExpansion(result.reference, result.text);
 
     editor
       .chain()
       .focus()
-      .deleteRange({ from: deleteFrom, to: from })
+      .deleteRange({ from: deleteFrom, to: deleteTo })
       .insertContent(html)
       .insertContent(" ")
       .run();
@@ -10343,6 +10369,32 @@ function moveCaretToEnd(element: any) {
 function getTiptapTextBeforeCursor(editor: Editor) {
   const { from } = editor.state.selection;
   return editor.state.doc.textBetween(0, from, "\n");
+}
+
+function findTiptapScriptureReferenceBeforeCursor(editor: Editor) {
+  const { from } = editor.state.selection;
+  const documentStart = 1;
+  const scanFrom = Math.max(documentStart, from - 700);
+  const textBeforeCursor = editor.state.doc.textBetween(scanFrom, from, "\n");
+  const match = findTypedScriptureReferenceMatch(textBeforeCursor);
+  if (!match) return { textBeforeCursor, match: null };
+
+  const typedIndex = textBeforeCursor.toLowerCase().lastIndexOf(match.typed.toLowerCase());
+  if (typedIndex < 0) return { textBeforeCursor, match: null };
+
+  const matchedPrefix = textBeforeCursor.slice(0, typedIndex);
+  const matchedText = textBeforeCursor.slice(typedIndex, typedIndex + match.typed.length);
+  const fromPosition = scanFrom + matchedPrefix.length;
+  const toPosition = fromPosition + matchedText.length;
+
+  return {
+    textBeforeCursor,
+    match: {
+      ...match,
+      from: Math.max(documentStart, fromPosition),
+      to: Math.max(documentStart, Math.min(from, toPosition))
+    }
+  };
 }
 
 function getTiptapActiveFormats(editor: Editor): NoteFormatKind[] {

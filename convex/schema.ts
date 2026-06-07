@@ -16,6 +16,7 @@ const scriptureInsertSettings = v.object({
   bold: v.boolean(),
   italic: v.boolean(),
   color: v.string(),
+  highlightColor: v.optional(v.string()),
   referencePosition: v.union(v.literal("front"), v.literal("end"))
 });
 

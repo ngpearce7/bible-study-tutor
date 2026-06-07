@@ -131,6 +131,7 @@ type ScriptureInsertSettings = {
   bold: boolean;
   italic: boolean;
   color: string;
+  highlightColor: string;
   referencePosition: "front" | "end";
 };
 
@@ -140,6 +141,7 @@ const DEFAULT_SCRIPTURE_INSERT_SETTINGS: ScriptureInsertSettings = {
   bold: false,
   italic: true,
   color: colors.ink,
+  highlightColor: "#f4dfb6",
   referencePosition: "front"
 };
 const SCRIPTURE_INSERT_COLOR_OPTIONS = [
@@ -147,6 +149,13 @@ const SCRIPTURE_INSERT_COLOR_OPTIONS = [
   { label: "Warm", value: colors.coral },
   { label: "Olive", value: colors.oliveDark },
   { label: "Gold", value: "#9a6a1f" }
+];
+const NOTE_HIGHLIGHT_COLOR_OPTIONS = [
+  { label: "Honey", value: "#f4dfb6" },
+  { label: "Rose", value: "#f5cfc5" },
+  { label: "Sage", value: "#dfe8cf" },
+  { label: "Sky", value: "#d6e8f7" },
+  { label: "Lavender", value: "#e7ddf4" }
 ];
 
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
@@ -8674,6 +8683,7 @@ function StudyNoteEditor({
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
   const [scriptureInsertSettings, setScriptureInsertSettings] = useState<ScriptureInsertSettings>(() => getStoredScriptureInsertSettings());
   const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
+  const [highlightPickerOpen, setHighlightPickerOpen] = useState(false);
   const [nativeDismissedReference, setNativeDismissedReference] = useState("");
 
   useEffect(() => {
@@ -8691,6 +8701,11 @@ function StudyNoteEditor({
 
   const openScriptureSettings = () => {
     setScriptureSettingsOpen(true);
+  };
+
+  const saveHighlightColor = async (highlightColor: string) => {
+    await saveScriptureSettings({ ...scriptureInsertSettings, highlightColor });
+    setHighlightPickerOpen(false);
   };
 
   const insertWritingPromptNative = (prompt: string) => {
@@ -8756,6 +8771,10 @@ function StudyNoteEditor({
         onInsertScripture={onInsertScripture}
         scriptureInsertSettings={scriptureInsertSettings}
         onSaveScriptureInsertSettings={saveScriptureSettings}
+        highlightPickerOpen={highlightPickerOpen}
+        onOpenHighlightPicker={() => setHighlightPickerOpen(true)}
+        onCloseHighlightPicker={() => setHighlightPickerOpen(false)}
+        onSaveHighlightColor={saveHighlightColor}
         scriptureSettingsOpen={scriptureSettingsOpen}
         onOpenScriptureSettings={openScriptureSettings}
         onCloseScriptureSettings={() => setScriptureSettingsOpen(false)}
@@ -8803,7 +8822,23 @@ function StudyNoteEditor({
           darkMode={darkMode}
         />
       )}
-      <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} onOpenSettings={openScriptureSettings} compact={phoneLayout} darkMode={darkMode} />
+      <NoteFormatToolbar
+        onFormat={formatNativeNote}
+        activeFormats={[]}
+        highlightColor={scriptureInsertSettings.highlightColor}
+        onOpenHighlightPicker={() => setHighlightPickerOpen(true)}
+        onOpenSettings={openScriptureSettings}
+        compact={phoneLayout}
+        darkMode={darkMode}
+      />
+      {highlightPickerOpen && (
+        <NoteHighlightColorPicker
+          color={scriptureInsertSettings.highlightColor}
+          onSelect={saveHighlightColor}
+          onClose={() => setHighlightPickerOpen(false)}
+          darkMode={darkMode}
+        />
+      )}
       {scriptureSettingsOpen && (
         <ScriptureInsertSettingsDialog
           settings={scriptureInsertSettings}
@@ -8833,6 +8868,10 @@ function StudyNoteTiptapEditor({
   onInsertScripture,
   scriptureInsertSettings,
   onSaveScriptureInsertSettings,
+  highlightPickerOpen,
+  onOpenHighlightPicker,
+  onCloseHighlightPicker,
+  onSaveHighlightColor,
   scriptureSettingsOpen,
   onOpenScriptureSettings,
   onCloseScriptureSettings,
@@ -8854,6 +8893,10 @@ function StudyNoteTiptapEditor({
   onInsertScripture?: (request?: ScriptureInsertRequest) => Promise<ScriptureInsertResult | null | undefined>;
   scriptureInsertSettings: ScriptureInsertSettings;
   onSaveScriptureInsertSettings: (settings: ScriptureInsertSettings) => Promise<void>;
+  highlightPickerOpen: boolean;
+  onOpenHighlightPicker: () => void;
+  onCloseHighlightPicker: () => void;
+  onSaveHighlightColor: (color: string) => Promise<void>;
   scriptureSettingsOpen: boolean;
   onOpenScriptureSettings: (event?: any) => void;
   onCloseScriptureSettings: () => void;
@@ -9027,7 +9070,7 @@ function StudyNoteTiptapEditor({
     if (kind === "bold") editor.chain().focus().toggleBold().run();
     if (kind === "italic") editor.chain().focus().toggleItalic().run();
     if (kind === "underline") editor.chain().focus().toggleUnderline().run();
-    if (kind === "highlight") editor.chain().focus().toggleHighlight({ color: "#f4dfb6" }).run();
+    if (kind === "highlight") editor.chain().focus().toggleHighlight({ color: scriptureInsertSettingsRef.current.highlightColor }).run();
     if (kind === "bullet") editor.chain().focus().toggleBulletList().run();
     setActiveNoteFormats(getTiptapActiveFormats(editor));
   };
@@ -9089,10 +9132,20 @@ function StudyNoteTiptapEditor({
         onFormat={applyTiptapFormat}
         activeFormats={activeNoteFormats}
         highlightActive={activeNoteFormats.includes("highlight")}
+        highlightColor={scriptureInsertSettings.highlightColor}
+        onOpenHighlightPicker={onOpenHighlightPicker}
         onOpenSettings={onOpenScriptureSettings}
         compact={phoneLayout}
         darkMode={darkMode}
       />
+      {highlightPickerOpen && (
+        <NoteHighlightColorPicker
+          color={scriptureInsertSettings.highlightColor}
+          onSelect={onSaveHighlightColor}
+          onClose={onCloseHighlightPicker}
+          darkMode={darkMode}
+        />
+      )}
       {scriptureSettingsOpen && (
         <ScriptureInsertSettingsDialog
           settings={scriptureInsertSettings}
@@ -9110,6 +9163,8 @@ function NoteFormatToolbar({
   onFormat,
   activeFormats = [],
   highlightActive = false,
+  highlightColor = DEFAULT_SCRIPTURE_INSERT_SETTINGS.highlightColor,
+  onOpenHighlightPicker,
   onOpenSettings,
   compact = false,
   darkMode = false
@@ -9117,12 +9172,15 @@ function NoteFormatToolbar({
   onFormat: (kind: NoteFormatKind) => void;
   activeFormats?: NoteFormatKind[];
   highlightActive?: boolean;
+  highlightColor?: string;
+  onOpenHighlightPicker?: () => void;
   onOpenSettings?: (event?: any) => void;
   compact?: boolean;
   darkMode?: boolean;
 }) {
   const [hoveredFormat, setHoveredFormat] = useState<NoteFormatKind | null>(null);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const highlightPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeFormatSet = new Set(activeFormats);
   if (highlightActive) activeFormatSet.add("highlight");
   const formatLabels: Record<NoteFormatKind, string> = {
@@ -9138,6 +9196,7 @@ function NoteFormatToolbar({
   useEffect(() => {
     return () => {
       if (tooltipTimerRef.current) clearTimeout(tooltipTimerRef.current);
+      if (highlightPressTimerRef.current) clearTimeout(highlightPressTimerRef.current);
     };
   }, []);
 
@@ -9175,6 +9234,59 @@ function NoteFormatToolbar({
         } as any)
       : { accessibilityLabel: formatLabels[kind], onPressIn: () => onFormat(kind) };
 
+  const startHighlightPress = (event?: any) => {
+    event?.preventDefault?.();
+    hideTooltip();
+    if (highlightPressTimerRef.current) clearTimeout(highlightPressTimerRef.current);
+    highlightPressTimerRef.current = setTimeout(() => {
+      highlightPressTimerRef.current = null;
+      onOpenHighlightPicker?.();
+    }, 650);
+  };
+
+  const finishHighlightPress = (event?: any) => {
+    event?.preventDefault?.();
+    if (highlightPressTimerRef.current) {
+      clearTimeout(highlightPressTimerRef.current);
+      highlightPressTimerRef.current = null;
+      onFormat("highlight");
+      return;
+    }
+  };
+
+  const cancelHighlightPress = () => {
+    if (highlightPressTimerRef.current) clearTimeout(highlightPressTimerRef.current);
+    highlightPressTimerRef.current = null;
+  };
+
+  const highlightButtonProps =
+    Platform.OS === "web"
+      ? ({
+          accessibilityLabel: "Highlight",
+          onHoverIn: () => showTooltipAfterDelay("highlight"),
+          onHoverOut: () => {
+            hideTooltip();
+            cancelHighlightPress();
+          },
+          onContextMenu: (event: any) => {
+            event.preventDefault();
+            hideTooltip();
+            onOpenHighlightPicker?.();
+          },
+          onMouseDown: startHighlightPress,
+          onMouseLeave: cancelHighlightPress,
+          onMouseUp: finishHighlightPress,
+          onPointerLeave: cancelHighlightPress,
+          onTouchCancel: cancelHighlightPress,
+          onTouchEnd: finishHighlightPress,
+          onTouchStart: startHighlightPress
+        } as any)
+      : {
+          accessibilityLabel: "Highlight",
+          onLongPress: onOpenHighlightPicker,
+          onPress: () => onFormat("highlight")
+        };
+
   return (
     <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar, darkMode && styles.accountDarkSection]}>
       <View style={styles.noteFormatButtonRow}>
@@ -9198,8 +9310,8 @@ function NoteFormatToolbar({
           <Pressable {...pressProps("underline")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("underline") && styles.activeNoteFormatButton]}>
             <Text style={[styles.noteFormatText, styles.noteFormatUnderline, darkMode && styles.accountDarkText, activeFormatSet.has("underline") && styles.activeNoteFormatText]}>U</Text>
           </Pressable>
-          <Pressable {...pressProps("highlight")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
-            <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, activeFormatSet.has("highlight") && styles.activeNoteFormatText, activeFormatSet.has("highlight") && styles.activeNoteHighlightFormatText]}>H</Text>
+          <Pressable {...highlightButtonProps} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
+            <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, { backgroundColor: highlightColor }, activeFormatSet.has("highlight") && styles.activeNoteFormatText, activeFormatSet.has("highlight") && styles.activeNoteHighlightFormatText]}>H</Text>
           </Pressable>
           <Pressable {...pressProps("bullet")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bullet") && styles.activeNoteFormatButton]}>
             <Ionicons name="list-outline" size={17} color={activeFormatSet.has("bullet") ? "white" : darkMode ? "#f7eddc" : colors.oliveDark} />
@@ -9318,6 +9430,69 @@ function ScriptureInsertSettingsDialog({
           </Pressable>
           <Pressable onPress={saveSettings} style={styles.editorSettingsSaveButton}>
             <Text style={styles.editorSettingsSaveText}>Save</Text>
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function NoteHighlightColorPicker({
+  color,
+  onSelect,
+  onClose,
+  darkMode = false
+}: {
+  color: string;
+  onSelect: (color: string) => Promise<void>;
+  onClose: () => void;
+  darkMode?: boolean;
+}) {
+  const [status, setStatus] = useState("");
+
+  const chooseColor = async (nextColor: string) => {
+    setStatus("Saving...");
+    try {
+      await onSelect(nextColor);
+    } catch {
+      setStatus("Saved on this device only.");
+    }
+  };
+
+  return (
+    <View style={styles.printOptionsOverlay}>
+      <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
+      <View style={[styles.highlightColorPickerCard, darkMode && styles.accountDarkMainCard]}>
+        <View style={styles.printOptionsHeader}>
+          <View style={styles.printOptionsTitleBlock}>
+            <Text style={[styles.printOptionsTitle, darkMode && styles.accountDarkTitle]}>Highlight colour</Text>
+            <Text style={[styles.printOptionsSubtitle, darkMode && styles.accountDarkMutedText]}>
+              Long press Highlight to change this colour.
+            </Text>
+          </View>
+          <Pressable onPress={onClose} style={[styles.readerBookmarkIconButton, darkMode && styles.homeDarkIconBubble]} accessibilityLabel="Close highlight colour picker">
+            <Ionicons name="close-outline" size={18} color={darkMode ? "#c8bda9" : colors.muted} />
+          </Pressable>
+        </View>
+        <View style={styles.highlightColorGrid}>
+          {NOTE_HIGHLIGHT_COLOR_OPTIONS.map((option) => {
+            const active = color === option.value;
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => chooseColor(option.value)}
+                style={[styles.highlightColorChoice, active && styles.activeHighlightColorChoice, darkMode && styles.printDarkOptionChip]}
+              >
+                <View style={[styles.highlightColorSwatch, { backgroundColor: option.value }]} />
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, active && styles.scriptureColorActiveText]}>{option.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        <View style={styles.printOptionsActions}>
+          {!!status && <Text style={[styles.editorSettingsStatus, darkMode && styles.accountDarkMutedText]}>{status}</Text>}
+          <Pressable onPress={onClose} style={[styles.printOptionsCancelButton, darkMode && styles.printDarkCancelButton]}>
+            <Text style={[styles.printOptionsCancelText, darkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
           </Pressable>
         </View>
       </View>
@@ -10589,11 +10764,13 @@ function saveStoredScriptureInsertSettings(settings: ScriptureInsertSettings) {
 
 function normalizeScriptureInsertSettings(value: Partial<ScriptureInsertSettings> | null | undefined): ScriptureInsertSettings {
   const colorOptions = new Set(SCRIPTURE_INSERT_COLOR_OPTIONS.map((option) => option.value));
+  const highlightColorOptions = new Set(NOTE_HIGHLIGHT_COLOR_OPTIONS.map((option) => option.value));
   return {
     disabled: Boolean(value?.disabled),
     bold: Boolean(value?.bold),
     italic: value?.italic === undefined ? DEFAULT_SCRIPTURE_INSERT_SETTINGS.italic : Boolean(value.italic),
     color: value?.color && colorOptions.has(value.color) ? value.color : DEFAULT_SCRIPTURE_INSERT_SETTINGS.color,
+    highlightColor: value?.highlightColor && highlightColorOptions.has(value.highlightColor) ? value.highlightColor : DEFAULT_SCRIPTURE_INSERT_SETTINGS.highlightColor,
     referencePosition: value?.referencePosition === "end" ? "end" : "front"
   };
 }
@@ -18934,6 +19111,50 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 13,
     fontWeight: "900"
+  },
+  highlightColorPickerCard: {
+    alignSelf: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 14,
+    marginTop: 112,
+    maxWidth: 420,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.16,
+    shadowRadius: 24,
+    width: "88%"
+  },
+  highlightColorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  highlightColorChoice: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    minHeight: 40,
+    paddingHorizontal: 10,
+    paddingVertical: 8
+  },
+  activeHighlightColorChoice: {
+    borderColor: colors.coral,
+    borderWidth: 2
+  },
+  highlightColorSwatch: {
+    borderColor: "rgba(36, 29, 25, 0.16)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 20,
+    width: 20
   },
   phonePrintOptionsCard: {
     marginTop: 68,

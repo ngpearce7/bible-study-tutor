@@ -86,6 +86,7 @@ export const saveScriptureInsertSettings = mutation({
       bold: v.boolean(),
       italic: v.boolean(),
       color: v.string(),
+      highlightColor: v.string(),
       referencePosition: v.union(v.literal("front"), v.literal("end"))
     })
   },
@@ -98,6 +99,7 @@ export const saveScriptureInsertSettings = mutation({
         bold: args.settings.bold,
         italic: args.settings.italic,
         color: clampText(args.settings.color, 40),
+        highlightColor: clampText(args.settings.highlightColor, 40),
         referencePosition: args.settings.referencePosition
       },
       updatedAt: Date.now()

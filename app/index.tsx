@@ -8509,20 +8509,11 @@ function ScriptureInsertPrompt({
   compact?: boolean;
   darkMode?: boolean;
 }) {
-  const preventEditorBlur =
-    Platform.OS === "web"
-      ? {
-          onMouseDown: (event: any) => {
-            event.preventDefault();
-          }
-        }
-      : {};
-
   return (
     <View style={[styles.scriptureInsertBox, compact && styles.compactScriptureInsertBox, darkMode && styles.accountDarkSection]}>
       <Ionicons name="book-outline" size={17} color={darkMode ? "#e9b76a" : colors.coral} />
       <Text style={[styles.scriptureInsertText, darkMode && styles.accountDarkText]}>{status || `Add text for ${reference}`}</Text>
-      <Pressable {...preventEditorBlur} onPress={() => onInsert?.()} style={styles.scriptureInsertButton}>
+      <Pressable onPress={() => onInsert?.()} style={styles.scriptureInsertButton}>
         <Text style={styles.scriptureInsertButtonText}>Insert</Text>
       </Pressable>
     </View>

@@ -8850,8 +8850,8 @@ function StudyNoteTiptapEditor({
       chosenMatch ||
       findTiptapScriptureReferenceBeforeCursor(editor).match ||
       localScriptureMatch;
-    const reference = liveMatch?.reference || scriptureReference;
-    const typedReference = liveMatch?.typed || scriptureTypedReference || scriptureReference;
+    const reference = liveMatch?.reference || "";
+    const typedReference = liveMatch?.typed || "";
     const result = await onInsertScripture?.({ reference, typedReference });
     if (!result) return;
 
@@ -8896,7 +8896,7 @@ function StudyNoteTiptapEditor({
     outline: "none",
     overflow: "hidden"
   };
-  const visibleScriptureReference = localScriptureMatch?.reference || scriptureReference || "";
+  const visibleScriptureReference = localScriptureMatch?.reference || "";
 
   return (
     <View ref={wrapRef} style={styles.studyNoteEditorWrap}>

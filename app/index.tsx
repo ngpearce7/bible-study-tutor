@@ -8718,6 +8718,14 @@ function StudyNoteEditor({
     setActiveNoteFormats(readActiveNoteFormats(editorRef.current));
   };
 
+  const notifyWebEditorChange = () => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const nextHtml = sanitizeEditorHtml(editor.innerHTML || "");
+    editorHtmlRef.current = nextHtml;
+    onChange(nextHtml, textBeforeWebCaret());
+  };
+
   const textBeforeWebCaret = () => {
     const editor = editorRef.current;
     const selection = (globalThis as any).getSelection?.();
@@ -8794,12 +8802,31 @@ function StudyNoteEditor({
           editorHtmlRef.current = nextHtml;
           onChange(nextHtml);
         },
-          onKeyUp: updateActiveNoteFormats,
-          onMouseUp: updateActiveNoteFormats,
-          onPointerUp: updateActiveNoteFormats,
-          onTouchEnd: updateActiveNoteFormats,
+          onKeyUp: () => {
+            notifyWebEditorChange();
+            updateScripturePopoverPosition();
+            updateActiveNoteFormats();
+          },
+          onMouseUp: () => {
+            notifyWebEditorChange();
+            updateScripturePopoverPosition();
+            updateActiveNoteFormats();
+          },
+          onPointerUp: () => {
+            notifyWebEditorChange();
+            updateScripturePopoverPosition();
+            updateActiveNoteFormats();
+          },
+          onTouchEnd: () => {
+            notifyWebEditorChange();
+            updateScripturePopoverPosition();
+            updateActiveNoteFormats();
+          },
           onSelect: updateActiveNoteFormats,
-          onFocus: updateActiveNoteFormats,
+          onFocus: () => {
+            notifyWebEditorChange();
+            updateActiveNoteFormats();
+          },
           style: {
           backgroundColor: darkMode ? "#151a19" : "#fffaf2",
           border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
@@ -10089,13 +10116,22 @@ function findTypedScriptureReference(text: string) {
 }
 
 function findTypedScriptureReferenceMatch(text: string) {
-  const cleaned = stripNoteFormatting(text).replace(/\s+/g, " ");
-  const referencePattern = /(?:^|\s)((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,2}\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?)\s*$/i;
-  const match = cleaned.match(referencePattern);
-  const typed = match?.[1]?.trim();
-  if (!typed) return null;
-  const parsed = parsePassageQuery(typed).reference;
-  return parseBsbPassageReference(parsed) ? { reference: parsed, typed } : null;
+  const cleaned = stripNoteFormatting(text)
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, " ")
+    .trimEnd();
+  const searchText = cleaned.slice(-160);
+  const referencePattern = /(?:^|\s)((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,2}\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?)(?=$|[\s.,;:!?)]*$)/gi;
+  const matches = Array.from(searchText.matchAll(referencePattern));
+
+  for (const match of matches.reverse()) {
+    const typed = match[1]?.trim();
+    if (!typed) continue;
+    const parsed = parsePassageQuery(typed).reference;
+    if (parseBsbPassageReference(parsed)) return { reference: parsed, typed };
+  }
+
+  return null;
 }
 
 function expandScriptureReference(currentAnswer: string, reference: string, verseText: string, useRichHtml = false, typedReference?: string) {

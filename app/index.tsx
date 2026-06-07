@@ -8614,6 +8614,12 @@ function StudyNoteEditor({
   };
 
   if (Platform.OS !== "web") {
+    const updateNativeText = (nextValue: string) => {
+      const lengthDelta = nextValue.length - value.length;
+      const estimatedCaretEnd = Math.max(0, Math.min(nextValue.length, nativeSelectionRef.current.end + lengthDelta));
+      onChange(nextValue, nextValue.slice(0, estimatedCaretEnd));
+    };
+
     return (
       <>
         <WritingPromptChips
@@ -8630,7 +8636,7 @@ function StudyNoteEditor({
           ref={nativeInputRef}
           multiline
           value={value}
-          onChangeText={onChange}
+          onChangeText={updateNativeText}
           selection={nativeSelection}
           onSelectionChange={(event) => updateNativeSelection(event.nativeEvent.selection)}
           placeholder={placeholder}
@@ -8712,6 +8718,21 @@ function StudyNoteEditor({
     setActiveNoteFormats(readActiveNoteFormats(editorRef.current));
   };
 
+  const textBeforeWebCaret = () => {
+    const editor = editorRef.current;
+    const selection = (globalThis as any).getSelection?.();
+    const documentRef = (globalThis as any).document;
+    if (!editor || !selection?.rangeCount || !documentRef || !selection.anchorNode || !editor.contains(selection.anchorNode)) {
+      return editor?.textContent || "";
+    }
+
+    const range = selection.getRangeAt(0).cloneRange();
+    const beforeRange = documentRef.createRange();
+    beforeRange.selectNodeContents(editor);
+    beforeRange.setEnd(range.endContainer, range.endOffset);
+    return beforeRange.toString();
+  };
+
   const insertWritingPromptWeb = (prompt: string) => {
     const editor = editorRef.current;
     const documentRef = (globalThis as any).document;
@@ -8764,7 +8785,7 @@ function StudyNoteEditor({
         onInput: (event: any) => {
           const nextHtml = sanitizeEditorHtml(event.currentTarget.innerHTML || "");
           editorHtmlRef.current = nextHtml;
-          onChange(nextHtml, event.currentTarget.textContent || "");
+          onChange(nextHtml, textBeforeWebCaret());
           updateScripturePopoverPosition();
           updateActiveNoteFormats();
         },

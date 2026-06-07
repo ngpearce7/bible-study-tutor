@@ -420,6 +420,7 @@ export default function Home() {
   const [answerSelection, setAnswerSelection] = useState({ start: 0, end: 0 });
   const [lastAnswerSelection, setLastAnswerSelection] = useState({ start: 0, end: 0 });
   const [detectedScriptureReference, setDetectedScriptureReference] = useState("");
+  const [detectedScriptureTypedReference, setDetectedScriptureTypedReference] = useState("");
   const [scriptureInsertStatus, setScriptureInsertStatus] = useState("");
   const [scriptureInsertFocusKey, setScriptureInsertFocusKey] = useState(0);
   const [customWritingPrompts, setCustomWritingPrompts] = useState<string[]>([]);
@@ -1290,6 +1291,7 @@ export default function Home() {
 
   useEffect(() => {
     setDetectedScriptureReference("");
+    setDetectedScriptureTypedReference("");
     setScriptureInsertStatus("");
   }, [answerKey]);
 
@@ -2855,6 +2857,14 @@ export default function Home() {
     } as any;
   }
 
+  function updateAnswerWithScriptureDetection(value: string, plainText?: string) {
+    setAnswers({ ...answers, [answerKey]: value });
+    const detected = findTypedScriptureReferenceMatch(plainText || value);
+    setDetectedScriptureReference(detected?.reference || "");
+    setDetectedScriptureTypedReference(detected?.typed || "");
+    setScriptureInsertStatus("");
+  }
+
   async function insertDetectedScripture() {
     if (!detectedScriptureReference) return;
 
@@ -2867,9 +2877,16 @@ export default function Home() {
           : await fetchBibleApiPassage(detectedScriptureReference, bibleTranslation, controller.signal);
       setAnswers((current) => ({
         ...current,
-        [answerKey]: expandScriptureReference(current[answerKey] || "", detectedScriptureReference, passageResult.text, Platform.OS === "web")
+        [answerKey]: expandScriptureReference(
+          current[answerKey] || "",
+          detectedScriptureReference,
+          passageResult.text,
+          Platform.OS === "web",
+          detectedScriptureTypedReference
+        )
       }));
       setDetectedScriptureReference("");
+      setDetectedScriptureTypedReference("");
       setScriptureInsertStatus(`Inserted ${passageResult.reference}`);
       setScriptureInsertFocusKey((key) => key + 1);
     } catch {
@@ -4306,11 +4323,7 @@ export default function Home() {
                         <View style={styles.responseEditorColumn}>
                           <StudyNoteEditor
                             value={answers[answerKey] || ""}
-                            onChange={(value) => {
-                              setAnswers({ ...answers, [answerKey]: value });
-                              setDetectedScriptureReference(findTypedScriptureReference(value));
-                              setScriptureInsertStatus("");
-                            }}
+                            onChange={updateAnswerWithScriptureDetection}
                             onSelectionChange={handleAnswerSelectionChange}
                             onFormat={applyNoteFormat}
                             placeholder={step.output}
@@ -8436,7 +8449,7 @@ function MemoryBlank({
   hintsVisible: boolean;
   hintLevel: number;
   inputRef?: (input: TextInput | null) => void;
-  onChange: (value: string) => void;
+  onChange: (value: string, plainText?: string) => void;
   onSubmit?: () => void;
   onMoreHint: () => void;
   returnKeyType?: "next" | "done";
@@ -8526,7 +8539,7 @@ function StudyNoteEditor({
   darkMode = false
 }: {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, plainText?: string) => void;
   onSelectionChange: (selection: { start: number; end: number }) => void;
   onFormat: (kind: NoteFormatKind) => void;
   placeholder: string;
@@ -8751,7 +8764,7 @@ function StudyNoteEditor({
         onInput: (event: any) => {
           const nextHtml = sanitizeEditorHtml(event.currentTarget.innerHTML || "");
           editorHtmlRef.current = nextHtml;
-          onChange(nextHtml);
+          onChange(nextHtml, event.currentTarget.textContent || "");
           updateScripturePopoverPosition();
           updateActiveNoteFormats();
         },
@@ -10051,19 +10064,25 @@ function parsePassageQuery(query: string) {
 }
 
 function findTypedScriptureReference(text: string) {
+  return findTypedScriptureReferenceMatch(text)?.reference || "";
+}
+
+function findTypedScriptureReferenceMatch(text: string) {
   const cleaned = stripNoteFormatting(text).replace(/\s+/g, " ");
   const referencePattern = /(?:^|\s)((?:[1-3]\s*)?[A-Za-z.]+(?:\s+[A-Za-z.]+){0,2}\s+\d{1,3}:\d{1,3}(?:-\d{1,3})?)\s*$/i;
   const match = cleaned.match(referencePattern);
-  if (!match?.[1]) return "";
-  const parsed = parsePassageQuery(match[1]).reference;
-  return parseBsbPassageReference(parsed) ? parsed : "";
+  const typed = match?.[1]?.trim();
+  if (!typed) return null;
+  const parsed = parsePassageQuery(typed).reference;
+  return parseBsbPassageReference(parsed) ? { reference: parsed, typed } : null;
 }
 
-function expandScriptureReference(currentAnswer: string, reference: string, verseText: string, useRichHtml = false) {
+function expandScriptureReference(currentAnswer: string, reference: string, verseText: string, useRichHtml = false, typedReference?: string) {
   const verseOnly = verseText.trim().replace(/\s+/g, " ");
   const plainExpansion = `*${reference} — "${verseOnly}"* `;
   const htmlExpansion = `<em>${escapeHtml(reference)} — "${escapeHtml(verseOnly)}"</em>&nbsp;`;
-  const referencePattern = new RegExp(`(${escapeRegExp(reference)})(?!\\s*[—-])`, "gi");
+  const replaceTarget = typedReference?.trim() || reference;
+  const referencePattern = new RegExp(`(${escapeRegExp(replaceTarget)})(?!\\s*[—-])`, "gi");
   const matches = Array.from(currentAnswer.matchAll(referencePattern));
   const latest = matches.at(-1);
 

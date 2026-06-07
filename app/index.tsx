@@ -8957,12 +8957,17 @@ function StudyNoteTiptapEditor({
             darkMode
           })
         })}
-      {visibleDetectedReferences.length > 0 && (
-        <View style={[styles.detectedScriptureRow, darkMode && styles.accountDarkSection]}>
-          <View style={styles.detectedScriptureHeader}>
+      <View style={[styles.detectedScriptureRow, darkMode && styles.accountDarkSection]}>
+        <View style={styles.detectedScriptureHeader}>
+          <View style={styles.detectedScriptureHeaderCopy}>
             <Ionicons name="book-outline" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
-            <Text style={[styles.detectedScriptureTitle, darkMode && styles.accountDarkText]}>Detected references</Text>
+            <Text style={[styles.detectedScriptureTitle, darkMode && styles.accountDarkText]}>Scripture finder</Text>
           </View>
+          <Pressable onPress={() => editor && syncTiptapState(editor)} style={[styles.detectedScriptureScanButton, darkMode && styles.studyDarkFormatButton]}>
+            <Text style={[styles.detectedScriptureScanText, darkMode && styles.accountDarkText]}>Scan</Text>
+          </Pressable>
+        </View>
+        {visibleDetectedReferences.length > 0 ? (
           <View style={styles.detectedScriptureChips}>
             {visibleDetectedReferences.map((match, index) => (
               <Pressable
@@ -8974,8 +8979,10 @@ function StudyNoteTiptapEditor({
               </Pressable>
             ))}
           </View>
-        </View>
-      )}
+        ) : (
+          <Text style={[styles.detectedScriptureEmptyText, darkMode && styles.accountDarkMutedText]}>No scripture references found yet.</Text>
+        )}
+      </View>
       <NoteFormatToolbar
         onFormat={applyTiptapFormat}
         activeFormats={activeNoteFormats}
@@ -13717,11 +13724,30 @@ const styles = StyleSheet.create({
   detectedScriptureHeader: {
     alignItems: "center",
     flexDirection: "row",
+    gap: 7,
+    justifyContent: "space-between"
+  },
+  detectedScriptureHeaderCopy: {
+    alignItems: "center",
+    flexDirection: "row",
     gap: 7
   },
   detectedScriptureTitle: {
     color: colors.ink,
     fontSize: 12,
+    fontWeight: "900"
+  },
+  detectedScriptureScanButton: {
+    backgroundColor: "white",
+    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 5
+  },
+  detectedScriptureScanText: {
+    color: colors.oliveDark,
+    fontSize: 11,
     fontWeight: "900"
   },
   detectedScriptureChips: {
@@ -13741,6 +13767,11 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 12,
     fontWeight: "900"
+  },
+  detectedScriptureEmptyText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "700"
   },
   noteFormatButtonRow: {
     alignItems: "center",

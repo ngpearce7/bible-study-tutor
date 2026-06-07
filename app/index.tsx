@@ -95,6 +95,28 @@ type ScriptureInsertRequest = {
   reference?: string;
   typedReference?: string;
 };
+type ScriptureInsertSettings = {
+  disabled: boolean;
+  bold: boolean;
+  italic: boolean;
+  color: string;
+  referencePosition: "front" | "end";
+};
+
+const SCRIPTURE_INSERT_SETTINGS_KEY = "bible-study-tutor-scripture-insert-settings";
+const DEFAULT_SCRIPTURE_INSERT_SETTINGS: ScriptureInsertSettings = {
+  disabled: false,
+  bold: false,
+  italic: true,
+  color: colors.ink,
+  referencePosition: "front"
+};
+const SCRIPTURE_INSERT_COLOR_OPTIONS = [
+  { label: "Ink", value: colors.ink },
+  { label: "Warm", value: colors.coral },
+  { label: "Olive", value: colors.oliveDark },
+  { label: "Gold", value: "#9a6a1f" }
+];
 
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
   { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
@@ -8513,12 +8535,14 @@ function ScriptureInsertPrompt({
   reference,
   status,
   onInsert,
+  onDismiss,
   compact = false,
   darkMode = false
 }: {
   reference: string;
   status?: string;
   onInsert?: () => void;
+  onDismiss?: () => void;
   compact?: boolean;
   darkMode?: boolean;
 }) {
@@ -8543,6 +8567,9 @@ function ScriptureInsertPrompt({
           },
           children: "Insert"
         })}
+        <Pressable onPress={onDismiss} style={[styles.scriptureInsertCloseButton, darkMode && styles.homeDarkIconBubble]} accessibilityLabel="Close scripture insert">
+          <Ionicons name="close-outline" size={16} color={darkMode ? "#c8bda9" : colors.muted} />
+        </Pressable>
       </View>
     );
   }
@@ -8553,6 +8580,9 @@ function ScriptureInsertPrompt({
       <Text style={[styles.scriptureInsertText, darkMode && styles.accountDarkText]}>{status || `Add text for ${reference}`}</Text>
       <Pressable onPress={() => onInsert?.()} style={styles.scriptureInsertButton}>
         <Text style={styles.scriptureInsertButtonText}>Insert</Text>
+      </Pressable>
+      <Pressable onPress={onDismiss} style={[styles.scriptureInsertCloseButton, darkMode && styles.homeDarkIconBubble]} accessibilityLabel="Close scripture insert">
+        <Ionicons name="close-outline" size={16} color={darkMode ? "#c8bda9" : colors.muted} />
       </Pressable>
     </View>
   );
@@ -8601,6 +8631,14 @@ function StudyNoteEditor({
   const nativeSelectionRef = useRef({ start: value.length, end: value.length });
   const lastNativeTextSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
+  const [scriptureInsertSettings, setScriptureInsertSettings] = useState<ScriptureInsertSettings>(() => getStoredScriptureInsertSettings());
+  const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
+  const [nativeDismissedReference, setNativeDismissedReference] = useState("");
+
+  const updateScriptureInsertSettings = (nextSettings: ScriptureInsertSettings) => {
+    setScriptureInsertSettings(nextSettings);
+    saveStoredScriptureInsertSettings(nextSettings);
+  };
 
   const insertWritingPromptNative = (prompt: string) => {
     const nextValue = value.trim() ? `${value.trimEnd()}\n${prompt} ` : `${prompt} `;
@@ -8638,7 +8676,7 @@ function StudyNoteEditor({
     if (!result) return;
 
     const caretEnd = nativeSelectionRef.current.end;
-    const inserted = plainScriptureExpansion(result.reference, result.text);
+    const inserted = plainScriptureExpansion(result.reference, result.text, scriptureInsertSettings);
     const { nextValue, nextSelection } = replaceTypedReferenceBeforeIndex(value, result.typedReference || result.reference, inserted, caretEnd);
     onChange(nextValue, nextValue.slice(0, nextSelection.end));
     nativeSelectionRef.current = nextSelection;
@@ -8660,11 +8698,14 @@ function StudyNoteEditor({
         writingPromptStatus={writingPromptStatus}
         onAddCustomWritingPrompt={onAddCustomWritingPrompt}
         onRemoveCustomWritingPrompt={onRemoveCustomWritingPrompt}
-        scriptureReference={scriptureReference}
-        scriptureTypedReference={scriptureTypedReference}
         scriptureInsertStatus={scriptureInsertStatus}
         scriptureInsertFocusKey={scriptureInsertFocusKey}
         onInsertScripture={onInsertScripture}
+        scriptureInsertSettings={scriptureInsertSettings}
+        onUpdateScriptureInsertSettings={updateScriptureInsertSettings}
+        scriptureSettingsOpen={scriptureSettingsOpen}
+        onOpenScriptureSettings={() => setScriptureSettingsOpen(true)}
+        onCloseScriptureSettings={() => setScriptureSettingsOpen(false)}
         phoneLayout={phoneLayout}
         darkMode={darkMode}
       />
@@ -8700,10 +8741,25 @@ function StudyNoteEditor({
         placeholderTextColor={darkMode ? "#8f8678" : undefined}
         style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
       />
-      {!!scriptureReference && (
-        <ScriptureInsertPrompt reference={scriptureReference} status={scriptureInsertStatus} onInsert={insertScriptureNative} darkMode={darkMode} />
+      {!!scriptureReference && !scriptureInsertSettings.disabled && nativeDismissedReference !== scriptureReference && (
+        <ScriptureInsertPrompt
+          reference={scriptureReference}
+          status={scriptureInsertStatus}
+          onInsert={insertScriptureNative}
+          onDismiss={() => setNativeDismissedReference(scriptureReference || "")}
+          darkMode={darkMode}
+        />
       )}
-      <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} compact={phoneLayout} darkMode={darkMode} />
+      <NoteFormatToolbar onFormat={formatNativeNote} activeFormats={[]} onOpenSettings={() => setScriptureSettingsOpen(true)} compact={phoneLayout} darkMode={darkMode} />
+      {scriptureSettingsOpen && (
+        <ScriptureInsertSettingsDialog
+          settings={scriptureInsertSettings}
+          onChange={updateScriptureInsertSettings}
+          onClose={() => setScriptureSettingsOpen(false)}
+          darkMode={darkMode}
+          phoneLayout={phoneLayout}
+        />
+      )}
     </>
   );
 }
@@ -8719,11 +8775,14 @@ function StudyNoteTiptapEditor({
   writingPromptStatus,
   onAddCustomWritingPrompt,
   onRemoveCustomWritingPrompt,
-  scriptureReference,
-  scriptureTypedReference,
   scriptureInsertStatus,
   scriptureInsertFocusKey,
   onInsertScripture,
+  scriptureInsertSettings,
+  onUpdateScriptureInsertSettings,
+  scriptureSettingsOpen,
+  onOpenScriptureSettings,
+  onCloseScriptureSettings,
   phoneLayout = false,
   darkMode = false
 }: {
@@ -8737,11 +8796,14 @@ function StudyNoteTiptapEditor({
   writingPromptStatus?: string;
   onAddCustomWritingPrompt?: (prompt: string) => boolean;
   onRemoveCustomWritingPrompt?: (prompt: string) => void;
-  scriptureReference?: string;
-  scriptureTypedReference?: string;
   scriptureInsertStatus?: string;
   scriptureInsertFocusKey?: number;
   onInsertScripture?: (request?: ScriptureInsertRequest) => Promise<ScriptureInsertResult | null | undefined>;
+  scriptureInsertSettings: ScriptureInsertSettings;
+  onUpdateScriptureInsertSettings: (settings: ScriptureInsertSettings) => void;
+  scriptureSettingsOpen: boolean;
+  onOpenScriptureSettings: () => void;
+  onCloseScriptureSettings: () => void;
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
@@ -8750,11 +8812,23 @@ function StudyNoteTiptapEditor({
   const [scripturePopoverPosition, setScripturePopoverPosition] = useState({ left: 14, top: 70 });
   const [activeNoteFormats, setActiveNoteFormats] = useState<NoteFormatKind[]>([]);
   const [localScriptureMatch, setLocalScriptureMatch] = useState<{ reference: string; typed: string; from: number; to: number } | null>(null);
+  const [dismissedScriptureKey, setDismissedScriptureKey] = useState("");
+  const scriptureInsertSettingsRef = useRef(scriptureInsertSettings);
+  const dismissedScriptureKeyRef = useRef(dismissedScriptureKey);
+
+  useEffect(() => {
+    scriptureInsertSettingsRef.current = scriptureInsertSettings;
+  }, [scriptureInsertSettings]);
+
+  useEffect(() => {
+    dismissedScriptureKeyRef.current = dismissedScriptureKey;
+  }, [dismissedScriptureKey]);
 
   const syncTiptapState = (editor: Editor) => {
     const cursorMatch = findTiptapScriptureReferenceBeforeCursor(editor);
     const textBeforeCursor = cursorMatch.textBeforeCursor;
-    setLocalScriptureMatch(cursorMatch.match);
+    const matchKey = cursorMatch.match ? getScriptureMatchKey(cursorMatch.match) : "";
+    setLocalScriptureMatch(!scriptureInsertSettingsRef.current.disabled && matchKey !== dismissedScriptureKeyRef.current ? cursorMatch.match : null);
     setActiveNoteFormats(getTiptapActiveFormats(editor));
     updateTiptapScripturePopoverPosition(editor, wrapRef.current, setScripturePopoverPosition);
     return textBeforeCursor;
@@ -8838,6 +8912,10 @@ function StudyNoteTiptapEditor({
     editor.commands.focus("end");
   }, [editor, scriptureInsertFocusKey]);
 
+  useEffect(() => {
+    if (scriptureInsertSettings.disabled) setLocalScriptureMatch(null);
+  }, [scriptureInsertSettings.disabled]);
+
   const insertWritingPromptWeb = (prompt: string) => {
     if (!editor) return;
     const prefix = editor.getText().trim() ? "\n" : "";
@@ -8858,7 +8936,7 @@ function StudyNoteTiptapEditor({
     const { from } = editor.state.selection;
     const deleteFrom = liveMatch?.from || from;
     const deleteTo = liveMatch?.to || from;
-    const html = richScriptureExpansion(result.reference, result.text);
+    const html = richScriptureExpansion(result.reference, result.text, scriptureInsertSettingsRef.current);
 
     editor
       .chain()
@@ -8897,6 +8975,14 @@ function StudyNoteTiptapEditor({
     overflow: "hidden"
   };
   const visibleScriptureReference = localScriptureMatch?.reference || "";
+  const dismissScripturePrompt = () => {
+    if (localScriptureMatch) {
+      const nextKey = getScriptureMatchKey(localScriptureMatch);
+      dismissedScriptureKeyRef.current = nextKey;
+      setDismissedScriptureKey(nextKey);
+    }
+    setLocalScriptureMatch(null);
+  };
 
   return (
     <View ref={wrapRef} style={styles.studyNoteEditorWrap}>
@@ -8926,6 +9012,7 @@ function StudyNoteTiptapEditor({
             reference: visibleScriptureReference,
             status: scriptureInsertStatus,
             onInsert: insertScriptureWeb,
+            onDismiss: dismissScripturePrompt,
             compact: true,
             darkMode
           })
@@ -8934,9 +9021,19 @@ function StudyNoteTiptapEditor({
         onFormat={applyTiptapFormat}
         activeFormats={activeNoteFormats}
         highlightActive={activeNoteFormats.includes("highlight")}
+        onOpenSettings={onOpenScriptureSettings}
         compact={phoneLayout}
         darkMode={darkMode}
       />
+      {scriptureSettingsOpen && (
+        <ScriptureInsertSettingsDialog
+          settings={scriptureInsertSettings}
+          onChange={onUpdateScriptureInsertSettings}
+          onClose={onCloseScriptureSettings}
+          darkMode={darkMode}
+          phoneLayout={phoneLayout}
+        />
+      )}
     </View>
   );
 }
@@ -8945,12 +9042,14 @@ function NoteFormatToolbar({
   onFormat,
   activeFormats = [],
   highlightActive = false,
+  onOpenSettings,
   compact = false,
   darkMode = false
 }: {
   onFormat: (kind: NoteFormatKind) => void;
   activeFormats?: NoteFormatKind[];
   highlightActive?: boolean;
+  onOpenSettings?: () => void;
   compact?: boolean;
   darkMode?: boolean;
 }) {
@@ -9011,33 +9110,121 @@ function NoteFormatToolbar({
   return (
     <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar, darkMode && styles.accountDarkSection]}>
       <View style={styles.noteFormatButtonRow}>
-      {Platform.OS === "web" && (
-        <>
-          <Pressable {...pressProps("undo")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]}>
-            <Ionicons name="arrow-undo-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+        <View style={styles.noteFormatMainButtons}>
+          {Platform.OS === "web" && (
+            <>
+              <Pressable {...pressProps("undo")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]}>
+                <Ionicons name="arrow-undo-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+              </Pressable>
+              <Pressable {...pressProps("redo")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]}>
+                <Ionicons name="arrow-redo-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+              </Pressable>
+            </>
+          )}
+          <Pressable {...pressProps("bold")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bold") && styles.activeNoteFormatButton]}>
+            <Text style={[styles.noteFormatText, styles.noteFormatBold, darkMode && styles.accountDarkText, activeFormatSet.has("bold") && styles.activeNoteFormatText]}>B</Text>
           </Pressable>
-          <Pressable {...pressProps("redo")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]}>
-            <Ionicons name="arrow-redo-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+          <Pressable {...pressProps("italic")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("italic") && styles.activeNoteFormatButton]}>
+            <Text style={[styles.noteFormatText, styles.noteFormatItalic, darkMode && styles.accountDarkText, activeFormatSet.has("italic") && styles.activeNoteFormatText]}>I</Text>
           </Pressable>
-        </>
-      )}
-      <Pressable {...pressProps("bold")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bold") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatBold, darkMode && styles.accountDarkText, activeFormatSet.has("bold") && styles.activeNoteFormatText]}>B</Text>
-      </Pressable>
-      <Pressable {...pressProps("italic")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("italic") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatItalic, darkMode && styles.accountDarkText, activeFormatSet.has("italic") && styles.activeNoteFormatText]}>I</Text>
-      </Pressable>
-      <Pressable {...pressProps("underline")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("underline") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatUnderline, darkMode && styles.accountDarkText, activeFormatSet.has("underline") && styles.activeNoteFormatText]}>U</Text>
-      </Pressable>
-      <Pressable {...pressProps("highlight")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
-        <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, activeFormatSet.has("highlight") && styles.activeNoteFormatText, activeFormatSet.has("highlight") && styles.activeNoteHighlightFormatText]}>H</Text>
-      </Pressable>
-      <Pressable {...pressProps("bullet")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bullet") && styles.activeNoteFormatButton]}>
-        <Ionicons name="list-outline" size={17} color={activeFormatSet.has("bullet") ? "white" : darkMode ? "#f7eddc" : colors.oliveDark} />
-      </Pressable>
+          <Pressable {...pressProps("underline")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("underline") && styles.activeNoteFormatButton]}>
+            <Text style={[styles.noteFormatText, styles.noteFormatUnderline, darkMode && styles.accountDarkText, activeFormatSet.has("underline") && styles.activeNoteFormatText]}>U</Text>
+          </Pressable>
+          <Pressable {...pressProps("highlight")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("highlight") && styles.activeNoteFormatButton]}>
+            <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, activeFormatSet.has("highlight") && styles.activeNoteFormatText, activeFormatSet.has("highlight") && styles.activeNoteHighlightFormatText]}>H</Text>
+          </Pressable>
+          <Pressable {...pressProps("bullet")} style={[styles.noteFormatButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton, activeFormatSet.has("bullet") && styles.activeNoteFormatButton]}>
+            <Ionicons name="list-outline" size={17} color={activeFormatSet.has("bullet") ? "white" : darkMode ? "#f7eddc" : colors.oliveDark} />
+          </Pressable>
+        </View>
+        {!!onOpenSettings && (
+          <Pressable onPress={onOpenSettings} style={[styles.noteFormatButton, styles.noteSettingsButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Editor settings">
+            <Ionicons name="settings-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+          </Pressable>
+        )}
       </View>
       {Platform.OS === "web" && hoveredFormat && <Text style={styles.noteFormatTooltip}>{formatLabels[hoveredFormat]}</Text>}
+    </View>
+  );
+}
+
+function ScriptureInsertSettingsDialog({
+  settings,
+  onChange,
+  onClose,
+  darkMode = false,
+  phoneLayout = false
+}: {
+  settings: ScriptureInsertSettings;
+  onChange: (settings: ScriptureInsertSettings) => void;
+  onClose: () => void;
+  darkMode?: boolean;
+  phoneLayout?: boolean;
+}) {
+  const update = (patch: Partial<ScriptureInsertSettings>) => onChange({ ...settings, ...patch });
+
+  return (
+    <View style={[styles.printOptionsOverlay, Platform.OS === "web" && styles.webEditorSettingsOverlay]}>
+      <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
+      <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard]}>
+        <View style={styles.printOptionsHeader}>
+          <View style={styles.printOptionsTitleBlock}>
+            <Text style={[styles.printOptionsTitle, darkMode && styles.accountDarkTitle]}>Editor settings</Text>
+            <Text style={[styles.printOptionsSubtitle, darkMode && styles.accountDarkMutedText]}>
+              Choose how scripture references behave and how inserted Scripture is styled.
+            </Text>
+          </View>
+          <Pressable onPress={onClose} style={[styles.readerBookmarkIconButton, darkMode && styles.homeDarkIconBubble]} accessibilityLabel="Close editor settings">
+            <Ionicons name="close-outline" size={18} color={darkMode ? "#c8bda9" : colors.muted} />
+          </Pressable>
+        </View>
+
+        <View style={styles.scriptureSettingList}>
+          <Pressable onPress={() => update({ disabled: !settings.disabled })} style={styles.scriptureSettingToggle}>
+            <Ionicons name={settings.disabled ? "checkbox" : "square-outline"} size={20} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Text style={[styles.printOptionToggleText, darkMode && styles.accountDarkText]}>Disable scripture insert popup</Text>
+          </Pressable>
+
+          <View style={styles.printOptionGroup}>
+            <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Inserted scripture style</Text>
+            <View style={styles.printOptionChipRow}>
+              <Pressable onPress={() => update({ bold: !settings.bold })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.bold && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.bold && styles.activePrintOptionChipText]}>Bold</Text>
+              </Pressable>
+              <Pressable onPress={() => update({ italic: !settings.italic })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.italic && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.italic && styles.activePrintOptionChipText]}>Italic</Text>
+              </Pressable>
+            </View>
+          </View>
+
+          <View style={styles.printOptionGroup}>
+            <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Colour</Text>
+            <View style={styles.printOptionChipRow}>
+              {SCRIPTURE_INSERT_COLOR_OPTIONS.map((option) => {
+                const active = settings.color === option.value;
+                return (
+                  <Pressable key={option.value} onPress={() => update({ color: option.value })} style={[styles.scriptureColorOption, active && styles.activeScriptureColorOption, darkMode && styles.printDarkOptionChip]}>
+                    <View style={[styles.scriptureColorSwatch, { backgroundColor: option.value }]} />
+                    <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, active && styles.scriptureColorActiveText]}>{option.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.printOptionGroup}>
+            <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Reference position</Text>
+            <View style={styles.printOptionChipRow}>
+              <Pressable onPress={() => update({ referencePosition: "front" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.referencePosition === "front" && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.referencePosition === "front" && styles.activePrintOptionChipText]}>At front</Text>
+              </Pressable>
+              <Pressable onPress={() => update({ referencePosition: "end" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, settings.referencePosition === "end" && styles.activePrintOptionChip]}>
+                <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, settings.referencePosition === "end" && styles.activePrintOptionChipText]}>At end</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
@@ -10269,12 +10456,54 @@ function expandScriptureReference(currentAnswer: string, reference: string, vers
   return `${currentAnswer.trimEnd()}${currentAnswer.trim() ? "\n\n" : ""}${plainExpansion}`;
 }
 
-function plainScriptureExpansion(reference: string, verseText: string) {
-  return `*${reference} — "${verseText.trim().replace(/\s+/g, " ")}"* `;
+function plainScriptureExpansion(reference: string, verseText: string, settings: ScriptureInsertSettings = DEFAULT_SCRIPTURE_INSERT_SETTINGS) {
+  const text = verseText.trim().replace(/\s+/g, " ");
+  const content = settings.referencePosition === "end" ? `"${text}" — ${reference}` : `${reference} — "${text}"`;
+  const styled = `${settings.bold ? "**" : ""}${settings.italic ? "*" : ""}${content}${settings.italic ? "*" : ""}${settings.bold ? "**" : ""}`;
+  return `${styled} `;
 }
 
-function richScriptureExpansion(reference: string, verseText: string) {
-  return `<em>${escapeHtml(reference)} — "${escapeHtml(verseText.trim().replace(/\s+/g, " "))}"</em>&nbsp;`;
+function richScriptureExpansion(reference: string, verseText: string, settings: ScriptureInsertSettings = DEFAULT_SCRIPTURE_INSERT_SETTINGS) {
+  const text = verseText.trim().replace(/\s+/g, " ");
+  const content = settings.referencePosition === "end" ? `"${text}" — ${reference}` : `${reference} — "${text}"`;
+  const style = settings.color ? ` style="color:${escapeHtml(settings.color)}"` : "";
+  const wrapped = `${settings.bold ? "<strong>" : ""}${settings.italic ? "<em>" : ""}${escapeHtml(content)}${settings.italic ? "</em>" : ""}${settings.bold ? "</strong>" : ""}`;
+  return `<span${style}>${wrapped}</span>&nbsp;`;
+}
+
+function getStoredScriptureInsertSettings(): ScriptureInsertSettings {
+  if (Platform.OS !== "web" || typeof localStorage === "undefined") return DEFAULT_SCRIPTURE_INSERT_SETTINGS;
+  try {
+    const stored = localStorage.getItem(SCRIPTURE_INSERT_SETTINGS_KEY);
+    if (!stored) return DEFAULT_SCRIPTURE_INSERT_SETTINGS;
+    return normalizeScriptureInsertSettings(JSON.parse(stored));
+  } catch {
+    return DEFAULT_SCRIPTURE_INSERT_SETTINGS;
+  }
+}
+
+function saveStoredScriptureInsertSettings(settings: ScriptureInsertSettings) {
+  if (Platform.OS !== "web" || typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(SCRIPTURE_INSERT_SETTINGS_KEY, JSON.stringify(settings));
+  } catch {
+    // Settings are a convenience; editing should keep working even if storage is unavailable.
+  }
+}
+
+function normalizeScriptureInsertSettings(value: Partial<ScriptureInsertSettings> | null | undefined): ScriptureInsertSettings {
+  const colorOptions = new Set(SCRIPTURE_INSERT_COLOR_OPTIONS.map((option) => option.value));
+  return {
+    disabled: Boolean(value?.disabled),
+    bold: Boolean(value?.bold),
+    italic: value?.italic === undefined ? DEFAULT_SCRIPTURE_INSERT_SETTINGS.italic : Boolean(value.italic),
+    color: value?.color && colorOptions.has(value.color) ? value.color : DEFAULT_SCRIPTURE_INSERT_SETTINGS.color,
+    referencePosition: value?.referencePosition === "end" ? "end" : "front"
+  };
+}
+
+function getScriptureMatchKey(match: { reference: string; from: number; to: number }) {
+  return `${match.reference}|${match.from}|${match.to}`;
 }
 
 function replaceTypedReferenceBeforeIndex(value: string, typedReference: string, insertion: string, caretEnd: number) {
@@ -13639,9 +13868,17 @@ const styles = StyleSheet.create({
   noteFormatButtonRow: {
     alignItems: "center",
     flexDirection: "row",
-    flexWrap: "wrap",
+    justifyContent: "space-between",
     gap: 7,
     width: "100%"
+  },
+  noteFormatMainButtons: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 1,
+    flexWrap: "wrap",
+    gap: 7,
+    minWidth: 0
   },
   noteFormatButton: {
     alignItems: "center",
@@ -13656,6 +13893,9 @@ const styles = StyleSheet.create({
   compactNoteFormatButton: {
     height: 42,
     width: 42
+  },
+  noteSettingsButton: {
+    marginLeft: "auto"
   },
   activeNoteFormatButton: {
     backgroundColor: colors.coral,
@@ -15693,6 +15933,53 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "800"
+  },
+  scriptureInsertCloseButton: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 30,
+    justifyContent: "center",
+    width: 30
+  },
+  scriptureSettingList: {
+    gap: 14
+  },
+  scriptureSettingToggle: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 9,
+    minHeight: 34
+  },
+  scriptureColorOption: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 7
+  },
+  activeScriptureColorOption: {
+    borderColor: colors.coral,
+    borderWidth: 2
+  },
+  scriptureColorSwatch: {
+    borderColor: "rgba(255, 255, 255, 0.8)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 16,
+    width: 16
+  },
+  scriptureColorActiveText: {
+    color: colors.coral
+  },
+  webEditorSettingsOverlay: {
+    position: "fixed" as any
   },
   readyCopy: {
     flex: 1

@@ -107,6 +107,27 @@ export const saveScriptureInsertSettings = mutation({
   }
 });
 
+export const saveUiPreference = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    key: v.string(),
+    value: v.boolean()
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const key = clampText(args.key, 80);
+    if (!key || key.startsWith("$") || key.startsWith("_")) throw new Error("Invalid preference key.");
+
+    await ctx.db.patch(args.profileId, {
+      uiPreferences: {
+        ...(((profile as any).uiPreferences as Record<string, boolean> | undefined) || {}),
+        [key]: args.value
+      },
+      updatedAt: Date.now()
+    });
+  }
+});
+
 export const changePassword = action({
   args: {
     email: v.string(),

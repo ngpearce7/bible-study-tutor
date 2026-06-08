@@ -20,6 +20,8 @@ const scriptureInsertSettings = v.object({
   referencePosition: v.union(v.literal("front"), v.literal("end"))
 });
 
+const uiPreferences = v.record(v.string(), v.boolean());
+
 export default defineSchema({
   ...authTables,
   profiles: defineTable({
@@ -32,6 +34,7 @@ export default defineSchema({
     preferredMethodId: v.optional(v.string()),
     appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
     scriptureInsertSettings: v.optional(scriptureInsertSettings),
+    uiPreferences: v.optional(uiPreferences),
     createdAt: v.number(),
     updatedAt: v.number()
   })

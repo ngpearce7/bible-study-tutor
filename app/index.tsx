@@ -26,6 +26,23 @@ type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized";
 type MemoryReviewPreset = "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
+type UiPreferenceKey =
+  | "studyPanelCommunityCollapsed"
+  | "studyPanelPlanCollapsed"
+  | "studyPanelFeedbackCollapsed"
+  | "studyPanelHelpsCollapsed"
+  | "bibleReaderNavCollapsed"
+  | "bibleReaderHistoryCollapsed"
+  | "bibleBookmarksCollapsed"
+  | "bibleSearchCollapsed"
+  | "communityPeoplePanelCollapsed"
+  | "communityFriendsPanelOpen"
+  | "communityCirclesPanelOpen"
+  | "communityFriendToolsOpen"
+  | "communityCircleToolsOpen"
+  | "communityRecentExpanded"
+  | "memoryCardsExpanded";
+type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
 type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
 type WorksheetWritingSpace = "standard" | "more";
@@ -157,6 +174,29 @@ const NOTE_HIGHLIGHT_COLOR_OPTIONS = [
   { label: "Sky", value: "#d6e8f7" },
   { label: "Lavender", value: "#e7ddf4" }
 ];
+const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
+  "studyPanelCommunityCollapsed",
+  "studyPanelPlanCollapsed",
+  "studyPanelFeedbackCollapsed",
+  "studyPanelHelpsCollapsed",
+  "bibleReaderNavCollapsed",
+  "bibleReaderHistoryCollapsed",
+  "bibleBookmarksCollapsed",
+  "bibleSearchCollapsed",
+  "communityPeoplePanelCollapsed",
+  "communityFriendsPanelOpen",
+  "communityCirclesPanelOpen",
+  "communityFriendToolsOpen",
+  "communityCircleToolsOpen",
+  "communityRecentExpanded",
+  "memoryCardsExpanded"
+];
+const STUDY_PANEL_UI_PREFERENCE_KEYS: Record<StudySidePanelKey, UiPreferenceKey> = {
+  community: "studyPanelCommunityCollapsed",
+  plan: "studyPanelPlanCollapsed",
+  feedback: "studyPanelFeedbackCollapsed",
+  helps: "studyPanelHelpsCollapsed"
+};
 
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
   { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
@@ -417,6 +457,7 @@ export default function Home() {
   const savePlan = useMutation(api.accountability.savePlan);
   const saveAccountSettings = useMutation(api.accountability.saveAccountSettings);
   const saveScriptureInsertSettings = useMutation((api as any).accountability.saveScriptureInsertSettings);
+  const saveUiPreference = useMutation((api as any).accountability.saveUiPreference);
   const changePassword = useAction(api.accountability.changePassword);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
   const deleteCheckinMutation = useMutation(api.accountability.deleteCheckin);
@@ -870,6 +911,7 @@ export default function Home() {
   const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
   const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const adminUsers = useQuery((api as any).insights.adminUsers, activeProfileId ? {} : "skip");
@@ -1332,7 +1374,24 @@ export default function Home() {
       setAppearanceMode(profile.appearanceMode);
       saveStoredAppearanceMode(profile.appearanceMode).catch(() => undefined);
     }
-  }, [profile]);
+    setCollapsedStudyPanels((current) => ({
+      community: profileUiPreferences.studyPanelCommunityCollapsed ?? current.community,
+      plan: profileUiPreferences.studyPanelPlanCollapsed ?? current.plan,
+      feedback: profileUiPreferences.studyPanelFeedbackCollapsed ?? current.feedback,
+      helps: profileUiPreferences.studyPanelHelpsCollapsed ?? current.helps
+    }));
+    if (profileUiPreferences.bibleReaderNavCollapsed !== undefined) setReaderNavCollapsed(profileUiPreferences.bibleReaderNavCollapsed);
+    if (profileUiPreferences.bibleReaderHistoryCollapsed !== undefined) setReaderHistoryCollapsed(profileUiPreferences.bibleReaderHistoryCollapsed);
+    if (profileUiPreferences.bibleBookmarksCollapsed !== undefined) setBookmarksCollapsed(profileUiPreferences.bibleBookmarksCollapsed);
+    if (profileUiPreferences.bibleSearchCollapsed !== undefined) setBibleSearchCollapsed(profileUiPreferences.bibleSearchCollapsed);
+    if (profileUiPreferences.communityPeoplePanelCollapsed !== undefined) setPeoplePanelCollapsed(profileUiPreferences.communityPeoplePanelCollapsed);
+    if (profileUiPreferences.communityFriendsPanelOpen !== undefined) setMobileFriendsPanelOpen(profileUiPreferences.communityFriendsPanelOpen);
+    if (profileUiPreferences.communityCirclesPanelOpen !== undefined) setMobileCirclesPanelOpen(profileUiPreferences.communityCirclesPanelOpen);
+    if (profileUiPreferences.communityFriendToolsOpen !== undefined) setFriendToolsOpen(profileUiPreferences.communityFriendToolsOpen);
+    if (profileUiPreferences.communityCircleToolsOpen !== undefined) setCircleManagerOpen(profileUiPreferences.communityCircleToolsOpen);
+    if (profileUiPreferences.communityRecentExpanded !== undefined) setRecentCheckinsExpanded(profileUiPreferences.communityRecentExpanded);
+    if (profileUiPreferences.memoryCardsExpanded !== undefined) setMemoryCardsExpanded(profileUiPreferences.memoryCardsExpanded);
+  }, [profile, profileUiPreferences]);
 
   useEffect(() => {
     if (savedDraft === undefined || loadedDraftKey === currentStudyKey) return;
@@ -3732,6 +3791,20 @@ export default function Home() {
     setCollapsedStudyPanels((current) => {
       const next = { ...current, [panel]: !current[panel] };
       saveStoredCollapsedStudyPanels(next).catch(() => undefined);
+      persistUiPreference(STUDY_PANEL_UI_PREFERENCE_KEYS[panel], next[panel]);
+      return next;
+    });
+  }
+
+  function persistUiPreference(key: UiPreferenceKey, value: boolean) {
+    if (!activeProfileId) return;
+    saveUiPreference({ profileId: activeProfileId, key, value }).catch(() => undefined);
+  }
+
+  function toggleRememberedPanel(setter: Dispatch<SetStateAction<boolean>>, key: UiPreferenceKey) {
+    setter((current) => {
+      const next = !current;
+      persistUiPreference(key, next);
       return next;
     });
   }
@@ -4624,7 +4697,7 @@ export default function Home() {
               ]}
             >
               <Pressable
-                onPress={() => setReaderNavCollapsed((value) => !value)}
+                onPress={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
                 style={[styles.readerNavHeader, compactLayout && readerNavCollapsed && styles.compactCollapsedReaderNavHeader]}
               >
                 {readerNavCollapsed ? (
@@ -4682,7 +4755,7 @@ export default function Home() {
                   )}
                   {bibleReaderHistory.length > 1 && (
                     <View style={[styles.readerHistorySection, bibleDarkMode && styles.bibleDarkDividerSection]}>
-                      <Pressable onPress={() => setReaderHistoryCollapsed((value) => !value)} style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}>
+                      <Pressable onPress={() => toggleRememberedPanel(setReaderHistoryCollapsed, "bibleReaderHistoryCollapsed")} style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.readerBookmarkHeaderTitle}>
                           <Ionicons name="time-outline" size={15} color={colors.coral} />
                           <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Recent</Text>
@@ -4722,7 +4795,9 @@ export default function Home() {
                         onPress={() => {
                           setBookmarksCollapsed((value) => {
                             if (!value) setBookmarksExpanded(false);
-                            return !value;
+                            const next = !value;
+                            persistUiPreference("bibleBookmarksCollapsed", next);
+                            return next;
                           });
                         }}
                         style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}
@@ -4909,7 +4984,7 @@ export default function Home() {
 
             <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
               <View style={[styles.bibleSearchPanel, bibleDarkMode && styles.accountDarkSection]}>
-                <Pressable onPress={() => setBibleSearchCollapsed((value) => !value)} style={styles.bibleSearchHeader}>
+                <Pressable onPress={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")} style={styles.bibleSearchHeader}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="search-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.coral} />
                     <Text style={[styles.feedbackTitle, bibleDarkMode && styles.studyDarkAccentText]}>Search Scripture</Text>
@@ -5516,7 +5591,11 @@ export default function Home() {
                         label={memoryCardsExpanded ? "Compact list" : "Expand all"}
                         icon={memoryCardsExpanded ? "contract-outline" : "expand-outline"}
                         onPress={() => {
-                          setMemoryCardsExpanded((expanded) => !expanded);
+                          setMemoryCardsExpanded((expanded) => {
+                            const next = !expanded;
+                            persistUiPreference("memoryCardsExpanded", next);
+                            return next;
+                          });
                           setExpandedMemoryVerseIds([]);
                         }}
                         style={[phoneLayout && styles.phoneMemoryListToolButton, memoryDarkMode && styles.homeDarkResumeButton]}
@@ -5825,7 +5904,7 @@ export default function Home() {
               <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <Pressable
                   disabled={!phoneLayout}
-                  onPress={() => setMobileFriendsPanelOpen((open) => !open)}
+                  onPress={() => toggleRememberedPanel(setMobileFriendsPanelOpen, "communityFriendsPanelOpen")}
                   style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
                 >
                   <View style={styles.mobileCommunityPanelTitleRow}>
@@ -5858,7 +5937,7 @@ export default function Home() {
                         </View>
                         <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>Share this code privately so another registered user can add you as a friend.</Text>
                       </View>
-                      <Pressable onPress={() => setFriendToolsOpen((open) => !open)} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
+                      <Pressable onPress={() => toggleRememberedPanel(setFriendToolsOpen, "communityFriendToolsOpen")} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
                         <Ionicons name="person-add-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                         <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
                         <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -5981,7 +6060,7 @@ export default function Home() {
               <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
                 <Pressable
                   disabled={!phoneLayout}
-                  onPress={() => setMobileCirclesPanelOpen((open) => !open)}
+                  onPress={() => toggleRememberedPanel(setMobileCirclesPanelOpen, "communityCirclesPanelOpen")}
                   style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
                 >
                   <View style={styles.mobileCommunityPanelTitleRow}>
@@ -6079,7 +6158,7 @@ export default function Home() {
                       </View>
                     )}
                     <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
-                      <Pressable onPress={() => setCircleManagerOpen((open) => !open)} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
+                      <Pressable onPress={() => toggleRememberedPanel(setCircleManagerOpen, "communityCircleToolsOpen")} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
                         <Ionicons name="settings-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                         <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
                         <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -6327,7 +6406,7 @@ export default function Home() {
                 <>
                   {visibleCheckins.map((item: any) => renderCommunityHistoryItem(item))}
                   {(checkins || []).length > 3 && (
-                    <Pressable onPress={() => setRecentCheckinsExpanded((value) => !value)} style={[styles.communityShowMoreButton, communityDarkMode && styles.homeDarkResumeButton]}>
+                    <Pressable onPress={() => toggleRememberedPanel(setRecentCheckinsExpanded, "communityRecentExpanded")} style={[styles.communityShowMoreButton, communityDarkMode && styles.homeDarkResumeButton]}>
                       <Text style={[styles.communityShowMoreText, communityDarkMode && styles.homeDarkResumeButtonText]}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
                       <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
@@ -8680,6 +8759,7 @@ function StudyNoteEditor({
   const nativeInputRef = useRef<any>(null);
   const nativeSelectionRef = useRef({ start: value.length, end: value.length });
   const lastNativeTextSelectionRef = useRef<{ start: number; end: number } | null>(null);
+  const savedNativeHighlightSelectionRef = useRef<{ start: number; end: number } | null>(null);
   const [nativeSelection, setNativeSelection] = useState({ start: value.length, end: value.length });
   const [scriptureInsertSettings, setScriptureInsertSettings] = useState<ScriptureInsertSettings>(() => getStoredScriptureInsertSettings());
   const [scriptureSettingsOpen, setScriptureSettingsOpen] = useState(false);
@@ -8709,6 +8789,26 @@ function StudyNoteEditor({
   const saveHighlightColor = async (highlightColor: string) => {
     await saveScriptureSettings({ ...scriptureInsertSettings, highlightColor });
     setHighlightPickerOpen(false);
+  };
+
+  const openNativeHighlightPicker = () => {
+    const currentSelection = nativeSelectionRef.current;
+    savedNativeHighlightSelectionRef.current =
+      currentSelection.start !== currentSelection.end
+        ? currentSelection
+        : lastNativeTextSelectionRef.current;
+    setHighlightPickerOpen(true);
+  };
+
+  const saveNativeHighlightColor = async (highlightColor: string) => {
+    await saveHighlightColor(highlightColor);
+    const savedSelection = savedNativeHighlightSelectionRef.current;
+    if (!savedSelection) return;
+    nativeSelectionRef.current = savedSelection;
+    lastNativeTextSelectionRef.current = savedSelection;
+    setNativeSelection(savedSelection);
+    onSelectionChange(savedSelection);
+    requestAnimationFrame(() => nativeInputRef.current?.focus?.());
   };
 
   const insertWritingPromptNative = (prompt: string) => {
@@ -8825,7 +8925,7 @@ function StudyNoteEditor({
         <MobileNoteFormatBar
           onFormat={formatNativeNote}
           highlightColor={scriptureInsertSettings.highlightColor}
-          onOpenHighlightPicker={() => setHighlightPickerOpen(true)}
+          onOpenHighlightPicker={openNativeHighlightPicker}
           onDismiss={() => setDismissedNativeMiniBarKey(nativeSelectionKey)}
           darkMode={darkMode}
         />
@@ -8843,7 +8943,7 @@ function StudyNoteEditor({
         onFormat={formatNativeNote}
         activeFormats={[]}
         highlightColor={scriptureInsertSettings.highlightColor}
-        onOpenHighlightPicker={() => setHighlightPickerOpen(true)}
+        onOpenHighlightPicker={openNativeHighlightPicker}
         onOpenSettings={openScriptureSettings}
         compact={phoneLayout}
         darkMode={darkMode}
@@ -8851,7 +8951,7 @@ function StudyNoteEditor({
       {highlightPickerOpen && (
         <NoteHighlightColorPicker
           color={scriptureInsertSettings.highlightColor}
-          onSelect={saveHighlightColor}
+          onSelect={saveNativeHighlightColor}
           onClose={() => setHighlightPickerOpen(false)}
           darkMode={darkMode}
         />
@@ -8932,6 +9032,7 @@ function StudyNoteTiptapEditor({
   const [dismissedScriptureKey, setDismissedScriptureKey] = useState("");
   const scriptureInsertSettingsRef = useRef(scriptureInsertSettings);
   const dismissedScriptureKeyRef = useRef(dismissedScriptureKey);
+  const savedEditorHighlightSelectionRef = useRef<{ from: number; to: number } | null>(null);
   const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -9092,16 +9193,50 @@ function StudyNoteTiptapEditor({
     onChange(nextHtml, syncTiptapState(editor));
   };
 
+  const restoreEditorSelectionAfterDialog = () => {
+    if (!editor) return;
+    const savedSelection = savedEditorHighlightSelectionRef.current;
+    if (!savedSelection) return;
+    requestAnimationFrame(() => {
+      if (editor.isDestroyed) return;
+      editor.commands.setTextSelection(savedSelection);
+      syncTiptapState(editor);
+      updateTiptapMobileMiniBarPosition(editor, wrapRef.current, setMobileMiniBarPosition);
+    });
+  };
+
+  const openEditorHighlightPicker = () => {
+    if (editor && !editor.state.selection.empty) {
+      const { from, to } = editor.state.selection;
+      savedEditorHighlightSelectionRef.current = { from, to };
+    }
+    onOpenHighlightPicker();
+  };
+
+  const saveEditorHighlightColor = async (color: string) => {
+    await onSaveHighlightColor(color);
+    restoreEditorSelectionAfterDialog();
+  };
+
   const applyTiptapFormat = (kind: NoteFormatKind) => {
     if (!editor) return;
-    if (kind === "undo") editor.chain().focus().undo().run();
-    if (kind === "redo") editor.chain().focus().redo().run();
-    if (kind === "bold") editor.chain().focus().toggleBold().run();
-    if (kind === "italic") editor.chain().focus().toggleItalic().run();
-    if (kind === "underline") editor.chain().focus().toggleUnderline().run();
-    if (kind === "highlight") editor.chain().focus().toggleHighlight({ color: scriptureInsertSettingsRef.current.highlightColor }).run();
-    if (kind === "bullet") editor.chain().focus().toggleBulletList().run();
+    const selectedRange = !editor.state.selection.empty
+      ? { from: editor.state.selection.from, to: editor.state.selection.to }
+      : savedEditorHighlightSelectionRef.current;
+    if (selectedRange) savedEditorHighlightSelectionRef.current = selectedRange;
+
+    let chain = editor.chain();
+    if (selectedRange) chain = chain.setTextSelection(selectedRange);
+    if (!phoneLayout) chain = chain.focus();
+    if (kind === "undo") chain.undo().run();
+    if (kind === "redo") chain.redo().run();
+    if (kind === "bold") chain.toggleBold().run();
+    if (kind === "italic") chain.toggleItalic().run();
+    if (kind === "underline") chain.toggleUnderline().run();
+    if (kind === "highlight") chain.toggleHighlight({ color: scriptureInsertSettingsRef.current.highlightColor }).run();
+    if (kind === "bullet") chain.toggleBulletList().run();
     setActiveNoteFormats(getTiptapActiveFormats(editor));
+    syncTiptapState(editor);
   };
 
   const editorStyle = {
@@ -9144,7 +9279,7 @@ function StudyNoteTiptapEditor({
         <MobileNoteFormatBar
           onFormat={applyTiptapFormat}
           highlightColor={scriptureInsertSettings.highlightColor}
-          onOpenHighlightPicker={onOpenHighlightPicker}
+          onOpenHighlightPicker={openEditorHighlightPicker}
           onDismiss={() => setDismissedMobileMiniBarKey(selectedTextRangeKey)}
           floating
           style={{
@@ -9176,7 +9311,7 @@ function StudyNoteTiptapEditor({
         activeFormats={activeNoteFormats}
         highlightActive={activeNoteFormats.includes("highlight")}
         highlightColor={scriptureInsertSettings.highlightColor}
-        onOpenHighlightPicker={onOpenHighlightPicker}
+        onOpenHighlightPicker={openEditorHighlightPicker}
         onOpenSettings={onOpenScriptureSettings}
         compact={phoneLayout}
         darkMode={darkMode}
@@ -9184,7 +9319,7 @@ function StudyNoteTiptapEditor({
       {highlightPickerOpen && (
         <NoteHighlightColorPicker
           color={scriptureInsertSettings.highlightColor}
-          onSelect={onSaveHighlightColor}
+          onSelect={saveEditorHighlightColor}
           onClose={onCloseHighlightPicker}
           darkMode={darkMode}
         />
@@ -9219,28 +9354,38 @@ function MobileNoteFormatBar({
   style?: any;
   darkMode?: boolean;
 }) {
+  const miniBarPressProps = (action: () => void) =>
+    Platform.OS === "web"
+      ? ({
+          onPointerDown: (event: any) => {
+            event.preventDefault();
+            action();
+          }
+        } as any)
+      : { onPress: action };
+
   return (
     <View style={[styles.mobileNoteFormatBar, floating && styles.floatingMobileNoteFormatBar, darkMode && styles.accountDarkSection, style]}>
-      <Pressable onPress={() => onFormat("bold")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Bold">
+      <Pressable {...miniBarPressProps(() => onFormat("bold"))} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Bold">
         <Text style={[styles.noteFormatText, styles.noteFormatBold, darkMode && styles.accountDarkText]}>B</Text>
       </Pressable>
-      <Pressable onPress={() => onFormat("italic")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Italic">
+      <Pressable {...miniBarPressProps(() => onFormat("italic"))} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Italic">
         <Text style={[styles.noteFormatText, styles.noteFormatItalic, darkMode && styles.accountDarkText]}>I</Text>
       </Pressable>
-      <Pressable onPress={() => onFormat("underline")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Underline">
+      <Pressable {...miniBarPressProps(() => onFormat("underline"))} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Underline">
         <Text style={[styles.noteFormatText, styles.noteFormatUnderline, darkMode && styles.accountDarkText]}>U</Text>
       </Pressable>
-      <Pressable onPress={() => onFormat("highlight")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Highlight">
+      <Pressable {...miniBarPressProps(() => onFormat("highlight"))} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Highlight">
         <Text style={[styles.noteFormatText, styles.noteFormatHighlight, darkMode && styles.studyDarkNoteFormatHighlight, { backgroundColor: highlightColor }]}>H</Text>
       </Pressable>
-      <Pressable onPress={onOpenHighlightPicker} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Highlight colour">
+      <Pressable {...miniBarPressProps(onOpenHighlightPicker)} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Highlight colour">
         <View style={[styles.mobileHighlightSwatch, { backgroundColor: highlightColor }]} />
       </Pressable>
-      <Pressable onPress={() => onFormat("bullet")} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Bullet list">
+      <Pressable {...miniBarPressProps(() => onFormat("bullet"))} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Bullet list">
         <Ionicons name="list-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
       </Pressable>
       {!!onDismiss && (
-        <Pressable onPress={onDismiss} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Hide mini editor">
+        <Pressable {...miniBarPressProps(onDismiss)} style={[styles.mobileNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Hide mini editor">
           <Ionicons name="close-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
         </Pressable>
       )}
@@ -10886,6 +11031,15 @@ function normalizeScriptureInsertSettings(value: Partial<ScriptureInsertSettings
     highlightColor: value?.highlightColor && highlightColorOptions.has(value.highlightColor) ? value.highlightColor : DEFAULT_SCRIPTURE_INSERT_SETTINGS.highlightColor,
     referencePosition: value?.referencePosition === "end" ? "end" : "front"
   };
+}
+
+function normalizeUiPreferences(value: unknown): UiPreferenceMap {
+  if (!value || typeof value !== "object") return {};
+  const source = value as Record<string, unknown>;
+  return UI_PREFERENCE_KEYS.reduce<UiPreferenceMap>((preferences, key) => {
+    if (typeof source[key] === "boolean") preferences[key] = source[key] as boolean;
+    return preferences;
+  }, {});
 }
 
 function getScriptureMatchKey(match: { reference: string; from: number; to: number }) {

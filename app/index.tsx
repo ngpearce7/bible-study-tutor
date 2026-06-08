@@ -40,8 +40,7 @@ type UiPreferenceKey =
   | "communityCirclesPanelOpen"
   | "communityFriendToolsOpen"
   | "communityCircleToolsOpen"
-  | "communityRecentExpanded"
-  | "memoryCardsExpanded";
+  | "communityRecentExpanded";
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
 type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
@@ -188,8 +187,7 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "communityCirclesPanelOpen",
   "communityFriendToolsOpen",
   "communityCircleToolsOpen",
-  "communityRecentExpanded",
-  "memoryCardsExpanded"
+  "communityRecentExpanded"
 ];
 const STUDY_PANEL_UI_PREFERENCE_KEYS: Record<StudySidePanelKey, UiPreferenceKey> = {
   community: "studyPanelCommunityCollapsed",
@@ -599,7 +597,6 @@ export default function Home() {
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
-  const [memoryCardsExpanded, setMemoryCardsExpanded] = useState(false);
   const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
   const [memoryPracticeLevel, setMemoryPracticeLevel] = useState(1);
   const [memoryPracticeAnswers, setMemoryPracticeAnswers] = useState<Record<number, string>>({});
@@ -1287,6 +1284,7 @@ export default function Home() {
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memorySearchTerm, memoryVerses]
   );
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => !isMemoryVerseMemorized(item) && isMemoryVerseDue(item)).length;
+  const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const memoryPracticeText = useMemo(
     () => (activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),
     [activeMemoryVerse]
@@ -1390,7 +1388,6 @@ export default function Home() {
     if (profileUiPreferences.communityFriendToolsOpen !== undefined) setFriendToolsOpen(profileUiPreferences.communityFriendToolsOpen);
     if (profileUiPreferences.communityCircleToolsOpen !== undefined) setCircleManagerOpen(profileUiPreferences.communityCircleToolsOpen);
     if (profileUiPreferences.communityRecentExpanded !== undefined) setRecentCheckinsExpanded(profileUiPreferences.communityRecentExpanded);
-    if (profileUiPreferences.memoryCardsExpanded !== undefined) setMemoryCardsExpanded(profileUiPreferences.memoryCardsExpanded);
   }, [profile, profileUiPreferences]);
 
   useEffect(() => {
@@ -3366,7 +3363,8 @@ export default function Home() {
       const completedVerseId = String(activeMemoryVerse._id);
       setActiveMemoryVerseId("");
       setExpandedMemoryVerseIds((current) => current.filter((id) => id !== completedVerseId));
-      setMemoryStatus(`Well done${firstName ? `, ${firstName}` : ""}. You completed this verse from memory.`);
+      const nextReviewedTodayCount = Math.max(reviewedTodayCount + 1, 1);
+      setMemoryStatus(`Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${nextReviewedTodayCount} verse${nextReviewedTodayCount === 1 ? "" : "s"} today.`);
       return;
     }
     setMemoryPracticeResult("Great. Now try the full verse from blanks.");
@@ -5532,7 +5530,7 @@ export default function Home() {
                   <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
                     <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                     <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-                    <Metric value={(memoryVerses || []).filter((item: any) => isMemoryVerseMemorized(item)).length} label="memorized" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+                    <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                   </View>
                 </>
               )}
@@ -5564,10 +5562,12 @@ export default function Home() {
                         </View>
                         <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
                       </View>
-                      <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
-                        <AppButton label="Find in Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddButton} />
-                        <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
-                      </View>
+                      {!phoneLayout && (
+                        <View style={styles.emptyMemoryActions}>
+                          <AppButton label="Find in Bible" onPress={() => setTab("bible")} />
+                          <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                        </View>
+                      )}
                     </View>
                   )}
                   {!phoneMemoryFocusMode && <View style={[styles.memoryViewToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
@@ -5584,26 +5584,6 @@ export default function Home() {
                       </Pressable>
                     ))}
                   </View>}
-                  {!phoneMemoryFocusMode && (
-                    <View style={[styles.memoryListTools, memoryDarkMode && styles.accountDarkSection]}>
-                      <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Saved verses open compact by default so the list is easier to scan.</Text>
-                      <ResumeButton
-                        label={memoryCardsExpanded ? "Compact list" : "Expand all"}
-                        icon={memoryCardsExpanded ? "contract-outline" : "expand-outline"}
-                        onPress={() => {
-                          setMemoryCardsExpanded((expanded) => {
-                            const next = !expanded;
-                            persistUiPreference("memoryCardsExpanded", next);
-                            return next;
-                          });
-                          setExpandedMemoryVerseIds([]);
-                        }}
-                        style={[phoneLayout && styles.phoneMemoryListToolButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                        labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
-                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
-                      />
-                    </View>
-                  )}
                   {!phoneMemoryFocusMode && memoryView === "browse" && (
                     <>
                       <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
@@ -5673,7 +5653,7 @@ export default function Home() {
                           {[
                             ["all", "All"],
                             ["due", "Due"],
-                            ["learning", "Learning"],
+                            ["learning", "Reviewed"],
                             ["memorized", "Memorized"]
                           ].map(([key, label]) => (
                             <Pressable
@@ -5687,6 +5667,22 @@ export default function Home() {
                         </View>
                       </View>
                     </>
+                  )}
+                  {!phoneMemoryFocusMode && (
+                    <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
+                      <Ionicons
+                        name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}
+                        size={20}
+                        color={memoryStatus ? colors.oliveDark : colors.coral}
+                      />
+                      <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
+                        {memoryStatus || (reviewedTodayCount > 0
+                          ? `Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
+                          : dueMemoryCount > 0
+                            ? `${friendlyName}, ${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today. Start with one and build from there.`
+                            : `${friendlyName}, your saved verses are resting until their next review. You can still practise any verse when you want to keep it fresh.`)}
+                      </Text>
+                    </View>
                   )}
                   {visibleMemorySections.map((section) => (
                     <View key={section.title} style={styles.memorySection}>
@@ -5703,7 +5699,7 @@ export default function Home() {
                         const verseId = String(verse._id);
                         const practicing = verseId === activeMemoryVerseId;
                         const reviewOpen = reviewScheduleVerseId === verseId;
-                        const cardExpanded = memoryCardsExpanded || expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen;
+                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen;
 
                         return (
                           <View key={verse._id} style={[styles.memoryCard, memoryDarkMode && styles.accountDarkSection, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard, memoryDarkMode && practicing && styles.memoryDarkActiveCard]}>
@@ -10278,9 +10274,9 @@ function normalizeMemoryText(text: string) {
 }
 
 function memoryStatusLabel(verse: { status: string; practiceLevel?: number; reviewCount?: number }) {
-  if (isMemoryVerseMemorized(verse)) return "Memorized";
+  if (isMemoryVerseMemorized(verse)) return "Reviewed";
   if (verse.status === "review" || verse.status === "memorized") return "Review soon";
-  if (verse.status === "learning") return "Learning";
+  if (verse.status === "learning") return "Reviewed";
   return "New";
 }
 
@@ -10291,7 +10287,7 @@ function memoryPracticeLabel(level: number) {
 }
 
 function memoryProgressLabel(verse: { status: string; practiceLevel?: number; reviewCount?: number }) {
-  if (isMemoryVerseMemorized(verse)) return "Memorized";
+  if (isMemoryVerseMemorized(verse)) return "Reviewed";
   return `Step ${clampMemoryPracticeLevel(verse.practiceLevel || 1)}`;
 }
 
@@ -10301,6 +10297,13 @@ function isMemoryVerseMemorized(verse: { status: string; reviewCount?: number })
 
 function isMemoryVerseDue(verse: { nextReviewAt?: number }) {
   return !verse.nextReviewAt || verse.nextReviewAt <= Date.now();
+}
+
+function isTodayLocal(timestamp?: number) {
+  if (!timestamp) return false;
+  const date = new Date(timestamp);
+  const today = new Date();
+  return date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
 }
 
 function reviewPresetLabel(preset: MemoryReviewPreset) {
@@ -10327,13 +10330,11 @@ function buildMemoryQueueSections(verses: any[]) {
   const byReviewTime = (a: any, b: any) => (a.nextReviewAt || 0) - (b.nextReviewAt || 0) || (b.updatedAt || 0) - (a.updatedAt || 0);
   const byRecent = (a: any, b: any) => (b.updatedAt || 0) - (a.updatedAt || 0);
   const due = verses.filter((verse) => !isMemoryVerseMemorized(verse) && isMemoryVerseDue(verse)).sort(byReviewTime);
-  const learning = verses.filter((verse) => !isMemoryVerseMemorized(verse) && !isMemoryVerseDue(verse)).sort(byReviewTime);
-  const memorized = verses.filter(isMemoryVerseMemorized).sort(byRecent);
+  const reviewed = verses.filter((verse) => isMemoryVerseMemorized(verse) || !isMemoryVerseDue(verse)).sort(byRecent);
 
   return [
-    { title: "Due today", description: "Start here. These are ready for review.", verses: due },
-    { title: "Learning", description: "Saved for an upcoming review.", verses: learning },
-    { title: "Memorized", description: "Completed verses for fresh review when you want it.", verses: memorized }
+    { title: "Due for Review", description: "Start here. These verses are ready for today’s review.", verses: due },
+    { title: "Reviewed", description: "Verses already reviewed or resting until their next review.", verses: reviewed }
   ].filter((section) => section.verses.length > 0);
 }
 
@@ -17180,6 +17181,30 @@ const styles = StyleSheet.create({
   },
   memoryList: {
     gap: 12
+  },
+  memoryReviewPromptBox: {
+    alignItems: "flex-start",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 13,
+    paddingVertical: 12
+  },
+  memoryReviewSuccessBox: {
+    backgroundColor: "#edf5df",
+    borderColor: "rgba(102, 114, 78, 0.28)"
+  },
+  memoryReviewEncourageBox: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.22)"
+  },
+  memoryReviewPromptText: {
+    color: colors.ink,
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    lineHeight: 20
   },
   memoryListTools: {
     alignItems: "center",

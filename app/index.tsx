@@ -3363,8 +3363,7 @@ export default function Home() {
       const completedVerseId = String(activeMemoryVerse._id);
       setActiveMemoryVerseId("");
       setExpandedMemoryVerseIds((current) => current.filter((id) => id !== completedVerseId));
-      const nextReviewedTodayCount = Math.max(reviewedTodayCount + 1, 1);
-      setMemoryStatus(`Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${nextReviewedTodayCount} verse${nextReviewedTodayCount === 1 ? "" : "s"} today.`);
+      setMemoryStatus("reviewed-today");
       return;
     }
     setMemoryPracticeResult("Great. Now try the full verse from blanks.");
@@ -5540,7 +5539,6 @@ export default function Home() {
                   <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>Practice mode. Close or finish this verse to return to your saved list.</Text>
                 </View>
               )}
-              {!!memoryStatus && <Text style={styles.saveStatus}>{memoryStatus}</Text>}
               {(memoryVerses || []).length === 0 ? (
                 <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                   <Ionicons name="sparkles-outline" size={24} color={colors.coral} />
@@ -5676,7 +5674,9 @@ export default function Home() {
                         color={memoryStatus ? colors.oliveDark : colors.coral}
                       />
                       <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
-                        {memoryStatus || (reviewedTodayCount > 0
+                        {memoryStatus === "reviewed-today"
+                          ? `Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
+                          : memoryStatus || (reviewedTodayCount > 0
                           ? `Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
                           : dueMemoryCount > 0
                             ? `${friendlyName}, ${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today. Start with one and build from there.`

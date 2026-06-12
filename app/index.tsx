@@ -1283,7 +1283,7 @@ export default function Home() {
     () => buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter),
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memorySearchTerm, memoryVerses]
   );
-  const dueMemoryCount = (memoryVerses || []).filter((item: any) => !isMemoryVerseMemorized(item) && isMemoryVerseDue(item)).length;
+  const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const memoryPracticeText = useMemo(
     () => (activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),
@@ -5690,7 +5690,9 @@ export default function Home() {
                         <>
                           <View style={styles.memorySectionHeader}>
                             <Text style={[styles.memorySectionTitle, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                            <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
+                            {section.title !== "Reviewed" && (
+                              <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
+                            )}
                           </View>
                           <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
                         </>
@@ -10329,8 +10331,8 @@ function reviewPresetForDate(nextReviewAt?: number): MemoryReviewPreset {
 function buildMemoryQueueSections(verses: any[]) {
   const byReviewTime = (a: any, b: any) => (a.nextReviewAt || 0) - (b.nextReviewAt || 0) || (b.updatedAt || 0) - (a.updatedAt || 0);
   const byRecent = (a: any, b: any) => (b.updatedAt || 0) - (a.updatedAt || 0);
-  const due = verses.filter((verse) => !isMemoryVerseMemorized(verse) && isMemoryVerseDue(verse)).sort(byReviewTime);
-  const reviewed = verses.filter((verse) => isMemoryVerseMemorized(verse) || !isMemoryVerseDue(verse)).sort(byRecent);
+  const due = verses.filter(isMemoryVerseDue).sort(byReviewTime);
+  const reviewed = verses.filter((verse) => !isMemoryVerseDue(verse)).sort(byRecent);
 
   return [
     { title: "Due for Review", description: "Start here. These verses are ready for today’s review.", verses: due },
@@ -10415,8 +10417,8 @@ function matchesMemorySearch(verse: any, searchTerm: string) {
 function matchesMemoryStatusFilter(verse: any, statusFilter: MemoryBrowseStatusFilter) {
   if (statusFilter === "all") return true;
   if (statusFilter === "memorized") return isMemoryVerseMemorized(verse);
-  if (statusFilter === "due") return !isMemoryVerseMemorized(verse) && isMemoryVerseDue(verse);
-  return !isMemoryVerseMemorized(verse) && !isMemoryVerseDue(verse);
+  if (statusFilter === "due") return isMemoryVerseDue(verse);
+  return !isMemoryVerseDue(verse);
 }
 
 function parseMemoryReference(reference: string) {

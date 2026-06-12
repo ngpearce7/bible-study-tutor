@@ -2,9 +2,10 @@ import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "no
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
+const productionSiteUrl = "https://biblestudytutor.org";
 const rawSiteUrl = process.env.EXPO_PUBLIC_SITE_URL || process.env.SITE_URL || "";
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
-const siteUrl = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedSiteUrl) ? "" : normalizedSiteUrl;
+const siteUrl = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedSiteUrl) ? productionSiteUrl : normalizedSiteUrl || productionSiteUrl;
 const now = new Date().toISOString();
 const seoPages = [
   {

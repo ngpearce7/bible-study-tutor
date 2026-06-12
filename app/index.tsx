@@ -901,30 +901,38 @@ export default function Home() {
     }).catch(() => undefined);
   }, [activeProfileId, incomingShareSource, recordUsage]);
 
+  const shouldLoadStudyLists = !!activeProfileId && (tab === "account" || tab === "journal");
+  const shouldLoadDueStudyReviews = !!activeProfileId && (tab === "home" || tab === "journal");
+  const shouldLoadEncouragements = !!activeProfileId && (tab === "account" || tab === "accountability" || tab === "journal");
+  const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && !!activeProfileId && isAuthenticated && (tab === "accountability" || tab === "study");
+  const shouldLoadAccountDeletionRequest = !!activeProfileId && tab === "account";
+  const shouldLoadAdminDetails = !!activeProfileId && tab === "admin";
+
   const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId } : "skip");
-  const sessions = useQuery(api.study.recentSessions, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
+  const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,
     activeProfileId ? { profileId: activeProfileId, passage: passage.trim() || "Selected passage", methodId } : "skip"
   );
-  const drafts = useQuery(api.study.recentDrafts, activeProfileId ? { profileId: activeProfileId, limit: 12 } : "skip");
-  const dueStudyReviews = useQuery(api.study.dueStudyReviews, activeProfileId ? { profileId: activeProfileId, limit: 10 } : "skip");
-  const checkins = useQuery(api.accountability.recentCheckins, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
-  const communityFriends = useQuery((api as any).community.myFriends, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
-  const communityCircles = useQuery((api as any).community.myCircles, COMMUNITY_CIRCLES_ENABLED && activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip");
+  const drafts = useQuery(api.study.recentDrafts, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
+  const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, limit: 10 } : "skip");
+  const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
+  const communityFriends = useQuery((api as any).community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
+  const communityCircles = useQuery((api as any).community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
   const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
-  const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, activeProfileId ? { profileId: activeProfileId } : "skip");
-  const adminUsers = useQuery((api as any).insights.adminUsers, activeProfileId ? {} : "skip");
-  const adminUserDetail = useQuery((api as any).insights.adminUserDetail, selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
-  const adminAuditLog = useQuery((api as any).insights.adminAuditLog, activeProfileId ? { limit: 20 } : "skip");
+  const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
+  const adminUsers = useQuery((api as any).insights.adminUsers, shouldLoadAdminDetails ? {} : "skip");
+  const adminUserDetail = useQuery((api as any).insights.adminUserDetail, shouldLoadAdminDetails && selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
+  const adminAuditLog = useQuery((api as any).insights.adminAuditLog, shouldLoadAdminDetails ? { limit: 20 } : "skip");
   useEffect(() => {
     if (!COMMUNITY_CIRCLES_ENABLED || !activeProfileId || !isAuthenticated) {
       setMyFriendCode("");
       return;
     }
+    if (tab !== "accountability") return;
 
     let cancelled = false;
     ensureCommunityFriendCode({ profileId: activeProfileId })
@@ -938,9 +946,10 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [activeProfileId, ensureCommunityFriendCode, isAuthenticated]);
+  }, [activeProfileId, ensureCommunityFriendCode, isAuthenticated, tab]);
   useEffect(() => {
-    if (!Array.isArray(communityCircles) || communityCircles.length === 0) {
+    if (!Array.isArray(communityCircles)) return;
+    if (communityCircles.length === 0) {
       setSelectedCircleId(null);
       setTargetCircleId(null);
       return;

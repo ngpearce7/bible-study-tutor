@@ -27,6 +27,8 @@ type MemoryReviewPreset = "later-today" | "tomorrow" | "three-days" | "next-week
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
+  | "studyInstructionsCollapsed"
+  | "studyCoachingVisible"
   | "studyPanelCommunityCollapsed"
   | "studyPanelPlanCollapsed"
   | "studyPanelFeedbackCollapsed"
@@ -174,6 +176,8 @@ const NOTE_HIGHLIGHT_COLOR_OPTIONS = [
   { label: "Lavender", value: "#e7ddf4" }
 ];
 const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
+  "studyInstructionsCollapsed",
+  "studyCoachingVisible",
   "studyPanelCommunityCollapsed",
   "studyPanelPlanCollapsed",
   "studyPanelFeedbackCollapsed",
@@ -702,6 +706,8 @@ export default function Home() {
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
+  const loadedDraftRevisionRef = useRef(0);
+  const isHydratingDraftRef = useRef(false);
 
   useEffect(() => {
     if (tab === "journal" && previousTabRef.current !== "journal") {
@@ -1378,6 +1384,8 @@ export default function Home() {
       feedback: profileUiPreferences.studyPanelFeedbackCollapsed ?? current.feedback,
       helps: profileUiPreferences.studyPanelHelpsCollapsed ?? current.helps
     }));
+    if (profileUiPreferences.studyInstructionsCollapsed !== undefined) setInstructionsCollapsed(profileUiPreferences.studyInstructionsCollapsed);
+    if (profileUiPreferences.studyCoachingVisible !== undefined) setShowCoaching(profileUiPreferences.studyCoachingVisible);
     if (profileUiPreferences.bibleReaderNavCollapsed !== undefined) setReaderNavCollapsed(profileUiPreferences.bibleReaderNavCollapsed);
     if (profileUiPreferences.bibleReaderHistoryCollapsed !== undefined) setReaderHistoryCollapsed(profileUiPreferences.bibleReaderHistoryCollapsed);
     if (profileUiPreferences.bibleBookmarksCollapsed !== undefined) setBookmarksCollapsed(profileUiPreferences.bibleBookmarksCollapsed);
@@ -1391,9 +1399,16 @@ export default function Home() {
   }, [profile, profileUiPreferences]);
 
   useEffect(() => {
-    if (savedDraft === undefined || loadedDraftKey === currentStudyKey) return;
+    if (savedDraft === undefined) return;
+
+    const draftRevision = savedDraft ? ((savedDraft as any).updatedAt || 0) : 0;
+    const sameStudyAlreadyLoaded = loadedDraftKey === currentStudyKey;
+    if (sameStudyAlreadyLoaded && draftRevision > 0 && draftRevision <= loadedDraftRevisionRef.current) return;
 
     if (!savedDraft) {
+      if (sameStudyAlreadyLoaded) return;
+      loadedDraftRevisionRef.current = 0;
+      isHydratingDraftRef.current = true;
       setAnswers({});
       setPassageMarkups({});
       setPassageMarkupNotes({});
@@ -1410,16 +1425,18 @@ export default function Home() {
     savedDraft.answers.forEach((item: any, index: number) => {
       restoredAnswers[`${savedDraft.methodId}:${index}`] = item.answer;
     });
+    isHydratingDraftRef.current = true;
     setAnswers(restoredAnswers);
     setPassageMarkups(markupRecordsToMap(savedDraft.passageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(savedDraft.passageMarkups || []));
     setSelectedVerseKeys([]);
     setStepIndex(pickResumeStepIndex(savedDraft.answers, savedDraft.stepIndex));
     setStudyPhase("study");
+    loadedDraftRevisionRef.current = draftRevision;
     setLoadedDraftKey(currentStudyKey);
-      setSaveStatus(`Welcome back${firstName ? `, ${firstName}` : ""}. Your draft is restored.`);
+    setSaveStatus(`Welcome back${firstName ? `, ${firstName}` : ""}. Your draft is restored.`);
     setShareNote(buildShareNote(method, restoredAnswers, savedDraft.passageReference || savedDraft.passage));
-  }, [currentStudyKey, loadedDraftKey, method, savedDraft]);
+  }, [currentStudyKey, firstName, loadedDraftKey, method, savedDraft]);
 
   useEffect(() => {
     setDetectedScriptureReference("");
@@ -1523,8 +1540,8 @@ export default function Home() {
   }, [bibleTranslation, readerBook, readerChapter]);
 
   useEffect(() => {
-    setInstructionsCollapsed(false);
-  }, [method.id, stepIndex]);
+    if (profileUiPreferences.studyInstructionsCollapsed === undefined) setInstructionsCollapsed(false);
+  }, [method.id, profileUiPreferences.studyInstructionsCollapsed, stepIndex]);
 
   useEffect(() => {
     if (selectedVerseKeys.length === 0) return;
@@ -1535,6 +1552,10 @@ export default function Home() {
 
   useEffect(() => {
     if (!activeProfileId || loadedDraftKey !== currentStudyKey) return;
+    if (isHydratingDraftRef.current) {
+      isHydratingDraftRef.current = false;
+      return;
+    }
 
     const draftAnswers = method.steps.map((item, index) => ({
       stepTitle: item.title,
@@ -3806,6 +3827,42 @@ export default function Home() {
     });
   }
 
+  const studyInstructionPanel = studyPhase === "study" ? (
+    <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox, studyDarkMode && styles.accountDarkSection]}>
+      <View style={styles.instructionHeader}>
+        <View style={styles.instructionHeaderCopy} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
+          <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
+          <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
+          <Text style={styles.instructionKicker}>Do this now</Text>
+          <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
+        </View>
+        <Pressable onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
+          <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+          <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Show" : "Hide"}</Text>
+        </Pressable>
+      </View>
+      {!instructionsCollapsed && (
+        <>
+          <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{step.prompt}</Text>
+          <View style={styles.checklist}>
+            {step.checklist.map((item) => (
+              <View key={item} style={styles.checkItem}>
+                <Ionicons name="checkmark-circle-outline" size={18} color={colors.olive} />
+                <Text style={[styles.checkText, studyDarkMode && styles.accountDarkMutedText]}>{item}</Text>
+              </View>
+            ))}
+          </View>
+          {step.responseType === "text" && (
+            <View style={[styles.outputBox, studyDarkMode && styles.accountDarkInsetBox]}>
+              <Text style={[styles.outputLabel, studyDarkMode && styles.studyDarkAccentText]}>What to write</Text>
+              <Text style={[styles.outputText, studyDarkMode && styles.accountDarkText]}>{step.output}</Text>
+            </View>
+          )}
+        </>
+      )}
+    </View>
+  ) : null;
+
   const showMobileReaderSelectionDock = phoneLayout && tab === "bible" && selectedReaderVerses.length > 0;
   const showMobileReaderNoteEditor = showMobileReaderSelectionDock && !!currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id;
   const activeContextHelp = getContextHelp(tab);
@@ -4103,6 +4160,8 @@ export default function Home() {
                   })}
                 </View>
               )}
+
+              {studyInstructionPanel}
 
               <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyPhase === "study" && styles.attachedScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
                 <View style={styles.scriptureHeader}>
@@ -4422,39 +4481,6 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel]}>
-                  <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox, studyDarkMode && styles.accountDarkSection]}>
-                    <View style={styles.instructionHeader}>
-                      <View style={styles.instructionHeaderCopy} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
-                        <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
-                        <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
-                        <Text style={styles.instructionKicker}>Do this now</Text>
-                        <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
-                      </View>
-                      <Pressable onPress={() => setInstructionsCollapsed((value) => !value)} style={[styles.collapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
-                        <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Show" : "Hide"}</Text>
-                      </Pressable>
-                    </View>
-                    {!instructionsCollapsed && (
-                      <>
-                        <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{step.prompt}</Text>
-                        <View style={styles.checklist}>
-                          {step.checklist.map((item) => (
-                            <View key={item} style={styles.checkItem}>
-                              <Ionicons name="checkmark-circle-outline" size={18} color={colors.olive} />
-                              <Text style={[styles.checkText, studyDarkMode && styles.accountDarkMutedText]}>{item}</Text>
-                            </View>
-                          ))}
-                        </View>
-                        {step.responseType === "text" && (
-                          <View style={[styles.outputBox, studyDarkMode && styles.accountDarkInsetBox]}>
-                            <Text style={[styles.outputLabel, studyDarkMode && styles.studyDarkAccentText]}>What to write</Text>
-                            <Text style={[styles.outputText, studyDarkMode && styles.accountDarkText]}>{step.output}</Text>
-                          </View>
-                        )}
-                      </>
-                    )}
-                  </View>
                   {step.responseType === "none" ? (
                     <View style={[styles.readyBox, studyDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="book-outline" size={22} color={colors.coral} />
@@ -4497,6 +4523,7 @@ export default function Home() {
                               onPress={() => {
                                 setShowCoaching(true);
                                 saveStoredTutorCoachingEnabled(true).catch(() => undefined);
+                                persistUiPreference("studyCoachingVisible", true);
                               }}
                               style={[styles.collapsedCoachingBox, studyDarkMode && styles.accountDarkSection]}
                             >
@@ -4520,6 +4547,7 @@ export default function Home() {
                                 <Pressable onPress={() => {
                                   setShowCoaching(false);
                                   saveStoredTutorCoachingEnabled(false).catch(() => undefined);
+                                  persistUiPreference("studyCoachingVisible", false);
                                 }} style={[styles.coachingToggleBadge, styles.activeCoachingToggleBadge]}>
                                   <Text style={styles.activeCoachingToggleText}>On</Text>
                                 </Pressable>
@@ -4671,6 +4699,7 @@ export default function Home() {
                     const nextValue = !showCoaching;
                     setShowCoaching(nextValue);
                     saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
+                    persistUiPreference("studyCoachingVisible", nextValue);
                   }}
                   style={studyDarkMode && styles.homeDarkResumeButton}
                   labelStyle={studyDarkMode && styles.homeDarkResumeButtonText}
@@ -6578,6 +6607,7 @@ export default function Home() {
                       const nextValue = !showCoaching;
                       setShowCoaching(nextValue);
                       saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
+                      persistUiPreference("studyCoachingVisible", nextValue);
                     }}
                     style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, showCoaching && styles.activeAiOptionCard, accountDarkMode && showCoaching && styles.accountDarkActiveOptionCard]}
                   >

@@ -5690,9 +5690,7 @@ export default function Home() {
                         <>
                           <View style={styles.memorySectionHeader}>
                             <Text style={[styles.memorySectionTitle, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                            {section.title !== "Reviewed" && (
-                              <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
-                            )}
+                            <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
                           </View>
                           <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
                         </>
@@ -10314,7 +10312,14 @@ function reviewPresetLabel(preset: MemoryReviewPreset) {
 
 function memoryReviewDateLabel(nextReviewAt?: number) {
   if (!nextReviewAt || nextReviewAt <= Date.now()) return "Review: due now";
-  return `Review: ${new Date(nextReviewAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const target = new Date(nextReviewAt);
+  const targetStart = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
+  const daysUntilReview = Math.max(0, Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24)));
+  if (daysUntilReview <= 0) return "Review in: today";
+  if (daysUntilReview === 1) return "Review in: 1 day";
+  return `Review in: ${daysUntilReview} days`;
 }
 
 function reviewPresetForDate(nextReviewAt?: number): MemoryReviewPreset {
@@ -17374,7 +17379,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     gap: 4,
     justifyContent: "flex-start",
-    maxWidth: 104
+    maxWidth: 118
   },
   phoneMemoryHeaderPill: {
     fontSize: 10,

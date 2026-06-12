@@ -13,7 +13,7 @@ import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { createElement, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { createElement, memo, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
@@ -90,6 +90,38 @@ type JournalScriptureItem = {
   verses: number[];
 };
 type NoteFormatKind = "undo" | "redo" | "bold" | "italic" | "underline" | "highlight" | "bullet";
+type AdminStats = {
+  totals: {
+    profiles: number;
+    signedInProfiles: number;
+    localProfiles: number;
+    activeProfiles7d: number;
+    profilesWithStudies: number;
+    events: number;
+    feedback: number;
+    newFeedback: number;
+    appShares: number;
+    pendingDeletionRequests: number;
+  };
+  topBookmarked: { label: string; count: number }[];
+  topMemory: { label: string; count: number }[];
+  topMethods: { label: string; count: number }[];
+  topSearches: { label: string; count: number }[];
+  shareSources: { label: string; count: number }[];
+  eventBreakdown: { label: string; count: number }[];
+  feedbackByCategory: { label: string; count: number }[];
+  feedbackByStatus: { label: string; count: number }[];
+  recentEvents: {
+    _id: string;
+    eventType: string;
+    reference?: string;
+    methodName?: string;
+    tab?: string;
+    createdAt: number;
+  }[];
+  recentFeedback: any[];
+  deletionRequests: any[];
+};
 
 const ScriptureTextColor = Mark.create({
   name: "scriptureTextColor",
@@ -1198,38 +1230,7 @@ export default function Home() {
   const selectedReaderVersesAlreadyInMemory =
     selectedReaderVerseObjects.length > 0 &&
     selectedReaderVerseObjects.every((verse) => readerMemoryVerseKeys.has(verseMarkupKey(verse)));
-  const adminStats = adminOverview as null | {
-    totals: {
-      profiles: number;
-      signedInProfiles: number;
-      localProfiles: number;
-      activeProfiles7d: number;
-      profilesWithStudies: number;
-      events: number;
-      feedback: number;
-      newFeedback: number;
-      appShares: number;
-      pendingDeletionRequests: number;
-    };
-    topBookmarked: { label: string; count: number }[];
-    topMemory: { label: string; count: number }[];
-    topMethods: { label: string; count: number }[];
-    topSearches: { label: string; count: number }[];
-    shareSources: { label: string; count: number }[];
-    eventBreakdown: { label: string; count: number }[];
-    feedbackByCategory: { label: string; count: number }[];
-    feedbackByStatus: { label: string; count: number }[];
-    recentEvents: {
-      _id: string;
-      eventType: string;
-      reference?: string;
-      methodName?: string;
-      tab?: string;
-      createdAt: number;
-    }[];
-    recentFeedback: any[];
-    deletionRequests: any[];
-  };
+  const adminStats = adminOverview as AdminStats | null;
   const bibleSearchBookOptions = useMemo(() => buildBibleSearchBookOptions(bibleSearchScope), [bibleSearchScope]);
   const bibleSearchSections = useMemo(() => buildBibleSearchSections(bibleSearchResults, bibleSearchScope, bibleSearchBook), [bibleSearchBook, bibleSearchResults, bibleSearchScope]);
   const bibleSearchTranslation = bibleTranslation === "kjv" ? "KJV" : "WEB";
@@ -6797,138 +6798,24 @@ export default function Home() {
         )}
 
         {tab === "admin" && (
-          adminStats ? (
-            <View style={adminDarkMode && styles.accountDarkLayout}>
-              <Eyebrow>Administrator</Eyebrow>
-              <Text style={[styles.title, adminDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
-              <Text style={[styles.titleSupport, adminDarkMode && styles.accountDarkMutedText]}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
-
-              <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
-                <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.signedInProfiles} label="signed in" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.profilesWithStudies} label="with studies" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.newFeedback} label="new feedback" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.appShares || 0} label="app shares" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.events} label="events" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-                <Metric value={adminStats.totals.localProfiles} label="local/test" labelLines={2} style={[styles.adminDashboardMetric, adminDarkMode && styles.accountDarkSection]} valueStyle={adminDarkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, adminDarkMode && styles.accountDarkMutedText]} />
-              </View>
-
-              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="trash-outline" size={18} color={colors.coral} />
-                  <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>Account deletion requests</Text>
-                </View>
-                <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
-                <AdminDeletionRequestList
-                  requests={adminStats.deletionRequests}
-                  pendingConfirmId={pendingAdminDeletionRequestId}
-                  onApprove={approveAdminDeletionRequest}
-                  onCancel={cancelAdminDeletionRequest}
-                  phoneLayout={phoneLayout}
-                  darkMode={adminDarkMode}
-                />
-              </Card>
-
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <View style={styles.feedbackHeader}>
-                    <Ionicons name="people-outline" size={18} color={colors.coral} />
-                    <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>User directory</Text>
-                  </View>
-                  <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
-                  <AdminUserDirectory
-                    users={Array.isArray(adminUsers) ? adminUsers : []}
-                    selectedProfileId={selectedAdminProfileId}
-                    onSelect={setSelectedAdminProfileId}
-                    phoneLayout={phoneLayout}
-                    darkMode={adminDarkMode}
-                  />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <View style={styles.feedbackHeader}>
-                    <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
-                    <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>User summary</Text>
-                  </View>
-                  <AdminUserDetail detail={adminUserDetail} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-              </View>
-
-              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="receipt-outline" size={18} color={colors.coral} />
-                  <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>Admin audit log</Text>
-                </View>
-                <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
-                <AdminAuditLog entries={Array.isArray(adminAuditLog) ? adminAuditLog : []} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-              </Card>
-
-              <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                <View style={styles.feedbackHeader}>
-                  <Ionicons name="information-circle-outline" size={18} color={colors.coral} />
-                  <Text style={[styles.feedbackTitle, adminDarkMode && styles.accountDarkTitle]}>Profile context</Text>
-                </View>
-                <Text style={[styles.helpIntro, adminDarkMode && styles.accountDarkMutedText]}>
-                  Total raw profiles: {adminStats.totals.profiles}. This can include local test profiles and older device-only profiles, so active users and signed-in profiles are the better health signals.
-                </Text>
-              </Card>
-
-              <AdminReachMap
-                activeUsers={adminStats.totals.activeProfiles7d}
-                regions={[...ADMIN_REGION_PREVIEW]}
-                selectedRegion={selectedAdminRegion}
-                onSelectRegion={setSelectedAdminRegion}
-                phoneLayout={phoneLayout}
-                darkMode={adminDarkMode}
-              />
-
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="Top memory verses" items={adminStats.topMemory} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="Top study methods" items={adminStats.topMethods} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="Bible searches" items={adminStats.topSearches} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-              </View>
-
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                  <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-              </View>
-
-              <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <Text style={[styles.lastCheckinLabel, adminDarkMode && styles.studyDarkAccentText]}>Latest feedback</Text>
-                  <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={markFeedbackStatus} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-                <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, adminDarkMode && styles.accountDarkMainCard]}>
-                  <Text style={[styles.lastCheckinLabel, adminDarkMode && styles.studyDarkAccentText]}>Recent activity</Text>
-                  <AdminEventList events={adminStats.recentEvents} phoneLayout={phoneLayout} darkMode={adminDarkMode} />
-                </Card>
-              </View>
-            </View>
-          ) : (
-            <View style={adminDarkMode && styles.accountDarkLayout}>
-              <Eyebrow>Administrator</Eyebrow>
-              <Text style={[styles.title, adminDarkMode && styles.accountDarkTitle]}>Admin insights</Text>
-              <Text style={[styles.titleSupport, adminDarkMode && styles.accountDarkMutedText]}>Sign in with an administrator account to view app insights.</Text>
-              <AppButton label="Open account" onPress={() => setTab("account")} />
-            </View>
-          )
+          <AdminDashboard
+            adminStats={adminStats}
+            adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
+            adminUserDetail={adminUserDetail}
+            adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
+            pendingConfirmId={pendingAdminDeletionRequestId}
+            selectedProfileId={selectedAdminProfileId}
+            selectedRegion={selectedAdminRegion}
+            compactLayout={compactLayout}
+            phoneLayout={phoneLayout}
+            darkMode={adminDarkMode}
+            onApproveDeletion={approveAdminDeletionRequest}
+            onCancelDeletion={cancelAdminDeletionRequest}
+            onMarkFeedbackStatus={markFeedbackStatus}
+            onOpenAccount={() => setTab("account")}
+            onSelectProfile={setSelectedAdminProfileId}
+            onSelectRegion={setSelectedAdminRegion}
+          />
         )}
 
         {tab === "journal" && (
@@ -8168,6 +8055,159 @@ function HelpScreenshot({
     </Card>
   );
 }
+
+const AdminDashboard = memo(function AdminDashboard({
+  adminStats,
+  adminUsers,
+  adminUserDetail,
+  adminAuditLog,
+  pendingConfirmId,
+  selectedProfileId,
+  selectedRegion,
+  compactLayout,
+  phoneLayout,
+  darkMode,
+  onApproveDeletion,
+  onCancelDeletion,
+  onMarkFeedbackStatus,
+  onOpenAccount,
+  onSelectProfile,
+  onSelectRegion
+}: {
+  adminStats: AdminStats | null;
+  adminUsers: any[];
+  adminUserDetail: any;
+  adminAuditLog: any[];
+  pendingConfirmId: string;
+  selectedProfileId: any;
+  selectedRegion: string;
+  compactLayout: boolean;
+  phoneLayout: boolean;
+  darkMode: boolean;
+  onApproveDeletion: (requestId: any) => void;
+  onCancelDeletion: (requestId: any) => void;
+  onMarkFeedbackStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>;
+  onOpenAccount: () => void;
+  onSelectProfile: (profileId: any) => void;
+  onSelectRegion: (region: string) => void;
+}) {
+  if (!adminStats) {
+    return (
+      <View style={darkMode && styles.accountDarkLayout}>
+        <Eyebrow>Administrator</Eyebrow>
+        <Text style={[styles.title, darkMode && styles.accountDarkTitle]}>Admin insights</Text>
+        <Text style={[styles.titleSupport, darkMode && styles.accountDarkMutedText]}>Sign in with an administrator account to view app insights.</Text>
+        <AppButton label="Open account" onPress={onOpenAccount} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={darkMode && styles.accountDarkLayout}>
+      <Eyebrow>Administrator</Eyebrow>
+      <Text style={[styles.title, darkMode && styles.accountDarkTitle]}>Admin insights</Text>
+      <Text style={[styles.titleSupport, darkMode && styles.accountDarkMutedText]}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
+
+      <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
+        <Metric value={adminStats.totals.activeProfiles7d} label="active 7d" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.signedInProfiles} label="signed in" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.profilesWithStudies} label="with studies" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.newFeedback} label="new feedback" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.appShares || 0} label="app shares" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.pendingDeletionRequests} label="deletion requests" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.events} label="events" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <Metric value={adminStats.totals.localProfiles} label="local/test" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+      </View>
+
+      <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+        <View style={styles.feedbackHeader}>
+          <Ionicons name="trash-outline" size={18} color={colors.coral} />
+          <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Account deletion requests</Text>
+        </View>
+        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
+        <AdminDeletionRequestList requests={adminStats.deletionRequests} pendingConfirmId={pendingConfirmId} onApprove={onApproveDeletion} onCancel={onCancelDeletion} phoneLayout={phoneLayout} darkMode={darkMode} />
+      </Card>
+
+      <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <View style={styles.feedbackHeader}>
+            <Ionicons name="people-outline" size={18} color={colors.coral} />
+            <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
+          </View>
+          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
+          <AdminUserDirectory users={adminUsers} selectedProfileId={selectedProfileId} onSelect={onSelectProfile} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <View style={styles.feedbackHeader}>
+            <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
+            <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User summary</Text>
+          </View>
+          <AdminUserDetail detail={adminUserDetail} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+      </View>
+
+      <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+        <View style={styles.feedbackHeader}>
+          <Ionicons name="receipt-outline" size={18} color={colors.coral} />
+          <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Admin audit log</Text>
+        </View>
+        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
+        <AdminAuditLog entries={adminAuditLog} phoneLayout={phoneLayout} darkMode={darkMode} />
+      </Card>
+
+      <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+        <View style={styles.feedbackHeader}>
+          <Ionicons name="information-circle-outline" size={18} color={colors.coral} />
+          <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Profile context</Text>
+        </View>
+        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>
+          Total raw profiles: {adminStats.totals.profiles}. This can include local test profiles and older device-only profiles, so active users and signed-in profiles are the better health signals.
+        </Text>
+      </Card>
+
+      <AdminReachMap activeUsers={adminStats.totals.activeProfiles7d} regions={[...ADMIN_REGION_PREVIEW]} selectedRegion={selectedRegion} onSelectRegion={onSelectRegion} phoneLayout={phoneLayout} darkMode={darkMode} />
+
+      <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="Top bookmarked verses" items={adminStats.topBookmarked} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="Top memory verses" items={adminStats.topMemory} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="Top study methods" items={adminStats.topMethods} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="Bible searches" items={adminStats.topSearches} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+      </View>
+
+      <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="Activity breakdown" items={adminStats.eventBreakdown} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList title="Feedback categories" items={adminStats.feedbackByCategory} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminCountList title="Feedback status" items={adminStats.feedbackByStatus} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+      </View>
+
+      <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Latest feedback</Text>
+          <AdminFeedbackList feedback={adminStats.recentFeedback} onMarkStatus={onMarkFeedbackStatus} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Recent activity</Text>
+          <AdminEventList events={adminStats.recentEvents} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+      </View>
+    </View>
+  );
+});
 
 function AdminCountList({ title, items, phoneLayout = false, darkMode = false }: { title: string; items?: { label: string; count: number }[]; phoneLayout?: boolean; darkMode?: boolean }) {
   const safeItems = Array.isArray(items) ? items : [];

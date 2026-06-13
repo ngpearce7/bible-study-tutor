@@ -300,6 +300,9 @@ export function buildMemoryMilestones(
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
   const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
+  const reviewedTodayCount = verses.length
+    ? verses.filter((verse) => isTodayLocal(verse.lastReviewedAt)).length
+    : uniqueReferenceCount(reviewedEvents.filter((event) => isTodayLocal(event.createdAt)));
   const uniqueAddedCount = verses.length || uniqueReferenceCount(addedEvents);
   const uniqueReviewedCount = verses.length ? reviewedVerses.length : uniqueReferenceCount(reviewedEvents);
   const totalCompletedReviews = verses.length
@@ -310,9 +313,7 @@ export function buildMemoryMilestones(
   );
   const firstAdded = oldestEvent(addedEvents);
   const firstReviewed = oldestEvent(reviewedEvents);
-  const sortedReviews = reviewedEvents.slice().sort((a, b) => a.createdAt - b.createdAt);
-  const fifthReview = sortedReviews[4] || null;
-  const tenthReview = sortedReviews[9] || null;
+  const latestReviewed = latestReviewEvent(reviewedEvents, verses);
   const starterMilestones: { title: string; description: string; achieved: boolean }[] = [
     {
       title: "First verse added",
@@ -331,29 +332,18 @@ export function buildMemoryMilestones(
   ];
   const ongoingMilestones: { title: string; description: string; achieved: boolean }[] = [
     {
-      title: "Five reviews",
-      description: totalCompletedReviews >= 5 && fifthReview
-        ? `You reached five completed reviews with ${fifthReview.reference} on ${formatMemoryHistoryDate(fifthReview.createdAt)}.`
-        : totalCompletedReviews >= 5
-          ? `You have completed ${totalCompletedReviews} memory reviews.`
-        : `${Math.max(0, 5 - totalCompletedReviews)} more completed review${5 - totalCompletedReviews === 1 ? "" : "s"} to reach five.`,
-      achieved: totalCompletedReviews >= 5
+      title: reviewedTodayCount > 0 ? `${formatReviewCountTitle(reviewedTodayCount)} Today` : "Review Today",
+      description: latestReviewed
+        ? `Last reviewed: ${latestReviewed.reference} on ${formatMemoryHistoryDate(latestReviewed.createdAt)}.`
+        : "Review one saved verse today and your latest review will appear here.",
+      achieved: reviewedTodayCount > 0
     },
     {
-      title: "Ten reviews",
-      description: totalCompletedReviews >= 10 && tenthReview
-        ? `You reached ten completed reviews with ${tenthReview.reference} on ${formatMemoryHistoryDate(tenthReview.createdAt)}.`
-        : totalCompletedReviews >= 10
-          ? `You have completed ${totalCompletedReviews} memory reviews.`
-        : `${Math.max(0, 10 - totalCompletedReviews)} more completed review${10 - totalCompletedReviews === 1 ? "" : "s"} to reach ten.`,
-      achieved: totalCompletedReviews >= 10
-    },
-    {
-      title: "Three verses reviewed",
-      description: uniqueReviewedCount >= 3
-        ? `You have reviewed ${uniqueReviewedCount} different verses from memory.`
-        : `${Math.max(0, 3 - uniqueReviewedCount)} more verse${3 - uniqueReviewedCount === 1 ? "" : "s"} to review from memory.`,
-      achieved: uniqueReviewedCount >= 3
+      title: totalCompletedReviews > 0 ? formatReviewCountTitle(totalCompletedReviews) : "First Review",
+      description: totalCompletedReviews > 0
+        ? `You have completed ${totalCompletedReviews} memory review${totalCompletedReviews === 1 ? "" : "s"} across ${uniqueReviewedCount} verse${uniqueReviewedCount === 1 ? "" : "s"}.`
+        : "Complete your first memory review to begin building a long-term rhythm.",
+      achieved: totalCompletedReviews > 0
     },
     {
       title: "Three review days",
@@ -401,6 +391,19 @@ function oldestEvent<T extends { createdAt: number }>(events: T[]) {
   return events.slice().sort((a, b) => a.createdAt - b.createdAt)[0] || null;
 }
 
+function latestReviewEvent(
+  events: { createdAt: number; reference: string }[],
+  verses: MemoryVerseForHistory[]
+) {
+  const latestEvent = events.slice().sort((a, b) => b.createdAt - a.createdAt)[0] || null;
+  if (latestEvent) return latestEvent;
+
+  return verses
+    .filter((verse) => verse.lastReviewedAt)
+    .map((verse) => ({ reference: verse.reference, createdAt: verse.lastReviewedAt || 0 }))
+    .sort((a, b) => b.createdAt - a.createdAt)[0] || null;
+}
+
 function daysAgo(timestamp: number) {
   return (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
 }
@@ -426,6 +429,40 @@ function formatShortList(items: string[]) {
   if (items.length <= 1) return items[0] || "";
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function formatMilestoneCount(count: number) {
+  const words: Record<number, string> = {
+    1: "One",
+    2: "Two",
+    3: "Three",
+    4: "Four",
+    5: "Five",
+    6: "Six",
+    7: "Seven",
+    8: "Eight",
+    9: "Nine",
+    10: "Ten",
+    11: "Eleven",
+    12: "Twelve",
+    13: "Thirteen",
+    14: "Fourteen",
+    15: "Fifteen",
+    16: "Sixteen",
+    17: "Seventeen",
+    18: "Eighteen",
+    19: "Nineteen",
+    20: "Twenty",
+    25: "Twenty-Five",
+    50: "Fifty",
+    75: "Seventy-Five",
+    100: "One Hundred"
+  };
+  return words[count] || String(count);
+}
+
+function formatReviewCountTitle(count: number) {
+  return `${formatMilestoneCount(count)} Review${count === 1 ? "" : "s"}`;
 }
 
 function mostFrequentReference(events: { reference: string }[]) {

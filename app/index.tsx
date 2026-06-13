@@ -15615,6 +15615,7 @@ const styles = StyleSheet.create({
   attachedScriptureBox: {
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
+    borderBottomWidth: 0,
     marginBottom: 0
   },
   phoneScriptureBox: {
@@ -15951,9 +15952,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fffefa",
     borderBottomLeftRadius: 14,
     borderBottomRightRadius: 14,
-    borderColor: "rgba(201, 103, 80, 0.38)",
+    borderColor: colors.line,
     borderTopWidth: 0,
-    borderWidth: 2,
+    borderWidth: 1,
     marginBottom: 16,
     padding: 16
   },

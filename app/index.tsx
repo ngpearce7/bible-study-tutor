@@ -3455,7 +3455,7 @@ export default function Home() {
       return;
     }
 
-    const translation = bibleTranslation === "kjv" ? "KJV" : "WEB";
+    const translation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
     const queries = buildBibleSearchQueries(query, bibleSearchMode);
     setBibleSearchStatus("Searching Scripture...");
     setBibleSearchActiveQuery(query);
@@ -5010,8 +5010,12 @@ export default function Home() {
                   </>
                 )}
                 {!bibleSearchCollapsed && !!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
-                {!bibleSearchCollapsed && !!bibleSearchActiveQuery && bibleTranslation === "bsb" && (
-                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>Search uses WEB text while the reader can stay on BSB. Word mode only matches whole words.</Text>
+                {!bibleSearchCollapsed && !!bibleSearchActiveQuery && (
+                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>
+                    {bibleTranslation === "bsb"
+                      ? "Search is using BSB text. Word mode only matches whole words."
+                      : "Word mode only matches whole words. Use Theme when you want broader ideas."}
+                  </Text>
                 )}
                 {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
                   <View key={section.title} style={styles.bibleSearchResultSection}>
@@ -9797,7 +9801,9 @@ function bibleSearchTranslationId(translation: "KJV" | "WEB") {
   return translation === "KJV" ? "KJV" : "WEB";
 }
 
-async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
+async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB" | "BSB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
+  if (translation === "BSB") return fetchBsbSearchResults(searchTerm, scope, bookFilter);
+
   const params = new URLSearchParams({
     search: searchTerm,
     match_case: "false",
@@ -9836,6 +9842,50 @@ async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | 
       };
     })
     .filter((item: BibleSearchResult | null): item is BibleSearchResult => item !== null);
+}
+
+async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string): Promise<BibleSearchResult[]> {
+  const books = bookFilter
+    ? [bookFilter]
+    : scope === "old"
+      ? OLD_TESTAMENT_BOOKS
+      : scope === "new"
+        ? NEW_TESTAMENT_BOOKS
+        : bibleBooks;
+  const chapters = books.flatMap((book) => Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => ({ book, chapter: index + 1 })));
+  const results: BibleSearchResult[] = [];
+  const batchSize = 8;
+
+  for (let index = 0; index < chapters.length && results.length < 80; index += batchSize) {
+    const batch = chapters.slice(index, index + batchSize);
+    const batchResults = await Promise.all(batch.map(({ book, chapter }) => fetchBsbSearchChapter(searchTerm, book, chapter).catch(() => [] as BibleSearchResult[])));
+    results.push(...batchResults.flat());
+  }
+
+  return results;
+}
+
+async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: number): Promise<BibleSearchResult[]> {
+  const bookId = BSB_BOOK_IDS[normalizeBibleBookName(book)];
+  if (!bookId) return [];
+
+  const response = await fetch(`https://bible.helloao.org/api/BSB/${bookId}/${chapter}.json`);
+  if (!response.ok) return [];
+
+  const data = await response.json();
+  const verses = (data.chapter?.content || []).filter((item: any) => item.type === "verse" && typeof item.number === "number");
+  return verses.map((item: any): BibleSearchResult => {
+    const verse = Number(item.number);
+    return {
+      id: `BSB-${book}-${chapter}-${verse}`,
+      book,
+      chapter,
+      verse,
+      text: flattenBsbVerseContent(item.content),
+      translation: "BSB",
+      sourceQuery: searchTerm
+    };
+  });
 }
 
 function buildBibleSearchQueries(query: string, mode: BibleSearchMode) {

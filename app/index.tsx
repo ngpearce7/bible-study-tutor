@@ -565,6 +565,7 @@ export default function Home() {
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
+  const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
   const readerVerseYRef = useRef<Record<number, number>>({});
   const previousTabRef = useRef<Tab>(tab);
@@ -3459,7 +3460,23 @@ export default function Home() {
     saveStoredBibleReadChapters({}).catch(() => undefined);
   }
 
+  function dismissBibleSearchInput() {
+    if (!phoneLayout) return;
+    Keyboard.dismiss();
+    if (Platform.OS === "web" && typeof document !== "undefined") {
+      (document.activeElement as HTMLElement | null)?.blur?.();
+    }
+  }
+
+  function scrollToBibleSearchSummary() {
+    if (!phoneLayout) return;
+    setTimeout(() => {
+      appScrollRef.current?.scrollTo?.({ y: Math.max(0, bibleSearchSummaryYRef.current - 88), animated: true });
+    }, 120);
+  }
+
   async function runBibleSearch() {
+    dismissBibleSearchInput();
     const query = bibleSearchQuery.trim();
     if (!query) {
       setBibleSearchStatus("Type a word, theme, idea, or question to search.");
@@ -3488,11 +3505,13 @@ export default function Home() {
             ? "No exact word results found. Try Any words or Theme if you want broader matches."
             : "No results found. Try fewer words or a broader search mode."
       );
+      scrollToBibleSearchSummary();
       trackUsage("bible_search", { reference: query, translation, tab: "bible", book: bibleSearchBook || undefined });
     } catch {
       setBibleSearchStatus("I couldn't complete the search. Check your connection and try again.");
       setBibleSearchDuration(`Search stopped after ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults([]);
+      scrollToBibleSearchSummary();
     }
   }
 
@@ -5047,14 +5066,23 @@ export default function Home() {
                     </View>
                   </>
                 )}
-                {!bibleSearchCollapsed && !!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
-                {!bibleSearchCollapsed && !!bibleSearchDuration && <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchDuration}</Text>}
-                {!bibleSearchCollapsed && !!bibleSearchActiveQuery && (
-                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>
-                    {bibleTranslation === "bsb"
-                      ? "Search is using BSB text. Word mode only matches whole words."
-                      : "Word mode only matches whole words. Use Theme when you want broader ideas."}
-                  </Text>
+                {!bibleSearchCollapsed && (!!bibleSearchStatus || !!bibleSearchDuration || !!bibleSearchActiveQuery) && (
+                  <View
+                    onLayout={(event) => {
+                      bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
+                    }}
+                    style={styles.bibleSearchSummaryBlock}
+                  >
+                    {!!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
+                    {!!bibleSearchDuration && <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchDuration}</Text>}
+                    {!!bibleSearchActiveQuery && (
+                      <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>
+                        {bibleTranslation === "bsb"
+                          ? "Search is using BSB text. Word mode only matches whole words."
+                          : "Word mode only matches whole words. Use Theme when you want broader ideas."}
+                      </Text>
+                    )}
+                  </View>
                 )}
                 {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
                   <View key={section.title} style={styles.bibleSearchResultSection}>
@@ -12398,6 +12426,7 @@ const styles = StyleSheet.create({
     width: "100%"
   },
   phoneBibleSearchInput: {
+    fontSize: 16,
     minWidth: 0,
     width: "100%"
   },
@@ -12423,6 +12452,11 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 12,
     fontWeight: "900"
+  },
+  bibleSearchSummaryBlock: {
+    gap: 3,
+    maxWidth: "100%",
+    minWidth: 0
   },
   bibleSearchControls: {
     alignItems: "center",

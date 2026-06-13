@@ -164,19 +164,160 @@ export function buildMemoryHistorySummary(history: { event: MemoryHistoryEventKi
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedToday = reviewedEvents.filter((event) => isTodayLocal(event.createdAt)).length;
   const reviewedThisWeek = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7).length;
+  const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
   const mostReviewed = mostFrequentReference(reviewedEvents);
 
   return {
     reviewedToday,
     reviewedThisWeek,
+    reviewDaysThisWeek,
     addedCount: addedEvents.length,
     repeatedCount: repeatedEvents.length,
     mostReviewed
   };
 }
 
+export function buildMemoryHistoryEncouragement(
+  summary: { reviewedToday: number; reviewedThisWeek: number; reviewDaysThisWeek: number; addedCount: number },
+  name?: string
+) {
+  const greeting = name ? `${name}, ` : "";
+  if (summary.reviewedToday >= 3) return `${greeting}you have reviewed ${summary.reviewedToday} verses today. That is a strong rhythm with Scripture.`;
+  if (summary.reviewedToday === 1) return `${greeting}you reviewed Scripture today. Small faithful steps are still real progress.`;
+  if (summary.reviewedToday > 1) return `${greeting}you reviewed ${summary.reviewedToday} verses today. Keep carrying those words with you.`;
+  if (summary.reviewDaysThisWeek >= 3) return `${greeting}you have returned to memory practice ${summary.reviewDaysThisWeek} days this week. Keep going.`;
+  if (summary.reviewedThisWeek > 0) return `${greeting}you have reviewed ${summary.reviewedThisWeek} verse${summary.reviewedThisWeek === 1 ? "" : "s"} this week. Come back to one today when you are ready.`;
+  if (summary.addedCount > 0) return `${greeting}you have started building a memory list. Choose one verse and review it slowly today.`;
+  return `${greeting}your memory history will grow as you add and review verses. Start with one verse and let it settle in.`;
+}
+
+export function memoryVerseProgressMessage(verse: {
+  status: string;
+  reviewCount?: number;
+  lastReviewedAt?: number;
+  createdAt?: number;
+}) {
+  const reviewCount = verse.reviewCount || 0;
+  if (reviewCount === 0) return "Newly added";
+  if (isTodayLocal(verse.lastReviewedAt)) return "Reviewed today";
+  if (reviewCount >= 8) return "Strong memory rhythm";
+  if (reviewCount >= 4) return "Reviewed several times";
+  if (reviewCount >= 2) return "Building confidence";
+  return "First review complete";
+}
+
+export function memoryVerseProgressDetail(verse: {
+  status: string;
+  reviewCount?: number;
+  lastReviewedAt?: number;
+  createdAt?: number;
+}) {
+  const reviewCount = verse.reviewCount || 0;
+  if (reviewCount === 0) return "This verse is ready for its first slow review.";
+  if (isTodayLocal(verse.lastReviewedAt)) return "You have already returned to this verse today.";
+  if (reviewCount >= 8) return "This verse has a steady review pattern behind it.";
+  if (reviewCount >= 4) return "This verse is becoming familiar through repeated review.";
+  if (reviewCount >= 2) return "You are starting to build confidence with this verse.";
+  return "You have begun reviewing this verse.";
+}
+
+export function buildNeglectedMemoryVerses(
+  verses: { reference: string; lastReviewedAt?: number; createdAt?: number; reviewCount?: number }[],
+  limit = 3
+) {
+  const now = Date.now();
+  const day = 1000 * 60 * 60 * 24;
+
+  return verses
+    .map((verse) => {
+      const lastTouchedAt = verse.lastReviewedAt || verse.createdAt || 0;
+      const daysSinceReview = lastTouchedAt ? Math.floor((now - lastTouchedAt) / day) : 0;
+      const threshold = (verse.reviewCount || 0) > 0 ? 7 : 3;
+      return { ...verse, daysSinceReview, neglected: daysSinceReview >= threshold };
+    })
+    .filter((verse) => verse.neglected)
+    .sort((a, b) => b.daysSinceReview - a.daysSinceReview || a.reference.localeCompare(b.reference))
+    .slice(0, limit);
+}
+
+export function neglectedMemoryVerseLabel(daysSinceReview: number, reviewCount?: number) {
+  if (!reviewCount) return daysSinceReview <= 1 ? "Added recently, not reviewed yet" : `Added ${daysSinceReview} days ago, not reviewed yet`;
+  if (daysSinceReview <= 1) return "Reviewed recently";
+  return `Not reviewed for ${daysSinceReview} days`;
+}
+
+export function buildMemoryWeeklySummary(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
+  const weeklyReviewed = history.filter((event) => event.event === "reviewed" && daysAgo(event.createdAt) < 7);
+  const weeklyAdded = history.filter((event) => event.event === "added" && daysAgo(event.createdAt) < 7);
+  const books = uniqueBooksFromReferences([...weeklyReviewed, ...weeklyAdded].map((event) => event.reference));
+
+  if (weeklyReviewed.length === 0 && weeklyAdded.length === 0) {
+    return "No memory activity recorded this week yet. One slow review would be a good place to begin.";
+  }
+
+  const reviewedText = weeklyReviewed.length
+    ? `reviewed ${weeklyReviewed.length} verse${weeklyReviewed.length === 1 ? "" : "s"}`
+    : "";
+  const addedText = weeklyAdded.length
+    ? `added ${weeklyAdded.length} verse${weeklyAdded.length === 1 ? "" : "s"}`
+    : "";
+  const actionText = [reviewedText, addedText].filter(Boolean).join(" and ");
+  const bookText = books.length ? ` across ${formatShortList(books)}` : "";
+  return `This week you ${actionText}${bookText}.`;
+}
+
+export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
+  const addedEvents = history.filter((event) => event.event === "added");
+  const reviewedEvents = history.filter((event) => event.event === "reviewed");
+  const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
+  const milestones: { title: string; description: string; achieved: boolean }[] = [
+    {
+      title: "First verse added",
+      description: "You began a Scripture memory list.",
+      achieved: addedEvents.length > 0
+    },
+    {
+      title: "First full review",
+      description: "You completed a memory review.",
+      achieved: reviewedEvents.length > 0
+    },
+    {
+      title: "Five reviews",
+      description: "You have returned to memory practice several times.",
+      achieved: reviewedEvents.length >= 5
+    },
+    {
+      title: "Seven-day rhythm",
+      description: "You reviewed Scripture on seven days this week.",
+      achieved: reviewDaysThisWeek >= 7
+    }
+  ];
+
+  const achieved = milestones.filter((milestone) => milestone.achieved);
+  return achieved.length > 0 ? achieved : [milestones[0]];
+}
+
 function daysAgo(timestamp: number) {
   return (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
+}
+
+function uniqueReviewDays(events: { createdAt: number }[]) {
+  const keys = new Set<string>();
+  events.forEach((event) => {
+    const date = new Date(event.createdAt);
+    keys.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
+  });
+  return Array.from(keys);
+}
+
+function uniqueBooksFromReferences(references: string[]) {
+  return Array.from(new Set(references.map((reference) => parseMemoryReference(reference).book).filter(Boolean))).slice(0, 3);
+}
+
+function formatShortList(items: string[]) {
+  if (items.length <= 1) return items[0] || "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
 function mostFrequentReference(events: { reference: string }[]) {

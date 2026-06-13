@@ -11,7 +11,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistorySummary, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, normalizeMemoryAnswer, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryReviewPreset } from "@/data/memory";
+import { MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildPrintableStudyWorksheetHtml, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -1125,6 +1125,13 @@ export default function Home() {
   );
   const memoryHistoryItems = memoryHistory || [];
   const memoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems), [memoryHistoryItems]);
+  const memoryHistoryEncouragement = useMemo(
+    () => buildMemoryHistoryEncouragement(memoryHistorySummary, firstName),
+    [firstName, memoryHistorySummary]
+  );
+  const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems), [memoryHistoryItems]);
+  const memoryMilestones = useMemo(() => buildMemoryMilestones(memoryHistoryItems), [memoryHistoryItems]);
+  const neglectedMemoryVerses = useMemo(() => buildNeglectedMemoryVerses(memoryVerses || []), [memoryVerses]);
   const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
@@ -5482,16 +5489,57 @@ export default function Home() {
                           </View>
                           <Ionicons name="time-outline" size={22} color={colors.coral} />
                         </View>
+                        <View style={[styles.memoryHistoryEncouragementBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                          <Ionicons name="sparkles-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                          <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
+                        </View>
+                        <View style={[styles.memoryWeeklySummaryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                          <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
+                          <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                        </View>
                         <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
                           <Metric value={memoryHistorySummary.reviewedToday} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                           <Metric value={memoryHistorySummary.reviewedThisWeek} label="this week" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                           <Metric value={memoryHistorySummary.addedCount} label="added" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+                        </View>
+                        <View style={styles.memoryMilestoneList}>
+                          {memoryMilestones.map((milestone) => (
+                            <View key={milestone.title} style={[styles.memoryMilestoneItem, memoryDarkMode && styles.accountDarkInsetBox]}>
+                              <Ionicons name="checkmark-circle-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                              <View style={styles.memoryHistoryTextBlock}>
+                                <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{milestone.title}</Text>
+                                <Text style={[styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>{milestone.description}</Text>
+                              </View>
+                            </View>
+                          ))}
                         </View>
                         {memoryHistorySummary.mostReviewed && (
                           <View style={[styles.memoryHistoryHighlight, memoryDarkMode && styles.accountDarkInsetBox]}>
                             <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Most reviewed</Text>
                             <Text style={[styles.body, memoryDarkMode && styles.accountDarkText]}>{memoryHistorySummary.mostReviewed.reference}</Text>
                             <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{memoryHistorySummary.mostReviewed.count} review{memoryHistorySummary.mostReviewed.count === 1 ? "" : "s"} recorded</Text>
+                          </View>
+                        )}
+                        {neglectedMemoryVerses.length > 0 && (
+                          <View style={[styles.memoryHistoryHighlight, memoryDarkMode && styles.accountDarkInsetBox]}>
+                            <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Worth revisiting</Text>
+                            <View style={styles.memoryHistoryList}>
+                              {neglectedMemoryVerses.map((verse: any) => (
+                                <View key={String(verse._id)} style={styles.neglectedMemoryRow}>
+                                  <View style={styles.memoryHistoryTextBlock}>
+                                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
+                                    <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{neglectedMemoryVerseLabel(verse.daysSinceReview, verse.reviewCount)}</Text>
+                                  </View>
+                                  <Pressable
+                                    accessibilityRole="button"
+                                    onPress={() => startMemoryPractice(verse)}
+                                    style={[styles.neglectedMemoryPracticeButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                  >
+                                    <Text style={[styles.neglectedMemoryPracticeText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Practice</Text>
+                                  </Pressable>
+                                </View>
+                              ))}
+                            </View>
                           </View>
                         )}
                       </View>
@@ -5770,6 +5818,13 @@ export default function Home() {
                                 <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText, memoryDarkMode && styles.accountDarkText]}>{verse.verseText}</Text>
                                 {!!verse.note && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{verse.note}</Text>}
                                 {historyOpen && <View style={[styles.memoryVerseHistoryBox, phoneLayout && styles.phoneMemoryVerseHistoryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                  <View style={[styles.memoryVerseProgressBox, memoryDarkMode && styles.accountDarkSection]}>
+                                    <Ionicons name="trending-up-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                                    <View style={styles.memoryHistoryTextBlock}>
+                                      <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{memoryVerseProgressMessage(verse)}</Text>
+                                      <Text style={[styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>{memoryVerseProgressDetail(verse)}</Text>
+                                    </View>
+                                  </View>
                                   <View style={styles.memoryVerseHistoryStats}>
                                     <View style={styles.memoryVerseHistoryStat}>
                                       <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Reviews</Text>
@@ -16195,6 +16250,45 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0
   },
+  memoryHistoryEncouragementBox: {
+    alignItems: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.22)",
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    padding: 10
+  },
+  memoryHistoryEncouragementText: {
+    color: colors.oliveDark,
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 19,
+    minWidth: 0
+  },
+  memoryWeeklySummaryBox: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 5,
+    padding: 10
+  },
+  memoryMilestoneList: {
+    gap: 8
+  },
+  memoryMilestoneItem: {
+    alignItems: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    padding: 9
+  },
   memoryHistoryHighlight: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,
@@ -16251,6 +16345,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900"
   },
+  neglectedMemoryRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minWidth: 0
+  },
+  neglectedMemoryPracticeButton: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 7
+  },
+  neglectedMemoryPracticeText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
   memoryVerseHistoryBox: {
     backgroundColor: "rgba(255, 250, 242, 0.82)",
     borderColor: colors.line,
@@ -16258,6 +16372,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     padding: 10
+  },
+  memoryVerseProgressBox: {
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf2",
+    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    padding: 9
   },
   phoneMemoryVerseHistoryBox: {
     gap: 8,

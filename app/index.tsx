@@ -5577,8 +5577,8 @@ export default function Home() {
                       </View>
                       {(!phoneLayout || addMemoryPanelOpen) && (
                         <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
-                          <AppButton label="Find in Bible" onPress={() => setTab("bible")} />
-                          <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                          <AppButton label="Find in Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddActionButton} />
+                          <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                         </View>
                       )}
                     </View>
@@ -17903,8 +17903,13 @@ const styles = StyleSheet.create({
   },
   phoneAddMemoryActions: {
     alignItems: "stretch",
-    flexDirection: "column",
+    flexDirection: "row",
+    flexWrap: "nowrap",
     width: "100%"
+  },
+  phoneMemoryAddActionButton: {
+    flex: 1,
+    minWidth: 0
   },
   phoneMemoryAddButton: {
     width: "100%"

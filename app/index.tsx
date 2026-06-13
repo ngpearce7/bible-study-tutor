@@ -7746,7 +7746,7 @@ export default function Home() {
             <View style={[styles.helpWalkthroughGrid, phoneLayout && styles.phoneHelpGrid]}>
               <HelpScreenshot
                 title="Bible reader"
-                caption="Tap one verse, or tap another verse to select the whole range. The action bar lets you study, note, print, save, or memorize."
+                caption="Read by book and chapter, search Scripture, then tap Read to open a result with that verse selected."
                 variant="bible"
                 darkMode={helpDarkMode}
                 styles={styles}
@@ -7796,8 +7796,9 @@ export default function Home() {
                     steps: [
                       "Open Bible and expand Search Scripture.",
                       "Type exact words, a theme, or a question.",
-                      "Use testament or book filters when you want narrower results.",
-                      "Tap Study to open a result in the guided study area."
+                      "On mobile, tap Search criteria to choose All, a Testament, match type, or a book.",
+                      "Use the result counts beside Old Testament and New Testament to scan quickly.",
+                      "Tap Read to open the result in the Bible reader, or Study to open it in the guided study area."
                     ],
                     action: "Try search",
                     target: "bible"
@@ -7931,6 +7932,8 @@ export default function Home() {
               {[
                 ["How do I make a note on a verse?", "In Bible, select a verse and tap Note. On mobile the note box opens in the bottom action panel."],
                 ["How do I study selected verses?", "Select one or more verses in Bible, then tap Study. The app opens Study with those verses loaded."],
+                ["How do I search Scripture?", "Open Bible, expand Search Scripture, type a word or idea, then press Search. On mobile, Search criteria hides the filters until you need them."],
+                ["What does Read do in search results?", "Read opens the matching chapter in the Bible reader and selects the verse so you can keep reading around it."],
                 ["Where do highlights go?", "Highlights stay with the saved study and can be found again from Journal."],
                 ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab."],
                 ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],

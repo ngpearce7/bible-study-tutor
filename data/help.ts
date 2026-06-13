@@ -23,7 +23,7 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Bible help",
       icon: "reader-outline",
       summary: "Bible lets you read by book and chapter, search Scripture, select verses, add notes, bookmark passages, and launch a study.",
-      tips: ["Tap one verse, then another verse to select a range.", "Use the bottom action bar on mobile for Study, Save, Note, Print, and Memory.", "Use the reader panel to change books and chapters."]
+      tips: ["Use Search Scripture to find exact words, phrases, themes, or questions.", "On mobile, tap Search criteria to choose All, Old Testament, New Testament, match type, or a book.", "Tap Read on a search result to open that chapter with the verse selected."]
     },
     plans: {
       title: "Plans help",

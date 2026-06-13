@@ -3800,14 +3800,14 @@ export default function Home() {
 
   const studyInstructionPanel = studyPhase === "study" ? (
     <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox, studyDarkMode && styles.accountDarkSection]}>
-      <View style={styles.instructionHeader}>
-        <View style={styles.instructionHeaderCopy} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
+      <View style={[styles.instructionHeader, phoneLayout && styles.phoneInstructionHeader]}>
+        <View style={[styles.instructionHeaderCopy, phoneLayout && styles.phoneInstructionHeaderCopy]} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
           <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
           <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
           <Text style={styles.instructionKicker}>Do this now</Text>
           <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
         </View>
-        <Pressable onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
+        <Pressable onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
           <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
           <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Show" : "Hide"}</Text>
         </Pressable>
@@ -16010,8 +16010,18 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: "space-between"
   },
+  phoneInstructionHeader: {
+    flexDirection: "column",
+    gap: 10
+  },
   instructionHeaderCopy: {
-    flex: 1
+    flex: 1,
+    minWidth: 0
+  },
+  phoneInstructionHeaderCopy: {
+    alignSelf: "stretch",
+    flex: 0,
+    width: "100%"
   },
   collapseButton: {
     alignItems: "center",
@@ -16021,6 +16031,9 @@ const styles = StyleSheet.create({
     gap: 4,
     minHeight: 34,
     paddingHorizontal: 10
+  },
+  phoneInstructionCollapseButton: {
+    alignSelf: "flex-end"
   },
   collapseButtonText: {
     color: colors.oliveDark,

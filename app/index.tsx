@@ -8702,11 +8702,24 @@ function StudyNoteTiptapEditor({
     if (!editor) return;
     const savedSelection = savedEditorHighlightSelectionRef.current;
     if (!savedSelection) return;
+    const windowRef = (globalThis as any).window;
+    const scrollX = windowRef?.scrollX || 0;
+    const scrollY = windowRef?.scrollY || 0;
+    const restoreScroll = () => windowRef?.scrollTo?.(scrollX, scrollY);
     requestAnimationFrame(() => {
       if (editor.isDestroyed) return;
+      editor.view.dom.focus?.({ preventScroll: true });
       editor.commands.setTextSelection(savedSelection);
       syncTiptapState(editor);
       updateTiptapMobileMiniBarPosition(editor, wrapRef.current, setMobileMiniBarPosition);
+      restoreScroll();
+      requestAnimationFrame(() => {
+        if (editor.isDestroyed) return;
+        editor.commands.setTextSelection(savedSelection);
+        syncTiptapState(editor);
+        updateTiptapMobileMiniBarPosition(editor, wrapRef.current, setMobileMiniBarPosition);
+        restoreScroll();
+      });
     });
   };
 
@@ -10822,7 +10835,7 @@ function updateTiptapMobileMiniBarPosition(
 
   const estimatedWidth = 292;
   const left = Math.max(8, Math.min(coords.left - wrapperRect.left - estimatedWidth / 2, wrapperRect.width - estimatedWidth - 8));
-  const top = Math.max(editorRect.top - wrapperRect.top + 8, coords.bottom - wrapperRect.top + 10);
+  const top = Math.max(editorRect.top - wrapperRect.top + 8, coords.bottom - wrapperRect.top + 48);
   setPosition((current) => Math.abs(current.left - left) < 1 && Math.abs(current.top - top) < 1 ? current : { left, top });
 }
 

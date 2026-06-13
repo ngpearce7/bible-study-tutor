@@ -10,7 +10,7 @@ export type MemoryBibleVerse = {
 };
 
 export const MEMORY_REVIEW_OPTIONS: { id: MemoryReviewPreset; label: string }[] = [
-  { id: "later-today", label: "Later today" },
+  { id: "later-today", label: "Today" },
   { id: "tomorrow", label: "Tomorrow" },
   { id: "three-days", label: "In 3 days" },
   { id: "next-week", label: "Next week" },
@@ -103,7 +103,8 @@ export function isMemoryVerseMemorized(verse: { status: string; reviewCount?: nu
 }
 
 export function isMemoryVerseDue(verse: { nextReviewAt?: number }) {
-  return !verse.nextReviewAt || verse.nextReviewAt <= Date.now() || isTodayLocal(verse.nextReviewAt);
+  if (!verse.nextReviewAt) return true;
+  return startOfLocalDay(verse.nextReviewAt) <= startOfLocalDay(Date.now());
 }
 
 export function isTodayLocal(timestamp?: number) {
@@ -118,14 +119,12 @@ export function reviewPresetLabel(preset: MemoryReviewPreset) {
 }
 
 export function memoryReviewDateLabel(nextReviewAt?: number) {
-  if (!nextReviewAt || nextReviewAt <= Date.now()) return "Review: due now";
-  if (isTodayLocal(nextReviewAt)) return "Review: today";
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const target = new Date(nextReviewAt);
-  const targetStart = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
+  if (!nextReviewAt) return "Review: due now";
+  const todayStart = startOfLocalDay(Date.now());
+  const targetStart = startOfLocalDay(nextReviewAt);
+  if (targetStart < todayStart) return "Review: due now";
+  if (targetStart === todayStart) return "Review: today";
   const daysUntilReview = Math.max(0, Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24)));
-  if (daysUntilReview <= 0) return "Review in: today";
   if (daysUntilReview === 1) return "Review in: 1 day";
   return `Review in: ${daysUntilReview} days`;
 }
@@ -345,14 +344,19 @@ function mostFrequentReference(events: { reference: string }[]) {
 }
 
 export function reviewPresetForDate(nextReviewAt?: number): MemoryReviewPreset {
-  if (!nextReviewAt || nextReviewAt <= Date.now()) return "later-today";
+  if (!nextReviewAt) return "later-today";
 
-  const hoursUntilReview = (nextReviewAt - Date.now()) / (1000 * 60 * 60);
-  if (hoursUntilReview <= 8) return "later-today";
-  if (hoursUntilReview <= 36) return "tomorrow";
-  if (hoursUntilReview <= 24 * 5) return "three-days";
-  if (hoursUntilReview <= 24 * 14) return "next-week";
+  const daysUntilReview = Math.round((startOfLocalDay(nextReviewAt) - startOfLocalDay(Date.now())) / (1000 * 60 * 60 * 24));
+  if (daysUntilReview <= 0) return "later-today";
+  if (daysUntilReview <= 1) return "tomorrow";
+  if (daysUntilReview <= 5) return "three-days";
+  if (daysUntilReview <= 14) return "next-week";
   return "next-month";
+}
+
+function startOfLocalDay(timestamp: number) {
+  const date = new Date(timestamp);
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
 export function buildMemoryQueueSections(verses: any[]) {

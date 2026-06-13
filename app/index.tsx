@@ -454,6 +454,7 @@ export default function Home() {
   const [addMemoryPanelOpen, setAddMemoryPanelOpen] = useState(false);
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
+  const [historyMemoryVerseId, setHistoryMemoryVerseId] = useState("");
   const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
   const [memoryPracticeLevel, setMemoryPracticeLevel] = useState(1);
   const [memoryPracticeAnswers, setMemoryPracticeAnswers] = useState<Record<number, string>>({});
@@ -5471,9 +5472,9 @@ export default function Home() {
                   </View>}
                   {!phoneMemoryFocusMode && memoryView === "history" && (
                     <View style={styles.memoryHistoryStack}>
-                      <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
+                        <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
                         <View style={styles.memoryHistorySummaryHeader}>
-                          <View>
+                          <View style={styles.memoryHistorySummaryTextBlock}>
                             <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory engagement</Text>
                             <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>A simple record of the verses you are carrying with you.</Text>
                           </View>
@@ -5632,7 +5633,8 @@ export default function Home() {
                         const verseId = String(verse._id);
                         const practicing = verseId === activeMemoryVerseId;
                         const reviewOpen = reviewScheduleVerseId === verseId;
-                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen;
+                        const historyOpen = historyMemoryVerseId === verseId;
+                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen || historyOpen;
                         const verseHistory = memoryHistoryItems
                           .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
                           .slice(0, 4);
@@ -5753,7 +5755,7 @@ export default function Home() {
                               <>
                                 <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText, memoryDarkMode && styles.accountDarkText]}>{verse.verseText}</Text>
                                 {!!verse.note && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{verse.note}</Text>}
-                                <View style={[styles.memoryVerseHistoryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                {historyOpen && <View style={[styles.memoryVerseHistoryBox, phoneLayout && styles.phoneMemoryVerseHistoryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                                   <View style={styles.memoryVerseHistoryStats}>
                                     <View style={styles.memoryVerseHistoryStat}>
                                       <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Reviews</Text>
@@ -5780,9 +5782,17 @@ export default function Home() {
                                       ))}
                                     </View>
                                   )}
-                                </View>
+                                </View>}
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                                   <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                  <ResumeButton
+                                    label={historyOpen ? "Hide history" : "History"}
+                                    icon="time-outline"
+                                    onPress={() => setHistoryMemoryVerseId((current) => current === verseId ? "" : verseId)}
+                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                  />
                                   <ResumeButton
                                     label={reviewOpen ? "Hide review" : "Change review"}
                                     icon="calendar-outline"
@@ -16167,6 +16177,10 @@ const styles = StyleSheet.create({
     gap: 12,
     justifyContent: "space-between"
   },
+  memoryHistorySummaryTextBlock: {
+    flex: 1,
+    minWidth: 0
+  },
   memoryHistoryHighlight: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,
@@ -16213,6 +16227,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 10,
     padding: 10
+  },
+  phoneMemoryVerseHistoryBox: {
+    gap: 8,
+    padding: 9
   },
   memoryVerseHistoryStats: {
     flexDirection: "row",

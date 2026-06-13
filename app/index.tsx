@@ -591,6 +591,7 @@ export default function Home() {
   const [memoryBookFilter, setMemoryBookFilter] = useState("all");
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
+  const [addMemoryPanelOpen, setAddMemoryPanelOpen] = useState(false);
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
   const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
@@ -5553,14 +5554,29 @@ export default function Home() {
                   {!phoneMemoryFocusMode && (
                     <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox, memoryDarkMode && styles.accountDarkSection]}>
                       <View style={styles.addMemoryCopy}>
-                        <View style={styles.feedbackHeader}>
-                          <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
-                          <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Add memory verses</Text>
-                        </View>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={phoneLayout ? (addMemoryPanelOpen ? "Hide add memory verse options" : "Show add memory verse options") : undefined}
+                          disabled={!phoneLayout}
+                          onPress={() => setAddMemoryPanelOpen((open) => !open)}
+                          style={[styles.addMemoryHeader, phoneLayout && styles.phoneAddMemoryHeader]}
+                        >
+                          <View style={styles.feedbackHeader}>
+                            <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
+                            <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Add memory verses</Text>
+                          </View>
+                          {phoneLayout && (
+                            <Ionicons
+                              name={addMemoryPanelOpen ? "chevron-up-outline" : "chevron-down-outline"}
+                              size={18}
+                              color={memoryDarkMode ? "#e9b76a" : colors.oliveDark}
+                            />
+                          )}
+                        </Pressable>
                         <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
                       </View>
-                      {!phoneLayout && (
-                        <View style={styles.emptyMemoryActions}>
+                      {(!phoneLayout || addMemoryPanelOpen) && (
+                        <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
                           <AppButton label="Find in Bible" onPress={() => setTab("bible")} />
                           <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                         </View>
@@ -17837,6 +17853,16 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8
   },
+  addMemoryHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10
+  },
+  phoneAddMemoryHeader: {
+    minHeight: 32,
+    width: "100%"
+  },
   addMemoryBox: {
     alignItems: "center",
     backgroundColor: "#fff6eb",
@@ -17863,7 +17889,9 @@ const styles = StyleSheet.create({
     lineHeight: 18
   },
   phoneAddMemoryActions: {
-    alignItems: "stretch"
+    alignItems: "stretch",
+    flexDirection: "column",
+    width: "100%"
   },
   phoneMemoryAddButton: {
     width: "100%"

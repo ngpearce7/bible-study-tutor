@@ -12381,8 +12381,11 @@ const styles = StyleSheet.create({
     gap: 8
   },
   phoneBibleSearchControls: {
-    alignItems: "stretch",
-    gap: 6
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    width: "100%"
   },
   bibleSearchRefineRow: {
     alignItems: "center",
@@ -12391,21 +12394,23 @@ const styles = StyleSheet.create({
     gap: 8
   },
   phoneBibleSearchRefineRow: {
+    alignItems: "flex-start",
+    flexWrap: "wrap",
     width: "100%"
   },
   bibleSearchModeGroup: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 6
+    gap: 6,
+    maxWidth: "100%"
   },
   bibleSearchBookFilter: {
     minWidth: 150,
     width: 170
   },
   phoneBibleSearchBookFilter: {
-    flex: 1,
     minWidth: 0,
-    width: "auto"
+    width: "100%"
   },
   bibleSearchExactChip: {
     flexShrink: 0
@@ -12423,6 +12428,7 @@ const styles = StyleSheet.create({
   },
   phoneBibleSearchChip: {
     height: 36,
+    maxWidth: "100%",
     paddingVertical: 0
   },
   activeBibleSearchChip: {
@@ -12431,6 +12437,7 @@ const styles = StyleSheet.create({
   },
   bibleSearchChipText: {
     color: colors.oliveDark,
+    flexShrink: 1,
     fontSize: 12,
     fontWeight: "800"
   },

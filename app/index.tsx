@@ -14,6 +14,7 @@ import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS 
 import { MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, clampMemoryPracticeLevel, formatMemoryBlankValue, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, normalizeMemoryAnswer, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildPrintableStudyWorksheetHtml, type WorksheetWritingSpace } from "@/data/printableWorksheet";
+import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
@@ -11133,52 +11134,6 @@ function pickCoachingLine(seed: string, lines: string[]) {
   return lines[total % lines.length];
 }
 
-function buildStudyHelpLinks(reference: string, translation: BibleTranslationId) {
-  const encoded = encodeURIComponent(reference || "Psalm 23");
-  const helpVersion = translation.toUpperCase();
-  const bibleHubUrl = buildBibleHubCommentaryUrl(reference);
-  const bibleHubPassageUrl = buildBibleHubPassageUrl(reference, translation);
-
-  return [
-    {
-      title: "Bible Hub passage",
-      description: "Open this passage on Bible Hub in your selected translation where available.",
-      icon: "reader-outline",
-      url: bibleHubPassageUrl
-    },
-    {
-      title: "Matthew Henry Concise",
-      description: "Public-domain devotional commentary source.",
-      icon: "book-outline",
-      url: "https://crosswire.org/sword/modules/ModInfo.jsp?modName=MHCC"
-    },
-    {
-      title: "Treasury cross references",
-      description: "Find related passages before application.",
-      icon: "git-branch-outline",
-      url: `https://www.openbible.info/labs/cross-references/?q=${encoded}`
-    },
-    {
-      title: "Bible Hub commentaries",
-      description: "Compare multiple free online commentaries.",
-      icon: "albums-outline",
-      url: bibleHubUrl
-    },
-    {
-      title: "CCEL Matthew Henry",
-      description: "Public-domain full commentary library.",
-      icon: "library-outline",
-      url: "https://www.ccel.org/ccel/henry/mhc"
-    },
-    {
-      title: "STEP Bible",
-      description: "Explore words, themes, and nearby context.",
-      icon: "search-outline",
-      url: `https://www.stepbible.org/?q=version=${helpVersion}|reference=${encoded}`
-    }
-  ];
-}
-
 function getCurrentAnswerSelection(
   answer: string,
   forcedSelection: { start: number; end: number } | null | undefined,
@@ -11234,34 +11189,6 @@ function formatPlainNoteValue(answer: string, kind: NoteFormatKind, selection: {
   const nextValue = `${answer.slice(0, start)}${insertion}${answer.slice(end)}`;
   const cursor = selectedText ? start + insertion.length : start + formatConfig.open.length + text.length;
   return { nextValue, nextSelection: { start: cursor, end: cursor } };
-}
-
-function buildBibleHubCommentaryUrl(reference: string) {
-  const parsed = parsePassageQuery(reference).reference.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
-  if (!parsed) return "https://biblehub.com/commentaries/";
-
-  const book = bibleHubBookSlug(parsed[1]);
-  const chapter = parsed[2];
-  const verse = parsed[3] || "1";
-  return `https://biblehub.com/commentaries/${book}/${chapter}-${verse}.htm`;
-}
-
-function buildBibleHubPassageUrl(reference: string, translation: BibleTranslationId) {
-  const parsedReference = parsePassageQuery(reference || "Psalm 23").reference;
-  const parsed = parsedReference.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
-  if (!parsed) return `https://biblehub.com/${translation}/`;
-
-  const book = bibleHubBookSlug(parsed[1]);
-  const chapter = parsed[2];
-  const verse = parsed[3];
-  if (!verse) return `https://biblehub.com/p/${translation}/${translation}/${book}/${chapter}.shtml`;
-
-  return `https://biblehub.com/${book}/${chapter}-${verse}.htm`;
-}
-
-function bibleHubBookSlug(book: string) {
-  const normalized = displayBibleBookName(normalizeBibleBookName(book));
-  return normalized.toLowerCase().replace(/\s+/g, "_");
 }
 
 function buildReaderStudyReference(book: string, chapter: number, selectedVerses: number[]) {

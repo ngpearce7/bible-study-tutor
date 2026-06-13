@@ -451,6 +451,7 @@ export default function Home() {
   const [memoryBookFilter, setMemoryBookFilter] = useState("all");
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
+  const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
   const [addMemoryPanelOpen, setAddMemoryPanelOpen] = useState(false);
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
@@ -1124,6 +1125,7 @@ export default function Home() {
   );
   const memoryHistoryItems = memoryHistory || [];
   const memoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems), [memoryHistoryItems]);
+  const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const memoryPracticeText = useMemo(
@@ -5499,7 +5501,7 @@ export default function Home() {
                           <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Your history will appear here as you add, review, repeat, and schedule memory verses.</Text>
                         ) : (
                           <View style={styles.memoryHistoryList}>
-                            {memoryHistoryItems.slice(0, 30).map((item: any) => (
+                            {visibleMemoryHistoryItems.map((item: any) => (
                               <View key={item._id} style={[styles.memoryHistoryItem, memoryDarkMode && styles.accountDarkInsetBox]}>
                                 <View style={[styles.memoryHistoryIcon, memoryDarkMode && styles.homeDarkIconBubble]}>
                                   <Ionicons name={memoryHistoryEventIcon(item.event) as any} size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
@@ -5511,6 +5513,18 @@ export default function Home() {
                                 </View>
                               </View>
                             ))}
+                            {memoryHistoryItems.length > 10 && (
+                              <Pressable
+                                accessibilityRole="button"
+                                onPress={() => setMemoryHistoryExpanded((expanded) => !expanded)}
+                                style={[styles.memoryHistoryMoreButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                              >
+                                <Text style={[styles.memoryHistoryMoreText, memoryDarkMode && styles.homeDarkResumeButtonText]}>
+                                  {memoryHistoryExpanded ? "Show less" : `Show more (${Math.min(memoryHistoryItems.length, 30) - 10})`}
+                                </Text>
+                                <Ionicons name={memoryHistoryExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              </Pressable>
+                            )}
                           </View>
                         )}
                       </View>
@@ -16219,6 +16233,23 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "800",
     marginTop: 2
+  },
+  memoryHistoryMoreButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 8
+  },
+  memoryHistoryMoreText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   memoryVerseHistoryBox: {
     backgroundColor: "rgba(255, 250, 242, 0.82)",

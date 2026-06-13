@@ -9802,7 +9802,7 @@ function bibleSearchTranslationId(translation: "KJV" | "WEB") {
 }
 
 async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB" | "BSB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
-  if (translation === "BSB") return fetchBsbSearchResults(searchTerm, scope, bookFilter);
+  if (translation === "BSB") return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole);
 
   const params = new URLSearchParams({
     search: searchTerm,
@@ -9844,7 +9844,7 @@ async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | 
     .filter((item: BibleSearchResult | null): item is BibleSearchResult => item !== null);
 }
 
-async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string): Promise<BibleSearchResult[]> {
+async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
   const books = bookFilter
     ? [bookFilter]
     : scope === "old"
@@ -9858,14 +9858,14 @@ async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope
 
   for (let index = 0; index < chapters.length && results.length < 80; index += batchSize) {
     const batch = chapters.slice(index, index + batchSize);
-    const batchResults = await Promise.all(batch.map(({ book, chapter }) => fetchBsbSearchChapter(searchTerm, book, chapter).catch(() => [] as BibleSearchResult[])));
+    const batchResults = await Promise.all(batch.map(({ book, chapter }) => fetchBsbSearchChapter(searchTerm, book, chapter, matchWhole).catch(() => [] as BibleSearchResult[])));
     results.push(...batchResults.flat());
   }
 
   return results;
 }
 
-async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: number): Promise<BibleSearchResult[]> {
+async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: number, matchWhole: boolean): Promise<BibleSearchResult[]> {
   const bookId = BSB_BOOK_IDS[normalizeBibleBookName(book)];
   if (!bookId) return [];
 
@@ -9874,18 +9874,27 @@ async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: 
 
   const data = await response.json();
   const verses = (data.chapter?.content || []).filter((item: any) => item.type === "verse" && typeof item.number === "number");
-  return verses.map((item: any): BibleSearchResult => {
-    const verse = Number(item.number);
-    return {
-      id: `BSB-${book}-${chapter}-${verse}`,
-      book,
-      chapter,
-      verse,
-      text: flattenBsbVerseContent(item.content),
-      translation: "BSB",
-      sourceQuery: searchTerm
-    };
-  });
+  return verses
+    .map((item: any): BibleSearchResult => {
+      const verse = Number(item.number);
+      return {
+        id: `BSB-${book}-${chapter}-${verse}`,
+        book,
+        chapter,
+        verse,
+        text: flattenBsbVerseContent(item.content),
+        translation: "BSB",
+        sourceQuery: searchTerm
+      };
+    })
+    .filter((result: BibleSearchResult) => bsbSearchResultMatchesTerm(result.text, searchTerm, matchWhole));
+}
+
+function bsbSearchResultMatchesTerm(text: string, searchTerm: string, matchWhole: boolean) {
+  const normalizedTerm = normalizeBibleSearchText(searchTerm);
+  if (!normalizedTerm) return false;
+  if (matchWhole) return bibleSearchWords(text).includes(normalizedTerm);
+  return normalizeBibleSearchText(text).includes(normalizedTerm);
 }
 
 function buildBibleSearchQueries(query: string, mode: BibleSearchMode) {

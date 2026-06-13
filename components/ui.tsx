@@ -60,6 +60,8 @@ const styles = StyleSheet.create({
     borderColor: "rgba(108, 91, 67, 0.18)",
     borderRadius: 10,
     borderWidth: 1,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 16,
     shadowColor: "#5a3f2d",
     shadowOpacity: 0.08,
@@ -77,6 +79,8 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     borderRadius: 11,
+    maxWidth: "100%",
+    minWidth: 0,
     minHeight: 46,
     justifyContent: "center",
     paddingHorizontal: 16
@@ -91,11 +95,15 @@ const styles = StyleSheet.create({
   },
   primaryLabel: {
     color: "white",
-    fontWeight: "700"
+    flexShrink: 1,
+    fontWeight: "700",
+    textAlign: "center"
   },
   secondaryLabel: {
     color: colors.oliveDark,
-    fontWeight: "700"
+    flexShrink: 1,
+    fontWeight: "700",
+    textAlign: "center"
   },
   pressed: {
     opacity: 0.78

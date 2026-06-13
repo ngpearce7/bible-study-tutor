@@ -3864,6 +3864,7 @@ export default function Home() {
 
       <ScrollView
         ref={appScrollRef}
+        style={styles.contentScroll}
         contentContainerStyle={[
           styles.content,
           accountDarkMode && styles.appDarkContent,
@@ -12000,6 +12001,12 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 24
   },
+  contentScroll: {
+    flex: 1,
+    maxWidth: "100%",
+    minWidth: 0,
+    width: "100%"
+  },
   appDarkContent: {
     backgroundColor: "#171b1c"
   },
@@ -12014,12 +12021,16 @@ const styles = StyleSheet.create({
   },
   layout: {
     flexDirection: "row",
-    gap: 18
+    gap: 18,
+    maxWidth: "100%",
+    minWidth: 0
   },
   homeLayout: {
     alignItems: "stretch",
     flexDirection: "row",
-    gap: 18
+    gap: 18,
+    maxWidth: "100%",
+    minWidth: 0
   },
   homeDarkLayout: {
     backgroundColor: "#171b1c"
@@ -12027,6 +12038,7 @@ const styles = StyleSheet.create({
   homeMainCard: {
     flex: 1,
     gap: 20,
+    maxWidth: "100%",
     minWidth: 0
   },
   homeHero: {
@@ -12123,16 +12135,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
-    marginTop: 4
+    marginTop: 4,
+    maxWidth: "100%",
+    minWidth: 0,
+    width: "100%"
   },
   homePhoneActionButton: {
     flex: 1,
-    minWidth: 140
+    minWidth: 0
   },
   homeScriptureGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12
+    gap: 12,
+    maxWidth: "100%",
+    minWidth: 0
   },
   homeScriptureBlock: {
     backgroundColor: "#fffdf8",
@@ -12141,6 +12158,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flex: 1,
     gap: 10,
+    maxWidth: "100%",
     minWidth: 240,
     padding: 16
   },
@@ -12183,10 +12201,14 @@ const styles = StyleSheet.create({
   },
   homeSideColumn: {
     gap: 18,
+    maxWidth: "100%",
+    minWidth: 0,
     width: 360
   },
   homeSideCard: {
-    gap: 12
+    gap: 12,
+    maxWidth: "100%",
+    minWidth: 0
   },
   homeSideTitle: {
     color: colors.oliveDark,
@@ -12195,7 +12217,9 @@ const styles = StyleSheet.create({
     marginBottom: 2
   },
   homePathList: {
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   homePathItem: {
     alignItems: "center",
@@ -12205,6 +12229,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 10,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 11
   },
   homeDarkPathItem: {
@@ -12236,6 +12262,7 @@ const styles = StyleSheet.create({
   },
   homePathTextBlock: {
     flex: 1,
+    maxWidth: "100%",
     minWidth: 0
   },
   homePathTitle: {
@@ -12262,7 +12289,9 @@ const styles = StyleSheet.create({
   },
   bibleReaderLayout: {
     flexDirection: "row",
-    gap: 18
+    gap: 18,
+    maxWidth: "100%",
+    minWidth: 0
   },
   bibleReaderNavCard: {
     gap: 12,
@@ -12583,20 +12612,26 @@ const styles = StyleSheet.create({
   bibleSearchResultActions: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   readerHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    maxWidth: "100%",
+    minWidth: 0
   },
   readerTitleRow: {
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   readerBookSections: {
     gap: 14
@@ -12944,10 +12979,12 @@ const styles = StyleSheet.create({
     flexWrap: "nowrap",
     gap: 7,
     justifyContent: "space-between",
+    maxWidth: "100%",
     minWidth: 0
   },
   phoneReaderNavigationRow: {
     gap: 4,
+    maxWidth: "100%",
     width: "100%"
   },
   readerNavIconButton: {
@@ -12983,6 +13020,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 6,
+    maxWidth: "100%",
     minWidth: 132,
     paddingHorizontal: 8,
     paddingVertical: 6
@@ -13171,6 +13209,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     gap: 10,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 14
   },
   phoneReaderPassageBox: {
@@ -13187,6 +13227,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10,
     justifyContent: "space-between",
+    maxWidth: "100%",
+    minWidth: 0,
     marginTop: 4,
     paddingTop: 12
   },
@@ -13218,6 +13260,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flexDirection: "row",
     gap: 9,
+    maxWidth: "100%",
+    minWidth: 0,
     paddingHorizontal: 8,
     paddingVertical: 4
   },
@@ -13371,7 +13415,8 @@ const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 17,
-    lineHeight: 27
+    lineHeight: 27,
+    minWidth: 0
   },
   phoneReaderVerseText: {
     fontSize: 16,

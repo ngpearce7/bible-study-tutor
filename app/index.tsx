@@ -9797,13 +9797,27 @@ function displayBibleBookName(bookName: string) {
   return bookName === "Psalm" ? "Psalms" : bookName;
 }
 
-function bibleSearchTranslationId(translation: "KJV" | "WEB") {
-  return translation === "KJV" ? "KJV" : "WEB";
+function bibleSearchTranslationId(translation: "KJV" | "WEB" | "BSB") {
+  if (translation === "KJV") return "KJV";
+  if (translation === "BSB") return "BSB";
+  return "WEB";
 }
 
 async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB" | "BSB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
-  if (translation === "BSB") return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole);
+  if (translation === "BSB") {
+    try {
+      const indexedResults = await fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole);
+      if (indexedResults.length > 0 || !bookFilter) return indexedResults;
+    } catch {
+      if (!bookFilter) return [];
+    }
+    return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole);
+  }
 
+  return fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole);
+}
+
+async function fetchIndexedBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB" | "BSB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
   const params = new URLSearchParams({
     search: searchTerm,
     match_case: "false",

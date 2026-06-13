@@ -270,31 +270,47 @@ export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; 
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
+  const firstAdded = oldestEvent(addedEvents);
+  const firstReviewed = oldestEvent(reviewedEvents);
+  const fifthReview = oldestEvent(reviewedEvents.slice().sort((a, b) => a.createdAt - b.createdAt).slice(4, 5));
   const milestones: { title: string; description: string; achieved: boolean }[] = [
     {
       title: "First verse added",
-      description: "You began a Scripture memory list.",
+      description: firstAdded
+        ? `${firstAdded.reference} was the first verse added to Memory on ${formatMemoryHistoryDate(firstAdded.createdAt)}.`
+        : "Your first saved memory verse will appear here.",
       achieved: addedEvents.length > 0
     },
     {
       title: "First full review",
-      description: "You completed a memory review.",
+      description: firstReviewed
+        ? `${firstReviewed.reference} was the first verse you reviewed from memory on ${formatMemoryHistoryDate(firstReviewed.createdAt)}.`
+        : "Your first completed memory review will appear here.",
       achieved: reviewedEvents.length > 0
     },
     {
       title: "Five reviews",
-      description: "You have returned to memory practice several times.",
+      description: fifthReview
+        ? `You reached five completed reviews when you reviewed ${fifthReview.reference} on ${formatMemoryHistoryDate(fifthReview.createdAt)}.`
+        : `${Math.max(0, 5 - reviewedEvents.length)} more completed review${5 - reviewedEvents.length === 1 ? "" : "s"} to reach five.`,
       achieved: reviewedEvents.length >= 5
     },
     {
       title: "Seven-day rhythm",
-      description: "You reviewed Scripture on seven days this week.",
+      description: reviewDaysThisWeek >= 7
+        ? "You reviewed Scripture on seven different days this week."
+        : `${Math.max(0, 7 - reviewDaysThisWeek)} more review day${7 - reviewDaysThisWeek === 1 ? "" : "s"} to reach a seven-day rhythm this week.`,
       achieved: reviewDaysThisWeek >= 7
     }
   ];
 
   const achieved = milestones.filter((milestone) => milestone.achieved);
-  return achieved.length > 0 ? achieved : [milestones[0]];
+  const next = milestones.find((milestone) => !milestone.achieved);
+  return [...achieved, ...(next ? [next] : [])].slice(0, 4);
+}
+
+function oldestEvent<T extends { createdAt: number }>(events: T[]) {
+  return events.slice().sort((a, b) => a.createdAt - b.createdAt)[0] || null;
 }
 
 function daysAgo(timestamp: number) {

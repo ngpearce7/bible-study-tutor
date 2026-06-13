@@ -51,6 +51,7 @@ type UiPreferenceKey =
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
 type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
+type BibleSearchMode = "word" | "phrase" | "allWords" | "anyWords" | "theme";
 const DARK_MODE_ENABLED = true;
 type AnswerMap = Record<string, string>;
 type BibleTranslationId = "bsb" | "web" | "kjv";
@@ -554,7 +555,7 @@ export default function Home() {
   const [bibleSearchQuery, setBibleSearchQuery] = useState("");
   const [bibleSearchScope, setBibleSearchScope] = useState<BibleSearchScope>("all");
   const [bibleSearchBook, setBibleSearchBook] = useState("");
-  const [bibleSearchExact, setBibleSearchExact] = useState(false);
+  const [bibleSearchMode, setBibleSearchMode] = useState<BibleSearchMode>("word");
   const [bibleSearchCollapsed, setBibleSearchCollapsed] = useState(true);
   const [bibleSearchBookMenuOpen, setBibleSearchBookMenuOpen] = useState(false);
   const [bibleSearchResults, setBibleSearchResults] = useState<BibleSearchResult[]>([]);
@@ -3455,18 +3456,20 @@ export default function Home() {
     }
 
     const translation = bibleTranslation === "kjv" ? "KJV" : "WEB";
-    const queries = bibleSearchExact ? [query] : buildBibleSearchQueries(query);
+    const queries = buildBibleSearchQueries(query, bibleSearchMode);
     setBibleSearchStatus("Searching Scripture...");
     setBibleSearchActiveQuery(query);
 
     try {
-      const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchExact)));
-      const combined = dedupeBibleSearchResults(responses.flat()).slice(0, 60);
+      const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchMode === "word")));
+      const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, bibleSearchMode), query, bibleSearchMode).slice(0, 60);
       setBibleSearchResults(combined);
       setBibleSearchStatus(
         combined.length
-          ? `${combined.length} result${combined.length === 1 ? "" : "s"} found${bibleSearchBook ? ` in ${bibleSearchBook}` : ""}${queries.length > 1 ? ` from ${queries.length} related searches` : ""}.`
-          : "No results found. Try fewer words or a broader theme."
+          ? `${combined.length} ${bibleSearchModeLabel(bibleSearchMode).toLowerCase()} result${combined.length === 1 ? "" : "s"} found${bibleSearchBook ? ` in ${bibleSearchBook}` : ""}.`
+          : bibleSearchMode === "word"
+            ? "No exact word results found. Try Any words or Theme if you want broader matches."
+            : "No results found. Try fewer words or a broader search mode."
       );
       trackUsage("bible_search", { reference: query, translation, tab: "bible", book: bibleSearchBook || undefined });
     } catch {
@@ -4911,7 +4914,7 @@ export default function Home() {
                 </Pressable>
                 {!bibleSearchCollapsed && (
                   <>
-                    <Text style={[styles.helpIntro, bibleDarkMode && styles.accountDarkMutedText]}>Search exact words, close wording, themes, ideas, or questions. Results split by testament unless you choose one.</Text>
+                    <Text style={[styles.helpIntro, bibleDarkMode && styles.accountDarkMutedText]}>Choose how closely Scripture should match your search. Exact word is best when you remember a specific word.</Text>
                     <View style={[styles.bibleSearchInputRow, phoneLayout && styles.phoneBibleSearchInputRow]}>
                       <TextInput
                         value={bibleSearchQuery}
@@ -4938,13 +4941,23 @@ export default function Home() {
                         </Pressable>
                       ))}
                       <View style={[styles.bibleSearchRefineRow, phoneLayout && styles.phoneBibleSearchRefineRow]}>
-                        <Pressable
-                          onPress={() => setBibleSearchExact((value) => !value)}
-                          style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleDarkMode && styles.printDarkOptionChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchExact && styles.activeBibleSearchChip]}
-                        >
-                          <Ionicons name={bibleSearchExact ? "checkmark-circle" : "ellipse-outline"} size={14} color={bibleSearchExact ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                          <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchExact && styles.activeBibleSearchChipText]}>Exact phrase</Text>
-                        </Pressable>
+                        <View style={styles.bibleSearchModeGroup}>
+                          {([
+                            ["word", "Word"],
+                            ["phrase", "Phrase"],
+                            ["allWords", "All words"],
+                            ["anyWords", "Any words"],
+                            ["theme", "Theme"]
+                          ] as [BibleSearchMode, string][]).map(([mode, label]) => (
+                            <Pressable
+                              key={mode}
+                              onPress={() => setBibleSearchMode(mode)}
+                              style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleDarkMode && styles.printDarkOptionChip, phoneLayout && styles.phoneBibleSearchChip, bibleSearchMode === mode && styles.activeBibleSearchChip]}
+                            >
+                              <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchMode === mode && styles.activeBibleSearchChipText]}>{label}</Text>
+                            </Pressable>
+                          ))}
+                        </View>
                         <View style={[styles.bibleSearchBookFilter, phoneLayout && styles.phoneBibleSearchBookFilter]}>
                           {Platform.OS === "web" ? (
                             <select
@@ -4998,7 +5011,7 @@ export default function Home() {
                 )}
                 {!bibleSearchCollapsed && !!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
                 {!bibleSearchCollapsed && !!bibleSearchActiveQuery && bibleTranslation === "bsb" && (
-                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>Search uses WEB text while the reader can stay on BSB.</Text>
+                  <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>Search uses WEB text while the reader can stay on BSB. Word mode only matches whole words.</Text>
                 )}
                 {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
                   <View key={section.title} style={styles.bibleSearchResultSection}>
@@ -9784,11 +9797,11 @@ function bibleSearchTranslationId(translation: "KJV" | "WEB") {
   return translation === "KJV" ? "KJV" : "WEB";
 }
 
-async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB", scope: BibleSearchScope, bookFilter: string, exact: boolean): Promise<BibleSearchResult[]> {
+async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
   const params = new URLSearchParams({
     search: searchTerm,
     match_case: "false",
-    match_whole: exact ? "true" : "false",
+    match_whole: matchWhole ? "true" : "false",
     limit: "30",
     page: "1"
   });
@@ -9825,7 +9838,12 @@ async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | 
     .filter((item: BibleSearchResult | null): item is BibleSearchResult => item !== null);
 }
 
-function buildBibleSearchQueries(query: string) {
+function buildBibleSearchQueries(query: string, mode: BibleSearchMode) {
+  const words = bibleSearchWords(query);
+  if (mode === "word") return [words[0] || query].filter(Boolean);
+  if (mode === "phrase") return [query];
+  if (mode === "allWords" || mode === "anyWords") return words.length ? words : [query];
+
   const normalized = query.toLowerCase();
   const themes: Record<string, string[]> = {
     anxiety: ["anxious", "fear", "peace", "trouble"],
@@ -9859,6 +9877,62 @@ function buildBibleSearchQueries(query: string) {
     ? normalized.replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((word) => word.length > 3 && !["what", "where", "does", "about", "when", "with", "from", "that"].includes(word))
     : [];
   return Array.from(new Set([query, ...expanded, ...questionTerms])).slice(0, 5);
+}
+
+function bibleSearchModeLabel(mode: BibleSearchMode) {
+  const labels: Record<BibleSearchMode, string> = {
+    word: "Exact word",
+    phrase: "Exact phrase",
+    allWords: "All words",
+    anyWords: "Any words",
+    theme: "Theme"
+  };
+  return labels[mode];
+}
+
+function filterBibleSearchResultsForMode(results: BibleSearchResult[], query: string, mode: BibleSearchMode) {
+  const words = bibleSearchWords(query);
+  const phrase = normalizeBibleSearchText(query);
+  if (mode === "theme") return results;
+
+  return results.filter((result) => {
+    const text = normalizeBibleSearchText(result.text);
+    const tokens = bibleSearchWords(result.text);
+    if (mode === "phrase") return !!phrase && text.includes(phrase);
+    if (mode === "anyWords") return words.some((word) => tokens.includes(word));
+    return words.length > 0 && words.every((word) => tokens.includes(word));
+  });
+}
+
+function rankBibleSearchResults(results: BibleSearchResult[], query: string, mode: BibleSearchMode) {
+  const words = bibleSearchWords(query);
+  const phrase = normalizeBibleSearchText(query);
+  return results.slice().sort((a, b) => {
+    const aScore = bibleSearchScore(a, words, phrase, mode);
+    const bScore = bibleSearchScore(b, words, phrase, mode);
+    return bScore - aScore || bibleBooks.indexOf(a.book) - bibleBooks.indexOf(b.book) || a.chapter - b.chapter || a.verse - b.verse;
+  });
+}
+
+function bibleSearchScore(result: BibleSearchResult, words: string[], phrase: string, mode: BibleSearchMode) {
+  const text = normalizeBibleSearchText(result.text);
+  const tokens = bibleSearchWords(result.text);
+  let score = 0;
+  if (phrase && text.includes(phrase)) score += mode === "phrase" ? 20 : 8;
+  words.forEach((word) => {
+    const occurrences = tokens.filter((token) => token === word).length;
+    score += occurrences * (mode === "word" ? 10 : 4);
+  });
+  if (result.sourceQuery && words.includes(normalizeBibleSearchText(result.sourceQuery))) score += 2;
+  return score;
+}
+
+function bibleSearchWords(value: string) {
+  return normalizeBibleSearchText(value).split(/\s+/).filter((word) => word.length > 0);
+}
+
+function normalizeBibleSearchText(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 function dedupeBibleSearchResults(results: BibleSearchResult[]) {
@@ -12163,10 +12237,16 @@ const styles = StyleSheet.create({
   bibleSearchRefineRow: {
     alignItems: "center",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8
   },
   phoneBibleSearchRefineRow: {
     width: "100%"
+  },
+  bibleSearchModeGroup: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6
   },
   bibleSearchBookFilter: {
     minWidth: 150,

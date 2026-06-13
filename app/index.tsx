@@ -3010,7 +3010,7 @@ export default function Home() {
         translationName: passageText.translation_name,
         note: note || undefined
       });
-      setMemoryStatus(`Saved to Memory${firstName ? ` for ${firstName}` : ""}`);
+      setMemoryStatus(`${reference} was recently added.`);
       trackUsage("memory_saved", { reference, translation: passageText.translation_name, tab: "study" });
       setSelectedVerseKeys([]);
     } catch {
@@ -3032,19 +3032,20 @@ export default function Home() {
 
     const verses = selectedReaderVerseObjects;
     if (!verses.length) return;
+    const reference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
 
     setReaderMemoryStatus("Saving to Memory...");
     try {
       await saveMemoryVerse({
         profileId: activeProfileId,
-        reference: buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses),
+        reference,
         verseText: verses.map((verse) => verse.text.trim()).join(" "),
         translationName: readerPassage.translation_name
       });
-      setReaderMemoryStatus("Saved to Memory");
-      setMemoryStatus(`Saved to Memory${firstName ? ` for ${firstName}` : ""}`);
+      setReaderMemoryStatus(`${reference} was recently added.`);
+      setMemoryStatus(`${reference} was recently added.`);
       trackUsage("memory_saved", {
-        reference: buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses),
+        reference,
         translation: readerPassage.translation_name,
         tab: "bible",
         book: readerBook,

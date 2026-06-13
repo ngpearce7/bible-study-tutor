@@ -9789,7 +9789,7 @@ function isMemoryVerseMemorized(verse: { status: string; reviewCount?: number })
 }
 
 function isMemoryVerseDue(verse: { nextReviewAt?: number }) {
-  return !verse.nextReviewAt || verse.nextReviewAt <= Date.now();
+  return !verse.nextReviewAt || verse.nextReviewAt <= Date.now() || isTodayLocal(verse.nextReviewAt);
 }
 
 function isTodayLocal(timestamp?: number) {
@@ -9805,6 +9805,7 @@ function reviewPresetLabel(preset: MemoryReviewPreset) {
 
 function memoryReviewDateLabel(nextReviewAt?: number) {
   if (!nextReviewAt || nextReviewAt <= Date.now()) return "Review: due now";
+  if (isTodayLocal(nextReviewAt)) return "Review: today";
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const target = new Date(nextReviewAt);

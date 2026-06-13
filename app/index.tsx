@@ -3501,6 +3501,7 @@ export default function Home() {
     setReaderActionVerse(result.verse);
     setReaderNavCollapsed(true);
     setExpandedMobileReaderBook("");
+    clearBibleSearch();
     scrollReaderToTop();
   }
 

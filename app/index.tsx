@@ -541,6 +541,7 @@ export default function Home() {
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
   const [selectedReaderVerses, setSelectedReaderVerses] = useState<number[]>([]);
   const [readerActionVerse, setReaderActionVerse] = useState(0);
+  const [pendingReaderFocusVerse, setPendingReaderFocusVerse] = useState(0);
   const [readBibleChapters, setReadBibleChapters] = useState<StoredBibleReadChapters>({});
   const [bibleBookmarks, setBibleBookmarks] = useState<StoredBibleBookmark[]>([]);
   const [activeBookmarkNoteId, setActiveBookmarkNoteId] = useState("");
@@ -564,6 +565,8 @@ export default function Home() {
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
+  const readerPassageBoxYRef = useRef(0);
+  const readerVerseYRef = useRef<Record<number, number>>({});
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
@@ -3367,6 +3370,14 @@ export default function Home() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 50);
   }
 
+  function scrollReaderToVerse(verseNumber: number) {
+    setTimeout(() => {
+      const y = readerVerseYRef.current[verseNumber];
+      if (typeof y !== "number") return;
+      appScrollRef.current?.scrollTo?.({ y: Math.max(0, readerPassageBoxYRef.current + y - (phoneLayout ? 96 : 118)), animated: true });
+    }, 120);
+  }
+
   function selectReaderBook(book: string) {
     if (expandedMobileReaderBook === book) {
       setExpandedMobileReaderBook("");
@@ -3499,10 +3510,11 @@ export default function Home() {
     setReaderChapterDraft(String(result.chapter));
     setSelectedReaderVerses([result.verse]);
     setReaderActionVerse(result.verse);
+    setPendingReaderFocusVerse(result.verse);
     setReaderNavCollapsed(true);
     setExpandedMobileReaderBook("");
     clearBibleSearch();
-    scrollReaderToTop();
+    scrollReaderToVerse(result.verse);
   }
 
   function studyBibleSearchResult(result: BibleSearchResult) {
@@ -5140,9 +5152,23 @@ export default function Home() {
                 )}
               </View>
               {readerPassage?.verses?.length ? (
-                <View style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock, bibleDarkMode && styles.accountDarkInsetBox]}>
+                <View
+                  onLayout={(event) => {
+                    readerPassageBoxYRef.current = event.nativeEvent.layout.y;
+                  }}
+                  style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock, bibleDarkMode && styles.accountDarkInsetBox]}
+                >
                   {readerPassage.verses.map((verse) => (
-                    <View key={`${verse.chapter}-${verse.verse}`}>
+                    <View
+                      key={`${verse.chapter}-${verse.verse}`}
+                      onLayout={(event) => {
+                        readerVerseYRef.current[verse.verse] = event.nativeEvent.layout.y;
+                        if (pendingReaderFocusVerse === verse.verse) {
+                          setPendingReaderFocusVerse(0);
+                          scrollReaderToVerse(verse.verse);
+                        }
+                      }}
+                    >
                       <Pressable
                         onPress={() => toggleReaderVerse(verse.verse)}
                         style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, bibleDarkMode && styles.bibleDarkVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow]}

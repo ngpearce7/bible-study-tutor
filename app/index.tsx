@@ -9,11 +9,13 @@ import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
+import { getContextHelp } from "@/data/help";
 import { MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, clampMemoryPracticeLevel, formatMemoryBlankValue, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, normalizeMemoryAnswer, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
+import { HelpScreenshot } from "@/components/HelpScreenshot";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { createElement, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -7414,24 +7416,28 @@ export default function Home() {
                 caption="Tap one verse, or tap another verse to select the whole range. The action bar lets you study, note, print, save, or memorize."
                 variant="bible"
                 darkMode={helpDarkMode}
+                styles={styles}
               />
               <HelpScreenshot
                 title="Guided study"
                 caption="Follow the current step, write notes in the box, then save and continue. Focus mode hides extra panels."
                 variant="study"
                 darkMode={helpDarkMode}
+                styles={styles}
               />
               <HelpScreenshot
                 title="Memory practice"
                 caption="Save a verse to Memory, then read it, fill every second word, and finally type the full verse."
                 variant="memory"
                 darkMode={helpDarkMode}
+                styles={styles}
               />
               <HelpScreenshot
                 title="Journal review"
                 caption="Your saved studies, highlights, encouragements, and reflections collect here for later review."
                 variant="journal"
                 darkMode={helpDarkMode}
+                styles={styles}
               />
             </View>
 
@@ -7861,168 +7867,6 @@ export default function Home() {
         </View>
       )}
     </View>
-  );
-}
-
-function getContextHelp(tab: Tab) {
-  const help: Record<Tab, { title: string; icon: string; summary: string; tips: string[] }> = {
-    home: {
-      title: "Home help",
-      icon: "home-outline",
-      summary: "Home gathers the next useful steps so you can move into reading, study, memory, or review without hunting around.",
-      tips: ["Use Today’s path when you are unsure what to do next.", "At a glance shows memory reviews and study reviews that need attention.", "Start with Read Scripture or Start a study if you are new."]
-    },
-    study: {
-      title: "Study help",
-      icon: "book-outline",
-      summary: "Study walks you through one method step at a time, with passage text, notes, highlighting, memory saving, and journal saving.",
-      tips: ["Type or choose a passage, then press Use.", "Select verses to highlight, note, save to Memory, or print a worksheet.", "Use Focus mode when you want fewer side panels."]
-    },
-    bible: {
-      title: "Bible help",
-      icon: "reader-outline",
-      summary: "Bible lets you read by book and chapter, search Scripture, select verses, add notes, bookmark passages, and launch a study.",
-      tips: ["Tap one verse, then another verse to select a range.", "Use the bottom action bar on mobile for Study, Save, Note, Print, and Memory.", "Use the reader panel to change books and chapters."]
-    },
-    plans: {
-      title: "Plans help",
-      icon: "calendar-outline",
-      summary: "Plans give you short guided paths. Each day opens a passage and method, then saving the study marks that day complete.",
-      tips: ["Choose a plan that matches your current season.", "Press Continue to open the next unfinished day.", "Reset a plan if you want to start it again."]
-    },
-    methods: {
-      title: "Methods help",
-      icon: "layers-outline",
-      summary: "Methods explain different ways to study Scripture, from quick reflection to deeper observation and application.",
-      tips: ["Use filters to narrow the method list.", "Tap the info button for details and examples.", "Press Practice to start Study with that method."]
-    },
-    memory: {
-      title: "Memory help",
-      icon: "sparkles-outline",
-      summary: "Memory helps you keep saved verses through a simple three-step practice flow.",
-      tips: ["Save verses from Bible or Study first.", "Step 1 is reading, Step 2 hides every second word, Step 3 hides all words.", "Use hints when a word will not come to mind."]
-    },
-    accountability: {
-      title: "Community help",
-      icon: "people-outline",
-      summary: "Community helps you turn one study insight into a simple encouragement message for a trusted person or group.",
-      tips: ["Add a person or group in the People panel.", "Write one honest update, then copy the message.", "Save encouragements so they appear in Journal."]
-    },
-    journal: {
-      title: "Journal help",
-      icon: "journal-outline",
-      summary: "Journal is where saved studies, drafts, highlights, reflections, encouragements, and reviews come back together.",
-      tips: ["Use List for a simple view, Calendar for date review, and Scripture for book/chapter browsing.", "Expand an entry to read or edit it.", "Schedule reviews to bring important studies back later."]
-    },
-    account: {
-      title: "Account help",
-      icon: "person-circle-outline",
-      summary: "Account manages your name, sign-in, Bible translation, privacy notes, and future access choices.",
-      tips: ["Add your name so the app can speak more personally.", "Sign in if you want account-connected saving across devices.", "Choose BSB, WEB, or KJV as your preferred Bible translation."]
-    },
-    admin: {
-      title: "Admin help",
-      icon: "analytics-outline",
-      summary: "Admin insights shows the fuller view of feedback, activity, popular passages, and profile health signals.",
-      tips: ["Use the Account quick card for a glance.", "Open Admin when you want feedback and activity details.", "Signed-in and active profiles are more useful than raw profile count while testing."]
-    },
-    help: {
-      title: "Help screen",
-      icon: "help-circle-outline",
-      summary: "This screen is the full user guide. It is designed for quick orientation before launch and for users who need a refresher.",
-      tips: ["Start with the three quick steps near the top.", "Use the visual walkthroughs for the main app areas.", "Check Common questions for the most frequent actions."]
-    }
-  };
-
-  return help[tab];
-}
-
-function HelpScreenshot({
-  title,
-  caption,
-  variant,
-  darkMode = false
-}: {
-  title: string;
-  caption: string;
-  variant: "bible" | "study" | "memory" | "journal";
-  darkMode?: boolean;
-}) {
-  return (
-    <Card style={[styles.helpScreenshotCard, darkMode && styles.accountDarkMainCard]}>
-      <View style={styles.helpScreenshotHeader}>
-        <Text style={[styles.helpCardTitle, darkMode && styles.accountDarkTitle]}>{title}</Text>
-        <View style={styles.helpWindowDots}>
-          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
-          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
-          <View style={[styles.helpWindowDot, darkMode && styles.helpDarkWindowDot]} />
-        </View>
-      </View>
-      <View style={[styles.helpScreenshotFrame, darkMode && styles.helpDarkScreenshotFrame]}>
-        {variant === "bible" && (
-          <>
-            <View style={styles.helpScreenshotTopBar}>
-              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Psalms 23</Text>
-              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>BSB</Text>
-            </View>
-            <View style={styles.helpVerseLine}><Text style={[styles.helpVerseNumber, darkMode && styles.homeDarkAccentText]}>1</Text><View style={[styles.helpLongLine, darkMode && styles.helpDarkLine]} /></View>
-            <View style={[styles.helpVerseLine, styles.helpSelectedLine, darkMode && styles.helpDarkSelectedLine]}><Text style={[styles.helpVerseNumber, darkMode && styles.homeDarkAccentText]}>2</Text><View style={[styles.helpShortLine, darkMode && styles.helpDarkLine]} /></View>
-            <View style={[styles.helpDockPreview, darkMode && styles.helpDarkDockPreview]}>
-              <Text style={styles.helpDockButton}>Study</Text>
-              <Text style={styles.helpDockButton}>Note</Text>
-              <Text style={styles.helpDockButton}>Print</Text>
-              <Text style={styles.helpDockButton}>Memory</Text>
-            </View>
-          </>
-        )}
-        {variant === "study" && (
-          <>
-            <View style={styles.helpScreenshotTopBar}>
-              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Step 2 of 4</Text>
-              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>SOAP</Text>
-            </View>
-            <View style={[styles.helpTextAreaPreview, darkMode && styles.helpDarkTextAreaPreview]}>
-              <View style={[styles.helpLongLine, darkMode && styles.helpDarkLine]} />
-              <View style={[styles.helpMediumLine, darkMode && styles.helpDarkLine]} />
-              <View style={[styles.helpShortLine, darkMode && styles.helpDarkLine]} />
-            </View>
-            <View style={styles.helpToolbarPreview}>
-              {["B", "I", "U", "H"].map((item) => <Text key={item} style={[styles.helpToolButton, darkMode && styles.helpDarkToolButton]}>{item}</Text>)}
-            </View>
-          </>
-        )}
-        {variant === "memory" && (
-          <>
-            <View style={styles.helpScreenshotTopBar}>
-              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>John 3:16</Text>
-              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>Step 2</Text>
-            </View>
-            <View style={styles.helpMemoryLine}>
-              <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
-              <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>so</Text>
-              <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
-              <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>the</Text>
-            </View>
-            <Text style={styles.helpDockButton}>Check answers</Text>
-          </>
-        )}
-        {variant === "journal" && (
-          <>
-            <View style={styles.helpScreenshotTopBar}>
-              <Text style={[styles.helpScreenshotLabel, darkMode && styles.accountDarkTitle]}>Journal</Text>
-              <Text style={[styles.helpScreenshotPill, darkMode && styles.helpDarkScreenshotPill]}>List</Text>
-            </View>
-            {["Psalm 23", "James 1:5", "Encouragement"].map((item) => (
-              <View key={item} style={[styles.helpJournalRow, darkMode && styles.helpDarkJournalRow]}>
-                <Text style={[styles.helpJournalTitle, darkMode && styles.accountDarkTitle]}>{item}</Text>
-                <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#c8bda9" : colors.muted} />
-              </View>
-            ))}
-          </>
-        )}
-      </View>
-      <Text style={[styles.helpCardText, darkMode && styles.accountDarkMutedText]}>{caption}</Text>
-    </Card>
   );
 }
 

@@ -157,22 +157,37 @@ export function formatMemoryHistoryDate(value?: number) {
   });
 }
 
-export function buildMemoryHistorySummary(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
+type MemoryVerseForHistory = {
+  reference: string;
+  createdAt?: number;
+  reviewCount?: number;
+  lastReviewedAt?: number;
+};
+
+export function buildMemoryHistorySummary(
+  history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[],
+  verses: MemoryVerseForHistory[] = []
+) {
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const repeatedEvents = history.filter((event) => event.event === "repeated");
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedTodayEvents = reviewedEvents.filter((event) => isTodayLocal(event.createdAt));
   const reviewedThisWeekEvents = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7);
-  const reviewedToday = uniqueReferenceCount(reviewedTodayEvents);
-  const reviewedThisWeek = uniqueReferenceCount(reviewedThisWeekEvents);
+  const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
+  const reviewedToday = verses.length
+    ? verses.filter((verse) => isTodayLocal(verse.lastReviewedAt)).length
+    : uniqueReferenceCount(reviewedTodayEvents);
+  const reviewedThisWeek = verses.length
+    ? verses.filter((verse) => Boolean(verse.lastReviewedAt) && daysAgo(verse.lastReviewedAt || 0) < 7).length
+    : uniqueReferenceCount(reviewedThisWeekEvents);
   const reviewDaysThisWeek = uniqueReviewDays(reviewedThisWeekEvents).length;
-  const mostReviewed = mostFrequentReference(reviewedEvents);
+  const mostReviewed = verses.length ? mostReviewedVerse(reviewedVerses) : mostFrequentReference(reviewedEvents);
 
   return {
     reviewedToday,
     reviewedThisWeek,
     reviewDaysThisWeek,
-    addedCount: addedEvents.length,
+    addedCount: verses.length || addedEvents.length,
     repeatedCount: repeatedEvents.length,
     mostReviewed
   };
@@ -247,12 +262,20 @@ export function neglectedMemoryVerseLabel(daysSinceReview: number, reviewCount?:
   return `Not reviewed for ${daysSinceReview} days`;
 }
 
-export function buildMemoryWeeklySummary(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
+export function buildMemoryWeeklySummary(
+  history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[],
+  verses: MemoryVerseForHistory[] = []
+) {
   const weeklyReviewed = history.filter((event) => event.event === "reviewed" && daysAgo(event.createdAt) < 7);
   const weeklyAdded = history.filter((event) => event.event === "added" && daysAgo(event.createdAt) < 7);
-  const weeklyReviewedCount = uniqueReferenceCount(weeklyReviewed);
-  const weeklyAddedCount = uniqueReferenceCount(weeklyAdded);
-  const books = uniqueBooksFromReferences([...weeklyReviewed, ...weeklyAdded].map((event) => event.reference));
+  const weeklyReviewedVerses = verses.filter((verse) => Boolean(verse.lastReviewedAt) && daysAgo(verse.lastReviewedAt || 0) < 7);
+  const weeklyAddedVerses = verses.filter((verse) => Boolean(verse.createdAt) && daysAgo(verse.createdAt || 0) < 7);
+  const weeklyReviewedCount = verses.length ? weeklyReviewedVerses.length : uniqueReferenceCount(weeklyReviewed);
+  const weeklyAddedCount = verses.length ? weeklyAddedVerses.length : uniqueReferenceCount(weeklyAdded);
+  const weeklyReferences = verses.length
+    ? [...weeklyReviewedVerses, ...weeklyAddedVerses].map((verse) => verse.reference)
+    : [...weeklyReviewed, ...weeklyAdded].map((event) => event.reference);
+  const books = uniqueBooksFromReferences(weeklyReferences);
 
   if (weeklyReviewedCount === 0 && weeklyAddedCount === 0) {
     return "No memory activity recorded this week yet. One slow review would be a good place to begin.";
@@ -269,13 +292,22 @@ export function buildMemoryWeeklySummary(history: { event: MemoryHistoryEventKin
   return `This week you ${actionText}${bookText}.`;
 }
 
-export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
+export function buildMemoryMilestones(
+  history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[],
+  verses: MemoryVerseForHistory[] = []
+) {
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
-  const uniqueAddedCount = uniqueReferenceCount(addedEvents);
-  const uniqueReviewedCount = uniqueReferenceCount(reviewedEvents);
-  const reviewedBooks = uniqueBooksFromReferences(reviewedEvents.map((event) => event.reference));
+  const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
+  const uniqueAddedCount = verses.length || uniqueReferenceCount(addedEvents);
+  const uniqueReviewedCount = verses.length ? reviewedVerses.length : uniqueReferenceCount(reviewedEvents);
+  const totalCompletedReviews = verses.length
+    ? reviewedVerses.reduce((total, verse) => total + (verse.reviewCount || 0), 0)
+    : reviewedEvents.length;
+  const reviewedBooks = uniqueBooksFromReferences(
+    verses.length ? reviewedVerses.map((verse) => verse.reference) : reviewedEvents.map((event) => event.reference)
+  );
   const firstAdded = oldestEvent(addedEvents);
   const firstReviewed = oldestEvent(reviewedEvents);
   const sortedReviews = reviewedEvents.slice().sort((a, b) => a.createdAt - b.createdAt);
@@ -300,17 +332,21 @@ export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; 
   const ongoingMilestones: { title: string; description: string; achieved: boolean }[] = [
     {
       title: "Five reviews",
-      description: fifthReview
+      description: totalCompletedReviews >= 5 && fifthReview
         ? `You reached five completed reviews with ${fifthReview.reference} on ${formatMemoryHistoryDate(fifthReview.createdAt)}.`
-        : `${Math.max(0, 5 - reviewedEvents.length)} more completed review${5 - reviewedEvents.length === 1 ? "" : "s"} to reach five.`,
-      achieved: reviewedEvents.length >= 5
+        : totalCompletedReviews >= 5
+          ? `You have completed ${totalCompletedReviews} memory reviews.`
+        : `${Math.max(0, 5 - totalCompletedReviews)} more completed review${5 - totalCompletedReviews === 1 ? "" : "s"} to reach five.`,
+      achieved: totalCompletedReviews >= 5
     },
     {
       title: "Ten reviews",
-      description: tenthReview
+      description: totalCompletedReviews >= 10 && tenthReview
         ? `You reached ten completed reviews with ${tenthReview.reference} on ${formatMemoryHistoryDate(tenthReview.createdAt)}.`
-        : `${Math.max(0, 10 - reviewedEvents.length)} more completed review${10 - reviewedEvents.length === 1 ? "" : "s"} to reach ten.`,
-      achieved: reviewedEvents.length >= 10
+        : totalCompletedReviews >= 10
+          ? `You have completed ${totalCompletedReviews} memory reviews.`
+        : `${Math.max(0, 10 - totalCompletedReviews)} more completed review${10 - totalCompletedReviews === 1 ? "" : "s"} to reach ten.`,
+      achieved: totalCompletedReviews >= 10
     },
     {
       title: "Three verses reviewed",
@@ -397,6 +433,13 @@ function mostFrequentReference(events: { reference: string }[]) {
   events.forEach((event) => counts.set(event.reference, (counts.get(event.reference) || 0) + 1));
   return Array.from(counts.entries())
     .map(([reference, count]) => ({ reference, count }))
+    .sort((a, b) => b.count - a.count || a.reference.localeCompare(b.reference))[0] || null;
+}
+
+function mostReviewedVerse(verses: MemoryVerseForHistory[]) {
+  return verses
+    .map((verse) => ({ reference: verse.reference, count: verse.reviewCount || 0 }))
+    .filter((verse) => verse.count > 0)
     .sort((a, b) => b.count - a.count || a.reference.localeCompare(b.reference))[0] || null;
 }
 

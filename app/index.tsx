@@ -1126,17 +1126,13 @@ export default function Home() {
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const memoryHistoryItems = memoryHistory || [];
-  const rawMemoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems), [memoryHistoryItems]);
-  const memoryHistorySummary = useMemo(
-    () => ({ ...rawMemoryHistorySummary, reviewedToday: reviewedTodayCount }),
-    [rawMemoryHistorySummary, reviewedTodayCount]
-  );
+  const memoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
   const memoryHistoryEncouragement = useMemo(
     () => buildMemoryHistoryEncouragement(memoryHistorySummary, firstName),
     [firstName, memoryHistorySummary]
   );
-  const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems), [memoryHistoryItems]);
-  const memoryMilestones = useMemo(() => buildMemoryMilestones(memoryHistoryItems), [memoryHistoryItems]);
+  const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
+  const memoryMilestones = useMemo(() => buildMemoryMilestones(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
   const neglectedMemoryVerses = useMemo(() => buildNeglectedMemoryVerses(memoryVerses || []), [memoryVerses]);
   const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
   const memoryPracticeText = useMemo(

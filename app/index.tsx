@@ -560,6 +560,7 @@ export default function Home() {
   const [bibleSearchBookMenuOpen, setBibleSearchBookMenuOpen] = useState(false);
   const [bibleSearchResults, setBibleSearchResults] = useState<BibleSearchResult[]>([]);
   const [bibleSearchStatus, setBibleSearchStatus] = useState("");
+  const [bibleSearchDuration, setBibleSearchDuration] = useState("");
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
@@ -3452,17 +3453,21 @@ export default function Home() {
       setBibleSearchStatus("Type a word, theme, idea, or question to search.");
       setBibleSearchResults([]);
       setBibleSearchActiveQuery("");
+      setBibleSearchDuration("");
       return;
     }
 
+    const startedAt = Date.now();
     const translation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
     const queries = buildBibleSearchQueries(query, bibleSearchMode);
     setBibleSearchStatus("Searching Scripture...");
+    setBibleSearchDuration("");
     setBibleSearchActiveQuery(query);
 
     try {
       const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchMode === "word")));
       const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, bibleSearchMode), query, bibleSearchMode).slice(0, 60);
+      setBibleSearchDuration(`Search completed in ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults(combined);
       setBibleSearchStatus(
         combined.length
@@ -3474,8 +3479,18 @@ export default function Home() {
       trackUsage("bible_search", { reference: query, translation, tab: "bible", book: bibleSearchBook || undefined });
     } catch {
       setBibleSearchStatus("I couldn't complete the search. Check your connection and try again.");
+      setBibleSearchDuration(`Search stopped after ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults([]);
     }
+  }
+
+  function clearBibleSearch() {
+    setBibleSearchQuery("");
+    setBibleSearchResults([]);
+    setBibleSearchStatus("");
+    setBibleSearchDuration("");
+    setBibleSearchActiveQuery("");
+    setBibleSearchBookMenuOpen(false);
   }
 
   function openBibleSearchResult(result: BibleSearchResult) {
@@ -4925,6 +4940,14 @@ export default function Home() {
                         style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput, bibleDarkMode && styles.accountDarkInput]}
                       />
                       <AppButton label="Search" onPress={runBibleSearch} style={phoneLayout && styles.phoneBibleSearchButton} />
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={clearBibleSearch}
+                        style={[styles.bibleSearchClearButton, phoneLayout && styles.phoneBibleSearchButton, bibleDarkMode && styles.homeDarkResumeButton]}
+                      >
+                        <Ionicons name="close-circle-outline" size={16} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.bibleSearchClearText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
+                      </Pressable>
                     </View>
                     <View style={[styles.bibleSearchControls, phoneLayout && styles.phoneBibleSearchControls]}>
                       {[
@@ -5010,6 +5033,7 @@ export default function Home() {
                   </>
                 )}
                 {!bibleSearchCollapsed && !!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
+                {!bibleSearchCollapsed && !!bibleSearchDuration && <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchDuration}</Text>}
                 {!bibleSearchCollapsed && !!bibleSearchActiveQuery && (
                   <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>
                     {bibleTranslation === "bsb"
@@ -10008,6 +10032,16 @@ function normalizeBibleSearchText(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
+function formatSearchDuration(milliseconds: number) {
+  const seconds = milliseconds / 1000;
+  if (seconds < 1) return `${Math.max(0.1, seconds).toFixed(1)} seconds`;
+  if (seconds < 10) return `${seconds.toFixed(1)} seconds`;
+  if (seconds < 60) return `${Math.round(seconds)} seconds`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.round(seconds % 60);
+  return `${minutes} min ${remainingSeconds} sec`;
+}
+
 function dedupeBibleSearchResults(results: BibleSearchResult[]) {
   const seen = new Set<string>();
   return results.filter((result) => {
@@ -12296,6 +12330,22 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     width: "100%"
+  },
+  bibleSearchClearButton: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
+    minHeight: 42,
+    paddingHorizontal: 13
+  },
+  bibleSearchClearText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   bibleSearchControls: {
     alignItems: "center",

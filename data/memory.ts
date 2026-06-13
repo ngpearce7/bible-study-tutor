@@ -1,5 +1,6 @@
 export type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized";
 export type MemoryReviewPreset = "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month";
+export type MemoryHistoryEventKind = "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "removed";
 
 export type MemoryBibleVerse = {
   book_name: string;
@@ -15,6 +16,15 @@ export const MEMORY_REVIEW_OPTIONS: { id: MemoryReviewPreset; label: string }[] 
   { id: "next-week", label: "Next week" },
   { id: "next-month", label: "Next month" }
 ];
+
+export const MEMORY_HISTORY_EVENT_META: Record<MemoryHistoryEventKind, { label: string; icon: string }> = {
+  added: { label: "Added to Memory", icon: "add-circle-outline" },
+  updated: { label: "Updated verse", icon: "create-outline" },
+  reviewed: { label: "Reviewed", icon: "checkmark-circle-outline" },
+  repeated: { label: "Repeated practice", icon: "refresh-outline" },
+  scheduled: { label: "Review scheduled", icon: "calendar-outline" },
+  removed: { label: "Removed", icon: "trash-outline" }
+};
 
 function normalizeBibleBookName(bookName: string) {
   return bookName === "Psalms" ? "Psalm" : bookName;
@@ -118,6 +128,63 @@ export function memoryReviewDateLabel(nextReviewAt?: number) {
   if (daysUntilReview <= 0) return "Review in: today";
   if (daysUntilReview === 1) return "Review in: 1 day";
   return `Review in: ${daysUntilReview} days`;
+}
+
+export function memoryHistoryEventLabel(event: MemoryHistoryEventKind, practiceLevel?: number) {
+  if (event === "reviewed" && practiceLevel) return `Reviewed Step ${Math.max(1, Math.min(3, Math.round(practiceLevel)))}`;
+  if (event === "repeated" && practiceLevel) return `Repeated Step ${Math.max(1, Math.min(3, Math.round(practiceLevel)))}`;
+  return MEMORY_HISTORY_EVENT_META[event]?.label || "Memory activity";
+}
+
+export function memoryHistoryEventIcon(event: MemoryHistoryEventKind) {
+  return MEMORY_HISTORY_EVENT_META[event]?.icon || "time-outline";
+}
+
+export function formatMemoryHistoryDate(value?: number) {
+  if (!value) return "";
+  const date = new Date(value);
+  const now = new Date();
+  const sameYear = date.getFullYear() === now.getFullYear();
+  const sameDay = isTodayLocal(value);
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
+  const yesterdayEnd = yesterday + 1000 * 60 * 60 * 24;
+  const time = date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  if (sameDay) return `Today, ${time}`;
+  if (value >= yesterday && value < yesterdayEnd) return `Yesterday, ${time}`;
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" })
+  });
+}
+
+export function buildMemoryHistorySummary(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
+  const reviewedEvents = history.filter((event) => event.event === "reviewed");
+  const repeatedEvents = history.filter((event) => event.event === "repeated");
+  const addedEvents = history.filter((event) => event.event === "added");
+  const reviewedToday = reviewedEvents.filter((event) => isTodayLocal(event.createdAt)).length;
+  const reviewedThisWeek = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7).length;
+  const mostReviewed = mostFrequentReference(reviewedEvents);
+
+  return {
+    reviewedToday,
+    reviewedThisWeek,
+    addedCount: addedEvents.length,
+    repeatedCount: repeatedEvents.length,
+    mostReviewed
+  };
+}
+
+function daysAgo(timestamp: number) {
+  return (Date.now() - timestamp) / (1000 * 60 * 60 * 24);
+}
+
+function mostFrequentReference(events: { reference: string }[]) {
+  const counts = new Map<string, number>();
+  events.forEach((event) => counts.set(event.reference, (counts.get(event.reference) || 0) + 1));
+  return Array.from(counts.entries())
+    .map(([reference, count]) => ({ reference, count }))
+    .sort((a, b) => b.count - a.count || a.reference.localeCompare(b.reference))[0] || null;
 }
 
 export function reviewPresetForDate(nextReviewAt?: number): MemoryReviewPreset {

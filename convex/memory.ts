@@ -6,6 +6,14 @@ import { v } from "convex/values";
 
 const memoryStatus = v.union(v.literal("new"), v.literal("learning"), v.literal("review"), v.literal("memorized"));
 const reviewPreset = v.union(v.literal("later-today"), v.literal("tomorrow"), v.literal("three-days"), v.literal("next-week"), v.literal("next-month"));
+const memoryHistoryEvent = v.union(
+  v.literal("added"),
+  v.literal("updated"),
+  v.literal("reviewed"),
+  v.literal("repeated"),
+  v.literal("scheduled"),
+  v.literal("removed")
+);
 
 export const saveVerse = mutation({
   args: {
@@ -38,10 +46,20 @@ export const saveVerse = mutation({
         note: cleaned.note,
         updatedAt: now
       });
+      await insertMemoryHistory(ctx, {
+        profileId: args.profileId,
+        memoryVerseId: existing._id,
+        reference: cleaned.reference,
+        event: "updated",
+        practiceLevel: existing.practiceLevel,
+        reviewCount: existing.reviewCount,
+        nextReviewAt: existing.nextReviewAt,
+        createdAt: now
+      });
       return existing._id;
     }
 
-    return await ctx.db.insert("memoryVerses", {
+    const memoryVerseId = await ctx.db.insert("memoryVerses", {
       ...cleaned,
       status: "new",
       practiceLevel: 1,
@@ -49,6 +67,16 @@ export const saveVerse = mutation({
       createdAt: now,
       updatedAt: now
     });
+    await insertMemoryHistory(ctx, {
+      profileId: args.profileId,
+      memoryVerseId,
+      reference: cleaned.reference,
+      event: "added",
+      practiceLevel: 1,
+      reviewCount: 0,
+      createdAt: now
+    });
+    return memoryVerseId;
   }
 });
 
@@ -95,6 +123,16 @@ export const recordPractice = mutation({
       nextReviewAt: now + nextReviewDelay,
       updatedAt: now
     });
+    await insertMemoryHistory(ctx, {
+      profileId: args.profileId,
+      memoryVerseId: args.memoryVerseId,
+      reference: verse.reference,
+      event: args.result === "got-it" ? "reviewed" : "repeated",
+      practiceLevel: currentPracticeLevel,
+      reviewCount: verse.reviewCount + 1,
+      nextReviewAt: now + nextReviewDelay,
+      createdAt: now
+    });
     return true;
   }
 });
@@ -110,6 +148,16 @@ export const remove = mutation({
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
 
+    await insertMemoryHistory(ctx, {
+      profileId: args.profileId,
+      memoryVerseId: args.memoryVerseId,
+      reference: verse.reference,
+      event: "removed",
+      practiceLevel: verse.practiceLevel,
+      reviewCount: verse.reviewCount,
+      nextReviewAt: verse.nextReviewAt,
+      createdAt: Date.now()
+    });
     await ctx.db.delete(args.memoryVerseId);
     return true;
   }
@@ -128,14 +176,104 @@ export const scheduleReview = mutation({
     if (!verse || verse.profileId !== args.profileId) return false;
 
     const now = Date.now();
+    const nextReviewAt = now + reviewPresetDelay(args.preset);
     await ctx.db.patch(args.memoryVerseId, {
       status: verse.status === "memorized" ? verse.status : "review",
-      nextReviewAt: now + reviewPresetDelay(args.preset),
+      nextReviewAt,
       updatedAt: now
+    });
+    await insertMemoryHistory(ctx, {
+      profileId: args.profileId,
+      memoryVerseId: args.memoryVerseId,
+      reference: verse.reference,
+      event: "scheduled",
+      practiceLevel: verse.practiceLevel,
+      reviewCount: verse.reviewCount,
+      nextReviewAt,
+      createdAt: now
     });
     return true;
   }
 });
+
+export const listHistory = query({
+  args: {
+    profileId: v.id("profiles"),
+    memoryVerseId: v.optional(v.id("memoryVerses")),
+    limit: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId);
+    const limit = Math.max(1, Math.min(args.limit ?? 80, 150));
+
+    if (args.memoryVerseId) {
+      return await ctx.db
+        .query("memoryHistory")
+        .withIndex("by_profile_memoryVerse_created", (q) =>
+          q.eq("profileId", args.profileId).eq("memoryVerseId", args.memoryVerseId)
+        )
+        .order("desc")
+        .take(limit);
+    }
+
+    return await ctx.db
+      .query("memoryHistory")
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(limit);
+  }
+});
+
+export const recordHistoryEvent = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    memoryVerseId: v.id("memoryVerses"),
+    event: memoryHistoryEvent,
+    practiceLevel: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId);
+    const verse = await ctx.db.get(args.memoryVerseId);
+    if (!verse || verse.profileId !== args.profileId) return false;
+
+    await insertMemoryHistory(ctx, {
+      profileId: args.profileId,
+      memoryVerseId: args.memoryVerseId,
+      reference: verse.reference,
+      event: args.event,
+      practiceLevel: args.practiceLevel ?? verse.practiceLevel,
+      reviewCount: verse.reviewCount,
+      nextReviewAt: verse.nextReviewAt,
+      createdAt: Date.now()
+    });
+    return true;
+  }
+});
+
+async function insertMemoryHistory(
+  ctx: MutationCtx,
+  event: {
+    profileId: Id<"profiles">;
+    memoryVerseId?: Id<"memoryVerses">;
+    reference: string;
+    event: "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "removed";
+    practiceLevel?: number;
+    reviewCount?: number;
+    nextReviewAt?: number;
+    createdAt: number;
+  }
+) {
+  await ctx.db.insert("memoryHistory", {
+    profileId: event.profileId,
+    memoryVerseId: event.memoryVerseId,
+    reference: clampText(event.reference, 160),
+    event: event.event,
+    practiceLevel: event.practiceLevel,
+    reviewCount: event.reviewCount,
+    nextReviewAt: event.nextReviewAt,
+    createdAt: event.createdAt
+  });
+}
 
 function reviewPresetDelay(preset: "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month") {
   const hour = 1000 * 60 * 60;

@@ -179,6 +179,25 @@ export default defineSchema({
     .index("by_profile", ["profileId"])
     .index("by_profile_updated", ["profileId", "updatedAt"])
     .index("by_profile_reference", ["profileId", "reference"]),
+  memoryHistory: defineTable({
+    profileId: v.id("profiles"),
+    memoryVerseId: v.optional(v.id("memoryVerses")),
+    reference: v.string(),
+    event: v.union(
+      v.literal("added"),
+      v.literal("updated"),
+      v.literal("reviewed"),
+      v.literal("repeated"),
+      v.literal("scheduled"),
+      v.literal("removed")
+    ),
+    practiceLevel: v.optional(v.number()),
+    reviewCount: v.optional(v.number()),
+    nextReviewAt: v.optional(v.number()),
+    createdAt: v.number()
+  })
+    .index("by_profile_created", ["profileId", "createdAt"])
+    .index("by_profile_memoryVerse_created", ["profileId", "memoryVerseId", "createdAt"]),
   feedback: defineTable({
     profileId: v.id("profiles"),
     category: v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other")),

@@ -9296,8 +9296,14 @@ function WritingPromptChips({
   darkMode?: boolean;
 }) {
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const [promptsOpen, setPromptsOpen] = useState(!compact);
   const [draftPrompt, setDraftPrompt] = useState("");
   const customPromptSet = new Set(customPrompts);
+  const panelOpen = !compact || promptsOpen || isCustomizing;
+
+  useEffect(() => {
+    if (!compact) setPromptsOpen(true);
+  }, [compact]);
 
   if (!prompts.length && !onAddCustomPrompt) return null;
 
@@ -9312,29 +9318,52 @@ function WritingPromptChips({
   return (
     <View style={[styles.writingPromptBox, compact && styles.compactWritingPromptBox, darkMode && styles.accountDarkSection]}>
       <View style={[styles.writingPromptHeader, compact && styles.compactWritingPromptHeader]}>
-        <Text style={[styles.writingPromptLabel, darkMode && styles.studyDarkAccentText]}>Note starters</Text>
+        <Pressable
+          disabled={!compact}
+          onPress={() => setPromptsOpen((open) => !open)}
+          style={[styles.writingPromptTitleButton, compact && styles.compactWritingPromptTitleButton]}
+          accessibilityRole="button"
+          accessibilityLabel={panelOpen ? "Hide note starters" : "Show note starters"}
+        >
+          <Text style={[styles.writingPromptLabel, darkMode && styles.studyDarkAccentText]}>Note starters</Text>
+          {compact && (
+            <Ionicons
+              name={panelOpen ? "chevron-up-outline" : "chevron-down-outline"}
+              size={16}
+              color={darkMode ? "#e9b76a" : colors.oliveDark}
+            />
+          )}
+        </Pressable>
         {!!onAddCustomPrompt && (
-          <Pressable onPress={() => setIsCustomizing((current) => !current)} style={[styles.customizePromptButton, compact && styles.compactCustomizePromptButton]}>
+          <Pressable
+            onPress={() => {
+              setIsCustomizing((current) => !current);
+              if (compact) setPromptsOpen(true);
+            }}
+            style={[styles.customizePromptButton, compact && styles.compactCustomizePromptButton]}
+          >
             <Ionicons name={isCustomizing ? "close-outline" : "create-outline"} size={14} color={darkMode ? "#e9b76a" : colors.coral} />
             <Text style={styles.customizePromptText}>{isCustomizing ? "Close" : compact ? "Edit" : "Customize"}</Text>
           </Pressable>
         )}
       </View>
-      <View style={[styles.writingPromptRow, compact && styles.compactWritingPromptRow]}>
-        {prompts.map((prompt) => (
-          <View key={prompt} style={[styles.writingPromptChip, compact && styles.compactWritingPromptChip, darkMode && styles.studyDarkMethodChip]}>
-            <Pressable onPress={() => onInsert(prompt)} style={[styles.writingPromptInsert, compact && styles.compactWritingPromptInsert]}>
-              {!compact && <Ionicons name="add-circle-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />}
-              <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText, darkMode && styles.accountDarkText]} numberOfLines={compact ? 2 : 1}>{prompt}</Text>
-            </Pressable>
-            {customPromptSet.has(prompt) && !!onRemoveCustomPrompt && (
-              <Pressable onPress={() => onRemoveCustomPrompt(prompt)} style={[styles.removePromptButton, compact && styles.compactRemovePromptButton]}>
-                <Ionicons name="close-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+      {panelOpen && (
+        <View style={[styles.writingPromptRow, compact && styles.compactWritingPromptRow]}>
+          {prompts.map((prompt) => (
+            <View key={prompt} style={[styles.writingPromptChip, compact && styles.compactWritingPromptChip, darkMode && styles.studyDarkMethodChip]}>
+              <Pressable onPress={() => onInsert(prompt)} style={[styles.writingPromptInsert, compact && styles.compactWritingPromptInsert]}>
+                {!compact && <Ionicons name="add-circle-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />}
+                <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText, darkMode && styles.accountDarkText]} numberOfLines={compact ? 2 : 1}>{prompt}</Text>
               </Pressable>
-            )}
-          </View>
-        ))}
-      </View>
+              {customPromptSet.has(prompt) && !!onRemoveCustomPrompt && (
+                <Pressable onPress={() => onRemoveCustomPrompt(prompt)} style={[styles.removePromptButton, compact && styles.compactRemovePromptButton]}>
+                  <Ionicons name="close-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                </Pressable>
+              )}
+            </View>
+          ))}
+        </View>
+      )}
       {isCustomizing && (
         <View style={styles.customPromptEditor}>
           <TextInput
@@ -14166,6 +14195,17 @@ const styles = StyleSheet.create({
   },
   compactWritingPromptHeader: {
     marginBottom: 5
+  },
+  writingPromptTitleButton: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 26
+  },
+  compactWritingPromptTitleButton: {
+    flex: 1,
+    justifyContent: "space-between",
+    minWidth: 0
   },
   writingPromptLabel: {
     color: colors.muted,

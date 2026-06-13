@@ -273,10 +273,15 @@ export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; 
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
+  const uniqueAddedCount = uniqueReferenceCount(addedEvents);
+  const uniqueReviewedCount = uniqueReferenceCount(reviewedEvents);
+  const reviewedBooks = uniqueBooksFromReferences(reviewedEvents.map((event) => event.reference));
   const firstAdded = oldestEvent(addedEvents);
   const firstReviewed = oldestEvent(reviewedEvents);
-  const fifthReview = oldestEvent(reviewedEvents.slice().sort((a, b) => a.createdAt - b.createdAt).slice(4, 5));
-  const milestones: { title: string; description: string; achieved: boolean }[] = [
+  const sortedReviews = reviewedEvents.slice().sort((a, b) => a.createdAt - b.createdAt);
+  const fifthReview = sortedReviews[4] || null;
+  const tenthReview = sortedReviews[9] || null;
+  const starterMilestones: { title: string; description: string; achieved: boolean }[] = [
     {
       title: "First verse added",
       description: firstAdded
@@ -291,12 +296,35 @@ export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; 
         : "Your first completed memory review will appear here.",
       achieved: reviewedEvents.length > 0
     },
+  ];
+  const ongoingMilestones: { title: string; description: string; achieved: boolean }[] = [
     {
       title: "Five reviews",
       description: fifthReview
-        ? `You reached five completed reviews when you reviewed ${fifthReview.reference} on ${formatMemoryHistoryDate(fifthReview.createdAt)}.`
+        ? `You reached five completed reviews with ${fifthReview.reference} on ${formatMemoryHistoryDate(fifthReview.createdAt)}.`
         : `${Math.max(0, 5 - reviewedEvents.length)} more completed review${5 - reviewedEvents.length === 1 ? "" : "s"} to reach five.`,
       achieved: reviewedEvents.length >= 5
+    },
+    {
+      title: "Ten reviews",
+      description: tenthReview
+        ? `You reached ten completed reviews with ${tenthReview.reference} on ${formatMemoryHistoryDate(tenthReview.createdAt)}.`
+        : `${Math.max(0, 10 - reviewedEvents.length)} more completed review${10 - reviewedEvents.length === 1 ? "" : "s"} to reach ten.`,
+      achieved: reviewedEvents.length >= 10
+    },
+    {
+      title: "Three verses reviewed",
+      description: uniqueReviewedCount >= 3
+        ? `You have reviewed ${uniqueReviewedCount} different verses from memory.`
+        : `${Math.max(0, 3 - uniqueReviewedCount)} more verse${3 - uniqueReviewedCount === 1 ? "" : "s"} to review from memory.`,
+      achieved: uniqueReviewedCount >= 3
+    },
+    {
+      title: "Three review days",
+      description: reviewDaysThisWeek >= 3
+        ? "You reviewed Scripture on three different days this week."
+        : `${Math.max(0, 3 - reviewDaysThisWeek)} more review day${3 - reviewDaysThisWeek === 1 ? "" : "s"} to reach three days this week.`,
+      achieved: reviewDaysThisWeek >= 3
     },
     {
       title: "Seven-day rhythm",
@@ -304,12 +332,33 @@ export function buildMemoryMilestones(history: { event: MemoryHistoryEventKind; 
         ? "You reviewed Scripture on seven different days this week."
         : `${Math.max(0, 7 - reviewDaysThisWeek)} more review day${7 - reviewDaysThisWeek === 1 ? "" : "s"} to reach a seven-day rhythm this week.`,
       achieved: reviewDaysThisWeek >= 7
+    },
+    {
+      title: "Three books touched",
+      description: reviewedBooks.length >= 3
+        ? `Your memory reviews now reach ${formatShortList(reviewedBooks)}.`
+        : `${Math.max(0, 3 - reviewedBooks.length)} more Bible book${3 - reviewedBooks.length === 1 ? "" : "s"} to review across three books.`,
+      achieved: reviewedBooks.length >= 3
+    },
+    {
+      title: "Five verses saved",
+      description: uniqueAddedCount >= 5
+        ? `You have saved ${uniqueAddedCount} different verses for memory.`
+        : `${Math.max(0, 5 - uniqueAddedCount)} more saved verse${5 - uniqueAddedCount === 1 ? "" : "s"} to reach five.`,
+      achieved: uniqueAddedCount >= 5
     }
   ];
 
-  const achieved = milestones.filter((milestone) => milestone.achieved);
-  const next = milestones.find((milestone) => !milestone.achieved);
-  return [...achieved, ...(next ? [next] : [])].slice(0, 4);
+  const achievedOngoing = ongoingMilestones.filter((milestone) => milestone.achieved);
+  const nextOngoing = ongoingMilestones.find((milestone) => !milestone.achieved);
+  const achievedStarter = starterMilestones.filter((milestone) => milestone.achieved);
+  const nextStarter = starterMilestones.find((milestone) => !milestone.achieved);
+  return [
+    ...achievedOngoing,
+    ...(nextOngoing ? [nextOngoing] : []),
+    ...achievedStarter,
+    ...(nextStarter ? [nextStarter] : [])
+  ].slice(0, 4);
 }
 
 function oldestEvent<T extends { createdAt: number }>(events: T[]) {

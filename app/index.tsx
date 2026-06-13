@@ -1123,8 +1123,14 @@ export default function Home() {
     () => buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter),
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memorySearchTerm, memoryVerses]
   );
+  const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
+  const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const memoryHistoryItems = memoryHistory || [];
-  const memoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems), [memoryHistoryItems]);
+  const rawMemoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems), [memoryHistoryItems]);
+  const memoryHistorySummary = useMemo(
+    () => ({ ...rawMemoryHistorySummary, reviewedToday: reviewedTodayCount }),
+    [rawMemoryHistorySummary, reviewedTodayCount]
+  );
   const memoryHistoryEncouragement = useMemo(
     () => buildMemoryHistoryEncouragement(memoryHistorySummary, firstName),
     [firstName, memoryHistorySummary]
@@ -1133,8 +1139,6 @@ export default function Home() {
   const memoryMilestones = useMemo(() => buildMemoryMilestones(memoryHistoryItems), [memoryHistoryItems]);
   const neglectedMemoryVerses = useMemo(() => buildNeglectedMemoryVerses(memoryVerses || []), [memoryVerses]);
   const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
-  const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
-  const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const memoryPracticeText = useMemo(
     () => (activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),
     [activeMemoryVerse]

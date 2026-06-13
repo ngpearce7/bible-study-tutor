@@ -5667,7 +5667,7 @@ export default function Home() {
                       </View>
                     </>
                   )}
-                  {!phoneMemoryFocusMode && (
+                  {!phoneMemoryFocusMode && memoryView !== "history" && (
                     <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
                       <Ionicons
                         name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}

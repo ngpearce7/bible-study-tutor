@@ -161,9 +161,11 @@ export function buildMemoryHistorySummary(history: { event: MemoryHistoryEventKi
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const repeatedEvents = history.filter((event) => event.event === "repeated");
   const addedEvents = history.filter((event) => event.event === "added");
-  const reviewedToday = reviewedEvents.filter((event) => isTodayLocal(event.createdAt)).length;
-  const reviewedThisWeek = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7).length;
-  const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
+  const reviewedTodayEvents = reviewedEvents.filter((event) => isTodayLocal(event.createdAt));
+  const reviewedThisWeekEvents = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7);
+  const reviewedToday = uniqueReferenceCount(reviewedTodayEvents);
+  const reviewedThisWeek = uniqueReferenceCount(reviewedThisWeekEvents);
+  const reviewDaysThisWeek = uniqueReviewDays(reviewedThisWeekEvents).length;
   const mostReviewed = mostFrequentReference(reviewedEvents);
 
   return {
@@ -248,17 +250,19 @@ export function neglectedMemoryVerseLabel(daysSinceReview: number, reviewCount?:
 export function buildMemoryWeeklySummary(history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[]) {
   const weeklyReviewed = history.filter((event) => event.event === "reviewed" && daysAgo(event.createdAt) < 7);
   const weeklyAdded = history.filter((event) => event.event === "added" && daysAgo(event.createdAt) < 7);
+  const weeklyReviewedCount = uniqueReferenceCount(weeklyReviewed);
+  const weeklyAddedCount = uniqueReferenceCount(weeklyAdded);
   const books = uniqueBooksFromReferences([...weeklyReviewed, ...weeklyAdded].map((event) => event.reference));
 
-  if (weeklyReviewed.length === 0 && weeklyAdded.length === 0) {
+  if (weeklyReviewedCount === 0 && weeklyAddedCount === 0) {
     return "No memory activity recorded this week yet. One slow review would be a good place to begin.";
   }
 
-  const reviewedText = weeklyReviewed.length
-    ? `reviewed ${weeklyReviewed.length} verse${weeklyReviewed.length === 1 ? "" : "s"}`
+  const reviewedText = weeklyReviewedCount
+    ? `reviewed ${weeklyReviewedCount} verse${weeklyReviewedCount === 1 ? "" : "s"}`
     : "";
-  const addedText = weeklyAdded.length
-    ? `added ${weeklyAdded.length} verse${weeklyAdded.length === 1 ? "" : "s"}`
+  const addedText = weeklyAddedCount
+    ? `added ${weeklyAddedCount} verse${weeklyAddedCount === 1 ? "" : "s"}`
     : "";
   const actionText = [reviewedText, addedText].filter(Boolean).join(" and ");
   const bookText = books.length ? ` across ${formatShortList(books)}` : "";
@@ -323,6 +327,10 @@ function uniqueReviewDays(events: { createdAt: number }[]) {
     keys.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
   });
   return Array.from(keys);
+}
+
+function uniqueReferenceCount(events: { reference: string }[]) {
+  return new Set(events.map((event) => normalizeMemoryText(event.reference))).size;
 }
 
 function uniqueBooksFromReferences(references: string[]) {

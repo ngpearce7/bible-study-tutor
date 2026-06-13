@@ -1066,7 +1066,7 @@ export default function Home() {
   const adminStats = adminOverview as AdminStats | null;
   const bibleSearchBookOptions = useMemo(() => buildBibleSearchBookOptions(bibleSearchScope), [bibleSearchScope]);
   const bibleSearchSections = useMemo(() => buildBibleSearchSections(bibleSearchResults, bibleSearchScope, bibleSearchBook), [bibleSearchBook, bibleSearchResults, bibleSearchScope]);
-  const bibleSearchTranslation = bibleTranslation === "kjv" ? "KJV" : "WEB";
+  const bibleSearchTranslation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
   const journalSearchTerm = journalSearch.trim().toLowerCase();
   const pinnedEntryIds = new Set(pinnedJournalEntryIds);
   const baseVisibleDrafts = (drafts || []).filter((draft: any) => matchesJournalSearch(draft, journalSearchTerm));
@@ -1368,12 +1368,13 @@ export default function Home() {
   }, [readerBook, readerChapter, bibleTranslation]);
 
   useEffect(() => {
-    setSelectedReaderVerses([]);
-    setReaderActionVerse(0);
     setActiveBookmarkNoteId("");
     setBookmarkNoteDraft("");
     setReaderMemoryStatus("");
-  }, [readerBook, readerChapter]);
+    if (pendingReaderFocusVerse) return;
+    setSelectedReaderVerses([]);
+    setReaderActionVerse(0);
+  }, [pendingReaderFocusVerse, readerBook, readerChapter]);
 
   useEffect(() => {
     setReaderChapterDraft(String(readerChapter));
@@ -3505,12 +3506,12 @@ export default function Home() {
   }
 
   function openBibleSearchResult(result: BibleSearchResult) {
+    setPendingReaderFocusVerse(result.verse);
     setReaderBook(result.book);
     setReaderChapter(result.chapter);
     setReaderChapterDraft(String(result.chapter));
     setSelectedReaderVerses([result.verse]);
     setReaderActionVerse(result.verse);
-    setPendingReaderFocusVerse(result.verse);
     setReaderNavCollapsed(true);
     setExpandedMobileReaderBook("");
     clearBibleSearch();
@@ -5171,7 +5172,7 @@ export default function Home() {
                     >
                       <Pressable
                         onPress={() => toggleReaderVerse(verse.verse)}
-                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, bibleDarkMode && styles.bibleDarkVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow]}
+                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, bibleDarkMode && styles.bibleDarkVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow, phoneLayout && selectedReaderVerses.includes(verse.verse) && styles.phoneSelectedReaderVerseRow]}
                       >
                         <Text style={[styles.readerVerseNumber, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>
                         <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText, bibleDarkMode && !selectedReaderVerses.includes(verse.verse) && styles.accountDarkText]}>{verse.text}</Text>
@@ -13203,6 +13204,11 @@ const styles = StyleSheet.create({
   },
   selectedReaderVerseRow: {
     backgroundColor: "#f4dfb6"
+  },
+  phoneSelectedReaderVerseRow: {
+    borderColor: colors.coral,
+    borderLeftWidth: 4,
+    paddingLeft: 7
   },
   inlineReaderActionBar: {
     alignItems: "center",

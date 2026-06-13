@@ -11818,13 +11818,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.paper,
     flex: 1,
     flexDirection: "row",
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
     position: "relative"
   },
   appDarkScreen: {
     backgroundColor: "#171b1c"
   },
   compactScreen: {
-    flexDirection: "column"
+    flexDirection: "column",
+    maxWidth: "100%",
+    minWidth: 0
   },
   mobileMenuBar: {
     alignItems: "center",
@@ -11833,8 +11838,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     flexDirection: "row",
     gap: 10,
+    maxWidth: "100%",
+    minWidth: 0,
     paddingHorizontal: 12,
-    paddingVertical: 10
+    paddingVertical: 10,
+    width: "100%"
   },
   appDarkMobileMenuBar: {
     backgroundColor: "#1b211f",
@@ -11988,6 +11996,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
+    maxWidth: "100%",
     minWidth: 0,
     padding: 24
   },
@@ -12308,6 +12317,7 @@ const styles = StyleSheet.create({
   bibleReaderContentCard: {
     flex: 1,
     gap: 14,
+    maxWidth: "100%",
     minWidth: 0
   },
   bibleSearchPanel: {
@@ -12316,17 +12326,22 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     gap: 10,
+    maxWidth: "100%",
+    minWidth: 0,
     padding: 14
   },
   bibleSearchHeader: {
     alignItems: "center",
     flexDirection: "row",
     gap: 10,
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    maxWidth: "100%",
+    minWidth: 0
   },
   bibleSearchHeaderMeta: {
     alignItems: "center",
     flexDirection: "row",
+    flexShrink: 0,
     gap: 8
   },
   bibleSearchTranslationText: {
@@ -12338,7 +12353,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   bibleSearchInput: {
     flex: 1,
@@ -12348,7 +12365,8 @@ const styles = StyleSheet.create({
   phoneBibleSearchInputRow: {
     alignItems: "stretch",
     flexDirection: "column",
-    gap: 8
+    gap: 8,
+    width: "100%"
   },
   phoneBibleSearchInput: {
     minWidth: 0,
@@ -12367,6 +12385,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 5,
+    justifyContent: "center",
+    maxWidth: "100%",
     minHeight: 42,
     paddingHorizontal: 13
   },
@@ -12379,33 +12399,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   phoneBibleSearchControls: {
     alignItems: "flex-start",
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
+    maxWidth: "100%",
     width: "100%"
   },
   bibleSearchRefineRow: {
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   phoneBibleSearchRefineRow: {
     alignItems: "flex-start",
     flexWrap: "wrap",
+    maxWidth: "100%",
     width: "100%"
   },
   bibleSearchModeGroup: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 6,
-    maxWidth: "100%"
+    maxWidth: "100%",
+    minWidth: 0
   },
   bibleSearchBookFilter: {
+    maxWidth: "100%",
     minWidth: 150,
     width: 170
   },
@@ -12424,12 +12452,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 5,
+    maxWidth: "100%",
+    minWidth: 0,
     paddingHorizontal: 10,
     paddingVertical: 7
   },
   phoneBibleSearchChip: {
+    flexShrink: 1,
     height: 36,
     maxWidth: "100%",
+    minWidth: 0,
+    paddingHorizontal: 9,
     paddingVertical: 0
   },
   activeBibleSearchChip: {
@@ -12440,7 +12473,8 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 1,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "800",
+    minWidth: 0
   },
   bibleSearchSelect: {
     backgroundColor: "white",

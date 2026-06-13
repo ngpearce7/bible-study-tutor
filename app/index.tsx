@@ -5433,7 +5433,7 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={styles.memoryList}>
-                  {!phoneMemoryFocusMode && (
+                  {!phoneMemoryFocusMode && memoryView !== "history" && (
                     <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox, memoryDarkMode && styles.accountDarkSection]}>
                       <View style={styles.addMemoryCopy}>
                         <Pressable

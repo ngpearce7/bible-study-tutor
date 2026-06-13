@@ -1376,7 +1376,7 @@ export default function Home() {
     if (pendingReaderFocusVerse) return;
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
-  }, [pendingReaderFocusVerse, readerBook, readerChapter]);
+  }, [readerBook, readerChapter]);
 
   useEffect(() => {
     setReaderChapterDraft(String(readerChapter));

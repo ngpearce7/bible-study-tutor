@@ -5181,10 +5181,10 @@ export default function Home() {
                     onLayout={(event) => {
                       bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
                     }}
-                    style={styles.bibleSearchSummaryBlock}
+                    style={[styles.bibleSearchSummaryBlock, bibleDarkMode && styles.accountDarkInsetBox]}
                   >
-                    {!!bibleSearchStatus && <Text style={styles.saveStatus}>{bibleSearchStatus}</Text>}
-                    {!!bibleSearchDuration && <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchDuration}</Text>}
+                    {!!bibleSearchStatus && <Text style={[styles.bibleSearchStatusText, bibleDarkMode && styles.studyDarkAccentText]}>{bibleSearchStatus}</Text>}
+                    {!!bibleSearchDuration && <Text style={[styles.bibleSearchDurationText, bibleDarkMode && styles.accountDarkText]}>{bibleSearchDuration}</Text>}
                     {!!bibleSearchActiveQuery && (
                       <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>
                         {bibleTranslation === "bsb"
@@ -5196,7 +5196,10 @@ export default function Home() {
                 )}
                 {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
                   <View key={section.title} style={styles.bibleSearchResultSection}>
-                    <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
+                    <View style={styles.bibleSearchSectionHeader}>
+                      <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
+                      <Text style={[styles.bibleSearchSectionCount, bibleDarkMode && styles.homeDarkResumeButtonText]}>{section.results.length}</Text>
+                    </View>
                     {section.results.map((result) => (
                       <View key={result.id} style={[styles.bibleSearchResultCard, bibleDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.bibleSearchResultHeader}>
@@ -12564,9 +12567,27 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   bibleSearchSummaryBlock: {
-    gap: 3,
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 4,
     maxWidth: "100%",
-    minWidth: 0
+    minWidth: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 10
+  },
+  bibleSearchStatusText: {
+    color: colors.coral,
+    fontSize: 14,
+    fontWeight: "900",
+    lineHeight: 19
+  },
+  bibleSearchDurationText: {
+    color: colors.ink,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17
   },
   mobileBibleCriteriaDropdown: {
     backgroundColor: "#fff6eb",
@@ -12781,6 +12802,23 @@ const styles = StyleSheet.create({
   bibleSearchResultSection: {
     gap: 8,
     marginTop: 4
+  },
+  bibleSearchSectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8
+  },
+  bibleSearchSectionCount: {
+    backgroundColor: colors.coral,
+    borderRadius: 999,
+    color: "white",
+    fontSize: 11,
+    fontWeight: "900",
+    minWidth: 24,
+    overflow: "hidden",
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    textAlign: "center"
   },
   bibleSearchResultCard: {
     backgroundColor: "white",

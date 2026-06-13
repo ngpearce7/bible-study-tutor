@@ -5534,6 +5534,21 @@ export default function Home() {
                         )}
                       </View>
                       <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
+                        <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory milestones</Text>
+                        <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>A few meaningful markers from your memory journey.</Text>
+                        <View style={styles.memoryMilestoneList}>
+                          {memoryMilestones.map((milestone) => (
+                            <View key={milestone.title} style={[styles.memoryMilestoneItem, memoryDarkMode && styles.accountDarkInsetBox]}>
+                              <Ionicons name={milestone.achieved ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                              <View style={styles.memoryHistoryTextBlock}>
+                                <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{milestone.title}</Text>
+                                <Text style={[styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>{milestone.description}</Text>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                      <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
                         <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Recent memory activity</Text>
                         {memoryHistoryItems.length === 0 ? (
                           <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Your history will appear here as you add, review, repeat, and schedule memory verses.</Text>
@@ -5565,21 +5580,6 @@ export default function Home() {
                             )}
                           </View>
                         )}
-                      </View>
-                      <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
-                        <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory milestones</Text>
-                        <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>A few meaningful markers from your memory journey.</Text>
-                        <View style={styles.memoryMilestoneList}>
-                          {memoryMilestones.map((milestone) => (
-                            <View key={milestone.title} style={[styles.memoryMilestoneItem, memoryDarkMode && styles.accountDarkInsetBox]}>
-                              <Ionicons name={milestone.achieved ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
-                              <View style={styles.memoryHistoryTextBlock}>
-                                <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{milestone.title}</Text>
-                                <Text style={[styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>{milestone.description}</Text>
-                              </View>
-                            </View>
-                          ))}
-                        </View>
                       </View>
                     </View>
                   )}

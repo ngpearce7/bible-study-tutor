@@ -13,6 +13,7 @@ import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, clampMemoryPracticeLevel, formatMemoryBlankValue, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, normalizeMemoryAnswer, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
+import { buildPrintableStudyWorksheetHtml, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
@@ -49,7 +50,6 @@ type UiPreferenceKey =
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
 type ReaderMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
-type WorksheetWritingSpace = "standard" | "more";
 const DARK_MODE_ENABLED = true;
 type AnswerMap = Record<string, string>;
 type BibleTranslationId = "bsb" | "web" | "kjv";
@@ -11280,141 +11280,6 @@ function shortBibleTranslationName(name?: string) {
   if (normalized.includes("world english")) return "WEB";
   if (normalized.includes("king james")) return "KJV";
   return name || "";
-}
-
-function buildPrintableStudyWorksheetHtml({
-  reference,
-  translation,
-  method,
-  verses,
-  writingSpace = "standard",
-  includeMemory = true,
-  includeInsight = true
-}: {
-  reference: string;
-  translation: string;
-  method: (typeof methods)[number];
-  verses: BibleVerse[];
-  writingSpace?: WorksheetWritingSpace;
-  includeMemory?: boolean;
-  includeInsight?: boolean;
-}) {
-  const safeReference = escapeHtml(reference);
-  const safeTranslation = escapeHtml(translation || "");
-  const printableSteps = method.steps.filter((step) => step.responseType === "text");
-  const methodLabel = `${method.short} Study Method`;
-  const verseCount = verses.length;
-  const passageClass = verseCount === 1 ? "single-passage" : verseCount > 10 ? "long-passage" : "";
-  const stepLineCount = getPrintableStepLineCount(verseCount, printableSteps.length, writingSpace);
-  const smallBoxHtml = [
-    includeMemory ? '<div class="small-box"><h3>Memory Verse</h3><div class="line"></div><div class="line"></div></div>' : "",
-    includeInsight ? '<div class="small-box"><h3>Shareable Insight</h3><div class="line"></div><div class="line"></div></div>' : ""
-  ].filter(Boolean).join("");
-  const passageHtml = verses
-    .map((verse) => `<span class="verse"><span class="verse-number">${verse.verse}</span>${escapeHtml(verse.text)}</span>`)
-    .join(" ");
-  const promptHtml = printableSteps
-    .map((step, index) => {
-      const badge = method.short.charAt(index) || String(index + 1);
-      const lines = Array.from({ length: stepLineCount }, () => '<div class="line"></div>').join("");
-      return `
-        <div class="prompt">
-          <div class="prompt-title">
-            <span class="badge">${escapeHtml(badge)}</span>
-            <div><strong>${escapeHtml(step.title)}</strong><span>${escapeHtml(step.prompt || step.action)}</span></div>
-          </div>
-          <div class="lines">${lines}</div>
-        </div>
-      `;
-    })
-    .join("");
-
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${safeReference} Worksheet</title>
-    <style>
-      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #c96750; --soft: #fffaf2; }
-      * { box-sizing: border-box; }
-      body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 28px; }
-      .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 900px; }
-      .toolbar p { color: var(--muted); margin: 0; }
-      .toolbar-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
-      .print-shortcut { background: #fff6eb; border: 1px solid var(--line); border-radius: 999px; color: var(--olive); font-weight: 900; padding: 8px 12px; white-space: nowrap; }
-      .page { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); margin: 0 auto; max-width: 900px; min-height: 1160px; padding: 46px; }
-      .header { border-bottom: 3px double var(--line); display: grid; gap: 12px; grid-template-columns: 1fr auto; min-height: 108px; padding-bottom: 14px; }
-      .title-block { display: flex; flex-direction: column; justify-content: space-between; }
-      .eyebrow { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
-      h1 { color: var(--olive); font-size: 34px; line-height: 1; margin: 6px 0 0; }
-      .title-row { align-items: baseline; display: flex; flex-wrap: wrap; gap: 10px; }
-      .translation-code { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
-      .meta { color: var(--muted); display: flex; flex-direction: column; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 700; justify-content: space-between; line-height: 1.6; text-align: right; }
-      .meta-method { color: var(--olive); display: block; font-size: 17px; font-weight: 900; line-height: 1.2; }
-      .scripture { border-bottom: 1px solid var(--line); padding: 12px 0 12px; }
-      .scripture h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 17px; margin: 0 0 8px; }
-      .passage { columns: 2; column-gap: 34px; font-size: 15.5px; line-height: 1.62; }
-      .passage p { margin: 0; }
-      .single-passage { columns: 1; font-size: 18px; line-height: 1.65; max-width: 720px; }
-      .long-passage { font-size: 14.5px; line-height: 1.54; }
-      .verse { break-inside: avoid; display: inline; }
-      .verse-number { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; margin-right: 4px; vertical-align: super; }
-      .section { margin-top: 14px; }
-      .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; break-inside: avoid-page; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
-      .prompt-title { align-items: center; background: #fff6eb; border-bottom: 1px solid var(--line); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; gap: 10px; padding: 8px 10px; }
-      .badge { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-size: 12px; font-weight: 900; height: 26px; justify-content: center; min-width: 26px; }
-      .prompt-title strong { color: var(--ink); }
-      .prompt-title span:not(.badge) { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
-      .lines { padding: 10px; }
-      .line { border-bottom: 1px solid #cfc0ad; height: ${verseCount === 1 ? 28 : verseCount > 10 ? 28 : 22}px; }
-      .two-column { break-inside: avoid; break-inside: avoid-page; display: grid; gap: 14px; grid-template-columns: 1fr 1fr; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
-      .small-box { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; break-inside: avoid-page; page-break-inside: avoid; padding: 12px; -webkit-column-break-inside: avoid; }
-      .small-box h3 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; margin: 0 0 8px; }
-      .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; justify-content: space-between; margin-top: 16px; padding-top: 10px; }
-      @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .page { padding: 24px 18px; } .header { grid-template-columns: 1fr; min-height: 0; } .meta { text-align: left; } .passage { columns: 1; } .footer { align-items: flex-start; flex-direction: column; } .two-column { grid-template-columns: 1fr; } }
-      @media print { @page { margin: 8mm 9mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .page { border: 0; box-shadow: none; max-width: none; min-height: auto; padding: 0; } .header { min-height: 96px; padding-bottom: 12px; } h1 { font-size: 31px; } .scripture { padding: 10px 0; } .passage { font-size: 14.5px; line-height: 1.46; } .single-passage { font-size: 17px; line-height: 1.55; } .long-passage { font-size: 13.5px; line-height: 1.42; } .section { margin-top: 10px; } .prompt, .small-box, .two-column { break-inside: avoid; break-inside: avoid-page; page-break-inside: avoid; -webkit-column-break-inside: avoid; } .prompt { display: block; margin-bottom: 8px; overflow: visible; } .prompt-title, .lines { break-inside: avoid; page-break-inside: avoid; } .prompt-title { padding: 6px 9px; } .badge { height: 22px; min-width: 22px; } .lines { padding: 8px 10px; } .line { height: ${verseCount === 1 ? 24 : verseCount > 10 ? 24 : 19}px; } .small-box { display: block; padding: 9px; } .footer { margin-top: 10px; padding-top: 8px; } }
-    </style>
-  </head>
-  <body>
-    <div class="toolbar">
-      <p>Printable worksheet for ${safeReference}. On desktop, use your browser’s print command. On phone or tablet, use the browser Share menu, then choose Print or Save to Files.</p>
-      <div class="toolbar-actions">
-        <span class="print-shortcut">Desktop: Ctrl+P or Cmd+P</span>
-        <span class="print-shortcut">Phone: Share &gt; Print</span>
-      </div>
-    </div>
-    <main class="page">
-      <header class="header">
-        <div class="title-block">
-          <div class="eyebrow">Bible Study Tutor worksheet</div>
-          <div class="title-row"><h1>${safeReference}</h1>${safeTranslation ? `<span class="translation-code">${safeTranslation}</span>` : ""}</div>
-        </div>
-        <div class="meta"><span class="meta-method">${escapeHtml(methodLabel)}</span><span>Date: ____________________</span></div>
-      </header>
-      <section class="scripture">
-        <h2>Selected Scripture</h2>
-        <div class="passage ${passageClass}"><p>${passageHtml}</p></div>
-      </section>
-      <section class="section">${promptHtml}</section>
-      ${smallBoxHtml ? `<section class="section two-column">${smallBoxHtml}</section>` : ""}
-      <footer class="footer"><span>Free Bible study worksheet from Bible Study Tutor</span><span>biblestudytutor.org</span></footer>
-    </main>
-  </body>
-</html>`;
-}
-
-function getPrintableStepLineCount(verseCount: number, stepCount: number, writingSpace: WorksheetWritingSpace = "standard") {
-  if (writingSpace === "more") {
-    if (verseCount <= 1) return 8;
-    if (verseCount <= 6) return 8;
-    if (verseCount <= 12) return Math.max(8, Math.round(24 / Math.max(stepCount, 1)));
-    return Math.max(9, Math.round(30 / Math.max(stepCount, 1)));
-  }
-  if (verseCount <= 1) return 5;
-  if (verseCount <= 6) return 6;
-  if (verseCount <= 12) return Math.max(6, Math.round(18 / Math.max(stepCount, 1)));
-  return Math.max(7, Math.round(24 / Math.max(stepCount, 1)));
 }
 
 function isReaderVerseBookmarked(verse: number, bookmarks: StoredBibleBookmark[], book: string, chapter: number) {

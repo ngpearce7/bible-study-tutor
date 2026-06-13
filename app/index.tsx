@@ -343,6 +343,7 @@ export default function Home() {
   const cancelAccountDeletionRequest = useMutation((api as any).insights.cancelAccountDeletionRequest);
   const approveDeletionRequestAsAdmin = useMutation((api as any).insights.approveDeletionRequestAsAdmin);
   const cancelDeletionRequestAsAdmin = useMutation((api as any).insights.cancelDeletionRequestAsAdmin);
+  const cleanupEmptyLocalProfilesAsAdmin = useMutation((api as any).insights.cleanupEmptyLocalProfilesAsAdmin);
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
@@ -353,6 +354,8 @@ export default function Home() {
   const [deletionStatus, setDeletionStatus] = useState("");
   const [deletionConfirmArmed, setDeletionConfirmArmed] = useState(false);
   const [pendingAdminDeletionRequestId, setPendingAdminDeletionRequestId] = useState("");
+  const [localProfileCleanupArmed, setLocalProfileCleanupArmed] = useState(false);
+  const [adminMaintenanceStatus, setAdminMaintenanceStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [currentAccountPassword, setCurrentAccountPassword] = useState("");
   const [newAccountPassword, setNewAccountPassword] = useState("");
@@ -1832,6 +1835,25 @@ export default function Home() {
       setPendingAdminDeletionRequestId("");
     } catch {
       setPendingAdminDeletionRequestId("");
+    }
+  }
+
+  async function cleanupEmptyLocalProfiles() {
+    if (!localProfileCleanupArmed) {
+      setLocalProfileCleanupArmed(true);
+      setAdminMaintenanceStatus("Tap again to remove empty local/test profiles. Profiles with saved content will be kept.");
+      return;
+    }
+
+    setAdminMaintenanceStatus("Cleaning empty local/test profiles...");
+    try {
+      const result = await cleanupEmptyLocalProfilesAsAdmin({});
+      setLocalProfileCleanupArmed(false);
+      setSelectedAdminProfileId(null);
+      setAdminMaintenanceStatus(`Removed ${result?.removed ?? 0} empty local/test profile${result?.removed === 1 ? "" : "s"}. Kept ${result?.kept ?? 0} with saved content.`);
+    } catch {
+      setLocalProfileCleanupArmed(false);
+      setAdminMaintenanceStatus("Could not clean local/test profiles. Make sure Convex has the latest functions deployed.");
     }
   }
 
@@ -7106,6 +7128,7 @@ export default function Home() {
             adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
             adminUserDetail={adminUserDetail}
             adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
+            adminMaintenanceStatus={adminMaintenanceStatus}
             pendingConfirmId={pendingAdminDeletionRequestId}
             selectedProfileId={selectedAdminProfileId}
             selectedRegion={selectedAdminRegion}
@@ -7116,6 +7139,7 @@ export default function Home() {
             MetricComponent={Metric}
             onApproveDeletion={approveAdminDeletionRequest}
             onCancelDeletion={cancelAdminDeletionRequest}
+            onCleanupLocalProfiles={cleanupEmptyLocalProfiles}
             onMarkFeedbackStatus={markFeedbackStatus}
             onOpenAccount={() => setTab("account")}
             onSelectProfile={setSelectedAdminProfileId}

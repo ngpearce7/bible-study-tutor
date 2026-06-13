@@ -53,6 +53,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   adminUsers,
   adminUserDetail,
   adminAuditLog,
+  adminMaintenanceStatus,
   pendingConfirmId,
   selectedProfileId,
   selectedRegion,
@@ -63,6 +64,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   MetricComponent,
   onApproveDeletion,
   onCancelDeletion,
+  onCleanupLocalProfiles,
   onMarkFeedbackStatus,
   onOpenAccount,
   onSelectProfile,
@@ -72,6 +74,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   adminUsers: any[];
   adminUserDetail: any;
   adminAuditLog: any[];
+  adminMaintenanceStatus: string;
   pendingConfirmId: string;
   selectedProfileId: any;
   selectedRegion: string;
@@ -82,6 +85,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   MetricComponent: MetricComponent;
   onApproveDeletion: (requestId: any) => void;
   onCancelDeletion: (requestId: any) => void;
+  onCleanupLocalProfiles: () => void;
   onMarkFeedbackStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>;
   onOpenAccount: () => void;
   onSelectProfile: (profileId: any) => void;
@@ -131,7 +135,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
           </View>
           <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
-          <AdminUserDirectory styles={styles} users={adminUsers} selectedProfileId={selectedProfileId} onSelect={onSelectProfile} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminUserDirectory styles={styles} users={adminUsers} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} onSelect={onSelectProfile} onCleanupLocalProfiles={onCleanupLocalProfiles} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <View style={styles.feedbackHeader}>
@@ -328,7 +332,25 @@ function AdminFeedbackList({ styles, feedback, onMarkStatus, phoneLayout = false
   );
 }
 
-function AdminUserDirectory({ styles, users, selectedProfileId, onSelect, phoneLayout = false, darkMode = false }: { styles: any; users: any[]; selectedProfileId: any; onSelect: (profileId: any) => void; phoneLayout?: boolean; darkMode?: boolean }) {
+function AdminUserDirectory({
+  styles,
+  users,
+  selectedProfileId,
+  maintenanceStatus,
+  onSelect,
+  onCleanupLocalProfiles,
+  phoneLayout = false,
+  darkMode = false
+}: {
+  styles: any;
+  users: any[];
+  selectedProfileId: any;
+  maintenanceStatus: string;
+  onSelect: (profileId: any) => void;
+  onCleanupLocalProfiles: () => void;
+  phoneLayout?: boolean;
+  darkMode?: boolean;
+}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion">("all");
   const [visibleCount, setVisibleCount] = useState(15);
@@ -402,6 +424,11 @@ function AdminUserDirectory({ styles, users, selectedProfileId, onSelect, phoneL
         <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>
           Showing {visibleUsers.length} of {filteredUsers.length} matching users · {users.length} loaded
         </Text>
+        <Pressable onPress={onCleanupLocalProfiles} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}>
+          <Ionicons name="sparkles-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Clean empty local/test profiles</Text>
+        </Pressable>
+        {!!maintenanceStatus && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>{maintenanceStatus}</Text>}
       </View>
 
       {visibleUsers.length === 0 ? (

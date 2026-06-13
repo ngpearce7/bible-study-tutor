@@ -426,6 +426,37 @@ export const approveDeletionRequestAsAdmin = mutation({
   }
 });
 
+export const cleanupEmptyLocalProfilesAsAdmin = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const adminUserId = await requireAdminUserId(ctx);
+    const profiles = await ctx.db.query("profiles").collect();
+    let removed = 0;
+    let kept = 0;
+
+    for (const profile of profiles) {
+      if (profile.authUserId) continue;
+
+      const hasContent = await localProfileHasSavedContent(ctx, profile._id);
+      if (hasContent) {
+        kept += 1;
+        continue;
+      }
+
+      await deleteProfileData(ctx, profile._id, undefined);
+      removed += 1;
+    }
+
+    await logAdminAction(ctx, {
+      adminUserId,
+      action: "local_profiles_cleaned",
+      details: `Removed ${removed} empty local/test profile${removed === 1 ? "" : "s"}; kept ${kept} local profile${kept === 1 ? "" : "s"} with saved content`
+    });
+
+    return { removed, kept };
+  }
+});
+
 async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
   const profile = await ctx.db.get(profileId);
   if (!profile) throw new Error("Profile not found");
@@ -515,17 +546,40 @@ function clampNumber(value: number | undefined, min: number, max: number) {
   return Math.max(min, Math.min(max, Math.round(value)));
 }
 
+async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"profiles">) {
+  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests] = await Promise.all([
+    ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("memoryHistory").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("communityCircles").withIndex("by_owner_profile", (q) => q.eq("ownerProfileId", profileId)).take(1),
+    ctx.db.query("communityMembers").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("communityFriends").withIndex("by_requester", (q) => q.eq("requesterProfileId", profileId)).take(1),
+    ctx.db.query("communityFriends").withIndex("by_recipient", (q) => q.eq("recipientProfileId", profileId)).take(1),
+    ctx.db.query("communityPosts").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("communityReactions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profileId)).take(1)
+  ]);
+
+  return [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests].some((items) => items.length > 0);
+}
+
 async function deleteProfileData(ctx: MutationCtx, profileId: Id<"profiles">, authUserId: Id<"users"> | undefined) {
-  const [sessions, drafts, checkins, memoryVerses, feedback, usageEvents] = await Promise.all([
+  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, usageEvents, communityPosts, communityReactions] = await Promise.all([
     ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
     ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
     ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
     ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
+    ctx.db.query("memoryHistory").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
     ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect()
+    ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
+    ctx.db.query("communityPosts").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
+    ctx.db.query("communityReactions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect()
   ]);
 
-  for (const item of [...sessions, ...drafts, ...checkins, ...memoryVerses, ...feedback, ...usageEvents]) {
+  for (const item of [...sessions, ...drafts, ...checkins, ...memoryVerses, ...memoryHistory, ...feedback, ...usageEvents, ...communityPosts, ...communityReactions]) {
     await ctx.db.delete(item._id);
   }
 

@@ -35,6 +35,7 @@ export default defineSchema({
     appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
     scriptureInsertSettings: v.optional(scriptureInsertSettings),
     uiPreferences: v.optional(uiPreferences),
+    memoryMilestoneGoalIds: v.optional(v.array(v.string())),
     createdAt: v.number(),
     updatedAt: v.number()
   })

@@ -4,6 +4,21 @@ import { action, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
 
+const memoryMilestoneGoalIds = new Set([
+  "reviewsToday",
+  "reviewsThisWeek",
+  "reviewDaysThisWeek",
+  "totalReviews",
+  "versesMemorized",
+  "versesSaved",
+  "booksCovered",
+  "longestReviewRhythm",
+  "currentReviewRhythm",
+  "mostReviewedVerse",
+  "dueVersesCleared",
+  "firstTimeReviews"
+]);
+
 export const savePlan = mutation({
   args: {
     profileId: v.id("profiles"),
@@ -123,6 +138,24 @@ export const saveUiPreference = mutation({
         ...(((profile as any).uiPreferences as Record<string, boolean> | undefined) || {}),
         [key]: args.value
       },
+      updatedAt: Date.now()
+    });
+  }
+});
+
+export const saveMemoryMilestoneGoals = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    goalIds: v.array(v.string())
+  },
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId);
+
+    await ctx.db.patch(args.profileId, {
+      memoryMilestoneGoalIds: args.goalIds
+        .map((goalId) => clampText(goalId, 80))
+        .filter((goalId) => memoryMilestoneGoalIds.has(goalId))
+        .slice(0, 5),
       updatedAt: Date.now()
     });
   }

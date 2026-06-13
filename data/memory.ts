@@ -1,6 +1,19 @@
 export type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized";
 export type MemoryReviewPreset = "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month";
 export type MemoryHistoryEventKind = "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "removed";
+export type MemoryMilestoneGoalId =
+  | "reviewsToday"
+  | "reviewsThisWeek"
+  | "reviewDaysThisWeek"
+  | "totalReviews"
+  | "versesMemorized"
+  | "versesSaved"
+  | "booksCovered"
+  | "longestReviewRhythm"
+  | "currentReviewRhythm"
+  | "mostReviewedVerse"
+  | "dueVersesCleared"
+  | "firstTimeReviews";
 
 export type MemoryBibleVerse = {
   book_name: string;
@@ -16,6 +29,32 @@ export const MEMORY_REVIEW_OPTIONS: { id: MemoryReviewPreset; label: string }[] 
   { id: "next-week", label: "Next week" },
   { id: "next-month", label: "Next month" }
 ];
+
+export const MEMORY_MILESTONE_GOALS: { id: MemoryMilestoneGoalId; label: string; description: string }[] = [
+  { id: "reviewsToday", label: "Reviews Today", description: "Completed memory reviews today." },
+  { id: "reviewsThisWeek", label: "Reviews This Week", description: "Saved verses reviewed during the current week." },
+  { id: "reviewDaysThisWeek", label: "Review Days This Week", description: "Separate days you returned to memory practice this week." },
+  { id: "totalReviews", label: "Total Reviews", description: "Lifetime memory reviews across saved verses." },
+  { id: "versesMemorized", label: "Verses Memorized", description: "Saved verses that reached the memorized stage." },
+  { id: "versesSaved", label: "Verses Saved", description: "Verses currently saved in Memory." },
+  { id: "booksCovered", label: "Books Covered", description: "Bible books represented in reviewed memory verses." },
+  { id: "longestReviewRhythm", label: "Longest Review Rhythm", description: "Your longest run of memory-review days." },
+  { id: "currentReviewRhythm", label: "Current Review Rhythm", description: "Your active run of recent review days." },
+  { id: "mostReviewedVerse", label: "Most Reviewed Verse", description: "The verse you have returned to most often." },
+  { id: "dueVersesCleared", label: "Due Verses Cleared", description: "Verses reviewed today and moved out of the due list." },
+  { id: "firstTimeReviews", label: "First-Time Reviews", description: "Verses receiving their first full review this week." }
+];
+
+export const DEFAULT_MEMORY_MILESTONE_IDS: MemoryMilestoneGoalId[] = [
+  "reviewsToday",
+  "reviewDaysThisWeek",
+  "totalReviews",
+  "versesMemorized",
+  "booksCovered"
+];
+
+const MEMORY_MILESTONE_LIMIT = 5;
+const MEMORY_MILESTONE_GOAL_IDS = new Set(MEMORY_MILESTONE_GOALS.map((goal) => goal.id));
 
 export const MEMORY_HISTORY_EVENT_META: Record<MemoryHistoryEventKind, { label: string; icon: string }> = {
   added: { label: "Added to Memory", icon: "add-circle-outline" },
@@ -159,9 +198,11 @@ export function formatMemoryHistoryDate(value?: number) {
 
 type MemoryVerseForHistory = {
   reference: string;
+  status?: string;
   createdAt?: number;
   reviewCount?: number;
   lastReviewedAt?: number;
+  nextReviewAt?: number;
 };
 
 export function buildMemoryHistorySummary(
@@ -293,16 +334,30 @@ export function buildMemoryWeeklySummary(
 }
 
 export function buildMemoryMilestones(
-  history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[],
-  verses: MemoryVerseForHistory[] = []
+  history: { event: MemoryHistoryEventKind; createdAt: number; reference: string; reviewCount?: number }[],
+  verses: MemoryVerseForHistory[] = [],
+  selectedGoalIds: string[] = DEFAULT_MEMORY_MILESTONE_IDS
 ) {
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
-  const reviewDaysThisWeek = uniqueReviewDays(reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7)).length;
+  const reviewedEventsThisWeek = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7);
+  const reviewDaysThisWeek = uniqueReviewDays(reviewedEventsThisWeek).length;
+  const reviewDayKeys = uniqueReviewDays(reviewedEvents);
+  const reviewRhythm = buildReviewRhythm(reviewDayKeys);
   const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
   const reviewedTodayCount = verses.length
     ? verses.filter((verse) => isTodayLocal(verse.lastReviewedAt)).length
     : uniqueReferenceCount(reviewedEvents.filter((event) => isTodayLocal(event.createdAt)));
+  const reviewedThisWeekCount = verses.length
+    ? verses.filter((verse) => Boolean(verse.lastReviewedAt) && daysAgo(verse.lastReviewedAt || 0) < 7).length
+    : uniqueReferenceCount(reviewedEventsThisWeek);
+  const memorizedCount = verses.filter((verse) => verse.status === "memorized").length;
+  const dueClearedTodayCount = verses.filter(
+    (verse) => isTodayLocal(verse.lastReviewedAt) && Boolean(verse.nextReviewAt) && !isMemoryVerseDue(verse)
+  ).length;
+  const firstTimeReviewsThisWeek = reviewedEvents.filter(
+    (event) => event.reviewCount === 1 && daysAgo(event.createdAt) < 7
+  );
   const uniqueAddedCount = verses.length || uniqueReferenceCount(addedEvents);
   const uniqueReviewedCount = verses.length ? reviewedVerses.length : uniqueReferenceCount(reviewedEvents);
   const totalCompletedReviews = verses.length
@@ -314,24 +369,10 @@ export function buildMemoryMilestones(
   const firstAdded = oldestEvent(addedEvents);
   const firstReviewed = oldestEvent(reviewedEvents);
   const latestReviewed = latestReviewEvent(reviewedEvents, verses);
-  const starterMilestones: { title: string; description: string; achieved: boolean }[] = [
+  const mostReviewed = mostReviewedVerse(reviewedVerses) || mostFrequentReference(reviewedEvents);
+  const allMilestones: { id: MemoryMilestoneGoalId; title: string; description: string; achieved: boolean }[] = [
     {
-      title: "First verse added",
-      description: firstAdded
-        ? `${firstAdded.reference} was the first verse added to Memory on ${formatMemoryHistoryDate(firstAdded.createdAt)}.`
-        : "Your first saved memory verse will appear here.",
-      achieved: addedEvents.length > 0
-    },
-    {
-      title: "First full review",
-      description: firstReviewed
-        ? `${firstReviewed.reference} was the first verse you reviewed from memory on ${formatMemoryHistoryDate(firstReviewed.createdAt)}.`
-        : "Your first completed memory review will appear here.",
-      achieved: reviewedEvents.length > 0
-    },
-  ];
-  const ongoingMilestones: { title: string; description: string; achieved: boolean }[] = [
-    {
+      id: "reviewsToday",
       title: reviewedTodayCount > 0 ? `${formatReviewCountTitle(reviewedTodayCount)} Today` : "Review Today",
       description: latestReviewed
         ? `Last reviewed: ${latestReviewed.reference} on ${formatMemoryHistoryDate(latestReviewed.createdAt)}.`
@@ -339,6 +380,23 @@ export function buildMemoryMilestones(
       achieved: reviewedTodayCount > 0
     },
     {
+      id: "reviewsThisWeek",
+      title: reviewedThisWeekCount > 0 ? `${formatReviewCountTitle(reviewedThisWeekCount)} This Week` : "Reviews This Week",
+      description: reviewedThisWeekCount > 0
+        ? `You have reviewed ${reviewedThisWeekCount} saved verse${reviewedThisWeekCount === 1 ? "" : "s"} this week.`
+        : "Review a saved verse this week to start this goal.",
+      achieved: reviewedThisWeekCount > 0
+    },
+    {
+      id: "reviewDaysThisWeek",
+      title: reviewDaysThisWeek > 0 ? `${formatMilestoneCount(reviewDaysThisWeek)} Review Day${reviewDaysThisWeek === 1 ? "" : "s"}` : "Review Days This Week",
+      description: reviewDaysThisWeek > 0
+        ? `You returned to memory practice on ${reviewDaysThisWeek} day${reviewDaysThisWeek === 1 ? "" : "s"} this week.`
+        : "Review on separate days to build a weekly rhythm.",
+      achieved: reviewDaysThisWeek > 0
+    },
+    {
+      id: "totalReviews",
       title: totalCompletedReviews > 0 ? formatReviewCountTitle(totalCompletedReviews) : "First Review",
       description: totalCompletedReviews > 0
         ? `You have completed ${totalCompletedReviews} memory review${totalCompletedReviews === 1 ? "" : "s"} across ${uniqueReviewedCount} verse${uniqueReviewedCount === 1 ? "" : "s"}.`
@@ -346,37 +404,95 @@ export function buildMemoryMilestones(
       achieved: totalCompletedReviews > 0
     },
     {
-      title: "Three review days",
-      description: reviewDaysThisWeek >= 3
-        ? "You reviewed Scripture on three different days this week."
-        : `${Math.max(0, 3 - reviewDaysThisWeek)} more review day${3 - reviewDaysThisWeek === 1 ? "" : "s"} to reach three days this week.`,
-      achieved: reviewDaysThisWeek >= 3
+      id: "versesMemorized",
+      title: memorizedCount > 0 ? `${formatMilestoneCount(memorizedCount)} Memorized` : "Verses Memorized",
+      description: memorizedCount > 0
+        ? `${memorizedCount} saved verse${memorizedCount === 1 ? " has" : "s have"} reached the memorized stage.`
+        : "Finish step 3 on a verse to mark it memorized.",
+      achieved: memorizedCount > 0
     },
     {
-      title: "Seven-day rhythm",
-      description: reviewDaysThisWeek >= 7
-        ? "You reviewed Scripture on seven different days this week."
-        : `${Math.max(0, 7 - reviewDaysThisWeek)} more review day${7 - reviewDaysThisWeek === 1 ? "" : "s"} to reach a seven-day rhythm this week.`,
-      achieved: reviewDaysThisWeek >= 7
+      id: "versesSaved",
+      title: uniqueAddedCount > 0 ? `${formatMilestoneCount(uniqueAddedCount)} Saved` : "Verses Saved",
+      description: uniqueAddedCount > 0
+        ? `You have ${uniqueAddedCount} verse${uniqueAddedCount === 1 ? "" : "s"} saved in Memory.`
+        : "Save a verse from Study or Bible to begin your memory list.",
+      achieved: uniqueAddedCount > 0
     },
     {
-      title: "Three books touched",
-      description: reviewedBooks.length >= 3
-        ? `Your memory reviews now reach ${formatShortList(reviewedBooks)}.`
-        : `${Math.max(0, 3 - reviewedBooks.length)} more Bible book${3 - reviewedBooks.length === 1 ? "" : "s"} to review across three books.`,
-      achieved: reviewedBooks.length >= 3
+      id: "booksCovered",
+      title: reviewedBooks.length > 0 ? `${formatMilestoneCount(reviewedBooks.length)} Book${reviewedBooks.length === 1 ? "" : "s"} Covered` : "Books Covered",
+      description: reviewedBooks.length > 0
+        ? `Your memory reviews reach ${formatShortList(reviewedBooks)}.`
+        : "Review verses from different Bible books to see breadth here.",
+      achieved: reviewedBooks.length > 0
     },
     {
-      title: "Five verses saved",
-      description: uniqueAddedCount >= 5
-        ? `You have saved ${uniqueAddedCount} different verses for memory.`
-        : `${Math.max(0, 5 - uniqueAddedCount)} more saved verse${5 - uniqueAddedCount === 1 ? "" : "s"} to reach five.`,
-      achieved: uniqueAddedCount >= 5
+      id: "longestReviewRhythm",
+      title: reviewRhythm.longest > 0 ? `${formatMilestoneCount(reviewRhythm.longest)}-Day Best` : "Longest Review Rhythm",
+      description: reviewRhythm.longest > 0
+        ? `Your longest memory-review rhythm is ${reviewRhythm.longest} day${reviewRhythm.longest === 1 ? "" : "s"}.`
+        : "Review on consecutive days to begin a rhythm.",
+      achieved: reviewRhythm.longest > 0
+    },
+    {
+      id: "currentReviewRhythm",
+      title: reviewRhythm.current > 0 ? `${formatMilestoneCount(reviewRhythm.current)}-Day Rhythm` : "Current Review Rhythm",
+      description: reviewRhythm.current > 0
+        ? `Your current memory-review rhythm is ${reviewRhythm.current} day${reviewRhythm.current === 1 ? "" : "s"}.`
+        : "Review today to begin or continue your current rhythm.",
+      achieved: reviewRhythm.current > 0
+    },
+    {
+      id: "mostReviewedVerse",
+      title: "Most Reviewed Verse",
+      description: mostReviewed
+        ? `${mostReviewed.reference} has been reviewed ${mostReviewed.count} time${mostReviewed.count === 1 ? "" : "s"}.`
+        : "Your most reviewed verse will appear after you practise.",
+      achieved: !!mostReviewed
+    },
+    {
+      id: "dueVersesCleared",
+      title: dueClearedTodayCount > 0 ? `${formatMilestoneCount(dueClearedTodayCount)} Cleared Today` : "Due Verses Cleared",
+      description: dueClearedTodayCount > 0
+        ? `${dueClearedTodayCount} due verse${dueClearedTodayCount === 1 ? " has" : "s have"} been reviewed and moved forward today.`
+        : "Review due verses today to clear them from the due list.",
+      achieved: dueClearedTodayCount > 0
+    },
+    {
+      id: "firstTimeReviews",
+      title: firstTimeReviewsThisWeek.length > 0 ? `${formatMilestoneCount(uniqueReferenceCount(firstTimeReviewsThisWeek))} First-Time Review${uniqueReferenceCount(firstTimeReviewsThisWeek) === 1 ? "" : "s"}` : "First-Time Reviews",
+      description: firstTimeReviewsThisWeek.length > 0
+        ? `${uniqueReferenceCount(firstTimeReviewsThisWeek)} verse${uniqueReferenceCount(firstTimeReviewsThisWeek) === 1 ? "" : "s"} received a first full review this week.`
+        : "Review a newly saved verse for the first time this week.",
+      achieved: firstTimeReviewsThisWeek.length > 0
     }
   ];
+  const starterMilestones: { id: MemoryMilestoneGoalId; title: string; description: string; achieved: boolean }[] = [
+    {
+      id: "versesSaved",
+      title: "First verse added",
+      description: firstAdded
+        ? `${firstAdded.reference} was the first verse added to Memory on ${formatMemoryHistoryDate(firstAdded.createdAt)}.`
+        : "Your first saved memory verse will appear here.",
+      achieved: addedEvents.length > 0
+    },
+    {
+      id: "totalReviews",
+      title: "First full review",
+      description: firstReviewed
+        ? `${firstReviewed.reference} was the first verse you reviewed from memory on ${formatMemoryHistoryDate(firstReviewed.createdAt)}.`
+        : "Your first completed memory review will appear here.",
+      achieved: reviewedEvents.length > 0
+    },
+  ];
+  const selectedIds = normalizeMemoryMilestoneIds(selectedGoalIds, false);
+  const selectedMilestones = selectedIds
+    .map((id) => allMilestones.find((milestone) => milestone.id === id))
+    .filter((milestone): milestone is { id: MemoryMilestoneGoalId; title: string; description: string; achieved: boolean } => Boolean(milestone));
 
-  const achievedOngoing = ongoingMilestones.filter((milestone) => milestone.achieved);
-  const nextOngoing = ongoingMilestones.find((milestone) => !milestone.achieved);
+  const achievedOngoing = selectedMilestones.filter((milestone) => milestone.achieved);
+  const nextOngoing = selectedMilestones.find((milestone) => !milestone.achieved);
   const achievedStarter = starterMilestones.filter((milestone) => milestone.achieved);
   const nextStarter = starterMilestones.find((milestone) => !milestone.achieved);
   return [
@@ -384,7 +500,13 @@ export function buildMemoryMilestones(
     ...(nextOngoing ? [nextOngoing] : []),
     ...achievedStarter,
     ...(nextStarter ? [nextStarter] : [])
-  ].slice(0, 4);
+  ].filter((milestone, index, milestones) => milestones.findIndex((item) => item.id === milestone.id) === index).slice(0, MEMORY_MILESTONE_LIMIT);
+}
+
+export function normalizeMemoryMilestoneIds(ids?: string[], fillDefaults = true) {
+  const cleaned = (ids || []).filter((id): id is MemoryMilestoneGoalId => MEMORY_MILESTONE_GOAL_IDS.has(id as MemoryMilestoneGoalId));
+  const withFallbacks = fillDefaults ? [...cleaned, ...DEFAULT_MEMORY_MILESTONE_IDS, ...MEMORY_MILESTONE_GOALS.map((goal) => goal.id)] : cleaned;
+  return Array.from(new Set(withFallbacks)).slice(0, MEMORY_MILESTONE_LIMIT);
 }
 
 function oldestEvent<T extends { createdAt: number }>(events: T[]) {
@@ -415,6 +537,38 @@ function uniqueReviewDays(events: { createdAt: number }[]) {
     keys.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
   });
   return Array.from(keys);
+}
+
+function buildReviewRhythm(dayKeys: string[]) {
+  if (dayKeys.length === 0) return { current: 0, longest: 0 };
+
+  const days = dayKeys
+    .map((key) => {
+      const [year, month, day] = key.split("-").map((part) => Number(part));
+      return new Date(year, month, day).getTime();
+    })
+    .filter((time) => Number.isFinite(time))
+    .sort((a, b) => a - b);
+
+  let longest = 1;
+  let currentRun = 1;
+  for (let index = 1; index < days.length; index += 1) {
+    const previous = days[index - 1];
+    const current = days[index];
+    const diffDays = Math.round((current - previous) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      currentRun += 1;
+    } else if (diffDays > 1) {
+      currentRun = 1;
+    }
+    longest = Math.max(longest, currentRun);
+  }
+
+  const today = startOfLocalDay(Date.now());
+  const yesterday = today - 1000 * 60 * 60 * 24;
+  const lastDay = days[days.length - 1];
+  const current = lastDay === today || lastDay === yesterday ? currentRun : 0;
+  return { current, longest };
 }
 
 function uniqueReferenceCount(events: { reference: string }[]) {

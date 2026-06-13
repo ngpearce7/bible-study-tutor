@@ -1229,7 +1229,11 @@ export default function Home() {
       setAppearanceMode(profile.appearanceMode);
       saveStoredAppearanceMode(profile.appearanceMode).catch(() => undefined);
     }
-    setMemoryMilestoneGoalIds(normalizeMemoryMilestoneIds((profile as any).memoryMilestoneGoalIds));
+    setMemoryMilestoneGoalIds(
+      Array.isArray((profile as any).memoryMilestoneGoalIds)
+        ? normalizeMemoryMilestoneIds((profile as any).memoryMilestoneGoalIds, false)
+        : DEFAULT_MEMORY_MILESTONE_IDS
+    );
     setCollapsedStudyPanels((current) => ({
       community: profileUiPreferences.studyPanelCommunityCollapsed ?? current.community,
       plan: profileUiPreferences.studyPanelPlanCollapsed ?? current.plan,
@@ -3686,15 +3690,15 @@ export default function Home() {
       const next = selected
         ? current.filter((id) => id !== goalId)
         : current.length >= 5
-          ? current
+          ? [...current.slice(1), goalId]
           : [...current, goalId];
 
       if (!selected && current.length >= 5) {
-        setMemoryMilestoneStatus("Choose up to five goals. Remove one before adding another.");
-        return current;
+        setMemoryMilestoneStatus("Goal swapped in. You can track up to five at a time.");
+      } else {
+        setMemoryMilestoneStatus("Milestones updated.");
       }
 
-      setMemoryMilestoneStatus("Milestones updated.");
       if (activeProfileId) {
         saveMemoryMilestoneGoals({ profileId: activeProfileId, goalIds: next }).catch(() => {
           setMemoryMilestoneStatus("Could not save those milestones just now.");

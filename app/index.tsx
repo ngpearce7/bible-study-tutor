@@ -9312,7 +9312,7 @@ function WritingPromptChips({
           <View key={prompt} style={[styles.writingPromptChip, compact && styles.compactWritingPromptChip, darkMode && styles.studyDarkMethodChip]}>
             <Pressable onPress={() => onInsert(prompt)} style={[styles.writingPromptInsert, compact && styles.compactWritingPromptInsert]}>
               {!compact && <Ionicons name="add-circle-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />}
-              <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText, darkMode && styles.accountDarkText]} numberOfLines={1}>{prompt}</Text>
+              <Text style={[styles.writingPromptText, compact && styles.compactWritingPromptText, darkMode && styles.accountDarkText]} numberOfLines={compact ? 2 : 1}>{prompt}</Text>
             </Pressable>
             {customPromptSet.has(prompt) && !!onRemoveCustomPrompt && (
               <Pressable onPress={() => onRemoveCustomPrompt(prompt)} style={[styles.removePromptButton, compact && styles.compactRemovePromptButton]}>
@@ -14192,8 +14192,10 @@ const styles = StyleSheet.create({
     overflow: "hidden"
   },
   compactWritingPromptChip: {
+    borderRadius: 10,
+    flexBasis: "100%",
     flexShrink: 1,
-    maxWidth: "48%"
+    maxWidth: "100%"
   },
   writingPromptInsert: {
     alignItems: "center",
@@ -14205,9 +14207,11 @@ const styles = StyleSheet.create({
   },
   compactWritingPromptInsert: {
     gap: 0,
+    justifyContent: "flex-start",
     paddingLeft: 8,
     paddingRight: 8,
-    paddingVertical: 5
+    paddingVertical: 6,
+    width: "100%"
   },
   writingPromptText: {
     color: colors.oliveDark,
@@ -14215,7 +14219,9 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   compactWritingPromptText: {
-    fontSize: 11
+    flex: 1,
+    fontSize: 11,
+    lineHeight: 15
   },
   removePromptButton: {
     borderColor: "rgba(102, 114, 78, 0.18)",

@@ -119,7 +119,7 @@ export const AdminDashboard = memo(function AdminDashboard({
         <MetricComponent value={adminStats.totals.localProfiles} label="local/test" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
       </View>
 
-      <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+      <Card style={[styles.adminDashboardCard, styles.adminContainedAdminCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.feedbackHeader}>
           <Ionicons name="trash-outline" size={18} color={colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Account deletion requests</Text>
@@ -146,7 +146,7 @@ export const AdminDashboard = memo(function AdminDashboard({
         </Card>
       </View>
 
-      <Card style={[styles.adminDashboardCard, styles.adminAuditCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+      <Card style={[styles.adminDashboardCard, styles.adminContainedAdminCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.feedbackHeader}>
           <Ionicons name="receipt-outline" size={18} color={colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Admin audit log</Text>
@@ -524,7 +524,7 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
   const visibleEntries = phoneLayout ? entries.slice(0, 4) : entries;
 
   return (
-    <View style={[styles.adminFeedbackList, styles.adminAuditList]}>
+    <View style={[styles.adminFeedbackList, styles.adminContainedList]}>
       {visibleEntries.map((entry) => (
         <View key={entry._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={[styles.journalHeader, styles.adminAuditHeader]}>
@@ -543,10 +543,16 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
 }
 
 function AdminDeletionRequestList({ styles, requests, pendingConfirmId, onApprove, onCancel, phoneLayout = false, darkMode = false }: { styles: any; requests: any[]; pendingConfirmId: string; onApprove: (requestId: any) => void; onCancel: (requestId: any) => void; phoneLayout?: boolean; darkMode?: boolean }) {
-  if (requests.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No pending deletion requests.</Text>;
+  if (requests.length === 0) {
+    return (
+      <View style={[styles.adminFeedbackList, styles.adminContainedList]}>
+        <Text style={[styles.helpIntro, styles.adminEmptyStateText, darkMode && styles.accountDarkMutedText]}>No pending deletion requests.</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.adminFeedbackList}>
+    <View style={[styles.adminFeedbackList, styles.adminContainedList]}>
       {requests.map((item: any) => (
         <View key={item._id} style={[styles.adminFeedbackItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminFeedbackItem]}>
           <View style={styles.journalHeader}>

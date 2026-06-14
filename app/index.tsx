@@ -19109,7 +19109,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     minWidth: 260
   },
-  adminAuditCard: {
+  adminContainedAdminCard: {
     alignSelf: "stretch",
     flexBasis: "auto" as any,
     flexShrink: 1,
@@ -19193,11 +19193,16 @@ const styles = StyleSheet.create({
   adminFeedbackList: {
     gap: 10
   },
-  adminAuditList: {
+  adminContainedList: {
     maxWidth: "100%",
     minWidth: 0,
     overflow: "hidden",
     width: "100%"
+  },
+  adminEmptyStateText: {
+    flexShrink: 1,
+    maxWidth: "100%",
+    minWidth: 0
   },
   adminDirectoryTools: {
     backgroundColor: "#fff6eb",

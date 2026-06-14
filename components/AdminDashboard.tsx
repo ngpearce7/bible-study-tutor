@@ -28,6 +28,9 @@ export type AdminStats = {
     _id: string;
     eventType: string;
     profileId: string;
+    profileName?: string;
+    profileEmail?: string;
+    suspendedAt?: number;
     details?: string;
     createdAt: number;
   }[];
@@ -207,7 +210,7 @@ export const AdminDashboard = memo(function AdminDashboard({
       <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
         <Card style={[styles.adminDashboardCard, styles.adminContainedAdminCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Security watch</Text>
-          <AdminSecurityEvents styles={styles} events={adminStats.securityEvents || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminSecurityEvents styles={styles} events={adminStats.securityEvents || []} onSelectProfile={onSelectProfile} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Latest feedback</Text>
@@ -523,6 +526,18 @@ function AdminUserDetail({ styles, MetricComponent, detail, phoneLayout = false,
           <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Status</Text>
           <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{detail.suspendedAt ? `Suspended · ${detail.suspensionReason || "Manual admin pause"}` : "Active"}</Text>
         </View>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Write volume</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>
+            {detail.writeVolume?.lastHour ?? 0} last hour · {detail.writeVolume?.lastDay ?? 0} last day
+          </Text>
+        </View>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Blocked bursts</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>
+            {detail.writeVolume?.blockedEvents ?? 0}{detail.writeVolume?.latestBlockedAt ? ` · Latest ${formatAdminDate(detail.writeVolume.latestBlockedAt)}` : ""}
+          </Text>
+        </View>
       </View>
       <AdminMiniActivity styles={styles} title="Recent activity" items={detail.recentActivity || []} darkMode={darkMode} />
       <AdminMiniActivity styles={styles} title="Feedback history" items={detail.latestFeedback || []} darkMode={darkMode} />
@@ -571,7 +586,21 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
   );
 }
 
-function AdminSecurityEvents({ styles, events, phoneLayout = false, darkMode = false }: { styles: any; events: any[]; phoneLayout?: boolean; darkMode?: boolean }) {
+function AdminSecurityEvents({
+  styles,
+  events,
+  onSelectProfile,
+  onSetSuspension,
+  phoneLayout = false,
+  darkMode = false
+}: {
+  styles: any;
+  events: any[];
+  onSelectProfile: (profileId: any) => void;
+  onSetSuspension: (args: { profileId: any; suspended: boolean; reason?: string }) => void;
+  phoneLayout?: boolean;
+  darkMode?: boolean;
+}) {
   if (events.length === 0) return <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>No suspicious write bursts detected.</Text>;
   const visibleEvents = phoneLayout ? events.slice(0, 4) : events.slice(0, 8);
 
@@ -581,11 +610,25 @@ function AdminSecurityEvents({ styles, events, phoneLayout = false, darkMode = f
         <View key={event._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={[styles.journalHeader, styles.adminAuditHeader]}>
             <View style={styles.adminAuditTitleBlock}>
-              <Text style={[styles.helpFaqQuestion, styles.adminAuditTitle, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(event.eventType)}</Text>
+              <Text style={[styles.helpFaqQuestion, styles.adminAuditTitle, darkMode && styles.accountDarkTitle]}>{securityEventTitle(event)}</Text>
+              <Text style={[styles.adminEventMeta, styles.adminAuditDetails, darkMode && styles.accountDarkMutedText]}>
+                {event.profileName || "Unknown profile"}{event.profileEmail ? ` · ${event.profileEmail}` : ""}
+              </Text>
             </View>
             <Text style={[styles.adminEventMeta, styles.adminAuditDate, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(event.createdAt)}</Text>
           </View>
           <Text style={[styles.helpFaqAnswer, styles.adminAuditDetails, darkMode && styles.accountDarkText]}>{event.details || "Suspicious activity was blocked."}</Text>
+          <View style={styles.feedbackCategoryRow}>
+            <Pressable onPress={() => onSelectProfile(event.profileId)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
+              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>View profile</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => onSetSuspension({ profileId: event.profileId, suspended: !event.suspendedAt, reason: "Suspicious write burst" })}
+              style={[styles.feedbackCategoryChip, event.suspendedAt ? styles.activeFeedbackCategoryChip : styles.dangerActionChip, darkMode && styles.helpDarkCategoryChip]}
+            >
+              <Text style={[styles.feedbackCategoryText, event.suspendedAt ? styles.activeFeedbackCategoryText : styles.dangerActionText, darkMode && styles.homeDarkResumeButtonText]}>{event.suspendedAt ? "Restore" : "Suspend"}</Text>
+            </Pressable>
+          </View>
         </View>
       ))}
     </View>
@@ -655,6 +698,19 @@ function prettyAdminEvent(eventType: string) {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function securityEventTitle(event: any) {
+  const details = String(event.details || "").toLowerCase();
+  if (event.eventType === "usage_rate_limited") return "Usage burst blocked";
+  if (details.includes("feedback")) return "Feedback burst blocked";
+  if (details.includes("memory")) return "Memory activity burst blocked";
+  if (details.includes("shared encouragement")) return "Community sharing burst blocked";
+  if (details.includes("friend invite")) return "Friend invite burst blocked";
+  if (details.includes("reaction")) return "Reaction burst blocked";
+  if (details.includes("draft")) return "Draft save burst blocked";
+  if (details.includes("study")) return "Study save burst blocked";
+  return prettyAdminEvent(event.eventType || "security_event");
 }
 
 function formatAdminDate(value?: number) {

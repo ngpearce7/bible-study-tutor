@@ -177,6 +177,22 @@ export const adminOverview = query({
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
     const studyProfileIds = new Set(sessions.map((item) => item.profileId));
     const shareEvents = events.filter((item) => item.eventType === "app_shared");
+    const profileLookup = new Map(profiles.map((profile) => [profile._id, profile]));
+    const securityEventRows = [];
+    for (const item of securityEvents.slice(0, 12)) {
+      const profile = profileLookup.get(item.profileId);
+      const user = profile?.authUserId ? await ctx.db.get(profile.authUserId) : null;
+      securityEventRows.push({
+        _id: item._id,
+        eventType: item.eventType,
+        profileId: item.profileId,
+        profileName: profile?.displayName || "Unknown profile",
+        profileEmail: user?.email,
+        suspendedAt: profile?.suspendedAt,
+        details: item.details,
+        createdAt: item.createdAt
+      });
+    }
 
     return {
       totals: {
@@ -199,13 +215,7 @@ export const adminOverview = query({
       eventBreakdown: topCounts(events.map((item) => item.eventType).filter(isString), 10),
       feedbackByCategory: topCounts(feedback.map((item) => item.category).filter(isString), 8),
       feedbackByStatus: topCounts(feedback.map((item) => item.status).filter(isString), 8),
-      securityEvents: securityEvents.slice(0, 12).map((item) => ({
-        _id: item._id,
-        eventType: item.eventType,
-        profileId: item.profileId,
-        details: item.details,
-        createdAt: item.createdAt
-      })),
+      securityEvents: securityEventRows,
       recentEvents: events.slice(0, 12).map((item) => ({
         _id: item._id,
         eventType: item.eventType,
@@ -303,7 +313,7 @@ export const adminUserDetail = query({
     const profile = await ctx.db.get(args.profileId);
     if (!profile) return null;
 
-    const [user, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, deletionRequests, authSessions] = await Promise.all([
+    const [user, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, securityEvents, deletionRequests, authSessions] = await Promise.all([
       profile.authUserId ? ctx.db.get(profile.authUserId) : Promise.resolve(null),
       ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
       ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
@@ -311,9 +321,21 @@ export const adminUserDetail = query({
       ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
       ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).collect(),
       ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("securityEvents").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).order("desc").take(50),
       ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", args.profileId).eq("status", "pending")).collect(),
       profile.authUserId ? ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", profile.authUserId!)).collect() : Promise.resolve([])
     ]);
+    const now = Date.now();
+    const oneHourAgo = now - 60 * 60 * 1000;
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const writeTimestamps = [
+      ...sessions.map((item) => item.completedAt),
+      ...drafts.map((item) => item.updatedAt),
+      ...checkins.map((item) => item.createdAt),
+      ...memoryVerses.map((item) => item.updatedAt),
+      ...feedback.map((item) => item.createdAt),
+      ...usageEvents.map((item) => item.createdAt)
+    ].filter((timestamp) => typeof timestamp === "number" && Number.isFinite(timestamp));
     const lastActiveAt = Math.max(
       profile.updatedAt || profile.createdAt,
       ...sessions.map((item) => item.completedAt),
@@ -336,6 +358,12 @@ export const adminUserDetail = query({
       deletionStatus: deletionRequests[0]?.status || "",
       suspendedAt: profile.suspendedAt,
       suspensionReason: profile.suspensionReason,
+      writeVolume: {
+        lastHour: writeTimestamps.filter((timestamp) => timestamp >= oneHourAgo).length,
+        lastDay: writeTimestamps.filter((timestamp) => timestamp >= oneDayAgo).length,
+        blockedEvents: securityEvents.length,
+        latestBlockedAt: securityEvents[0]?.createdAt
+      },
       counts: {
         studies: sessions.length,
         drafts: drafts.length,

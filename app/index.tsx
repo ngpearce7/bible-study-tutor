@@ -18641,10 +18641,14 @@ const styles = StyleSheet.create({
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpGuideItem: {
+    alignSelf: "stretch",
     borderRadius: 10,
+    flex: 0,
     gap: 9,
     minWidth: 0,
-    padding: 10,
+    paddingBottom: 12,
+    paddingHorizontal: 10,
+    paddingTop: 10,
     width: "100%"
   },
   phoneHelpGridItem: {

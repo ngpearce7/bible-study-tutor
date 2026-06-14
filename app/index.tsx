@@ -3441,10 +3441,9 @@ export default function Home() {
     setReaderBook(book);
     setReaderChapter(chapter);
     scrollReaderToTop();
-    if (phoneLayout) {
-      setReaderNavCollapsed(true);
-      setExpandedMobileReaderBook("");
-    }
+    setRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed", true);
+    setExpandedMobileReaderBook("");
+    setReaderMobileMenu(null);
   }
 
   function openBibleReaderHistoryItem(item: StoredBibleReaderHistoryItem) {
@@ -3806,6 +3805,11 @@ export default function Home() {
       persistUiPreference(key, next);
       return next;
     });
+  }
+
+  function setRememberedPanel(setter: Dispatch<SetStateAction<boolean>>, key: UiPreferenceKey, value: boolean) {
+    setter(value);
+    persistUiPreference(key, value);
   }
 
   const studyInstructionPanel = studyPhase === "study" ? (

@@ -19204,6 +19204,11 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0
   },
+  adminContainedText: {
+    flexShrink: 1,
+    maxWidth: "100%",
+    minWidth: 0
+  },
   adminDirectoryTools: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,

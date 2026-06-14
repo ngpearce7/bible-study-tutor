@@ -124,7 +124,7 @@ export const AdminDashboard = memo(function AdminDashboard({
           <Ionicons name="trash-outline" size={18} color={colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Account deletion requests</Text>
         </View>
-        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
+        <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Review genuine requests before approving." : "Approve only after you are confident the request is genuine. Approval removes the user's app data and connected sign-in records."}</Text>
         <AdminDeletionRequestList styles={styles} requests={adminStats.deletionRequests} pendingConfirmId={pendingConfirmId} onApprove={onApproveDeletion} onCancel={onCancelDeletion} phoneLayout={phoneLayout} darkMode={darkMode} />
       </Card>
 
@@ -151,16 +151,16 @@ export const AdminDashboard = memo(function AdminDashboard({
           <Ionicons name="receipt-outline" size={18} color={colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Admin audit log</Text>
         </View>
-        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
+        <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>{phoneLayout ? "Recent sensitive admin actions." : "Tracks sensitive admin actions such as deletion approvals and feedback status changes."}</Text>
         <AdminAuditLog styles={styles} entries={adminAuditLog} phoneLayout={phoneLayout} darkMode={darkMode} />
       </Card>
 
-      <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+      <Card style={[styles.adminDashboardCard, styles.adminContainedAdminCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.feedbackHeader}>
           <Ionicons name="information-circle-outline" size={18} color={colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Profile context</Text>
         </View>
-        <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>
+        <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>
           Total raw profiles: {adminStats.totals.profiles}. This can include local test profiles and older device-only profiles, so active users and signed-in profiles are the better health signals.
         </Text>
       </Card>

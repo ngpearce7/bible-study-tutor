@@ -527,12 +527,14 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
     <View style={styles.adminFeedbackList}>
       {visibleEntries.map((entry) => (
         <View key={entry._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
-          <View style={styles.journalHeader}>
-            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(entry.action)}</Text>
-            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(entry.createdAt)}</Text>
+          <View style={[styles.journalHeader, styles.adminAuditHeader]}>
+            <View style={styles.adminAuditTitleBlock}>
+              <Text style={[styles.helpFaqQuestion, styles.adminAuditTitle, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(entry.action)}</Text>
+            </View>
+            <Text style={[styles.adminEventMeta, styles.adminAuditDate, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(entry.createdAt)}</Text>
           </View>
-          <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{entry.details || "Admin action"}</Text>
-          {!!entry.targetEmail && <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{entry.targetEmail}</Text>}
+          <Text style={[styles.helpFaqAnswer, styles.adminAuditDetails, darkMode && styles.accountDarkText]}>{entry.details || "Admin action"}</Text>
+          {!!entry.targetEmail && <Text style={[styles.adminEventMeta, styles.adminAuditDetails, darkMode && styles.accountDarkMutedText]}>{entry.targetEmail}</Text>}
         </View>
       ))}
       {phoneLayout && entries.length > visibleEntries.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing latest {visibleEntries.length} of {entries.length}.</Text>}

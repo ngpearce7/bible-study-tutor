@@ -19289,7 +19289,30 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     gap: 6,
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
     padding: 10
+  },
+  adminAuditHeader: {
+    maxWidth: "100%",
+    minWidth: 0
+  },
+  adminAuditTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  adminAuditTitle: {
+    flexShrink: 1,
+    minWidth: 0
+  },
+  adminAuditDate: {
+    flexShrink: 0
+  },
+  adminAuditDetails: {
+    flexShrink: 1,
+    maxWidth: "100%",
+    minWidth: 0
   },
   phoneAdminEventItem: {
     gap: 4,

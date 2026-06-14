@@ -146,7 +146,7 @@ export const AdminDashboard = memo(function AdminDashboard({
         </Card>
       </View>
 
-      <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+      <Card style={[styles.adminDashboardCard, styles.adminAuditCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.feedbackHeader}>
           <Ionicons name="receipt-outline" size={18} color={colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Admin audit log</Text>
@@ -524,7 +524,7 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
   const visibleEntries = phoneLayout ? entries.slice(0, 4) : entries;
 
   return (
-    <View style={styles.adminFeedbackList}>
+    <View style={[styles.adminFeedbackList, styles.adminAuditList]}>
       {visibleEntries.map((entry) => (
         <View key={entry._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={[styles.journalHeader, styles.adminAuditHeader]}>

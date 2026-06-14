@@ -19109,6 +19109,15 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     minWidth: 260
   },
+  adminAuditCard: {
+    alignSelf: "stretch",
+    flexBasis: "auto" as any,
+    flexShrink: 1,
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
+    width: "100%"
+  },
   phoneAdminDashboardCard: {
     alignSelf: "stretch",
     flexBasis: "auto" as any,
@@ -19183,6 +19192,12 @@ const styles = StyleSheet.create({
   },
   adminFeedbackList: {
     gap: 10
+  },
+  adminAuditList: {
+    maxWidth: "100%",
+    minWidth: 0,
+    overflow: "hidden",
+    width: "100%"
   },
   adminDirectoryTools: {
     backgroundColor: "#fff6eb",

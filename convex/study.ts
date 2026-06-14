@@ -3,6 +3,7 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { assertProfileCanWrite, enforceRecentLimit } from "./security";
 import { v } from "convex/values";
 
 const passageMarkup = v.object({
@@ -124,7 +125,14 @@ export const saveSession = mutation({
     )
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+    const recentSessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_profile_completed", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(30);
+    await enforceRecentLimit(ctx, args.profileId, recentSessions, "completedAt", { max: 30, windowMs: 60 * 60 * 1000, label: "Completed study" });
     const cleaned = {
       profileId: args.profileId,
       passage: clampText(args.passage, 160),
@@ -174,7 +182,14 @@ export const saveDraft = mutation({
     )
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+    const recentDrafts = await ctx.db
+      .query("drafts")
+      .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(180);
+    await enforceRecentLimit(ctx, args.profileId, recentDrafts, "updatedAt", { max: 180, windowMs: 60 * 60 * 1000, label: "Draft save" });
     const cleaned = {
       profileId: args.profileId,
       passage: clampText(args.passage, 160),

@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { assertCollectionLimit, assertProfileCanWrite, enforceRecentLimit } from "./security";
 import { v } from "convex/values";
 
 const reactionValidator = v.union(v.literal("amen"), v.literal("praying"), v.literal("encouraged"));
@@ -52,6 +53,7 @@ export const inviteFriendByEmail = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
     const email = clampText(args.email, 254).toLowerCase();
     if (!email) throw new Error("Add your friend's account email.");
@@ -79,6 +81,7 @@ export const ensureFriendCode = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     if (profile.friendCode) return profile.friendCode;
 
     const friendCode = buildFriendCode(profile._id);
@@ -100,6 +103,7 @@ export const inviteFriendByCode = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
     const friendCode = normalizeFriendCode(args.friendCode);
     if (!friendCode) throw new Error("Enter your friend's code.");
@@ -140,6 +144,14 @@ async function createOrAcceptFriendship(
     return existingReverse._id;
   }
 
+  const requestedFriends = await ctx.db
+    .query("communityFriends")
+    .withIndex("by_requester_created", (q) => q.eq("requesterProfileId", profile._id))
+    .order("desc")
+    .take(101);
+  assertCollectionLimit(requestedFriends.length, 100, "Friend connection");
+  await enforceRecentLimit(ctx, profile._id, requestedFriends, "createdAt", { max: 20, windowMs: 24 * 60 * 60 * 1000, label: "Friend invite" });
+
   const now = Date.now();
   return await ctx.db.insert("communityFriends", {
     requesterProfileId: profile._id,
@@ -158,7 +170,8 @@ export const acceptFriend = mutation({
     friendId: v.id("communityFriends")
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const friendship = await ctx.db.get(args.friendId);
     if (!friendship || friendship.recipientProfileId !== args.profileId) throw new Error("Friend invite not found.");
     await ctx.db.patch(friendship._id, { status: "accepted", updatedAt: Date.now() });
@@ -172,7 +185,8 @@ export const removeFriend = mutation({
     friendId: v.id("communityFriends")
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const friendship = await ctx.db.get(args.friendId);
     if (!friendship) return false;
     if (friendship.requesterProfileId !== args.profileId && friendship.recipientProfileId !== args.profileId) {
@@ -277,9 +291,15 @@ export const createCircle = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
     const now = Date.now();
     const name = clampText(args.name, 80) || "Bible study circle";
+    const existingCircles = await ctx.db
+      .query("communityCircles")
+      .withIndex("by_owner_profile", (q) => q.eq("ownerProfileId", args.profileId))
+      .take(21);
+    assertCollectionLimit(existingCircles.length, 20, "Private circle");
 
     const circleId = await ctx.db.insert("communityCircles", {
       name,
@@ -310,7 +330,13 @@ export const joinCircle = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
+    const memberships = await ctx.db
+      .query("communityMembers")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .take(51);
+    assertCollectionLimit(memberships.length, 50, "Circle membership");
     const inviteCode = clampText(args.inviteCode, 40).toUpperCase();
     const circle = await ctx.db
       .query("communityCircles")
@@ -346,6 +372,7 @@ export const shareCheckin = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     if (args.checkinId) {
       const checkin = await ctx.db.get(args.checkinId);
@@ -375,6 +402,7 @@ export const shareInsight = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     return await shareCommunityNote(ctx, {
       profile,
       profileId: args.profileId,
@@ -394,7 +422,8 @@ export const reactToPost = mutation({
     reaction: reactionValidator
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const post = await ctx.db.get(args.postId);
     if (!post) throw new Error("Shared encouragement not found.");
     await authorizePostViewer(ctx, post, args.profileId);
@@ -410,6 +439,13 @@ export const reactToPost = mutation({
       await ctx.db.delete(existing._id);
       return false;
     }
+
+    const recentReactions = await ctx.db
+      .query("communityReactions")
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(120);
+    await enforceRecentLimit(ctx, args.profileId, recentReactions, "createdAt", { max: 120, windowMs: 60 * 60 * 1000, label: "Reaction" });
 
     await ctx.db.insert("communityReactions", {
       postId: args.postId,
@@ -427,7 +463,8 @@ export const removePost = mutation({
     postId: v.id("communityPosts")
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const post = await ctx.db.get(args.postId);
     if (!post) return false;
     await authorizePostViewer(ctx, post, args.profileId);
@@ -452,7 +489,8 @@ export const updatePost = mutation({
     note: v.string()
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const post = await ctx.db.get(args.postId);
     if (!post) return false;
     await authorizePostViewer(ctx, post, args.profileId);
@@ -476,7 +514,8 @@ export const leaveCircle = mutation({
     circleId: v.id("communityCircles")
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
     const membership = await authorizeCircleMember(ctx, args.circleId, args.profileId);
     const circle = await ctx.db.get(args.circleId);
@@ -494,7 +533,8 @@ export const deleteCircle = mutation({
     circleId: v.id("communityCircles")
   },
   handler: async (ctx, args) => {
-    await authorizeSignedInProfile(ctx, args.profileId);
+    const profile = await authorizeSignedInProfile(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
     const circle = await ctx.db.get(args.circleId);
     if (!circle) return false;
@@ -583,6 +623,13 @@ async function shareCommunityNote(
 ) {
   const note = clampText(args.note, 1200);
   if (!note) throw new Error("Write something before sharing.");
+  const recentPosts = await ctx.db
+    .query("communityPosts")
+    .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+    .order("desc")
+    .take(30);
+  await enforceRecentLimit(ctx, args.profileId, recentPosts, "createdAt", { max: 10, windowMs: 10 * 60 * 1000, label: "Shared encouragement" });
+  await enforceRecentLimit(ctx, args.profileId, recentPosts, "createdAt", { max: 30, windowMs: 24 * 60 * 60 * 1000, label: "Shared encouragement" });
 
   const friendIds = Array.from(new Set((args.friendIds || []).map((friendId) => String(friendId)))).slice(0, 10) as Id<"communityFriends">[];
   const destinations: { circleId?: Id<"communityCircles">; recipientProfileId?: Id<"profiles"> }[] = [];

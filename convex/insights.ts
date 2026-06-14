@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { assertProfileCanWrite, enforceRecentLimit, logSecurityEvent } from "./security";
 import { v } from "convex/values";
 
 const feedbackCategory = v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other"));
@@ -15,7 +16,8 @@ export const submitFeedback = mutation({
     device: v.optional(v.string())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     const message = args.message.trim();
     if (message.length < 8) throw new Error("Feedback is too short.");
@@ -25,10 +27,11 @@ export const submitFeedback = mutation({
       .query("feedback")
       .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
       .order("desc")
-      .take(3);
+      .take(20);
     if (recent.some((item) => Date.now() - item.createdAt < 15000)) {
       throw new Error("Please wait a moment before sending more feedback.");
     }
+    await enforceRecentLimit(ctx, args.profileId, recent, "createdAt", { max: 20, windowMs: 24 * 60 * 60 * 1000, label: "Feedback" });
 
     return await ctx.db.insert("feedback", {
       profileId: args.profileId,
@@ -55,7 +58,29 @@ export const recordUsage = mutation({
     chapter: v.optional(v.number())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+    const recentEvents = await ctx.db
+      .query("usageEvents")
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(100);
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    if (recentEvents.filter((event) => event.createdAt >= fiveMinutesAgo).length >= 100) {
+      const recentSecurityEvents = await ctx.db
+        .query("securityEvents")
+        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+        .order("desc")
+        .take(1);
+      if (!recentSecurityEvents.some((event) => event.eventType === "usage_rate_limited" && event.createdAt >= fiveMinutesAgo)) {
+        await logSecurityEvent(ctx, {
+          profileId: args.profileId,
+          eventType: "usage_rate_limited",
+          details: "Skipped usage event after 100 events in five minutes."
+        });
+      }
+      return null;
+    }
 
     return await ctx.db.insert("usageEvents", {
       profileId: args.profileId,
@@ -140,12 +165,13 @@ export const adminOverview = query({
   handler: async (ctx) => {
     if (!(await isAdmin(ctx))) return null;
 
-    const [events, feedback, profiles, sessions, deletionRequests] = await Promise.all([
+    const [events, feedback, profiles, sessions, deletionRequests, securityEvents] = await Promise.all([
       ctx.db.query("usageEvents").withIndex("by_created").order("desc").take(500),
       ctx.db.query("feedback").withIndex("by_created").order("desc").take(50),
       ctx.db.query("profiles").collect(),
       ctx.db.query("sessions").collect(),
-      ctx.db.query("accountDeletionRequests").withIndex("by_status_requested", (q) => q.eq("status", "pending")).order("asc").take(25)
+      ctx.db.query("accountDeletionRequests").withIndex("by_status_requested", (q) => q.eq("status", "pending")).order("asc").take(25),
+      ctx.db.query("securityEvents").withIndex("by_created").order("desc").take(20)
     ]);
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
@@ -173,6 +199,13 @@ export const adminOverview = query({
       eventBreakdown: topCounts(events.map((item) => item.eventType).filter(isString), 10),
       feedbackByCategory: topCounts(feedback.map((item) => item.category).filter(isString), 8),
       feedbackByStatus: topCounts(feedback.map((item) => item.status).filter(isString), 8),
+      securityEvents: securityEvents.slice(0, 12).map((item) => ({
+        _id: item._id,
+        eventType: item.eventType,
+        profileId: item.profileId,
+        details: item.details,
+        createdAt: item.createdAt
+      })),
       recentEvents: events.slice(0, 12).map((item) => ({
         _id: item._id,
         eventType: item.eventType,
@@ -250,7 +283,9 @@ export const adminUsers = query({
         memoryVerses: stats?.memoryVerses || 0,
         feedback: stats?.feedback || 0,
         events: stats?.events || 0,
-        deletionStatus: pendingDeletion ? "pending" : ""
+        deletionStatus: pendingDeletion ? "pending" : "",
+        suspendedAt: profile.suspendedAt,
+        suspensionReason: profile.suspensionReason
       });
     }
 
@@ -299,6 +334,8 @@ export const adminUserDetail = query({
       lastActiveAt,
       activeSessions: authSessions.length,
       deletionStatus: deletionRequests[0]?.status || "",
+      suspendedAt: profile.suspendedAt,
+      suspensionReason: profile.suspensionReason,
       counts: {
         studies: sessions.length,
         drafts: drafts.length,
@@ -360,6 +397,47 @@ export const markFeedbackStatus = mutation({
       action: "feedback_status_changed",
       targetProfileId: feedback?.profileId,
       details: `Marked feedback ${args.status}`
+    });
+    return true;
+  }
+});
+
+export const setProfileSuspensionAsAdmin = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    suspended: v.boolean(),
+    reason: v.optional(v.string())
+  },
+  handler: async (ctx, args) => {
+    const adminUserId = await requireAdminUserId(ctx);
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error("Profile not found.");
+
+    if (args.suspended && profile.authUserId) {
+      const user = await ctx.db.get(profile.authUserId);
+      if (user?.email && isAdminEmail(user.email)) throw new Error("Admin accounts cannot be suspended from this panel.");
+    }
+
+    const now = Date.now();
+    await ctx.db.patch(args.profileId, args.suspended
+      ? {
+          suspendedAt: now,
+          suspendedBy: adminUserId,
+          suspensionReason: clampOptionalText(args.reason, 500) || "Manual admin pause",
+          updatedAt: now
+        }
+      : {
+          suspendedAt: undefined,
+          suspendedBy: undefined,
+          suspensionReason: undefined,
+          updatedAt: now
+        });
+    await logAdminAction(ctx, {
+      adminUserId,
+      action: args.suspended ? "profile_suspended" : "profile_restored",
+      targetProfileId: profile._id,
+      targetUserId: profile.authUserId,
+      details: args.suspended ? `Suspended profile: ${clampOptionalText(args.reason, 300) || "Manual admin pause"}` : "Restored profile"
     });
     return true;
   }

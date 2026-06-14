@@ -344,6 +344,7 @@ export default function Home() {
   const approveDeletionRequestAsAdmin = useMutation((api as any).insights.approveDeletionRequestAsAdmin);
   const cancelDeletionRequestAsAdmin = useMutation((api as any).insights.cancelDeletionRequestAsAdmin);
   const cleanupEmptyLocalProfilesAsAdmin = useMutation((api as any).insights.cleanupEmptyLocalProfilesAsAdmin);
+  const setProfileSuspensionAsAdmin = useMutation((api as any).insights.setProfileSuspensionAsAdmin);
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
@@ -1854,6 +1855,16 @@ export default function Home() {
     } catch {
       setLocalProfileCleanupArmed(false);
       setAdminMaintenanceStatus("Could not clean local/test profiles. Make sure Convex has the latest functions deployed.");
+    }
+  }
+
+  async function setAdminProfileSuspension(args: { profileId: any; suspended: boolean; reason?: string }) {
+    setAdminMaintenanceStatus(args.suspended ? "Suspending profile..." : "Restoring profile...");
+    try {
+      await setProfileSuspensionAsAdmin(args);
+      setAdminMaintenanceStatus(args.suspended ? "Profile suspended. Writes are paused for that user." : "Profile restored. The user can save again.");
+    } catch {
+      setAdminMaintenanceStatus("Could not update that profile. Make sure Convex has the latest functions deployed.");
     }
   }
 
@@ -7150,6 +7161,7 @@ export default function Home() {
             onOpenAccount={() => setTab("account")}
             onSelectProfile={setSelectedAdminProfileId}
             onSelectRegion={setSelectedAdminRegion}
+            onSetProfileSuspension={setAdminProfileSuspension}
           />
         )}
 
@@ -19260,6 +19272,10 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingHorizontal: 11,
     paddingVertical: 8
+  },
+  adminSuspendButton: {
+    paddingHorizontal: 9,
+    paddingVertical: 6
   },
   adminUserRow: {
     alignItems: "center",

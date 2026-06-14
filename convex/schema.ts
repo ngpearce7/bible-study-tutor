@@ -36,6 +36,9 @@ export default defineSchema({
     scriptureInsertSettings: v.optional(scriptureInsertSettings),
     uiPreferences: v.optional(uiPreferences),
     memoryMilestoneGoalIds: v.optional(v.array(v.string())),
+    suspendedAt: v.optional(v.number()),
+    suspendedBy: v.optional(v.id("users")),
+    suspensionReason: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number()
   })
@@ -138,6 +141,7 @@ export default defineSchema({
     .index("by_requester", ["requesterProfileId"])
     .index("by_recipient", ["recipientProfileId"])
     .index("by_requester_and_recipient", ["requesterProfileId", "recipientProfileId"])
+    .index("by_requester_created", ["requesterProfileId", "createdAt"])
     .index("by_requester_and_status", ["requesterProfileId", "status"])
     .index("by_recipient_and_status", ["recipientProfileId", "status"]),
   communityPosts: defineTable({
@@ -162,6 +166,7 @@ export default defineSchema({
   })
     .index("by_post", ["postId"])
     .index("by_profile", ["profileId"])
+    .index("by_profile_created", ["profileId", "createdAt"])
     .index("by_post_and_profile_and_reaction", ["postId", "profileId", "reaction"]),
   memoryVerses: defineTable({
     profileId: v.id("profiles"),
@@ -257,5 +262,14 @@ export default defineSchema({
     createdAt: v.number()
   })
     .index("by_created", ["createdAt"])
-    .index("by_admin_created", ["adminUserId", "createdAt"])
+    .index("by_admin_created", ["adminUserId", "createdAt"]),
+  securityEvents: defineTable({
+    profileId: v.id("profiles"),
+    eventType: v.string(),
+    details: v.optional(v.string()),
+    createdAt: v.number()
+  })
+    .index("by_profile_created", ["profileId", "createdAt"])
+    .index("by_event_type_created", ["eventType", "createdAt"])
+    .index("by_created", ["createdAt"])
 });

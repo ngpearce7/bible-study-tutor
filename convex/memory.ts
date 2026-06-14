@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { assertCollectionLimit, assertProfileCanWrite, enforceRecentLimit } from "./security";
 import { v } from "convex/values";
 
 const memoryStatus = v.union(v.literal("new"), v.literal("learning"), v.literal("review"), v.literal("memorized"));
@@ -24,7 +25,8 @@ export const saveVerse = mutation({
     note: v.optional(v.string())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const cleaned = {
       profileId: args.profileId,
       reference: clampText(args.reference, 160),
@@ -40,6 +42,12 @@ export const saveVerse = mutation({
       .first();
 
     if (existing) {
+      const recentUpdates = await ctx.db
+        .query("memoryVerses")
+        .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
+        .order("desc")
+        .take(80);
+      await enforceRecentLimit(ctx, args.profileId, recentUpdates, "updatedAt", { max: 80, windowMs: 60 * 60 * 1000, label: "Memory verse update" });
       await ctx.db.patch(existing._id, {
         verseText: cleaned.verseText,
         translationName: cleaned.translationName,
@@ -58,6 +66,18 @@ export const saveVerse = mutation({
       });
       return existing._id;
     }
+
+    const savedVerses = await ctx.db
+      .query("memoryVerses")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .take(501);
+    assertCollectionLimit(savedVerses.length, 500, "Saved memory verse");
+    const recentNewVerses = await ctx.db
+      .query("memoryVerses")
+      .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(40);
+    await enforceRecentLimit(ctx, args.profileId, recentNewVerses, "updatedAt", { max: 40, windowMs: 60 * 60 * 1000, label: "New memory verse" });
 
     const memoryVerseId = await ctx.db.insert("memoryVerses", {
       ...cleaned,
@@ -104,7 +124,14 @@ export const recordPractice = mutation({
     practiceLevel: v.number()
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+    const recentHistory = await ctx.db
+      .query("memoryHistory")
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(240);
+    await enforceRecentLimit(ctx, args.profileId, recentHistory, "createdAt", { max: 240, windowMs: 60 * 60 * 1000, label: "Memory practice" });
 
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
@@ -143,7 +170,8 @@ export const remove = mutation({
     memoryVerseId: v.id("memoryVerses")
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
@@ -232,7 +260,8 @@ export const recordHistoryEvent = mutation({
     practiceLevel: v.optional(v.number())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
 

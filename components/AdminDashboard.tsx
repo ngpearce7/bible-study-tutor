@@ -24,6 +24,13 @@ export type AdminStats = {
   eventBreakdown: { label: string; count: number }[];
   feedbackByCategory: { label: string; count: number }[];
   feedbackByStatus: { label: string; count: number }[];
+  securityEvents: {
+    _id: string;
+    eventType: string;
+    profileId: string;
+    details?: string;
+    createdAt: number;
+  }[];
   recentEvents: {
     _id: string;
     eventType: string;
@@ -68,7 +75,8 @@ export const AdminDashboard = memo(function AdminDashboard({
   onMarkFeedbackStatus,
   onOpenAccount,
   onSelectProfile,
-  onSelectRegion
+  onSelectRegion,
+  onSetProfileSuspension
 }: {
   adminStats: AdminStats | null;
   adminUsers: any[];
@@ -90,6 +98,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   onOpenAccount: () => void;
   onSelectProfile: (profileId: any) => void;
   onSelectRegion: (region: string) => void;
+  onSetProfileSuspension: (args: { profileId: any; suspended: boolean; reason?: string }) => void;
 }) {
   if (!adminStats) {
     return (
@@ -135,7 +144,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
           </View>
           <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
-          <AdminUserDirectory styles={styles} users={adminUsers} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} onSelect={onSelectProfile} onCleanupLocalProfiles={onCleanupLocalProfiles} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminUserDirectory styles={styles} users={adminUsers} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} onSelect={onSelectProfile} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <View style={styles.feedbackHeader}>
@@ -196,6 +205,10 @@ export const AdminDashboard = memo(function AdminDashboard({
       </View>
 
       <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, styles.adminContainedAdminCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Security watch</Text>
+          <AdminSecurityEvents styles={styles} events={adminStats.securityEvents || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Latest feedback</Text>
           <AdminFeedbackList styles={styles} feedback={adminStats.recentFeedback} onMarkStatus={onMarkFeedbackStatus} phoneLayout={phoneLayout} darkMode={darkMode} />
@@ -339,6 +352,7 @@ function AdminUserDirectory({
   maintenanceStatus,
   onSelect,
   onCleanupLocalProfiles,
+  onSetSuspension,
   phoneLayout = false,
   darkMode = false
 }: {
@@ -348,11 +362,12 @@ function AdminUserDirectory({
   maintenanceStatus: string;
   onSelect: (profileId: any) => void;
   onCleanupLocalProfiles: () => void;
+  onSetSuspension: (args: { profileId: any; suspended: boolean; reason?: string }) => void;
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion">("all");
+  const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion" | "suspended">("all");
   const [visibleCount, setVisibleCount] = useState(15);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const filteredUsers = useMemo(() => {
@@ -363,6 +378,7 @@ function AdminUserDirectory({
         user.email,
         user.signedIn ? "signed in account" : "local profile",
         user.deletionStatus,
+        user.suspendedAt ? "suspended paused" : "",
         user.profileId
       ]
         .filter(Boolean)
@@ -374,7 +390,8 @@ function AdminUserDirectory({
         (filter === "signedIn" && user.signedIn) ||
         (filter === "local" && !user.signedIn) ||
         (filter === "active" && user.lastActiveAt >= sevenDaysAgo) ||
-        (filter === "deletion" && !!user.deletionStatus);
+        (filter === "deletion" && !!user.deletionStatus) ||
+        (filter === "suspended" && !!user.suspendedAt);
       return matchesSearch && matchesFilter;
     });
   }, [filter, searchTerm, sevenDaysAgo, users]);
@@ -410,7 +427,8 @@ function AdminUserDirectory({
             ["signedIn", "Signed in"],
             ["local", "Local/test"],
             ["active", "Active 7d"],
-            ["deletion", "Deletion"]
+            ["deletion", "Deletion"],
+            ["suspended", "Suspended"]
           ].map(([key, label]) => (
             <Pressable
               key={key}
@@ -446,9 +464,16 @@ function AdminUserDirectory({
             </Text>
           </View>
           <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
+            {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
             {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
             <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
             <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>{user.studies}</Text>
+            <Pressable
+              onPress={() => onSetSuspension({ profileId: user.profileId, suspended: !user.suspendedAt, reason: user.suspendedAt ? undefined : "Manual admin pause" })}
+              style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
+            >
+              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{user.suspendedAt ? "Restore" : "Suspend"}</Text>
+            </Pressable>
           </View>
         </Pressable>
       ))}
@@ -494,6 +519,10 @@ function AdminUserDetail({ styles, MetricComponent, detail, phoneLayout = false,
           <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Deletion</Text>
           <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{detail.deletionStatus || "None"}</Text>
         </View>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Status</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>{detail.suspendedAt ? `Suspended · ${detail.suspensionReason || "Manual admin pause"}` : "Active"}</Text>
+        </View>
       </View>
       <AdminMiniActivity styles={styles} title="Recent activity" items={detail.recentActivity || []} darkMode={darkMode} />
       <AdminMiniActivity styles={styles} title="Feedback history" items={detail.latestFeedback || []} darkMode={darkMode} />
@@ -538,6 +567,27 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
         </View>
       ))}
       {phoneLayout && entries.length > visibleEntries.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing latest {visibleEntries.length} of {entries.length}.</Text>}
+    </View>
+  );
+}
+
+function AdminSecurityEvents({ styles, events, phoneLayout = false, darkMode = false }: { styles: any; events: any[]; phoneLayout?: boolean; darkMode?: boolean }) {
+  if (events.length === 0) return <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>No suspicious write bursts detected.</Text>;
+  const visibleEvents = phoneLayout ? events.slice(0, 4) : events.slice(0, 8);
+
+  return (
+    <View style={[styles.adminFeedbackList, styles.adminContainedList]}>
+      {visibleEvents.map((event) => (
+        <View key={event._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
+          <View style={[styles.journalHeader, styles.adminAuditHeader]}>
+            <View style={styles.adminAuditTitleBlock}>
+              <Text style={[styles.helpFaqQuestion, styles.adminAuditTitle, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(event.eventType)}</Text>
+            </View>
+            <Text style={[styles.adminEventMeta, styles.adminAuditDate, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(event.createdAt)}</Text>
+          </View>
+          <Text style={[styles.helpFaqAnswer, styles.adminAuditDetails, darkMode && styles.accountDarkText]}>{event.details || "Suspicious activity was blocked."}</Text>
+        </View>
+      ))}
     </View>
   );
 }

@@ -2,6 +2,7 @@ import { getAuthUserId, modifyAccountCredentials, retrieveAccount } from "@conve
 import type { Doc, Id } from "./_generated/dataModel";
 import { action, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
+import { assertProfileCanWrite, enforceRecentLimit } from "./security";
 import { v } from "convex/values";
 
 const memoryMilestoneGoalIds = new Set([
@@ -27,7 +28,8 @@ export const savePlan = mutation({
     preferredMethodId: v.optional(v.string())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     await ctx.db.patch(args.profileId, {
       weeklyGoal: clampText(args.weeklyGoal, 300),
@@ -49,7 +51,8 @@ export const saveAccountSettings = mutation({
     appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark")))
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const authUserId = await getAuthUserId(ctx);
     const nextName = clampText(args.displayName, 80) || "Bible student";
     const nextEmail = clampText(args.email, 254).toLowerCase();
@@ -106,7 +109,8 @@ export const saveScriptureInsertSettings = mutation({
     })
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     await ctx.db.patch(args.profileId, {
       scriptureInsertSettings: {
@@ -130,6 +134,7 @@ export const saveUiPreference = mutation({
   },
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
     const key = clampText(args.key, 80);
     if (!key || key.startsWith("$") || key.startsWith("_")) throw new Error("Invalid preference key.");
 
@@ -149,7 +154,8 @@ export const saveMemoryMilestoneGoals = mutation({
     goalIds: v.array(v.string())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     await ctx.db.patch(args.profileId, {
       memoryMilestoneGoalIds: args.goalIds
@@ -199,7 +205,14 @@ export const saveCheckin = mutation({
     sentAt: v.optional(v.number())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+    const recentCheckins = await ctx.db
+      .query("checkins")
+      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(30);
+    await enforceRecentLimit(ctx, args.profileId, recentCheckins, "createdAt", { max: 30, windowMs: 24 * 60 * 60 * 1000, label: "Encouragement" });
 
     return await ctx.db.insert("checkins", {
       profileId: args.profileId,
@@ -245,7 +258,8 @@ export const recentCheckins = query({
     limit: v.optional(v.number())
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     const checkins = await ctx.db
       .query("checkins")
@@ -359,7 +373,8 @@ export const deleteCheckin = mutation({
     checkinId: v.id("checkins")
   },
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
 
     const checkin = await ctx.db.get(args.checkinId);
     if (!checkin || checkin.profileId !== args.profileId) return false;

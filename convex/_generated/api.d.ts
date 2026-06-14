@@ -15,6 +15,7 @@ import type * as community from "../community.js";
 import type * as http from "../http.js";
 import type * as insights from "../insights.js";
 import type * as memory from "../memory.js";
+import type * as security from "../security.js";
 import type * as study from "../study.js";
 
 import type {
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   insights: typeof insights;
   memory: typeof memory;
+  security: typeof security;
   study: typeof study;
 }>;
 

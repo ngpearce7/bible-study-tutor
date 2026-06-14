@@ -18675,8 +18675,9 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 9,
     borderWidth: 1,
-    gap: 9,
-    padding: 8
+    gap: 7,
+    paddingHorizontal: 8,
+    paddingVertical: 6
   },
   helpDarkGuideStep: {
     backgroundColor: "#202625",
@@ -18704,7 +18705,8 @@ const styles = StyleSheet.create({
     lineHeight: 19
   },
   phoneHelpGuideStepText: {
-    lineHeight: 18
+    fontSize: 12,
+    lineHeight: 16
   },
   phoneHelpGuideAction: {
     alignSelf: "stretch",

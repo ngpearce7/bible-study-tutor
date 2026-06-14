@@ -7898,9 +7898,9 @@ export default function Home() {
                     title: "Understand your daily rhythm",
                     steps: [
                       "Your rhythm grows when you engage with Scripture in the app.",
-                      "Reading, studying, saving memory verses, encouragements, bookmarks, chapter reading, searches, and worksheet printing can count.",
-                      "The app uses your recent activity to show a steady daily pattern, not a score to feel guilty about.",
-                      "If you miss today but were active yesterday, the rhythm gives a grace day before dropping back."
+                      "Reading, study, memory, encouragements, bookmarks, searches, and worksheets can count.",
+                      "It shows a steady pattern, not a score to feel guilty about.",
+                      "A grace day helps if you miss one day after recent activity."
                     ],
                     action: "Go Home",
                     target: "home"
@@ -18641,14 +18641,10 @@ const styles = StyleSheet.create({
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpGuideItem: {
-    alignSelf: "stretch",
     borderRadius: 10,
-    flex: 0,
     gap: 9,
     minWidth: 0,
-    paddingBottom: 12,
-    paddingHorizontal: 10,
-    paddingTop: 10,
+    padding: 10,
     width: "100%"
   },
   phoneHelpGridItem: {

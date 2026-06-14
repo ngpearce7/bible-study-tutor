@@ -3333,9 +3333,15 @@ export default function Home() {
   async function scheduleMemoryVerseReview(verse: any, preset: MemoryReviewPreset) {
     if (!activeProfileId) return;
 
-    await scheduleMemoryReview({ profileId: activeProfileId, memoryVerseId: verse._id, preset });
-    setReviewScheduleVerseId("");
-    setMemoryStatus(`Review set for ${reviewPresetLabel(preset).toLowerCase()}.`);
+    const reference = verse.reference || "Memory verse";
+    const reviewLabel = reviewPresetLabel(preset).toLowerCase();
+    try {
+      await scheduleMemoryReview({ profileId: activeProfileId, memoryVerseId: verse._id, preset });
+      setReviewScheduleVerseId("");
+      setMemoryStatus(`${reference} review was changed to ${reviewLabel}.`);
+    } catch {
+      setMemoryStatus(`Could not change the review timing for ${reference}.`);
+    }
   }
 
   function togglePinnedJournalEntry(entryId: string) {

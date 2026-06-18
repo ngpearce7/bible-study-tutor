@@ -6884,6 +6884,10 @@ export default function Home() {
                           <Text style={[styles.freeAccountBenefitText, accountDarkMode && styles.accountDarkText]}>{benefit}</Text>
                         </View>
                       ))}
+                      <Pressable onPress={() => setOpenLegalSection("privacy")} style={styles.freeAccountPrivacyLink}>
+                        <Ionicons name="shield-checkmark-outline" size={15} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read the Privacy Policy</Text>
+                      </Pressable>
                     </View>
                     <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
                       <Pressable onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
@@ -16778,6 +16782,19 @@ const styles = StyleSheet.create({
     gap: 8,
     maxWidth: "100%",
     minWidth: 0
+  },
+  freeAccountPrivacyLink: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 32
+  },
+  freeAccountPrivacyLinkText: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "900",
+    textDecorationLine: "underline"
   },
   freeAccountBenefitText: {
     color: colors.ink,

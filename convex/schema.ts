@@ -28,6 +28,9 @@ export default defineSchema({
     authUserId: v.optional(v.id("users")),
     clientKey: v.string(),
     displayName: v.string(),
+    username: v.optional(v.string()),
+    normalizedUsername: v.optional(v.string()),
+    accountLoginKind: v.optional(v.union(v.literal("email"), v.literal("username"), v.literal("oauth"))),
     friendCode: v.optional(v.string()),
     weeklyGoal: v.optional(v.string()),
     accountabilityPartner: v.optional(v.string()),
@@ -44,6 +47,7 @@ export default defineSchema({
   })
     .index("by_auth_user_id", ["authUserId"])
     .index("by_client_key", ["clientKey"])
+    .index("by_normalized_username", ["normalizedUsername"])
     .index("by_friend_code", ["friendCode"]),
   sessions: defineTable({
     profileId: v.id("profiles"),

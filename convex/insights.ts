@@ -6,6 +6,18 @@ import { assertProfileCanWrite, enforceRecentLimit, logSecurityEvent } from "./s
 import { v } from "convex/values";
 
 const feedbackCategory = v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other"));
+const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
+
+function usernameFromCredential(value?: string) {
+  const email = (value || "").trim().toLowerCase();
+  if (!email.endsWith(`@${USERNAME_AUTH_DOMAIN}`)) return "";
+  return email.slice(0, -1 * (`@${USERNAME_AUTH_DOMAIN}`).length);
+}
+
+function visibleAuthEmail(value?: string) {
+  const email = (value || "").trim().toLowerCase();
+  return usernameFromCredential(email) ? undefined : email || undefined;
+}
 
 export const submitFeedback = mutation({
   args: {
@@ -117,7 +129,7 @@ export const requestAccountDeletion = mutation({
       profileId: args.profileId,
       authUserId: profile.authUserId,
       displayName: clampText(profile.displayName, 120) || "Bible student",
-      email: clampOptionalText(authUser?.email, 254),
+      email: clampOptionalText(visibleAuthEmail(authUser?.email), 254),
       note: clampOptionalText(args.note, 1000),
       status: "pending",
       requestedAt: now
@@ -282,7 +294,7 @@ export const adminUsers = query({
         profileId: profile._id,
         authUserId: profile.authUserId,
         displayName: profile.displayName,
-        email: user?.email,
+        email: visibleAuthEmail(user?.email),
         signedIn: !!profile.authUserId,
         createdAt: profile.createdAt,
         updatedAt: profile.updatedAt,
@@ -349,7 +361,7 @@ export const adminUserDetail = query({
     return {
       profileId: profile._id,
       displayName: profile.displayName,
-      email: user?.email,
+      email: visibleAuthEmail(user?.email),
       signedIn: !!profile.authUserId,
       createdAt: profile.createdAt,
       updatedAt: profile.updatedAt,

@@ -56,6 +56,7 @@ const DARK_MODE_ENABLED = true;
 type AnswerMap = Record<string, string>;
 type BibleTranslationId = "bsb" | "web" | "kjv";
 type AuthFlow = "signIn" | "signUp";
+type AuthCredentialMode = "email" | "username";
 type LegalSection = "privacy" | "terms" | "";
 type PassageMarkupKind = "notice" | "question" | "truth" | "apply";
 type MethodRecommendationId = "quick" | "pray" | "deep" | "reflect" | "group";
@@ -271,9 +272,22 @@ const APP_SHARE_QR_TARGET_URL = `${APP_SHARE_URL}/?shared=qr`;
 const APP_SHARE_QR_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
 const APP_SHARE_QR_DARK_URI = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=12&color=E9B76A&bgcolor=1B211F&data=${encodeURIComponent(APP_SHARE_QR_TARGET_URL)}`;
 const COMMUNITY_STATUS_BUSY_PREFIXES = ["Posting", "Creating", "Looking", "Checking", "Accepting", "Joining", "Saving"];
+const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 
 function communityStatusShouldHold(message: string) {
   return COMMUNITY_STATUS_BUSY_PREFIXES.some((prefix) => message.startsWith(prefix));
+}
+
+function normalizeUsername(value: string) {
+  return value.trim().toLowerCase().replace(/^@+/, "");
+}
+
+function usernameCredential(username: string) {
+  return `${username}@${USERNAME_AUTH_DOMAIN}`;
+}
+
+function usernameIsValid(username: string) {
+  return /^[a-z0-9][a-z0-9._-]{2,23}$/.test(username);
 }
 type BibleVerse = {
   book_name: string;
@@ -361,8 +375,10 @@ export default function Home() {
   const [currentAccountPassword, setCurrentAccountPassword] = useState("");
   const [newAccountPassword, setNewAccountPassword] = useState("");
   const [authFlow, setAuthFlow] = useState<AuthFlow>("signIn");
+  const [authCredentialMode, setAuthCredentialMode] = useState<AuthCredentialMode>("email");
   const [authName, setAuthName] = useState("");
   const [authEmail, setAuthEmail] = useState("");
+  const [authUsername, setAuthUsername] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authStatus, setAuthStatus] = useState("");
   const [feedbackCategory, setFeedbackCategory] = useState<"bug" | "confusing" | "suggestion" | "encouragement" | "other">("suggestion");
@@ -929,8 +945,10 @@ export default function Home() {
       ? "Google"
       : profile?.authProvider === "apple"
         ? "Apple"
-        : profile?.authProvider === "password"
-          ? "email and password"
+        : profile?.authProvider === "password" || profile?.authLoginKind === "username"
+          ? profile?.authLoginKind === "username"
+            ? "username and password"
+            : "email and password"
           : "your account";
   const personalDisplayName =
     displayName.trim() && displayName.trim() !== "Bible student"
@@ -938,7 +956,11 @@ export default function Home() {
       : profile?.authName?.trim() || authName.trim() || "Bible student";
   const firstName = personalDisplayName !== "Bible student" ? personalDisplayName.split(/\s+/)[0] : "";
   const friendlyName = firstName || "friend";
-  const accountIdentityLabel = profile?.authEmail ? `${personalDisplayName} (${profile.authEmail})` : personalDisplayName;
+  const accountIdentityLabel = profile?.authUsername
+    ? `${personalDisplayName} (@${profile.authUsername})`
+    : profile?.authEmail
+      ? `${personalDisplayName} (${profile.authEmail})`
+      : personalDisplayName;
   const suggestedShareNote = buildShareNote(method, answers, passageText?.reference || passage);
   const activeCheckinPartner = checkinPartners.find((item) => item.id === activeCheckinPartnerId);
   const effectivePartner = activeCheckinPartner?.name || partner;
@@ -1769,7 +1791,7 @@ export default function Home() {
     setPasswordStatus("Updating password...");
     try {
       await changePassword({
-        email: accountEmail,
+        accountId: profile?.authPasswordAccountId || accountEmail,
         currentPassword: currentAccountPassword,
         newPassword: newAccountPassword
       });
@@ -1870,10 +1892,16 @@ export default function Home() {
   }
 
   async function submitAuth() {
-    const email = authEmail.trim();
+    const email = authEmail.trim().toLowerCase();
+    const username = normalizeUsername(authUsername);
     const name = authName.trim();
-    if (!email || !authPassword) {
-      setAuthStatus("Add your email and password first.");
+    const accountId = authCredentialMode === "username" ? usernameCredential(username) : email;
+    if (!accountId || !authPassword) {
+      setAuthStatus(authCredentialMode === "username" ? "Add your username and password first." : "Add your email and password first.");
+      return;
+    }
+    if (authCredentialMode === "username" && !usernameIsValid(username)) {
+      setAuthStatus("Use 3 to 24 characters: letters, numbers, dots, hyphens, or underscores.");
       return;
     }
     if (authFlow === "signUp" && !name) {
@@ -1883,17 +1911,26 @@ export default function Home() {
 
     setAuthStatus(authFlow === "signIn" ? "Signing in..." : "Creating account...");
     try {
-      await signIn("password", {
-        email,
+      const signInParams: Record<string, string> = {
+        email: accountId,
+        authMode: authCredentialMode,
         name,
         password: authPassword,
         flow: authFlow
-      });
+      };
+      if (authCredentialMode === "username") signInParams.username = username;
+      await signIn("password", signInParams);
       if (authFlow === "signUp") setDisplayName(name);
       setAuthPassword("");
       setAuthStatus(authFlow === "signIn" ? "Signed in" : "Account created");
     } catch {
-      setAuthStatus(authFlow === "signIn" ? "Could not sign in. Check the email and password." : "Could not create account. Passwords need at least 8 characters.");
+      setAuthStatus(
+        authFlow === "signIn"
+          ? `Could not sign in. Check the ${authCredentialMode === "username" ? "username" : "email"} and password.`
+          : authCredentialMode === "username"
+            ? "Could not create account. That username may already be taken, or the password needs at least 8 characters."
+            : "Could not create account. Passwords need at least 8 characters."
+      );
     }
   }
 
@@ -6856,6 +6893,14 @@ export default function Home() {
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signUp" && styles.activeAuthFlowText]}>Create account</Text>
                       </Pressable>
                     </View>
+                    <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
+                      <Pressable onPress={() => setAuthCredentialMode("email")} style={[styles.authFlowButton, authCredentialMode === "email" && styles.activeAuthFlowButton, accountDarkMode && authCredentialMode === "email" && styles.accountDarkActiveSegment]}>
+                        <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authCredentialMode === "email" && styles.activeAuthFlowText]}>Use email</Text>
+                      </Pressable>
+                      <Pressable onPress={() => setAuthCredentialMode("username")} style={[styles.authFlowButton, authCredentialMode === "username" && styles.activeAuthFlowButton, accountDarkMode && authCredentialMode === "username" && styles.accountDarkActiveSegment]}>
+                        <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authCredentialMode === "username" && styles.activeAuthFlowText]}>Use username</Text>
+                      </Pressable>
+                    </View>
                     {authFlow === "signUp" && (
                       <TextInput
                         value={authName}
@@ -6866,15 +6911,31 @@ export default function Home() {
                         style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                       />
                     )}
-                    <TextInput
-                      value={authEmail}
-                      onChangeText={setAuthEmail}
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                      placeholder="Email"
-                      placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
-                      style={[styles.input, accountDarkMode && styles.accountDarkInput]}
-                    />
+                    {authCredentialMode === "email" ? (
+                      <TextInput
+                        value={authEmail}
+                        onChangeText={setAuthEmail}
+                        autoCapitalize="none"
+                        keyboardType="email-address"
+                        placeholder="Email"
+                        placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                        style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                      />
+                    ) : (
+                      <>
+                        <TextInput
+                          value={authUsername}
+                          onChangeText={setAuthUsername}
+                          autoCapitalize="none"
+                          placeholder="Username"
+                          placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
+                          style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                        />
+                        <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
+                          Choose a unique username. You can add an email later if you want password recovery.
+                        </Text>
+                      </>
+                    )}
                     <TextInput
                       value={authPassword}
                       onChangeText={setAuthPassword}
@@ -6894,15 +6955,26 @@ export default function Home() {
                   <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Personal details</Text>
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
                   <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, accountDarkMode && styles.accountDarkInput]} />
+                  {!!profile?.authUsername && (
+                    <View style={[styles.signedInBadge, styles.accountUsernameBadge, accountDarkMode && styles.accountDarkBadge]}>
+                      <Ionicons name="person-circle-outline" size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Text style={[styles.signedInBadgeText, accountDarkMode && styles.accountDarkBadgeText]}>{`Username: @${profile.authUsername}`}</Text>
+                    </View>
+                  )}
                   <TextInput
                     value={accountEmail}
                     onChangeText={setAccountEmail}
                     autoCapitalize="none"
                     keyboardType="email-address"
-                    placeholder="Email"
+                    placeholder={profile?.authUsername ? "Optional email for recovery" : "Email"}
                     placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
                     style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                   />
+                  {!!profile?.authUsername && (
+                    <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
+                      Username sign-in still works even if you add an email later.
+                    </Text>
+                  )}
                   <AppButton label="Save details" onPress={persistAccountSettings} />
                   {!!accountStatus && <Text style={styles.saveStatus}>{accountStatus}</Text>}
                 </View>
@@ -6910,7 +6982,7 @@ export default function Home() {
               {isAuthenticated && profile?.authProvider === "password" && (
                 <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
                   <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Change password</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Use this if you signed in with email and password.</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Use this if you signed in with email or username and password.</Text>
                   <TextInput
                     value={currentAccountPassword}
                     onChangeText={setCurrentAccountPassword}
@@ -16681,6 +16753,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 7
   },
+  accountUsernameBadge: {
+    alignSelf: "flex-start",
+    marginBottom: 12
+  },
   signedInBadgeText: {
     color: colors.oliveDark,
     flexShrink: 1,
@@ -16758,6 +16834,13 @@ const styles = StyleSheet.create({
   },
   activeAuthFlowText: {
     color: "white"
+  },
+  authHelperText: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17,
+    marginBottom: 12,
+    marginTop: -6
   },
   accountOptionGrid: {
     minWidth: 0,

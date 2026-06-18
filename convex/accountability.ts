@@ -19,6 +19,18 @@ const memoryMilestoneGoalIds = new Set([
   "dueVersesCleared",
   "firstTimeReviews"
 ]);
+const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
+
+function usernameFromCredential(value?: string) {
+  const email = (value || "").trim().toLowerCase();
+  if (!email.endsWith(`@${USERNAME_AUTH_DOMAIN}`)) return "";
+  return email.slice(0, -1 * (`@${USERNAME_AUTH_DOMAIN}`).length);
+}
+
+function visibleAuthEmail(value?: string) {
+  const email = (value || "").trim().toLowerCase();
+  return usernameFromCredential(email) ? undefined : email || undefined;
+}
 
 export const savePlan = mutation({
   args: {
@@ -69,26 +81,34 @@ export const saveAccountSettings = mutation({
     if (!authUserId) return;
 
     const authUser = await ctx.db.get(authUserId);
+    const passwordAccount = await ctx.db
+      .query("authAccounts")
+      .withIndex("userIdAndProvider", (q) => q.eq("userId", authUserId).eq("provider", "password"))
+      .unique();
+    const isUsernameAccount = !!usernameFromCredential(passwordAccount?.providerAccountId || authUser?.email);
     const userPatch: { name: string; email?: string } = { name: nextName };
 
     if (nextEmail && nextEmail !== authUser?.email?.toLowerCase()) {
-      const passwordAccount = await ctx.db
-        .query("authAccounts")
-        .withIndex("userIdAndProvider", (q) => q.eq("userId", authUserId).eq("provider", "password"))
-        .unique();
-
       if (!passwordAccount) throw new Error("Email changes are only available for email and password accounts.");
 
-      const existingAccount = await ctx.db
-        .query("authAccounts")
-        .withIndex("providerAndAccountId", (q) => q.eq("provider", "password").eq("providerAccountId", nextEmail))
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("email", (q) => q.eq("email", nextEmail))
         .unique();
-      if (existingAccount && existingAccount.userId !== authUserId) throw new Error("That email is already used by another account.");
+      if (existingUser && existingUser._id !== authUserId) throw new Error("That email is already used by another account.");
 
-      await ctx.db.patch(passwordAccount._id, {
-        providerAccountId: nextEmail,
-        emailVerified: undefined
-      });
+      if (!isUsernameAccount) {
+        const existingAccount = await ctx.db
+          .query("authAccounts")
+          .withIndex("providerAndAccountId", (q) => q.eq("provider", "password").eq("providerAccountId", nextEmail))
+          .unique();
+        if (existingAccount && existingAccount.userId !== authUserId) throw new Error("That email is already used by another account.");
+
+        await ctx.db.patch(passwordAccount._id, {
+          providerAccountId: nextEmail,
+          emailVerified: undefined
+        });
+      }
       userPatch.email = nextEmail;
     }
 
@@ -169,7 +189,7 @@ export const saveMemoryMilestoneGoals = mutation({
 
 export const changePassword = action({
   args: {
-    email: v.string(),
+    accountId: v.string(),
     currentPassword: v.string(),
     newPassword: v.string()
   },
@@ -177,20 +197,20 @@ export const changePassword = action({
     const authUserId = await getAuthUserId(ctx);
     if (!authUserId) throw new Error("Sign in before changing your password.");
 
-    const email = args.email.trim().toLowerCase();
-    if (!email || !args.currentPassword) throw new Error("Add your current password.");
+    const accountId = args.accountId.trim().toLowerCase();
+    if (!accountId || !args.currentPassword) throw new Error("Add your current password.");
     if (!args.newPassword || args.newPassword.length < 8) throw new Error("New password needs at least 8 characters.");
-    if (email.length > 254 || args.currentPassword.length > 200 || args.newPassword.length > 200) throw new Error("Those details are too long.");
+    if (accountId.length > 254 || args.currentPassword.length > 200 || args.newPassword.length > 200) throw new Error("Those details are too long.");
 
     const retrieved = await retrieveAccount(ctx, {
       provider: "password",
-      account: { id: email, secret: args.currentPassword }
+      account: { id: accountId, secret: args.currentPassword }
     });
     if (retrieved.user._id !== authUserId) throw new Error("Current password was not accepted.");
 
     await modifyAccountCredentials(ctx, {
       provider: "password",
-      account: { id: email, secret: args.newPassword }
+      account: { id: accountId, secret: args.newPassword }
     });
 
     return true;
@@ -242,12 +262,17 @@ export const profile = query({
       authAccounts.find((account) => account.provider === "google") ||
       authAccounts.find((account) => account.provider === "apple") ||
       authAccounts[0];
+    const passwordAccount = authAccounts.find((account) => account.provider === "password");
+    const username = usernameFromCredential(passwordAccount?.providerAccountId || authUser?.email);
 
     return {
       ...profile,
-      authEmail: authUser?.email,
+      authEmail: visibleAuthEmail(authUser?.email),
       authName: authUser?.name,
-      authProvider: preferredAuthAccount?.provider
+      authProvider: preferredAuthAccount?.provider,
+      authUsername: profile.normalizedUsername || username || undefined,
+      authLoginKind: username ? "username" : preferredAuthAccount?.provider === "password" ? "email" : preferredAuthAccount?.provider,
+      authPasswordAccountId: passwordAccount?.providerAccountId
     };
   }
 });

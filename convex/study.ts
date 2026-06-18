@@ -15,6 +15,17 @@ const passageMarkup = v.object({
   verse: v.number()
 });
 const reviewPreset = v.union(v.literal("tomorrow"), v.literal("three-days"), v.literal("next-week"), v.literal("next-month"));
+const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
+
+function usernameFromCredential(value?: string) {
+  const email = (value || "").trim().toLowerCase();
+  if (!email.endsWith(`@${USERNAME_AUTH_DOMAIN}`)) return "";
+  return email.slice(0, -1 * (`@${USERNAME_AUTH_DOMAIN}`).length);
+}
+
+function isUsernameCredential(value?: string) {
+  return !!usernameFromCredential(value);
+}
 
 export const ensureProfile = mutation({
   args: {
@@ -26,6 +37,15 @@ export const ensureProfile = mutation({
     const now = Date.now();
 
     const authUser = authUserId ? await ctx.db.get(authUserId) : null;
+    const authAccounts = authUserId
+      ? await ctx.db
+          .query("authAccounts")
+          .withIndex("userIdAndProvider", (q) => q.eq("userId", authUserId).eq("provider", "password"))
+          .collect()
+      : [];
+    const passwordCredential = authAccounts[0]?.providerAccountId;
+    const authUsername = usernameFromCredential(passwordCredential || authUser?.email);
+    const authLoginKind = authUsername ? "username" : authUserId ? (authAccounts[0] ? "email" : "oauth") : undefined;
     const authProfileName = clampText(authUser?.name || authUser?.email || "", 80);
     const profileName = clampText(args.displayName || authProfileName, 80) || "Bible student";
 
@@ -36,11 +56,24 @@ export const ensureProfile = mutation({
         .first();
 
       if (authenticatedProfile) {
+        const profilePatch: {
+          displayName?: string;
+          username?: string;
+          normalizedUsername?: string;
+          accountLoginKind?: "email" | "username" | "oauth";
+          updatedAt?: number;
+        } = {};
         if (profileName && profileName !== "Bible student" && authenticatedProfile.displayName === "Bible student") {
-          await ctx.db.patch(authenticatedProfile._id, {
-            displayName: profileName,
-            updatedAt: now
-          });
+          profilePatch.displayName = profileName;
+        }
+        if (authUsername && !authenticatedProfile.normalizedUsername) {
+          profilePatch.username = authUsername;
+          profilePatch.normalizedUsername = authUsername;
+        }
+        if (authLoginKind && !authenticatedProfile.accountLoginKind) profilePatch.accountLoginKind = authLoginKind;
+        if (Object.keys(profilePatch).length > 0) {
+          profilePatch.updatedAt = now;
+          await ctx.db.patch(authenticatedProfile._id, profilePatch);
         }
 
         return authenticatedProfile._id;
@@ -58,13 +91,25 @@ export const ensureProfile = mutation({
     if (existingDeviceProfile) {
       if (authUserId) {
         if (!existingDeviceProfile.authUserId) {
-          const profilePatch: { authUserId: Id<"users">; updatedAt: number; displayName?: string } = {
+          const profilePatch: {
+            authUserId: Id<"users">;
+            updatedAt: number;
+            displayName?: string;
+            username?: string;
+            normalizedUsername?: string;
+            accountLoginKind?: "email" | "username" | "oauth";
+          } = {
             authUserId,
             updatedAt: now
           };
           if (authProfileName && existingDeviceProfile.displayName === "Bible student") {
             profilePatch.displayName = authProfileName;
           }
+          if (authUsername) {
+            profilePatch.username = authUsername;
+            profilePatch.normalizedUsername = authUsername;
+          }
+          if (authLoginKind) profilePatch.accountLoginKind = authLoginKind;
           await ctx.db.patch(existingDeviceProfile._id, profilePatch);
           await maybeNotifyFirstNonAdminRegistration(ctx, {
             profileId: existingDeviceProfile._id,
@@ -85,6 +130,9 @@ export const ensureProfile = mutation({
       authUserId: authUserId || undefined,
       clientKey: authUserId ? `auth:${authUserId}` : clientKey || `guest:${now}`,
       displayName: profileName,
+      username: authUsername || undefined,
+      normalizedUsername: authUsername || undefined,
+      accountLoginKind: authLoginKind,
       createdAt: now,
       updatedAt: now
     });
@@ -438,7 +486,7 @@ async function maybeNotifyFirstNonAdminRegistration(
   ctx: MutationCtx,
   args: { profileId: Id<"profiles">; email?: string; name?: string; now: number }
 ) {
-  if (!args.email || isAdminEmail(args.email)) return;
+  if (!args.email || isUsernameCredential(args.email) || isAdminEmail(args.email)) return;
 
   const notificationKey = "first-non-admin-registration";
   const existingNotification = await ctx.db
@@ -453,7 +501,7 @@ async function maybeNotifyFirstNonAdminRegistration(
   for (const profile of profiles) {
     if (!profile.authUserId) continue;
     const user = await ctx.db.get(profile.authUserId);
-    if (user?.email && !isAdminEmail(user.email)) nonAdminSignedInCount += 1;
+    if (user?.email && !isUsernameCredential(user.email) && !isAdminEmail(user.email)) nonAdminSignedInCount += 1;
   }
 
   if (nonAdminSignedInCount !== 1) return;

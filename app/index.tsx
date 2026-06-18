@@ -5777,18 +5777,23 @@ export default function Home() {
                         <View style={styles.memoryHistorySummaryHeader}>
                           <View style={styles.memoryHistorySummaryTextBlock}>
                             <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory engagement</Text>
-                            <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>A simple record of the verses you are carrying with you.</Text>
                           </View>
                           <Ionicons name="time-outline" size={22} color={colors.coral} />
                         </View>
                         <View style={[styles.memoryHistoryEncouragementBox, memoryDarkMode && styles.accountDarkInsetBox]}>
-                          <Ionicons name="sparkles-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
-                          <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
-                        </View>
-                        <View style={[styles.memoryWeeklySummaryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
-                          <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
-                          <View style={[styles.memoryWeeklySummaryContent, phoneLayout && styles.phoneMemoryWeeklySummaryContent]}>
-                            <Text style={[styles.memoryHistoryEncouragementText, styles.memoryWeeklySummaryText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                          <View style={styles.memoryEncouragementHeader}>
+                            <Ionicons name="sparkles-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                            <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Encouragement</Text>
+                          </View>
+                          <View style={[styles.memoryEncouragementGrid, phoneLayout && styles.phoneMemoryWeeklySummaryContent]}>
+                            <View style={styles.memoryEncouragementBlock}>
+                              <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
+                              <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
+                            </View>
+                            <View style={styles.memoryEncouragementBlock}>
+                              <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
+                              <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                            </View>
                             <View style={[styles.memoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
                               <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
                               <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
@@ -16963,9 +16968,24 @@ const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.22)",
     borderRadius: 12,
     borderWidth: 1,
-    flexDirection: "row",
-    gap: 8,
+    gap: 10,
     padding: 10
+  },
+  memoryEncouragementHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7
+  },
+  memoryEncouragementGrid: {
+    alignItems: "stretch",
+    flexDirection: "row",
+    gap: 10,
+    minWidth: 0
+  },
+  memoryEncouragementBlock: {
+    flex: 1,
+    gap: 4,
+    minWidth: 0
   },
   memoryHistoryEncouragementText: {
     color: colors.oliveDark,

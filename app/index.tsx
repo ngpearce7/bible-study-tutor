@@ -11,7 +11,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildPrintableStudyWorksheetHtml, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -1146,7 +1146,8 @@ export default function Home() {
     () => buildMemoryHistoryEncouragement(memoryHistorySummary, firstName),
     [firstName, memoryHistorySummary]
   );
-  const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
+  const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems, memoryVerses || [], firstName), [firstName, memoryHistoryItems, memoryVerses]);
+  const memoryWeeklyScripture = useMemo(() => buildMemoryWeeklyScripture(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
   const memoryMilestones = useMemo(
     () => buildMemoryMilestones(memoryHistoryItems, memoryVerses || [], memoryMilestoneGoalIds),
     [memoryHistoryItems, memoryMilestoneGoalIds, memoryVerses]
@@ -5786,7 +5787,13 @@ export default function Home() {
                         </View>
                         <View style={[styles.memoryWeeklySummaryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                           <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
-                          <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                          <View style={[styles.memoryWeeklySummaryContent, phoneLayout && styles.phoneMemoryWeeklySummaryContent]}>
+                            <Text style={[styles.memoryHistoryEncouragementText, styles.memoryWeeklySummaryText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                            <View style={[styles.memoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
+                              <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
+                              <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
+                            </View>
+                          </View>
                         </View>
                         <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
                           <Metric value={memoryHistorySummary.reviewedToday} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
@@ -16975,6 +16982,35 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 5,
     padding: 10
+  },
+  memoryWeeklySummaryContent: {
+    alignItems: "stretch",
+    flexDirection: "row",
+    gap: 10,
+    minWidth: 0
+  },
+  phoneMemoryWeeklySummaryContent: {
+    flexDirection: "column"
+  },
+  memoryWeeklySummaryText: {
+    flex: 1.4
+  },
+  memoryWeeklyScriptureBox: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.2)",
+    borderRadius: 10,
+    borderWidth: 1,
+    flex: 1,
+    gap: 4,
+    minWidth: 0,
+    padding: 9
+  },
+  memoryWeeklyScriptureText: {
+    color: colors.ink,
+    fontSize: 12,
+    fontStyle: "italic",
+    fontWeight: "800",
+    lineHeight: 18
   },
   memoryMilestoneList: {
     gap: 8

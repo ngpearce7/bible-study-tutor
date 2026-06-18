@@ -65,6 +65,25 @@ export const MEMORY_HISTORY_EVENT_META: Record<MemoryHistoryEventKind, { label: 
   removed: { label: "Removed", icon: "trash-outline" }
 };
 
+export const MEMORY_SEEKING_SCRIPTURES = [
+  {
+    reference: "James 4:8",
+    text: "Draw near to God, and he will draw near to you."
+  },
+  {
+    reference: "Jeremiah 29:13",
+    text: "You shall seek me, and find me, when you search for me with all your heart."
+  },
+  {
+    reference: "Psalm 119:11",
+    text: "I have hidden your word in my heart, that I might not sin against you."
+  },
+  {
+    reference: "Psalm 105:4",
+    text: "Seek Yahweh and his strength. Seek his face forever more."
+  }
+];
+
 function normalizeBibleBookName(bookName: string) {
   return bookName === "Psalms" ? "Psalm" : bookName;
 }
@@ -305,7 +324,8 @@ export function neglectedMemoryVerseLabel(daysSinceReview: number, reviewCount?:
 
 export function buildMemoryWeeklySummary(
   history: { event: MemoryHistoryEventKind; createdAt: number; reference: string }[],
-  verses: MemoryVerseForHistory[] = []
+  verses: MemoryVerseForHistory[] = [],
+  name?: string
 ) {
   const weeklyReviewed = history.filter((event) => event.event === "reviewed" && daysAgo(event.createdAt) < 7);
   const weeklyAdded = history.filter((event) => event.event === "added" && daysAgo(event.createdAt) < 7);
@@ -313,24 +333,46 @@ export function buildMemoryWeeklySummary(
   const weeklyAddedVerses = verses.filter((verse) => Boolean(verse.createdAt) && daysAgo(verse.createdAt || 0) < 7);
   const weeklyReviewedCount = verses.length ? weeklyReviewedVerses.length : uniqueReferenceCount(weeklyReviewed);
   const weeklyAddedCount = verses.length ? weeklyAddedVerses.length : uniqueReferenceCount(weeklyAdded);
+  const savedCount = verses.length;
   const weeklyReferences = verses.length
     ? [...weeklyReviewedVerses, ...weeklyAddedVerses].map((verse) => verse.reference)
     : [...weeklyReviewed, ...weeklyAdded].map((event) => event.reference);
   const books = uniqueBooksFromReferences(weeklyReferences);
+  const nameText = name ? `, ${name}` : "";
+  const bookText = books.length ? ` spanning across ${formatWarmList(books)}` : "";
 
   if (weeklyReviewedCount === 0 && weeklyAddedCount === 0) {
-    return "No memory activity recorded this week yet. One slow review would be a good place to begin.";
+    return name
+      ? `No memory activity recorded this week yet, ${name}. One slow review would be a good place to begin.`
+      : "No memory activity recorded this week yet. One slow review would be a good place to begin.";
+  }
+
+  if (savedCount > 0 && weeklyReviewedCount >= savedCount) {
+    return `This week${nameText}, you have reviewed all ${savedCount} of your currently saved memory verse${savedCount === 1 ? "" : "s"}${bookText}. Well done!`;
   }
 
   const reviewedText = weeklyReviewedCount
-    ? `reviewed ${weeklyReviewedCount} verse${weeklyReviewedCount === 1 ? "" : "s"}`
+    ? `reviewed ${weeklyReviewedCount} saved memory verse${weeklyReviewedCount === 1 ? "" : "s"}`
     : "";
   const addedText = weeklyAddedCount
     ? `added ${weeklyAddedCount} verse${weeklyAddedCount === 1 ? "" : "s"}`
     : "";
   const actionText = [reviewedText, addedText].filter(Boolean).join(" and ");
-  const bookText = books.length ? ` across ${formatShortList(books)}` : "";
-  return `This week you ${actionText}${bookText}.`;
+  const acrossText = books.length ? ` across ${formatWarmList(books)}` : "";
+  return `This week${nameText}, you have ${actionText}${acrossText}. Keep going.`;
+}
+
+export function buildMemoryWeeklyScripture(
+  history: { createdAt: number; reference?: string }[],
+  verses: MemoryVerseForHistory[] = []
+) {
+  const seed = [
+    history.length,
+    verses.length,
+    ...history.slice(0, 5).map((event) => `${event.reference || ""}:${event.createdAt}`)
+  ].join("|");
+  const index = Math.abs(hashString(seed)) % MEMORY_SEEKING_SCRIPTURES.length;
+  return MEMORY_SEEKING_SCRIPTURES[index];
 }
 
 export function buildMemoryMilestones(
@@ -583,6 +625,20 @@ function formatShortList(items: string[]) {
   if (items.length <= 1) return items[0] || "";
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
+function formatWarmList(items: string[]) {
+  if (items.length <= 1) return items[0] || "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+function hashString(value: string) {
+  let hash = 0;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) | 0;
+  }
+  return hash;
 }
 
 function formatMilestoneCount(count: number) {

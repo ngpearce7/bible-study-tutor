@@ -81,6 +81,15 @@ export const ensureProfile = mutation({
     }
 
     const clientKey = clampText(args.clientKey || "", 200);
+    const localClientKey = clientKey ? `local:${clientKey}` : "";
+    const existingLocalProfile = !authUserId && localClientKey
+      ? await ctx.db
+          .query("profiles")
+          .withIndex("by_client_key", (q) => q.eq("clientKey", localClientKey))
+          .first()
+      : null;
+    if (existingLocalProfile) return existingLocalProfile._id;
+
     const existingDeviceProfile = clientKey
       ? await ctx.db
           .query("profiles")
@@ -122,13 +131,13 @@ export const ensureProfile = mutation({
 
         if (existingDeviceProfile.authUserId === authUserId) return existingDeviceProfile._id;
       } else {
-        return existingDeviceProfile._id;
+        if (!existingDeviceProfile.authUserId) return existingDeviceProfile._id;
       }
     }
 
     const profileId = await ctx.db.insert("profiles", {
       authUserId: authUserId || undefined,
-      clientKey: authUserId ? `auth:${authUserId}` : clientKey || `guest:${now}`,
+      clientKey: authUserId ? `auth:${authUserId}` : localClientKey || clientKey || `guest:${now}`,
       displayName: profileName,
       username: authUsername || undefined,
       normalizedUsername: authUsername || undefined,
@@ -477,6 +486,7 @@ async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id
   if (!profile) throw new Error("Profile not found");
 
   const authUserId = await getAuthUserId(ctx);
+  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
   if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
 
   return profile;

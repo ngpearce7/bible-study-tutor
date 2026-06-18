@@ -593,6 +593,7 @@ export default function Home() {
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
+  const previousActiveProfileIdRef = useRef("");
   const loadedDraftRevisionRef = useRef(0);
   const isHydratingDraftRef = useRef(false);
 
@@ -748,6 +749,24 @@ export default function Home() {
   }, [circleStatus]);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
+
+  useEffect(() => {
+    const nextProfileKey = activeProfileId ? String(activeProfileId) : "";
+    if (!previousActiveProfileIdRef.current) {
+      previousActiveProfileIdRef.current = nextProfileKey;
+      return;
+    }
+    if (previousActiveProfileIdRef.current === nextProfileKey) return;
+    previousActiveProfileIdRef.current = nextProfileKey;
+    loadedDraftRevisionRef.current = 0;
+    setLoadedDraftKey("");
+    setAnswers({});
+    setShareNote("");
+    setPassageMarkups({});
+    setPassageMarkupNotes({});
+    setSelectedVerseKeys([]);
+    setSaveStatus(nextProfileKey ? "Profile switched" : "Connecting profile...");
+  }, [activeProfileId]);
 
   useEffect(() => {
     if (Platform.OS !== "web" || typeof localStorage === "undefined" || !activeProfileId || !isAuthenticated) {

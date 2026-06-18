@@ -329,6 +329,7 @@ async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id
   if (!profile) throw new Error("Profile not found");
 
   const authUserId = await getAuthUserId(ctx);
+  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
   if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
 
   return profile;

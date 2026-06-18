@@ -3453,9 +3453,11 @@ export default function Home() {
 
   function openPrivacyPolicyFromAccountIntro() {
     setOpenLegalSection("privacy");
-    setTimeout(() => {
+    const scrollToLegal = () => {
       appScrollRef.current?.scrollTo?.({ y: Math.max(0, accountLegalYRef.current - (phoneLayout ? 82 : 18)), animated: true });
-    }, 80);
+    };
+    setTimeout(scrollToLegal, 80);
+    setTimeout(scrollToLegal, 220);
   }
 
   function scrollReaderToVerse(verseNumber: number) {
@@ -7017,12 +7019,7 @@ export default function Home() {
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View
-                onLayout={(event) => {
-                  accountLegalYRef.current = event.nativeEvent.layout.y;
-                }}
-                style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}
-              >
+              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Bible translations</Text>
                 <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
                 <View style={styles.accountOptionGrid}>
@@ -7130,7 +7127,12 @@ export default function Home() {
                   </View>
                 </View>
               )}
-              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+              <View
+                onLayout={(event) => {
+                  accountLegalYRef.current = event.nativeEvent.layout.y;
+                }}
+                style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}
+              >
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Legal</Text>
                 <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
                 <LegalDocument

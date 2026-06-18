@@ -586,6 +586,7 @@ export default function Home() {
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
+  const accountLegalYRef = useRef(0);
   const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
   const readerVerseYRef = useRef<Record<number, number>>({});
@@ -3448,6 +3449,13 @@ export default function Home() {
 
   function scrollReaderToTop() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 50);
+  }
+
+  function openPrivacyPolicyFromAccountIntro() {
+    setOpenLegalSection("privacy");
+    setTimeout(() => {
+      appScrollRef.current?.scrollTo?.({ y: Math.max(0, accountLegalYRef.current - (phoneLayout ? 82 : 18)), animated: true });
+    }, 80);
   }
 
   function scrollReaderToVerse(verseNumber: number) {
@@ -6884,7 +6892,7 @@ export default function Home() {
                           <Text style={[styles.freeAccountBenefitText, accountDarkMode && styles.accountDarkText]}>{benefit}</Text>
                         </View>
                       ))}
-                      <Pressable onPress={() => setOpenLegalSection("privacy")} style={styles.freeAccountPrivacyLink}>
+                      <Pressable onPress={openPrivacyPolicyFromAccountIntro} style={styles.freeAccountPrivacyLink}>
                         <Ionicons name="shield-checkmark-outline" size={15} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                         <Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read the Privacy Policy</Text>
                       </Pressable>
@@ -7009,7 +7017,12 @@ export default function Home() {
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+              <View
+                onLayout={(event) => {
+                  accountLegalYRef.current = event.nativeEvent.layout.y;
+                }}
+                style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}
+              >
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Bible translations</Text>
                 <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
                 <View style={styles.accountOptionGrid}>

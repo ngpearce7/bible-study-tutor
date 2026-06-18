@@ -807,29 +807,34 @@ export default function Home() {
     }).catch(() => undefined);
   }, [activeProfileId, incomingShareSource, recordUsage]);
 
-  const shouldLoadStudyLists = !!activeProfileId && (tab === "account" || tab === "journal");
-  const shouldLoadDueStudyReviews = !!activeProfileId && (tab === "home" || tab === "journal");
-  const shouldLoadEncouragements = !!activeProfileId && (tab === "account" || tab === "accountability" || tab === "journal");
-  const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && !!activeProfileId && isAuthenticated && (tab === "accountability" || tab === "study");
-  const shouldLoadAccountDeletionRequest = !!activeProfileId && tab === "account";
-  const shouldLoadAdminDetails = !!activeProfileId && tab === "admin";
+  const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const profileMatchesActiveState =
+    !!activeProfileId &&
+    profile !== undefined &&
+    String((profile as any)?._id || "") === String(activeProfileId) &&
+    (isAuthenticated ? !!(profile as any)?.authUserId : !(profile as any)?.authUserId);
+  const shouldLoadStudyLists = profileMatchesActiveState && (tab === "account" || tab === "journal");
+  const shouldLoadDueStudyReviews = profileMatchesActiveState && (tab === "home" || tab === "journal");
+  const shouldLoadEncouragements = profileMatchesActiveState && (tab === "account" || tab === "accountability" || tab === "journal");
+  const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
+  const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
+  const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
 
-  const stats = useQuery(api.study.stats, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId } : "skip");
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,
-    activeProfileId ? { profileId: activeProfileId, passage: passage.trim() || "Selected passage", methodId } : "skip"
+    profileMatchesActiveState ? { profileId: activeProfileId, passage: passage.trim() || "Selected passage", methodId } : "skip"
   );
   const drafts = useQuery(api.study.recentDrafts, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, limit: 10 } : "skip");
   const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
-  const memoryVerses = useQuery(api.memory.list, activeProfileId ? { profileId: activeProfileId, limit: 50 } : "skip");
-  const memoryHistory = useQuery((api as any).memory.listHistory, activeProfileId ? { profileId: activeProfileId, limit: 120 } : "skip");
-  const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const memoryVerses = useQuery(api.memory.list, profileMatchesActiveState ? { profileId: activeProfileId, limit: 50 } : "skip");
+  const memoryHistory = useQuery((api as any).memory.listHistory, profileMatchesActiveState ? { profileId: activeProfileId, limit: 120 } : "skip");
   const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
-  const adminOverview = useQuery((api as any).insights.adminOverview, activeProfileId ? {} : "skip");
+  const adminOverview = useQuery((api as any).insights.adminOverview, profileMatchesActiveState ? {} : "skip");
   const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
   const adminUsers = useQuery((api as any).insights.adminUsers, shouldLoadAdminDetails ? {} : "skip");
   const adminUserDetail = useQuery((api as any).insights.adminUserDetail, shouldLoadAdminDetails && selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
@@ -953,7 +958,7 @@ export default function Home() {
   const selectedPlanCompletedCount = selectedPlan.days.filter((day) => completedPlanDaySet.has(planDayKey(selectedPlan.id, day.day))).length;
   const selectedPlanNextDay = selectedPlan.days.find((day) => !completedPlanDaySet.has(planDayKey(selectedPlan.id, day.day))) || selectedPlan.days[0];
   const selectedPlanComplete = selectedPlanCompletedCount === selectedPlan.days.length;
-  const backendReady = !!activeProfileId && profile !== undefined;
+  const backendReady = profileMatchesActiveState;
   const backendStatusLabel = backendReady ? "Saving connected" : "Saving unavailable";
   const backendStatusDetail = backendReady
     ? isAuthenticated

@@ -513,6 +513,7 @@ export default function Home() {
   const [memoryPrintSet, setMemoryPrintSet] = useState<MemoryPrintSet>("due");
   const [memoryPrintLayout, setMemoryPrintLayout] = useState<MemoryCardLayout>("pocket");
   const [memoryPrintCopies, setMemoryPrintCopies] = useState(1);
+  const [memoryPrintSelectedVerseIds, setMemoryPrintSelectedVerseIds] = useState<string[]>([]);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
@@ -1267,13 +1268,18 @@ export default function Home() {
     }))
     .filter((section) => section.verses.length > 0);
   const currentBrowseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
-  const memoryPrintVerses = useMemo(() => {
+  function getMemoryPrintCandidateVerses(printSet: MemoryPrintSet) {
     const saved = memoryVerses || [];
-    if (memoryPrintSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
-    if (memoryPrintSet === "reviewed") return saved.filter((verse: any) => !isMemoryVerseDue(verse));
-    if (memoryPrintSet === "current") return memoryView === "browse" ? currentBrowseMemoryVerses : visibleMemorySections.flatMap((section) => section.verses);
+    if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
+    if (printSet === "reviewed") return saved.filter((verse: any) => !isMemoryVerseDue(verse));
+    if (printSet === "current") return memoryView === "browse" ? currentBrowseMemoryVerses : visibleMemorySections.flatMap((section) => section.verses);
     return saved;
-  }, [currentBrowseMemoryVerses, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
+  }
+  const memoryPrintCandidateVerses = useMemo(() => getMemoryPrintCandidateVerses(memoryPrintSet), [currentBrowseMemoryVerses, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
+  const memoryPrintVerses = useMemo(() => {
+    const selectedIds = new Set(memoryPrintSelectedVerseIds);
+    return memoryPrintCandidateVerses.filter((verse: any) => selectedIds.has(String(verse._id)));
+  }, [memoryPrintCandidateVerses, memoryPrintSelectedVerseIds]);
 
   useEffect(() => {
     if (compactLayout && tab === "bible") setReaderNavCollapsed(true);
@@ -3300,15 +3306,30 @@ export default function Home() {
       setMemoryStatus("Add a memory verse before printing cards.");
       return;
     }
-    setMemoryPrintSet(dueMemoryCount > 0 ? "due" : "all");
+    const initialSet: MemoryPrintSet = dueMemoryCount > 0 ? "due" : "all";
+    setMemoryPrintSet(initialSet);
+    setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(initialSet).map((verse: any) => String(verse._id)));
     setMemoryPrintLayout("pocket");
     setMemoryPrintCopies(1);
     setMemoryPrintOptionsOpen(true);
   }
 
+  function changeMemoryPrintSet(printSet: MemoryPrintSet) {
+    setMemoryPrintSet(printSet);
+    setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(printSet).map((verse: any) => String(verse._id)));
+  }
+
+  function toggleMemoryPrintVerse(verseId: string) {
+    setMemoryPrintSelectedVerseIds((selectedIds) =>
+      selectedIds.includes(verseId)
+        ? selectedIds.filter((id) => id !== verseId)
+        : [...selectedIds, verseId]
+    );
+  }
+
   function openPrintableMemoryCards() {
     if (!memoryPrintVerses.length) {
-      setMemoryStatus("No memory verses match that print selection.");
+      setMemoryStatus("Select at least one saved memory verse before opening cards.");
       return;
     }
     if (Platform.OS !== "web" || typeof window === "undefined") {
@@ -8603,7 +8624,7 @@ export default function Home() {
               <View style={styles.printOptionsTitleBlock}>
                 <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Print memory cards</Text>
                 <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
-                  {memoryPrintVerses.length} verse{memoryPrintVerses.length === 1 ? "" : "s"} selected · {memoryPrintCopies} cop{memoryPrintCopies === 1 ? "y" : "ies"} each
+                  {memoryPrintVerses.length} of {memoryPrintCandidateVerses.length} verse{memoryPrintCandidateVerses.length === 1 ? "" : "s"} selected · {memoryPrintCopies} cop{memoryPrintCopies === 1 ? "y" : "ies"} each
                 </Text>
               </View>
               <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={styles.markupCloseButton}>
@@ -8622,13 +8643,50 @@ export default function Home() {
                 ].map(([key, label]) => (
                   <Pressable
                     key={key}
-                    onPress={() => setMemoryPrintSet(key as MemoryPrintSet)}
+                    onPress={() => changeMemoryPrintSet(key as MemoryPrintSet)}
                     style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintSet === key && styles.activePrintOptionChip]}
                   >
                     <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintSet === key && styles.activePrintOptionChipText]}>{label}</Text>
                   </Pressable>
                 ))}
               </View>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <View style={styles.memoryPrintPickerHeader}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Choose saved verses</Text>
+                <View style={styles.memoryPrintPickerActions}>
+                  <Pressable onPress={() => setMemoryPrintSelectedVerseIds(memoryPrintCandidateVerses.map((verse: any) => String(verse._id)))}>
+                    <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Select all</Text>
+                  </Pressable>
+                  <Pressable onPress={() => setMemoryPrintSelectedVerseIds([])}>
+                    <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Clear</Text>
+                  </Pressable>
+                </View>
+              </View>
+              {memoryPrintCandidateVerses.length > 0 ? (
+                <ScrollView style={[styles.memoryPrintVersePicker, accountDarkMode && styles.memoryDarkSubPanel]} contentContainerStyle={styles.memoryPrintVersePickerContent} keyboardShouldPersistTaps="handled">
+                  {memoryPrintCandidateVerses.map((verse: any) => {
+                    const verseId = String(verse._id);
+                    const selected = memoryPrintSelectedVerseIds.includes(verseId);
+                    return (
+                      <Pressable
+                        key={verseId}
+                        onPress={() => toggleMemoryPrintVerse(verseId)}
+                        style={[styles.memoryPrintVerseRow, accountDarkMode && styles.memoryDarkSoftPanel, selected && styles.activeMemoryPrintVerseRow]}
+                      >
+                        <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={selected ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
+                        <View style={styles.memoryPrintVerseCopy}>
+                          <Text style={[styles.memoryPrintVerseReference, accountDarkMode && styles.accountDarkText]} numberOfLines={1}>{verse.reference}</Text>
+                          <Text style={[styles.memoryPrintVerseText, accountDarkMode && styles.accountDarkMutedText]} numberOfLines={2}>{verse.verseText}</Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              ) : (
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match this group yet.</Text>
+              )}
             </View>
 
             <View style={styles.printOptionGroup}>
@@ -8663,6 +8721,10 @@ export default function Home() {
                 ))}
               </View>
             </View>
+
+            <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
+              Open cards will open a new browser tab with the printable cards.
+            </Text>
 
             <View style={styles.printOptionsActions}>
               <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
@@ -20345,6 +20407,12 @@ const styles = StyleSheet.create({
   printOptionGroup: {
     gap: 8
   },
+  printOptionsHintText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17
+  },
   printOptionLabel: {
     color: colors.oliveDark,
     fontSize: 12,
@@ -20394,6 +20462,70 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 14,
     fontWeight: "800"
+  },
+  memoryPrintPickerHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  memoryPrintPickerActions: {
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 12
+  },
+  memoryPrintPickerActionText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  memoryPrintVersePicker: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    maxHeight: 190
+  },
+  memoryPrintVersePickerContent: {
+    gap: 8,
+    padding: 8
+  },
+  memoryPrintVerseRow: {
+    alignItems: "flex-start",
+    backgroundColor: "white",
+    borderColor: "rgba(108, 91, 67, 0.14)",
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 9,
+    padding: 10
+  },
+  activeMemoryPrintVerseRow: {
+    borderColor: colors.coral
+  },
+  memoryPrintVerseCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  memoryPrintVerseReference: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "900"
+  },
+  memoryPrintVerseText: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "700",
+    lineHeight: 17,
+    marginTop: 2
+  },
+  memoryDarkSubPanel: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  memoryDarkSoftPanel: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.14)"
   },
   printOptionsActions: {
     alignItems: "center",

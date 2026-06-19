@@ -168,7 +168,6 @@ export function buildPrintableMemoryCardsHtml({
         <span>${escapeHtml(shortTranslationForPrint(verse.translationName))}</span>
         <span>biblestudytutor.org</span>
       </div>
-      <div class="carry">Carry today: ________________________________________</div>
     </article>
   `).join("");
 
@@ -196,7 +195,6 @@ export function buildPrintableMemoryCardsHtml({
       .verse { color: var(--ink); flex: 1; font-size: 18px; font-weight: 700; line-height: 1.5; margin: 0; }
       .large .verse { font-size: 24px; line-height: 1.55; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 800; justify-content: space-between; padding-top: 8px; }
-      .carry { color: var(--muted); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 800; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .sheet, .sheet.pocket { grid-template-columns: 1fr; padding: 12px; } }
       @media print { @page { margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { border: 0; box-shadow: none; gap: 8mm; max-width: none; padding: 0; } .sheet.pocket { grid-template-columns: repeat(2, 1fr); } .card { min-height: 126mm; } .large .card { min-height: 132mm; } }
     </style>

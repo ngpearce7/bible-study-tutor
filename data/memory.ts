@@ -176,15 +176,14 @@ export function reviewPresetLabel(preset: MemoryReviewPreset) {
   return MEMORY_REVIEW_OPTIONS.find((option) => option.id === preset)?.label || "Review";
 }
 
-export function memoryReviewDateLabel(nextReviewAt?: number, compact = false) {
+export function memoryReviewDateLabel(nextReviewAt?: number) {
   if (!nextReviewAt) return "Review: due now";
   const todayStart = startOfLocalDay(Date.now());
   const targetStart = startOfLocalDay(nextReviewAt);
   if (targetStart < todayStart) {
     const daysOverdue = Math.max(1, Math.floor((todayStart - targetStart) / (1000 * 60 * 60 * 24)));
     if (daysOverdue === 1) return "Review: due now";
-    if (compact && daysOverdue >= 100) return `Due: ${daysOverdue}d ago`;
-    return `Review due: ${daysOverdue} days ago`;
+    return `Due: ${daysOverdue}d ago`;
   }
   if (targetStart === todayStart) return "Review: today";
   const daysUntilReview = Math.max(0, Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24)));

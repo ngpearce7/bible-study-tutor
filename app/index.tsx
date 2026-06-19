@@ -6157,7 +6157,7 @@ export default function Home() {
                                   minimumFontScale={0.76}
                                   style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill, memoryDarkMode && isMemoryVerseDue(verse) && styles.memoryDarkDueReviewPill]}
                                 >
-                                  {memoryReviewDateLabel(verse.nextReviewAt, phoneLayout)}
+                                  {memoryReviewDateLabel(verse.nextReviewAt)}
                                 </Text>
                                 <Text style={[styles.draftPill, memoryDarkMode && styles.plansDarkDraftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>

@@ -13,7 +13,7 @@ import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
-import { buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
+import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -513,6 +513,7 @@ export default function Home() {
   const [memoryPrintSet, setMemoryPrintSet] = useState<MemoryPrintSet>("due");
   const [memoryPrintLayout, setMemoryPrintLayout] = useState<MemoryCardLayout>("pocket");
   const [memoryPrintCopies, setMemoryPrintCopies] = useState(1);
+  const [memoryPrintSafeMode, setMemoryPrintSafeMode] = useState(true);
   const [memoryPrintSelectedVerseIds, setMemoryPrintSelectedVerseIds] = useState<string[]>([]);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
@@ -3311,6 +3312,7 @@ export default function Home() {
     setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(initialSet).map((verse: any) => String(verse._id)));
     setMemoryPrintLayout("pocket");
     setMemoryPrintCopies(1);
+    setMemoryPrintSafeMode(true);
     setMemoryPrintOptionsOpen(true);
   }
 
@@ -3345,7 +3347,8 @@ export default function Home() {
         translationName: verse.translationName
       })),
       layout: memoryPrintLayout,
-      copies: memoryPrintCopies
+      copies: memoryPrintCopies,
+      safePrint: memoryPrintSafeMode
     });
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
@@ -3360,6 +3363,44 @@ export default function Home() {
     printWindow.focus();
     setMemoryStatus(phoneLayout ? "Memory cards opened. On phone, use Share, then Print or Save to Files." : "Printable memory cards opened.");
     trackUsage("memory_cards_printed", {
+      reference: memoryPrintSet,
+      methodId: memoryPrintLayout,
+      methodName: `${memoryPrintCopies} copy${memoryPrintCopies === 1 ? "" : "ies"}`,
+      tab: "memory"
+    });
+    setMemoryPrintOptionsOpen(false);
+  }
+
+  function downloadEditableMemoryCards() {
+    if (!memoryPrintVerses.length) {
+      setMemoryStatus("Select at least one saved memory verse before downloading cards.");
+      return;
+    }
+    if (Platform.OS !== "web" || typeof window === "undefined" || typeof document === "undefined") {
+      setMemoryStatus("Editable memory cards can be downloaded from the web app.");
+      return;
+    }
+
+    const html = buildEditableMemoryCardsDocHtml({
+      verses: memoryPrintVerses.map((verse: any) => ({
+        reference: verse.reference,
+        verseText: verse.verseText,
+        translationName: verse.translationName
+      })),
+      layout: memoryPrintLayout,
+      copies: memoryPrintCopies
+    });
+    const blob = new Blob([html], { type: "application/msword;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "memory-verse-cards.doc";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setMemoryStatus("Editable memory cards downloaded. Open the file in Word, Pages, or upload it to Google Docs.");
+    trackUsage("memory_cards_doc_downloaded", {
       reference: memoryPrintSet,
       methodId: memoryPrintLayout,
       methodName: `${memoryPrintCopies} copy${memoryPrintCopies === 1 ? "" : "ies"}`,
@@ -8734,8 +8775,18 @@ export default function Home() {
                 </View>
               </View>
 
+              <Pressable onPress={() => setMemoryPrintSafeMode((enabled) => !enabled)} style={styles.printOptionToggle}>
+                <Ionicons name={memoryPrintSafeMode ? "checkbox-outline" : "square-outline"} size={20} color={memoryPrintSafeMode ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
+                <View style={styles.printOptionToggleCopy}>
+                  <Text style={[styles.printOptionToggleText, accountDarkMode && styles.accountDarkText]}>Safe print mode</Text>
+                  <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
+                    Uses fewer cards per page to reduce awkward page splits.
+                  </Text>
+                </View>
+              </Pressable>
+
               <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
-                Open cards will open a new browser tab with the printable cards.
+                Open cards will open a new browser tab. Download editable cards creates a Word-compatible file for Word, Pages, or Google Docs.
               </Text>
             </ScrollView>
 
@@ -8743,6 +8794,7 @@ export default function Home() {
               <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
                 <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
               </Pressable>
+              <ResumeButton label="Download editable" icon="download-outline" onPress={downloadEditableMemoryCards} style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
               <ResumeButton label="Open cards" icon="open-outline" onPress={openPrintableMemoryCards} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
           </View>
@@ -20473,6 +20525,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     minHeight: 32
+  },
+  printOptionToggleCopy: {
+    flex: 1,
+    minWidth: 0
   },
   printOptionToggleText: {
     color: colors.ink,

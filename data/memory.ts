@@ -1,6 +1,6 @@
 export type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized";
 export type MemoryReviewPreset = "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month";
-export type MemoryHistoryEventKind = "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "removed";
+export type MemoryHistoryEventKind = "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "meditated" | "removed";
 export type MemoryMilestoneGoalId =
   | "reviewsToday"
   | "reviewsThisWeek"
@@ -62,6 +62,7 @@ export const MEMORY_HISTORY_EVENT_META: Record<MemoryHistoryEventKind, { label: 
   reviewed: { label: "Reviewed", icon: "checkmark-circle-outline" },
   repeated: { label: "Repeated practice", icon: "refresh-outline" },
   scheduled: { label: "Review scheduled", icon: "calendar-outline" },
+  meditated: { label: "Meditated", icon: "leaf-outline" },
   removed: { label: "Removed", icon: "trash-outline" }
 };
 

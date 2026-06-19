@@ -202,6 +202,7 @@ export default defineSchema({
       v.literal("reviewed"),
       v.literal("repeated"),
       v.literal("scheduled"),
+      v.literal("meditated"),
       v.literal("removed")
     ),
     practiceLevel: v.optional(v.number()),

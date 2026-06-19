@@ -481,6 +481,12 @@ export default function Home() {
   const [memoryMilestoneStatus, setMemoryMilestoneStatus] = useState("");
   const [addMemoryPanelOpen, setAddMemoryPanelOpen] = useState(false);
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
+  const [activeMemoryMeditationVerseId, setActiveMemoryMeditationVerseId] = useState("");
+  const [memoryMeditationStep, setMemoryMeditationStep] = useState(0);
+  const [memoryMeditationPhrase, setMemoryMeditationPhrase] = useState("");
+  const [memoryMeditationReflection, setMemoryMeditationReflection] = useState("");
+  const [memoryMeditationPrayer, setMemoryMeditationPrayer] = useState("");
+  const [memoryMeditationCarry, setMemoryMeditationCarry] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
   const [historyMemoryVerseId, setHistoryMemoryVerseId] = useState("");
   const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
@@ -1245,12 +1251,12 @@ export default function Home() {
   const journalDarkMode = accountDarkMode;
   const communityDarkMode = accountDarkMode;
   const adminDarkMode = accountDarkMode;
-  const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
+  const phoneMemoryFocusMode = phoneLayout && tab === "memory" && (!!activeMemoryVerseId || !!activeMemoryMeditationVerseId);
   const visibleMemorySections = (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
       ...section,
       verses: phoneMemoryFocusMode
-        ? section.verses.filter((verse: any) => String(verse._id) === activeMemoryVerseId)
+        ? section.verses.filter((verse: any) => String(verse._id) === (activeMemoryVerseId || activeMemoryMeditationVerseId))
         : section.verses
     }))
     .filter((section) => section.verses.length > 0);
@@ -3277,6 +3283,7 @@ export default function Home() {
 
   function startMemoryPractice(verse: any) {
     setActiveMemoryVerseId(String(verse._id));
+    setActiveMemoryMeditationVerseId("");
     setMemoryPracticeLevel(isMemoryVerseMemorized(verse) ? 1 : clampMemoryPracticeLevel(verse.practiceLevel || 1));
     setMemoryStepTwoOffset((verse.reviewCount || 0) % 2);
     setMemoryPracticeAnswers({});
@@ -3287,6 +3294,31 @@ export default function Home() {
     setMemoryStatus("");
     setMemoryPracticeFocusKey((current) => current + 1);
     setTab("memory");
+  }
+
+  function startMemoryMeditation(verse: any) {
+    const verseId = String(verse._id);
+    setActiveMemoryVerseId("");
+    setActiveMemoryMeditationVerseId(verseId);
+    setExpandedMemoryVerseIds((current) => current.includes(verseId) ? current : [...current, verseId]);
+    setReviewScheduleVerseId("");
+    setHistoryMemoryVerseId("");
+    setMemoryMeditationStep(0);
+    setMemoryMeditationPhrase("");
+    setMemoryMeditationReflection("");
+    setMemoryMeditationPrayer("");
+    setMemoryMeditationCarry("");
+    setMemoryStatus("");
+    setTab("memory");
+  }
+
+  function closeMemoryMeditation() {
+    setActiveMemoryMeditationVerseId("");
+    setMemoryMeditationStep(0);
+    setMemoryMeditationPhrase("");
+    setMemoryMeditationReflection("");
+    setMemoryMeditationPrayer("");
+    setMemoryMeditationCarry("");
   }
 
   function focusMemoryBlankAfter(index: number, answers: Record<number, string>) {
@@ -3404,6 +3436,46 @@ export default function Home() {
     setMemoryStatus(`Nice${firstName ? `, ${firstName}` : ""}. Review scheduled.`);
   }
 
+  async function saveMemoryMeditation(verse: any) {
+    if (!activeProfileId) return;
+    const phrase = memoryMeditationPhrase.trim();
+    const reflection = memoryMeditationReflection.trim();
+    const prayer = memoryMeditationPrayer.trim();
+    const carry = memoryMeditationCarry.trim();
+    if (!phrase && !reflection && !prayer && !carry) {
+      setMemoryStatus("Add one thought before saving this meditation.");
+      return;
+    }
+
+    try {
+      await saveSession({
+        profileId: activeProfileId,
+        passage: verse.reference,
+        methodId: "memory-meditation",
+        methodName: "Memory Meditation",
+        shareNote: carry ? `Carry today: ${carry}` : undefined,
+        minutes: 5,
+        answers: [
+          { stepTitle: "Scripture", answer: `${verse.reference} (${shortBibleTranslationName(verse.translationName)})\n\n${verse.verseText}` },
+          { stepTitle: "Notice", answer: phrase || "No phrase saved." },
+          { stepTitle: "Reflect", answer: reflection || "No reflection saved." },
+          { stepTitle: "Pray", answer: prayer || "No prayer saved." },
+          { stepTitle: "Carry", answer: carry || "No carry thought saved." }
+        ]
+      });
+      await recordMemoryHistoryEvent({
+        profileId: activeProfileId,
+        memoryVerseId: verse._id,
+        event: "meditated",
+        practiceLevel: verse.practiceLevel || 1
+      });
+      closeMemoryMeditation();
+      setMemoryStatus(`Saved. Carry ${verse.reference} with you today${firstName ? `, ${firstName}` : ""}.`);
+    } catch {
+      setMemoryStatus("Could not save that meditation. Please try again.");
+    }
+  }
+
   async function deleteMemoryVerse(verse: any) {
     if (!activeProfileId) return;
 
@@ -3416,6 +3488,7 @@ export default function Home() {
 
     await removeMemoryVerse({ profileId: activeProfileId, memoryVerseId: verse._id });
     if (activeMemoryVerseId === verseId) setActiveMemoryVerseId("");
+    if (activeMemoryMeditationVerseId === verseId) closeMemoryMeditation();
     setPendingDeleteMemoryVerseId("");
     setMemoryStatus("Memory verse removed");
   }
@@ -5795,8 +5868,10 @@ export default function Home() {
               )}
               {phoneMemoryFocusMode && (
                 <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
-                  <Ionicons name="school-outline" size={18} color={colors.coral} />
-                  <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>Practice mode. Close or finish this verse to return to your saved list.</Text>
+                  <Ionicons name={activeMemoryMeditationVerseId ? "leaf-outline" : "school-outline"} size={18} color={colors.coral} />
+                  <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>
+                    {activeMemoryMeditationVerseId ? "Meditation mode. Save or close this reflection to return to your saved list." : "Practice mode. Close or finish this verse to return to your saved list."}
+                  </Text>
                 </View>
               )}
               {(memoryVerses || []).length === 0 ? (
@@ -6135,15 +6210,16 @@ export default function Home() {
                       {section.verses.map((verse: any) => {
                         const verseId = String(verse._id);
                         const practicing = verseId === activeMemoryVerseId;
+                        const meditating = verseId === activeMemoryMeditationVerseId;
                         const reviewOpen = reviewScheduleVerseId === verseId;
                         const historyOpen = historyMemoryVerseId === verseId;
-                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || reviewOpen || historyOpen;
+                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen;
                         const verseHistory = memoryHistoryItems
                           .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
                           .slice(0, 4);
 
                         return (
-                          <View key={verse._id} style={[styles.memoryCard, memoryDarkMode && styles.accountDarkSection, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, practicing && styles.activeMemoryCard, memoryDarkMode && practicing && styles.memoryDarkActiveCard]}>
+                          <View key={verse._id} style={[styles.memoryCard, memoryDarkMode && styles.accountDarkSection, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, (practicing || meditating) && styles.activeMemoryCard, memoryDarkMode && (practicing || meditating) && styles.memoryDarkActiveCard]}>
                             <Pressable
                               onPress={() => {
                                 setExpandedMemoryVerseIds((current) =>
@@ -6261,6 +6337,92 @@ export default function Home() {
                                   <ResumeButton label="Close" icon="close-outline" onPress={() => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                 </View>
                               </View>
+                            ) : meditating ? (
+                              <View style={[styles.memoryMeditationBox, phoneLayout && styles.phoneMemoryMeditationBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                <View style={styles.memoryMeditationHeader}>
+                                  <View style={styles.journalTitleBlock}>
+                                    <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Meditate</Text>
+                                    <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
+                                  </View>
+                                  <Pressable onPress={closeMemoryMeditation} style={[styles.checkinIconButton, memoryDarkMode && styles.homeDarkIconBubble]} accessibilityLabel="Close meditation">
+                                    <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                  </Pressable>
+                                </View>
+                                <Text style={[styles.memoryMeditationVerse, memoryDarkMode && styles.memoryDarkPracticeText]}>{verse.verseText}</Text>
+                                <View style={[styles.memoryStepRow, memoryDarkMode && styles.accountDarkSegmentedRow]}>
+                                  {["Notice", "Reflect", "Pray", "Carry"].map((label, index) => (
+                                    <Pressable
+                                      key={label}
+                                      onPress={() => setMemoryMeditationStep(index)}
+                                      style={[styles.memoryMeditationStepButton, memoryMeditationStep === index && styles.activeMemoryStepButton]}
+                                    >
+                                      <Text style={[styles.memoryStepText, memoryDarkMode && styles.accountDarkMutedText, memoryMeditationStep === index && styles.activeMemoryStepText]}>{phoneLayout ? index + 1 : label}</Text>
+                                    </Pressable>
+                                  ))}
+                                </View>
+                                {memoryMeditationStep === 0 && (
+                                  <View style={styles.memoryMeditationPromptBox}>
+                                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>What word or phrase stands out today?</Text>
+                                    <TextInput
+                                      value={memoryMeditationPhrase}
+                                      onChangeText={setMemoryMeditationPhrase}
+                                      placeholder="A phrase I am holding..."
+                                      placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
+                                      style={[styles.input, styles.memoryMeditationInput, memoryDarkMode && styles.accountDarkInput]}
+                                    />
+                                  </View>
+                                )}
+                                {memoryMeditationStep === 1 && (
+                                  <View style={styles.memoryMeditationPromptBox}>
+                                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>What does this show you about God, or invite you to trust or obey?</Text>
+                                    <TextInput
+                                      value={memoryMeditationReflection}
+                                      onChangeText={setMemoryMeditationReflection}
+                                      placeholder="This verse is showing me..."
+                                      placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
+                                      multiline
+                                      style={[styles.input, styles.memoryMeditationTextarea, memoryDarkMode && styles.accountDarkInput]}
+                                    />
+                                  </View>
+                                )}
+                                {memoryMeditationStep === 2 && (
+                                  <View style={styles.memoryMeditationPromptBox}>
+                                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Turn this verse into a short prayer.</Text>
+                                    <TextInput
+                                      value={memoryMeditationPrayer}
+                                      onChangeText={setMemoryMeditationPrayer}
+                                      placeholder="Lord, help me..."
+                                      placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
+                                      multiline
+                                      style={[styles.input, styles.memoryMeditationTextarea, memoryDarkMode && styles.accountDarkInput]}
+                                    />
+                                  </View>
+                                )}
+                                {memoryMeditationStep === 3 && (
+                                  <View style={styles.memoryMeditationPromptBox}>
+                                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>What do you want to carry with you today?</Text>
+                                    <TextInput
+                                      value={memoryMeditationCarry}
+                                      onChangeText={setMemoryMeditationCarry}
+                                      placeholder="Today I want to carry..."
+                                      placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
+                                      multiline
+                                      style={[styles.input, styles.memoryMeditationTextarea, memoryDarkMode && styles.accountDarkInput]}
+                                    />
+                                  </View>
+                                )}
+                                <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
+                                  {memoryMeditationStep > 0 && (
+                                    <ResumeButton label="Back" icon="arrow-back-outline" onPress={() => setMemoryMeditationStep((step) => Math.max(0, step - 1))} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                  )}
+                                  {memoryMeditationStep < 3 ? (
+                                    <ResumeButton label="Next" icon="arrow-forward-outline" onPress={() => setMemoryMeditationStep((step) => Math.min(3, step + 1))} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                  ) : (
+                                    <ResumeButton label="Save meditation" icon="journal-outline" onPress={() => saveMemoryMeditation(verse)} variant="primary" style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
+                                  )}
+                                  <ResumeButton label="Close" icon="close-outline" onPress={closeMemoryMeditation} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                </View>
+                              </View>
                             ) : (
                               <>
                                 <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText, memoryDarkMode && styles.accountDarkText]}>{verse.verseText}</Text>
@@ -6302,6 +6464,14 @@ export default function Home() {
                                 </View>}
                                 <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                                   <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                  <ResumeButton
+                                    label="Meditate"
+                                    icon="leaf-outline"
+                                    onPress={() => startMemoryMeditation(verse)}
+                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
+                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                  />
                                   <ResumeButton
                                     label={historyOpen ? "Hide history" : "History"}
                                     icon="time-outline"
@@ -17513,6 +17683,54 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     padding: 10
+  },
+  memoryMeditationBox: {
+    backgroundColor: "#fffdfa",
+    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    padding: 12
+  },
+  phoneMemoryMeditationBox: {
+    padding: 10
+  },
+  memoryMeditationHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  memoryMeditationVerse: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.14)",
+    borderRadius: 12,
+    borderWidth: 1,
+    color: colors.ink,
+    fontSize: 16,
+    fontStyle: "italic",
+    fontWeight: "800",
+    lineHeight: 24,
+    padding: 12
+  },
+  memoryMeditationStepButton: {
+    alignItems: "center",
+    borderRadius: 999,
+    flex: 1,
+    minHeight: 34,
+    minWidth: 0,
+    justifyContent: "center",
+    paddingHorizontal: 8
+  },
+  memoryMeditationPromptBox: {
+    gap: 8
+  },
+  memoryMeditationInput: {
+    minHeight: 46
+  },
+  memoryMeditationTextarea: {
+    minHeight: 92,
+    textAlignVertical: "top"
   },
   memoryPracticeBox: {
     backgroundColor: "#fffaf2",

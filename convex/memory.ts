@@ -13,6 +13,7 @@ const memoryHistoryEvent = v.union(
   v.literal("reviewed"),
   v.literal("repeated"),
   v.literal("scheduled"),
+  v.literal("meditated"),
   v.literal("removed")
 );
 
@@ -285,7 +286,7 @@ async function insertMemoryHistory(
     profileId: Id<"profiles">;
     memoryVerseId?: Id<"memoryVerses">;
     reference: string;
-    event: "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "removed";
+    event: "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "meditated" | "removed";
     practiceLevel?: number;
     reviewCount?: number;
     nextReviewAt?: number;

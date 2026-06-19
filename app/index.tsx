@@ -6151,7 +6151,14 @@ export default function Home() {
                                 </Text>
                               </View>
                               <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
-                                <Text style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill, memoryDarkMode && isMemoryVerseDue(verse) && styles.memoryDarkDueReviewPill]}>{memoryReviewDateLabel(verse.nextReviewAt)}</Text>
+                                <Text
+                                  numberOfLines={phoneLayout ? 2 : 1}
+                                  adjustsFontSizeToFit
+                                  minimumFontScale={0.76}
+                                  style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill, memoryDarkMode && isMemoryVerseDue(verse) && styles.memoryDarkDueReviewPill]}
+                                >
+                                  {memoryReviewDateLabel(verse.nextReviewAt, phoneLayout)}
+                                </Text>
                                 <Text style={[styles.draftPill, memoryDarkMode && styles.plansDarkDraftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>
                             </Pressable>
@@ -17439,11 +17446,12 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     gap: 4,
     justifyContent: "flex-start",
-    maxWidth: 118
+    maxWidth: 132
   },
   phoneMemoryHeaderPill: {
     fontSize: 10,
     lineHeight: 12,
+    maxWidth: 132,
     paddingHorizontal: 7,
     paddingVertical: 4,
     textAlign: "right"

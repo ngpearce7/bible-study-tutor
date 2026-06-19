@@ -17792,7 +17792,8 @@ const styles = StyleSheet.create({
     padding: 10
   },
   memoryMeditationScrim: {
-    backgroundColor: "rgba(36, 29, 25, 0.42)"
+    ...(Platform.OS === "web" ? ({ backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" } as any) : {}),
+    backgroundColor: "rgba(36, 29, 25, 0.56)"
   },
   memoryMeditationFocusCard: {
     alignSelf: "center",

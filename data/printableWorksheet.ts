@@ -172,12 +172,13 @@ export function buildPrintableMemoryCardsHtml({
   const preparedCards = cards.map((verse) => {
     const cardText = prepareMemoryCardText(verse.verseText);
     const metrics = getMemoryCardMetrics(cardText.text, layout);
+    const estimatedHeight = estimateMemoryCardHeight(cardText.text, metrics, layout, cardText.shortened, safePrint);
     return {
       ...verse,
       cardText: cardText.text,
       shortened: cardText.shortened,
-      printVars: getMemoryCardPrintVars(metrics),
-      estimatedHeight: estimateMemoryCardHeight(cardText.text, metrics, layout, cardText.shortened, safePrint)
+      printVars: getMemoryCardPrintVars(metrics, estimatedHeight),
+      estimatedHeight
     };
   });
   const cardHtml = buildMemoryCardPages(preparedCards, layout, safePrint)
@@ -212,7 +213,7 @@ export function buildPrintableMemoryCardsHtml({
       .card-note { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 900; margin: -3px 0 0; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 800; justify-content: space-between; padding-top: 8px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .print-page, .print-page.pocket { grid-template-columns: 1fr; padding: 12px; } }
-      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { display: block; max-width: none; } .print-page { align-content: start; border: 0; break-after: page; box-shadow: none; gap: 6mm; max-width: none; padding: 0; page-break-after: always; } .print-page:last-child { break-after: auto; page-break-after: auto; } .print-page.pocket { grid-template-columns: repeat(2, 1fr); } .print-page.safe { grid-template-columns: 1fr; } .card { break-inside: avoid; page-break-inside: avoid; padding: 7mm; } .large .card { padding: 8mm; } .safe .card { padding: 7mm 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .safe .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
+      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { display: block; max-width: none; } .print-page { align-content: start; border: 0; break-after: page; box-shadow: none; gap: 6mm; height: 281mm; max-height: 281mm; max-width: none; overflow: hidden; padding: 0; page-break-after: always; page-break-inside: avoid; } .print-page:last-child { break-after: auto; page-break-after: auto; } .print-page.pocket { grid-template-columns: repeat(2, 1fr); } .print-page.safe { grid-template-columns: 1fr; } .card { break-inside: avoid; height: var(--card-height); max-height: var(--card-height); page-break-inside: avoid; padding: 7mm; } .large .card { padding: 8mm; } .safe .card { padding: 7mm 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .safe .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
     </style>
   </head>
   <body>
@@ -325,13 +326,13 @@ function renderMemoryCard(verse: PreparedMemoryCard) {
 }
 
 function buildMemoryCardPages(cards: PreparedMemoryCard[], layout: MemoryCardLayout, safePrint = false) {
-  if (layout === "large" || safePrint) return packMemoryCardRows(cards.map((card) => [card]), safePrint ? 266 : 281);
+  if (layout === "large" || safePrint) return packMemoryCardRows(cards.map((card) => [card]), safePrint ? 258 : 272);
 
   const rows: PreparedMemoryCard[][] = [];
   for (let index = 0; index < cards.length; index += 2) {
     rows.push(cards.slice(index, index + 2));
   }
-  return packMemoryCardRows(rows, 266);
+  return packMemoryCardRows(rows, 258);
 }
 
 function packMemoryCardRows(rows: PreparedMemoryCard[][], pageHeight: number) {
@@ -387,8 +388,9 @@ function estimateMemoryCardHeight(value: string, settings: ReturnType<typeof get
   return Math.min(layout === "large" || safePrint ? 150 : 128, Math.max(layout === "large" || safePrint ? 56 : 46, Math.ceil(estimate)));
 }
 
-function getMemoryCardPrintVars(settings: ReturnType<typeof getMemoryCardMetrics>) {
+function getMemoryCardPrintVars(settings: ReturnType<typeof getMemoryCardMetrics>, estimatedHeight: number) {
   return [
+    `--card-height:${estimatedHeight}mm`,
     `--screen-pocket-size:${settings.screenPocket}px`,
     `--screen-large-size:${settings.screenLarge}px`,
     `--print-pocket-size:${settings.printPocket}px`,

@@ -13,7 +13,7 @@ import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
-import { buildPrintableStudyWorksheetHtml, type WorksheetWritingSpace } from "@/data/printableWorksheet";
+import { buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -29,6 +29,7 @@ type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
+type MemoryPrintSet = "due" | "reviewed" | "all" | "current";
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
@@ -508,6 +509,10 @@ export default function Home() {
   const [printWorksheetMethodId, setPrintWorksheetMethodId] = useState(methods[0]?.id || "");
   const [printWorksheetWritingSpace, setPrintWorksheetWritingSpace] = useState<WorksheetWritingSpace>("standard");
   const [printWorksheetIncludes, setPrintWorksheetIncludes] = useState({ memory: true, insight: true });
+  const [memoryPrintOptionsOpen, setMemoryPrintOptionsOpen] = useState(false);
+  const [memoryPrintSet, setMemoryPrintSet] = useState<MemoryPrintSet>("due");
+  const [memoryPrintLayout, setMemoryPrintLayout] = useState<MemoryCardLayout>("pocket");
+  const [memoryPrintCopies, setMemoryPrintCopies] = useState(1);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
@@ -1261,6 +1266,14 @@ export default function Home() {
         : section.verses
     }))
     .filter((section) => section.verses.length > 0);
+  const currentBrowseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
+  const memoryPrintVerses = useMemo(() => {
+    const saved = memoryVerses || [];
+    if (memoryPrintSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
+    if (memoryPrintSet === "reviewed") return saved.filter((verse: any) => !isMemoryVerseDue(verse));
+    if (memoryPrintSet === "current") return memoryView === "browse" ? currentBrowseMemoryVerses : visibleMemorySections.flatMap((section) => section.verses);
+    return saved;
+  }, [currentBrowseMemoryVerses, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
 
   useEffect(() => {
     if (compactLayout && tab === "bible") setReaderNavCollapsed(true);
@@ -3280,6 +3293,58 @@ export default function Home() {
       tab: printWorksheetRequest.source
     });
     setPrintWorksheetRequest(null);
+  }
+
+  function openMemoryPrintOptions() {
+    if (!(memoryVerses || []).length) {
+      setMemoryStatus("Add a memory verse before printing cards.");
+      return;
+    }
+    setMemoryPrintSet(dueMemoryCount > 0 ? "due" : "all");
+    setMemoryPrintLayout("pocket");
+    setMemoryPrintCopies(1);
+    setMemoryPrintOptionsOpen(true);
+  }
+
+  function openPrintableMemoryCards() {
+    if (!memoryPrintVerses.length) {
+      setMemoryStatus("No memory verses match that print selection.");
+      return;
+    }
+    if (Platform.OS !== "web" || typeof window === "undefined") {
+      setMemoryStatus("Memory cards are available to print from the web app.");
+      setMemoryPrintOptionsOpen(false);
+      return;
+    }
+
+    const html = buildPrintableMemoryCardsHtml({
+      verses: memoryPrintVerses.map((verse: any) => ({
+        reference: verse.reference,
+        verseText: verse.verseText,
+        translationName: verse.translationName
+      })),
+      layout: memoryPrintLayout,
+      copies: memoryPrintCopies
+    });
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      setMemoryStatus("Allow pop-ups to open printable memory cards.");
+      return;
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.document.title = "Memory Verse Cards";
+    printWindow.focus();
+    setMemoryStatus(phoneLayout ? "Memory cards opened. On phone, use Share, then Print or Save to Files." : "Printable memory cards opened.");
+    trackUsage("memory_cards_printed", {
+      reference: memoryPrintSet,
+      methodId: memoryPrintLayout,
+      methodName: `${memoryPrintCopies} copy${memoryPrintCopies === 1 ? "" : "ies"}`,
+      tab: "memory"
+    });
+    setMemoryPrintOptionsOpen(false);
   }
 
   function startMemoryPractice(verse: any) {
@@ -5919,21 +5984,29 @@ export default function Home() {
                       )}
                     </View>
                   )}
-                  {!phoneMemoryFocusMode && <View style={[styles.memoryViewToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
-                    {[
-                      ["review", "Review"],
-                      ["browse", "Browse"],
-                      ["history", "History"]
-                    ].map(([key, label]) => (
-                      <Pressable
-                        key={key}
-                        onPress={() => setMemoryView(key as MemoryView)}
-                        style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
-                      >
-                        <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
+                  {!phoneMemoryFocusMode && (
+                    <View style={[styles.memoryModeToolbar, phoneLayout && styles.phoneMemoryModeToolbar]}>
+                      <View style={[styles.memoryViewToggle, styles.memoryModeToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
+                        {[
+                          ["review", "Review"],
+                          ["browse", "Browse"],
+                          ["history", "History"]
+                        ].map(([key, label]) => (
+                          <Pressable
+                            key={key}
+                            onPress={() => setMemoryView(key as MemoryView)}
+                            style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
+                          >
+                            <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                      <Pressable onPress={openMemoryPrintOptions} style={[styles.memoryPrintCardsButton, memoryDarkMode && styles.homeDarkResumeButton]}>
+                        <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>
                       </Pressable>
-                    ))}
-                  </View>}
+                    </View>
+                  )}
                   {!phoneMemoryFocusMode && memoryView === "history" && (
                     <View style={styles.memoryHistoryStack}>
                         <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
@@ -8518,6 +8591,84 @@ export default function Home() {
               ) : (
                 <ResumeButton label="Save meditation" icon="journal-outline" onPress={() => saveMemoryMeditation(activeMemoryMeditationVerse)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
               )}
+            </View>
+          </View>
+        </View>
+      )}
+      {memoryPrintOptionsOpen && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setMemoryPrintOptionsOpen(false)} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Print memory cards</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                  {memoryPrintVerses.length} verse{memoryPrintVerses.length === 1 ? "" : "s"} selected · {memoryPrintCopies} cop{memoryPrintCopies === 1 ? "y" : "ies"} each
+                </Text>
+              </View>
+              <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Verses</Text>
+              <View style={styles.printOptionChipRow}>
+                {[
+                  ["due", "Due for review"],
+                  ["reviewed", "Reviewed"],
+                  ["all", "All saved"],
+                  ["current", memoryView === "browse" ? "Current browse results" : "Current view"]
+                ].map(([key, label]) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => setMemoryPrintSet(key as MemoryPrintSet)}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintSet === key && styles.activePrintOptionChip]}
+                  >
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintSet === key && styles.activePrintOptionChipText]}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Layout</Text>
+              <View style={styles.printOptionChipRow}>
+                {[
+                  ["pocket", "Pocket cards"],
+                  ["large", "Large cards"]
+                ].map(([key, label]) => (
+                  <Pressable
+                    key={key}
+                    onPress={() => setMemoryPrintLayout(key as MemoryCardLayout)}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintLayout === key && styles.activePrintOptionChip]}
+                  >
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintLayout === key && styles.activePrintOptionChipText]}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Copies of each verse</Text>
+              <View style={styles.printOptionChipRow}>
+                {[1, 2, 3, 4, 6].map((count) => (
+                  <Pressable
+                    key={count}
+                    onPress={() => setMemoryPrintCopies(count)}
+                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintCopies === count && styles.activePrintOptionChip]}
+                  >
+                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintCopies === count && styles.activePrintOptionChipText]}>{count}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.printOptionsActions}>
+              <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+              </Pressable>
+              <ResumeButton label="Open cards" icon="open-outline" onPress={openPrintableMemoryCards} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
           </View>
         </View>
@@ -17320,6 +17471,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 5,
     padding: 4
+  },
+  memoryModeToolbar: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10
+  },
+  phoneMemoryModeToolbar: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 8
+  },
+  memoryModeToggle: {
+    flex: 1
+  },
+  memoryPrintCardsButton: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    justifyContent: "center",
+    minHeight: 44,
+    paddingHorizontal: 13
+  },
+  memoryPrintCardsButtonText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   memoryViewButton: {
     alignItems: "center",

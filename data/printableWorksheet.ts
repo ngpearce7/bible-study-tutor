@@ -1,8 +1,15 @@
 export type WorksheetWritingSpace = "standard" | "more";
+export type MemoryCardLayout = "pocket" | "large";
 
 type PrintableWorksheetVerse = {
   verse: number;
   text: string;
+};
+
+type PrintableMemoryCardVerse = {
+  reference: string;
+  verseText: string;
+  translationName?: string;
 };
 
 type PrintableWorksheetMethodStep = {
@@ -139,6 +146,71 @@ export function buildPrintableStudyWorksheetHtml({
 </html>`;
 }
 
+export function buildPrintableMemoryCardsHtml({
+  verses,
+  layout = "pocket",
+  copies = 1
+}: {
+  verses: PrintableMemoryCardVerse[];
+  layout?: MemoryCardLayout;
+  copies?: number;
+}) {
+  const safeCopies = Math.max(1, Math.min(12, Math.round(copies || 1)));
+  const cards = verses.flatMap((verse) => Array.from({ length: safeCopies }, () => verse));
+  const layoutClass = layout === "large" ? "large" : "pocket";
+  const title = layout === "large" ? "Large Memory Cards" : "Pocket Memory Cards";
+  const cardHtml = cards.map((verse) => `
+    <article class="card">
+      <div class="brand">Bible Study Tutor</div>
+      <h2>${escapeHtml(verse.reference)}</h2>
+      <p class="verse">${escapeHtml(verse.verseText)}</p>
+      <div class="footer">
+        <span>${escapeHtml(shortTranslationForPrint(verse.translationName))}</span>
+        <span>biblestudytutor.org</span>
+      </div>
+      <div class="carry">Carry today: ________________________________________</div>
+    </article>
+  `).join("");
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(title)}</title>
+    <style>
+      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #c96750; --soft: #fffaf2; }
+      * { box-sizing: border-box; }
+      body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 24px; }
+      .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 980px; }
+      .toolbar p { color: var(--muted); margin: 0; }
+      .print-shortcut { background: #fff6eb; border: 1px solid var(--line); border-radius: 999px; color: var(--olive); font-weight: 900; padding: 8px 12px; white-space: nowrap; }
+      .sheet { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); display: grid; gap: 14px; margin: 0 auto; max-width: 980px; padding: 24px; }
+      .sheet.pocket { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .sheet.large { grid-template-columns: 1fr; }
+      .card { background: white; border: 1.5px solid var(--line); border-radius: 14px; break-inside: avoid; display: flex; flex-direction: column; gap: 10px; min-height: 300px; padding: 20px; page-break-inside: avoid; }
+      .large .card { min-height: 455px; padding: 28px; }
+      .brand { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+      h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 22px; line-height: 1.1; margin: 0; }
+      .large h2 { font-size: 30px; }
+      .verse { color: var(--ink); flex: 1; font-size: 18px; font-weight: 700; line-height: 1.5; margin: 0; }
+      .large .verse { font-size: 24px; line-height: 1.55; }
+      .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 800; justify-content: space-between; padding-top: 8px; }
+      .carry { color: var(--muted); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 800; }
+      @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .sheet, .sheet.pocket { grid-template-columns: 1fr; padding: 12px; } }
+      @media print { @page { margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { border: 0; box-shadow: none; gap: 8mm; max-width: none; padding: 0; } .sheet.pocket { grid-template-columns: repeat(2, 1fr); } .card { min-height: 126mm; } .large .card { min-height: 132mm; } }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <p>${escapeHtml(title)}. On desktop, use your browser's print command. On phone or tablet, use Share, then Print or Save to Files.</p>
+      <span class="print-shortcut">Desktop: Ctrl+P or Cmd+P</span>
+    </div>
+    <main class="sheet ${layoutClass}">${cardHtml}</main>
+  </body>
+</html>`;
+}
+
 function getPrintableStepLineCount(verseCount: number, stepCount: number, writingSpace: WorksheetWritingSpace = "standard") {
   if (writingSpace === "more") {
     if (verseCount <= 1) return 8;
@@ -159,4 +231,12 @@ function escapeHtml(value: string | number | undefined | null) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function shortTranslationForPrint(value?: string) {
+  const normalized = (value || "").toLowerCase();
+  if (normalized.includes("berean")) return "BSB";
+  if (normalized.includes("world english")) return "WEB";
+  if (normalized.includes("king james")) return "KJV";
+  return value || "";
 }

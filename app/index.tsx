@@ -1918,6 +1918,7 @@ export default function Home() {
   }
 
   async function submitAuth() {
+    Keyboard.dismiss();
     const rawIdentifier = authIdentifier.trim();
     const isEmailCredential = authInputLooksLikeEmail(rawIdentifier);
     const email = rawIdentifier.toLowerCase();
@@ -6942,7 +6943,7 @@ export default function Home() {
                         autoCapitalize="words"
                         placeholder="Your name"
                         placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
-                        style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                        style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                       />
                     )}
                     <TextInput
@@ -6951,7 +6952,7 @@ export default function Home() {
                       autoCapitalize="none"
                       placeholder="Email or username"
                       placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
-                      style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                      style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                     />
                     <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
                       {authFlow === "signIn"
@@ -6965,7 +6966,7 @@ export default function Home() {
                       secureTextEntry
                       placeholder="Password"
                       placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
-                      style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                      style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                     />
                     <AppButton label={authFlow === "signIn" ? "Sign in" : "Create account"} onPress={submitAuth} />
                   </>
@@ -14150,6 +14151,10 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minHeight: 48,
     paddingHorizontal: 14
+  },
+  accountAuthInput: {
+    fontSize: 16,
+    lineHeight: 22
   },
   smartPassageBox: {
     backgroundColor: "#fffdfa",

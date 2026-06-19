@@ -318,7 +318,7 @@ type BibleSearchResult = {
 };
 
 export default function Home() {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const ensureProfile = useMutation(api.study.ensureProfile);
   const saveSession = useMutation(api.study.saveSession);
   const scheduleStudyReviewMutation = useMutation(api.study.scheduleStudyReview);
@@ -8619,7 +8619,15 @@ export default function Home() {
       {memoryPrintOptionsOpen && (
         <View style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setMemoryPrintOptionsOpen(false)} />
-          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+          <View
+            style={[
+              styles.printOptionsCard,
+              styles.memoryPrintOptionsCard,
+              phoneLayout && styles.phonePrintOptionsCard,
+              phoneLayout && { maxHeight: Math.max(320, height - 96) },
+              accountDarkMode && styles.accountDarkMainCard
+            ]}
+          >
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
                 <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Print memory cards</Text>
@@ -8632,102 +8640,104 @@ export default function Home() {
               </Pressable>
             </View>
 
-            <View style={styles.printOptionGroup}>
-              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Verses</Text>
-              <View style={styles.printOptionChipRow}>
-                {[
-                  ["due", "Due for review"],
-                  ["reviewed", "Reviewed"],
-                  ["all", "All saved"],
-                  ["current", memoryView === "browse" ? "Current browse results" : "Current view"],
-                  ["custom", "Custom"]
-                ].map(([key, label]) => (
-                  <Pressable
-                    key={key}
-                    onPress={() => changeMemoryPrintSet(key as MemoryPrintSet)}
-                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintSet === key && styles.activePrintOptionChip]}
-                  >
-                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintSet === key && styles.activePrintOptionChipText]}>{label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-
-            {memoryPrintSet === "custom" && (
+            <ScrollView style={styles.memoryPrintOptionsScroll} contentContainerStyle={styles.memoryPrintOptionsScrollContent} keyboardShouldPersistTaps="handled">
               <View style={styles.printOptionGroup}>
-                <View style={styles.memoryPrintPickerHeader}>
-                  <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Choose saved verses</Text>
-                  <View style={styles.memoryPrintPickerActions}>
-                    <Pressable onPress={() => setMemoryPrintSelectedVerseIds(memoryPrintCandidateVerses.map((verse: any) => String(verse._id)))}>
-                      <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Select all</Text>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Verses</Text>
+                <View style={styles.printOptionChipRow}>
+                  {[
+                    ["due", "Due for review"],
+                    ["reviewed", "Reviewed"],
+                    ["all", "All saved"],
+                    ["current", memoryView === "browse" ? "Current browse results" : "Current view"],
+                    ["custom", "Custom"]
+                  ].map(([key, label]) => (
+                    <Pressable
+                      key={key}
+                      onPress={() => changeMemoryPrintSet(key as MemoryPrintSet)}
+                      style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintSet === key && styles.activePrintOptionChip]}
+                    >
+                      <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintSet === key && styles.activePrintOptionChipText]}>{label}</Text>
                     </Pressable>
-                    <Pressable onPress={() => setMemoryPrintSelectedVerseIds([])}>
-                      <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Clear</Text>
-                    </Pressable>
-                  </View>
+                  ))}
                 </View>
-                {memoryPrintCandidateVerses.length > 0 ? (
-                  <ScrollView style={[styles.memoryPrintVersePicker, accountDarkMode && styles.memoryDarkSubPanel]} contentContainerStyle={styles.memoryPrintVersePickerContent} keyboardShouldPersistTaps="handled">
-                    {memoryPrintCandidateVerses.map((verse: any) => {
-                      const verseId = String(verse._id);
-                      const selected = memoryPrintSelectedVerseIds.includes(verseId);
-                      return (
-                        <Pressable
-                          key={verseId}
-                          onPress={() => toggleMemoryPrintVerse(verseId)}
-                          style={[styles.memoryPrintVerseRow, accountDarkMode && styles.memoryDarkSoftPanel, selected && styles.activeMemoryPrintVerseRow]}
-                        >
-                          <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={selected ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
-                          <View style={styles.memoryPrintVerseCopy}>
-                            <Text style={[styles.memoryPrintVerseReference, accountDarkMode && styles.accountDarkText]} numberOfLines={1}>{verse.reference}</Text>
-                            <Text style={[styles.memoryPrintVerseText, accountDarkMode && styles.accountDarkMutedText]} numberOfLines={2}>{verse.verseText}</Text>
-                          </View>
-                        </Pressable>
-                      );
-                    })}
-                  </ScrollView>
-                ) : (
-                  <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match this group yet.</Text>
-                )}
               </View>
-            )}
 
-            <View style={styles.printOptionGroup}>
-              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Layout</Text>
-              <View style={styles.printOptionChipRow}>
-                {[
-                  ["pocket", "Pocket cards"],
-                  ["large", "Large cards"]
-                ].map(([key, label]) => (
-                  <Pressable
-                    key={key}
-                    onPress={() => setMemoryPrintLayout(key as MemoryCardLayout)}
-                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintLayout === key && styles.activePrintOptionChip]}
-                  >
-                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintLayout === key && styles.activePrintOptionChipText]}>{label}</Text>
-                  </Pressable>
-                ))}
+              {memoryPrintSet === "custom" && (
+                <View style={styles.printOptionGroup}>
+                  <View style={styles.memoryPrintPickerHeader}>
+                    <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Choose saved verses</Text>
+                    <View style={styles.memoryPrintPickerActions}>
+                      <Pressable onPress={() => setMemoryPrintSelectedVerseIds(memoryPrintCandidateVerses.map((verse: any) => String(verse._id)))}>
+                        <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Select all</Text>
+                      </Pressable>
+                      <Pressable onPress={() => setMemoryPrintSelectedVerseIds([])}>
+                        <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Clear</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                  {memoryPrintCandidateVerses.length > 0 ? (
+                    <ScrollView style={[styles.memoryPrintVersePicker, accountDarkMode && styles.memoryDarkSubPanel]} contentContainerStyle={styles.memoryPrintVersePickerContent} keyboardShouldPersistTaps="handled">
+                      {memoryPrintCandidateVerses.map((verse: any) => {
+                        const verseId = String(verse._id);
+                        const selected = memoryPrintSelectedVerseIds.includes(verseId);
+                        return (
+                          <Pressable
+                            key={verseId}
+                            onPress={() => toggleMemoryPrintVerse(verseId)}
+                            style={[styles.memoryPrintVerseRow, accountDarkMode && styles.memoryDarkSoftPanel, selected && styles.activeMemoryPrintVerseRow]}
+                          >
+                            <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={selected ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
+                            <View style={styles.memoryPrintVerseCopy}>
+                              <Text style={[styles.memoryPrintVerseReference, accountDarkMode && styles.accountDarkText]} numberOfLines={1}>{verse.reference}</Text>
+                              <Text style={[styles.memoryPrintVerseText, accountDarkMode && styles.accountDarkMutedText]} numberOfLines={2}>{verse.verseText}</Text>
+                            </View>
+                          </Pressable>
+                        );
+                      })}
+                    </ScrollView>
+                  ) : (
+                    <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match this group yet.</Text>
+                  )}
+                </View>
+              )}
+
+              <View style={styles.printOptionGroup}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Layout</Text>
+                <View style={styles.printOptionChipRow}>
+                  {[
+                    ["pocket", "Pocket cards"],
+                    ["large", "Large cards"]
+                  ].map(([key, label]) => (
+                    <Pressable
+                      key={key}
+                      onPress={() => setMemoryPrintLayout(key as MemoryCardLayout)}
+                      style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintLayout === key && styles.activePrintOptionChip]}
+                    >
+                      <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintLayout === key && styles.activePrintOptionChipText]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
               </View>
-            </View>
 
-            <View style={styles.printOptionGroup}>
-              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Copies of each verse</Text>
-              <View style={styles.printOptionChipRow}>
-                {[1, 2, 3, 4, 6].map((count) => (
-                  <Pressable
-                    key={count}
-                    onPress={() => setMemoryPrintCopies(count)}
-                    style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintCopies === count && styles.activePrintOptionChip]}
-                  >
-                    <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintCopies === count && styles.activePrintOptionChipText]}>{count}</Text>
-                  </Pressable>
-                ))}
+              <View style={styles.printOptionGroup}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Copies of each verse</Text>
+                <View style={styles.printOptionChipRow}>
+                  {[1, 2, 3, 4, 6].map((count) => (
+                    <Pressable
+                      key={count}
+                      onPress={() => setMemoryPrintCopies(count)}
+                      style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintCopies === count && styles.activePrintOptionChip]}
+                    >
+                      <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintCopies === count && styles.activePrintOptionChipText]}>{count}</Text>
+                    </Pressable>
+                  ))}
+                </View>
               </View>
-            </View>
 
-            <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
-              Open cards will open a new browser tab with the printable cards.
-            </Text>
+              <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
+                Open cards will open a new browser tab with the printable cards.
+              </Text>
+            </ScrollView>
 
             <View style={styles.printOptionsActions}>
               <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
@@ -20313,6 +20323,9 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     width: "88%"
   },
+  memoryPrintOptionsCard: {
+    overflow: "hidden"
+  },
   editorSettingsCard: {
     maxWidth: 520,
     overflow: "hidden"
@@ -20488,6 +20501,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     maxHeight: 190
+  },
+  memoryPrintOptionsScroll: {
+    flexShrink: 1,
+    minHeight: 0
+  },
+  memoryPrintOptionsScrollContent: {
+    gap: 14,
+    paddingBottom: 2
   },
   memoryPrintVersePickerContent: {
     gap: 8,

@@ -29,7 +29,7 @@ type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
-type MemoryPrintSet = "due" | "reviewed" | "all" | "current";
+type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "custom";
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
@@ -8639,7 +8639,8 @@ export default function Home() {
                   ["due", "Due for review"],
                   ["reviewed", "Reviewed"],
                   ["all", "All saved"],
-                  ["current", memoryView === "browse" ? "Current browse results" : "Current view"]
+                  ["current", memoryView === "browse" ? "Current browse results" : "Current view"],
+                  ["custom", "Custom"]
                 ].map(([key, label]) => (
                   <Pressable
                     key={key}
@@ -8652,42 +8653,44 @@ export default function Home() {
               </View>
             </View>
 
-            <View style={styles.printOptionGroup}>
-              <View style={styles.memoryPrintPickerHeader}>
-                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Choose saved verses</Text>
-                <View style={styles.memoryPrintPickerActions}>
-                  <Pressable onPress={() => setMemoryPrintSelectedVerseIds(memoryPrintCandidateVerses.map((verse: any) => String(verse._id)))}>
-                    <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Select all</Text>
-                  </Pressable>
-                  <Pressable onPress={() => setMemoryPrintSelectedVerseIds([])}>
-                    <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Clear</Text>
-                  </Pressable>
+            {memoryPrintSet === "custom" && (
+              <View style={styles.printOptionGroup}>
+                <View style={styles.memoryPrintPickerHeader}>
+                  <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Choose saved verses</Text>
+                  <View style={styles.memoryPrintPickerActions}>
+                    <Pressable onPress={() => setMemoryPrintSelectedVerseIds(memoryPrintCandidateVerses.map((verse: any) => String(verse._id)))}>
+                      <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Select all</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setMemoryPrintSelectedVerseIds([])}>
+                      <Text style={[styles.memoryPrintPickerActionText, accountDarkMode && styles.studyDarkAccentText]}>Clear</Text>
+                    </Pressable>
+                  </View>
                 </View>
+                {memoryPrintCandidateVerses.length > 0 ? (
+                  <ScrollView style={[styles.memoryPrintVersePicker, accountDarkMode && styles.memoryDarkSubPanel]} contentContainerStyle={styles.memoryPrintVersePickerContent} keyboardShouldPersistTaps="handled">
+                    {memoryPrintCandidateVerses.map((verse: any) => {
+                      const verseId = String(verse._id);
+                      const selected = memoryPrintSelectedVerseIds.includes(verseId);
+                      return (
+                        <Pressable
+                          key={verseId}
+                          onPress={() => toggleMemoryPrintVerse(verseId)}
+                          style={[styles.memoryPrintVerseRow, accountDarkMode && styles.memoryDarkSoftPanel, selected && styles.activeMemoryPrintVerseRow]}
+                        >
+                          <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={selected ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
+                          <View style={styles.memoryPrintVerseCopy}>
+                            <Text style={[styles.memoryPrintVerseReference, accountDarkMode && styles.accountDarkText]} numberOfLines={1}>{verse.reference}</Text>
+                            <Text style={[styles.memoryPrintVerseText, accountDarkMode && styles.accountDarkMutedText]} numberOfLines={2}>{verse.verseText}</Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </ScrollView>
+                ) : (
+                  <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match this group yet.</Text>
+                )}
               </View>
-              {memoryPrintCandidateVerses.length > 0 ? (
-                <ScrollView style={[styles.memoryPrintVersePicker, accountDarkMode && styles.memoryDarkSubPanel]} contentContainerStyle={styles.memoryPrintVersePickerContent} keyboardShouldPersistTaps="handled">
-                  {memoryPrintCandidateVerses.map((verse: any) => {
-                    const verseId = String(verse._id);
-                    const selected = memoryPrintSelectedVerseIds.includes(verseId);
-                    return (
-                      <Pressable
-                        key={verseId}
-                        onPress={() => toggleMemoryPrintVerse(verseId)}
-                        style={[styles.memoryPrintVerseRow, accountDarkMode && styles.memoryDarkSoftPanel, selected && styles.activeMemoryPrintVerseRow]}
-                      >
-                        <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={selected ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
-                        <View style={styles.memoryPrintVerseCopy}>
-                          <Text style={[styles.memoryPrintVerseReference, accountDarkMode && styles.accountDarkText]} numberOfLines={1}>{verse.reference}</Text>
-                          <Text style={[styles.memoryPrintVerseText, accountDarkMode && styles.accountDarkMutedText]} numberOfLines={2}>{verse.verseText}</Text>
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              ) : (
-                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match this group yet.</Text>
-              )}
-            </View>
+            )}
 
             <View style={styles.printOptionGroup}>
               <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Layout</Text>

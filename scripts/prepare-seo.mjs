@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
@@ -6,7 +6,6 @@ const productionSiteUrl = "https://biblestudytutor.org";
 const rawSiteUrl = process.env.EXPO_PUBLIC_SITE_URL || process.env.SITE_URL || "";
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
 const siteUrl = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedSiteUrl) ? productionSiteUrl : normalizedSiteUrl || productionSiteUrl;
-const now = new Date().toISOString();
 const seoPages = [
   {
     path: "/about",
@@ -18,7 +17,7 @@ const seoPages = [
     sections: [
       ["Built around Scripture", "The app is shaped by James 4:8 and 2 Timothy 3:16: draw near to God, and let Scripture teach, correct, train, and form daily life."],
       ["Digital or pen and paper", "Use guided study tools inside the app, or print Bible study worksheets for people who prefer handwriting, group handouts, or quiet study away from a screen."],
-      ["For personal and church use", "Read the Bible, follow study methods, save journal entries, memorize verses, and create simple check-ins for trusted community."]
+      ["For personal and church use", "Read the Bible, follow study methods, save journal entries, memorize verses, and share private encouragements with trusted friends or circles."]
     ],
     cta: "Open Bible Study Tutor"
   },
@@ -54,7 +53,7 @@ const seoPages = [
     path: "/features",
     file: "features.html",
     title: "Bible Study Tutor Features | Read, Study, Journal, Memorize and Print",
-    description: "Explore Bible Study Tutor features: Bible reader, Scripture search, guided study, printable worksheets, journal, memory verses, highlights, bookmarks, and community check-ins.",
+    description: "Explore Bible Study Tutor features: Bible reader, Scripture search, guided study, printable worksheets, journal, memory verses, highlights, bookmarks, and private encouragements.",
     heading: "Bible Study Tutor features",
     intro: "Bible Study Tutor brings reading, study, memory, journaling, and simple community rhythms together in one free app.",
     sections: [
@@ -73,7 +72,7 @@ copyFileSync(
 );
 copyFileSync(join(process.cwd(), "assets", "icon.png"), join(publicDir, "icon.png"));
 copyFileSync(join(process.cwd(), "assets", "favicon.png"), join(publicDir, "favicon.png"));
-writeFileSync(join(publicDir, "favicon.ico"), pngToIco(readFileSync(join(process.cwd(), "assets", "favicon.png")), 48, 48));
+writeFileIfChanged(join(publicDir, "favicon.ico"), pngToIco(readFileSync(join(process.cwd(), "assets", "favicon.png")), 48, 48));
 
 const robots = [
   "User-agent: *",
@@ -81,17 +80,17 @@ const robots = [
   siteUrl ? `Sitemap: ${siteUrl}/sitemap.xml` : ""
 ].filter(Boolean).join("\n") + "\n";
 
-writeFileSync(join(publicDir, "robots.txt"), robots);
+writeFileIfChanged(join(publicDir, "robots.txt"), robots);
 
 seoPages.forEach((page) => {
-  writeFileSync(join(publicDir, page.file), buildSeoPage(page, siteUrl));
+  writeFileIfChanged(join(publicDir, page.file), buildSeoPage(page, siteUrl));
 });
 
 const redirects = [
   "/index.html / 301",
   ...seoPages.map((page) => `/${page.file} ${page.path} 301`)
 ].join("\n") + "\n";
-writeFileSync(join(publicDir, "_redirects"), redirects);
+writeFileIfChanged(join(publicDir, "_redirects"), redirects);
 
 if (siteUrl) {
   const sitemapUrls = [
@@ -102,13 +101,12 @@ if (siteUrl) {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemapUrls.map((url) => `  <url>
     <loc>${url.loc}</loc>
-    <lastmod>${now}</lastmod>
     <changefreq>${url.changefreq}</changefreq>
     <priority>${url.priority}</priority>
   </url>`).join("\n")}
 </urlset>
 `;
-  writeFileSync(join(publicDir, "sitemap.xml"), sitemap);
+  writeFileIfChanged(join(publicDir, "sitemap.xml"), sitemap);
 } else {
   rmSync(join(publicDir, "sitemap.xml"), { force: true });
 }
@@ -229,4 +227,10 @@ function pngToIco(png, width, height) {
   directory.writeUInt32LE(header.length + directory.length, 12);
 
   return Buffer.concat([header, directory, png]);
+}
+
+function writeFileIfChanged(filePath, content) {
+  const next = Buffer.isBuffer(content) ? content : Buffer.from(String(content));
+  if (existsSync(filePath) && Buffer.compare(readFileSync(filePath), next) === 0) return;
+  writeFileSync(filePath, content);
 }

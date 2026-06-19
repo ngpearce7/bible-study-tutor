@@ -3,7 +3,7 @@ export type LegalSectionContent = {
   body: string;
 };
 
-export const LEGAL_LAST_UPDATED = "June 4, 2026";
+export const LEGAL_LAST_UPDATED = "June 20, 2026";
 
 export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   {
@@ -12,7 +12,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Information you provide",
-    body: "The app may store your name, email address, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, encouragements, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared friend or circle posts, and reactions."
+    body: "The app may store your name, email address if you choose to provide one, unique username if you create a username-only account, password-protected account details, study notes, journal entries, saved highlights, bookmarks, memory verses, review dates, encouragements, feedback messages, app preferences, friend connections, friend codes, private circle memberships, invite codes, shared friend or circle posts, and reactions."
   },
   {
     title: "Faith and personal reflections",
@@ -40,7 +40,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Admin insights and feedback",
-    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, app share counts, QR-code arrivals, and feature usage. These insights are used to improve the app and keep it helpful and safe."
+    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, app share counts, QR-code arrivals, feature usage, blocked security events, account suspension status, and admin review notes. These insights are used to improve the app and keep it helpful and safe."
   },
   {
     title: "Study coaching",
@@ -60,7 +60,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Security",
-    body: "We take reasonable steps to protect the app and stored information, including account access controls and backend authorization checks. No online service can be guaranteed completely secure, so use a strong password and sign out on shared devices."
+    body: "We take reasonable steps to protect the app and stored information, including account access controls, backend authorization checks, rate limits, suspicious activity logging, and administrator review tools. No online service can be guaranteed completely secure, so use a strong password and sign out on shared devices."
   },
   {
     title: "Children and shared devices",
@@ -87,7 +87,7 @@ export const TERMS_OF_SERVICE_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Your account",
-    body: "Creating an account is free. You are responsible for keeping your sign-in details secure and for activity on your account. Use accurate account information, sign out on shared devices, and tell us if you believe your account has been misused."
+    body: "Creating an account is free. You may create an account with an email address or with a unique username if you prefer not to share an email address. You are responsible for keeping your sign-in details secure and for activity on your account. Use accurate account information, sign out on shared devices, and tell us if you believe your account has been misused."
   },
   {
     title: "Your content",
@@ -127,7 +127,7 @@ export const TERMS_OF_SERVICE_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Account limits or removal",
-    body: "We may limit, suspend, or remove access if an account appears to be used for abuse, security attacks, unlawful activity, or conduct that harms the app or other users."
+    body: "We may limit, suspend, review, or remove access if an account appears to be used for abuse, security attacks, unlawful activity, automated misuse, or conduct that harms the app or other users."
   },
   {
     title: "Liability",

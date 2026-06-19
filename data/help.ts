@@ -17,7 +17,7 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Study help",
       icon: "book-outline",
       summary: "Study walks you through one method step at a time, with passage text, notes, highlighting, memory saving, and journal saving.",
-      tips: ["Type or choose a passage, then press Use.", "Select verses to highlight, note, save to Memory, or print a worksheet.", "Use Focus mode when you want fewer side panels."]
+      tips: ["Type a full reference or a shortcut like 1 thes 1:1, then press Use.", "Select verses to highlight, note, save to Memory, or print a worksheet.", "Use Focus mode or collapse side panels when you want fewer distractions."]
     },
     bible: {
       title: "Bible help",
@@ -41,13 +41,13 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Memory help",
       icon: "sparkles-outline",
       summary: "Memory helps you keep saved verses through a simple three-step practice flow.",
-      tips: ["Save verses from Bible or Study first.", "Step 1 is reading, Step 2 hides every second word, Step 3 hides all words.", "Use hints when a word will not come to mind."]
+      tips: ["Save verses from Bible or Study first.", "Due for Review brings verses back by date, and Reviewed shows what you have completed.", "Open History to see recent activity, milestones, and memory encouragement."]
     },
     accountability: {
       title: "Community help",
       icon: "people-outline",
-      summary: "Community helps you turn one study insight into a simple encouragement message for a trusted person or group.",
-      tips: ["Add a person or group in the People panel.", "Write one honest update, then copy the message.", "Save encouragements so they appear in Journal."]
+      summary: "Community is intentionally private: share encouragements only with accepted friends or invite-only circles.",
+      tips: ["Add a friend by code or email, or join a private circle by invite code.", "Choose a connection before posting so the encouragement goes to the right place.", "Use History to review, edit, copy, or remove your encouragements."]
     },
     journal: {
       title: "Journal help",
@@ -59,13 +59,13 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Account help",
       icon: "person-circle-outline",
       summary: "Account manages your name, sign-in, Bible translation, privacy notes, and future access choices.",
-      tips: ["Add your name so the app can speak more personally.", "Sign in if you want account-connected saving across devices.", "Choose BSB, WEB, or KJV as your preferred Bible translation."]
+      tips: ["Add your name so the app can speak more personally.", "Create a free account with either an email address or a unique username.", "Choose BSB, WEB, or KJV as your preferred Bible translation."]
     },
     admin: {
       title: "Admin help",
       icon: "analytics-outline",
-      summary: "Admin insights shows the fuller view of feedback, activity, popular passages, and profile health signals.",
-      tips: ["Use the Account quick card for a glance.", "Open Admin when you want feedback and activity details.", "Signed-in and active profiles are more useful than raw profile count while testing."]
+      summary: "Admin insights shows feedback, activity, popular passages, profile health, and security review signals.",
+      tips: ["Use User directory to inspect signed-in, active, suspended, or local/test profiles.", "Use Security watch to review blocked activity and mark profiles reviewed.", "Signed-in and active profiles are more useful than raw profile count while testing."]
     },
     help: {
       title: "Help screen",

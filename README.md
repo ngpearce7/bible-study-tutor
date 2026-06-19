@@ -14,10 +14,10 @@ A free Bible study app for desktop and mobile. Bible Study Tutor helps people an
 - Study review screen before saving completed work
 - Printable Bible study worksheets from the Bible and Study tabs
 - Shareable insight notes at the end of completed studies
-- After-study encouragement handoff from saved studies
+- Private encouragements with accepted friends and invite-only circles
 - Journal filters and two-step draft archiving
-- Accountability plan, encouragements, streaks, minutes, and journal
-- Convex Auth email/password sign-in for cross-device profile sync
+- Daily rhythm, memory review history, milestones, and journal review
+- Convex Auth email/password or username/password sign-in for cross-device profile sync
 - Guest per-device profile fallback so early testing can still run without sign-in
 
 ## Setup

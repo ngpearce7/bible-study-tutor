@@ -205,7 +205,6 @@ export function buildPrintableMemoryCardsHtml({
       .print-page.large { grid-template-columns: 1fr; }
       .card { background: white; border: 1.5px solid var(--line); border-radius: 14px; break-inside: avoid; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 20px; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
       .large .card { padding: 28px; }
-      .brand { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
       h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 22px; line-height: 1.1; margin: 0; }
       .large h2 { font-size: 30px; }
       .verse { color: var(--ink); font-size: var(--screen-pocket-size); font-weight: 700; line-height: var(--screen-line); margin: 0; overflow-wrap: anywhere; }
@@ -213,7 +212,7 @@ export function buildPrintableMemoryCardsHtml({
       .card-note { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 900; margin: -3px 0 0; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 800; justify-content: space-between; padding-top: 8px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .print-page, .print-page.pocket { grid-template-columns: 1fr; padding: 12px; } }
-      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { display: block; max-width: none; } .print-page { align-content: start; border: 0; break-after: page; box-shadow: none; gap: 6mm; height: 281mm; max-height: 281mm; max-width: none; overflow: hidden; padding: 0; page-break-after: always; page-break-inside: avoid; } .print-page:last-child { break-after: auto; page-break-after: auto; } .print-page.pocket { grid-template-columns: repeat(2, 1fr); } .print-page.safe { grid-template-columns: 1fr; } .card { break-inside: avoid; height: var(--card-height); max-height: var(--card-height); page-break-inside: avoid; padding: 7mm; } .large .card { padding: 8mm; } .safe .card { padding: 7mm 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .safe .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
+      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { display: block; max-width: none; } .print-page { align-content: start; border: 0; break-after: page; box-shadow: none; gap: 6mm; height: 281mm; max-height: 281mm; max-width: none; overflow: hidden; padding: 0; page-break-after: always; page-break-inside: avoid; } .print-page:last-child { break-after: auto; page-break-after: auto; } .print-page.pocket { grid-template-columns: repeat(2, 1fr); } .print-page.safe { grid-template-columns: 1fr; } .card { break-inside: avoid; height: var(--card-height); max-height: var(--card-height); page-break-inside: avoid; padding: 7mm; } .large .card { padding: 8mm; } .safe .card { padding: 7mm 8mm; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .safe .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
     </style>
   </head>
   <body>
@@ -243,7 +242,6 @@ export function buildEditableMemoryCardsDocHtml({
       <tr>
         <td>
           <div class="card">
-            <div class="brand">Bible Study Tutor</div>
             <h2>${escapeHtml(verse.reference)}</h2>
             <p>${escapeHtml(cardText.text)}</p>
             ${cardText.shortened ? '<div class="note">Longer passage shortened for card printing.</div>' : ""}
@@ -265,7 +263,6 @@ export function buildEditableMemoryCardsDocHtml({
       table { border-collapse: separate; border-spacing: 0 12pt; width: 100%; }
       td { page-break-inside: avoid; }
       .card { background: #fffdf8; border: 1.5pt solid #d8c8b6; border-radius: 12pt; mso-border-alt: solid #d8c8b6 1.5pt; padding: 16pt; page-break-inside: avoid; }
-      .brand { color: #c96750; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; letter-spacing: .06em; margin-bottom: 7pt; text-transform: uppercase; }
       h2 { color: #39452e; font-family: Arial, sans-serif; font-size: 17pt; line-height: 1.1; margin: 0 0 8pt; }
       p { color: #241d19; font-size: ${layout === "large" ? "18pt" : "14.5pt"}; font-weight: bold; line-height: 1.35; margin: 0 0 10pt; }
       .note { color: #c96750; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; margin-bottom: 6pt; }
@@ -316,7 +313,6 @@ function prepareMemoryCardText(value?: string) {
 function renderMemoryCard(verse: PreparedMemoryCard) {
   return `
     <article class="card" style="${verse.printVars}">
-      <div class="brand">Bible Study Tutor</div>
       <h2>${escapeHtml(verse.reference)}</h2>
       <p class="verse">${escapeHtml(verse.cardText)}</p>
       ${verse.shortened ? '<p class="card-note">Longer passage shortened for card printing.</p>' : ""}

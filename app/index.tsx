@@ -6954,7 +6954,9 @@ export default function Home() {
                       style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                     />
                     <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
-                      Use an email address, or choose a unique username without sharing your email.
+                      {authFlow === "signIn"
+                        ? "Enter the email address or username you used when creating your account."
+                        : "Use an email address, or choose a unique username without sharing your email."}
                     </Text>
                     <TextInput
                       value={authPassword}

@@ -8676,7 +8676,7 @@ export default function Home() {
                     </View>
                   </View>
                   {memoryPrintCandidateVerses.length > 0 ? (
-                    <ScrollView style={[styles.memoryPrintVersePicker, accountDarkMode && styles.memoryDarkSubPanel]} contentContainerStyle={styles.memoryPrintVersePickerContent} keyboardShouldPersistTaps="handled">
+                    <View style={[styles.memoryPrintVersePicker, styles.memoryPrintVersePickerContent, accountDarkMode && styles.memoryDarkSubPanel]}>
                       {memoryPrintCandidateVerses.map((verse: any) => {
                         const verseId = String(verse._id);
                         const selected = memoryPrintSelectedVerseIds.includes(verseId);
@@ -8694,7 +8694,7 @@ export default function Home() {
                           </Pressable>
                         );
                       })}
-                    </ScrollView>
+                    </View>
                   ) : (
                     <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match this group yet.</Text>
                   )}
@@ -20499,8 +20499,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fffaf2",
     borderColor: colors.line,
     borderRadius: 12,
-    borderWidth: 1,
-    maxHeight: 190
+    borderWidth: 1
   },
   memoryPrintOptionsScroll: {
     flexShrink: 1,

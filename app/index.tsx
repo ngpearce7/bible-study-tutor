@@ -3312,7 +3312,6 @@ export default function Home() {
     setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(initialSet).map((verse: any) => String(verse._id)));
     setMemoryPrintLayout("pocket");
     setMemoryPrintCopies(1);
-    setMemoryPrintSafeMode(true);
     setMemoryPrintOptionsOpen(true);
   }
 
@@ -8775,18 +8774,8 @@ export default function Home() {
                 </View>
               </View>
 
-              <Pressable onPress={() => setMemoryPrintSafeMode((enabled) => !enabled)} style={styles.printOptionToggle}>
-                <Ionicons name={memoryPrintSafeMode ? "checkbox-outline" : "square-outline"} size={20} color={memoryPrintSafeMode ? colors.coral : accountDarkMode ? "#c8bda9" : colors.muted} />
-                <View style={styles.printOptionToggleCopy}>
-                  <Text style={[styles.printOptionToggleText, accountDarkMode && styles.accountDarkText]}>Safe print mode</Text>
-                  <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
-                    Uses fewer cards per page to reduce awkward page splits.
-                  </Text>
-                </View>
-              </Pressable>
-
               <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>
-                Open cards will open a new browser tab. Download editable cards creates a Word-compatible file for Word, Pages, or Google Docs.
+                Downloads a Word-compatible file. Open it in Word, Pages, or upload it to Google Docs to adjust spacing before printing.
               </Text>
             </ScrollView>
 
@@ -8794,8 +8783,7 @@ export default function Home() {
               <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
                 <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
               </Pressable>
-              <ResumeButton label="Download editable" icon="download-outline" onPress={downloadEditableMemoryCards} style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
-              <ResumeButton label="Open cards" icon="open-outline" onPress={openPrintableMemoryCards} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              <ResumeButton label="Download Word doc" icon="download-outline" onPress={downloadEditableMemoryCards} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
           </View>
         </View>

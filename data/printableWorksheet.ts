@@ -241,12 +241,14 @@ export function buildEditableMemoryCardsDocHtml({
     const cardText = prepareMemoryCardText(verse.verseText);
     return `
       <tr>
-        <td class="card">
-          <div class="brand">Bible Study Tutor</div>
-          <h2>${escapeHtml(verse.reference)}</h2>
-          <p>${escapeHtml(cardText.text)}</p>
-          ${cardText.shortened ? '<div class="note">Longer passage shortened for card printing.</div>' : ""}
-          <div class="footer">${escapeHtml(shortTranslationForPrint(verse.translationName))} · biblestudytutor.org</div>
+        <td>
+          <div class="card">
+            <div class="brand">Bible Study Tutor</div>
+            <h2>${escapeHtml(verse.reference)}</h2>
+            <p>${escapeHtml(cardText.text)}</p>
+            ${cardText.shortened ? '<div class="note">Longer passage shortened for card printing.</div>' : ""}
+            <div class="footer">${escapeHtml(shortTranslationForPrint(verse.translationName))} · biblestudytutor.org</div>
+          </div>
         </td>
       </tr>
     `;
@@ -259,14 +261,15 @@ export function buildEditableMemoryCardsDocHtml({
     <meta charset="utf-8" />
     <title>${escapeHtml(title)}</title>
     <style>
-      body { color: #241d19; font-family: Georgia, "Times New Roman", serif; }
+      body { background: #f8f1e6; color: #241d19; font-family: Georgia, "Times New Roman", serif; }
       table { border-collapse: separate; border-spacing: 0 12pt; width: 100%; }
-      .card { border: 1pt solid #d8c8b6; padding: 14pt; page-break-inside: avoid; }
-      .brand { color: #c96750; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; letter-spacing: .06em; text-transform: uppercase; }
-      h2 { color: #39452e; font-family: Arial, sans-serif; font-size: 16pt; margin: 6pt 0; }
-      p { font-size: ${layout === "large" ? "18pt" : "14pt"}; font-weight: bold; line-height: 1.35; margin: 0 0 8pt; }
+      td { page-break-inside: avoid; }
+      .card { background: #fffdf8; border: 1.5pt solid #d8c8b6; border-radius: 12pt; mso-border-alt: solid #d8c8b6 1.5pt; padding: 16pt; page-break-inside: avoid; }
+      .brand { color: #c96750; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; letter-spacing: .06em; margin-bottom: 7pt; text-transform: uppercase; }
+      h2 { color: #39452e; font-family: Arial, sans-serif; font-size: 17pt; line-height: 1.1; margin: 0 0 8pt; }
+      p { color: #241d19; font-size: ${layout === "large" ? "18pt" : "14.5pt"}; font-weight: bold; line-height: 1.35; margin: 0 0 10pt; }
       .note { color: #c96750; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; margin-bottom: 6pt; }
-      .footer { border-top: 1pt solid #d8c8b6; color: #766d63; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; padding-top: 6pt; }
+      .footer { border-top: 1pt solid #d8c8b6; color: #766d63; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; padding-top: 7pt; }
     </style>
   </head>
   <body>

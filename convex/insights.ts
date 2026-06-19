@@ -203,6 +203,8 @@ export const adminOverview = query({
         profileName: profile?.displayName || "Unknown profile",
         profileEmail: user?.email,
         suspendedAt: profile?.suspendedAt,
+        securityReviewedAt: profile?.securityReviewedAt,
+        securityReviewNote: profile?.securityReviewNote,
         details: item.details,
         createdAt: item.createdAt
       });
@@ -313,7 +315,9 @@ export const adminUsers = query({
         events: stats?.events || 0,
         deletionStatus: pendingDeletion ? "pending" : "",
         suspendedAt: profile.suspendedAt,
-        suspensionReason: profile.suspensionReason
+        suspensionReason: profile.suspensionReason,
+        securityReviewedAt: profile.securityReviewedAt,
+        securityReviewNote: profile.securityReviewNote
       });
     }
 
@@ -376,6 +380,8 @@ export const adminUserDetail = query({
       deletionStatus: deletionRequests[0]?.status || "",
       suspendedAt: profile.suspendedAt,
       suspensionReason: profile.suspensionReason,
+      securityReviewedAt: profile.securityReviewedAt,
+      securityReviewNote: profile.securityReviewNote,
       writeVolume: {
         lastHour: writeTimestamps.filter((timestamp) => timestamp >= oneHourAgo).length,
         lastDay: writeTimestamps.filter((timestamp) => timestamp >= oneDayAgo).length,
@@ -492,6 +498,35 @@ export const setProfileSuspensionAsAdmin = mutation({
       targetProfileId: profile._id,
       targetUserId: profile.authUserId,
       details: args.suspended ? `Suspended profile: ${clampOptionalText(args.reason, 300) || "Manual admin pause"}` : "Restored profile"
+    });
+    return true;
+  }
+});
+
+export const markProfileSecurityReviewedAsAdmin = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    note: v.optional(v.string())
+  },
+  handler: async (ctx, args) => {
+    const adminUserId = await requireAdminUserId(ctx);
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error("Profile not found.");
+
+    const now = Date.now();
+    const note = clampOptionalText(args.note, 500);
+    await ctx.db.patch(args.profileId, {
+      securityReviewedAt: now,
+      securityReviewedBy: adminUserId,
+      securityReviewNote: note || undefined,
+      updatedAt: now
+    });
+    await logAdminAction(ctx, {
+      adminUserId,
+      action: "profile_security_reviewed",
+      targetProfileId: profile._id,
+      targetUserId: profile.authUserId,
+      details: note ? `Marked security activity reviewed: ${note}` : "Marked security activity reviewed"
     });
     return true;
   }

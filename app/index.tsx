@@ -362,6 +362,7 @@ export default function Home() {
   const cancelDeletionRequestAsAdmin = useMutation((api as any).insights.cancelDeletionRequestAsAdmin);
   const cleanupEmptyLocalProfilesAsAdmin = useMutation((api as any).insights.cleanupEmptyLocalProfilesAsAdmin);
   const setProfileSuspensionAsAdmin = useMutation((api as any).insights.setProfileSuspensionAsAdmin);
+  const markProfileSecurityReviewedAsAdmin = useMutation((api as any).insights.markProfileSecurityReviewedAsAdmin);
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
@@ -1914,6 +1915,16 @@ export default function Home() {
       setAdminMaintenanceStatus(args.suspended ? "Profile suspended. Writes are paused for that user." : "Profile restored. The user can save again.");
     } catch {
       setAdminMaintenanceStatus("Could not update that profile. Make sure Convex has the latest functions deployed.");
+    }
+  }
+
+  async function markAdminProfileSecurityReviewed(args: { profileId: any; note?: string }) {
+    setAdminMaintenanceStatus("Marking profile reviewed...");
+    try {
+      await markProfileSecurityReviewedAsAdmin(args);
+      setAdminMaintenanceStatus("Profile security activity marked reviewed.");
+    } catch {
+      setAdminMaintenanceStatus("Could not mark that profile reviewed. Make sure Convex has the latest functions deployed.");
     }
   }
 
@@ -7284,6 +7295,7 @@ export default function Home() {
             onOpenAccount={() => setTab("account")}
             onSelectProfile={setSelectedAdminProfileId}
             onSelectRegion={setSelectedAdminRegion}
+            onMarkSecurityReviewed={markAdminProfileSecurityReviewed}
             onSetProfileSuspension={setAdminProfileSuspension}
           />
         )}
@@ -19501,6 +19513,21 @@ const styles = StyleSheet.create({
   },
   suspensionReasonChip: {
     borderColor: "rgba(201, 103, 80, 0.35)"
+  },
+  adminReviewBox: {
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    padding: 10
+  },
+  adminReviewForm: {
+    gap: 8
+  },
+  adminReviewInput: {
+    minHeight: 74,
+    textAlignVertical: "top"
   },
   adminDirectoryTools: {
     backgroundColor: "#fff6eb",

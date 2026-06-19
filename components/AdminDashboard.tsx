@@ -90,6 +90,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   onOpenAccount,
   onSelectProfile,
   onSelectRegion,
+  onMarkSecurityReviewed,
   onSetProfileSuspension
 }: {
   adminStats: AdminStats | null;
@@ -112,6 +113,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   onOpenAccount: () => void;
   onSelectProfile: (profileId: any) => void;
   onSelectRegion: (region: string) => void;
+  onMarkSecurityReviewed: (args: { profileId: any; note?: string }) => void;
   onSetProfileSuspension: (args: { profileId: any; suspended: boolean; reason?: string }) => void;
 }) {
   if (!adminStats) {
@@ -167,7 +169,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Ionicons name="person-circle-outline" size={18} color={colors.coral} />
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User summary</Text>
           </View>
-          <AdminUserDetail styles={styles} MetricComponent={MetricComponent} detail={adminUserDetail} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminUserDetail styles={styles} MetricComponent={MetricComponent} detail={adminUserDetail} onMarkSecurityReviewed={onMarkSecurityReviewed} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
       </View>
 
@@ -498,6 +500,7 @@ function AdminUserDirectory({
           </View>
           <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
             {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
+            {!!user.securityReviewedAt && <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>Reviewed</Text>}
             {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
             <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
             <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>{user.studies}</Text>
@@ -539,7 +542,15 @@ function AdminUserDirectory({
   );
 }
 
-function AdminUserDetail({ styles, MetricComponent, detail, phoneLayout = false, darkMode = false }: { styles: any; MetricComponent: MetricComponent; detail: any; phoneLayout?: boolean; darkMode?: boolean }) {
+function AdminUserDetail({ styles, MetricComponent, detail, onMarkSecurityReviewed, phoneLayout = false, darkMode = false }: { styles: any; MetricComponent: MetricComponent; detail: any; onMarkSecurityReviewed: (args: { profileId: any; note?: string }) => void; phoneLayout?: boolean; darkMode?: boolean }) {
+  const [reviewToolsOpen, setReviewToolsOpen] = useState(false);
+  const [reviewNote, setReviewNote] = useState("");
+
+  useEffect(() => {
+    setReviewToolsOpen(false);
+    setReviewNote(detail?.securityReviewNote || "");
+  }, [detail?.profileId, detail?.securityReviewNote]);
+
   if (detail === undefined) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose a user to see their summary.</Text>;
   if (!detail) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose a user to see their summary.</Text>;
   const hasSecurityEvents = (detail.recentSecurityEvents || []).length > 0;
@@ -588,7 +599,55 @@ function AdminUserDetail({ styles, MetricComponent, detail, phoneLayout = false,
             {detail.writeVolume?.blockedEvents ?? 0}{detail.writeVolume?.latestBlockedAt ? ` · Latest ${formatAdminDate(detail.writeVolume.latestBlockedAt)}` : ""}
           </Text>
         </View>
+        <View style={[styles.adminMapDetailRow, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminMapDetailLabel, darkMode && styles.accountDarkMutedText]}>Security review</Text>
+          <Text style={[styles.adminMapDetailValue, darkMode && styles.accountDarkText]}>
+            {detail.securityReviewedAt ? `Reviewed · ${formatAdminDate(detail.securityReviewedAt)}` : "Not reviewed"}
+          </Text>
+        </View>
       </View>
+      {hasSecurityEvents && (
+        <View style={[styles.adminReviewBox, darkMode && styles.accountDarkInsetBox]}>
+          <View style={styles.journalHeader}>
+            <View style={styles.journalTitleBlock}>
+              <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Admin review</Text>
+              <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
+                {detail.securityReviewedAt ? `Last reviewed ${formatAdminDate(detail.securityReviewedAt)}` : "Use this once you have checked the blocked activity."}
+              </Text>
+            </View>
+            <Pressable onPress={() => setReviewToolsOpen((open) => !open)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
+              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{detail.securityReviewedAt ? "Update" : "Mark reviewed"}</Text>
+            </Pressable>
+          </View>
+          {!!detail.securityReviewNote && !reviewToolsOpen && <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{detail.securityReviewNote}</Text>}
+          {reviewToolsOpen && (
+            <View style={styles.adminReviewForm}>
+              <TextInput
+                value={reviewNote}
+                onChangeText={setReviewNote}
+                placeholder="Optional admin note"
+                placeholderTextColor={darkMode ? "#8f867a" : colors.muted}
+                multiline
+                style={[styles.input, styles.adminReviewInput, darkMode && styles.accountDarkInput]}
+              />
+              <View style={styles.feedbackCategoryRow}>
+                <Pressable
+                  onPress={() => {
+                    onMarkSecurityReviewed({ profileId: detail.profileId, note: reviewNote });
+                    setReviewToolsOpen(false);
+                  }}
+                  style={[styles.feedbackCategoryChip, styles.activeFeedbackCategoryChip]}
+                >
+                  <Text style={[styles.feedbackCategoryText, styles.activeFeedbackCategoryText]}>Save reviewed</Text>
+                </Pressable>
+                <Pressable onPress={() => setReviewToolsOpen(false)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
+                  <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
       {hasSecurityEvents && <AdminSecurityEventMiniList styles={styles} events={detail.recentSecurityEvents || []} darkMode={darkMode} />}
       <AdminMiniActivity styles={styles} title="Recent activity" items={detail.recentActivity || []} darkMode={darkMode} />
       <AdminMiniActivity styles={styles} title="Feedback history" items={detail.latestFeedback || []} darkMode={darkMode} />
@@ -706,6 +765,7 @@ function AdminSecurityEvents({
               <Text style={[styles.adminEventMeta, styles.adminAuditDetails, darkMode && styles.accountDarkMutedText]}>
                 {event.profileName || "Unknown profile"}{event.profileEmail ? ` · ${event.profileEmail}` : ""}
               </Text>
+              {!!event.securityReviewedAt && <Text style={[styles.adminEventMeta, styles.adminAuditDetails, darkMode && styles.accountDarkMutedText]}>Reviewed {formatAdminDate(event.securityReviewedAt)}</Text>}
             </View>
             <Text style={[styles.adminEventMeta, styles.adminAuditDate, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(event.createdAt)}</Text>
           </View>

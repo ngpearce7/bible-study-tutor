@@ -42,6 +42,9 @@ export default defineSchema({
     suspendedAt: v.optional(v.number()),
     suspendedBy: v.optional(v.id("users")),
     suspensionReason: v.optional(v.string()),
+    securityReviewedAt: v.optional(v.number()),
+    securityReviewedBy: v.optional(v.id("users")),
+    securityReviewNote: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number()
   })

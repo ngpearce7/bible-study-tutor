@@ -19482,6 +19482,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900"
   },
+  suspensionReasonBox: {
+    alignSelf: "stretch",
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 7,
+    maxWidth: "100%",
+    minWidth: 0,
+    padding: 9
+  },
+  suspensionReasonChipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    maxWidth: "100%"
+  },
+  suspensionReasonChip: {
+    borderColor: "rgba(201, 103, 80, 0.35)"
+  },
   adminDirectoryTools: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,

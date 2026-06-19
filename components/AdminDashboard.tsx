@@ -61,6 +61,13 @@ const ADMIN_REGION_PREVIEW: AdminRegionInsight[] = [
   { name: "Africa", description: "Broad region only", count: 0, x: 52, y: 55, size: "small" },
   { name: "Asia", description: "Broad region only", count: 0, x: 70, y: 38, size: "small" }
 ];
+const SUSPENSION_REASONS = [
+  "Suspicious write burst",
+  "Spam-like feedback",
+  "Community misuse",
+  "Admin review pending",
+  "Other admin concern"
+];
 
 export const AdminDashboard = memo(function AdminDashboard({
   adminStats,
@@ -391,6 +398,7 @@ function AdminUserDirectory({
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion" | "suspended">("all");
   const [visibleCount, setVisibleCount] = useState(15);
+  const [reasonProfileId, setReasonProfileId] = useState<any>(null);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const filteredUsers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -484,6 +492,9 @@ function AdminUserDirectory({
             <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
               {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
             </Text>
+            {!!user.suspendedAt && !!user.suspensionReason && (
+              <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{user.suspensionReason}</Text>
+            )}
           </View>
           <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
             {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
@@ -491,11 +502,29 @@ function AdminUserDirectory({
             <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
             <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>{user.studies}</Text>
             <Pressable
-              onPress={() => onSetSuspension({ profileId: user.profileId, suspended: !user.suspendedAt, reason: user.suspendedAt ? undefined : "Manual admin pause" })}
+              onPress={() => {
+                if (user.suspendedAt) {
+                  setReasonProfileId(null);
+                  onSetSuspension({ profileId: user.profileId, suspended: false });
+                  return;
+                }
+                setReasonProfileId((current: any) => (current === user.profileId ? null : user.profileId));
+              }}
               style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
             >
               <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{user.suspendedAt ? "Restore" : "Suspend"}</Text>
             </Pressable>
+            {reasonProfileId === user.profileId && (
+              <SuspensionReasonPicker
+                styles={styles}
+                darkMode={darkMode}
+                onCancel={() => setReasonProfileId(null)}
+                onChoose={(reason) => {
+                  setReasonProfileId(null);
+                  onSetSuspension({ profileId: user.profileId, suspended: true, reason });
+                }}
+              />
+            )}
           </View>
         </Pressable>
       ))}
@@ -646,6 +675,7 @@ function AdminSecurityEvents({
   darkMode?: boolean;
 }) {
   const visibleEvents = phoneLayout ? events.slice(0, 4) : events.slice(0, 8);
+  const [reasonProfileId, setReasonProfileId] = useState<any>(null);
 
   return (
     <View style={[styles.adminFeedbackList, styles.adminContainedList]}>
@@ -685,12 +715,30 @@ function AdminSecurityEvents({
               <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>View profile</Text>
             </Pressable>
             <Pressable
-              onPress={() => onSetSuspension({ profileId: event.profileId, suspended: !event.suspendedAt, reason: "Suspicious write burst" })}
+              onPress={() => {
+                if (event.suspendedAt) {
+                  setReasonProfileId(null);
+                  onSetSuspension({ profileId: event.profileId, suspended: false });
+                  return;
+                }
+                setReasonProfileId((current: any) => (current === event.profileId ? null : event.profileId));
+              }}
               style={[styles.feedbackCategoryChip, event.suspendedAt ? styles.activeFeedbackCategoryChip : styles.dangerActionChip, darkMode && styles.helpDarkCategoryChip]}
             >
               <Text style={[styles.feedbackCategoryText, event.suspendedAt ? styles.activeFeedbackCategoryText : styles.dangerActionText, darkMode && styles.homeDarkResumeButtonText]}>{event.suspendedAt ? "Restore" : "Suspend"}</Text>
             </Pressable>
           </View>
+          {reasonProfileId === event.profileId && (
+            <SuspensionReasonPicker
+              styles={styles}
+              darkMode={darkMode}
+              onCancel={() => setReasonProfileId(null)}
+              onChoose={(reason) => {
+                setReasonProfileId(null);
+                onSetSuspension({ profileId: event.profileId, suspended: true, reason });
+              }}
+            />
+          )}
         </View>
       ))}
     </View>
@@ -739,6 +787,24 @@ function SecuritySummaryTile({ styles, label, value, darkMode = false }: { style
     <View style={[styles.securitySummaryTile, darkMode && styles.accountDarkInsetBox]}>
       <Text style={[styles.securitySummaryValue, darkMode && styles.accountDarkTitle]}>{value}</Text>
       <Text style={[styles.securitySummaryLabel, darkMode && styles.accountDarkMutedText]}>{label}</Text>
+    </View>
+  );
+}
+
+function SuspensionReasonPicker({ styles, onChoose, onCancel, darkMode = false }: { styles: any; onChoose: (reason: string) => void; onCancel: () => void; darkMode?: boolean }) {
+  return (
+    <View style={[styles.suspensionReasonBox, darkMode && styles.accountDarkInsetBox]}>
+      <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>Choose suspension reason</Text>
+      <View style={styles.suspensionReasonChipRow}>
+        {SUSPENSION_REASONS.map((reason) => (
+          <Pressable key={reason} onPress={() => onChoose(reason)} style={[styles.feedbackCategoryChip, styles.suspensionReasonChip, darkMode && styles.helpDarkCategoryChip]}>
+            <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{reason}</Text>
+          </Pressable>
+        ))}
+        <Pressable onPress={onCancel} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

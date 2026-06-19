@@ -15,6 +15,9 @@ export type AdminStats = {
     newFeedback: number;
     appShares: number;
     pendingDeletionRequests: number;
+    securityEvents24h?: number;
+    securityEvents7d?: number;
+    suspendedProfiles?: number;
   };
   topBookmarked: { label: string; count: number }[];
   topMemory: { label: string; count: number }[];
@@ -24,6 +27,7 @@ export type AdminStats = {
   eventBreakdown: { label: string; count: number }[];
   feedbackByCategory: { label: string; count: number }[];
   feedbackByStatus: { label: string; count: number }[];
+  securityByType?: { label: string; count: number }[];
   securityEvents: {
     _id: string;
     eventType: string;
@@ -127,6 +131,8 @@ export const AdminDashboard = memo(function AdminDashboard({
         <MetricComponent value={adminStats.totals.newFeedback} label="new feedback" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.appShares || 0} label="app shares" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.pendingDeletionRequests} label="deletion requests" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <MetricComponent value={adminStats.totals.securityEvents24h || 0} label="security 24h" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <MetricComponent value={adminStats.totals.suspendedProfiles || 0} label="suspended" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.events} label="events" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.localProfiles} label="local/test" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
       </View>
@@ -210,7 +216,20 @@ export const AdminDashboard = memo(function AdminDashboard({
       <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
         <Card style={[styles.adminDashboardCard, styles.adminContainedAdminCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Security watch</Text>
-          <AdminSecurityEvents styles={styles} events={adminStats.securityEvents || []} onSelectProfile={onSelectProfile} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminSecurityEvents
+            styles={styles}
+            events={adminStats.securityEvents || []}
+            summary={{
+              securityEvents24h: adminStats.totals.securityEvents24h || 0,
+              securityEvents7d: adminStats.totals.securityEvents7d || 0,
+              suspendedProfiles: adminStats.totals.suspendedProfiles || 0,
+              securityByType: adminStats.securityByType || []
+            }}
+            onSelectProfile={onSelectProfile}
+            onSetSuspension={onSetProfileSuspension}
+            phoneLayout={phoneLayout}
+            darkMode={darkMode}
+          />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Latest feedback</Text>
@@ -589,6 +608,7 @@ function AdminAuditLog({ styles, entries, phoneLayout = false, darkMode = false 
 function AdminSecurityEvents({
   styles,
   events,
+  summary,
   onSelectProfile,
   onSetSuspension,
   phoneLayout = false,
@@ -596,16 +616,40 @@ function AdminSecurityEvents({
 }: {
   styles: any;
   events: any[];
+  summary: {
+    securityEvents24h: number;
+    securityEvents7d: number;
+    suspendedProfiles: number;
+    securityByType: { label: string; count: number }[];
+  };
   onSelectProfile: (profileId: any) => void;
   onSetSuspension: (args: { profileId: any; suspended: boolean; reason?: string }) => void;
   phoneLayout?: boolean;
   darkMode?: boolean;
 }) {
-  if (events.length === 0) return <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>No suspicious write bursts detected.</Text>;
   const visibleEvents = phoneLayout ? events.slice(0, 4) : events.slice(0, 8);
 
   return (
     <View style={[styles.adminFeedbackList, styles.adminContainedList]}>
+      <View style={[styles.securitySummaryGrid, phoneLayout && styles.phoneSecuritySummaryGrid]}>
+        <SecuritySummaryTile styles={styles} label="Last 24h" value={summary.securityEvents24h} darkMode={darkMode} />
+        <SecuritySummaryTile styles={styles} label="Last 7d" value={summary.securityEvents7d} darkMode={darkMode} />
+        <SecuritySummaryTile styles={styles} label="Suspended" value={summary.suspendedProfiles} darkMode={darkMode} />
+      </View>
+      {summary.securityByType.length > 0 && (
+        <View style={[styles.securityTypeBox, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>Blocked by type</Text>
+          <View style={styles.securityTypeChipRow}>
+            {summary.securityByType.slice(0, phoneLayout ? 4 : 6).map((item) => (
+              <View key={item.label} style={[styles.securityTypeChip, darkMode && styles.helpDarkCategoryChip]}>
+                <Text style={[styles.securityTypeChipText, darkMode && styles.homeDarkResumeButtonText]}>{item.label}</Text>
+                <Text style={[styles.securityTypeChipCount, darkMode && styles.accountDarkTitle]}>{item.count}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+      {events.length === 0 && <Text style={[styles.helpIntro, styles.adminContainedText, darkMode && styles.accountDarkMutedText]}>No suspicious write bursts detected.</Text>}
       {visibleEvents.map((event) => (
         <View key={event._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminEventItem]}>
           <View style={[styles.journalHeader, styles.adminAuditHeader]}>
@@ -668,6 +712,15 @@ function AdminDeletionRequestList({ styles, requests, pendingConfirmId, onApprov
           </View>
         </View>
       ))}
+    </View>
+  );
+}
+
+function SecuritySummaryTile({ styles, label, value, darkMode = false }: { styles: any; label: string; value: number; darkMode?: boolean }) {
+  return (
+    <View style={[styles.securitySummaryTile, darkMode && styles.accountDarkInsetBox]}>
+      <Text style={[styles.securitySummaryValue, darkMode && styles.accountDarkTitle]}>{value}</Text>
+      <Text style={[styles.securitySummaryLabel, darkMode && styles.accountDarkMutedText]}>{label}</Text>
     </View>
   );
 }

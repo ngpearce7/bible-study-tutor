@@ -19417,6 +19417,71 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0
   },
+  securitySummaryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    width: "100%"
+  },
+  phoneSecuritySummaryGrid: {
+    gap: 6
+  },
+  securitySummaryTile: {
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flexGrow: 1,
+    minWidth: 86,
+    paddingHorizontal: 9,
+    paddingVertical: 8
+  },
+  securitySummaryValue: {
+    color: colors.oliveDark,
+    fontSize: 18,
+    fontWeight: "900",
+    lineHeight: 21
+  },
+  securitySummaryLabel: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  securityTypeBox: {
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 7,
+    padding: 9
+  },
+  securityTypeChipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6
+  },
+  securityTypeChip: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 5
+  },
+  securityTypeChipText: {
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  securityTypeChipCount: {
+    color: colors.ink,
+    fontSize: 12,
+    fontWeight: "900"
+  },
   adminDirectoryTools: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,

@@ -186,9 +186,11 @@ export const adminOverview = query({
       ctx.db.query("securityEvents").withIndex("by_created").order("desc").take(20)
     ]);
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
     const studyProfileIds = new Set(sessions.map((item) => item.profileId));
     const shareEvents = events.filter((item) => item.eventType === "app_shared");
+    const recentSecurityEvents = securityEvents.filter((item) => item.createdAt >= sevenDaysAgo);
     const profileLookup = new Map(profiles.map((profile) => [profile._id, profile]));
     const securityEventRows = [];
     for (const item of securityEvents.slice(0, 12)) {
@@ -217,7 +219,10 @@ export const adminOverview = query({
         feedback: feedback.length,
         newFeedback: feedback.filter((item) => item.status === "new").length,
         appShares: shareEvents.length,
-        pendingDeletionRequests: deletionRequests.length
+        pendingDeletionRequests: deletionRequests.length,
+        securityEvents24h: securityEvents.filter((item) => item.createdAt >= oneDayAgo).length,
+        securityEvents7d: recentSecurityEvents.length,
+        suspendedProfiles: profiles.filter((profile) => !!profile.suspendedAt).length
       },
       topBookmarked: topCounts(events.filter((item) => item.eventType === "bookmark_saved").map((item) => item.reference).filter(isString), 8),
       topMemory: topCounts(events.filter((item) => item.eventType === "memory_saved").map((item) => item.reference).filter(isString), 8),
@@ -227,6 +232,7 @@ export const adminOverview = query({
       eventBreakdown: topCounts(events.map((item) => item.eventType).filter(isString), 10),
       feedbackByCategory: topCounts(feedback.map((item) => item.category).filter(isString), 8),
       feedbackByStatus: topCounts(feedback.map((item) => item.status).filter(isString), 8),
+      securityByType: topCounts(recentSecurityEvents.map((item) => securityEventGroup(item.eventType, item.details)).filter(isString), 8),
       securityEvents: securityEventRows,
       recentEvents: events.slice(0, 12).map((item) => ({
         _id: item._id,
@@ -621,6 +627,20 @@ function isAdminEmail(email: string) {
 
 function isString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function securityEventGroup(eventType: string | undefined, details: string | undefined) {
+  const type = String(eventType || "").toLowerCase();
+  const note = String(details || "").toLowerCase();
+  if (type === "usage_rate_limited") return "Usage bursts";
+  if (note.includes("feedback")) return "Feedback bursts";
+  if (note.includes("memory")) return "Memory writes";
+  if (note.includes("encouragement") || note.includes("shared")) return "Community writes";
+  if (note.includes("friend")) return "Friend invites";
+  if (note.includes("reaction")) return "Reactions";
+  if (note.includes("draft")) return "Draft saves";
+  if (note.includes("study")) return "Study saves";
+  return "Other blocked writes";
 }
 
 function topCounts(values: string[], limit: number) {

@@ -513,10 +513,12 @@ function AdminUserDirectory({
 function AdminUserDetail({ styles, MetricComponent, detail, phoneLayout = false, darkMode = false }: { styles: any; MetricComponent: MetricComponent; detail: any; phoneLayout?: boolean; darkMode?: boolean }) {
   if (detail === undefined) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose a user to see their summary.</Text>;
   if (!detail) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose a user to see their summary.</Text>;
+  const hasSecurityEvents = (detail.recentSecurityEvents || []).length > 0;
 
   return (
     <View style={styles.adminUserDetailBox}>
-      <Text style={[styles.communityTitle, darkMode && styles.accountDarkTitle]}>{detail.displayName || "Bible student"}</Text>
+      <Text style={[styles.communityTitle, darkMode && styles.accountDarkTitle]}>{hasSecurityEvents ? "Review profile activity" : (detail.displayName || "Bible student")}</Text>
+      {hasSecurityEvents && <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{detail.displayName || "Bible student"}</Text>}
       <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{detail.email || (detail.signedIn ? "Signed-in account" : "Local profile")}</Text>
       <View style={[styles.adminMetricGrid, phoneLayout && styles.phoneAdminDetailMetricGrid]}>
         <MetricComponent value={detail.counts.studies} label="studies" compact={!phoneLayout} style={darkMode && styles.accountDarkInsetBox} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={darkMode && styles.accountDarkMutedText} />
@@ -558,8 +560,24 @@ function AdminUserDetail({ styles, MetricComponent, detail, phoneLayout = false,
           </Text>
         </View>
       </View>
+      {hasSecurityEvents && <AdminSecurityEventMiniList styles={styles} events={detail.recentSecurityEvents || []} darkMode={darkMode} />}
       <AdminMiniActivity styles={styles} title="Recent activity" items={detail.recentActivity || []} darkMode={darkMode} />
       <AdminMiniActivity styles={styles} title="Feedback history" items={detail.latestFeedback || []} darkMode={darkMode} />
+    </View>
+  );
+}
+
+function AdminSecurityEventMiniList({ styles, events, darkMode = false }: { styles: any; events: any[]; darkMode?: boolean }) {
+  return (
+    <View style={styles.adminMiniActivityBox}>
+      <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Recent security events</Text>
+      {events.slice(0, 5).map((item) => (
+        <View key={item._id} style={[styles.adminEventItem, darkMode && styles.accountDarkInsetBox]}>
+          <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{securityEventTitle(item)}</Text>
+          <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(item.createdAt)}</Text>
+          <Text style={[styles.helpFaqAnswer, styles.adminAuditDetails, darkMode && styles.accountDarkText]}>{item.details || "Suspicious activity was blocked."}</Text>
+        </View>
+      ))}
     </View>
   );
 }

@@ -409,6 +409,14 @@ export const adminUserDetail = query({
           reference: item.reference,
           tab: item.tab,
           createdAt: item.createdAt
+        })),
+      recentSecurityEvents: securityEvents
+        .slice(0, 8)
+        .map((item) => ({
+          _id: item._id,
+          eventType: item.eventType,
+          details: item.details,
+          createdAt: item.createdAt
         }))
     };
   }

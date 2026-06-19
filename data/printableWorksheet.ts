@@ -160,12 +160,14 @@ export function buildPrintableMemoryCardsHtml({
   const layoutClass = layout === "large" ? "large" : "pocket";
   const title = layout === "large" ? "Large Memory Cards" : "Pocket Memory Cards";
   const cardHtml = cards.map((verse) => {
-    const lengthClass = getMemoryCardLengthClass(verse.verseText);
+    const cardText = prepareMemoryCardText(verse.verseText);
+    const printVars = getMemoryCardPrintVars(cardText.text);
     return `
-    <article class="card ${lengthClass}">
+    <article class="card" style="${printVars}">
       <div class="brand">Bible Study Tutor</div>
       <h2>${escapeHtml(verse.reference)}</h2>
-      <p class="verse">${escapeHtml(verse.verseText)}</p>
+      <p class="verse">${escapeHtml(cardText.text)}</p>
+      ${cardText.shortened ? '<p class="card-note">Longer passage shortened for card printing.</p>' : ""}
       <div class="footer">
         <span>${escapeHtml(shortTranslationForPrint(verse.translationName))}</span>
         <span>biblestudytutor.org</span>
@@ -195,17 +197,12 @@ export function buildPrintableMemoryCardsHtml({
       .brand { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
       h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 22px; line-height: 1.1; margin: 0; }
       .large h2 { font-size: 30px; }
-      .verse { color: var(--ink); flex: 1; font-size: 18px; font-weight: 700; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
-      .medium-verse .verse { font-size: 16px; line-height: 1.42; }
-      .long-verse .verse { font-size: 14px; line-height: 1.34; }
-      .very-long-verse .verse { font-size: 12px; line-height: 1.25; }
-      .large .verse { font-size: 24px; line-height: 1.55; }
-      .large .medium-verse .verse { font-size: 21px; line-height: 1.44; }
-      .large .long-verse .verse { font-size: 18px; line-height: 1.34; }
-      .large .very-long-verse .verse { font-size: 15px; line-height: 1.26; }
+      .verse { color: var(--ink); flex: 1; font-size: var(--screen-pocket-size); font-weight: 700; line-height: var(--screen-line); margin: 0; overflow-wrap: anywhere; }
+      .large .verse { font-size: var(--screen-large-size); line-height: var(--screen-large-line); }
+      .card-note { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 900; margin: -3px 0 0; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 800; justify-content: space-between; padding-top: 8px; }
       @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .sheet, .sheet.pocket { grid-template-columns: 1fr; padding: 12px; } }
-      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { border: 0; box-shadow: none; gap: 8mm; max-width: none; padding: 0; } .sheet.pocket { grid-template-columns: repeat(2, 1fr); } .card { break-inside: avoid; height: 126mm; max-height: 126mm; min-height: 0; page-break-inside: avoid; padding: 7mm; } .large .card { height: 132mm; max-height: 132mm; min-height: 0; padding: 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: 15.5px; line-height: 1.38; } .medium-verse .verse { font-size: 13.5px; line-height: 1.3; } .long-verse .verse { font-size: 11.5px; line-height: 1.22; } .very-long-verse .verse { font-size: 9.5px; line-height: 1.16; } .large .verse { font-size: 20px; line-height: 1.4; } .large .medium-verse .verse { font-size: 17px; line-height: 1.3; } .large .long-verse .verse { font-size: 14px; line-height: 1.22; } .large .very-long-verse .verse { font-size: 11px; line-height: 1.16; } .footer { font-size: 9px; padding-top: 5px; } }
+      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { border: 0; box-shadow: none; gap: 8mm; max-width: none; padding: 0; } .sheet.pocket { grid-template-columns: repeat(2, 1fr); } .card { break-inside: avoid; height: 126mm; max-height: 126mm; min-height: 0; page-break-inside: avoid; padding: 7mm; } .large .card { height: 132mm; max-height: 132mm; min-height: 0; padding: 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
     </style>
   </head>
   <body>
@@ -240,12 +237,44 @@ function escapeHtml(value: string | number | undefined | null) {
     .replace(/'/g, "&#039;");
 }
 
-function getMemoryCardLengthClass(value?: string) {
+function prepareMemoryCardText(value?: string) {
+  const text = String(value || "").replace(/\s+/g, " ").trim();
+  const maxLength = 760;
+  if (text.length <= maxLength) return { text, shortened: false };
+
+  const trimmed = text.slice(0, maxLength);
+  const lastSpace = trimmed.lastIndexOf(" ");
+  return {
+    text: `${trimmed.slice(0, lastSpace > 640 ? lastSpace : maxLength).trim()}...`,
+    shortened: true
+  };
+}
+
+function getMemoryCardPrintVars(value?: string) {
   const length = String(value || "").length;
-  if (length > 520) return "very-long-verse";
-  if (length > 320) return "long-verse";
-  if (length > 190) return "medium-verse";
-  return "short-verse";
+  const settings =
+    length <= 80
+      ? { screenPocket: 26, screenLarge: 34, printPocket: 22, printLarge: 29, line: 1.42 }
+      : length <= 140
+        ? { screenPocket: 23, screenLarge: 30, printPocket: 19.5, printLarge: 25.5, line: 1.4 }
+        : length <= 220
+          ? { screenPocket: 20, screenLarge: 26, printPocket: 17, printLarge: 22, line: 1.34 }
+          : length <= 340
+            ? { screenPocket: 17.5, screenLarge: 23, printPocket: 14.8, printLarge: 19, line: 1.28 }
+            : length <= 520
+              ? { screenPocket: 15.2, screenLarge: 20, printPocket: 12.8, printLarge: 16.2, line: 1.22 }
+              : { screenPocket: 13.4, screenLarge: 17, printPocket: 11.2, printLarge: 13.8, line: 1.16 };
+
+  return [
+    `--screen-pocket-size:${settings.screenPocket}px`,
+    `--screen-large-size:${settings.screenLarge}px`,
+    `--print-pocket-size:${settings.printPocket}px`,
+    `--print-large-size:${settings.printLarge}px`,
+    `--screen-line:${settings.line}`,
+    `--screen-large-line:${settings.line}`,
+    `--print-line:${settings.line}`,
+    `--print-large-line:${settings.line}`
+  ].join(";");
 }
 
 function shortTranslationForPrint(value?: string) {

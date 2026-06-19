@@ -1185,6 +1185,7 @@ export default function Home() {
   const dueStudyReviewCount = dueStudyReviews?.length || 0;
   const showJournalEmptyState = !showDraftsSection && !showHighlightsSection && journalEntries.length === 0;
   const activeMemoryVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryVerseId);
+  const activeMemoryMeditationVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId);
   const memoryQueueSections = useMemo(() => buildMemoryQueueSections(memoryVerses || []), [memoryVerses]);
   const memorySearchTerm = memorySearch.trim().toLowerCase();
   const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
@@ -1251,7 +1252,7 @@ export default function Home() {
   const journalDarkMode = accountDarkMode;
   const communityDarkMode = accountDarkMode;
   const adminDarkMode = accountDarkMode;
-  const phoneMemoryFocusMode = phoneLayout && tab === "memory" && (!!activeMemoryVerseId || !!activeMemoryMeditationVerseId);
+  const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
   const visibleMemorySections = (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
       ...section,
@@ -8424,6 +8425,101 @@ export default function Home() {
               </View>
             </View>
           )}
+        </View>
+      )}
+      {activeMemoryMeditationVerse && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable style={[styles.printOptionsScrim, styles.memoryMeditationScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={closeMemoryMeditation} />
+          <View style={[styles.memoryMeditationFocusCard, phoneLayout && styles.phoneMemoryMeditationFocusCard, accountDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Meditate on Scripture</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                  {activeMemoryMeditationVerse.reference} · {shortBibleTranslationName(activeMemoryMeditationVerse.translationName)}
+                </Text>
+              </View>
+              <Pressable onPress={closeMemoryMeditation} style={styles.markupCloseButton} accessibilityLabel="Close meditation">
+                <Ionicons name="close-outline" size={21} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+            <ScrollView style={styles.memoryMeditationFocusScroll} contentContainerStyle={styles.memoryMeditationFocusContent} keyboardShouldPersistTaps="handled">
+              <Text style={[styles.memoryMeditationVerse, styles.memoryMeditationFocusVerse, accountDarkMode && styles.memoryDarkPracticeText]}>{activeMemoryMeditationVerse.verseText}</Text>
+              <View style={[styles.memoryStepRow, styles.memoryMeditationFocusSteps, accountDarkMode && styles.accountDarkSegmentedRow]}>
+                {["Notice", "Reflect", "Pray", "Carry"].map((label, index) => (
+                  <Pressable
+                    key={label}
+                    onPress={() => setMemoryMeditationStep(index)}
+                    style={[styles.memoryMeditationStepButton, memoryMeditationStep === index && styles.activeMemoryStepButton]}
+                  >
+                    <Text style={[styles.memoryStepText, accountDarkMode && styles.accountDarkMutedText, memoryMeditationStep === index && styles.activeMemoryStepText]}>{phoneLayout ? index + 1 : label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              {memoryMeditationStep === 0 && (
+                <View style={styles.memoryMeditationPromptBox}>
+                  <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>What word or phrase stands out today?</Text>
+                  <TextInput
+                    value={memoryMeditationPhrase}
+                    onChangeText={setMemoryMeditationPhrase}
+                    placeholder="A phrase I am holding..."
+                    placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                    style={[styles.input, styles.memoryMeditationInput, accountDarkMode && styles.accountDarkInput]}
+                  />
+                </View>
+              )}
+              {memoryMeditationStep === 1 && (
+                <View style={styles.memoryMeditationPromptBox}>
+                  <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>What does this show you about God, or invite you to trust or obey?</Text>
+                  <TextInput
+                    value={memoryMeditationReflection}
+                    onChangeText={setMemoryMeditationReflection}
+                    placeholder="This verse is showing me..."
+                    placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                    multiline
+                    style={[styles.input, styles.memoryMeditationTextarea, accountDarkMode && styles.accountDarkInput]}
+                  />
+                </View>
+              )}
+              {memoryMeditationStep === 2 && (
+                <View style={styles.memoryMeditationPromptBox}>
+                  <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>Turn this verse into a short prayer.</Text>
+                  <TextInput
+                    value={memoryMeditationPrayer}
+                    onChangeText={setMemoryMeditationPrayer}
+                    placeholder="Lord, help me..."
+                    placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                    multiline
+                    style={[styles.input, styles.memoryMeditationTextarea, accountDarkMode && styles.accountDarkInput]}
+                  />
+                </View>
+              )}
+              {memoryMeditationStep === 3 && (
+                <View style={styles.memoryMeditationPromptBox}>
+                  <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>What do you want to carry with you today?</Text>
+                  <TextInput
+                    value={memoryMeditationCarry}
+                    onChangeText={setMemoryMeditationCarry}
+                    placeholder="Today I want to carry..."
+                    placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                    multiline
+                    style={[styles.input, styles.memoryMeditationTextarea, accountDarkMode && styles.accountDarkInput]}
+                  />
+                </View>
+              )}
+            </ScrollView>
+            <View style={styles.printOptionsActions}>
+              {memoryMeditationStep > 0 && (
+                <Pressable onPress={() => setMemoryMeditationStep((step) => Math.max(0, step - 1))} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                  <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Back</Text>
+                </Pressable>
+              )}
+              {memoryMeditationStep < 3 ? (
+                <ResumeButton label="Next" icon="arrow-forward-outline" onPress={() => setMemoryMeditationStep((step) => Math.min(3, step + 1))} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              ) : (
+                <ResumeButton label="Save meditation" icon="journal-outline" onPress={() => saveMemoryMeditation(activeMemoryMeditationVerse)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              )}
+            </View>
+          </View>
         </View>
       )}
       {printWorksheetRequest && (
@@ -17695,6 +17791,42 @@ const styles = StyleSheet.create({
   phoneMemoryMeditationBox: {
     padding: 10
   },
+  memoryMeditationScrim: {
+    backgroundColor: "rgba(36, 29, 25, 0.42)"
+  },
+  memoryMeditationFocusCard: {
+    alignSelf: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: 14,
+    marginTop: 46,
+    maxHeight: "88%",
+    maxWidth: 720,
+    padding: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.18,
+    shadowRadius: 30,
+    width: "88%"
+  },
+  phoneMemoryMeditationFocusCard: {
+    borderRadius: 0,
+    height: "100%",
+    marginTop: 0,
+    maxHeight: "100%",
+    paddingHorizontal: 14,
+    paddingTop: 16,
+    width: "100%"
+  },
+  memoryMeditationFocusScroll: {
+    maxHeight: 520
+  },
+  memoryMeditationFocusContent: {
+    gap: 12,
+    paddingBottom: 4
+  },
   memoryMeditationHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
@@ -17712,6 +17844,14 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     lineHeight: 24,
     padding: 12
+  },
+  memoryMeditationFocusVerse: {
+    fontSize: 18,
+    lineHeight: 28,
+    padding: 14
+  },
+  memoryMeditationFocusSteps: {
+    alignSelf: "stretch"
   },
   memoryMeditationStepButton: {
     alignItems: "center",

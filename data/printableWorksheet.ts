@@ -12,6 +12,13 @@ type PrintableMemoryCardVerse = {
   translationName?: string;
 };
 
+type PreparedMemoryCard = PrintableMemoryCardVerse & {
+  cardText: string;
+  shortened: boolean;
+  printVars: string;
+  estimatedHeight: number;
+};
+
 type PrintableWorksheetMethodStep = {
   title: string;
   prompt?: string;
@@ -159,22 +166,20 @@ export function buildPrintableMemoryCardsHtml({
   const cards = verses.flatMap((verse) => Array.from({ length: safeCopies }, () => verse));
   const layoutClass = layout === "large" ? "large" : "pocket";
   const title = layout === "large" ? "Large Memory Cards" : "Pocket Memory Cards";
-  const cardHtml = cards.map((verse) => {
+  const preparedCards = cards.map((verse) => {
     const cardText = prepareMemoryCardText(verse.verseText);
-    const printVars = getMemoryCardPrintVars(cardText.text);
-    return `
-    <article class="card" style="${printVars}">
-      <div class="brand">Bible Study Tutor</div>
-      <h2>${escapeHtml(verse.reference)}</h2>
-      <p class="verse">${escapeHtml(cardText.text)}</p>
-      ${cardText.shortened ? '<p class="card-note">Longer passage shortened for card printing.</p>' : ""}
-      <div class="footer">
-        <span>${escapeHtml(shortTranslationForPrint(verse.translationName))}</span>
-        <span>biblestudytutor.org</span>
-      </div>
-    </article>
-  `;
-  }).join("");
+    const metrics = getMemoryCardMetrics(cardText.text, layout);
+    return {
+      ...verse,
+      cardText: cardText.text,
+      shortened: cardText.shortened,
+      printVars: getMemoryCardPrintVars(metrics),
+      estimatedHeight: estimateMemoryCardHeight(cardText.text, metrics, layout, cardText.shortened)
+    };
+  });
+  const cardHtml = buildMemoryCardPages(preparedCards, layout)
+    .map((page) => `<section class="print-page ${layoutClass}">${page.map(renderMemoryCard).join("")}</section>`)
+    .join("");
 
   return `<!doctype html>
 <html lang="en">
@@ -189,20 +194,21 @@ export function buildPrintableMemoryCardsHtml({
       .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 980px; }
       .toolbar p { color: var(--muted); margin: 0; }
       .print-shortcut { background: #fff6eb; border: 1px solid var(--line); border-radius: 999px; color: var(--olive); font-weight: 900; padding: 8px 12px; white-space: nowrap; }
-      .sheet { background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); display: grid; gap: 14px; margin: 0 auto; max-width: 980px; padding: 24px; }
-      .sheet.pocket { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .sheet.large { grid-template-columns: 1fr; }
-      .card { background: white; border: 1.5px solid var(--line); border-radius: 14px; break-inside: avoid; display: flex; flex-direction: column; gap: 10px; min-height: 300px; overflow: hidden; padding: 20px; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
-      .large .card { min-height: 455px; padding: 28px; }
+      .sheet { display: flex; flex-direction: column; gap: 18px; margin: 0 auto; max-width: 980px; }
+      .print-page { align-items: start; background: #fffdf8; border: 1px solid rgba(108, 91, 67, 0.18); box-shadow: 0 12px 30px rgba(90, 63, 45, 0.14); display: grid; gap: 14px; padding: 24px; }
+      .print-page.pocket { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .print-page.large { grid-template-columns: 1fr; }
+      .card { background: white; border: 1.5px solid var(--line); border-radius: 14px; break-inside: avoid; display: flex; flex-direction: column; gap: 10px; overflow: hidden; padding: 20px; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
+      .large .card { padding: 28px; }
       .brand { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
       h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 22px; line-height: 1.1; margin: 0; }
       .large h2 { font-size: 30px; }
-      .verse { color: var(--ink); flex: 1; font-size: var(--screen-pocket-size); font-weight: 700; line-height: var(--screen-line); margin: 0; overflow-wrap: anywhere; }
+      .verse { color: var(--ink); font-size: var(--screen-pocket-size); font-weight: 700; line-height: var(--screen-line); margin: 0; overflow-wrap: anywhere; }
       .large .verse { font-size: var(--screen-large-size); line-height: var(--screen-large-line); }
       .card-note { color: var(--coral); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 900; margin: -3px 0 0; }
       .footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 800; justify-content: space-between; padding-top: 8px; }
-      @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .sheet, .sheet.pocket { grid-template-columns: 1fr; padding: 12px; } }
-      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { border: 0; box-shadow: none; gap: 8mm; max-width: none; padding: 0; } .sheet.pocket { grid-template-columns: repeat(2, 1fr); } .card { break-inside: avoid; height: 126mm; max-height: 126mm; min-height: 0; page-break-inside: avoid; padding: 7mm; } .large .card { height: 132mm; max-height: 132mm; min-height: 0; padding: 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
+      @media (max-width: 720px) { body { padding: 12px; } .toolbar { align-items: stretch; flex-direction: column; } .print-page, .print-page.pocket { grid-template-columns: 1fr; padding: 12px; } }
+      @media print { @page { size: A4 portrait; margin: 8mm; } body { background: white; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .toolbar { display: none; } .sheet { display: block; max-width: none; } .print-page { border: 0; break-after: page; box-shadow: none; gap: 6mm; max-width: none; padding: 0; page-break-after: always; } .print-page:last-child { break-after: auto; page-break-after: auto; } .print-page.pocket { grid-template-columns: repeat(2, 1fr); } .card { break-inside: avoid; page-break-inside: avoid; padding: 7mm; } .large .card { padding: 8mm; } .brand { font-size: 9px; } h2 { font-size: 19px; } .large h2 { font-size: 25px; } .verse { font-size: var(--print-pocket-size); line-height: var(--print-line); } .large .verse { font-size: var(--print-large-size); line-height: var(--print-large-line); } .card-note { font-size: 8px; margin-top: -2px; } .footer { font-size: 9px; padding-top: 5px; } }
     </style>
   </head>
   <body>
@@ -210,7 +216,7 @@ export function buildPrintableMemoryCardsHtml({
       <p>${escapeHtml(title)}. On desktop, use your browser's print command. On phone or tablet, use Share, then Print or Save to Files.</p>
       <span class="print-shortcut">Desktop: Ctrl+P or Cmd+P</span>
     </div>
-    <main class="sheet ${layoutClass}">${cardHtml}</main>
+    <main class="sheet">${cardHtml}</main>
   </body>
 </html>`;
 }
@@ -239,7 +245,7 @@ function escapeHtml(value: string | number | undefined | null) {
 
 function prepareMemoryCardText(value?: string) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
-  const maxLength = 760;
+  const maxLength = 620;
   if (text.length <= maxLength) return { text, shortened: false };
 
   const trimmed = text.slice(0, maxLength);
@@ -250,9 +256,57 @@ function prepareMemoryCardText(value?: string) {
   };
 }
 
-function getMemoryCardPrintVars(value?: string) {
+function renderMemoryCard(verse: PreparedMemoryCard) {
+  return `
+    <article class="card" style="${verse.printVars}">
+      <div class="brand">Bible Study Tutor</div>
+      <h2>${escapeHtml(verse.reference)}</h2>
+      <p class="verse">${escapeHtml(verse.cardText)}</p>
+      ${verse.shortened ? '<p class="card-note">Longer passage shortened for card printing.</p>' : ""}
+      <div class="footer">
+        <span>${escapeHtml(shortTranslationForPrint(verse.translationName))}</span>
+        <span>biblestudytutor.org</span>
+      </div>
+    </article>
+  `;
+}
+
+function buildMemoryCardPages(cards: PreparedMemoryCard[], layout: MemoryCardLayout) {
+  if (layout === "large") return packMemoryCardRows(cards.map((card) => [card]), 281);
+
+  const rows: PreparedMemoryCard[][] = [];
+  for (let index = 0; index < cards.length; index += 2) {
+    rows.push(cards.slice(index, index + 2));
+  }
+  return packMemoryCardRows(rows, 281);
+}
+
+function packMemoryCardRows(rows: PreparedMemoryCard[][], pageHeight: number) {
+  const pages: PreparedMemoryCard[][] = [];
+  let currentPage: PreparedMemoryCard[] = [];
+  let usedHeight = 0;
+  const rowGap = 6;
+
+  rows.forEach((row) => {
+    const rowHeight = Math.max(...row.map((card) => card.estimatedHeight));
+    const nextHeight = currentPage.length ? usedHeight + rowGap + rowHeight : rowHeight;
+    if (currentPage.length && nextHeight > pageHeight) {
+      pages.push(currentPage);
+      currentPage = [...row];
+      usedHeight = rowHeight;
+      return;
+    }
+    currentPage.push(...row);
+    usedHeight = nextHeight;
+  });
+
+  if (currentPage.length) pages.push(currentPage);
+  return pages;
+}
+
+function getMemoryCardMetrics(value?: string, layout: MemoryCardLayout = "pocket") {
   const length = String(value || "").length;
-  const settings =
+  return (
     length <= 80
       ? { screenPocket: 26, screenLarge: 34, printPocket: 22, printLarge: 29, line: 1.42 }
       : length <= 140
@@ -263,8 +317,24 @@ function getMemoryCardPrintVars(value?: string) {
             ? { screenPocket: 17.5, screenLarge: 23, printPocket: 14.8, printLarge: 19, line: 1.28 }
             : length <= 520
               ? { screenPocket: 15.2, screenLarge: 20, printPocket: 12.8, printLarge: 16.2, line: 1.22 }
-              : { screenPocket: 13.4, screenLarge: 17, printPocket: 11.2, printLarge: 13.8, line: 1.16 };
+              : { screenPocket: 13.4, screenLarge: 17, printPocket: layout === "large" ? 12.4 : 11.2, printLarge: 13.8, line: 1.16 }
+  );
+}
 
+function estimateMemoryCardHeight(value: string, settings: ReturnType<typeof getMemoryCardMetrics>, layout: MemoryCardLayout, shortened: boolean) {
+  const printSize = layout === "large" ? settings.printLarge : settings.printPocket;
+  const contentWidth = layout === "large" ? 162 : 79;
+  const charWidth = printSize * 0.48 * 0.2646;
+  const charsPerLine = Math.max(14, Math.floor(contentWidth / charWidth));
+  const lineCount = Math.max(1, Math.ceil(value.length / charsPerLine));
+  const textHeight = lineCount * printSize * settings.line * 0.2646;
+  const chromeHeight = layout === "large" ? 36 : 32;
+  const noteHeight = shortened ? 5 : 0;
+  const estimate = chromeHeight + noteHeight + textHeight;
+  return Math.min(layout === "large" ? 160 : 136, Math.max(layout === "large" ? 58 : 48, Math.ceil(estimate)));
+}
+
+function getMemoryCardPrintVars(settings: ReturnType<typeof getMemoryCardMetrics>) {
   return [
     `--screen-pocket-size:${settings.screenPocket}px`,
     `--screen-large-size:${settings.screenLarge}px`,

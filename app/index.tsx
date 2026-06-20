@@ -6083,11 +6083,11 @@ export default function Home() {
                             <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Encouragement</Text>
                           </View>
                           <View style={[styles.memoryEncouragementGrid, phoneLayout && styles.phoneMemoryWeeklySummaryContent]}>
-                            <View style={styles.memoryEncouragementBlock}>
+                            <View style={[styles.memoryEncouragementBlock, phoneLayout && styles.phoneMemoryEncouragementBlock]}>
                               <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
                               <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
                             </View>
-                            <View style={styles.memoryEncouragementBlock}>
+                            <View style={[styles.memoryEncouragementBlock, phoneLayout && styles.phoneMemoryEncouragementBlock]}>
                               <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
                               <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
                             </View>
@@ -17696,6 +17696,10 @@ const styles = StyleSheet.create({
     gap: 4,
     minWidth: 0
   },
+  phoneMemoryEncouragementBlock: {
+    flex: 0,
+    width: "100%"
+  },
   memoryHistoryEncouragementText: {
     color: colors.oliveDark,
     fontSize: 13,
@@ -17720,6 +17724,7 @@ const styles = StyleSheet.create({
   phoneMemoryWeeklySummaryContent: {
     alignItems: "stretch",
     flexDirection: "column",
+    gap: 8,
     width: "100%"
   },
   memoryWeeklySummaryText: {

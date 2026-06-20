@@ -6082,27 +6082,36 @@ export default function Home() {
                             <Ionicons name="sparkles-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
                             <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Encouragement</Text>
                           </View>
-                          <View style={[styles.memoryEncouragementGrid, phoneLayout && styles.phoneMemoryWeeklySummaryContent]}>
-                            <View style={[styles.memoryEncouragementBlock, phoneLayout && styles.phoneMemoryEncouragementBlock]}>
-                              <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
-                              <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
-                            </View>
-                            <View style={[styles.memoryEncouragementBlock, phoneLayout && styles.phoneMemoryEncouragementBlock]}>
-                              <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
-                              <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
-                              {phoneLayout && (
+                          {phoneLayout ? (
+                            <View style={styles.phoneMemoryEncouragementStack}>
+                              <View style={styles.phoneMemoryEncouragementItem}>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
+                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
+                              </View>
+                              <View style={styles.phoneMemoryEncouragementItem}>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
+                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
                                 <Text style={[styles.memoryWeeklyInlineScripture, memoryDarkMode && styles.accountDarkMutedText]}>
                                   "{memoryWeeklyScripture.text}" - {memoryWeeklyScripture.reference}
                                 </Text>
-                              )}
+                              </View>
                             </View>
-                            {!phoneLayout && (
+                          ) : (
+                            <View style={styles.memoryEncouragementGrid}>
+                              <View style={styles.memoryEncouragementBlock}>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
+                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
+                              </View>
+                              <View style={styles.memoryEncouragementBlock}>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
+                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                              </View>
                               <View style={[styles.memoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
                                 <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
                                 <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
                               </View>
-                            )}
-                          </View>
+                            </View>
+                          )}
                         </View>
                         <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
                           <Metric value={memoryHistorySummary.reviewedToday} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
@@ -17703,8 +17712,12 @@ const styles = StyleSheet.create({
     gap: 4,
     minWidth: 0
   },
-  phoneMemoryEncouragementBlock: {
-    flex: 0,
+  phoneMemoryEncouragementStack: {
+    gap: 10,
+    width: "100%"
+  },
+  phoneMemoryEncouragementItem: {
+    gap: 4,
     width: "100%"
   },
   memoryHistoryEncouragementText: {

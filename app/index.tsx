@@ -6090,11 +6090,18 @@ export default function Home() {
                             <View style={[styles.memoryEncouragementBlock, phoneLayout && styles.phoneMemoryEncouragementBlock]}>
                               <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
                               <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
+                              {phoneLayout && (
+                                <Text style={[styles.memoryWeeklyInlineScripture, memoryDarkMode && styles.accountDarkMutedText]}>
+                                  "{memoryWeeklyScripture.text}" - {memoryWeeklyScripture.reference}
+                                </Text>
+                              )}
                             </View>
-                            <View style={[styles.memoryWeeklyScriptureBox, phoneLayout && styles.phoneMemoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
-                              <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
-                              <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
-                            </View>
+                            {!phoneLayout && (
+                              <View style={[styles.memoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
+                                <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
+                                <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
+                              </View>
+                            )}
                           </View>
                         </View>
                         <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
@@ -17740,17 +17747,20 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 9
   },
-  phoneMemoryWeeklyScriptureBox: {
-    alignSelf: "stretch",
-    flex: 0,
-    width: "100%"
-  },
   memoryWeeklyScriptureText: {
     color: colors.ink,
     fontSize: 12,
     fontStyle: "italic",
     fontWeight: "800",
     lineHeight: 18
+  },
+  memoryWeeklyInlineScripture: {
+    color: colors.muted,
+    fontSize: 12,
+    fontStyle: "italic",
+    fontWeight: "800",
+    lineHeight: 18,
+    marginTop: 4
   },
   memoryMilestoneList: {
     gap: 8

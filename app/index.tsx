@@ -6519,7 +6519,7 @@ export default function Home() {
                                       onChangeText={setMemoryMeditationPhrase}
                                       placeholder="A phrase I am holding..."
                                       placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
-                                      style={[styles.input, styles.memoryMeditationInput, memoryDarkMode && styles.accountDarkInput]}
+                                      style={[styles.input, styles.memoryMeditationInput, phoneLayout && styles.phoneMemoryMeditationInput, memoryDarkMode && styles.accountDarkInput]}
                                     />
                                   </View>
                                 )}
@@ -6532,7 +6532,7 @@ export default function Home() {
                                       placeholder="This verse is showing me..."
                                       placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
                                       multiline
-                                      style={[styles.input, styles.memoryMeditationTextarea, memoryDarkMode && styles.accountDarkInput]}
+                                      style={[styles.input, styles.memoryMeditationTextarea, phoneLayout && styles.phoneMemoryMeditationInput, memoryDarkMode && styles.accountDarkInput]}
                                     />
                                   </View>
                                 )}
@@ -6545,7 +6545,7 @@ export default function Home() {
                                       placeholder="Lord, help me..."
                                       placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
                                       multiline
-                                      style={[styles.input, styles.memoryMeditationTextarea, memoryDarkMode && styles.accountDarkInput]}
+                                      style={[styles.input, styles.memoryMeditationTextarea, phoneLayout && styles.phoneMemoryMeditationInput, memoryDarkMode && styles.accountDarkInput]}
                                     />
                                   </View>
                                 )}
@@ -6558,7 +6558,7 @@ export default function Home() {
                                       placeholder="Today I want to carry..."
                                       placeholderTextColor={memoryDarkMode ? "#8f8678" : colors.muted}
                                       multiline
-                                      style={[styles.input, styles.memoryMeditationTextarea, memoryDarkMode && styles.accountDarkInput]}
+                                      style={[styles.input, styles.memoryMeditationTextarea, phoneLayout && styles.phoneMemoryMeditationInput, memoryDarkMode && styles.accountDarkInput]}
                                     />
                                   </View>
                                 )}
@@ -8613,7 +8613,7 @@ export default function Home() {
                     onChangeText={setMemoryMeditationPhrase}
                     placeholder="A phrase I am holding..."
                     placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
-                    style={[styles.input, styles.memoryMeditationInput, accountDarkMode && styles.accountDarkInput]}
+                    style={[styles.input, styles.memoryMeditationInput, phoneLayout && styles.phoneMemoryMeditationInput, accountDarkMode && styles.accountDarkInput]}
                   />
                 </View>
               )}
@@ -8626,7 +8626,7 @@ export default function Home() {
                     placeholder="This verse is showing me..."
                     placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
                     multiline
-                    style={[styles.input, styles.memoryMeditationTextarea, accountDarkMode && styles.accountDarkInput]}
+                    style={[styles.input, styles.memoryMeditationTextarea, phoneLayout && styles.phoneMemoryMeditationInput, accountDarkMode && styles.accountDarkInput]}
                   />
                 </View>
               )}
@@ -8639,7 +8639,7 @@ export default function Home() {
                     placeholder="Lord, help me..."
                     placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
                     multiline
-                    style={[styles.input, styles.memoryMeditationTextarea, accountDarkMode && styles.accountDarkInput]}
+                    style={[styles.input, styles.memoryMeditationTextarea, phoneLayout && styles.phoneMemoryMeditationInput, accountDarkMode && styles.accountDarkInput]}
                   />
                 </View>
               )}
@@ -8652,7 +8652,7 @@ export default function Home() {
                     placeholder="Today I want to carry..."
                     placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
                     multiline
-                    style={[styles.input, styles.memoryMeditationTextarea, accountDarkMode && styles.accountDarkInput]}
+                    style={[styles.input, styles.memoryMeditationTextarea, phoneLayout && styles.phoneMemoryMeditationInput, accountDarkMode && styles.accountDarkInput]}
                   />
                 </View>
               )}
@@ -18202,6 +18202,12 @@ const styles = StyleSheet.create({
   memoryMeditationTextarea: {
     minHeight: 92,
     textAlignVertical: "top"
+  },
+  phoneMemoryMeditationInput: {
+    fontSize: 16,
+    lineHeight: 22,
+    maxWidth: "100%",
+    width: "100%"
   },
   memoryPracticeBox: {
     backgroundColor: "#fffaf2",

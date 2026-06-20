@@ -6091,7 +6091,7 @@ export default function Home() {
                               <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
                               <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
                             </View>
-                            <View style={[styles.memoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
+                            <View style={[styles.memoryWeeklyScriptureBox, phoneLayout && styles.phoneMemoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
                               <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
                               <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
                             </View>
@@ -17698,7 +17698,6 @@ const styles = StyleSheet.create({
   },
   memoryHistoryEncouragementText: {
     color: colors.oliveDark,
-    flex: 1,
     fontSize: 13,
     fontWeight: "800",
     lineHeight: 19,
@@ -17719,7 +17718,9 @@ const styles = StyleSheet.create({
     minWidth: 0
   },
   phoneMemoryWeeklySummaryContent: {
-    flexDirection: "column"
+    alignItems: "stretch",
+    flexDirection: "column",
+    width: "100%"
   },
   memoryWeeklySummaryText: {
     flex: 1.4
@@ -17733,6 +17734,11 @@ const styles = StyleSheet.create({
     gap: 4,
     minWidth: 0,
     padding: 9
+  },
+  phoneMemoryWeeklyScriptureBox: {
+    alignSelf: "stretch",
+    flex: 0,
+    width: "100%"
   },
   memoryWeeklyScriptureText: {
     color: colors.ink,

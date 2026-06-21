@@ -6397,7 +6397,6 @@ export default function Home() {
                                 >
                                   {memoryReviewDateLabel(verse.nextReviewAt)}
                                 </Text>
-                                <Text style={[styles.draftPill, memoryDarkMode && styles.plansDarkDraftPill, phoneLayout && styles.phoneMemoryHeaderPill]}>{memoryProgressLabel(verse)}</Text>
                               </View>
                             </Pressable>
                             {!cardExpanded && <Text numberOfLines={1} style={[styles.memoryVersePreview, memoryDarkMode && styles.accountDarkMutedText]}>{verse.verseText}</Text>}

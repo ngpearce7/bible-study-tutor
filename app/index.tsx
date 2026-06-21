@@ -7954,15 +7954,13 @@ export default function Home() {
               const entryStatus = entry.answers
                 ? memoryMeditation
                   ? "Meditation"
-                  : pinned
-                  ? "Pinned"
                   : entry.reviewStatus === "scheduled"
                     ? isStudyReviewDue(entry)
                       ? "Review due"
                       : "Review set"
                     : entry.reviewStatus === "reviewed"
-                      ? "Reviewed"
-                      : "Completed"
+                      ? "Study review"
+                      : "Study"
                 : isHighlightReflection(entry)
                   ? "Reflection"
                   : "Encouragement";
@@ -7978,10 +7976,10 @@ export default function Home() {
                       <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                     <View style={styles.journalStatusCluster}>
-                      <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill, pinned && styles.pinnedJournalPill]}>{entryStatus}</Text>
+                      <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{entryStatus}</Text>
                       {entry.answers && !memoryMeditation && (
                         <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinIconButton]}>
-                          <Ionicons name={pinned ? "bookmark" : "bookmark-outline"} size={16} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                          <Ionicons name={pinned ? "star" : "star-outline"} size={16} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
                         </Pressable>
                       )}
                     </View>
@@ -11934,11 +11932,10 @@ function buildJournalCalendarItems({
       timestamp: item.createdAt
     })),
     ...entries.map((entry) => {
-      const pinned = pinnedEntryIds.has(String(entry._id));
       return {
         id: `entry:${entry._id}`,
         title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement"),
-        status: entry.answers ? (isMemoryMeditationEntry(entry) ? "Meditation" : pinned ? "Pinned" : "Completed") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
+        status: entry.answers ? (isMemoryMeditationEntry(entry) ? "Meditation" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
         timestamp: journalEntryTimestamp(entry)
       };
     })
@@ -11998,11 +11995,10 @@ function buildJournalScriptureItems({
       references: journalReferenceTextForItem(item, "highlight")
     })),
     ...entries.map((entry) => {
-      const pinned = pinnedEntryIds.has(String(entry._id));
       return {
         id: `entry:${entry._id}`,
         title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement"),
-        status: entry.answers ? (isMemoryMeditationEntry(entry) ? "Meditation" : pinned ? "Pinned" : "Completed") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
+        status: entry.answers ? (isMemoryMeditationEntry(entry) ? "Meditation" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
         timestamp: journalEntryTimestamp(entry),
         references: journalReferenceTextForItem(entry, "entry")
       };

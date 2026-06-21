@@ -17289,7 +17289,9 @@ const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.34)"
   },
   memoryDarkReviewPill: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#242b2a",
+    borderColor: "rgba(233, 183, 106, 0.18)",
+    borderWidth: 1,
     color: "#f7eddc"
   },
   memoryDarkDueReviewPill: {

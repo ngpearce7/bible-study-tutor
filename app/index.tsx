@@ -1620,6 +1620,11 @@ export default function Home() {
   }
 
   function resumeSession(session: any) {
+    if (isMemoryMeditationEntry(session)) {
+      openMemoryMeditationFromJournal(session);
+      return;
+    }
+
     const firstAnsweredStep = Math.max(
       0,
       session.answers.findIndex((item: any) => item.answer.trim())
@@ -1632,6 +1637,20 @@ export default function Home() {
       passageMarkups: session.passageMarkups,
       status: "Loaded past study notes"
     });
+  }
+
+  function openMemoryMeditationFromJournal(entry: any) {
+    const matchingVerse = (memoryVerses || []).find((verse: any) => normalizeMemoryAnswer(verse.reference) === normalizeMemoryAnswer(entry.passage));
+    if (matchingVerse) {
+      startMemoryMeditation(matchingVerse);
+      setMemoryStatus(`Reopened ${matchingVerse.reference} for meditation.`);
+      return;
+    }
+
+    setMemoryView("browse");
+    setMemorySearch(entry.passage || "");
+    setTab("memory");
+    setMemoryStatus("Find this saved verse in Memory to meditate on it again.");
   }
 
   function resumeStudy({
@@ -7921,15 +7940,21 @@ export default function Home() {
                 })}
               </View>
             )}
-            {journalEntries.map((entry: any) => {
+            {journalEntries.length > 0 && (
+              <View style={styles.journalSection}>
+                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>{journalFilter === "studies" ? "Completed studies" : journalFilter === "checkins" ? "Encouragements" : "Saved entries"}</Text>
+                {journalEntries.map((entry: any) => {
               const rawEntryId = String(entry._id);
               const entryId = `entry:${rawEntryId}`;
               const pinned = pinnedEntryIds.has(rawEntryId);
+              const memoryMeditation = isMemoryMeditationEntry(entry);
               const editing = editingJournalEntryId === rawEntryId;
               const expanded = isJournalEntryExpanded(entryId) || editing || activeStudyReviewId === rawEntryId || reviewScheduleStudyId === rawEntryId;
               const entryTitle = entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement");
               const entryStatus = entry.answers
-                ? pinned
+                ? memoryMeditation
+                  ? "Meditation"
+                  : pinned
                   ? "Pinned"
                   : entry.reviewStatus === "scheduled"
                     ? isStudyReviewDue(entry)
@@ -7937,7 +7962,7 @@ export default function Home() {
                       : "Review set"
                     : entry.reviewStatus === "reviewed"
                       ? "Reviewed"
-                      : "Study"
+                      : "Completed"
                 : isHighlightReflection(entry)
                   ? "Reflection"
                   : "Encouragement";
@@ -7954,7 +7979,7 @@ export default function Home() {
                     </Pressable>
                     <View style={styles.journalStatusCluster}>
                       <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill, pinned && styles.pinnedJournalPill]}>{entryStatus}</Text>
-                      {entry.answers && (
+                      {entry.answers && !memoryMeditation && (
                         <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinIconButton]}>
                           <Ionicons name={pinned ? "bookmark" : "bookmark-outline"} size={16} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
                         </Pressable>
@@ -8099,8 +8124,8 @@ export default function Home() {
                           </>
                         ) : (
                           <>
-                            {entry.answers && <ResumeButton label="Revisit notes" onPress={() => resumeSession(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />}
-                            {entry.answers && entry.reviewStatus === "scheduled" && isStudyReviewDue(entry) && (
+                            {entry.answers && <ResumeButton label={memoryMeditation ? "Meditate again" : "Revisit notes"} icon={memoryMeditation ? "sparkles-outline" : "book-outline"} onPress={() => resumeSession(entry)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />}
+                            {entry.answers && !memoryMeditation && entry.reviewStatus === "scheduled" && isStudyReviewDue(entry) && (
                               <ResumeButton
                                 label={activeStudyReviewId === rawEntryId ? "Hide review" : "Review now"}
                                 icon="refresh-circle-outline"
@@ -8113,7 +8138,7 @@ export default function Home() {
                                 iconColor={journalDarkMode ? "#e9b76a" : undefined}
                               />
                             )}
-                            {entry.answers && (
+                            {entry.answers && !memoryMeditation && (
                               <ResumeButton
                                 label={reviewScheduleStudyId === rawEntryId ? "Hide schedule" : "Review later"}
                                 icon="calendar-outline"
@@ -8135,7 +8160,7 @@ export default function Home() {
                           iconColor={journalDarkMode ? "#e9b76a" : undefined}
                         />
                       </View>
-                      {entry.answers && reviewScheduleStudyId === rawEntryId && (
+                      {entry.answers && !memoryMeditation && reviewScheduleStudyId === rawEntryId && (
                         <View style={[styles.reviewScheduleBox, journalDarkMode && styles.accountDarkInsetBox]}>
                           <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Bring this study back</Text>
                           <View style={styles.reviewPresetRow}>
@@ -8166,7 +8191,9 @@ export default function Home() {
                   )}
                 </Card>
               );
-            })}
+                })}
+              </View>
+            )}
             {showJournalEmptyState && (
               <View style={[styles.emptyJournalBox, journalDarkMode && styles.accountDarkSection]}>
                 <Ionicons name={journalSearchTerm ? "search-outline" : "reader-outline"} size={24} color={colors.coral} />
@@ -11911,7 +11938,7 @@ function buildJournalCalendarItems({
       return {
         id: `entry:${entry._id}`,
         title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement"),
-        status: entry.answers ? (pinned ? "Pinned" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
+        status: entry.answers ? (isMemoryMeditationEntry(entry) ? "Meditation" : pinned ? "Pinned" : "Completed") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
         timestamp: journalEntryTimestamp(entry)
       };
     })
@@ -11975,7 +12002,7 @@ function buildJournalScriptureItems({
       return {
         id: `entry:${entry._id}`,
         title: entry.passage || (isHighlightReflection(entry) ? "Highlight reflection" : "Encouragement"),
-        status: entry.answers ? (pinned ? "Pinned" : "Study") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
+        status: entry.answers ? (isMemoryMeditationEntry(entry) ? "Meditation" : pinned ? "Pinned" : "Completed") : isHighlightReflection(entry) ? "Reflection" : "Encouragement",
         timestamp: journalEntryTimestamp(entry),
         references: journalReferenceTextForItem(entry, "entry")
       };
@@ -12164,6 +12191,10 @@ function buildStructuredHighlightReflectionNote({
 
 function isHighlightReflection(entry: any) {
   return entry.mood === "Highlight reflection";
+}
+
+function isMemoryMeditationEntry(entry: any) {
+  return entry?.methodId === "memory-meditation" || entry?.methodName === "Memory Meditation";
 }
 
 function parseHighlightReflectionNote(note: string) {

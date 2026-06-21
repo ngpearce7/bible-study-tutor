@@ -834,6 +834,9 @@ export default function Home() {
   const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
   const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
   const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
+  const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "account");
+  const shouldLoadMemoryHistory = profileMatchesActiveState && tab === "memory";
+  const shouldLoadAdminOverview = profileMatchesActiveState && (tab === "account" || tab === "admin");
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
   const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId, timezoneOffsetMinutes } : "skip");
@@ -847,10 +850,10 @@ export default function Home() {
   const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
-  const memoryVerses = useQuery(api.memory.list, profileMatchesActiveState ? { profileId: activeProfileId, limit: 50 } : "skip");
-  const memoryHistory = useQuery((api as any).memory.listHistory, profileMatchesActiveState ? { profileId: activeProfileId, limit: 120 } : "skip");
+  const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 50 } : "skip");
+  const memoryHistory = useQuery((api as any).memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
   const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
-  const adminOverview = useQuery((api as any).insights.adminOverview, profileMatchesActiveState ? {} : "skip");
+  const adminOverview = useQuery((api as any).insights.adminOverview, shouldLoadAdminOverview ? {} : "skip");
   const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
   const adminUsers = useQuery((api as any).insights.adminUsers, shouldLoadAdminDetails ? {} : "skip");
   const adminUserDetail = useQuery((api as any).insights.adminUserDetail, shouldLoadAdminDetails && selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
@@ -925,6 +928,16 @@ export default function Home() {
       setShareInsightCircleId(null);
     }
   }, [communityCircles, shareInsightCircleId]);
+  useEffect(() => {
+    if (tab === "bible") return;
+    if (bibleSearchResults.length === 0 && !bibleSearchStatus && !bibleSearchDuration && !bibleSearchActiveQuery) return;
+    setBibleSearchResults([]);
+    setBibleSearchStatus("");
+    setBibleSearchDuration("");
+    setBibleSearchActiveQuery("");
+    setBibleSearchBookMenuOpen(false);
+    setBibleSearchCriteriaOpen(false);
+  }, [bibleSearchActiveQuery, bibleSearchDuration, bibleSearchResults.length, bibleSearchStatus, tab]);
   const method = useMemo(() => methods.find((item) => item.id === methodId) || methods[0], [methodId]);
   const activeMethodInfo = useMemo(() => methods.find((item) => item.id === activeMethodInfoId) || null, [activeMethodInfoId]);
   const methodFilters = useMemo(() => ["All", ...Array.from(new Set(methods.flatMap((item) => item.labels || [])))], []);

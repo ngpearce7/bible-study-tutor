@@ -834,8 +834,9 @@ export default function Home() {
   const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
   const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
   const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
+  const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
-  const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId } : "skip");
+  const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId, timezoneOffsetMinutes } : "skip");
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,

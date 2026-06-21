@@ -443,7 +443,7 @@ export const stats = query({
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
-    const [sessions, checkins, memoryVerses, usageEvents] = await Promise.all([
+    const [sessions, checkins, memoryVerses, memoryHistory, usageEvents] = await Promise.all([
       ctx.db
       .query("sessions")
       .withIndex("by_profile_completed", (q) => q.eq("profileId", args.profileId))
@@ -457,6 +457,10 @@ export const stats = query({
         .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
         .collect(),
       ctx.db
+        .query("memoryHistory")
+        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+        .collect(),
+      ctx.db
         .query("usageEvents")
         .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
         .collect()
@@ -467,6 +471,9 @@ export const stats = query({
       ...sessions.map((session) => session.completedAt),
       ...checkins.map((checkin) => checkin.createdAt),
       ...memoryVerses.flatMap((verse) => [verse.createdAt, verse.lastReviewedAt].filter(isNumber)),
+      ...memoryHistory
+        .filter((event) => event.event === "added" || event.event === "reviewed" || event.event === "meditated")
+        .map((event) => event.createdAt),
       ...usageEvents.filter((event) => countsTowardScriptureRhythm(event.eventType)).map((event) => event.createdAt)
     ];
 
@@ -615,10 +622,10 @@ function currentStreak(dates: string[], timezoneOffsetMinutes = 0) {
 
   if (!dates.includes(today)) {
     cursor.setDate(cursor.getDate() - 1);
-    if (!dates.includes(dayKey(cursor.getTime()))) return 0;
+    if (!dates.includes(dayKey(cursor.getTime(), timezoneOffsetMinutes))) return 0;
   }
 
-  while (dates.includes(dayKey(cursor.getTime()))) {
+  while (dates.includes(dayKey(cursor.getTime(), timezoneOffsetMinutes))) {
     count += 1;
     cursor.setDate(cursor.getDate() - 1);
   }

@@ -17,7 +17,7 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Study help",
       icon: "book-outline",
       summary: "Study walks you through one method step at a time, with passage text, notes, highlighting, memory saving, and journal saving.",
-      tips: ["Type a full reference or a shortcut like 1 thes 1:1, then press Use.", "Select verses to highlight, note, save to Memory, or print a worksheet.", "Use Focus mode or collapse side panels when you want fewer distractions."]
+      tips: ["Type a full reference or a shortcut like 1 thes 1:1, then press Use.", "Select verses to highlight, note, save to Memory, or print a worksheet.", "Use the editor settings gear to adjust Scripture insert options."]
     },
     bible: {
       title: "Bible help",
@@ -40,8 +40,8 @@ export function getContextHelp(tab: string): ContextHelp {
     memory: {
       title: "Memory help",
       icon: "sparkles-outline",
-      summary: "Memory helps you keep saved verses through a simple three-step practice flow.",
-      tips: ["Save verses from Bible or Study first.", "Due for Review brings verses back by date, and Reviewed shows what you have completed.", "Open History to see recent activity, milestones, and memory encouragement."]
+      summary: "Memory helps you keep saved verses through review, meditation, history, and printable verse cards.",
+      tips: ["Save verses from Bible or Study first.", "Use Practice for the three-step review flow, or Meditate to slow down with one verse.", "Use Print cards to download editable memory cards for carrying or sharing."]
     },
     accountability: {
       title: "Community help",
@@ -59,7 +59,7 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Account help",
       icon: "person-circle-outline",
       summary: "Account manages your name, sign-in, Bible translation, privacy notes, and future access choices.",
-      tips: ["Add your name so the app can speak more personally.", "Create a free account with either an email address or a unique username.", "Choose BSB, WEB, or KJV as your preferred Bible translation."]
+      tips: ["Add your name so the app can speak more personally.", "Create a free account with either an email address or a unique username.", "Read the privacy and terms sections if you want to understand what is saved."]
     },
     admin: {
       title: "Admin help",

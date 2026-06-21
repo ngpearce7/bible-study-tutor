@@ -8271,7 +8271,7 @@ export default function Home() {
               />
               <HelpScreenshot
                 title="Memory practice"
-                caption="Save a verse to Memory, then read it, fill every second word, and finally type the full verse."
+                caption="Save verses to Memory, practise them in three steps, meditate slowly, or download editable verse cards."
                 variant="memory"
                 darkMode={helpDarkMode}
                 styles={styles}
@@ -8332,7 +8332,7 @@ export default function Home() {
                     steps: [
                       "Open Study and choose a passage.",
                       "Pick a method, or keep the suggested method.",
-                      "Write a response for each step.",
+                      "Write a response for each step and use the editor tools if you want bold, italics, underline, highlights, or inserted Scripture.",
                       "Review, add a shareable insight, then save to Journal."
                     ],
                     action: "Start study",
@@ -8357,7 +8357,20 @@ export default function Home() {
                       "Save a verse to Memory from Bible or Study.",
                       "Open Memory and press Practice.",
                       "Read the verse, fill every second word, then fill all words.",
-                      "Use hints when needed and set the next review date."
+                      "Use hints when needed and set the next review date.",
+                      "Use Meditate when you want to slow down with one verse."
+                    ],
+                    action: "Open Memory",
+                    target: "memory"
+                  },
+                  {
+                    icon: "albums-outline",
+                    title: "Print memory cards",
+                    steps: [
+                      "Open Memory and press Print cards.",
+                      "Choose due, reviewed, all, current view, or custom verses.",
+                      "Choose pocket or large cards and how many copies you want.",
+                      "Download the Word document, then print or adjust it in Word, Pages, or Google Docs."
                     ],
                     action: "Open Memory",
                     target: "memory"
@@ -8422,10 +8435,10 @@ export default function Home() {
                   ["Study", "Guided Bible study with notes, highlights, coaching, worksheets, and saving.", "book-outline"],
                   ["Methods", "Choose how you want to study a passage.", "layers-outline"],
                   ["Plans", "Follow short guided paths over several days.", "calendar-outline"],
-                  ["Memory", "Practise saved verses in three simple steps.", "sparkles-outline"],
-                  ["Community", "Create and save encouragements for a person or group.", "people-outline"],
+                  ["Memory", "Review saved verses, meditate on Scripture, view history, and download memory cards.", "sparkles-outline"],
+                  ["Community", "Share encouragements privately with accepted friends or invite-only circles.", "people-outline"],
                   ["Journal", "Review saved studies, drafts, highlights, and encouragements.", "journal-outline"],
-                  ["Account", "Manage your name, sign-in, translation, and privacy details.", "person-circle-outline"]
+                  ["Account", "Manage your name, sign-in, username or email account, translation, appearance, and privacy details.", "person-circle-outline"]
                 ].map(([title, body, icon]) => (
                   <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem, helpDarkMode && styles.helpDarkTabItem]}>
                     <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -8446,8 +8459,10 @@ export default function Home() {
                 ["How do I search Scripture?", "Open Bible, expand Search Scripture, type a word or idea, then press Search. On mobile, Search criteria hides the filters until you need them."],
                 ["What does Read do in search results?", "Read opens the matching chapter in the Bible reader and selects the verse so you can keep reading around it."],
                 ["Where do highlights go?", "Highlights stay with the saved study and can be found again from Journal."],
-                ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab."],
+                ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab. You can also use Meditate for slower reflection."],
+                ["Can I print memory verses?", "Yes. Open Memory, tap Print cards, choose the saved verses and copies you want, then download the editable Word document."],
                 ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
+                ["Can I create an account without email?", "Yes. In Account, create a free account with either an email address or a unique username. You can add an email later if you want."],
                 ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, choose a friend or circle, then tap Post insight."],
                 ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, encouragements, bookmarks, searches, and printed worksheets can count. It also allows a grace day, so missing one day does not immediately erase the rhythm."],
                 ["How do I change the Bible translation?", "Open Account, then choose BSB, WEB, or KJV under Bible translations."],

@@ -834,7 +834,7 @@ export default function Home() {
   const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
   const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
   const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
-  const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "account");
+  const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
   const shouldLoadMemoryHistory = profileMatchesActiveState && tab === "memory";
   const shouldLoadAdminOverview = profileMatchesActiveState && (tab === "account" || tab === "admin");
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();

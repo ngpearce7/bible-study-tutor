@@ -186,7 +186,7 @@ export function memoryReviewDateLabel(nextReviewAt?: number) {
     if (daysOverdue === 1) return "Review: due now";
     return `Due: ${daysOverdue}d ago`;
   }
-  if (targetStart === todayStart) return "Review: today";
+  if (targetStart === todayStart) return "Review: due now";
   const daysUntilReview = Math.max(0, Math.ceil((targetStart - todayStart) / (1000 * 60 * 60 * 24)));
   if (daysUntilReview === 1) return "Review in: 1 day";
   return `Review in: ${daysUntilReview} days`;

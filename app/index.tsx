@@ -7978,8 +7978,15 @@ export default function Home() {
                     <View style={styles.journalStatusCluster}>
                       <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{entryStatus}</Text>
                       {entry.answers && !memoryMeditation && (
-                        <Pressable onPress={() => togglePinnedJournalEntry(rawEntryId)} style={[styles.pinIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinIconButton]}>
-                          <Ionicons name={pinned ? "star" : "star-outline"} size={16} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                        <Pressable
+                          onPress={() => togglePinnedJournalEntry(rawEntryId)}
+                          style={[styles.pinJournalButton, journalDarkMode && styles.homeDarkResumeButton, pinned && styles.activePinJournalButton]}
+                          accessibilityLabel={pinned ? "Unpin journal entry" : "Pin journal entry"}
+                        >
+                          <Ionicons name={pinned ? "star" : "star-outline"} size={14} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                          <Text style={[styles.pinJournalButtonText, journalDarkMode && styles.homeDarkResumeButtonText, pinned && styles.activePinJournalButtonText]}>
+                            {pinned ? "Pinned" : "Pin"}
+                          </Text>
                         </Pressable>
                       )}
                     </View>
@@ -20873,6 +20880,27 @@ const styles = StyleSheet.create({
   },
   activePinIconButton: {
     backgroundColor: colors.oliveDark
+  },
+  pinJournalButton: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    flexDirection: "row",
+    gap: 4,
+    minHeight: 30,
+    paddingHorizontal: 9
+  },
+  activePinJournalButton: {
+    backgroundColor: colors.oliveDark
+  },
+  pinJournalButtonText: {
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "800",
+    lineHeight: 13
+  },
+  activePinJournalButtonText: {
+    color: "white"
   },
   draftPill: {
     backgroundColor: colors.blush,

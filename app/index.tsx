@@ -7980,13 +7980,10 @@ export default function Home() {
                       {entry.answers && !memoryMeditation && (
                         <Pressable
                           onPress={() => togglePinnedJournalEntry(rawEntryId)}
-                          style={[styles.pinJournalButton, journalDarkMode && styles.homeDarkResumeButton, pinned && styles.activePinJournalButton]}
+                          style={[styles.pinJournalIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinJournalIconButton]}
                           accessibilityLabel={pinned ? "Unpin journal entry" : "Pin journal entry"}
                         >
-                          <Ionicons name={pinned ? "star" : "star-outline"} size={14} color={pinned ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                          <Text style={[styles.pinJournalButtonText, journalDarkMode && styles.homeDarkResumeButtonText, pinned && styles.activePinJournalButtonText]}>
-                            {pinned ? "Pinned" : "Pin"}
-                          </Text>
+                          <Ionicons name={pinned ? "star" : "star-outline"} size={16} color={pinned ? "#2f7d4f" : (journalDarkMode ? "#c8bda9" : colors.muted)} />
                         </Pressable>
                       )}
                     </View>
@@ -20881,26 +20878,19 @@ const styles = StyleSheet.create({
   activePinIconButton: {
     backgroundColor: colors.oliveDark
   },
-  pinJournalButton: {
+  pinJournalIconButton: {
     alignItems: "center",
-    backgroundColor: colors.sage,
+    backgroundColor: "transparent",
+    borderColor: colors.line,
+    borderWidth: 1,
     borderRadius: 999,
-    flexDirection: "row",
-    gap: 4,
-    minHeight: 30,
-    paddingHorizontal: 9
+    height: 30,
+    justifyContent: "center",
+    width: 30
   },
-  activePinJournalButton: {
-    backgroundColor: colors.oliveDark
-  },
-  pinJournalButtonText: {
-    color: colors.oliveDark,
-    fontSize: 11,
-    fontWeight: "800",
-    lineHeight: 13
-  },
-  activePinJournalButtonText: {
-    color: "white"
+  activePinJournalIconButton: {
+    backgroundColor: "#dff0e5",
+    borderColor: "#2f7d4f"
   },
   draftPill: {
     backgroundColor: colors.blush,

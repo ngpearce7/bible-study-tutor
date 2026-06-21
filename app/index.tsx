@@ -20881,16 +20881,13 @@ const styles = StyleSheet.create({
   pinJournalIconButton: {
     alignItems: "center",
     backgroundColor: "transparent",
-    borderColor: colors.line,
-    borderWidth: 1,
-    borderRadius: 999,
-    height: 30,
+    borderRadius: 6,
+    height: 28,
     justifyContent: "center",
-    width: 30
+    width: 28
   },
   activePinJournalIconButton: {
-    backgroundColor: "#dff0e5",
-    borderColor: "#2f7d4f"
+    backgroundColor: "transparent"
   },
   draftPill: {
     backgroundColor: colors.blush,

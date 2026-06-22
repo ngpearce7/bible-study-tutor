@@ -26,7 +26,7 @@ import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
 type StudyPhase = "study" | "review" | "saved";
-type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "checkins" | "highlights" | "reviews";
+type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
 type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "custom";
@@ -1163,9 +1163,14 @@ export default function Home() {
     { label: "Bible bookmarks", value: bibleBookmarks.length, icon: "bookmark-outline" },
     { label: "Chapters marked read", value: readBibleChapterCount, icon: "checkmark-circle-outline" }
   ];
+  const journalSessionEntries = (sessions || []).filter((entry: any) => {
+    if (journalFilter === "studies") return !isMemoryMeditationEntry(entry);
+    if (journalFilter === "meditations") return isMemoryMeditationEntry(entry);
+    return true;
+  });
   const baseJournalEntries = [
     ...(journalFilter === "reviews" ? dueStudyReviews || [] : []),
-    ...(journalFilter === "all" || journalFilter === "pinned" || journalFilter === "studies" ? sessions || [] : []),
+    ...(journalFilter === "all" || journalFilter === "pinned" || journalFilter === "studies" || journalFilter === "meditations" ? journalSessionEntries : []),
     ...(journalFilter === "all" || journalFilter === "checkins" ? checkins || [] : [])
   ]
     .filter((entry: any) => (journalFilter === "pinned" ? pinnedEntryIds.has(String(entry._id)) : true))
@@ -7702,6 +7707,7 @@ export default function Home() {
                 ["pinned", "Pinned"],
                 ["drafts", "Drafts"],
                 ["studies", "Studies"],
+                ["meditations", "Meditation"],
                 ["reviews", dueStudyReviewCount > 0 ? `Reviews (${dueStudyReviewCount})` : "Reviews"],
                 ["highlights", `Highlights (${totalSavedHighlightCount})`],
                 ["checkins", "Encouragements"]
@@ -7716,7 +7722,7 @@ export default function Home() {
               ))}
             </View>
             <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox, journalDarkMode && styles.accountDarkSection]}>
-              <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : "reader-outline"} size={18} color={colors.coral} />
+              <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : journalFilter === "meditations" ? "sparkles-outline" : "reader-outline"} size={18} color={colors.coral} />
               <Text style={[styles.journalGuideText, journalDarkMode && styles.accountDarkText]}>{buildJournalGuideText(journalFilter, totalSavedHighlightCount)}</Text>
             </View>
             {journalView === "calendar" && (
@@ -7942,7 +7948,7 @@ export default function Home() {
             )}
             {journalEntries.length > 0 && (
               <View style={styles.journalSection}>
-                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>{journalFilter === "studies" ? "Completed studies" : journalFilter === "checkins" ? "Encouragements" : "Saved entries"}</Text>
+                <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>{journalFilter === "studies" ? "Completed studies" : journalFilter === "meditations" ? "Meditations" : journalFilter === "checkins" ? "Encouragements" : "Saved entries"}</Text>
                 {journalEntries.map((entry: any) => {
               const rawEntryId = String(entry._id);
               const entryId = `entry:${rawEntryId}`;
@@ -8207,11 +8213,21 @@ export default function Home() {
                       ? "Drafts appear here once you begin writing a study response."
                       : journalFilter === "highlights"
                         ? "Highlighted verses appear here after you mark up a passage and save your study."
+                        : journalFilter === "meditations"
+                          ? "Memory meditations appear here after you save one from the Memory tab."
                         : journalFilter === "checkins"
                           ? "Encouragements appear here after you save one from Community."
                           : `${friendlyName}, complete a study or save an encouragement to start building your journal.`}
                 </Text>
-                {!journalSearchTerm && <AppButton label="Start a study" variant="secondary" onPress={() => setTab("study")} style={journalDarkMode && styles.homeDarkResumeButton} labelStyle={journalDarkMode && styles.homeDarkResumeButtonText} />}
+                {!journalSearchTerm && (
+                  <AppButton
+                    label={journalFilter === "meditations" ? "Open Memory" : "Start a study"}
+                    variant="secondary"
+                    onPress={() => setTab(journalFilter === "meditations" ? "memory" : "study")}
+                    style={journalDarkMode && styles.homeDarkResumeButton}
+                    labelStyle={journalDarkMode && styles.homeDarkResumeButtonText}
+                  />
+                )}
               </View>
             )}
           </View>
@@ -11861,6 +11877,7 @@ function buildJournalGuideText(filter: JournalFilter, highlightCount: number) {
   }
   if (filter === "drafts") return "Drafts are studies you started but have not completed yet.";
   if (filter === "studies") return "Studies are completed study sessions with your answers, notes, and highlights.";
+  if (filter === "meditations") return "Meditations are saved reflections from slowing down with a memory verse.";
   if (filter === "checkins") return "Encouragements include community updates and saved highlight reflections.";
   if (filter === "pinned") return "Pinned entries stay at the top of your saved work for quick review.";
   return "Use the filters to narrow your journal, or search for a passage, answer, highlight note, or reflection.";

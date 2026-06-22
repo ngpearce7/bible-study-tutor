@@ -8103,6 +8103,8 @@ export default function Home() {
                               <View key={item.stepTitle}>
                                 {memoryMeditation && item.stepTitle === "Scripture" ? (
                                   <JournalMeditationScripture text={item.answer} darkMode={journalDarkMode} />
+                                ) : memoryMeditation ? (
+                                  <JournalMeditationAnswer title={item.stepTitle} text={item.answer} darkMode={journalDarkMode} />
                                 ) : (
                                   <>
                                     <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
@@ -10504,6 +10506,29 @@ function JournalMeditationScripture({ text, darkMode = false }: { text: string; 
       <Text style={[styles.journalMeditationVerseText, darkMode && styles.accountDarkText]}>{verseText}</Text>
     </View>
   );
+}
+
+function JournalMeditationAnswer({ title, text, darkMode = false }: { title: string; text: string; darkMode?: boolean }) {
+  const icon = getMeditationAnswerIcon(title);
+
+  return (
+    <View style={styles.journalMeditationAnswer}>
+      <View style={styles.journalMeditationAnswerHeader}>
+        <Ionicons name={icon as any} size={16} color={darkMode ? "#e9b76a" : colors.coral} />
+        <Text style={[styles.journalMeditationAnswerTitle, darkMode && styles.studyDarkAccentText]}>{title}</Text>
+      </View>
+      <FormattedNoteText text={text} darkMode={darkMode} />
+    </View>
+  );
+}
+
+function getMeditationAnswerIcon(title: string) {
+  const normalized = title.trim().toLowerCase();
+  if (normalized === "notice") return "eye-outline";
+  if (normalized === "reflect") return "sparkles-outline";
+  if (normalized === "pray") return "heart-outline";
+  if (normalized === "carry") return "walk-outline";
+  return "journal-outline";
 }
 
 function renderFormattedNoteSegments(text: string) {
@@ -20956,6 +20981,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     marginBottom: 10,
+    marginTop: 6,
     padding: 12
   },
   journalDarkMeditationScriptureBox: {
@@ -20975,6 +21001,23 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "700",
     lineHeight: 24
+  },
+  journalMeditationAnswer: {
+    marginBottom: 8
+  },
+  journalMeditationAnswerHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7,
+    marginBottom: 4
+  },
+  journalMeditationAnswerTitle: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0.4,
+    lineHeight: 16,
+    textTransform: "uppercase"
   },
   studyReviewBox: {
     backgroundColor: "#fff6eb",

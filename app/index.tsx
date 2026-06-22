@@ -8090,7 +8090,7 @@ export default function Home() {
                               <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.reviewNote}</Text>
                             </View>
                           )}
-                          {entry.shareNote && (
+                          {entry.shareNote && !memoryMeditation && (
                             <View style={[styles.journalShareBox, journalDarkMode && styles.accountDarkInsetBox]}>
                               <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Share note</Text>
                               <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.shareNote}</Text>

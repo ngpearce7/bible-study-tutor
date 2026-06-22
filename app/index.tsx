@@ -8101,10 +8101,16 @@ export default function Home() {
                             .filter((item: any) => item.answer.trim())
                             .map((item: any) => (
                               <View key={item.stepTitle}>
-                                <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
-                                  <Text style={styles.bold}>{item.stepTitle}: </Text>
-                                </Text>
-                                <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
+                                {memoryMeditation && item.stepTitle === "Scripture" ? (
+                                  <JournalMeditationScripture text={item.answer} darkMode={journalDarkMode} />
+                                ) : (
+                                  <>
+                                    <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
+                                      <Text style={styles.bold}>{item.stepTitle}: </Text>
+                                    </Text>
+                                    <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
+                                  </>
+                                )}
                               </View>
                             ))}
                           {(entry.coachingMoments || []).length > 0 && (
@@ -10480,6 +10486,22 @@ function FormattedNoteText({ text, darkMode = false }: { text: string; darkMode?
           </View>
         );
       })}
+    </View>
+  );
+}
+
+function JournalMeditationScripture({ text, darkMode = false }: { text: string; darkMode?: boolean }) {
+  const [referenceLine, ...verseLines] = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const verseText = verseLines.join(" ").trim() || text.trim();
+
+  return (
+    <View style={[styles.journalMeditationScriptureBox, darkMode && styles.journalDarkMeditationScriptureBox]}>
+      <View style={styles.feedbackHeader}>
+        <Ionicons name="book-outline" size={16} color={darkMode ? "#e9b76a" : colors.coral} />
+        <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Scripture</Text>
+      </View>
+      {!!referenceLine && <Text style={[styles.journalMeditationReference, darkMode && styles.accountDarkTitle]}>{referenceLine}</Text>}
+      <Text style={[styles.journalMeditationVerseText, darkMode && styles.accountDarkText]}>{verseText}</Text>
     </View>
   );
 }
@@ -20926,6 +20948,33 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     padding: 12
+  },
+  journalMeditationScriptureBox: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    marginBottom: 10,
+    padding: 12
+  },
+  journalDarkMeditationScriptureBox: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.24)"
+  },
+  journalMeditationReference: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "900",
+    letterSpacing: 0.2,
+    lineHeight: 18
+  },
+  journalMeditationVerseText: {
+    color: colors.ink,
+    fontSize: 16,
+    fontStyle: "italic",
+    fontWeight: "700",
+    lineHeight: 24
   },
   studyReviewBox: {
     backgroundColor: "#fff6eb",

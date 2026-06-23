@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meditation Journal Icon Mockup</title>
+    <style>
+      :root {
+        --ink: #2f2a24;
+        --muted: #786f64;
+        --paper: #fffaf3;
+        --panel: #fff6eb;
+        --line: rgba(201, 103, 80, 0.22);
+        --coral: #c96750;
+        --gold: #e9b76a;
+        --dark-bg: #101412;
+        --dark-panel: #151a19;
+        --dark-line: rgba(233, 183, 106, 0.26);
+        --dark-text: #f7eddc;
+      }
+
+      @font-face {
+        font-family: "MaterialCommunityIcons";
+        src: url("./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf") format("truetype");
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #f8efe2, #efe3d4);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 1040px;
+        padding: 32px 18px;
+      }
+
+      h1 {
+        font-size: clamp(26px, 4vw, 42px);
+        line-height: 1.05;
+        margin: 0 0 10px;
+      }
+
+      .intro {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.5;
+        margin: 0 0 24px;
+        max-width: 720px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
+
+      .card {
+        background: var(--paper);
+        border: 1px solid rgba(47, 42, 36, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 18px 44px rgba(47, 42, 36, 0.1);
+        padding: 18px;
+      }
+
+      .card.dark {
+        background: var(--dark-bg);
+        color: var(--dark-text);
+      }
+
+      .journal-panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+      }
+
+      .dark .journal-panel {
+        background: var(--dark-panel);
+        border-color: var(--dark-line);
+      }
+
+      .row {
+        align-items: center;
+        display: flex;
+        gap: 8px;
+        margin: 12px 0 5px;
+      }
+
+      .row:first-child {
+        margin-top: 0;
+      }
+
+      .label {
+        color: var(--coral);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.4px;
+        line-height: 16px;
+        text-transform: uppercase;
+      }
+
+      .dark .label {
+        color: var(--gold);
+      }
+
+      .body {
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      .dark .body {
+        color: var(--dark-text);
+      }
+
+      .icon {
+        color: var(--coral);
+        display: block;
+        flex: 0 0 auto;
+        height: 18px;
+        width: 18px;
+      }
+
+      .emoji-icon {
+        align-items: center;
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-size: 16px;
+        height: 18px;
+        justify-content: center;
+        line-height: 18px;
+        width: 18px;
+      }
+
+      .prayer-text-icon {
+        align-items: center;
+        color: var(--coral);
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-family: "Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+        font-size: 18px;
+        font-weight: 400;
+        height: 18px;
+        justify-content: center;
+        line-height: 18px;
+        width: 18px;
+      }
+
+      .dark .prayer-text-icon {
+        color: var(--gold);
+      }
+
+      .material-prayer-icon {
+        align-items: center;
+        color: var(--coral);
+        display: inline-flex;
+        flex: 0 0 auto;
+        font-family: "MaterialCommunityIcons";
+        font-size: 19px;
+        font-style: normal;
+        font-weight: normal;
+        height: 18px;
+        justify-content: center;
+        line-height: 18px;
+        width: 18px;
+      }
+
+      .dark .material-prayer-icon {
+        color: var(--gold);
+      }
+
+      .dark .icon {
+        color: var(--gold);
+      }
+
+      .icon-preview {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 16px;
+      }
+
+      .icon-chip {
+        align-items: center;
+        background: rgba(201, 103, 80, 0.08);
+        border: 1px solid rgba(201, 103, 80, 0.14);
+        border-radius: 999px;
+        display: flex;
+        gap: 8px;
+        padding: 8px 11px;
+      }
+
+      .dark .icon-chip {
+        background: rgba(233, 183, 106, 0.08);
+        border-color: rgba(233, 183, 106, 0.2);
+      }
+
+      .small-note {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.4;
+        margin: 14px 0 0;
+      }
+
+      .dark .small-note {
+        color: #c8bda9;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Meditation Journal Icons</h1>
+      <p class="intro">
+        These are custom line icons designed to sit beside the meditation journal headings while still feeling close to the current app icon style.
+      </p>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Light Mode</h2>
+          <div class="journal-panel">
+            <div class="row">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z" />
+                <circle cx="12" cy="12" r="2.3" />
+              </svg>
+              <span class="label">Notice</span>
+            </div>
+            <p class="body">What word, phrase, or truth stands out?</p>
+
+            <div class="row">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18h6" />
+                <path d="M10 21h4" />
+                <path d="M8.7 14.7a6 6 0 1 1 6.6 0c-.8.5-1.3 1.2-1.3 2.1h-4c0-.9-.5-1.6-1.3-2.1Z" />
+                <path d="M12 3V2" />
+                <path d="m5.6 5.6-.7-.7" />
+                <path d="m18.4 5.6.7-.7" />
+              </svg>
+              <span class="label">Reflect</span>
+            </div>
+            <p class="body">How is this Scripture shaping your heart today?</p>
+
+            <div class="row">
+              <span class="material-prayer-icon" aria-hidden="true">&#xf0579;</span>
+              <span class="label">Pray</span>
+            </div>
+            <p class="body">Turn the verse into a simple prayer to God.</p>
+
+            <div class="row">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="4.8" r="2" />
+                <path d="M8.8 7.2 7.4 12l3 2.1 1.6 5.2" />
+                <path d="M10.2 9.6 13 12l2.2 3.7" />
+                <path d="M7.3 19.4 10.7 14" />
+                <path d="M13.8 7.6h4.6v6.3h-4.6z" />
+                <path d="M15.2 9.4c.8-.5 1.7-.5 2.5 0" />
+              </svg>
+              <span class="label">Carry</span>
+            </div>
+            <p class="body">One phrase to carry with you through the day.</p>
+          </div>
+        </section>
+
+        <section class="card dark">
+          <h2>Dark Mode</h2>
+          <div class="journal-panel">
+            <div class="row">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 12s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z" />
+                <circle cx="12" cy="12" r="2.3" />
+              </svg>
+              <span class="label">Notice</span>
+            </div>
+            <p class="body">What word, phrase, or truth stands out?</p>
+
+            <div class="row">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18h6" />
+                <path d="M10 21h4" />
+                <path d="M8.7 14.7a6 6 0 1 1 6.6 0c-.8.5-1.3 1.2-1.3 2.1h-4c0-.9-.5-1.6-1.3-2.1Z" />
+                <path d="M12 3V2" />
+                <path d="m5.6 5.6-.7-.7" />
+                <path d="m18.4 5.6.7-.7" />
+              </svg>
+              <span class="label">Reflect</span>
+            </div>
+            <p class="body">How is this Scripture shaping your heart today?</p>
+
+            <div class="row">
+              <span class="material-prayer-icon" aria-hidden="true">&#xf0579;</span>
+              <span class="label">Pray</span>
+            </div>
+            <p class="body">Turn the verse into a simple prayer to God.</p>
+
+            <div class="row">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="4.8" r="2" />
+                <path d="M8.8 7.2 7.4 12l3 2.1 1.6 5.2" />
+                <path d="M10.2 9.6 13 12l2.2 3.7" />
+                <path d="M7.3 19.4 10.7 14" />
+                <path d="M13.8 7.6h4.6v6.3h-4.6z" />
+                <path d="M15.2 9.4c.8-.5 1.7-.5 2.5 0" />
+              </svg>
+              <span class="label">Carry</span>
+            </div>
+            <p class="body">One phrase to carry with you through the day.</p>
+          </div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top: 18px">
+        <h2>Icon Scale Check</h2>
+        <p class="small-note">These show how the custom icons read at roughly the size they would appear inside the Journal entry.</p>
+        <div class="icon-preview">
+          <div class="icon-chip">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 12s3-5 8-5 8 5 8 5-3 5-8 5-8-5-8-5Z" />
+              <circle cx="12" cy="12" r="2.3" />
+            </svg>
+            <strong>Notice</strong>
+          </div>
+          <div class="icon-chip">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18h6" />
+              <path d="M10 21h4" />
+              <path d="M8.7 14.7a6 6 0 1 1 6.6 0c-.8.5-1.3 1.2-1.3 2.1h-4c0-.9-.5-1.6-1.3-2.1Z" />
+              <path d="M12 3V2" />
+              <path d="m5.6 5.6-.7-.7" />
+              <path d="m18.4 5.6.7-.7" />
+            </svg>
+            <strong>Reflect</strong>
+          </div>
+          <div class="icon-chip">
+            <span class="material-prayer-icon" aria-hidden="true">&#xf0579;</span>
+            <strong>Pray</strong>
+          </div>
+          <div class="icon-chip">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="9" cy="4.8" r="2" />
+              <path d="M8.8 7.2 7.4 12l3 2.1 1.6 5.2" />
+              <path d="M10.2 9.6 13 12l2.2 3.7" />
+              <path d="M7.3 19.4 10.7 14" />
+              <path d="M13.8 7.6h4.6v6.3h-4.6z" />
+              <path d="M15.2 9.4c.8-.5 1.7-.5 2.5 0" />
+            </svg>
+            <strong>Carry</strong>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

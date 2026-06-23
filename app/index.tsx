@@ -1,5 +1,6 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Mark, mergeAttributes } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Underline from "@tiptap/extension-underline";
@@ -10510,11 +10511,12 @@ function JournalMeditationScripture({ text, darkMode = false }: { text: string; 
 
 function JournalMeditationAnswer({ title, text, darkMode = false }: { title: string; text: string; darkMode?: boolean }) {
   const icon = getMeditationAnswerIcon(title);
+  const iconColor = darkMode ? "#e9b76a" : colors.coral;
 
   return (
     <View style={styles.journalMeditationAnswer}>
       <View style={styles.journalMeditationAnswerHeader}>
-        <Ionicons name={icon as any} size={16} color={darkMode ? "#e9b76a" : colors.coral} />
+        <MaterialCommunityIcons name={icon as any} size={18} color={iconColor} />
         <Text style={[styles.journalMeditationAnswerTitle, darkMode && styles.studyDarkAccentText]}>{title}</Text>
       </View>
       <FormattedNoteText text={text} darkMode={darkMode} />
@@ -10525,10 +10527,10 @@ function JournalMeditationAnswer({ title, text, darkMode = false }: { title: str
 function getMeditationAnswerIcon(title: string) {
   const normalized = title.trim().toLowerCase();
   if (normalized === "notice") return "eye-outline";
-  if (normalized === "reflect") return "sparkles-outline";
-  if (normalized === "pray") return "heart-outline";
-  if (normalized === "carry") return "walk-outline";
-  return "journal-outline";
+  if (normalized === "reflect") return "lightbulb-outline";
+  if (normalized === "pray") return "hands-pray";
+  if (normalized === "carry") return "book-account-outline";
+  return "book-open-page-variant-outline";
 }
 
 function renderFormattedNoteSegments(text: string) {

@@ -123,7 +123,8 @@ export default function RootLayout() {
         <link rel="apple-touch-icon" href="/icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
         <link rel="preload" href="/ionicons.ttf" as="font" type="font/ttf" crossOrigin="" />
-        <style>{'@font-face{font-family:"ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}@font-face{font-family:"Ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}'}</style>
+        <link rel="preload" href="/material-community-icons.ttf" as="font" type="font/ttf" crossOrigin="" />
+        <style>{'@font-face{font-family:"ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}@font-face{font-family:"Ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}@font-face{font-family:"MaterialCommunityIcons";src:url("/material-community-icons.ttf") format("truetype");font-display:block;}'}</style>
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Head>
       <StatusBar style="dark" />

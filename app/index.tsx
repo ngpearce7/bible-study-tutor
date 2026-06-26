@@ -485,6 +485,7 @@ export default function Home() {
   const [addMemoryPanelOpen, setAddMemoryPanelOpen] = useState(false);
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [activeMemoryMeditationVerseId, setActiveMemoryMeditationVerseId] = useState("");
+  const [memoryReviewQueueIds, setMemoryReviewQueueIds] = useState<string[]>([]);
   const [memoryMeditationStep, setMemoryMeditationStep] = useState(0);
   const [memoryMeditationPhrase, setMemoryMeditationPhrase] = useState("");
   const [memoryMeditationReflection, setMemoryMeditationReflection] = useState("");
@@ -1217,6 +1218,8 @@ export default function Home() {
   const activeMemoryMeditationVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId);
   const memoryQueueSections = useMemo(() => buildMemoryQueueSections(memoryVerses || []), [memoryVerses]);
   const firstDueMemoryVerse = memoryQueueSections.find((section) => section.title === "Due for Review")?.verses[0];
+  const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
+  const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
   const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
   const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter), [memoryBookFilter, memoryVerses]);
@@ -3450,7 +3453,8 @@ export default function Home() {
     setMemoryPrintOptionsOpen(false);
   }
 
-  function startMemoryPractice(verse: any) {
+  function startMemoryPractice(verse: any, options?: { preserveReviewQueue?: boolean }) {
+    if (!options?.preserveReviewQueue) setMemoryReviewQueueIds([]);
     setActiveMemoryVerseId(String(verse._id));
     setActiveMemoryMeditationVerseId("");
     setMemoryPracticeLevel(isMemoryVerseMemorized(verse) ? 1 : clampMemoryPracticeLevel(verse.practiceLevel || 1));
@@ -3465,8 +3469,29 @@ export default function Home() {
     setTab("memory");
   }
 
+  function startDueMemoryReviewQueue() {
+    const dueVerses = memoryQueueSections.find((section) => section.title === "Due for Review")?.verses || [];
+    if (!dueVerses.length) return;
+
+    setMemoryReviewQueueIds(dueVerses.map((verse: any) => String(verse._id)));
+    setMemoryView("review");
+    startMemoryPractice(dueVerses[0], { preserveReviewQueue: true });
+  }
+
+  function stopMemoryReviewQueue() {
+    setMemoryReviewQueueIds([]);
+    setActiveMemoryVerseId("");
+    setMemoryPracticeAnswers({});
+    setMemoryPracticeResult("");
+    setMemoryPracticeChecked(false);
+    setMemoryHintsVisible(false);
+    setMemoryHintLevels({});
+    setMemoryStatus("Review set stopped. You can continue any due verse when you are ready.");
+  }
+
   function startMemoryMeditation(verse: any) {
     const verseId = String(verse._id);
+    setMemoryReviewQueueIds([]);
     setActiveMemoryVerseId("");
     setActiveMemoryMeditationVerseId(verseId);
     setExpandedMemoryVerseIds((current) => current.includes(verseId) ? current : [...current, verseId]);
@@ -3560,8 +3585,17 @@ export default function Home() {
     await markMemoryPractice("got-it");
     if (completedFinalStep) {
       const completedVerseId = String(activeMemoryVerse._id);
+      const queueIndex = memoryReviewQueueIds.findIndex((id) => id === completedVerseId);
+      const nextQueueId = queueIndex >= 0 ? memoryReviewQueueIds[queueIndex + 1] : "";
+      const nextVerse = nextQueueId ? (memoryVerses || []).find((verse: any) => String(verse._id) === nextQueueId) : null;
       setActiveMemoryVerseId("");
       setExpandedMemoryVerseIds((current) => current.filter((id) => id !== completedVerseId));
+      if (nextVerse) {
+        startMemoryPractice(nextVerse, { preserveReviewQueue: true });
+        setMemoryStatus("");
+        return;
+      }
+      setMemoryReviewQueueIds([]);
       setMemoryStatus("reviewed-today");
       return;
     }
@@ -3658,6 +3692,7 @@ export default function Home() {
     await removeMemoryVerse({ profileId: activeProfileId, memoryVerseId: verse._id });
     if (activeMemoryVerseId === verseId) setActiveMemoryVerseId("");
     if (activeMemoryMeditationVerseId === verseId) closeMemoryMeditation();
+    setMemoryReviewQueueIds((current) => current.filter((id) => id !== verseId));
     setPendingDeleteMemoryVerseId("");
     setMemoryStatus("Memory verse removed");
   }
@@ -6072,7 +6107,7 @@ export default function Home() {
                   {phoneLayout && firstDueMemoryVerse && (
                     <Pressable
                       accessibilityRole="button"
-                      onPress={() => startMemoryPractice(firstDueMemoryVerse)}
+                      onPress={startDueMemoryReviewQueue}
                       style={styles.phoneMemoryPrimaryReviewButton}
                     >
                       <Ionicons name="school-outline" size={16} color="#fff" />
@@ -6087,8 +6122,21 @@ export default function Home() {
                 <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
                   <Ionicons name={activeMemoryMeditationVerseId ? "leaf-outline" : "school-outline"} size={18} color={colors.coral} />
                   <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>
-                    {activeMemoryMeditationVerseId ? "Meditation mode. Save or close this reflection to return to your saved list." : "Practice mode. Close or finish this verse to return to your saved list."}
+                    {activeMemoryMeditationVerseId
+                      ? "Meditation mode. Save or close this reflection to return to your saved list."
+                      : activeMemoryReviewQueueCount > 1 && activeMemoryReviewQueueIndex >= 0
+                        ? `Review set ${activeMemoryReviewQueueIndex + 1} of ${activeMemoryReviewQueueCount}. Finish this verse to open the next one.`
+                        : "Practice mode. Close or finish this verse to return to your saved list."}
                   </Text>
+                  {activeMemoryReviewQueueCount > 0 && (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={stopMemoryReviewQueue}
+                      style={[styles.memoryReviewQueueStopButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                    >
+                      <Text style={[styles.memoryReviewQueueStopText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Stop</Text>
+                    </Pressable>
+                  )}
                 </View>
               )}
               {(memoryVerses || []).length === 0 ? (
@@ -6599,7 +6647,7 @@ export default function Home() {
                                       iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                     />
                                   )}
-                                  <ResumeButton label="Close" icon="close-outline" onPress={() => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                  <ResumeButton label="Close" icon="close-outline" onPress={activeMemoryReviewQueueCount > 0 ? stopMemoryReviewQueue : () => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                 </View>
                               </View>
                             ) : meditating ? (
@@ -18248,6 +18296,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "800",
     lineHeight: 17
+  },
+  memoryReviewQueueStopButton: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 32,
+    paddingHorizontal: 11
+  },
+  memoryReviewQueueStopText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   reviewScheduleBox: {
     backgroundColor: "rgba(255, 250, 242, 0.82)",

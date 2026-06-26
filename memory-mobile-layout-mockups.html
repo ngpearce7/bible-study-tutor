@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Memory Mobile Layout Mockups</title>
+    <style>
+      :root {
+        --bg: #f4ecdf;
+        --panel: #fffaf2;
+        --soft: #fff6eb;
+        --line: rgba(102, 114, 78, 0.18);
+        --ink: #2f2a24;
+        --muted: #786f64;
+        --coral: #c96750;
+        --olive: #66724e;
+        --sage: #dfead5;
+        --dark-bg: #0f1412;
+        --dark-panel: #151a19;
+        --dark-soft: #1b211e;
+        --dark-line: rgba(233, 183, 106, 0.22);
+        --dark-text: #f7eddc;
+        --gold: #e9b76a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(180deg, #fbf6ee 0%, var(--bg) 100%);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+
+      main {
+        margin: 0 auto;
+        max-width: 1180px;
+        padding: 28px 16px 44px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.05;
+        margin: 0 0 8px;
+      }
+
+      .intro {
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.5;
+        margin: 0 0 24px;
+        max-width: 780px;
+      }
+
+      .mockup-grid {
+        align-items: start;
+        display: grid;
+        gap: 22px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+
+      .mockup {
+        background: #efe2d0;
+        border: 1px solid rgba(47, 42, 36, 0.1);
+        border-radius: 26px;
+        box-shadow: 0 22px 60px rgba(47, 42, 36, 0.13);
+        padding: 12px;
+      }
+
+      .phone {
+        background: var(--panel);
+        border: 1px solid rgba(47, 42, 36, 0.1);
+        border-radius: 22px;
+        min-height: 640px;
+        overflow: hidden;
+      }
+
+      .phone.dark {
+        background: var(--dark-bg);
+        border-color: rgba(233, 183, 106, 0.18);
+        color: var(--dark-text);
+      }
+
+      .screen {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 14px;
+      }
+
+      .label {
+        color: var(--coral);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .dark .label {
+        color: var(--gold);
+      }
+
+      .title-row {
+        align-items: flex-start;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin: 0;
+      }
+
+      .support {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 650;
+        line-height: 1.35;
+        margin: 4px 0 0;
+      }
+
+      .dark .support {
+        color: #c8bda9;
+      }
+
+      .icon-btn {
+        align-items: center;
+        background: var(--soft);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--olive);
+        display: inline-flex;
+        font-size: 16px;
+        font-weight: 900;
+        height: 38px;
+        justify-content: center;
+        min-width: 38px;
+      }
+
+      .dark .icon-btn {
+        background: var(--dark-soft);
+        border-color: var(--dark-line);
+        color: var(--gold);
+      }
+
+      .metrics {
+        display: grid;
+        gap: 7px;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .metric {
+        background: #f8e4db;
+        border-radius: 12px;
+        padding: 9px 7px;
+        text-align: center;
+      }
+
+      .dark .metric {
+        background: #251b18;
+      }
+
+      .metric strong {
+        color: var(--coral);
+        display: block;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .dark .metric strong {
+        color: var(--gold);
+      }
+
+      .metric span {
+        color: var(--muted);
+        display: block;
+        font-size: 10.5px;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-top: 5px;
+      }
+
+      .dark .metric span {
+        color: #c8bda9;
+      }
+
+      .primary-review {
+        align-items: center;
+        background: var(--coral);
+        border: 0;
+        border-radius: 999px;
+        color: white;
+        display: flex;
+        font-size: 13px;
+        font-weight: 900;
+        gap: 7px;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 14px;
+      }
+
+      .add-row,
+      .panel {
+        background: var(--soft);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 11px;
+      }
+
+      .dark .add-row,
+      .dark .panel {
+        background: var(--dark-panel);
+        border-color: var(--dark-line);
+      }
+
+      .add-row {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .add-row p {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 3px 0 0;
+      }
+
+      .tabs {
+        align-items: center;
+        display: flex;
+        gap: 8px;
+      }
+
+      .tab-pill {
+        background: #ebe5d8;
+        border-radius: 999px;
+        display: flex;
+        flex: 1;
+        gap: 4px;
+        padding: 4px;
+      }
+
+      .dark .tab-pill {
+        background: #202620;
+      }
+
+      .tab {
+        border-radius: 999px;
+        color: var(--muted);
+        flex: 1;
+        font-size: 12px;
+        font-weight: 850;
+        padding: 9px 4px;
+        text-align: center;
+      }
+
+      .tab.active {
+        background: var(--olive);
+        color: white;
+      }
+
+      .section-head {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .section-head h3 {
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .count {
+        background: var(--sage);
+        border-radius: 999px;
+        color: var(--olive);
+        font-size: 11px;
+        font-weight: 900;
+        padding: 4px 9px;
+      }
+
+      .verse-card {
+        background: var(--soft);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        padding: 11px;
+      }
+
+      .dark .verse-card {
+        background: var(--dark-panel);
+        border-color: var(--dark-line);
+      }
+
+      .verse-head {
+        align-items: flex-start;
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+      }
+
+      .ref {
+        font-size: 16px;
+        font-weight: 900;
+        line-height: 1.15;
+        margin: 0;
+      }
+
+      .preview {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.35;
+        margin: 4px 0 0;
+      }
+
+      .dark .preview {
+        color: #c8bda9;
+      }
+
+      .due {
+        background: #f8e4db;
+        border: 1px solid rgba(201, 103, 80, 0.18);
+        border-radius: 999px;
+        color: var(--coral);
+        flex: 0 0 auto;
+        font-size: 10px;
+        font-weight: 900;
+        padding: 5px 7px;
+        white-space: nowrap;
+      }
+
+      .due.later {
+        background: transparent;
+        border-color: var(--line);
+        color: var(--muted);
+      }
+
+      .dark .due {
+        background: #251b18;
+        border-color: rgba(233, 183, 106, 0.2);
+        color: var(--gold);
+      }
+
+      .verse-text {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 750;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      .dark .verse-text {
+        color: var(--dark-text);
+      }
+
+      .action-row {
+        display: grid;
+        gap: 7px;
+        grid-template-columns: 1.3fr 1fr 40px;
+      }
+
+      .action {
+        align-items: center;
+        background: #fffaf2;
+        border: 1px solid rgba(201, 103, 80, 0.18);
+        border-radius: 999px;
+        color: var(--coral);
+        display: flex;
+        font-size: 12px;
+        font-weight: 900;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 9px;
+      }
+
+      .action.primary {
+        background: var(--coral);
+        border-color: var(--coral);
+        color: white;
+      }
+
+      .dark .action {
+        background: var(--dark-soft);
+        border-color: var(--dark-line);
+        color: var(--gold);
+      }
+
+      .dark .action.primary {
+        background: var(--coral);
+        border-color: var(--coral);
+        color: white;
+      }
+
+      .more-menu {
+        background: #fffdfa;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        display: grid;
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .dark .more-menu {
+        background: #101412;
+        border-color: var(--dark-line);
+      }
+
+      .more-item {
+        align-items: center;
+        color: var(--olive);
+        display: flex;
+        font-size: 12px;
+        font-weight: 850;
+        gap: 8px;
+        min-height: 32px;
+      }
+
+      .dark .more-item {
+        color: var(--gold);
+      }
+
+      .practice-card {
+        background: #fffdfa;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 13px;
+      }
+
+      .dark .practice-card {
+        background: var(--dark-panel);
+        border-color: var(--dark-line);
+      }
+
+      .practice-verse {
+        background: var(--dark-soft);
+        border-radius: 13px;
+        color: var(--dark-text);
+        font-size: 16px;
+        font-weight: 800;
+        line-height: 1.55;
+        padding: 12px;
+      }
+
+      .step-row {
+        background: #ebe5d8;
+        border-radius: 999px;
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+      }
+
+      .dark .step-row {
+        background: #202620;
+      }
+
+      .step {
+        border-radius: 999px;
+        color: var(--muted);
+        flex: 1;
+        font-size: 12px;
+        font-weight: 900;
+        padding: 7px 0;
+        text-align: center;
+      }
+
+      .step.active {
+        background: var(--olive);
+        color: white;
+      }
+
+      .blank-line {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        line-height: 2;
+      }
+
+      .word {
+        color: var(--dark-text);
+        font-size: 16px;
+        font-weight: 800;
+      }
+
+      .blank {
+        border-bottom: 2px solid var(--gold);
+        display: inline-block;
+        height: 26px;
+        min-width: 58px;
+      }
+
+      .caption {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 750;
+        line-height: 1.45;
+        margin: 12px 4px 0;
+      }
+
+      .dark .caption {
+        color: #c8bda9;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Memory Mobile Layout Mockups</h1>
+      <p class="intro">
+        These mockups keep the current Memory features but make the mobile screen calmer: fewer controls visible at once, stronger primary actions, and focused practice/meditation views.
+      </p>
+
+      <div class="mockup-grid">
+        <section>
+          <div class="mockup">
+            <div class="phone">
+              <div class="screen">
+                <div class="title-row">
+                  <div>
+                    <div class="label">Memory</div>
+                    <h2 class="title">Nick, memorize saved verses</h2>
+                    <p class="support">Review what is due first. Everything else is tucked away until needed.</p>
+                  </div>
+                  <div class="icon-btn">☰</div>
+                </div>
+
+                <div class="metrics">
+                  <div class="metric"><strong>16</strong><span>saved</span></div>
+                  <div class="metric"><strong>2</strong><span>due now</span></div>
+                  <div class="metric"><strong>7</strong><span>reviewed today</span></div>
+                </div>
+
+                <button class="primary-review">Review 2 due verses</button>
+
+                <div class="add-row">
+                  <div>
+                    <strong>Add memory verses</strong>
+                    <p>Find verses in Bible or Study.</p>
+                  </div>
+                  <span>⌄</span>
+                </div>
+
+                <div class="tabs">
+                  <div class="tab-pill">
+                    <div class="tab active">Review</div>
+                    <div class="tab">Browse</div>
+                    <div class="tab">History</div>
+                  </div>
+                  <div class="icon-btn">⌁</div>
+                </div>
+
+                <div class="section-head">
+                  <h3>Due for Review</h3>
+                  <span class="count">2</span>
+                </div>
+
+                <div class="verse-card">
+                  <div class="verse-head">
+                    <div>
+                      <h3 class="ref">Romans 5:8</h3>
+                      <p class="preview">But God proves His love for us in this...</p>
+                    </div>
+                    <span class="due">Review: now</span>
+                  </div>
+                </div>
+
+                <div class="verse-card">
+                  <div class="verse-head">
+                    <div>
+                      <h3 class="ref">1 Peter 3:15</h3>
+                      <p class="preview">But in your hearts sanctify Christ as Lord...</p>
+                    </div>
+                    <span class="due">Review: now</span>
+                  </div>
+                </div>
+
+                <div class="section-head">
+                  <h3>Reviewed</h3>
+                  <span class="count">14</span>
+                </div>
+
+                <div class="verse-card">
+                  <div class="verse-head">
+                    <div>
+                      <h3 class="ref">Psalm 23:1</h3>
+                      <p class="preview">The LORD is my shepherd; I shall not want.</p>
+                    </div>
+                    <span class="due later">Review in: 6d</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="caption">Option 1: the default mobile screen becomes a review queue. Print and extras move into a small icon menu.</p>
+        </section>
+
+        <section>
+          <div class="mockup">
+            <div class="phone">
+              <div class="screen">
+                <div class="title-row">
+                  <div>
+                    <div class="label">Expanded verse</div>
+                    <h2 class="title">Romans 5:8</h2>
+                  </div>
+                  <span class="due">Review: now</span>
+                </div>
+
+                <div class="verse-card">
+                  <p class="verse-text">
+                    But God proves His love for us in this: While we were still sinners, Christ died for us.
+                  </p>
+                  <div class="action-row">
+                    <div class="action primary">Practice</div>
+                    <div class="action">Meditate</div>
+                    <div class="action">⋯</div>
+                  </div>
+                  <div class="more-menu">
+                    <div class="more-item">◷ View history</div>
+                    <div class="more-item">◴ Change review date</div>
+                    <div class="more-item">🖨 Print this card</div>
+                    <div class="more-item">⌫ Remove from Memory</div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="label">Why this helps</div>
+                  <p class="support">
+                    The user sees the verse and two main actions first. Less common actions are still available, but no longer crowd the verse.
+                  </p>
+                </div>
+
+                <div class="verse-card">
+                  <div class="verse-head">
+                    <div>
+                      <h3 class="ref">Psalm 23:1</h3>
+                      <p class="preview">The LORD is my shepherd; I shall not want.</p>
+                    </div>
+                    <span class="due later">Review in: 6d</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="caption">Option 2: expanded cards use Practice, Meditate, and More. This is the biggest clutter reduction.</p>
+        </section>
+
+        <section>
+          <div class="mockup">
+            <div class="phone dark">
+              <div class="screen">
+                <div class="title-row">
+                  <div>
+                    <div class="label">Practice mode</div>
+                    <h2 class="title">Romans 5:8</h2>
+                    <p class="support">The list is hidden until practice closes.</p>
+                  </div>
+                  <div class="icon-btn">×</div>
+                </div>
+
+                <div class="practice-card">
+                  <div class="step-row">
+                    <div class="step">1</div>
+                    <div class="step active">2</div>
+                    <div class="step">3</div>
+                  </div>
+                  <div class="practice-verse">
+                    <div class="blank-line">
+                      <span class="word">But</span>
+                      <span class="blank"></span>
+                      <span class="word">proves</span>
+                      <span class="blank"></span>
+                      <span class="word">love</span>
+                      <span class="blank"></span>
+                      <span class="word">us</span>
+                      <span class="word">in</span>
+                      <span class="blank"></span>
+                    </div>
+                  </div>
+                  <div class="action-row">
+                    <div class="action primary">Check answers</div>
+                    <div class="action">Hint</div>
+                    <div class="action">↻</div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="label">Focused mobile flow</div>
+                  <p class="support">
+                    When the user is practising or meditating, the Memory tab becomes a single-task screen. This gives the verse more room and prevents accidental scrolling into other cards.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="caption">Option 3: full-focus practice/meditation. This matches how mobile users naturally work: one task at a time.</p>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

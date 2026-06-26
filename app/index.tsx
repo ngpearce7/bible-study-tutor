@@ -491,6 +491,7 @@ export default function Home() {
   const [memoryMeditationCarry, setMemoryMeditationCarry] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
   const [historyMemoryVerseId, setHistoryMemoryVerseId] = useState("");
+  const [memoryMoreVerseId, setMemoryMoreVerseId] = useState("");
   const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
   const [memoryPracticeLevel, setMemoryPracticeLevel] = useState(1);
   const [memoryPracticeAnswers, setMemoryPracticeAnswers] = useState<Record<number, string>>({});
@@ -1214,6 +1215,7 @@ export default function Home() {
   const activeMemoryVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryVerseId);
   const activeMemoryMeditationVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId);
   const memoryQueueSections = useMemo(() => buildMemoryQueueSections(memoryVerses || []), [memoryVerses]);
+  const firstDueMemoryVerse = memoryQueueSections.find((section) => section.title === "Due for Review")?.verses[0];
   const memorySearchTerm = memorySearch.trim().toLowerCase();
   const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
   const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter), [memoryBookFilter, memoryVerses]);
@@ -6030,6 +6032,18 @@ export default function Home() {
                     <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                     <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                   </View>
+                  {phoneLayout && firstDueMemoryVerse && (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => startMemoryPractice(firstDueMemoryVerse)}
+                      style={styles.phoneMemoryPrimaryReviewButton}
+                    >
+                      <Ionicons name="school-outline" size={16} color="#fff" />
+                      <Text style={styles.phoneMemoryPrimaryReviewText}>
+                        Review {dueMemoryCount} due verse{dueMemoryCount === 1 ? "" : "s"}
+                      </Text>
+                    </Pressable>
+                  )}
                 </>
               )}
               {phoneMemoryFocusMode && (
@@ -6101,9 +6115,13 @@ export default function Home() {
                           </Pressable>
                         ))}
                       </View>
-                      <Pressable onPress={openMemoryPrintOptions} style={[styles.memoryPrintCardsButton, memoryDarkMode && styles.homeDarkResumeButton]}>
+                      <Pressable
+                        onPress={openMemoryPrintOptions}
+                        style={[styles.memoryPrintCardsButton, phoneLayout && styles.phoneMemoryPrintIconButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                        accessibilityLabel="Print memory cards"
+                      >
                         <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>
+                        {!phoneLayout && <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>}
                       </Pressable>
                     </View>
                   )}
@@ -6403,7 +6421,8 @@ export default function Home() {
                         const meditating = verseId === activeMemoryMeditationVerseId;
                         const reviewOpen = reviewScheduleVerseId === verseId;
                         const historyOpen = historyMemoryVerseId === verseId;
-                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen;
+                        const moreOpen = memoryMoreVerseId === verseId;
+                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen || moreOpen;
                         const verseHistory = memoryHistoryItems
                           .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
                           .slice(0, 4);
@@ -6651,41 +6670,91 @@ export default function Home() {
                                     </View>
                                   )}
                                 </View>}
-                                <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
-                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions, phoneLayout && styles.phoneMemoryPrimaryActions]}>
+                                  <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} variant={phoneLayout ? "primary" : "default"} style={[phoneLayout && styles.phoneMemoryPracticeButton, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={phoneLayout ? "#fff" : memoryDarkMode ? "#e9b76a" : undefined} />
                                   <ResumeButton
                                     label="Meditate"
                                     icon="leaf-outline"
                                     onPress={() => startMemoryMeditation(verse)}
-                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    style={[phoneLayout && styles.phoneMemoryMeditateButton, memoryDarkMode && styles.homeDarkResumeButton]}
                                     labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
                                     iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                   />
-                                  <ResumeButton
-                                    label={historyOpen ? "Hide history" : "History"}
-                                    icon="time-outline"
-                                    onPress={() => setHistoryMemoryVerseId((current) => current === verseId ? "" : verseId)}
-                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
-                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
-                                  />
-                                  <ResumeButton
-                                    label={reviewOpen ? "Hide review" : "Change review"}
-                                    icon="calendar-outline"
-                                    onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
-                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
-                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
-                                  />
-                                  <ResumeButton
-                                    label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
-                                    icon="trash-outline"
-                                    onPress={() => deleteMemoryVerse(verse)}
-                                    style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                                    labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
-                                    iconColor={memoryDarkMode ? "#e9b76a" : undefined}
-                                  />
+                                  {phoneLayout ? (
+                                    <Pressable
+                                      accessibilityRole="button"
+                                      accessibilityLabel={moreOpen ? "Hide memory verse options" : "Show memory verse options"}
+                                      onPress={() => setMemoryMoreVerseId((current) => current === verseId ? "" : verseId)}
+                                      style={[styles.phoneMemoryMoreButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                                    >
+                                      <Ionicons name="ellipsis-horizontal" size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                    </Pressable>
+                                  ) : (
+                                    <>
+                                      <ResumeButton
+                                        label={historyOpen ? "Hide history" : "History"}
+                                        icon="time-outline"
+                                        onPress={() => setHistoryMemoryVerseId((current) => current === verseId ? "" : verseId)}
+                                        style={memoryDarkMode && styles.homeDarkResumeButton}
+                                        labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                      />
+                                      <ResumeButton
+                                        label={reviewOpen ? "Hide review" : "Change review"}
+                                        icon="calendar-outline"
+                                        onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
+                                        style={memoryDarkMode && styles.homeDarkResumeButton}
+                                        labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                      />
+                                      <ResumeButton
+                                        label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
+                                        icon="trash-outline"
+                                        onPress={() => deleteMemoryVerse(verse)}
+                                        style={memoryDarkMode && styles.homeDarkResumeButton}
+                                        labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                      />
+                                    </>
+                                  )}
                                 </View>
+                                {phoneLayout && moreOpen && (
+                                  <View style={[styles.phoneMemoryMoreMenu, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                    <Pressable
+                                      accessibilityRole="button"
+                                      onPress={() => {
+                                        setHistoryMemoryVerseId((current) => current === verseId ? "" : verseId);
+                                        setMemoryMoreVerseId("");
+                                      }}
+                                      style={styles.phoneMemoryMoreMenuItem}
+                                    >
+                                      <Ionicons name="time-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{historyOpen ? "Hide history" : "View history"}</Text>
+                                    </Pressable>
+                                    <Pressable
+                                      accessibilityRole="button"
+                                      onPress={() => {
+                                        setReviewScheduleVerseId((current) => current === verseId ? "" : verseId);
+                                        setMemoryMoreVerseId("");
+                                      }}
+                                      style={styles.phoneMemoryMoreMenuItem}
+                                    >
+                                      <Ionicons name="calendar-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{reviewOpen ? "Hide review schedule" : "Change review date"}</Text>
+                                    </Pressable>
+                                    <Pressable
+                                      accessibilityRole="button"
+                                      onPress={() => {
+                                        setMemoryMoreVerseId("");
+                                        deleteMemoryVerse(verse);
+                                      }}
+                                      style={styles.phoneMemoryMoreMenuItem}
+                                    >
+                                      <Ionicons name="trash-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove from Memory"}</Text>
+                                    </Pressable>
+                                  </View>
+                                )}
                                 {reviewOpen && (
                                   <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                                     <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review again</Text>
@@ -17737,7 +17806,7 @@ const styles = StyleSheet.create({
   },
   phoneMemoryModeToolbar: {
     alignItems: "stretch",
-    flexDirection: "column",
+    flexDirection: "row",
     gap: 8
   },
   memoryModeToggle: {
@@ -17759,6 +17828,13 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 12,
     fontWeight: "900"
+  },
+  phoneMemoryPrintIconButton: {
+    flexShrink: 0,
+    minHeight: 42,
+    minWidth: 42,
+    paddingHorizontal: 0,
+    width: 42
   },
   memoryViewButton: {
     alignItems: "center",
@@ -18855,6 +18931,22 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15,
     textAlign: "center"
+  },
+  phoneMemoryPrimaryReviewButton: {
+    alignItems: "center",
+    backgroundColor: colors.coral,
+    borderRadius: 999,
+    flexDirection: "row",
+    gap: 7,
+    justifyContent: "center",
+    marginBottom: 12,
+    minHeight: 42,
+    paddingHorizontal: 14
+  },
+  phoneMemoryPrimaryReviewText: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "900"
   },
   journalCard: {
     marginBottom: 14
@@ -21133,6 +21225,11 @@ const styles = StyleSheet.create({
   phoneMemoryActions: {
     gap: 6
   },
+  phoneMemoryPrimaryActions: {
+    alignItems: "stretch",
+    flexDirection: "row",
+    flexWrap: "nowrap"
+  },
   resumeButton: {
     alignItems: "center",
     alignSelf: "flex-start",
@@ -21154,6 +21251,55 @@ const styles = StyleSheet.create({
     minHeight: 38,
     minWidth: 112,
     paddingHorizontal: 8
+  },
+  phoneMemoryPracticeButton: {
+    flex: 1.25,
+    justifyContent: "center",
+    marginTop: 4,
+    minHeight: 38,
+    minWidth: 0,
+    paddingHorizontal: 8
+  },
+  phoneMemoryMeditateButton: {
+    flex: 1,
+    justifyContent: "center",
+    marginTop: 4,
+    minHeight: 38,
+    minWidth: 0,
+    paddingHorizontal: 8
+  },
+  phoneMemoryMoreButton: {
+    alignItems: "center",
+    alignSelf: "stretch",
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderRadius: 999,
+    borderWidth: 1,
+    justifyContent: "center",
+    marginTop: 4,
+    minHeight: 38,
+    width: 42
+  },
+  phoneMemoryMoreMenu: {
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 2,
+    padding: 8
+  },
+  phoneMemoryMoreMenuItem: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    minHeight: 34,
+    paddingHorizontal: 4
+  },
+  phoneMemoryMoreMenuText: {
+    color: colors.oliveDark,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "900"
   },
   phoneMemoryActionText: {
     fontSize: 12,

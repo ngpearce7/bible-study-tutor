@@ -1217,7 +1217,6 @@ export default function Home() {
   const activeMemoryVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryVerseId);
   const activeMemoryMeditationVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId);
   const memoryQueueSections = useMemo(() => buildMemoryQueueSections(memoryVerses || []), [memoryVerses]);
-  const firstDueMemoryVerse = memoryQueueSections.find((section) => section.title === "Due for Review")?.verses[0];
   const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
@@ -6104,18 +6103,6 @@ export default function Home() {
                     <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                     <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                   </View>
-                  {phoneLayout && firstDueMemoryVerse && (
-                    <Pressable
-                      accessibilityRole="button"
-                      onPress={startDueMemoryReviewQueue}
-                      style={styles.phoneMemoryPrimaryReviewButton}
-                    >
-                      <Ionicons name="school-outline" size={16} color="#fff" />
-                      <Text style={styles.phoneMemoryPrimaryReviewText}>
-                        Review {dueMemoryCount} due verse{dueMemoryCount === 1 ? "" : "s"}
-                      </Text>
-                    </Pressable>
-                  )}
                 </>
               )}
               {phoneMemoryFocusMode && (
@@ -6517,7 +6504,20 @@ export default function Home() {
                             <Text style={[styles.memorySectionTitle, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
                             <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
                           </View>
-                          <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
+                          {section.title === "Due for Review" && dueMemoryCount > 0 ? (
+                            <Pressable
+                              accessibilityRole="button"
+                              onPress={startDueMemoryReviewQueue}
+                              style={styles.phoneMemoryPrimaryReviewButton}
+                            >
+                              <Ionicons name="school-outline" size={16} color="#fff" />
+                              <Text style={styles.phoneMemoryPrimaryReviewText}>
+                                Review {dueMemoryCount} due verse{dueMemoryCount === 1 ? "" : "s"}
+                              </Text>
+                            </Pressable>
+                          ) : (
+                            <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
+                          )}
                         </>
                       )}
                       {section.verses.map((verse: any) => {

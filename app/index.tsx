@@ -478,6 +478,7 @@ export default function Home() {
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
+  const [memoryToolbarMoreOpen, setMemoryToolbarMoreOpen] = useState(false);
   const [memoryMilestonePickerOpen, setMemoryMilestonePickerOpen] = useState(false);
   const [memoryMilestoneGoalIds, setMemoryMilestoneGoalIds] = useState<MemoryMilestoneGoalId[]>(DEFAULT_MEMORY_MILESTONE_IDS);
   const [memoryMilestoneStatus, setMemoryMilestoneStatus] = useState("");
@@ -6076,9 +6077,12 @@ export default function Home() {
                           onPress={() => setAddMemoryPanelOpen((open) => !open)}
                           style={[styles.addMemoryHeader, phoneLayout && styles.phoneAddMemoryHeader]}
                         >
-                          <View style={styles.feedbackHeader}>
+                          <View style={[styles.feedbackHeader, phoneLayout && styles.phoneAddMemoryTitleBlock]}>
                             <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
-                            <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Add memory verses</Text>
+                            <View style={styles.addMemoryCopy}>
+                              <Text style={[styles.feedbackTitle, phoneLayout && styles.phoneAddMemoryTitle, memoryDarkMode && styles.accountDarkTitle]}>{phoneLayout ? "Add verses" : "Add memory verses"}</Text>
+                              {phoneLayout && <Text style={[styles.phoneAddMemorySubtitle, memoryDarkMode && styles.accountDarkMutedText]}>From Bible or Study</Text>}
+                            </View>
                           </View>
                           {phoneLayout && (
                             <Ionicons
@@ -6088,42 +6092,59 @@ export default function Home() {
                             />
                           )}
                         </Pressable>
-                        <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>
+                        {!phoneLayout && <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>}
                       </View>
                       {(!phoneLayout || addMemoryPanelOpen) && (
                         <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
-                          <AppButton label="Find in Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddActionButton} />
-                          <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                          <AppButton label={phoneLayout ? "Bible" : "Find in Bible"} onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddActionButton} />
+                          <AppButton label={phoneLayout ? "Study" : "Open Study"} variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                         </View>
                       )}
                     </View>
                   )}
                   {!phoneMemoryFocusMode && (
-                    <View style={[styles.memoryModeToolbar, phoneLayout && styles.phoneMemoryModeToolbar]}>
-                      <View style={[styles.memoryViewToggle, styles.memoryModeToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
-                        {[
-                          ["review", "Review"],
-                          ["browse", "Browse"],
-                          ["history", "History"]
-                        ].map(([key, label]) => (
-                          <Pressable
-                            key={key}
-                            onPress={() => setMemoryView(key as MemoryView)}
-                            style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
-                          >
-                            <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
-                          </Pressable>
-                        ))}
+                    <>
+                      <View style={[styles.memoryModeToolbar, phoneLayout && styles.phoneMemoryModeToolbar]}>
+                        <View style={[styles.memoryViewToggle, styles.memoryModeToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
+                          {[
+                            ["review", "Review"],
+                            ["browse", "Browse"],
+                            ["history", "History"]
+                          ].map(([key, label]) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setMemoryView(key as MemoryView)}
+                              style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
+                            >
+                              <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                        <Pressable
+                          onPress={() => phoneLayout ? setMemoryToolbarMoreOpen((open) => !open) : openMemoryPrintOptions()}
+                          style={[styles.memoryPrintCardsButton, phoneLayout && styles.phoneMemoryPrintIconButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                          accessibilityLabel={phoneLayout ? "Show memory options" : "Print memory cards"}
+                        >
+                          <Ionicons name={phoneLayout ? "ellipsis-horizontal" : "print-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          {!phoneLayout && <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>}
+                        </Pressable>
                       </View>
-                      <Pressable
-                        onPress={openMemoryPrintOptions}
-                        style={[styles.memoryPrintCardsButton, phoneLayout && styles.phoneMemoryPrintIconButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                        accessibilityLabel="Print memory cards"
-                      >
-                        <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        {!phoneLayout && <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>}
-                      </Pressable>
-                    </View>
+                      {phoneLayout && memoryToolbarMoreOpen && (
+                        <View style={[styles.phoneMemoryToolbarMoreMenu, memoryDarkMode && styles.accountDarkInsetBox]}>
+                          <Pressable
+                            accessibilityRole="button"
+                            onPress={() => {
+                              setMemoryToolbarMoreOpen(false);
+                              openMemoryPrintOptions();
+                            }}
+                            style={styles.phoneMemoryMoreMenuItem}
+                          >
+                            <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                            <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>
+                          </Pressable>
+                        </View>
+                      )}
+                    </>
                   )}
                   {!phoneMemoryFocusMode && memoryView === "history" && (
                     <View style={styles.memoryHistoryStack}>
@@ -19344,7 +19365,7 @@ const styles = StyleSheet.create({
     gap: 10
   },
   phoneAddMemoryHeader: {
-    minHeight: 32,
+    minHeight: 30,
     width: "100%"
   },
   addMemoryBox: {
@@ -19360,7 +19381,11 @@ const styles = StyleSheet.create({
   },
   phoneAddMemoryBox: {
     alignItems: "stretch",
-    flexDirection: "column"
+    borderRadius: 12,
+    flexDirection: "column",
+    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8
   },
   addMemoryCopy: {
     flex: 1,
@@ -19372,14 +19397,31 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18
   },
+  phoneAddMemoryTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  phoneAddMemoryTitle: {
+    fontSize: 14,
+    lineHeight: 17
+  },
+  phoneAddMemorySubtitle: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "800",
+    lineHeight: 14,
+    marginTop: 1
+  },
   phoneAddMemoryActions: {
     alignItems: "stretch",
     flexDirection: "row",
     flexWrap: "nowrap",
+    gap: 6,
     width: "100%"
   },
   phoneMemoryAddActionButton: {
     flex: 1,
+    minHeight: 34,
     minWidth: 0
   },
   phoneMemoryAddButton: {
@@ -21286,6 +21328,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     gap: 2,
+    padding: 8
+  },
+  phoneMemoryToolbarMoreMenu: {
+    alignSelf: "stretch",
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 2,
+    marginTop: -4,
     padding: 8
   },
   phoneMemoryMoreMenuItem: {

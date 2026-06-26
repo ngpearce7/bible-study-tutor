@@ -6496,13 +6496,15 @@ export default function Home() {
                       </Text>
                     </View>
                   )}
-                  {visibleMemorySections.map((section) => (
-                    <View key={section.title} style={styles.memorySection}>
+                  {visibleMemorySections.map((section) => {
+                    const highlightedMemorySection = section.title === "Due for Review" || section.title === "Reviewed";
+                    return (
+                    <View key={section.title} style={[styles.memorySection, phoneLayout && styles.phoneMemorySection]}>
                       {!phoneMemoryFocusMode && (
                         <>
-                          <View style={styles.memorySectionHeader}>
-                            <Text style={[styles.memorySectionTitle, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                            <Text style={[styles.memorySectionCount, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
+                          <View style={[styles.memorySectionHeader, highlightedMemorySection && styles.memorySectionHeaderFeatured, memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionHeaderFeatured]}>
+                            <Text style={[styles.memorySectionTitle, highlightedMemorySection && styles.memorySectionTitleFeatured, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                            <Text style={[styles.memorySectionCount, highlightedMemorySection && styles.memorySectionCountFeatured, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
                           </View>
                           {section.title === "Due for Review" && dueMemoryCount > 0 ? (
                             <Pressable
@@ -6515,7 +6517,7 @@ export default function Home() {
                                 Review {dueMemoryCount} due verse{dueMemoryCount === 1 ? "" : "s"}
                               </Text>
                             </Pressable>
-                          ) : (
+                          ) : section.title === "Reviewed" ? null : (
                             <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
                           )}
                         </>
@@ -6884,7 +6886,7 @@ export default function Home() {
                         );
                       })}
                     </View>
-                  ))}
+                  );})}
                   {memoryView === "browse" && memoryBrowseSections.length === 0 && (
                     <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="search-outline" size={24} color={colors.coral} />
@@ -18323,6 +18325,11 @@ const styles = StyleSheet.create({
   memorySection: {
     gap: 10
   },
+  phoneMemorySection: {
+    gap: 12,
+    marginTop: 8,
+    paddingTop: 4
+  },
   memorySectionHeader: {
     alignItems: "center",
     flexDirection: "row",
@@ -18330,10 +18337,29 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 4
   },
+  memorySectionHeaderFeatured: {
+    backgroundColor: "rgba(255, 250, 242, 0.9)",
+    borderColor: "rgba(201, 103, 80, 0.22)",
+    borderLeftColor: colors.coral,
+    borderLeftWidth: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 9
+  },
+  memoryDarkSectionHeaderFeatured: {
+    backgroundColor: "#181511",
+    borderColor: "#393027",
+    borderLeftColor: "#e9b76a"
+  },
   memorySectionTitle: {
     color: colors.ink,
     fontSize: 16,
     fontWeight: "800"
+  },
+  memorySectionTitleFeatured: {
+    textTransform: "uppercase"
   },
   memorySectionCount: {
     backgroundColor: colors.sage,
@@ -18346,6 +18372,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     textAlign: "center"
+  },
+  memorySectionCountFeatured: {
+    backgroundColor: "rgba(201, 103, 80, 0.14)",
+    color: colors.coral
   },
   memoryCard: {
     backgroundColor: "#fff6eb",

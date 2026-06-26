@@ -6498,13 +6498,25 @@ export default function Home() {
                   )}
                   {visibleMemorySections.map((section) => {
                     const highlightedMemorySection = section.title === "Due for Review" || section.title === "Reviewed";
+                    const reviewedMemorySection = section.title === "Reviewed";
                     return (
                     <View key={section.title} style={[styles.memorySection, phoneLayout && styles.phoneMemorySection]}>
                       {!phoneMemoryFocusMode && (
                         <>
                           <View style={[styles.memorySectionHeader, highlightedMemorySection && styles.memorySectionHeaderFeatured, memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionHeaderFeatured]}>
                             <Text style={[styles.memorySectionTitle, highlightedMemorySection && styles.memorySectionTitleFeatured, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                            <Text style={[styles.memorySectionCount, highlightedMemorySection && styles.memorySectionCountFeatured, memoryDarkMode && styles.memoryDarkCountPill]}>{section.verses.length}</Text>
+                            <Text
+                              style={[
+                                styles.memorySectionCount,
+                                highlightedMemorySection && styles.memorySectionCountFeatured,
+                                reviewedMemorySection && styles.memorySectionCountReviewed,
+                                memoryDarkMode && styles.memoryDarkCountPill,
+                                memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionCountFeatured,
+                                memoryDarkMode && reviewedMemorySection && styles.memoryDarkSectionCountReviewed
+                              ]}
+                            >
+                              {section.verses.length}
+                            </Text>
                           </View>
                           {section.title === "Due for Review" && dueMemoryCount > 0 ? (
                             <Pressable
@@ -18340,8 +18352,6 @@ const styles = StyleSheet.create({
   memorySectionHeaderFeatured: {
     backgroundColor: "rgba(255, 250, 242, 0.9)",
     borderColor: "rgba(201, 103, 80, 0.22)",
-    borderLeftColor: colors.coral,
-    borderLeftWidth: 4,
     borderRadius: 12,
     borderWidth: 1,
     marginTop: 8,
@@ -18350,8 +18360,7 @@ const styles = StyleSheet.create({
   },
   memoryDarkSectionHeaderFeatured: {
     backgroundColor: "#181511",
-    borderColor: "#393027",
-    borderLeftColor: "#e9b76a"
+    borderColor: "#393027"
   },
   memorySectionTitle: {
     color: colors.ink,
@@ -18375,7 +18384,23 @@ const styles = StyleSheet.create({
   },
   memorySectionCountFeatured: {
     backgroundColor: "rgba(201, 103, 80, 0.14)",
-    color: colors.coral
+    color: colors.coral,
+    fontSize: 13,
+    minWidth: 34,
+    paddingHorizontal: 10,
+    paddingVertical: 5
+  },
+  memorySectionCountReviewed: {
+    backgroundColor: "rgba(104, 138, 105, 0.18)",
+    color: colors.oliveDark
+  },
+  memoryDarkSectionCountFeatured: {
+    backgroundColor: "rgba(201, 103, 80, 0.22)",
+    color: "#f2c7ba"
+  },
+  memoryDarkSectionCountReviewed: {
+    backgroundColor: "rgba(118, 158, 123, 0.22)",
+    color: "#cde0c8"
   },
   memoryCard: {
     backgroundColor: "#fff6eb",
@@ -19079,7 +19104,8 @@ const styles = StyleSheet.create({
   phoneMemoryMetricGrid: {
     flexWrap: "nowrap",
     gap: 6,
-    marginBottom: 12
+    marginBottom: 20,
+    marginTop: 6
   },
   metric: {
     backgroundColor: colors.blush,

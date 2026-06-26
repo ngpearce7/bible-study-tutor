@@ -6023,11 +6023,47 @@ export default function Home() {
         {tab === "memory" && (
           <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
-              <Eyebrow>Memory</Eyebrow>
+              <View style={phoneLayout ? styles.phoneMemoryHeaderRow : undefined}>
+                <Eyebrow>Memory</Eyebrow>
+                {phoneLayout && !phoneMemoryFocusMode && (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={addMemoryPanelOpen ? "Hide add memory verse options" : "Add memory verses"}
+                    onPress={() => setAddMemoryPanelOpen((open) => !open)}
+                    style={[styles.phoneMemoryHeaderAddButton, memoryDarkMode && styles.homeDarkIconBubble]}
+                  >
+                    <Ionicons name="add-circle-outline" size={24} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                  </Pressable>
+                )}
+              </View>
               <Text style={[styles.title, memoryDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
               {!phoneMemoryFocusMode && (
                 <>
                   <Text style={[styles.titleSupport, styles.memoryTitleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>
+                  {phoneLayout && addMemoryPanelOpen && (
+                    <View style={[styles.phoneMemoryHeaderAddPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
+                      <View style={styles.phoneAddMemoryActions}>
+                        <AppButton
+                          label="Bible"
+                          onPress={() => {
+                            setAddMemoryPanelOpen(false);
+                            setTab("bible");
+                          }}
+                          style={styles.phoneMemoryAddActionButton}
+                        />
+                        <AppButton
+                          label="Study"
+                          variant="secondary"
+                          onPress={() => {
+                            setAddMemoryPanelOpen(false);
+                            setTab("study");
+                          }}
+                          style={[styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                        />
+                      </View>
+                    </View>
+                  )}
                   <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
                     <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
                     <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
@@ -6067,7 +6103,7 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={styles.memoryList}>
-                  {!phoneMemoryFocusMode && memoryView !== "history" && (
+                  {!phoneLayout && !phoneMemoryFocusMode && memoryView !== "history" && (
                     <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox, memoryDarkMode && styles.accountDarkSection]}>
                       <View style={styles.addMemoryCopy}>
                         <Pressable
@@ -17770,6 +17806,31 @@ const styles = StyleSheet.create({
   },
   memoryList: {
     gap: 12
+  },
+  phoneMemoryHeaderRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 2
+  },
+  phoneMemoryHeaderAddButton: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.24)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 38,
+    justifyContent: "center",
+    width: 38
+  },
+  phoneMemoryHeaderAddPanel: {
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+    marginTop: -4,
+    padding: 8
   },
   memoryReviewPromptBox: {
     alignItems: "flex-start",

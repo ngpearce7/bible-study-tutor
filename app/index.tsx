@@ -17815,10 +17815,8 @@ const styles = StyleSheet.create({
   },
   phoneMemoryHeaderAddButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
-    borderColor: "rgba(201, 103, 80, 0.24)",
     borderRadius: 999,
-    borderWidth: 1,
+    borderWidth: 0,
     height: 38,
     justifyContent: "center",
     width: 38

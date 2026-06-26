@@ -6039,7 +6039,7 @@ export default function Home() {
               <Text style={[styles.title, memoryDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
               {!phoneMemoryFocusMode && (
                 <>
-                  <Text style={[styles.titleSupport, styles.memoryTitleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>
+                  {!phoneLayout && <Text style={[styles.titleSupport, styles.memoryTitleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>}
                   {phoneLayout && addMemoryPanelOpen && (
                     <View style={[styles.phoneMemoryHeaderAddPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.phoneAddMemoryActions}>
@@ -17910,6 +17910,8 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   phoneMemoryPrintIconButton: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
     flexShrink: 0,
     minHeight: 42,
     minWidth: 42,
@@ -21372,10 +21374,9 @@ const styles = StyleSheet.create({
   phoneMemoryMoreButton: {
     alignItems: "center",
     alignSelf: "stretch",
-    backgroundColor: "#fff6eb",
-    borderColor: "rgba(201, 103, 80, 0.28)",
+    backgroundColor: "transparent",
     borderRadius: 999,
-    borderWidth: 1,
+    borderWidth: 0,
     justifyContent: "center",
     marginTop: 4,
     minHeight: 38,

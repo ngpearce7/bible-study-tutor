@@ -6555,6 +6555,7 @@ export default function Home() {
                             <Text style={[styles.memoryBrowseClearText, memoryDarkMode && styles.studyDarkAccentText]}>Clear</Text>
                           </Pressable>
                         </View>
+                        <Text style={[styles.memoryFilterByLabel, memoryDarkMode && styles.accountDarkMutedText]}>Filter by:</Text>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Collections</Text>
                         <Pressable
                           accessibilityRole="button"
@@ -6611,22 +6612,8 @@ export default function Home() {
                             <Text style={styles.phoneMemoryPrimaryReviewText}>Review {activeMemoryCollectionDueCount} due</Text>
                           </Pressable>
                         )}
+                        <Text style={[styles.memoryFilterByLabel, memoryDarkMode && styles.accountDarkMutedText]}>Filter by:</Text>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Scripture saved</Text>
-                        <Pressable
-                          accessibilityRole="button"
-                          onPress={() => {
-                            setMemoryBookFilter("all");
-                            setMemoryChapterFilter("all");
-                            setExpandedMemoryFilterBook("");
-                            setMemoryFilterMobileMenu(null);
-                          }}
-                          style={[styles.memoryAllBooksButton, memoryDarkMode && styles.accountDarkInsetBox, memoryBookFilter === "all" && styles.activeMemoryAllBooksButton]}
-                        >
-                          <View style={styles.memoryHistoryTextBlock}>
-                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText, memoryBookFilter === "all" && styles.activeMemoryAllBooksText]}>All saved Scripture</Text>
-                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === "all" && styles.activeMemoryAllBooksText]}>{(memoryVerses || []).length} saved verse{(memoryVerses || []).length === 1 ? "" : "s"}</Text>
-                          </View>
-                        </Pressable>
                         {memoryBookSections.length === 0 ? (
                           <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Saved verses will appear here by book and chapter.</Text>
                         ) : phoneLayout ? (
@@ -18403,25 +18390,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900"
   },
-  memoryAllBooksButton: {
-    alignItems: "center",
-    backgroundColor: "#fffdfa",
-    borderColor: colors.line,
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    minHeight: 44,
-    paddingHorizontal: 12,
-    paddingVertical: 9
-  },
-  activeMemoryAllBooksButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
-  },
-  activeMemoryAllBooksText: {
-    color: "white"
-  },
   memoryCollectionSelect: {
     alignItems: "center",
     backgroundColor: "#fffdfa",
@@ -18462,6 +18430,14 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 11,
     fontWeight: "800",
+    textTransform: "uppercase"
+  },
+  memoryFilterByLabel: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900",
+    lineHeight: 12,
+    marginBottom: -4,
     textTransform: "uppercase"
   },
   memoryHistoryStack: {

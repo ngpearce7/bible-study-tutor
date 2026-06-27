@@ -53,6 +53,7 @@ type UiPreferenceKey =
   | "communityRecentExpanded";
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
 type ReaderMobileMenu = "old" | "new" | null;
+type MemoryFilterMobileMenu = "old" | "new" | null;
 type BibleSearchScope = "all" | "old" | "new";
 type BibleSearchMode = "word" | "phrase" | "allWords" | "anyWords" | "theme";
 const DARK_MODE_ENABLED = true;
@@ -482,6 +483,8 @@ export default function Home() {
   const [memoryCollectionFilter, setMemoryCollectionFilter] = useState("all");
   const [memoryCollectionPickerOpen, setMemoryCollectionPickerOpen] = useState(false);
   const [memoryBrowseFiltersOpen, setMemoryBrowseFiltersOpen] = useState(false);
+  const [expandedMemoryFilterBook, setExpandedMemoryFilterBook] = useState("");
+  const [memoryFilterMobileMenu, setMemoryFilterMobileMenu] = useState<MemoryFilterMobileMenu>(null);
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
   const [memoryToolbarMoreOpen, setMemoryToolbarMoreOpen] = useState(false);
   const [memoryMilestonePickerOpen, setMemoryMilestonePickerOpen] = useState(false);
@@ -1235,6 +1238,21 @@ export default function Home() {
     : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
   const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
   const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter), [memoryBookFilter, memoryVerses]);
+  const memoryBookCounts = useMemo(() => new Map(memoryBookOptions.map((book) => [book.book, book.count])), [memoryBookOptions]);
+  const memoryBookSections = useMemo(
+    () => [
+      { id: "old" as MemoryFilterMobileMenu, title: "Old Testament", books: OLD_TESTAMENT_BOOKS.filter((book) => memoryBookCounts.has(book)) },
+      { id: "new" as MemoryFilterMobileMenu, title: "New Testament", books: NEW_TESTAMENT_BOOKS.filter((book) => memoryBookCounts.has(book)) }
+    ].filter((section) => section.books.length > 0),
+    [memoryBookCounts]
+  );
+  const memoryChaptersByBook = useMemo(() => {
+    const chapters = new Map<string, ReturnType<typeof buildMemoryChapterOptions>>();
+    memoryBookOptions.forEach((book) => {
+      chapters.set(book.book, buildMemoryChapterOptions(memoryVerses || [], book.book));
+    });
+    return chapters;
+  }, [memoryBookOptions, memoryVerses]);
   const activeMemoryChapterLabel = memoryChapterOptions.find((chapter) => chapter.key === memoryChapterFilter)?.label || "";
   const memoryBrowseStatusLabel =
     memoryBrowseStatusFilter === "due"
@@ -3413,6 +3431,31 @@ export default function Home() {
     setMemoryBookFilter("all");
     setMemoryChapterFilter("all");
     setMemoryBrowseStatusFilter("all");
+    setExpandedMemoryFilterBook("");
+    setMemoryFilterMobileMenu(null);
+  }
+
+  function selectMemoryFilterBook(book: string) {
+    if (expandedMemoryFilterBook === book) {
+      setExpandedMemoryFilterBook("");
+      if (memoryBookFilter === book) {
+        setMemoryBookFilter("all");
+        setMemoryChapterFilter("all");
+      }
+      return;
+    }
+
+    setExpandedMemoryFilterBook(book);
+    setMemoryBookFilter(book);
+    setMemoryChapterFilter("all");
+    setMemoryFilterMobileMenu(OLD_TESTAMENT_BOOKS.includes(book) ? "old" : "new");
+  }
+
+  function selectMemoryFilterChapter(book: string, chapterKey: string) {
+    setMemoryBookFilter(book);
+    setMemoryChapterFilter(chapterKey);
+    setExpandedMemoryFilterBook("");
+    setMemoryFilterMobileMenu(null);
   }
 
   function toggleMemoryPrintVerse(verseId: string) {
@@ -6568,52 +6611,136 @@ export default function Home() {
                             <Text style={styles.phoneMemoryPrimaryReviewText}>Review {activeMemoryCollectionDueCount} due</Text>
                           </Pressable>
                         )}
-                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Books saved</Text>
-                        <View style={styles.filterRow}>
-                          <Pressable
-                            onPress={() => {
-                              setMemoryBookFilter("all");
-                              setMemoryChapterFilter("all");
-                            }}
-                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === "all" && styles.activeFilterChip]}
-                          >
-                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === "all" && styles.activeFilterText]}>All books</Text>
-                          </Pressable>
-                          {memoryBookOptions.map((book) => (
-                            <Pressable
-                              key={book.book}
-                              onPress={() => {
-                                setMemoryBookFilter(book.book);
-                                setMemoryChapterFilter("all");
-                              }}
-                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === book.book && styles.activeFilterChip]}
-                            >
-                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book.book && styles.activeFilterText]}>
-                                {book.book} ({book.count})
-                              </Text>
-                            </Pressable>
-                          ))}
-                        </View>
-                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Chapters saved</Text>
-                        <View style={styles.filterRow}>
-                          <Pressable
-                            onPress={() => setMemoryChapterFilter("all")}
-                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryChapterFilter === "all" && styles.activeFilterChip]}
-                          >
-                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryChapterFilter === "all" && styles.activeFilterText]}>All chapters</Text>
-                          </Pressable>
-                          {memoryChapterOptions.map((chapter) => (
-                            <Pressable
-                              key={chapter.key}
-                              onPress={() => setMemoryChapterFilter(chapter.key)}
-                              style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryChapterFilter === chapter.key && styles.activeFilterChip]}
-                            >
-                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryChapterFilter === chapter.key && styles.activeFilterText]}>
-                                {chapter.label} ({chapter.count})
-                              </Text>
-                            </Pressable>
-                          ))}
-                        </View>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Scripture saved</Text>
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => {
+                            setMemoryBookFilter("all");
+                            setMemoryChapterFilter("all");
+                            setExpandedMemoryFilterBook("");
+                            setMemoryFilterMobileMenu(null);
+                          }}
+                          style={[styles.memoryAllBooksButton, memoryDarkMode && styles.accountDarkInsetBox, memoryBookFilter === "all" && styles.activeMemoryAllBooksButton]}
+                        >
+                          <View style={styles.memoryHistoryTextBlock}>
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText, memoryBookFilter === "all" && styles.activeMemoryAllBooksText]}>All saved Scripture</Text>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === "all" && styles.activeMemoryAllBooksText]}>{(memoryVerses || []).length} saved verse{(memoryVerses || []).length === 1 ? "" : "s"}</Text>
+                          </View>
+                        </Pressable>
+                        {memoryBookSections.length === 0 ? (
+                          <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Saved verses will appear here by book and chapter.</Text>
+                        ) : phoneLayout ? (
+                          <View style={styles.mobileReaderPicker}>
+                            {memoryBookSections.map((section) => (
+                              <View key={section.id || section.title} style={styles.mobileReaderDropdown}>
+                                <Pressable
+                                  onPress={() => setMemoryFilterMobileMenu((current) => current === section.id ? null : section.id)}
+                                  style={[styles.mobileReaderDropdownButton, memoryDarkMode && styles.accountDarkInsetBox]}
+                                >
+                                  <Text style={[styles.mobileReaderDropdownText, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                                  <Ionicons name={memoryFilterMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={memoryDarkMode ? "#c8bda9" : colors.muted} />
+                                </Pressable>
+                                {memoryFilterMobileMenu === section.id && (
+                                  <View style={styles.mobileReaderBookList}>
+                                    {section.books.map((book) => {
+                                      const bookCount = memoryBookCounts.get(book) || 0;
+                                      const chapters = memoryChaptersByBook.get(book) || [];
+                                      const bookSelected = memoryBookFilter === book;
+                                      const bookExpanded = expandedMemoryFilterBook === book;
+                                      return (
+                                        <View key={book} style={[styles.mobileReaderBookBlock, bookExpanded && styles.expandedMobileReaderBookBlock]}>
+                                          <Pressable
+                                            onPress={() => selectMemoryFilterBook(book)}
+                                            style={[styles.mobileReaderBookOption, styles.memoryBookFilterOption, memoryDarkMode && styles.printDarkOptionChip, bookSelected && styles.activeMobileReaderBookOption]}
+                                          >
+                                            <Text style={[styles.mobileReaderBookText, memoryDarkMode && styles.accountDarkMutedText, bookSelected && styles.activeMobileReaderBookText]}>{book}</Text>
+                                            <Text style={[styles.memoryBookCountText, memoryDarkMode && styles.accountDarkMutedText, bookSelected && styles.activeMobileReaderBookText]}>{bookCount}</Text>
+                                          </Pressable>
+                                          {bookExpanded && (
+                                            <View style={[styles.mobileReaderChapterPanel, memoryDarkMode && styles.accountDarkSection]}>
+                                              <Text style={[styles.readerBookSectionTitle, memoryDarkMode && styles.studyDarkAccentText]}>{book}</Text>
+                                              <View style={styles.mobileReaderChapterGrid}>
+                                                <Pressable
+                                                  onPress={() => selectMemoryFilterChapter(book, "all")}
+                                                  style={[styles.memoryChapterAllSquare, memoryDarkMode && styles.printDarkOptionChip, bookSelected && memoryChapterFilter === "all" && styles.activeMobileReaderChapterSquare]}
+                                                >
+                                                  <Text style={[styles.mobileReaderChapterText, memoryDarkMode && styles.accountDarkMutedText, bookSelected && memoryChapterFilter === "all" && styles.activeMobileReaderChapterText]}>All</Text>
+                                                </Pressable>
+                                                {chapters.map((chapter) => (
+                                                  <Pressable
+                                                    key={chapter.key}
+                                                    onPress={() => selectMemoryFilterChapter(book, chapter.key)}
+                                                    style={[styles.mobileReaderChapterSquare, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === book && memoryChapterFilter === chapter.key && styles.activeMobileReaderChapterSquare]}
+                                                  >
+                                                    <Text style={[styles.mobileReaderChapterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book && memoryChapterFilter === chapter.key && styles.activeMobileReaderChapterText]}>{chapter.chapter || "-"}</Text>
+                                                    <Text style={[styles.memoryChapterCountText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book && memoryChapterFilter === chapter.key && styles.activeMobileReaderChapterText]}>{chapter.count}</Text>
+                                                  </Pressable>
+                                                ))}
+                                              </View>
+                                            </View>
+                                          )}
+                                        </View>
+                                      );
+                                    })}
+                                  </View>
+                                )}
+                              </View>
+                            ))}
+                          </View>
+                        ) : (
+                          <View style={styles.readerBookSections}>
+                            {memoryBookSections.map((section) => (
+                              <View key={section.title} style={styles.readerBookSection}>
+                                <Text style={[styles.readerBookSectionTitle, memoryDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
+                                <View style={styles.desktopReaderBookList}>
+                                  {section.books.map((book) => {
+                                    const bookCount = memoryBookCounts.get(book) || 0;
+                                    const chapters = memoryChaptersByBook.get(book) || [];
+                                    const bookSelected = memoryBookFilter === book;
+                                    const bookExpanded = expandedMemoryFilterBook === book;
+                                    return (
+                                      <View key={book} style={[styles.desktopReaderBookBlock, bookExpanded && styles.expandedDesktopReaderBookBlock]}>
+                                        <Pressable
+                                          onPress={() => selectMemoryFilterBook(book)}
+                                          style={[styles.readerBookChip, styles.memoryBookFilterOption, memoryDarkMode && styles.printDarkOptionChip, bookSelected && styles.activeReaderBookChip]}
+                                        >
+                                          <Text style={[styles.readerBookText, memoryDarkMode && styles.accountDarkMutedText, bookSelected && styles.activeReaderBookText]}>{book}</Text>
+                                          <Text style={[styles.memoryBookCountText, memoryDarkMode && styles.accountDarkMutedText, bookSelected && styles.activeReaderBookText]}>{bookCount}</Text>
+                                        </Pressable>
+                                        {bookExpanded && (
+                                          <View style={[styles.desktopReaderChapterPanel, memoryDarkMode && styles.accountDarkSection]}>
+                                            <View style={styles.desktopReaderChapterHeader}>
+                                              <Text style={[styles.readerBookSectionTitle, memoryDarkMode && styles.studyDarkAccentText]}>{book}</Text>
+                                              <Text style={[styles.readerChapterCountText, memoryDarkMode && styles.accountDarkMutedText]}>{chapters.length} saved chapter{chapters.length === 1 ? "" : "s"}</Text>
+                                            </View>
+                                            <View style={styles.desktopReaderChapterGrid}>
+                                              <Pressable
+                                                onPress={() => selectMemoryFilterChapter(book, "all")}
+                                                style={[styles.memoryChapterAllSquare, memoryDarkMode && styles.printDarkOptionChip, bookSelected && memoryChapterFilter === "all" && styles.activeMobileReaderChapterSquare]}
+                                              >
+                                                <Text style={[styles.mobileReaderChapterText, memoryDarkMode && styles.accountDarkMutedText, bookSelected && memoryChapterFilter === "all" && styles.activeMobileReaderChapterText]}>All</Text>
+                                              </Pressable>
+                                              {chapters.map((chapter) => (
+                                                <Pressable
+                                                  key={chapter.key}
+                                                  onPress={() => selectMemoryFilterChapter(book, chapter.key)}
+                                                  style={[styles.mobileReaderChapterSquare, memoryDarkMode && styles.printDarkOptionChip, memoryBookFilter === book && memoryChapterFilter === chapter.key && styles.activeMobileReaderChapterSquare]}
+                                                >
+                                                  <Text style={[styles.mobileReaderChapterText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book && memoryChapterFilter === chapter.key && styles.activeMobileReaderChapterText]}>{chapter.chapter || "-"}</Text>
+                                                  <Text style={[styles.memoryChapterCountText, memoryDarkMode && styles.accountDarkMutedText, memoryBookFilter === book && memoryChapterFilter === chapter.key && styles.activeMobileReaderChapterText]}>{chapter.count}</Text>
+                                                </Pressable>
+                                              ))}
+                                            </View>
+                                          </View>
+                                        )}
+                                      </View>
+                                    );
+                                  })}
+                                </View>
+                              </View>
+                            ))}
+                          </View>
+                        )}
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Status</Text>
                         <View style={styles.filterRow}>
                           {[
@@ -14236,6 +14363,33 @@ const styles = StyleSheet.create({
   activeMobileReaderChapterText: {
     color: "white"
   },
+  memoryBookFilterOption: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7
+  },
+  memoryBookCountText: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900",
+    lineHeight: 12
+  },
+  memoryChapterAllSquare: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 8,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 38,
+    paddingHorizontal: 10
+  },
+  memoryChapterCountText: {
+    color: colors.muted,
+    fontSize: 9,
+    fontWeight: "900",
+    lineHeight: 10
+  },
   readerBookmarkSection: {
     borderBottomColor: colors.line,
     borderBottomWidth: 1,
@@ -18248,6 +18402,25 @@ const styles = StyleSheet.create({
     color: colors.coral,
     fontSize: 12,
     fontWeight: "900"
+  },
+  memoryAllBooksButton: {
+    alignItems: "center",
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    minHeight: 44,
+    paddingHorizontal: 12,
+    paddingVertical: 9
+  },
+  activeMemoryAllBooksButton: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  activeMemoryAllBooksText: {
+    color: "white"
   },
   memoryCollectionSelect: {
     alignItems: "center",

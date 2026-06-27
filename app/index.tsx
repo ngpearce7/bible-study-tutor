@@ -3406,6 +3406,14 @@ export default function Home() {
     setMemoryPrintSelectedVerseIds(verses.map((verse: any) => String(verse._id)));
   }
 
+  function clearMemoryBrowseFilters() {
+    setMemoryCollectionFilter("all");
+    setMemoryCollectionPickerOpen(false);
+    setMemoryBookFilter("all");
+    setMemoryChapterFilter("all");
+    setMemoryBrowseStatusFilter("all");
+  }
+
   function toggleMemoryPrintVerse(verseId: string) {
     setMemoryPrintSelectedVerseIds((selectedIds) =>
       selectedIds.includes(verseId)
@@ -6484,21 +6492,25 @@ export default function Home() {
                           </Pressable>
                         )}
                       </View>
-                      {phoneLayout && (
-                        <Pressable
-                          accessibilityRole="button"
-                          onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
-                          style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
-                        >
-                          <View style={styles.memoryHistoryTextBlock}>
-                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
-                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
-                          </View>
-                          <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        </Pressable>
-                      )}
-                      {(!phoneLayout || memoryBrowseFiltersOpen) && (
-                      <View style={[styles.memoryDiscoverBlock, phoneLayout && styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
+                        style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
+                      >
+                        <View style={styles.memoryHistoryTextBlock}>
+                          <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
+                          <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
+                        </View>
+                        <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </Pressable>
+                      {memoryBrowseFiltersOpen && (
+                      <View style={[styles.memoryDiscoverBlock, styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
+                        <View style={styles.memoryBrowseFilterHeader}>
+                          <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Filter saved verses</Text>
+                          <Pressable accessibilityRole="button" onPress={clearMemoryBrowseFilters}>
+                            <Text style={[styles.memoryBrowseClearText, memoryDarkMode && styles.studyDarkAccentText]}>Clear</Text>
+                          </Pressable>
+                        </View>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Collections</Text>
                         <Pressable
                           accessibilityRole="button"
@@ -18300,6 +18312,16 @@ const styles = StyleSheet.create({
   phoneMemoryBrowseFiltersPanel: {
     gap: 7,
     padding: 10
+  },
+  memoryBrowseFilterHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  memoryBrowseClearText: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "900"
   },
   memoryCollectionSelect: {
     alignItems: "center",

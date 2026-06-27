@@ -480,6 +480,7 @@ export default function Home() {
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
   const [memoryCollectionFilter, setMemoryCollectionFilter] = useState("all");
   const [memoryCollectionPickerOpen, setMemoryCollectionPickerOpen] = useState(false);
+  const [memoryBrowseFiltersOpen, setMemoryBrowseFiltersOpen] = useState(false);
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
   const [memoryToolbarMoreOpen, setMemoryToolbarMoreOpen] = useState(false);
   const [memoryMilestonePickerOpen, setMemoryMilestonePickerOpen] = useState(false);
@@ -1233,6 +1234,20 @@ export default function Home() {
     : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
   const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
   const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter), [memoryBookFilter, memoryVerses]);
+  const activeMemoryChapterLabel = memoryChapterOptions.find((chapter) => chapter.key === memoryChapterFilter)?.label || "";
+  const memoryBrowseStatusLabel =
+    memoryBrowseStatusFilter === "due"
+      ? "Due"
+      : memoryBrowseStatusFilter === "learning"
+        ? "Reviewed"
+        : memoryBrowseStatusFilter === "memorized"
+          ? "Memorized"
+          : "";
+  const memoryBrowseFilterSummary = [
+    memoryBookFilter !== "all" ? memoryBookFilter : "",
+    memoryChapterFilter !== "all" ? activeMemoryChapterLabel : "",
+    memoryBrowseStatusLabel
+  ].filter(Boolean).join(" · ") || "All saved verses";
   const memoryBrowseSections = useMemo(
     () => buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter),
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses]
@@ -6526,7 +6541,21 @@ export default function Home() {
                           </Pressable>
                         )}
                       </View>
-                      <View style={[styles.memoryDiscoverBlock, memoryDarkMode && styles.accountDarkSection]}>
+                      {phoneLayout && (
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
+                          style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
+                        >
+                          <View style={styles.memoryHistoryTextBlock}>
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
+                          </View>
+                          <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                      )}
+                      {(!phoneLayout || memoryBrowseFiltersOpen) && (
+                      <View style={[styles.memoryDiscoverBlock, phoneLayout && styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Books saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
@@ -6591,6 +6620,7 @@ export default function Home() {
                           ))}
                         </View>
                       </View>
+                      )}
                     </>
                   )}
                   {!phoneMemoryFocusMode && memoryView !== "history" && (
@@ -18254,6 +18284,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     padding: 12
+  },
+  memoryBrowseFiltersToggle: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minHeight: 46,
+    paddingHorizontal: 12,
+    paddingVertical: 8
+  },
+  phoneMemoryBrowseFiltersPanel: {
+    gap: 7,
+    padding: 10
   },
   memoryCollectionSelect: {
     alignItems: "center",

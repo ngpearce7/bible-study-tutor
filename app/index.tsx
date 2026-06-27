@@ -6859,7 +6859,7 @@ export default function Home() {
                                       style={styles.phoneMemoryMoreMenuItem}
                                     >
                                       <Ionicons name="calendar-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{reviewOpen ? "Hide review schedule" : "Change review date"}</Text>
+                                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Change review date</Text>
                                     </Pressable>
                                     <Pressable
                                       accessibilityRole="button"
@@ -6876,7 +6876,17 @@ export default function Home() {
                                 )}
                                 {reviewOpen && (
                                   <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
-                                    <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review again</Text>
+                                    <View style={styles.reviewScheduleHeader}>
+                                      <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review again</Text>
+                                      <Pressable
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Close review schedule"
+                                        onPress={() => setReviewScheduleVerseId("")}
+                                        style={[styles.reviewScheduleCloseButton, memoryDarkMode && styles.homeDarkIconBubble]}
+                                      >
+                                        <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                      </Pressable>
+                                    </View>
                                     <View style={styles.filterRow}>
                                       {MEMORY_REVIEW_OPTIONS.map((option) => (
                                         <Pressable
@@ -18333,6 +18343,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     padding: 10
+  },
+  reviewScheduleHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  reviewScheduleCloseButton: {
+    alignItems: "center",
+    borderRadius: 999,
+    height: 30,
+    justifyContent: "center",
+    width: 30
   },
   memorySection: {
     gap: 10

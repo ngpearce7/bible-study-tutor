@@ -3525,6 +3525,7 @@ export default function Home() {
   function addMemoryVerseCollection(verse: any) {
     const newCollection = memoryCollectionDraft.trim().replace(/\s+/g, " ");
     if (!newCollection) return;
+    Keyboard.dismiss();
     const collections = getMemoryVerseCollections(verse);
     saveMemoryVerseCollections(verse, [...collections, newCollection]);
   }
@@ -18755,6 +18756,7 @@ const styles = StyleSheet.create({
   },
   memoryCollectionInput: {
     flex: 1,
+    fontSize: 16,
     minHeight: 42
   },
   memoryCollectionAddButton: {

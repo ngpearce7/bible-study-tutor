@@ -12,7 +12,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -20,6 +20,7 @@ import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
 import { HelpScreenshot } from "@/components/HelpScreenshot";
+import { MemoryBlank } from "@/components/MemoryBlank";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { createElement, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -9551,72 +9552,6 @@ function ResumeButton({
   );
 }
 
-function MemoryBlank({
-  token,
-  value,
-  checked,
-  hintsVisible,
-  hintLevel,
-  inputRef,
-  onChange,
-  onSubmit,
-  onMoreHint,
-  returnKeyType = "next",
-  compact = false,
-  darkMode = false
-}: {
-  token: { index: number; answer: string };
-  value: string;
-  checked: boolean;
-  hintsVisible: boolean;
-  hintLevel: number;
-  inputRef?: (input: TextInput | null) => void;
-  onChange: (value: string, plainText?: string) => void;
-  onSubmit?: () => void;
-  onMoreHint: () => void;
-  returnKeyType?: "next" | "done";
-  compact?: boolean;
-  darkMode?: boolean;
-}) {
-  const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
-  const normalizedValue = normalizeMemoryAnswer(value);
-  const normalizedAnswer = normalizeMemoryAnswer(token.answer);
-  const incorrect = !!normalizedValue && !correct && (checked || normalizedValue.length >= normalizedAnswer.length);
-  const canShowMoreHint = memoryHintRevealCount(token.answer, hintLevel) < token.answer.replace(/[^a-z0-9]/gi, "").length;
-
-  return (
-    <View style={[styles.memoryBlankWrap, { width: memoryBlankWidth(token.answer, compact) }]}>
-      <TextInput
-        ref={inputRef}
-        value={value}
-        onChangeText={(nextValue) => onChange(formatMemoryBlankValue(token.answer, nextValue))}
-        onSubmitEditing={onSubmit}
-        autoCapitalize="none"
-        blurOnSubmit={false}
-        keyboardType={memoryAnswerIsReference(token.answer) ? "numbers-and-punctuation" : "default"}
-        returnKeyType={returnKeyType}
-        style={[
-          styles.memoryBlankInput,
-          darkMode && styles.memoryDarkBlankInput,
-          correct && styles.correctMemoryBlankInput,
-          darkMode && correct && styles.memoryDarkCorrectBlankInput,
-          incorrect && styles.incorrectMemoryBlankInput
-        ]}
-      />
-      {hintsVisible && !correct && (
-        <View style={styles.memoryHintRow}>
-          <Text style={styles.memoryHintText}>{memoryHintText(token.answer, hintLevel)}</Text>
-          {canShowMoreHint && (
-            <Pressable onPress={onMoreHint} style={styles.moreMemoryHintButton}>
-              <Text style={[styles.moreMemoryHintText, darkMode && styles.accountDarkMutedText]}>Hint</Text>
-            </Pressable>
-          )}
-        </View>
-      )}
-    </View>
-  );
-}
-
 function ScriptureInsertPrompt({
   reference,
   status,
@@ -17910,15 +17845,6 @@ const styles = StyleSheet.create({
   memoryDarkFillBox: {
     backgroundColor: "#1b211f"
   },
-  memoryDarkBlankInput: {
-    color: "#f7eddc"
-  },
-  memoryDarkCorrectBlankInput: {
-    backgroundColor: "rgba(233, 183, 106, 0.14)",
-    borderColor: "rgba(233, 183, 106, 0.34)",
-    borderBottomColor: "#e9b76a",
-    color: "#f7eddc"
-  },
   journalDarkCalendarDayCell: {
     backgroundColor: "#1b211f",
     borderColor: "rgba(233, 183, 106, 0.16)"
@@ -19153,64 +19079,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "800",
     lineHeight: 32
-  },
-  memoryBlankWrap: {
-    alignItems: "center",
-    gap: 1,
-    minHeight: 45
-  },
-  memoryBlankInput: {
-    backgroundColor: "transparent",
-    borderBottomColor: colors.coral,
-    borderBottomWidth: 2,
-    borderColor: "transparent",
-    borderRadius: 0,
-    borderWidth: 0,
-    color: colors.ink,
-    fontSize: 16,
-    fontWeight: "800",
-    lineHeight: 25,
-    minHeight: 32,
-    paddingHorizontal: 4,
-    paddingVertical: 0,
-    width: "100%",
-    textAlign: "center"
-  },
-  correctMemoryBlankInput: {
-    backgroundColor: "rgba(138, 154, 91, 0.14)",
-    borderColor: "rgba(102, 114, 78, 0.35)",
-    borderBottomColor: colors.olive
-  },
-  hintedMemoryBlankInput: {
-    backgroundColor: "rgba(201, 103, 80, 0.08)"
-  },
-  memoryHintText: {
-    color: colors.coral,
-    fontSize: 10,
-    fontWeight: "800",
-    lineHeight: 12
-  },
-  memoryHintRow: {
-    alignItems: "center",
-    gap: 2
-  },
-  moreMemoryHintButton: {
-    paddingHorizontal: 3,
-    paddingVertical: 1
-  },
-  moreMemoryHintText: {
-    color: colors.muted,
-    fontSize: 9,
-    fontWeight: "800",
-    lineHeight: 10
-  },
-  incorrectMemoryBlankInput: {
-    backgroundColor: "rgba(201, 103, 80, 0.18)",
-    borderColor: "rgba(201, 103, 80, 0.75)",
-    borderBottomColor: colors.coral,
-    borderRadius: 8,
-    borderWidth: 1,
-    color: colors.coral
   },
   methodCard: {
     alignSelf: "stretch",

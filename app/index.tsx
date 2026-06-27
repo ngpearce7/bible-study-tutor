@@ -1244,6 +1244,7 @@ export default function Home() {
           ? "Memorized"
           : "";
   const memoryBrowseFilterSummary = [
+    memoryCollectionFilter !== "all" ? memoryCollectionFilter : "",
     memoryBookFilter !== "all" ? memoryBookFilter : "",
     memoryChapterFilter !== "all" ? activeMemoryChapterLabel : "",
     memoryBrowseStatusLabel
@@ -6483,7 +6484,21 @@ export default function Home() {
                           </Pressable>
                         )}
                       </View>
-                      <View style={[styles.memoryDiscoverBlock, memoryDarkMode && styles.accountDarkSection]}>
+                      {phoneLayout && (
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
+                          style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
+                        >
+                          <View style={styles.memoryHistoryTextBlock}>
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
+                          </View>
+                          <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                      )}
+                      {(!phoneLayout || memoryBrowseFiltersOpen) && (
+                      <View style={[styles.memoryDiscoverBlock, phoneLayout && styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Collections</Text>
                         <Pressable
                           accessibilityRole="button"
@@ -6540,22 +6555,6 @@ export default function Home() {
                             <Text style={styles.phoneMemoryPrimaryReviewText}>Review {activeMemoryCollectionDueCount} due</Text>
                           </Pressable>
                         )}
-                      </View>
-                      {phoneLayout && (
-                        <Pressable
-                          accessibilityRole="button"
-                          onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
-                          style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
-                        >
-                          <View style={styles.memoryHistoryTextBlock}>
-                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
-                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
-                          </View>
-                          <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        </Pressable>
-                      )}
-                      {(!phoneLayout || memoryBrowseFiltersOpen) && (
-                      <View style={[styles.memoryDiscoverBlock, phoneLayout && styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Books saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
@@ -18311,9 +18310,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     justifyContent: "space-between",
-    minHeight: 48,
+    minHeight: 44,
     paddingHorizontal: 12,
-    paddingVertical: 8
+    paddingVertical: 7
   },
   memoryCollectionPickerPanel: {
     backgroundColor: "#fffdfa",

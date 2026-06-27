@@ -6556,7 +6556,6 @@ export default function Home() {
                           </Pressable>
                         </View>
                         <Text style={[styles.memoryFilterByLabel, memoryDarkMode && styles.accountDarkMutedText]}>Filter by:</Text>
-                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Collections</Text>
                         <Pressable
                           accessibilityRole="button"
                           onPress={() => setMemoryCollectionPickerOpen((open) => !open)}
@@ -6613,7 +6612,6 @@ export default function Home() {
                           </Pressable>
                         )}
                         <Text style={[styles.memoryFilterByLabel, memoryDarkMode && styles.accountDarkMutedText]}>Filter by:</Text>
-                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Scripture saved</Text>
                         {memoryBookSections.length === 0 ? (
                           <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Saved verses will appear here by book and chapter.</Text>
                         ) : phoneLayout ? (

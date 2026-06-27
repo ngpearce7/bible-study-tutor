@@ -1340,6 +1340,11 @@ export default function Home() {
     }))
     .filter((section) => section.verses.length > 0);
   const currentBrowseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
+  const currentBrowseReviewPreset = currentBrowseMemoryVerses.length
+    ? currentBrowseMemoryVerses.every((verse: any) => reviewPresetForDate(verse.nextReviewAt) === reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt))
+      ? reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt)
+      : ""
+    : "";
   function getMemoryPrintCandidateVerses(printSet: MemoryPrintSet) {
     const saved = memoryVerses || [];
     if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
@@ -3832,6 +3837,24 @@ export default function Home() {
       setMemoryStatus(`${reference} review was changed to ${reviewLabel}.`);
     } catch {
       setMemoryStatus(`Could not change the review timing for ${reference}.`);
+    }
+  }
+
+  async function scheduleFilteredMemoryReview(preset: MemoryReviewPreset) {
+    if (!activeProfileId) return;
+    const filteredVerses = currentBrowseMemoryVerses;
+    if (filteredVerses.length === 0) {
+      setMemoryStatus("No filtered verses to update.");
+      return;
+    }
+
+    const reviewLabel = reviewPresetLabel(preset).toLowerCase();
+    try {
+      await Promise.all(filteredVerses.map((verse: any) => scheduleMemoryReview({ profileId: activeProfileId, memoryVerseId: verse._id, preset })));
+      const collectionText = memoryCollectionFilter !== "all" ? ` in ${memoryCollectionFilter}` : "";
+      setMemoryStatus(`${filteredVerses.length} filtered verse${filteredVerses.length === 1 ? "" : "s"}${collectionText} changed to ${reviewLabel}.`);
+    } catch {
+      setMemoryStatus("Could not update every filtered verse. Please try again.");
     }
   }
 
@@ -6743,6 +6766,30 @@ export default function Home() {
                             </Pressable>
                           ))}
                         </View>
+                        {currentBrowseMemoryVerses.length > 0 && (
+                          <View style={[styles.memoryBulkReviewBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                            <View style={styles.reviewScheduleHeader}>
+                              <View style={styles.memoryHistoryTextBlock}>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Change review date</Text>
+                                <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                                  Applies to {currentBrowseMemoryVerses.length} filtered verse{currentBrowseMemoryVerses.length === 1 ? "" : "s"}
+                                </Text>
+                              </View>
+                            </View>
+                            <View style={styles.filterRow}>
+                              {MEMORY_REVIEW_OPTIONS.map((option) => (
+                                <Pressable
+                                  key={option.id}
+                                  accessibilityRole="button"
+                                  onPress={() => scheduleFilteredMemoryReview(option.id)}
+                                  style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, currentBrowseReviewPreset === option.id && styles.activeFilterChip]}
+                                >
+                                  <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, currentBrowseReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                </Pressable>
+                              ))}
+                            </View>
+                          </View>
+                        )}
                       </View>
                       )}
                     </>
@@ -18753,6 +18800,14 @@ const styles = StyleSheet.create({
   },
   reviewScheduleBox: {
     backgroundColor: "rgba(255, 250, 242, 0.82)",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    padding: 10
+  },
+  memoryBulkReviewBox: {
+    backgroundColor: "#fffdfa",
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,

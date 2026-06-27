@@ -225,6 +225,35 @@ export const scheduleReview = mutation({
   }
 });
 
+export const updateCollections = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    memoryVerseId: v.id("memoryVerses"),
+    collections: v.array(v.string())
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+
+    const verse = await ctx.db.get(args.memoryVerseId);
+    if (!verse || verse.profileId !== args.profileId) return false;
+
+    const collections = cleanCollections(args.collections);
+    const recentUpdates = await ctx.db
+      .query("memoryVerses")
+      .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
+      .order("desc")
+      .take(80);
+    await enforceRecentLimit(ctx, args.profileId, recentUpdates, "updatedAt", { max: 80, windowMs: 60 * 60 * 1000, label: "Memory collection update" });
+
+    await ctx.db.patch(args.memoryVerseId, {
+      collections,
+      updatedAt: Date.now()
+    });
+    return true;
+  }
+});
+
 export const listHistory = query({
   args: {
     profileId: v.id("profiles"),
@@ -323,6 +352,16 @@ function clampText(value: string | undefined, maxLength: number) {
 function clampOptionalText(value: string | undefined, maxLength: number) {
   const cleaned = clampText(value, maxLength);
   return cleaned || undefined;
+}
+
+function cleanCollections(collections: string[]) {
+  return Array.from(
+    new Set(
+      collections
+        .map((collection) => clampText(collection, 40).replace(/\s+/g, " "))
+        .filter(Boolean)
+    )
+  ).slice(0, 8);
 }
 
 async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {

@@ -12,7 +12,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryBlankValue, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryAnswerIsReference, memoryBlankWidth, memoryHintRevealCount, memoryHintText, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -30,7 +30,7 @@ type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
-type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "custom";
+type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "collection" | "custom";
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
@@ -354,6 +354,7 @@ export default function Home() {
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
   const scheduleMemoryReview = useMutation((api as any).memory.scheduleReview);
+  const updateMemoryCollections = useMutation((api as any).memory.updateCollections);
   const recordMemoryHistoryEvent = useMutation((api as any).memory.recordHistoryEvent);
   const submitFeedback = useMutation((api as any).insights.submitFeedback);
   const recordUsage = useMutation((api as any).insights.recordUsage);
@@ -477,6 +478,8 @@ export default function Home() {
   const [memoryBookFilter, setMemoryBookFilter] = useState("all");
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
+  const [memoryCollectionFilter, setMemoryCollectionFilter] = useState("all");
+  const [memoryCollectionPickerOpen, setMemoryCollectionPickerOpen] = useState(false);
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
   const [memoryToolbarMoreOpen, setMemoryToolbarMoreOpen] = useState(false);
   const [memoryMilestonePickerOpen, setMemoryMilestonePickerOpen] = useState(false);
@@ -493,6 +496,8 @@ export default function Home() {
   const [memoryMeditationCarry, setMemoryMeditationCarry] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
   const [historyMemoryVerseId, setHistoryMemoryVerseId] = useState("");
+  const [collectionMemoryVerseId, setCollectionMemoryVerseId] = useState("");
+  const [memoryCollectionDraft, setMemoryCollectionDraft] = useState("");
   const [memoryMoreVerseId, setMemoryMoreVerseId] = useState("");
   const [expandedMemoryVerseIds, setExpandedMemoryVerseIds] = useState<string[]>([]);
   const [memoryPracticeLevel, setMemoryPracticeLevel] = useState(1);
@@ -518,6 +523,7 @@ export default function Home() {
   const [memoryPrintLayout, setMemoryPrintLayout] = useState<MemoryCardLayout>("pocket");
   const [memoryPrintCopies, setMemoryPrintCopies] = useState(1);
   const [memoryPrintSafeMode, setMemoryPrintSafeMode] = useState(true);
+  const [memoryPrintCollectionFilter, setMemoryPrintCollectionFilter] = useState("all");
   const [memoryPrintSelectedVerseIds, setMemoryPrintSelectedVerseIds] = useState<string[]>([]);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
@@ -1220,11 +1226,16 @@ export default function Home() {
   const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
+  const memoryCollectionOptions = useMemo(() => buildMemoryCollectionOptions(memoryVerses || []), [memoryVerses]);
+  const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All collections" : memoryCollectionFilter;
+  const activeMemoryCollectionDueCount = memoryCollectionFilter === "all"
+    ? 0
+    : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
   const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
   const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter), [memoryBookFilter, memoryVerses]);
   const memoryBrowseSections = useMemo(
-    () => buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter),
-    [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memorySearchTerm, memoryVerses]
+    () => buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter),
+    [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses]
   );
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
@@ -1298,10 +1309,11 @@ export default function Home() {
     const saved = memoryVerses || [];
     if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
     if (printSet === "reviewed") return saved.filter((verse: any) => !isMemoryVerseDue(verse));
+    if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
     if (printSet === "current") return memoryView === "browse" ? currentBrowseMemoryVerses : visibleMemorySections.flatMap((section) => section.verses);
     return saved;
   }
-  const memoryPrintCandidateVerses = useMemo(() => getMemoryPrintCandidateVerses(memoryPrintSet), [currentBrowseMemoryVerses, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
+  const memoryPrintCandidateVerses = useMemo(() => getMemoryPrintCandidateVerses(memoryPrintSet), [currentBrowseMemoryVerses, memoryPrintCollectionFilter, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
   const memoryPrintVerses = useMemo(() => {
     const selectedIds = new Set(memoryPrintSelectedVerseIds);
     return memoryPrintCandidateVerses.filter((verse: any) => selectedIds.has(String(verse._id)));
@@ -3353,6 +3365,7 @@ export default function Home() {
     }
     const initialSet: MemoryPrintSet = dueMemoryCount > 0 ? "due" : "all";
     setMemoryPrintSet(initialSet);
+    setMemoryPrintCollectionFilter(memoryCollectionFilter);
     setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(initialSet).map((verse: any) => String(verse._id)));
     setMemoryPrintLayout("pocket");
     setMemoryPrintCopies(1);
@@ -3360,8 +3373,21 @@ export default function Home() {
   }
 
   function changeMemoryPrintSet(printSet: MemoryPrintSet) {
+    if (printSet === "collection") {
+      const defaultCollection = memoryCollectionFilter !== "all" ? memoryCollectionFilter : memoryCollectionOptions[0]?.name || "all";
+      changeMemoryPrintCollection(defaultCollection);
+      return;
+    }
     setMemoryPrintSet(printSet);
     setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(printSet).map((verse: any) => String(verse._id)));
+  }
+
+  function changeMemoryPrintCollection(collectionName: string) {
+    setMemoryPrintCollectionFilter(collectionName);
+    const saved = memoryVerses || [];
+    const verses = collectionName === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(collectionName));
+    setMemoryPrintSet("collection");
+    setMemoryPrintSelectedVerseIds(verses.map((verse: any) => String(verse._id)));
   }
 
   function toggleMemoryPrintVerse(verseId: string) {
@@ -3468,13 +3494,43 @@ export default function Home() {
     setTab("memory");
   }
 
-  function startDueMemoryReviewQueue() {
-    const dueVerses = memoryQueueSections.find((section) => section.title === "Due for Review")?.verses || [];
+  function startDueMemoryReviewQueue(collectionName = "all") {
+    const dueVerses = (memoryQueueSections.find((section) => section.title === "Due for Review")?.verses || [])
+      .filter((verse: any) => collectionName === "all" || getMemoryVerseCollections(verse).includes(collectionName));
     if (!dueVerses.length) return;
 
     setMemoryReviewQueueIds(dueVerses.map((verse: any) => String(verse._id)));
     setMemoryView("review");
     startMemoryPractice(dueVerses[0], { preserveReviewQueue: true });
+  }
+
+  async function saveMemoryVerseCollections(verse: any, nextCollections: string[]) {
+    if (!activeProfileId) return;
+    const verseId = String(verse._id);
+    try {
+      await updateMemoryCollections({
+        profileId: activeProfileId,
+        memoryVerseId: verse._id,
+        collections: nextCollections
+      });
+      setCollectionMemoryVerseId("");
+      setMemoryCollectionDraft("");
+      setMemoryMoreVerseId("");
+      setMemoryStatus(`${verse.reference} collections updated.`);
+    } catch {
+      setMemoryStatus(`Could not update collections for ${verse.reference}.`);
+    }
+  }
+
+  function addMemoryVerseCollection(verse: any) {
+    const newCollection = memoryCollectionDraft.trim().replace(/\s+/g, " ");
+    if (!newCollection) return;
+    const collections = getMemoryVerseCollections(verse);
+    saveMemoryVerseCollections(verse, [...collections, newCollection]);
+  }
+
+  function removeMemoryVerseCollection(verse: any, collectionName: string) {
+    saveMemoryVerseCollections(verse, getMemoryVerseCollections(verse).filter((collection: string) => collection !== collectionName));
   }
 
   function stopMemoryReviewQueue() {
@@ -6412,6 +6468,64 @@ export default function Home() {
                         )}
                       </View>
                       <View style={[styles.memoryDiscoverBlock, memoryDarkMode && styles.accountDarkSection]}>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Collections</Text>
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => setMemoryCollectionPickerOpen((open) => !open)}
+                          style={[styles.memoryCollectionSelect, memoryDarkMode && styles.accountDarkInput]}
+                        >
+                          <View style={styles.memoryHistoryTextBlock}>
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{activeMemoryCollectionName}</Text>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                              {memoryCollectionFilter === "all" ? "Filter saved verses by theme" : `${activeMemoryCollectionDueCount} due for review`}
+                            </Text>
+                          </View>
+                          <Ionicons name={memoryCollectionPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                        {memoryCollectionPickerOpen && (
+                          <View style={[styles.memoryCollectionPickerPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
+                            <Pressable
+                              accessibilityRole="button"
+                              onPress={() => {
+                                setMemoryCollectionFilter("all");
+                                setMemoryCollectionPickerOpen(false);
+                              }}
+                              style={styles.memoryCollectionPickerItem}
+                            >
+                              <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>All collections</Text>
+                              <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{(memoryVerses || []).length} saved verses</Text>
+                            </Pressable>
+                            {memoryCollectionOptions.map((collection) => (
+                              <Pressable
+                                key={collection.name}
+                                accessibilityRole="button"
+                                onPress={() => {
+                                  setMemoryCollectionFilter(collection.name);
+                                  setMemoryCollectionPickerOpen(false);
+                                }}
+                                style={styles.memoryCollectionPickerItem}
+                              >
+                                <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
+                                <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{collection.count} verse{collection.count === 1 ? "" : "s"}</Text>
+                              </Pressable>
+                            ))}
+                            {memoryCollectionOptions.length === 0 && (
+                              <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Add a verse to a collection from its More menu.</Text>
+                            )}
+                          </View>
+                        )}
+                        {memoryCollectionFilter !== "all" && activeMemoryCollectionDueCount > 0 && (
+                          <Pressable
+                            accessibilityRole="button"
+                            onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
+                            style={styles.memoryCollectionReviewButton}
+                          >
+                            <Ionicons name="school-outline" size={16} color="#fff" />
+                            <Text style={styles.phoneMemoryPrimaryReviewText}>Review {activeMemoryCollectionDueCount} due</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                      <View style={[styles.memoryDiscoverBlock, memoryDarkMode && styles.accountDarkSection]}>
                         <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Books saved</Text>
                         <View style={styles.filterRow}>
                           <Pressable
@@ -6521,7 +6635,7 @@ export default function Home() {
                           {section.title === "Due for Review" && dueMemoryCount > 0 ? (
                             <Pressable
                               accessibilityRole="button"
-                              onPress={startDueMemoryReviewQueue}
+                              onPress={() => startDueMemoryReviewQueue()}
                               style={styles.phoneMemoryPrimaryReviewButton}
                             >
                               <Ionicons name="school-outline" size={16} color="#fff" />
@@ -6540,8 +6654,10 @@ export default function Home() {
                         const meditating = verseId === activeMemoryMeditationVerseId;
                         const reviewOpen = reviewScheduleVerseId === verseId;
                         const historyOpen = historyMemoryVerseId === verseId;
+                        const collectionOpen = collectionMemoryVerseId === verseId;
                         const moreOpen = memoryMoreVerseId === verseId;
-                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen || moreOpen;
+                        const collections = getMemoryVerseCollections(verse);
+                        const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen || collectionOpen || moreOpen;
                         const verseHistory = memoryHistoryItems
                           .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
                           .slice(0, 4);
@@ -6754,6 +6870,14 @@ export default function Home() {
                               <>
                                 <Text style={[styles.memoryVerseText, phoneLayout && styles.phoneMemoryVerseText, memoryDarkMode && styles.accountDarkText]}>{verse.verseText}</Text>
                                 {!!verse.note && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{verse.note}</Text>}
+                                {collections.length > 0 && (
+                                  <View style={styles.memoryCollectionPillRow}>
+                                    {collections.slice(0, 3).map((collection: string) => (
+                                      <Text key={collection} style={[styles.memoryCollectionPill, memoryDarkMode && styles.memoryDarkCollectionPill]}>{collection}</Text>
+                                    ))}
+                                    {collections.length > 3 && <Text style={[styles.memoryCollectionPill, memoryDarkMode && styles.memoryDarkCollectionPill]}>+{collections.length - 3}</Text>}
+                                  </View>
+                                )}
                                 {historyOpen && <View style={[styles.memoryVerseHistoryBox, phoneLayout && styles.phoneMemoryVerseHistoryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                                   <View style={[styles.memoryVerseProgressBox, memoryDarkMode && styles.accountDarkSection]}>
                                     <Ionicons name="trending-up-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
@@ -6827,6 +6951,17 @@ export default function Home() {
                                         iconColor={memoryDarkMode ? "#e9b76a" : undefined}
                                       />
                                       <ResumeButton
+                                        label={collectionOpen ? "Hide collections" : "Collections"}
+                                        icon="albums-outline"
+                                        onPress={() => {
+                                          setCollectionMemoryVerseId((current) => current === verseId ? "" : verseId);
+                                          setMemoryCollectionDraft("");
+                                        }}
+                                        style={memoryDarkMode && styles.homeDarkResumeButton}
+                                        labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                                        iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                      />
+                                      <ResumeButton
                                         label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
                                         icon="trash-outline"
                                         onPress={() => deleteMemoryVerse(verse)}
@@ -6864,6 +6999,18 @@ export default function Home() {
                                     <Pressable
                                       accessibilityRole="button"
                                       onPress={() => {
+                                        setCollectionMemoryVerseId((current) => current === verseId ? "" : verseId);
+                                        setMemoryCollectionDraft("");
+                                        setMemoryMoreVerseId("");
+                                      }}
+                                      style={styles.phoneMemoryMoreMenuItem}
+                                    >
+                                      <Ionicons name="albums-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Collections</Text>
+                                    </Pressable>
+                                    <Pressable
+                                      accessibilityRole="button"
+                                      onPress={() => {
                                         setMemoryMoreVerseId("");
                                         deleteMemoryVerse(verse);
                                       }}
@@ -6872,6 +7019,74 @@ export default function Home() {
                                       <Ionicons name="trash-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
                                       <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove from Memory"}</Text>
                                     </Pressable>
+                                  </View>
+                                )}
+                                {collectionOpen && (
+                                  <View style={[styles.memoryCollectionManageBox, memoryDarkMode && styles.accountDarkInsetBox]}>
+                                    <View style={styles.reviewScheduleHeader}>
+                                      <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Collections</Text>
+                                      <Pressable
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Close collections"
+                                        onPress={() => {
+                                          setCollectionMemoryVerseId("");
+                                          setMemoryCollectionDraft("");
+                                        }}
+                                        style={[styles.reviewScheduleCloseButton, memoryDarkMode && styles.homeDarkIconBubble]}
+                                      >
+                                        <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                      </Pressable>
+                                    </View>
+                                    {collections.length > 0 ? (
+                                      <View style={styles.memoryCollectionPillRow}>
+                                        {collections.map((collection: string) => (
+                                          <Pressable
+                                            key={collection}
+                                            accessibilityRole="button"
+                                            onPress={() => removeMemoryVerseCollection(verse, collection)}
+                                            style={[styles.memoryCollectionEditablePill, memoryDarkMode && styles.memoryDarkCollectionPill]}
+                                          >
+                                            <Text style={[styles.memoryCollectionEditableText, memoryDarkMode && styles.accountDarkText]}>{collection}</Text>
+                                            <Ionicons name="close-outline" size={13} color={memoryDarkMode ? "#c8bda9" : colors.oliveDark} />
+                                          </Pressable>
+                                        ))}
+                                      </View>
+                                    ) : (
+                                      <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Add this verse to a theme like Identity, Prayer, Hope, or Courage.</Text>
+                                    )}
+                                    <View style={styles.memoryCollectionInputRow}>
+                                      <TextInput
+                                        value={memoryCollectionDraft}
+                                        onChangeText={setMemoryCollectionDraft}
+                                        placeholder="New collection"
+                                        placeholderTextColor={memoryDarkMode ? "#8f8678" : undefined}
+                                        style={[styles.input, styles.memoryCollectionInput, memoryDarkMode && styles.accountDarkInput]}
+                                      />
+                                      <Pressable
+                                        accessibilityRole="button"
+                                        onPress={() => addMemoryVerseCollection(verse)}
+                                        style={styles.memoryCollectionAddButton}
+                                      >
+                                        <Text style={styles.phoneMemoryPrimaryReviewText}>Add</Text>
+                                      </Pressable>
+                                    </View>
+                                    {memoryCollectionOptions.some((collection) => !collections.includes(collection.name)) && (
+                                      <View style={styles.memoryCollectionPillRow}>
+                                        {memoryCollectionOptions
+                                          .filter((collection) => !collections.includes(collection.name))
+                                          .slice(0, 6)
+                                          .map((collection) => (
+                                            <Pressable
+                                              key={collection.name}
+                                              accessibilityRole="button"
+                                              onPress={() => saveMemoryVerseCollections(verse, [...collections, collection.name])}
+                                              style={[styles.memoryCollectionSuggestionPill, memoryDarkMode && styles.printDarkOptionChip]}
+                                            >
+                                              <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText]}>{collection.name}</Text>
+                                            </Pressable>
+                                          ))}
+                                      </View>
+                                    )}
                                   </View>
                                 )}
                                 {reviewOpen && (
@@ -8984,6 +9199,7 @@ export default function Home() {
                     ["due", "Due for review"],
                     ["reviewed", "Reviewed"],
                     ["all", "All saved"],
+                    ["collection", "Collection"],
                     ["current", memoryView === "browse" ? "Current browse results" : "Current view"],
                     ["custom", "Custom"]
                   ].map(([key, label]) => (
@@ -8997,6 +9213,27 @@ export default function Home() {
                   ))}
                 </View>
               </View>
+
+              {memoryPrintSet === "collection" && (
+                <View style={styles.printOptionGroup}>
+                  <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection</Text>
+                  <View style={styles.printOptionChipRow}>
+                    {memoryCollectionOptions.length === 0 ? (
+                      <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>Add collections to saved verses first.</Text>
+                    ) : (
+                      memoryCollectionOptions.map((collection) => (
+                        <Pressable
+                          key={collection.name}
+                          onPress={() => changeMemoryPrintCollection(collection.name)}
+                          style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintCollectionFilter === collection.name && styles.activePrintOptionChip]}
+                        >
+                          <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintCollectionFilter === collection.name && styles.activePrintOptionChipText]}>{collection.name}</Text>
+                        </Pressable>
+                      ))
+                    )}
+                  </View>
+                </View>
+              )}
 
               {memoryPrintSet === "custom" && (
                 <View style={styles.printOptionGroup}>
@@ -18017,6 +18254,42 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 12
   },
+  memoryCollectionSelect: {
+    alignItems: "center",
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minHeight: 48,
+    paddingHorizontal: 12,
+    paddingVertical: 8
+  },
+  memoryCollectionPickerPanel: {
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 6,
+    padding: 8
+  },
+  memoryCollectionPickerItem: {
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8
+  },
+  memoryCollectionReviewButton: {
+    alignItems: "center",
+    backgroundColor: colors.coral,
+    borderRadius: 999,
+    flexDirection: "row",
+    gap: 7,
+    justifyContent: "center",
+    minHeight: 38,
+    paddingHorizontal: 14
+  },
   memoryDiscoverLabel: {
     color: colors.muted,
     fontSize: 11,
@@ -18431,6 +18704,74 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     padding: 14
+  },
+  memoryCollectionPillRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6
+  },
+  memoryCollectionPill: {
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "800",
+    overflow: "hidden",
+    paddingHorizontal: 8,
+    paddingVertical: 4
+  },
+  memoryDarkCollectionPill: {
+    backgroundColor: "#2d352d",
+    borderColor: "rgba(233, 183, 106, 0.16)",
+    borderWidth: 1,
+    color: "#f7eddc"
+  },
+  memoryCollectionManageBox: {
+    backgroundColor: "rgba(255, 250, 242, 0.82)",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 9,
+    padding: 10
+  },
+  memoryCollectionEditablePill: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    flexDirection: "row",
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 5
+  },
+  memoryCollectionEditableText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "800"
+  },
+  memoryCollectionInputRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8
+  },
+  memoryCollectionInput: {
+    flex: 1,
+    minHeight: 42
+  },
+  memoryCollectionAddButton: {
+    alignItems: "center",
+    backgroundColor: colors.coral,
+    borderRadius: 999,
+    justifyContent: "center",
+    minHeight: 40,
+    paddingHorizontal: 14
+  },
+  memoryCollectionSuggestionPill: {
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 5
   },
   collapsedMemoryCard: {
     gap: 5,

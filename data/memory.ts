@@ -723,12 +723,13 @@ export function buildMemoryQueueSections(verses: any[]) {
   ].filter((section) => section.verses.length > 0);
 }
 
-export function buildMemoryBrowseSections(verses: any[], searchTerm: string, bookFilter: string, chapterFilter: string, statusFilter: MemoryBrowseStatusFilter) {
+export function buildMemoryBrowseSections(verses: any[], searchTerm: string, bookFilter: string, chapterFilter: string, statusFilter: MemoryBrowseStatusFilter, collectionFilter = "all") {
   const filtered = verses
     .filter((verse) => matchesMemorySearch(verse, searchTerm))
     .filter((verse) => bookFilter === "all" || parseMemoryReference(verse.reference).book === bookFilter)
     .filter((verse) => chapterFilter === "all" || memoryChapterKey(parseMemoryReference(verse.reference)) === chapterFilter)
     .filter((verse) => matchesMemoryStatusFilter(verse, statusFilter))
+    .filter((verse) => collectionFilter === "all" || getMemoryVerseCollections(verse).includes(collectionFilter))
     .sort((a, b) => {
       const aReference = parseMemoryReference(a.reference);
       const bReference = parseMemoryReference(b.reference);
@@ -752,6 +753,25 @@ export function buildMemoryBrowseSections(verses: any[], searchTerm: string, boo
     description: `${groupedVerses.length} saved ${groupedVerses.length === 1 ? "verse" : "verses"}`,
     verses: groupedVerses
   }));
+}
+
+export function buildMemoryCollectionOptions(verses: any[]) {
+  const counts = new Map<string, number>();
+  verses.forEach((verse) => {
+    getMemoryVerseCollections(verse).forEach((collection: string) => {
+      counts.set(collection, (counts.get(collection) || 0) + 1);
+    });
+  });
+
+  return Array.from(counts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function getMemoryVerseCollections(verse: any) {
+  return Array.isArray(verse?.collections)
+    ? verse.collections.map((collection: unknown) => String(collection || "").trim()).filter(Boolean)
+    : [];
 }
 
 export function buildMemoryBookOptions(verses: any[]) {

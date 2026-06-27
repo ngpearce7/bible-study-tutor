@@ -181,6 +181,7 @@ export default defineSchema({
     verseText: v.string(),
     translationName: v.string(),
     note: v.optional(v.string()),
+    collections: v.optional(v.array(v.string())),
     status: v.union(v.literal("new"), v.literal("learning"), v.literal("review"), v.literal("memorized")),
     practiceLevel: v.number(),
     reviewCount: v.number(),

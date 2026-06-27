@@ -17889,7 +17889,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     marginBottom: 12,
-    marginTop: -4,
+    marginTop: 8,
     padding: 8
   },
   memoryReviewPromptBox: {
@@ -18391,7 +18391,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5
   },
   memorySectionCountReviewed: {
-    backgroundColor: "rgba(104, 138, 105, 0.18)",
+    backgroundColor: colors.sage,
     color: colors.oliveDark
   },
   memoryDarkSectionCountFeatured: {

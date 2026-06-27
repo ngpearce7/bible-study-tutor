@@ -6,7 +6,23 @@ import { assertCollectionLimit, assertProfileCanWrite, enforceRecentLimit } from
 import { v } from "convex/values";
 
 const memoryStatus = v.union(v.literal("new"), v.literal("learning"), v.literal("review"), v.literal("memorized"));
-const reviewPreset = v.union(v.literal("later-today"), v.literal("tomorrow"), v.literal("three-days"), v.literal("next-week"), v.literal("next-month"));
+const reviewPreset = v.union(
+  v.literal("later-today"),
+  v.literal("daily"),
+  v.literal("tomorrow"),
+  v.literal("two-days"),
+  v.literal("three-days"),
+  v.literal("four-days"),
+  v.literal("five-days"),
+  v.literal("six-days"),
+  v.literal("next-week"),
+  v.literal("fortnightly"),
+  v.literal("three-weeks"),
+  v.literal("next-month"),
+  v.literal("three-months"),
+  v.literal("six-months"),
+  v.literal("annually")
+);
 const memoryHistoryEvent = v.union(
   v.literal("added"),
   v.literal("updated"),
@@ -141,7 +157,12 @@ export const recordPractice = mutation({
     const currentPracticeLevel = Math.max(1, Math.min(3, Math.round(args.practiceLevel || 1)));
     const nextPracticeLevel = args.result === "got-it" ? Math.min(3, currentPracticeLevel + 1) : Math.max(1, currentPracticeLevel - 1);
     const status = currentPracticeLevel >= 3 && args.result === "got-it" ? "memorized" : nextPracticeLevel >= 2 ? "review" : "learning";
-    const nextReviewDelay = args.result === "got-it" ? 1000 * 60 * 60 * 24 * nextPracticeLevel : 1000 * 60 * 60 * 4;
+    const savedReviewDelay = typeof verse.reviewIntervalDays === "number" && verse.reviewIntervalDays > 0
+      ? 1000 * 60 * 60 * 24 * verse.reviewIntervalDays
+      : null;
+    const nextReviewDelay = args.result === "got-it"
+      ? savedReviewDelay ?? 1000 * 60 * 60 * 24 * nextPracticeLevel
+      : 1000 * 60 * 60 * 4;
 
     await ctx.db.patch(args.memoryVerseId, {
       status,
@@ -205,10 +226,12 @@ export const scheduleReview = mutation({
     if (!verse || verse.profileId !== args.profileId) return false;
 
     const now = Date.now();
+    const reviewIntervalDays = reviewPresetDays(args.preset);
     const nextReviewAt = now + reviewPresetDelay(args.preset);
     await ctx.db.patch(args.memoryVerseId, {
       status: verse.status === "memorized" ? verse.status : "review",
       nextReviewAt,
+      ...(reviewIntervalDays > 0 ? { reviewIntervalDays } : {}),
       updatedAt: now
     });
     await insertMemoryHistory(ctx, {
@@ -334,16 +357,47 @@ async function insertMemoryHistory(
   });
 }
 
-function reviewPresetDelay(preset: "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month") {
+function reviewPresetDelay(preset: ReviewPreset) {
   const hour = 1000 * 60 * 60;
   const day = hour * 24;
 
   if (preset === "later-today") return hour * 4;
-  if (preset === "tomorrow") return day;
-  if (preset === "three-days") return day * 3;
-  if (preset === "next-week") return day * 7;
-  return day * 30;
+  return day * reviewPresetDays(preset);
 }
+
+function reviewPresetDays(preset: ReviewPreset) {
+  if (preset === "daily" || preset === "tomorrow") return 1;
+  if (preset === "two-days") return 2;
+  if (preset === "three-days") return 3;
+  if (preset === "four-days") return 4;
+  if (preset === "five-days") return 5;
+  if (preset === "six-days") return 6;
+  if (preset === "next-week") return 7;
+  if (preset === "fortnightly") return 14;
+  if (preset === "three-weeks") return 21;
+  if (preset === "three-months") return 90;
+  if (preset === "six-months") return 180;
+  if (preset === "annually") return 365;
+  if (preset === "later-today") return 0;
+  return 30;
+}
+
+type ReviewPreset =
+  | "later-today"
+  | "daily"
+  | "tomorrow"
+  | "two-days"
+  | "three-days"
+  | "four-days"
+  | "five-days"
+  | "six-days"
+  | "next-week"
+  | "fortnightly"
+  | "three-weeks"
+  | "next-month"
+  | "three-months"
+  | "six-months"
+  | "annually";
 
 function clampText(value: string | undefined, maxLength: number) {
   return (value || "").trim().slice(0, maxLength);

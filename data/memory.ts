@@ -1,5 +1,20 @@
 export type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized";
-export type MemoryReviewPreset = "later-today" | "tomorrow" | "three-days" | "next-week" | "next-month";
+export type MemoryReviewPreset =
+  | "later-today"
+  | "daily"
+  | "tomorrow"
+  | "two-days"
+  | "three-days"
+  | "four-days"
+  | "five-days"
+  | "six-days"
+  | "next-week"
+  | "fortnightly"
+  | "three-weeks"
+  | "next-month"
+  | "three-months"
+  | "six-months"
+  | "annually";
 export type MemoryHistoryEventKind = "added" | "updated" | "reviewed" | "repeated" | "scheduled" | "meditated" | "removed";
 export type MemoryMilestoneGoalId =
   | "reviewsToday"
@@ -22,13 +37,24 @@ export type MemoryBibleVerse = {
   text: string;
 };
 
-export const MEMORY_REVIEW_OPTIONS: { id: MemoryReviewPreset; label: string }[] = [
-  { id: "later-today", label: "Today" },
-  { id: "tomorrow", label: "Tomorrow" },
-  { id: "three-days", label: "In 3 days" },
-  { id: "next-week", label: "Next week" },
-  { id: "next-month", label: "Next month" }
+export const MEMORY_REVIEW_OPTIONS: { id: MemoryReviewPreset; label: string; days?: number; common?: boolean }[] = [
+  { id: "daily", label: "Every day", days: 1, common: true },
+  { id: "three-days", label: "Every 3 days", days: 3, common: true },
+  { id: "next-week", label: "Weekly", days: 7, common: true },
+  { id: "next-month", label: "Monthly", days: 30, common: true },
+  { id: "later-today", label: "Later today" },
+  { id: "two-days", label: "Every 2 days", days: 2 },
+  { id: "four-days", label: "Every 4 days", days: 4 },
+  { id: "five-days", label: "Every 5 days", days: 5 },
+  { id: "six-days", label: "Every 6 days", days: 6 },
+  { id: "fortnightly", label: "Fortnightly", days: 14 },
+  { id: "three-weeks", label: "Every 3 weeks", days: 21 },
+  { id: "three-months", label: "Every 3 months", days: 90 },
+  { id: "six-months", label: "Every 6 months", days: 180 },
+  { id: "annually", label: "Annually", days: 365 }
 ];
+export const COMMON_MEMORY_REVIEW_OPTIONS = MEMORY_REVIEW_OPTIONS.filter((option) => option.common);
+export const MORE_MEMORY_REVIEW_OPTIONS = MEMORY_REVIEW_OPTIONS.filter((option) => !option.common);
 
 export const MEMORY_MILESTONE_GOALS: { id: MemoryMilestoneGoalId; label: string; description: string }[] = [
   { id: "reviewsToday", label: "Reviews Today", description: "Completed memory reviews today." },
@@ -175,6 +201,12 @@ export function isTodayLocal(timestamp?: number) {
 
 export function reviewPresetLabel(preset: MemoryReviewPreset) {
   return MEMORY_REVIEW_OPTIONS.find((option) => option.id === preset)?.label || "Review";
+}
+
+export function reviewPresetDays(preset: MemoryReviewPreset) {
+  if (preset === "later-today") return 0;
+  if (preset === "tomorrow") return 1;
+  return MEMORY_REVIEW_OPTIONS.find((option) => option.id === preset)?.days || 30;
 }
 
 export function memoryReviewDateLabel(nextReviewAt?: number) {
@@ -695,15 +727,25 @@ function mostReviewedVerse(verses: MemoryVerseForHistory[]) {
     .sort((a, b) => b.count - a.count || a.reference.localeCompare(b.reference))[0] || null;
 }
 
-export function reviewPresetForDate(nextReviewAt?: number): MemoryReviewPreset {
+export function reviewPresetForDate(nextReviewAt?: number, reviewIntervalDays?: number): MemoryReviewPreset {
+  if (reviewIntervalDays && reviewIntervalDays > 0) {
+    const exact = MEMORY_REVIEW_OPTIONS.find((option) => option.days === reviewIntervalDays);
+    if (exact) return exact.id;
+  }
   if (!nextReviewAt) return "later-today";
 
   const daysUntilReview = Math.round((startOfLocalDay(nextReviewAt) - startOfLocalDay(Date.now())) / (1000 * 60 * 60 * 24));
   if (daysUntilReview <= 0) return "later-today";
-  if (daysUntilReview <= 1) return "tomorrow";
+  const exact = MEMORY_REVIEW_OPTIONS.find((option) => option.days === daysUntilReview);
+  if (exact) return exact.id;
+  if (daysUntilReview <= 1) return "daily";
+  if (daysUntilReview <= 2) return "two-days";
   if (daysUntilReview <= 5) return "three-days";
   if (daysUntilReview <= 14) return "next-week";
-  return "next-month";
+  if (daysUntilReview <= 21) return "three-weeks";
+  if (daysUntilReview <= 90) return "three-months";
+  if (daysUntilReview <= 180) return "six-months";
+  return "annually";
 }
 
 function startOfLocalDay(timestamp: number) {

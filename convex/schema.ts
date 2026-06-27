@@ -187,6 +187,7 @@ export default defineSchema({
     reviewCount: v.number(),
     lastReviewedAt: v.optional(v.number()),
     nextReviewAt: v.optional(v.number()),
+    reviewIntervalDays: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number()
   })

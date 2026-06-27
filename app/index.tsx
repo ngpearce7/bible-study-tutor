@@ -12,7 +12,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -500,6 +500,8 @@ export default function Home() {
   const [memoryMeditationPrayer, setMemoryMeditationPrayer] = useState("");
   const [memoryMeditationCarry, setMemoryMeditationCarry] = useState("");
   const [reviewScheduleVerseId, setReviewScheduleVerseId] = useState("");
+  const [bulkReviewOptionsExpanded, setBulkReviewOptionsExpanded] = useState(false);
+  const [expandedReviewOptionsVerseId, setExpandedReviewOptionsVerseId] = useState("");
   const [historyMemoryVerseId, setHistoryMemoryVerseId] = useState("");
   const [collectionMemoryVerseId, setCollectionMemoryVerseId] = useState("");
   const [memoryCollectionDraft, setMemoryCollectionDraft] = useState("");
@@ -1341,8 +1343,8 @@ export default function Home() {
     .filter((section) => section.verses.length > 0);
   const currentBrowseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
   const currentBrowseReviewPreset = currentBrowseMemoryVerses.length
-    ? currentBrowseMemoryVerses.every((verse: any) => reviewPresetForDate(verse.nextReviewAt) === reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt))
-      ? reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt)
+    ? currentBrowseMemoryVerses.every((verse: any) => reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt, currentBrowseMemoryVerses[0].reviewIntervalDays))
+      ? reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt, currentBrowseMemoryVerses[0].reviewIntervalDays)
       : ""
     : "";
   function getMemoryPrintCandidateVerses(printSet: MemoryPrintSet) {
@@ -3834,6 +3836,7 @@ export default function Home() {
     try {
       await scheduleMemoryReview({ profileId: activeProfileId, memoryVerseId: verse._id, preset });
       setReviewScheduleVerseId("");
+      setExpandedReviewOptionsVerseId("");
       setMemoryStatus(`${reference} review was changed to ${reviewLabel}.`);
     } catch {
       setMemoryStatus(`Could not change the review timing for ${reference}.`);
@@ -3852,6 +3855,7 @@ export default function Home() {
     try {
       await Promise.all(filteredVerses.map((verse: any) => scheduleMemoryReview({ profileId: activeProfileId, memoryVerseId: verse._id, preset })));
       const collectionText = memoryCollectionFilter !== "all" ? ` in ${memoryCollectionFilter}` : "";
+      setBulkReviewOptionsExpanded(false);
       setMemoryStatus(`${filteredVerses.length} filtered verse${filteredVerses.length === 1 ? "" : "s"}${collectionText} changed to ${reviewLabel}.`);
     } catch {
       setMemoryStatus("Could not update every filtered verse. Please try again.");
@@ -6770,14 +6774,14 @@ export default function Home() {
                           <View style={[styles.memoryBulkReviewBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                             <View style={styles.reviewScheduleHeader}>
                               <View style={styles.memoryHistoryTextBlock}>
-                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Change review date</Text>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Change review rhythm</Text>
                                 <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
                                   Applies to {currentBrowseMemoryVerses.length} filtered verse{currentBrowseMemoryVerses.length === 1 ? "" : "s"}
                                 </Text>
                               </View>
                             </View>
                             <View style={styles.filterRow}>
-                              {MEMORY_REVIEW_OPTIONS.map((option) => (
+                              {COMMON_MEMORY_REVIEW_OPTIONS.map((option) => (
                                 <Pressable
                                   key={option.id}
                                   accessibilityRole="button"
@@ -6788,6 +6792,30 @@ export default function Home() {
                                 </Pressable>
                               ))}
                             </View>
+                            <Pressable
+                              accessibilityRole="button"
+                              onPress={() => setBulkReviewOptionsExpanded((expanded) => !expanded)}
+                              style={styles.memoryMoreReviewOptionsButton}
+                            >
+                              <Text style={[styles.memoryBrowseClearText, memoryDarkMode && styles.studyDarkAccentText]}>
+                                {bulkReviewOptionsExpanded ? "Hide review options" : "More review options"}
+                              </Text>
+                              <Ionicons name={bulkReviewOptionsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                            </Pressable>
+                            {bulkReviewOptionsExpanded && (
+                              <View style={styles.filterRow}>
+                                {MORE_MEMORY_REVIEW_OPTIONS.map((option) => (
+                                  <Pressable
+                                    key={option.id}
+                                    accessibilityRole="button"
+                                    onPress={() => scheduleFilteredMemoryReview(option.id)}
+                                    style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, currentBrowseReviewPreset === option.id && styles.activeFilterChip]}
+                                  >
+                                    <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, currentBrowseReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                  </Pressable>
+                                ))}
+                              </View>
+                            )}
                           </View>
                         )}
                       </View>
@@ -7294,27 +7322,53 @@ export default function Home() {
                                 {reviewOpen && (
                                   <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                                     <View style={styles.reviewScheduleHeader}>
-                                      <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review again</Text>
+                                      <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review rhythm</Text>
                                       <Pressable
                                         accessibilityRole="button"
                                         accessibilityLabel="Close review schedule"
-                                        onPress={() => setReviewScheduleVerseId("")}
+                                        onPress={() => {
+                                          setReviewScheduleVerseId("");
+                                          setExpandedReviewOptionsVerseId("");
+                                        }}
                                         style={[styles.reviewScheduleCloseButton, memoryDarkMode && styles.homeDarkIconBubble]}
                                       >
                                         <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
                                       </Pressable>
                                     </View>
                                     <View style={styles.filterRow}>
-                                      {MEMORY_REVIEW_OPTIONS.map((option) => (
+                                      {COMMON_MEMORY_REVIEW_OPTIONS.map((option) => (
                                         <Pressable
                                           key={option.id}
                                           onPress={() => scheduleMemoryVerseReview(verse, option.id)}
-                                          style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterChip]}
+                                          style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterChip]}
                                         >
-                                          <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt) === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                          <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterText]}>{option.label}</Text>
                                         </Pressable>
                                       ))}
                                     </View>
+                                    <Pressable
+                                      accessibilityRole="button"
+                                      onPress={() => setExpandedReviewOptionsVerseId((current) => current === verseId ? "" : verseId)}
+                                      style={styles.memoryMoreReviewOptionsButton}
+                                    >
+                                      <Text style={[styles.memoryBrowseClearText, memoryDarkMode && styles.studyDarkAccentText]}>
+                                        {expandedReviewOptionsVerseId === verseId ? "Hide review options" : "More review options"}
+                                      </Text>
+                                      <Ionicons name={expandedReviewOptionsVerseId === verseId ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                                    </Pressable>
+                                    {expandedReviewOptionsVerseId === verseId && (
+                                      <View style={styles.filterRow}>
+                                        {MORE_MEMORY_REVIEW_OPTIONS.map((option) => (
+                                          <Pressable
+                                            key={option.id}
+                                            onPress={() => scheduleMemoryVerseReview(verse, option.id)}
+                                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterChip]}
+                                          >
+                                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                          </Pressable>
+                                        ))}
+                                      </View>
+                                    )}
                                   </View>
                                 )}
                               </>
@@ -18813,6 +18867,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 8,
     padding: 10
+  },
+  memoryMoreReviewOptionsButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    gap: 4,
+    paddingHorizontal: 4,
+    paddingVertical: 4
   },
   reviewScheduleHeader: {
     alignItems: "center",

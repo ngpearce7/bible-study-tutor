@@ -9,7 +9,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { api } from "@/convex/_generated/api";
 import { bibleBooks } from "@/data/bibleBooks";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -32,7 +32,7 @@ type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
 type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "collection" | "custom";
-type MemoryReviewSort = "oldest" | "newest";
+type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
@@ -477,7 +477,8 @@ export default function Home() {
   const [selectedVerseKeys, setSelectedVerseKeys] = useState<string[]>([]);
   const [memoryStatus, setMemoryStatus] = useState("");
   const [memoryView, setMemoryView] = useState<MemoryView>("review");
-  const [memoryReviewSort, setMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
+  const [dueMemoryReviewSort, setDueMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
+  const [reviewedMemoryReviewSort, setReviewedMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
   const [memorySearch, setMemorySearch] = useState("");
   const [memoryBookFilter, setMemoryBookFilter] = useState("all");
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
@@ -746,7 +747,20 @@ export default function Home() {
     getStoredCustomWritingPrompts()
       .then(setCustomWritingPrompts)
       .catch(() => undefined);
+    getStoredMemoryReviewSorts()
+      .then((sorts) => {
+        setDueMemoryReviewSort(sorts.due);
+        setReviewedMemoryReviewSort(sorts.reviewed);
+      })
+      .catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    saveStoredMemoryReviewSorts({
+      due: dueMemoryReviewSort,
+      reviewed: reviewedMemoryReviewSort
+    }).catch(() => undefined);
+  }, [dueMemoryReviewSort, reviewedMemoryReviewSort]);
 
   useEffect(() => {
     return () => {
@@ -1341,7 +1355,7 @@ export default function Home() {
       verses: phoneMemoryFocusMode
         ? section.verses.filter((verse: any) => String(verse._id) === (activeMemoryVerseId || activeMemoryMeditationVerseId))
         : memoryView === "review"
-          ? sortMemoryReviewVerses(section.verses, section.title, memoryReviewSort)
+          ? sortMemoryReviewVerses(section.verses, section.title, section.title === "Reviewed" ? reviewedMemoryReviewSort : dueMemoryReviewSort)
         : section.verses
     }))
     .filter((section) => section.verses.length > 0);
@@ -6863,34 +6877,11 @@ export default function Home() {
                       </Text>
                     </View>
                   )}
-                  {!phoneMemoryFocusMode && memoryView === "review" && visibleMemorySections.length > 0 && (
-                    <View style={[styles.memorySortBar, memoryDarkMode && styles.accountDarkSection]}>
-                      <View style={styles.memoryHistoryTextBlock}>
-                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Sort</Text>
-                        <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                          {memoryReviewSort === "oldest" ? "Oldest review dates first" : "Newest review dates first"}
-                        </Text>
-                      </View>
-                      <View style={[styles.memorySortToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
-                        {[
-                          ["oldest", "Oldest"],
-                          ["newest", "Newest"]
-                        ].map(([key, label]) => (
-                          <Pressable
-                            key={key}
-                            accessibilityRole="button"
-                            onPress={() => setMemoryReviewSort(key as MemoryReviewSort)}
-                            style={[styles.memorySortButton, memoryReviewSort === key && styles.activeMemoryViewButton]}
-                          >
-                            <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryReviewSort === key && styles.activeMemoryViewText]}>{label}</Text>
-                          </Pressable>
-                        ))}
-                      </View>
-                    </View>
-                  )}
                   {visibleMemorySections.map((section) => {
                     const highlightedMemorySection = section.title === "Due for Review" || section.title === "Reviewed";
                     const reviewedMemorySection = section.title === "Reviewed";
+                    const sectionSort = reviewedMemorySection ? reviewedMemoryReviewSort : dueMemoryReviewSort;
+                    const setSectionSort = reviewedMemorySection ? setReviewedMemoryReviewSort : setDueMemoryReviewSort;
                     return (
                     <View key={section.title} style={[styles.memorySection, phoneLayout && styles.phoneMemorySection]}>
                       {!phoneMemoryFocusMode && (
@@ -6910,6 +6901,28 @@ export default function Home() {
                               {section.verses.length}
                             </Text>
                           </View>
+                          {highlightedMemorySection && (
+                            <View style={[styles.memorySectionSortRow, memoryDarkMode && styles.accountDarkInsetBox]}>
+                              <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                                {sectionSort === "oldest" ? "Oldest first" : "Newest first"}
+                              </Text>
+                              <View style={[styles.memorySortToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
+                                {[
+                                  ["oldest", "Oldest"],
+                                  ["newest", "Newest"]
+                                ].map(([key, label]) => (
+                                  <Pressable
+                                    key={key}
+                                    accessibilityRole="button"
+                                    onPress={() => setSectionSort(key as MemoryReviewSort)}
+                                    style={[styles.memorySortButton, phoneLayout && styles.phoneMemorySortButton, sectionSort === key && styles.activeMemoryViewButton]}
+                                  >
+                                    <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, phoneLayout && styles.phoneMemorySortText, sectionSort === key && styles.activeMemoryViewText]}>{label}</Text>
+                                  </Pressable>
+                                ))}
+                              </View>
+                            </View>
+                          )}
                           {section.title === "Due for Review" && dueMemoryCount > 0 ? (
                             <Pressable
                               accessibilityRole="button"
@@ -18937,7 +18950,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 4
   },
-  memorySortBar: {
+  memorySectionSortRow: {
     alignItems: "center",
     backgroundColor: "#fffaf2",
     borderColor: colors.line,
@@ -18945,10 +18958,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 8,
     justifyContent: "space-between",
-    paddingHorizontal: 12,
-    paddingVertical: 10
+    paddingHorizontal: 10,
+    paddingVertical: 8
   },
   memorySortToggle: {
     backgroundColor: colors.soft,
@@ -18965,6 +18978,14 @@ const styles = StyleSheet.create({
     minWidth: 72,
     justifyContent: "center",
     paddingHorizontal: 10
+  },
+  phoneMemorySortButton: {
+    minHeight: 28,
+    minWidth: 62,
+    paddingHorizontal: 8
+  },
+  phoneMemorySortText: {
+    fontSize: 11
   },
   reviewScheduleHeader: {
     alignItems: "center",

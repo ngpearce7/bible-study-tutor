@@ -20,6 +20,11 @@ export type StoredBibleBookmark = {
 export type StoredCheckinPartner = { id: string; name: string; contactNote?: string };
 export type StoredStudyPanelKey = "community" | "plan" | "feedback" | "helps";
 export type StoredCollapsedStudyPanels = Record<StoredStudyPanelKey, boolean>;
+export type StoredMemoryReviewSort = "oldest" | "newest";
+export type StoredMemoryReviewSorts = {
+  due: StoredMemoryReviewSort;
+  reviewed: StoredMemoryReviewSort;
+};
 
 const pinnedJournalEntriesKey = "bible-study-tutor-pinned-journal-entries";
 const completedPlanDaysKey = "bible-study-tutor-completed-plan-days";
@@ -35,11 +40,16 @@ const tutorCoachingEnabledKey = "bible-study-tutor-coaching-enabled";
 const collapsedStudyPanelsKey = "bible-study-tutor-collapsed-study-panels";
 const customWritingPromptsKey = "bible-study-tutor-custom-writing-prompts";
 const appearanceModeKey = "bible-study-tutor-appearance-mode";
+const memoryReviewSortsKey = "bible-study-tutor-memory-review-sorts";
 const defaultCollapsedStudyPanels: StoredCollapsedStudyPanels = {
   community: false,
   plan: false,
   feedback: false,
   helps: false
+};
+const defaultMemoryReviewSorts: StoredMemoryReviewSorts = {
+  due: "oldest",
+  reviewed: "oldest"
 };
 
 export async function getStoredBibleTranslation(): Promise<StoredBibleTranslation> {
@@ -207,6 +217,28 @@ export async function getStoredCustomWritingPrompts(): Promise<string[]> {
 export async function saveStoredCustomWritingPrompts(prompts: string[]) {
   const normalized = Array.from(new Set(prompts.map((prompt) => prompt.trim()).filter(Boolean))).slice(0, 12);
   await setStoredValue(customWritingPromptsKey, JSON.stringify(normalized));
+}
+
+export async function getStoredMemoryReviewSorts(): Promise<StoredMemoryReviewSorts> {
+  const stored = await getStoredValue(memoryReviewSortsKey);
+  if (!stored) return defaultMemoryReviewSorts;
+
+  try {
+    const parsed = JSON.parse(stored);
+    return {
+      due: parsed?.due === "newest" ? "newest" : "oldest",
+      reviewed: parsed?.reviewed === "newest" ? "newest" : "oldest"
+    };
+  } catch {
+    return defaultMemoryReviewSorts;
+  }
+}
+
+export async function saveStoredMemoryReviewSorts(sorts: StoredMemoryReviewSorts) {
+  await setStoredValue(memoryReviewSortsKey, JSON.stringify({
+    due: sorts.due === "newest" ? "newest" : "oldest",
+    reviewed: sorts.reviewed === "newest" ? "newest" : "oldest"
+  }));
 }
 
 export async function getPinnedJournalEntries(): Promise<string[]> {

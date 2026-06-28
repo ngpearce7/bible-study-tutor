@@ -32,6 +32,7 @@ type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
 type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "collection" | "custom";
+type MemoryReviewSort = "oldest" | "newest";
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
@@ -476,6 +477,7 @@ export default function Home() {
   const [selectedVerseKeys, setSelectedVerseKeys] = useState<string[]>([]);
   const [memoryStatus, setMemoryStatus] = useState("");
   const [memoryView, setMemoryView] = useState<MemoryView>("review");
+  const [memoryReviewSort, setMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
   const [memorySearch, setMemorySearch] = useState("");
   const [memoryBookFilter, setMemoryBookFilter] = useState("all");
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
@@ -1338,6 +1340,8 @@ export default function Home() {
       ...section,
       verses: phoneMemoryFocusMode
         ? section.verses.filter((verse: any) => String(verse._id) === (activeMemoryVerseId || activeMemoryMeditationVerseId))
+        : memoryView === "review"
+          ? sortMemoryReviewVerses(section.verses, section.title, memoryReviewSort)
         : section.verses
     }))
     .filter((section) => section.verses.length > 0);
@@ -6857,6 +6861,31 @@ export default function Home() {
                             ? `${friendlyName}, ${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today. Start with one and build from there.`
                             : `${friendlyName}, your saved verses are resting until their next review. You can still practise any verse when you want to keep it fresh.`)}
                       </Text>
+                    </View>
+                  )}
+                  {!phoneMemoryFocusMode && memoryView === "review" && visibleMemorySections.length > 0 && (
+                    <View style={[styles.memorySortBar, memoryDarkMode && styles.accountDarkSection]}>
+                      <View style={styles.memoryHistoryTextBlock}>
+                        <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Sort</Text>
+                        <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                          {memoryReviewSort === "oldest" ? "Oldest review dates first" : "Newest review dates first"}
+                        </Text>
+                      </View>
+                      <View style={[styles.memorySortToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
+                        {[
+                          ["oldest", "Oldest"],
+                          ["newest", "Newest"]
+                        ].map(([key, label]) => (
+                          <Pressable
+                            key={key}
+                            accessibilityRole="button"
+                            onPress={() => setMemoryReviewSort(key as MemoryReviewSort)}
+                            style={[styles.memorySortButton, memoryReviewSort === key && styles.activeMemoryViewButton]}
+                          >
+                            <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryReviewSort === key && styles.activeMemoryViewText]}>{label}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
                     </View>
                   )}
                   {visibleMemorySections.map((section) => {
@@ -12964,6 +12993,19 @@ function matchesJournalSearch(entry: any, searchTerm: string) {
   return searchable.includes(searchTerm);
 }
 
+function sortMemoryReviewVerses(verses: any[], sectionTitle: string, sortOrder: MemoryReviewSort) {
+  const direction = sortOrder === "oldest" ? 1 : -1;
+  const timestampForSort = (verse: any) =>
+    sectionTitle === "Due for Review"
+      ? verse.nextReviewAt || verse.updatedAt || verse.createdAt || 0
+      : verse.lastReviewedAt || verse.nextReviewAt || verse.updatedAt || verse.createdAt || 0;
+
+  return [...verses].sort((a, b) =>
+    (timestampForSort(a) - timestampForSort(b)) * direction ||
+    String(a.reference || "").localeCompare(String(b.reference || ""))
+  );
+}
+
 function buildCoachingFeedback(methodId: string, stepTitle: string, answer: string) {
   const trimmed = answer.trim();
   if (!trimmed) return [];
@@ -18894,6 +18936,35 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 4,
     paddingVertical: 4
+  },
+  memorySortBar: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10
+  },
+  memorySortToggle: {
+    backgroundColor: colors.soft,
+    borderRadius: 999,
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 4,
+    padding: 4
+  },
+  memorySortButton: {
+    alignItems: "center",
+    borderRadius: 999,
+    minHeight: 30,
+    minWidth: 72,
+    justifyContent: "center",
+    paddingHorizontal: 10
   },
   reviewScheduleHeader: {
     alignItems: "center",

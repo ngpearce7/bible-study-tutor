@@ -3451,6 +3451,7 @@ export default function Home() {
     setMemoryBrowseStatusFilter("all");
     setExpandedMemoryFilterBook("");
     setMemoryFilterMobileMenu(null);
+    setMemoryBrowseFiltersOpen(false);
   }
 
   function selectMemoryFilterBook(book: string) {
@@ -3459,6 +3460,7 @@ export default function Home() {
       if (memoryBookFilter === book) {
         setMemoryBookFilter("all");
         setMemoryChapterFilter("all");
+        setMemoryBrowseFiltersOpen(false);
       }
       return;
     }
@@ -3474,6 +3476,7 @@ export default function Home() {
     setMemoryChapterFilter(chapterKey);
     setExpandedMemoryFilterBook("");
     setMemoryFilterMobileMenu(null);
+    setMemoryBrowseFiltersOpen(false);
   }
 
   function toggleMemoryPrintVerse(verseId: string) {
@@ -6614,6 +6617,7 @@ export default function Home() {
                               onPress={() => {
                                 setMemoryCollectionFilter("all");
                                 setMemoryCollectionPickerOpen(false);
+                                setMemoryBrowseFiltersOpen(false);
                               }}
                               style={styles.memoryCollectionPickerItem}
                             >
@@ -6627,6 +6631,7 @@ export default function Home() {
                                 onPress={() => {
                                   setMemoryCollectionFilter(collection.name);
                                   setMemoryCollectionPickerOpen(false);
+                                  setMemoryBrowseFiltersOpen(false);
                                 }}
                                 style={styles.memoryCollectionPickerItem}
                               >
@@ -6774,7 +6779,10 @@ export default function Home() {
                           ].map(([key, label]) => (
                             <Pressable
                               key={key}
-                              onPress={() => setMemoryBrowseStatusFilter(key as MemoryBrowseStatusFilter)}
+                              onPress={() => {
+                                setMemoryBrowseStatusFilter(key as MemoryBrowseStatusFilter);
+                                setMemoryBrowseFiltersOpen(false);
+                              }}
                               style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, memoryBrowseStatusFilter === key && styles.activeFilterChip]}
                             >
                               <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, memoryBrowseStatusFilter === key && styles.activeFilterText]}>{label}</Text>

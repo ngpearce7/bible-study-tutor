@@ -3405,10 +3405,21 @@ export default function Home() {
       setMemoryStatus("Add a memory verse before printing cards.");
       return;
     }
-    const initialSet: MemoryPrintSet = dueMemoryCount > 0 ? "due" : "all";
+    const savedMemoryVerses = memoryVerses || [];
+    const initialSet: MemoryPrintSet = memoryView === "browse"
+      ? memoryCollectionFilter !== "all"
+        ? "collection"
+        : "current"
+      : dueMemoryCount > 0 ? "due" : "all";
+    const initialCollectionFilter = memoryView === "browse" && memoryCollectionFilter !== "all" ? memoryCollectionFilter : "all";
+    const initialVerses = initialSet === "collection"
+      ? savedMemoryVerses.filter((verse: any) => getMemoryVerseCollections(verse).includes(initialCollectionFilter))
+      : initialSet === "current"
+        ? currentBrowseMemoryVerses
+        : getMemoryPrintCandidateVerses(initialSet);
     setMemoryPrintSet(initialSet);
-    setMemoryPrintCollectionFilter(memoryCollectionFilter);
-    setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(initialSet).map((verse: any) => String(verse._id)));
+    setMemoryPrintCollectionFilter(initialCollectionFilter);
+    setMemoryPrintSelectedVerseIds(initialVerses.map((verse: any) => String(verse._id)));
     setMemoryPrintLayout("pocket");
     setMemoryPrintCopies(1);
     setMemoryPrintOptionsOpen(true);

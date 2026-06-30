@@ -209,6 +209,15 @@ export function reviewPresetDays(preset: MemoryReviewPreset) {
   return MEMORY_REVIEW_OPTIONS.find((option) => option.id === preset)?.days || 30;
 }
 
+export function reviewPresetForStoredRhythm(reviewPreset?: string, reviewIntervalDays?: number, nextReviewAt?: number): MemoryReviewPreset {
+  if (MEMORY_REVIEW_OPTIONS.some((option) => option.id === reviewPreset)) return reviewPreset as MemoryReviewPreset;
+  if (reviewIntervalDays && reviewIntervalDays > 0) {
+    const exact = MEMORY_REVIEW_OPTIONS.find((option) => option.days === reviewIntervalDays);
+    if (exact) return exact.id;
+  }
+  return reviewPresetForDate(nextReviewAt);
+}
+
 export function memoryReviewDateLabel(nextReviewAt?: number) {
   if (!nextReviewAt) return "Review: due now";
   const todayStart = startOfLocalDay(Date.now());

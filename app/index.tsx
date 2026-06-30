@@ -12,7 +12,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForDate, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -1361,8 +1361,8 @@ export default function Home() {
     .filter((section) => section.verses.length > 0);
   const currentBrowseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
   const currentBrowseReviewPreset = currentBrowseMemoryVerses.length
-    ? currentBrowseMemoryVerses.every((verse: any) => reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt, currentBrowseMemoryVerses[0].reviewIntervalDays))
-      ? reviewPresetForDate(currentBrowseMemoryVerses[0].nextReviewAt, currentBrowseMemoryVerses[0].reviewIntervalDays)
+    ? currentBrowseMemoryVerses.every((verse: any) => reviewPresetForStoredRhythm(verse.reviewPreset, verse.reviewIntervalDays, verse.nextReviewAt) === reviewPresetForStoredRhythm(currentBrowseMemoryVerses[0].reviewPreset, currentBrowseMemoryVerses[0].reviewIntervalDays, currentBrowseMemoryVerses[0].nextReviewAt))
+      ? reviewPresetForStoredRhythm(currentBrowseMemoryVerses[0].reviewPreset, currentBrowseMemoryVerses[0].reviewIntervalDays, currentBrowseMemoryVerses[0].nextReviewAt)
       : ""
     : "";
   function getMemoryPrintCandidateVerses(printSet: MemoryPrintSet) {
@@ -6952,6 +6952,7 @@ export default function Home() {
                         const verseHistory = memoryHistoryItems
                           .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
                           .slice(0, 4);
+                        const selectedReviewPreset = reviewPresetForStoredRhythm(verse.reviewPreset, verse.reviewIntervalDays, verse.nextReviewAt);
 
                         return (
                           <View key={verse._id} style={[styles.memoryCard, memoryDarkMode && styles.accountDarkSection, !cardExpanded && styles.collapsedMemoryCard, phoneLayout && styles.phoneMemoryCard, (practicing || meditating) && styles.activeMemoryCard, memoryDarkMode && (practicing || meditating) && styles.memoryDarkActiveCard]}>
@@ -7401,9 +7402,9 @@ export default function Home() {
                                         <Pressable
                                           key={option.id}
                                           onPress={() => scheduleMemoryVerseReview(verse, option.id)}
-                                          style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterChip]}
+                                          style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, selectedReviewPreset === option.id && styles.activeFilterChip]}
                                         >
-                                          <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                          <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, selectedReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
                                         </Pressable>
                                       ))}
                                     </View>
@@ -7423,9 +7424,9 @@ export default function Home() {
                                           <Pressable
                                             key={option.id}
                                             onPress={() => scheduleMemoryVerseReview(verse, option.id)}
-                                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterChip]}
+                                            style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, selectedReviewPreset === option.id && styles.activeFilterChip]}
                                           >
-                                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, reviewPresetForDate(verse.nextReviewAt, verse.reviewIntervalDays) === option.id && styles.activeFilterText]}>{option.label}</Text>
+                                            <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, selectedReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
                                           </Pressable>
                                         ))}
                                       </View>

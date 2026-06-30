@@ -231,6 +231,7 @@ export const scheduleReview = mutation({
     await ctx.db.patch(args.memoryVerseId, {
       status: verse.status === "memorized" ? verse.status : "review",
       nextReviewAt,
+      reviewPreset: args.preset,
       ...(reviewIntervalDays > 0 ? { reviewIntervalDays } : {}),
       updatedAt: now
     });

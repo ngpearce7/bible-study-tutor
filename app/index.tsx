@@ -392,6 +392,7 @@ export default function Home() {
   const [feedbackCategory, setFeedbackCategory] = useState<"bug" | "confusing" | "suggestion" | "encouragement" | "other">("suggestion");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
+  const [expandedHelpGuideTitle, setExpandedHelpGuideTitle] = useState("");
   const [appShareStatus, setAppShareStatus] = useState("");
   const [incomingShareSource, setIncomingShareSource] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
@@ -9337,30 +9338,46 @@ export default function Home() {
                     action: "Go Home",
                     target: "home"
                   }
-                ].map((item) => (
-                  <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem, helpDarkMode && styles.helpDarkGuideItem]}>
-                    <View style={[styles.feedbackHeader, phoneLayout && styles.phoneHelpGuideHeader]}>
-                      <Ionicons name={item.icon as any} size={18} color={helpDarkMode ? "#e9b76a" : colors.coral} />
-                      <Text style={[styles.helpGuideTitle, helpDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
+                ].map((item) => {
+                  const guideOpen = !phoneLayout || expandedHelpGuideTitle === item.title;
+
+                  return (
+                    <View key={item.title} style={[styles.helpGuideItem, phoneLayout && styles.phoneHelpGuideItem, phoneLayout && guideOpen && styles.phoneHelpGuideItemOpen, helpDarkMode && styles.helpDarkGuideItem]}>
+                      <Pressable
+                        onPress={() => phoneLayout && setExpandedHelpGuideTitle((current) => current === item.title ? "" : item.title)}
+                        style={[styles.feedbackHeader, phoneLayout && styles.phoneHelpGuideHeader]}
+                        accessibilityRole={phoneLayout ? "button" : undefined}
+                        accessibilityLabel={phoneLayout ? `${guideOpen ? "Collapse" : "Expand"} ${item.title}` : undefined}
+                      >
+                        <Ionicons name={item.icon as any} size={18} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                        <Text style={[styles.helpGuideTitle, helpDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
+                        {phoneLayout && (
+                          <Ionicons name={guideOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={helpDarkMode ? "#c8bda9" : colors.muted} />
+                        )}
+                      </Pressable>
+                      {guideOpen && (
+                        <>
+                          <View style={styles.helpGuideStepList}>
+                            {item.steps.map((stepText, index) => (
+                              <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep, helpDarkMode && styles.helpDarkGuideStep]}>
+                                <Text style={[styles.helpGuideStepNumber, helpDarkMode && styles.helpDarkGuideStepNumber]}>{index + 1}</Text>
+                                <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText, helpDarkMode && styles.accountDarkMutedText]}>{stepText}</Text>
+                              </View>
+                            ))}
+                          </View>
+                          <ResumeButton
+                            label={item.action}
+                            icon={item.icon}
+                            onPress={() => setTab(item.target as Tab)}
+                            style={[phoneLayout && styles.phoneHelpGuideAction, helpDarkMode && styles.homeDarkResumeButton]}
+                            labelStyle={[phoneLayout && styles.phoneHelpGuideActionText, helpDarkMode && styles.homeDarkResumeButtonText]}
+                            iconColor={helpDarkMode ? "#e9b76a" : undefined}
+                          />
+                        </>
+                      )}
                     </View>
-                    <View style={styles.helpGuideStepList}>
-                      {item.steps.map((stepText, index) => (
-                        <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep, helpDarkMode && styles.helpDarkGuideStep]}>
-                          <Text style={[styles.helpGuideStepNumber, helpDarkMode && styles.helpDarkGuideStepNumber]}>{index + 1}</Text>
-                          <Text style={[styles.helpGuideStepText, phoneLayout && styles.phoneHelpGuideStepText, helpDarkMode && styles.accountDarkMutedText]}>{stepText}</Text>
-                        </View>
-                      ))}
-                    </View>
-                    <ResumeButton
-                      label={item.action}
-                      icon={item.icon}
-                      onPress={() => setTab(item.target as Tab)}
-                      style={[phoneLayout && styles.phoneHelpGuideAction, helpDarkMode && styles.homeDarkResumeButton]}
-                      labelStyle={[phoneLayout && styles.phoneHelpGuideActionText, helpDarkMode && styles.homeDarkResumeButtonText]}
-                      iconColor={helpDarkMode ? "#e9b76a" : undefined}
-                    />
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             </Card>
 
@@ -20957,10 +20974,16 @@ const styles = StyleSheet.create({
   },
   phoneHelpGuideItem: {
     borderRadius: 10,
-    gap: 9,
+    gap: 6,
     minWidth: 0,
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
     width: "100%"
+  },
+  phoneHelpGuideItemOpen: {
+    gap: 11,
+    paddingHorizontal: 11,
+    paddingVertical: 12
   },
   phoneHelpGridItem: {
     minWidth: 0,

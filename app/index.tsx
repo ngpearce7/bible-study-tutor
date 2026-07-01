@@ -21038,8 +21038,8 @@ const styles = StyleSheet.create({
     width: "auto"
   },
   helpDarkGuideStep: {
-    backgroundColor: "#202625",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: "transparent",
+    borderColor: "transparent"
   },
   helpGuideStepNumber: {
     backgroundColor: colors.sage,

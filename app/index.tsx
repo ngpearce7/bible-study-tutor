@@ -552,6 +552,7 @@ export default function Home() {
   });
   const [journalFilter, setJournalFilter] = useState<JournalFilter>("all");
   const [journalView, setJournalView] = useState<JournalView>("list");
+  const [journalFiltersOpen, setJournalFiltersOpen] = useState(false);
   const [journalCalendarMonth, setJournalCalendarMonth] = useState(() => startOfMonth(Date.now()));
   const [journalDateFilterKey, setJournalDateFilterKey] = useState("");
   const [expandedJournalScriptureBook, setExpandedJournalScriptureBook] = useState("");
@@ -1239,10 +1240,22 @@ export default function Home() {
   const visibleDrafts = dateFilteredDrafts.filter((draft: any) => matchesJournalScriptureFilter(draft, selectedJournalScriptureBook, selectedJournalScriptureChapter, "draft"));
   const highlightJournalEntries = dateFilteredHighlightJournalEntries.filter((item) => matchesJournalScriptureFilter(item, selectedJournalScriptureBook, selectedJournalScriptureChapter, "highlight"));
   const journalEntries = dateFilteredJournalEntries.filter((entry: any) => matchesJournalScriptureFilter(entry, selectedJournalScriptureBook, selectedJournalScriptureChapter, "entry"));
+  const groupedJournalEntries = groupJournalEntriesByRecency(journalEntries);
   const showDraftsSection = (journalFilter === "all" || journalFilter === "drafts") && visibleDrafts.length > 0;
   const showHighlightsSection = journalFilter === "highlights" && highlightJournalEntries.length > 0;
   const dueStudyReviewCount = dueStudyReviews?.length || 0;
   const showJournalEmptyState = !showDraftsSection && !showHighlightsSection && journalEntries.length === 0;
+  const journalFilterOptions: { key: JournalFilter; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+    { key: "all", label: "All", icon: "albums-outline" },
+    { key: "pinned", label: "Pinned", icon: "star-outline" },
+    { key: "drafts", label: "Drafts", icon: "create-outline" },
+    { key: "studies", label: "Studies", icon: "reader-outline" },
+    { key: "meditations", label: "Meditation", icon: "sparkles-outline" },
+    { key: "reviews", label: dueStudyReviewCount > 0 ? `Reviews (${dueStudyReviewCount})` : "Reviews", icon: "refresh-circle-outline" },
+    { key: "highlights", label: `Highlights (${totalSavedHighlightCount})`, icon: "color-wand-outline" },
+    { key: "checkins", label: "Encouragements", icon: "chatbubbles-outline" }
+  ];
+  const activeJournalFilterLabel = journalFilterOptions.find((item) => item.key === journalFilter)?.label || "All";
   const activeMemoryVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryVerseId);
   const activeMemoryMeditationVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId);
   const memoryQueueSections = useMemo(() => buildMemoryQueueSections(memoryVerses || []), [memoryVerses]);
@@ -8433,25 +8446,50 @@ export default function Home() {
                 </Pressable>
               )}
             </View>
-            <View style={[styles.filterRow, phoneLayout && styles.phoneJournalFilterRow]}>
-              {[
-                ["all", "All"],
-                ["pinned", "Pinned"],
-                ["drafts", "Drafts"],
-                ["studies", "Studies"],
-                ["meditations", "Meditation"],
-                ["reviews", dueStudyReviewCount > 0 ? `Reviews (${dueStudyReviewCount})` : "Reviews"],
-                ["highlights", `Highlights (${totalSavedHighlightCount})`],
-                ["checkins", "Encouragements"]
-              ].map(([key, label]) => (
-                <Pressable
-                  key={key}
-                  onPress={() => setJournalFilter(key as JournalFilter)}
-                  style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, journalDarkMode && styles.printDarkOptionChip, journalFilter === key && styles.activeFilterChip]}
-                >
-                  <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, journalDarkMode && styles.accountDarkMutedText, journalFilter === key && styles.activeFilterText]}>{label}</Text>
-                </Pressable>
-              ))}
+            <View style={[styles.journalFilterPanel, journalDarkMode && styles.accountDarkSection]}>
+              <Pressable
+                onPress={() => setJournalFiltersOpen((current) => !current)}
+                style={styles.journalFilterSummary}
+                accessibilityRole="button"
+                accessibilityLabel={journalFiltersOpen ? "Hide journal filters" : "Show journal filters"}
+              >
+                <View style={styles.journalFilterSummaryCopy}>
+                  <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Filter</Text>
+                  <Text style={[styles.journalFilterSummaryText, journalDarkMode && styles.accountDarkTitle]}>{activeJournalFilterLabel}</Text>
+                </View>
+                <View style={styles.journalFilterSummaryRight}>
+                  {journalFilter !== "all" && (
+                    <Pressable
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        setJournalFilter("all");
+                      }}
+                      style={[styles.clearPassageFilterInlineButton, journalDarkMode && styles.homeDarkResumeButton]}
+                    >
+                      <Ionicons name="close-outline" size={14} color={colors.coral} />
+                      <Text style={[styles.clearPassageFilterInlineText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
+                    </Pressable>
+                  )}
+                  <Ionicons name={journalFiltersOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
+                </View>
+              </Pressable>
+              {journalFiltersOpen && (
+                <View style={[styles.filterRow, styles.journalFilterChipGrid, phoneLayout && styles.phoneJournalFilterRow]}>
+                  {journalFilterOptions.map(({ key, label, icon }) => (
+                    <Pressable
+                      key={key}
+                      onPress={() => {
+                        setJournalFilter(key);
+                        if (phoneLayout) setJournalFiltersOpen(false);
+                      }}
+                      style={[styles.filterChip, styles.journalFilterChoiceChip, phoneLayout && styles.phoneJournalFilterChip, journalDarkMode && styles.printDarkOptionChip, journalFilter === key && styles.activeFilterChip]}
+                    >
+                      <Ionicons name={icon} size={14} color={journalFilter === key ? "white" : (journalDarkMode ? "#e9b76a" : colors.oliveDark)} />
+                      <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, journalDarkMode && styles.accountDarkMutedText, journalFilter === key && styles.activeFilterText]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              )}
             </View>
             <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox, journalDarkMode && styles.accountDarkSection]}>
               <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : journalFilter === "meditations" ? "sparkles-outline" : "reader-outline"} size={18} color={colors.coral} />
@@ -8560,11 +8598,16 @@ export default function Home() {
                   return (
                     <Card key={draft._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                       <Pressable onPress={() => toggleJournalEntryExpanded(draftEntryId)} style={styles.journalCompactHeader}>
-                        <View style={styles.journalTitleBlock}>
-                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{draft.passageReference || draft.passage}</Text>
-                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
-                            {draft.methodName} · Step {draft.stepIndex + 1} · Created {formatJournalCreatedDate(draft)}
-                          </Text>
+                        <View style={styles.journalHeaderCopyRow}>
+                          <View style={[styles.journalEntryTypeIcon, journalDarkMode && styles.homeDarkIconBubble]}>
+                            <Ionicons name="create-outline" size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
+                          </View>
+                          <View style={styles.journalTitleBlock}>
+                            <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]} numberOfLines={phoneLayout ? 2 : 1}>{draft.passageReference || draft.passage}</Text>
+                            <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
+                              {draft.methodName} · Step {draft.stepIndex + 1} · Created {formatJournalCreatedDate(draft)}
+                            </Text>
+                          </View>
                         </View>
                         <View style={styles.journalStatusCluster}>
                           <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>Draft</Text>
@@ -8614,11 +8657,16 @@ export default function Home() {
                   return (
                     <Card key={item.id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                       <Pressable onPress={() => toggleJournalEntryExpanded(item.id)} style={styles.journalCompactHeader}>
-                        <View style={styles.journalTitleBlock}>
-                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{item.passage}</Text>
-                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
-                            {item.methodName} · Created {formatJournalCreatedDate(item)}
-                          </Text>
+                        <View style={styles.journalHeaderCopyRow}>
+                          <View style={[styles.journalEntryTypeIcon, journalDarkMode && styles.homeDarkIconBubble]}>
+                            <Ionicons name="color-wand-outline" size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
+                          </View>
+                          <View style={styles.journalTitleBlock}>
+                            <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]} numberOfLines={phoneLayout ? 2 : 1}>{item.passage}</Text>
+                            <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
+                              {item.methodName} · Created {formatJournalCreatedDate(item)}
+                            </Text>
+                          </View>
                         </View>
                         <View style={styles.journalStatusCluster}>
                           <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{item.source === "draft" ? "Draft" : `${item.markups.length} highlight${item.markups.length === 1 ? "" : "s"}`}</Text>
@@ -8681,7 +8729,10 @@ export default function Home() {
             {journalEntries.length > 0 && (
               <View style={styles.journalSection}>
                 <Text style={[styles.sectionTitle, journalDarkMode && styles.accountDarkTitle]}>{journalFilter === "studies" ? "Completed studies" : journalFilter === "meditations" ? "Meditations" : journalFilter === "checkins" ? "Encouragements" : "Saved entries"}</Text>
-                {journalEntries.map((entry: any) => {
+                {groupedJournalEntries.map((group) => (
+                  <View key={group.title} style={styles.journalDateGroup}>
+                    <Text style={[styles.journalDateGroupTitle, journalDarkMode && styles.accountDarkMutedText]}>{group.title}</Text>
+                    {group.entries.map((entry: any) => {
               const rawEntryId = String(entry._id);
               const entryId = `entry:${rawEntryId}`;
               const pinned = pinnedEntryIds.has(rawEntryId);
@@ -8707,9 +8758,14 @@ export default function Home() {
                 <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
                   <View style={styles.journalCompactHeader}>
                     <Pressable onPress={() => toggleJournalEntryExpanded(entryId)} style={styles.journalCompactTitleButton}>
-                      <View style={styles.journalTitleBlock}>
-                        <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>{entryTitle}</Text>
-                        <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>{entry.methodName ? `${entry.methodName} · Created ${formatJournalCreatedDate(entry)}` : `Created ${formatJournalCreatedDate(entry)}`}</Text>
+                      <View style={styles.journalHeaderCopyRow}>
+                        <View style={[styles.journalEntryTypeIcon, journalDarkMode && styles.homeDarkIconBubble]}>
+                          <Ionicons name={getJournalEntryIcon(entryStatus)} size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
+                        </View>
+                        <View style={styles.journalTitleBlock}>
+                          <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]} numberOfLines={phoneLayout ? 2 : 1}>{entryTitle}</Text>
+                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>{entry.methodName ? `${entry.methodName} · Created ${formatJournalCreatedDate(entry)}` : `Created ${formatJournalCreatedDate(entry)}`}</Text>
+                        </View>
                       </View>
                       <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
@@ -8939,7 +8995,9 @@ export default function Home() {
                   )}
                 </Card>
               );
-                })}
+                    })}
+                  </View>
+                ))}
               </View>
             )}
             {showJournalEmptyState && (
@@ -12617,6 +12675,47 @@ function buildJournalGuideText(filter: JournalFilter, highlightCount: number) {
   if (filter === "checkins") return "Encouragements include community updates and saved highlight reflections.";
   if (filter === "pinned") return "Pinned entries stay at the top of your saved work for quick review.";
   return "Use the filters to narrow your journal, or search for a passage, answer, highlight note, or reflection.";
+}
+
+function getJournalEntryIcon(status: string): keyof typeof Ionicons.glyphMap {
+  const normalized = status.toLowerCase();
+  if (normalized.includes("meditation")) return "sparkles-outline";
+  if (normalized.includes("encouragement")) return "chatbubbles-outline";
+  if (normalized.includes("reflection")) return "color-wand-outline";
+  if (normalized.includes("review")) return "refresh-circle-outline";
+  return "reader-outline";
+}
+
+function groupJournalEntriesByRecency(entries: any[]) {
+  const today = dateKeyFromTimestamp(Date.now());
+  const yesterdayDate = new Date();
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterday = dateKeyFromTimestamp(yesterdayDate.getTime());
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoTime = new Date(weekAgo.getFullYear(), weekAgo.getMonth(), weekAgo.getDate()).getTime();
+  const groups: { title: string; entries: any[] }[] = [
+    { title: "Today", entries: [] },
+    { title: "Yesterday", entries: [] },
+    { title: "This week", entries: [] },
+    { title: "Older", entries: [] }
+  ];
+
+  entries.forEach((entry) => {
+    const timestamp = journalEntryTimestamp(entry);
+    const key = dateKeyFromTimestamp(timestamp);
+    if (key === today) {
+      groups[0].entries.push(entry);
+    } else if (key === yesterday) {
+      groups[1].entries.push(entry);
+    } else if (timestamp >= weekAgoTime) {
+      groups[2].entries.push(entry);
+    } else {
+      groups[3].entries.push(entry);
+    }
+  });
+
+  return groups.filter((group) => group.entries.length > 0);
 }
 
 function isStudyReviewDue(entry: { reviewAt?: number }) {
@@ -19959,6 +20058,46 @@ const styles = StyleSheet.create({
   activeFilterText: {
     color: "white"
   },
+  journalFilterPanel: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 13,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 12,
+    padding: 10
+  },
+  journalFilterSummary: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minHeight: 42
+  },
+  journalFilterSummaryCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  journalFilterSummaryText: {
+    color: colors.ink,
+    fontSize: 15,
+    fontWeight: "900",
+    lineHeight: 20
+  },
+  journalFilterSummaryRight: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 8
+  },
+  journalFilterChipGrid: {
+    marginBottom: 0
+  },
+  journalFilterChoiceChip: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6
+  },
   journalGuideBox: {
     alignItems: "flex-start",
     backgroundColor: colors.sage,
@@ -21897,11 +22036,39 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0
   },
+  journalHeaderCopyRow: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    gap: 9,
+    minWidth: 0
+  },
+  journalEntryTypeIcon: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderRadius: 999,
+    flexShrink: 0,
+    height: 32,
+    justifyContent: "center",
+    width: 32
+  },
   journalStatusCluster: {
     alignItems: "center",
     flexDirection: "row",
     flexShrink: 0,
     gap: 7
+  },
+  journalDateGroup: {
+    gap: 10,
+    marginBottom: 8
+  },
+  journalDateGroupTitle: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0.4,
+    marginTop: 2,
+    textTransform: "uppercase"
   },
   pinButton: {
     alignItems: "center",

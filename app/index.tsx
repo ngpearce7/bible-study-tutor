@@ -9357,7 +9357,7 @@ export default function Home() {
                       </Pressable>
                       {guideOpen && (
                         <>
-                          <View style={styles.helpGuideStepList}>
+                          <View style={[styles.helpGuideStepList, phoneLayout && styles.phoneHelpGuideStepList]}>
                             {item.steps.map((stepText, index) => (
                               <View key={stepText} style={[styles.helpGuideStep, phoneLayout && styles.phoneHelpGuideStep, helpDarkMode && styles.helpDarkGuideStep]}>
                                 <Text style={[styles.helpGuideStepNumber, helpDarkMode && styles.helpDarkGuideStepNumber]}>{index + 1}</Text>
@@ -20981,8 +20981,8 @@ const styles = StyleSheet.create({
     width: "100%"
   },
   phoneHelpGuideItemOpen: {
-    gap: 11,
-    paddingHorizontal: 11,
+    gap: 12,
+    paddingHorizontal: 12,
     paddingVertical: 12
   },
   phoneHelpGridItem: {
@@ -20990,8 +20990,10 @@ const styles = StyleSheet.create({
     width: "100%"
   },
   phoneHelpGuideHeader: {
-    alignItems: "flex-start",
-    marginBottom: 2
+    alignItems: "center",
+    marginBottom: 0,
+    minHeight: 34,
+    width: "100%"
   },
   helpGuideTitle: {
     color: colors.ink,
@@ -21003,19 +21005,26 @@ const styles = StyleSheet.create({
   helpGuideStepList: {
     gap: 7
   },
+  phoneHelpGuideStepList: {
+    gap: 10,
+    width: "100%"
+  },
   helpGuideStep: {
     alignItems: "flex-start",
     flexDirection: "row",
-    gap: 8
+    gap: 8,
+    maxWidth: "100%",
+    minWidth: 0
   },
   phoneHelpGuideStep: {
-    backgroundColor: "#fff6eb",
-    borderColor: colors.line,
-    borderRadius: 9,
-    borderWidth: 1,
-    gap: 7,
-    paddingHorizontal: 8,
-    paddingVertical: 6
+    backgroundColor: "transparent",
+    borderColor: "transparent",
+    borderRadius: 0,
+    borderWidth: 0,
+    gap: 8,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    width: "100%"
   },
   helpDarkGuideStep: {
     backgroundColor: "#202625",
@@ -21025,6 +21034,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sage,
     borderRadius: 999,
     color: colors.oliveDark,
+    flexShrink: 0,
     fontSize: 11,
     fontWeight: "900",
     minWidth: 22,
@@ -21039,12 +21049,14 @@ const styles = StyleSheet.create({
   helpGuideStepText: {
     color: colors.ink,
     flex: 1,
+    flexShrink: 1,
     fontSize: 13,
-    lineHeight: 19
+    lineHeight: 19,
+    minWidth: 0
   },
   phoneHelpGuideStepText: {
-    fontSize: 12,
-    lineHeight: 16
+    fontSize: 13,
+    lineHeight: 18
   },
   phoneHelpGuideAction: {
     alignSelf: "stretch",

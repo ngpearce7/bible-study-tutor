@@ -4411,7 +4411,21 @@ export default function Home() {
 
   const showMobileReaderSelectionDock = phoneLayout && tab === "bible" && selectedReaderVerses.length > 0;
   const showMobileReaderNoteEditor = showMobileReaderSelectionDock && !!currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id;
-  const activeContextHelp = getContextHelp(tab);
+  const activeContextHelp = getContextHelp(tab, {
+    studyPhase,
+    studyStep: stepIndex + 1,
+    bibleSearchOpen: !bibleSearchCollapsed,
+    bibleSearchResultCount: bibleSearchResults.length,
+    selectedBibleVerseCount: selectedReaderVerses.length,
+    memoryView,
+    memoryPracticing: !!activeMemoryVerseId,
+    memoryMeditating: !!activeMemoryMeditationVerseId,
+    journalView,
+    journalFilter,
+    communityView: communitySubView,
+    signedIn: isAuthenticated,
+    adminProfileSelected: !!selectedAdminProfileId
+  });
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
 
   return (
@@ -9129,6 +9143,31 @@ export default function Home() {
             </View>
 
             <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
+              <View style={styles.feedbackHeader}>
+                <Ionicons name="help-circle-outline" size={19} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Help from anywhere</Text>
+              </View>
+              <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
+                The floating help button changes with the part of the app you are using. It can explain selected Bible verses, Scripture search results, memory practice, meditation, Journal views, Community history, Account sign-in, and Admin review screens.
+              </Text>
+              <View style={styles.helpTabGrid}>
+                {[
+                  ["Selected verses", "When verses are selected, help explains Study, Memory, Print, Note, and Bookmark actions.", "checkbox-outline"],
+                  ["Memory tools", "During review, browse, history, or meditation, help explains the current mode instead of the whole tab.", "sparkles-outline"],
+                  ["Journal views", "Calendar, Scripture, and filtered Journal views each get their own quick guidance.", "journal-outline"]
+                ].map(([title, body, icon]) => (
+                  <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem, helpDarkMode && styles.helpDarkTabItem]}>
+                    <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <View style={styles.helpTabCopy}>
+                      <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                      <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </Card>
+
+            <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
               <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Step-by-step guide</Text>
               <View style={[styles.helpGuideGrid, phoneLayout && styles.phoneHelpGuideGrid]}>
                 {[
@@ -9200,8 +9239,20 @@ export default function Home() {
                       "Save a verse to Memory from Bible or Study.",
                       "Open Memory and press Practice.",
                       "Read the verse, fill every second word, then fill all words.",
-                      "Use hints when needed and set the next review date.",
+                      "Use hints when needed and choose a review rhythm such as daily, weekly, monthly, or annually.",
                       "Use Meditate when you want to slow down with one verse."
+                    ],
+                    action: "Open Memory",
+                    target: "memory"
+                  },
+                  {
+                    icon: "folder-open-outline",
+                    title: "Group memory verses",
+                    steps: [
+                      "Open Memory, then Browse.",
+                      "Create collections for themes like Identity, Prayer, Promises, or Comfort.",
+                      "Filter by collection when you want to review or print a focused set.",
+                      "Use bulk review options after filtering if you want to change several review dates together."
                     ],
                     action: "Open Memory",
                     target: "memory"
@@ -9224,6 +9275,7 @@ export default function Home() {
                     steps: [
                       "Open Journal to see saved studies and encouragements.",
                       "Use List for quick scanning.",
+                      "Open Filter when you want studies, meditations, highlights, drafts, pinned entries, or encouragements only.",
                       "Use Calendar to review by date.",
                       "Use Scripture view to browse entries by book and chapter."
                     ],
@@ -9303,6 +9355,7 @@ export default function Home() {
                 ["What does Read do in search results?", "Read opens the matching chapter in the Bible reader and selects the verse so you can keep reading around it."],
                 ["Where do highlights go?", "Highlights stay with the saved study and can be found again from Journal."],
                 ["How do I memorize a verse?", "Select verses in Bible or Study, tap Memory, then practise them from the Memory tab. You can also use Meditate for slower reflection."],
+                ["How do I group memory verses?", "Open Memory, switch to Browse, and use Collections. Collections work well for themes like Identity, Prayer, Promises, or verses for a study group."],
                 ["Can I print memory verses?", "Yes. Open Memory, tap Print cards, choose the saved verses and copies you want, then download the editable Word document."],
                 ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
                 ["Can I create an account without email?", "Yes. In Account, create a free account with either an email address or a unique username. You can add an email later if you want."],
@@ -9324,7 +9377,8 @@ export default function Home() {
               <View style={styles.helpTroubleList}>
                 {[
                   ["The screen feels crowded", "Use Study Focus mode, collapse side panels, or open the mobile menu only when you need it."],
-                  ["I cannot find a saved verse", "Open Memory, switch to Browse, then filter by book, chapter, or status."],
+                  ["I cannot find a saved verse", "Open Memory, switch to Browse, then filter by collection, book, chapter, or status."],
+                  ["The help button seems to change", "That is intentional. The floating help button responds to the tab and sub-view you are using."],
                   ["I saved a note but not a bookmark", "That is expected. A note-only verse shows the note icon; a bookmarked verse shows the bookmark icon."],
                   ["I want to find an older study", "Open Journal and use search, Calendar view, or Scripture view."],
                   ["I am not signed in", "You can keep using a local profile. Sign in from Account when you want account-connected saving."]
@@ -9788,22 +9842,22 @@ export default function Home() {
       {contextHelpOpen && (
         <View style={styles.contextHelpOverlay}>
           <Pressable style={styles.contextHelpScrim} onPress={() => setContextHelpOpen(false)} />
-          <View style={[styles.contextHelpCard, phoneLayout && styles.phoneContextHelpCard]}>
+          <View style={[styles.contextHelpCard, phoneLayout && styles.phoneContextHelpCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.contextHelpHeader}>
               <View style={styles.feedbackHeader}>
-                <Ionicons name={activeContextHelp.icon as any} size={18} color={colors.coral} />
-                <Text style={styles.feedbackTitle}>{activeContextHelp.title}</Text>
+                <Ionicons name={activeContextHelp.icon as any} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>{activeContextHelp.title}</Text>
               </View>
               <Pressable onPress={() => setContextHelpOpen(false)} style={styles.markupCloseButton}>
-                <Ionicons name="close-outline" size={19} color={colors.muted} />
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
-            <Text style={styles.helpIntro}>{activeContextHelp.summary}</Text>
+            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{activeContextHelp.summary}</Text>
             <View style={styles.contextHelpList}>
               {activeContextHelp.tips.map((tip) => (
-                <View key={tip} style={styles.contextHelpTip}>
-                  <Ionicons name="checkmark-circle-outline" size={16} color={colors.oliveDark} />
-                  <Text style={styles.contextHelpTipText}>{tip}</Text>
+                <View key={tip} style={[styles.contextHelpTip, accountDarkMode && styles.accountDarkInsetBox]}>
+                  <Ionicons name="checkmark-circle-outline" size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Text style={[styles.contextHelpTipText, accountDarkMode && styles.accountDarkText]}>{tip}</Text>
                 </View>
               ))}
             </View>
@@ -9815,6 +9869,9 @@ export default function Home() {
                   setContextHelpOpen(false);
                   setTab("help");
                 }}
+                style={accountDarkMode && styles.homeDarkResumeButton}
+                labelStyle={accountDarkMode && styles.homeDarkResumeButtonText}
+                iconColor={accountDarkMode ? "#e9b76a" : undefined}
               />
             </View>
           </View>

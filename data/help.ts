@@ -5,7 +5,151 @@ export type ContextHelp = {
   tips: string[];
 };
 
-export function getContextHelp(tab: string): ContextHelp {
+export type ContextHelpContext = {
+  studyPhase?: string;
+  studyStep?: number;
+  bibleSearchOpen?: boolean;
+  bibleSearchResultCount?: number;
+  selectedBibleVerseCount?: number;
+  memoryView?: string;
+  memoryPracticing?: boolean;
+  memoryMeditating?: boolean;
+  journalView?: string;
+  journalFilter?: string;
+  communityView?: string;
+  signedIn?: boolean;
+  adminProfileSelected?: boolean;
+};
+
+export function getContextHelp(tab: string, context: ContextHelpContext = {}): ContextHelp {
+  if (tab === "study" && context.studyPhase === "review") {
+    return {
+      title: "Study review help",
+      icon: "checkmark-circle-outline",
+      summary: "You are at the final review stage. This is where your study becomes something useful to keep, revisit, print, or share.",
+      tips: ["Read your answers once more before saving.", "Use the shareable insight area for one clear takeaway.", "Choose a friend or circle only if you want to post the insight privately."]
+    };
+  }
+
+  if (tab === "study" && typeof context.studyStep === "number") {
+    return {
+      title: `Study step ${context.studyStep} help`,
+      icon: "book-outline",
+      summary: "The current step panel tells you what to do next. Keep your answer simple, honest, and grounded in the passage.",
+      tips: ["Use note starters if you feel stuck.", "Select passage text to highlight, save to Memory, or print a worksheet.", "Use Focus mode if the side panels are distracting."]
+    };
+  }
+
+  if (tab === "bible" && context.selectedBibleVerseCount) {
+    return {
+      title: "Selected verses help",
+      icon: "checkbox-outline",
+      summary: `${context.selectedBibleVerseCount} verse${context.selectedBibleVerseCount === 1 ? " is" : "s are"} selected. Use the floating action bar to decide what to do with the selection.`,
+      tips: ["Tap Study to open the selected verses in Guided Study.", "Tap Memory to save them for review.", "Tap Print to make a worksheet, or Note/Bookmark to keep them in Bible."]
+    };
+  }
+
+  if (tab === "bible" && context.bibleSearchOpen) {
+    return {
+      title: "Scripture search help",
+      icon: "search-outline",
+      summary: context.bibleSearchResultCount
+        ? "Search results are grouped by Testament so you can scan the whole Bible without losing your place."
+        : "Use Scripture search for exact words, broad matches, themes, or questions.",
+      tips: ["Use Word for exact whole-word searching.", "Use Any words or Theme when you want broader results.", "Tap Read to open the verse in context, or Study to begin a guided study."]
+    };
+  }
+
+  if (tab === "memory" && context.memoryMeditating) {
+    return {
+      title: "Meditation help",
+      icon: "sparkles-outline",
+      summary: "Meditate mode slows one memory verse down so you can notice, reflect, pray, and carry it with you.",
+      tips: ["Keep each response short if that helps you focus.", "Save the meditation to Journal when you want to revisit it.", "Close the focus panel when you are ready to return to Memory."]
+    };
+  }
+
+  if (tab === "memory" && context.memoryPracticing) {
+    return {
+      title: "Memory practice help",
+      icon: "create-outline",
+      summary: "Practice uses three steps: read the verse, fill some blanks, then fill the whole verse from memory.",
+      tips: ["Hints reveal more of a word when you need help.", "Correct words turn green after checking.", "When you finish a due verse, the next due verse can open automatically."]
+    };
+  }
+
+  if (tab === "memory" && context.memoryView === "browse") {
+    return {
+      title: "Memory browse help",
+      icon: "albums-outline",
+      summary: "Browse helps you find saved verses by collection, Testament, book, chapter, and review status.",
+      tips: ["Use collections for themes like Identity, Prayer, or Promises.", "Filter first, then use bulk review options if you want to change several review dates.", "Use the menu beside the view tabs to print memory cards."]
+    };
+  }
+
+  if (tab === "memory" && context.memoryView === "history") {
+    return {
+      title: "Memory history help",
+      icon: "time-outline",
+      summary: "History shows your recent memory activity, milestones, and encouragement from your review rhythm.",
+      tips: ["Use milestones to choose what you want to track.", "Open verse history when you want to see progress for one verse.", "Recent activity shows the newest memory events first."]
+    };
+  }
+
+  if (tab === "journal" && context.journalView === "calendar") {
+    return {
+      title: "Journal calendar help",
+      icon: "calendar-outline",
+      summary: "Calendar view helps you return to entries by the day they were created.",
+      tips: ["Tap a day to filter the journal.", "Use Clear date to return to all entries.", "Switch back to List when you want the simplest reading view."]
+    };
+  }
+
+  if (tab === "journal" && context.journalView === "scripture") {
+    return {
+      title: "Journal Scripture help",
+      icon: "book-outline",
+      summary: "Scripture view groups your journal by Bible book and chapter.",
+      tips: ["Open a book to see chapters with saved entries.", "Tap a chapter to filter the journal.", "Use this when you remember the passage but not the date."]
+    };
+  }
+
+  if (tab === "journal" && context.journalFilter && context.journalFilter !== "all") {
+    return {
+      title: "Journal filter help",
+      icon: "funnel-outline",
+      summary: "The Journal filter narrows your saved work without deleting or changing anything.",
+      tips: ["Use Pinned for important entries.", "Use Meditation, Studies, Highlights, or Encouragements when you want one kind of entry.", "Clear the filter to return to everything."]
+    };
+  }
+
+  if (tab === "accountability" && context.communityView === "history") {
+    return {
+      title: "Encouragement history help",
+      icon: "time-outline",
+      summary: "History is where you manage encouragements you have posted or saved.",
+      tips: ["Filter by private or circle posts.", "Tap your own post to reveal edit, copy, and delete actions.", "Amen and prayer reactions are saved with the post."]
+    };
+  }
+
+  if (tab === "account" && !context.signedIn) {
+    return {
+      title: "Free account help",
+      icon: "person-add-outline",
+      summary: "You can use Bible Study Tutor locally, or create a free account to keep your work across devices.",
+      tips: ["Create an account with an email address or a unique username.", "Your name helps the app feel more personal.", "Read the Privacy Policy from Account if you want to see what is saved."]
+    };
+  }
+
+  if (tab === "admin" && context.adminProfileSelected) {
+    return {
+      title: "User review help",
+      icon: "shield-checkmark-outline",
+      summary: "You are viewing one user's admin profile context. This is for safety, support, and privacy-aware review.",
+      tips: ["Use activity counts and security events together.", "Avoid acting on raw profile count alone.", "Use suspension only for clear abuse or suspicious behaviour."]
+    };
+  }
+
   const help: Record<string, ContextHelp> = {
     home: {
       title: "Home help",
@@ -53,7 +197,7 @@ export function getContextHelp(tab: string): ContextHelp {
       title: "Journal help",
       icon: "journal-outline",
       summary: "Journal is where saved studies, drafts, highlights, reflections, encouragements, and reviews come back together.",
-      tips: ["Use List for a simple view, Calendar for date review, and Scripture for book/chapter browsing.", "Expand an entry to read or edit it.", "Schedule reviews to bring important studies back later."]
+      tips: ["Use the compact Filter panel to narrow entries without cluttering the page.", "Use List for a simple view, Calendar for date review, and Scripture for book/chapter browsing.", "Expand an entry to read, revisit, schedule, edit, or delete it."]
     },
     account: {
       title: "Account help",

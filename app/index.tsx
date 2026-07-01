@@ -395,6 +395,7 @@ export default function Home() {
   const [appShareStatus, setAppShareStatus] = useState("");
   const [incomingShareSource, setIncomingShareSource] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
+  const [accountPrivacyOpen, setAccountPrivacyOpen] = useState(false);
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
@@ -3965,6 +3966,7 @@ export default function Home() {
   }
 
   function openPrivacyPolicyFromAccountIntro() {
+    setAccountPrivacyOpen(true);
     setOpenLegalSection("privacy");
     const scrollToLegal = () => {
       appScrollRef.current?.scrollTo?.({ y: Math.max(0, accountLegalYRef.current - (phoneLayout ? 82 : 18)), animated: true });
@@ -8164,206 +8166,247 @@ export default function Home() {
                 </View>
               )}
               <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Bible translations</Text>
-                <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
-                <View style={styles.accountOptionGrid}>
-                  {BIBLE_TRANSLATIONS.map((translation) => (
-                    <Pressable
-                      key={translation.id}
-                      onPress={() => {
-                        setBibleTranslation(translation.id);
-                        saveStoredBibleTranslation(translation.id).catch(() => undefined);
-                      }}
-                      style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, bibleTranslation === translation.id && styles.activeAiOptionCard, accountDarkMode && bibleTranslation === translation.id && styles.accountDarkActiveOptionCard]}
-                    >
-                      <Ionicons name={bibleTranslation === translation.id ? "checkmark-circle" : "book-outline"} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-                      <View style={styles.aiOptionCopy}>
-                        <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{translation.label}</Text>
-                        <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{translation.name}</Text>
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
-                <View style={[styles.translationLockedBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>App preferences</Text>
+                <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Choose how Bible Study Tutor reads, looks, and supports your study rhythm.</Text>
+                <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name="heart-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Why these translations?</Text>
+                    <Ionicons name="book-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Bible translations</Text>
                   </View>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                    Bible Study Tutor is intentionally free and built for churches, groups, and personal study. These translations let the app support reading, study notes, memory verses, journaling, and printable worksheets without putting commercial Bible licensing costs onto users.
-                  </Text>
-                </View>
-              </View>
-              {isAuthenticated && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Coaching preference</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                    Free local coaching gives gentle prompts while studying. It does not use paid AI credits, send your notes to an AI provider, or require an AI account.
-                  </Text>
-                  <Pressable
-                    onPress={() => {
-                      const nextValue = !showCoaching;
-                      setShowCoaching(nextValue);
-                      saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
-                      persistUiPreference("studyCoachingVisible", nextValue);
-                    }}
-                    style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, showCoaching && styles.activeAiOptionCard, accountDarkMode && showCoaching && styles.accountDarkActiveOptionCard]}
-                  >
-                    <Ionicons name={showCoaching ? "bulb" : "bulb-outline"} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <View style={styles.aiOptionCopy}>
-                      <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{showCoaching ? "Coaching is on" : "Coaching is off"}</Text>
-                      <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{showCoaching ? "Tap to hide coaching prompts in Study." : "Tap to show coaching prompts in Study."}</Text>
-                    </View>
-                  </Pressable>
-                </View>
-              )}
-              {isAuthenticated && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Your saved data</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                    A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
-                  </Text>
-                  <View style={[styles.savedDataGrid, phoneLayout && styles.phoneSavedDataGrid]}>
-                    {savedDataItems.map((item) => (
-                      <View key={item.label} style={[styles.savedDataItem, phoneLayout && styles.phoneSavedDataItem, accountDarkMode && styles.accountDarkSavedDataItem]}>
-                        <View style={[styles.savedDataIcon, accountDarkMode && styles.accountDarkSavedDataIcon]}>
-                          <Ionicons name={item.icon as any} size={17} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        </View>
-                        <View style={styles.savedDataCopy}>
-                          <Text style={[styles.savedDataValue, accountDarkMode && styles.accountDarkTitle]}>{item.value}</Text>
-                          <Text style={[styles.savedDataLabel, accountDarkMode && styles.accountDarkMutedText]}>{item.label}</Text>
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                    Account-linked studies, drafts, encouragements, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
-                  </Text>
-                </View>
-              )}
-              {DARK_MODE_ENABLED && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Appearance</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Choose the app display that feels easiest to read.</Text>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Current: ${BIBLE_TRANSLATIONS.find((translation) => translation.id === bibleTranslation)?.name || bibleTranslation.toUpperCase()}`}</Text>
                   <View style={styles.accountOptionGrid}>
-                    {([
-                      ["light", "Light", "Warm study colours", "sunny-outline"],
-                      ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"]
-                    ] as const).map(([mode, label, description, icon]) => (
+                    {BIBLE_TRANSLATIONS.map((translation) => (
                       <Pressable
-                        key={mode}
-                        onPress={() => chooseAppearanceMode(mode)}
-                        style={[
-                          styles.aiOptionCard,
-                          styles.accountOptionCard,
-                          accountDarkMode && styles.accountDarkOptionCard,
-                          appearanceMode === mode && styles.activeAiOptionCard,
-                          accountDarkMode && appearanceMode === mode && styles.accountDarkActiveOptionCard
-                        ]}
+                        key={translation.id}
+                        onPress={() => {
+                          setBibleTranslation(translation.id);
+                          saveStoredBibleTranslation(translation.id).catch(() => undefined);
+                        }}
+                        style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, bibleTranslation === translation.id && styles.activeAiOptionCard, accountDarkMode && bibleTranslation === translation.id && styles.accountDarkActiveOptionCard]}
                       >
-                        <Ionicons name={appearanceMode === mode ? "checkmark-circle" : icon} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Ionicons name={bibleTranslation === translation.id ? "checkmark-circle" : "book-outline"} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                         <View style={styles.aiOptionCopy}>
-                          <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{label}</Text>
-                          <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{description}</Text>
+                          <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{translation.label}</Text>
+                          <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{translation.name}</Text>
                         </View>
                       </Pressable>
                     ))}
                   </View>
+                  <View style={[styles.translationLockedBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons name="heart-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                      <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Why these translations?</Text>
+                    </View>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                      Bible Study Tutor is intentionally free and built for churches, groups, and personal study. These translations let the app support reading, study notes, memory verses, journaling, and printable worksheets without putting commercial Bible licensing costs onto users.
+                    </Text>
+                  </View>
                 </View>
-              )}
+                {DARK_MODE_ENABLED && (
+                  <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons name="moon-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                      <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Appearance</Text>
+                    </View>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Choose the app display that feels easiest to read.</Text>
+                    <View style={styles.accountOptionGrid}>
+                      {([
+                        ["light", "Light", "Warm study colours", "sunny-outline"],
+                        ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"]
+                      ] as const).map(([mode, label, description, icon]) => (
+                        <Pressable
+                          key={mode}
+                          onPress={() => chooseAppearanceMode(mode)}
+                          style={[
+                            styles.aiOptionCard,
+                            styles.accountOptionCard,
+                            accountDarkMode && styles.accountDarkOptionCard,
+                            appearanceMode === mode && styles.activeAiOptionCard,
+                            accountDarkMode && appearanceMode === mode && styles.accountDarkActiveOptionCard
+                          ]}
+                        >
+                          <Ionicons name={appearanceMode === mode ? "checkmark-circle" : icon} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          <View style={styles.aiOptionCopy}>
+                            <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{label}</Text>
+                            <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{description}</Text>
+                          </View>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+                {isAuthenticated && (
+                  <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                    <View style={styles.feedbackHeader}>
+                      <Ionicons name={showCoaching ? "bulb" : "bulb-outline"} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                      <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Coaching preference</Text>
+                    </View>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                      Free local coaching gives gentle prompts while studying. It does not use paid AI credits, send your notes to an AI provider, or require an AI account.
+                    </Text>
+                    <Pressable
+                      onPress={() => {
+                        const nextValue = !showCoaching;
+                        setShowCoaching(nextValue);
+                        saveStoredTutorCoachingEnabled(nextValue).catch(() => undefined);
+                        persistUiPreference("studyCoachingVisible", nextValue);
+                      }}
+                      style={[styles.aiOptionCard, styles.accountOptionCard, accountDarkMode && styles.accountDarkOptionCard, showCoaching && styles.activeAiOptionCard, accountDarkMode && showCoaching && styles.accountDarkActiveOptionCard]}
+                    >
+                      <Ionicons name={showCoaching ? "checkmark-circle" : "bulb-outline"} size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <View style={styles.aiOptionCopy}>
+                        <Text style={[styles.aiOptionTitle, accountDarkMode && styles.accountDarkTitle]}>{showCoaching ? "Coaching is on" : "Coaching is off"}</Text>
+                        <Text style={[styles.aiOptionText, accountDarkMode && styles.accountDarkMutedText]}>{showCoaching ? "Tap to hide coaching prompts in Study." : "Tap to show coaching prompts in Study."}</Text>
+                      </View>
+                    </Pressable>
+                  </View>
+                )}
+              </View>
               <View
                 onLayout={(event) => {
                   accountLegalYRef.current = event.nativeEvent.layout.y;
                 }}
                 style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}
               >
-                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Legal</Text>
-                <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
-                <LegalDocument
-                  title="Privacy Policy"
-                  icon="shield-checkmark-outline"
-                  open={openLegalSection === "privacy"}
-                  sections={PRIVACY_POLICY_SECTIONS}
-                  onToggle={() => setOpenLegalSection((current) => (current === "privacy" ? "" : "privacy"))}
-                  darkMode={accountDarkMode}
-                />
-                <LegalDocument
-                  title="Terms of Service"
-                  icon="document-text-outline"
-                  open={openLegalSection === "terms"}
-                  sections={TERMS_OF_SERVICE_SECTIONS}
-                  onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
-                  darkMode={accountDarkMode}
-                />
-              </View>
-              {isAuthenticated && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                  <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Account deletion</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                    You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
-                  </Text>
-                  {accountDeletionRequest ? (
-                    <View style={[styles.deletionRequestBox, accountDarkMode && styles.accountDarkInsetBox]}>
-                      <View style={styles.feedbackHeader}>
-                        <Ionicons name="time-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Deletion request pending</Text>
+                <Pressable
+                  onPress={() => setAccountPrivacyOpen((open) => !open)}
+                  style={styles.accountCollapsibleHeader}
+                  accessibilityRole="button"
+                  accessibilityLabel={accountPrivacyOpen ? "Hide privacy and data" : "Show privacy and data"}
+                >
+                  <View style={styles.accountCollapsibleTitleBlock}>
+                    <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Privacy & data</Text>
+                    <Text style={[styles.helpIntro, styles.accountCollapsibleSummary, accountDarkMode && styles.accountDarkMutedText]}>
+                      Legal details, saved data summary, and account deletion controls.
+                    </Text>
+                  </View>
+                  <Ionicons name={accountPrivacyOpen ? "chevron-up-outline" : "chevron-down-outline"} size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+                </Pressable>
+                {accountPrivacyOpen && (
+                  <View style={styles.accountCollapsibleBody}>
+                    {isAuthenticated && (
+                      <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Your saved data</Text>
+                        <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                          A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
+                        </Text>
+                        <View style={[styles.savedDataGrid, phoneLayout && styles.phoneSavedDataGrid]}>
+                          {savedDataItems.map((item) => (
+                            <View key={item.label} style={[styles.savedDataItem, phoneLayout && styles.phoneSavedDataItem, accountDarkMode && styles.accountDarkSavedDataItem]}>
+                              <View style={[styles.savedDataIcon, accountDarkMode && styles.accountDarkSavedDataIcon]}>
+                                <Ionicons name={item.icon as any} size={17} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              </View>
+                              <View style={styles.savedDataCopy}>
+                                <Text style={[styles.savedDataValue, accountDarkMode && styles.accountDarkTitle]}>{item.value}</Text>
+                                <Text style={[styles.savedDataLabel, accountDarkMode && styles.accountDarkMutedText]}>{item.label}</Text>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                        <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                          Account-linked studies, drafts, encouragements, memory verses, feedback, and usage events are removed if an approved deletion request is completed. Some Bible reader preferences and bookmarks may live on this device.
+                        </Text>
                       </View>
-                      <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
-                      <AppButton label="Cancel request" variant="secondary" onPress={cancelOwnAccountDeletionRequest} />
-                    </View>
-                  ) : (
-                    <View style={[styles.deletionRequestBox, accountDarkMode && styles.accountDarkInsetBox]}>
-                      <View style={styles.feedbackHeader}>
-                        <Ionicons name="warning-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Before requesting deletion</Text>
-                      </View>
-                      <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Approved deletion removes your profile, studies, drafts, encouragements, memory verses, feedback, usage events, and sign-in records where connected.</Text>
-                      <AppButton
-                        label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
-                        variant="secondary"
-                        onPress={submitAccountDeletionRequest}
+                    )}
+                    <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                      <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Legal</Text>
+                      <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
+                      <LegalDocument
+                        title="Privacy Policy"
+                        icon="shield-checkmark-outline"
+                        open={openLegalSection === "privacy"}
+                        sections={PRIVACY_POLICY_SECTIONS}
+                        onToggle={() => setOpenLegalSection((current) => (current === "privacy" ? "" : "privacy"))}
+                        darkMode={accountDarkMode}
+                      />
+                      <LegalDocument
+                        title="Terms of Service"
+                        icon="document-text-outline"
+                        open={openLegalSection === "terms"}
+                        sections={TERMS_OF_SERVICE_SECTIONS}
+                        onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
+                        darkMode={accountDarkMode}
                       />
                     </View>
-                  )}
-                  {!!deletionStatus && <Text style={styles.saveStatus}>{deletionStatus}</Text>}
-                </View>
-              )}
+                    {isAuthenticated && (
+                      <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Account deletion</Text>
+                        <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                          You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
+                        </Text>
+                        {accountDeletionRequest ? (
+                          <View style={[styles.deletionRequestBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                            <View style={styles.feedbackHeader}>
+                              <Ionicons name="time-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                              <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Deletion request pending</Text>
+                            </View>
+                            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`Requested ${formatAdminDate(accountDeletionRequest.requestedAt)}. You can cancel this request before it is approved.`}</Text>
+                            <AppButton label="Cancel request" variant="secondary" onPress={cancelOwnAccountDeletionRequest} />
+                          </View>
+                        ) : (
+                          <View style={[styles.deletionRequestBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                            <View style={styles.feedbackHeader}>
+                              <Ionicons name="warning-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                              <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Before requesting deletion</Text>
+                            </View>
+                            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Approved deletion removes your profile, studies, drafts, encouragements, memory verses, feedback, usage events, and sign-in records where connected.</Text>
+                            <AppButton
+                              label={deletionConfirmArmed ? "Request deletion" : "Request account deletion"}
+                              variant="secondary"
+                              onPress={submitAccountDeletionRequest}
+                            />
+                          </View>
+                        )}
+                        {!!deletionStatus && <Text style={styles.saveStatus}>{deletionStatus}</Text>}
+                      </View>
+                    )}
+                  </View>
+                )}
+              </View>
             </Card>
             {isAuthenticated && (
               <Card style={[styles.coachCard, compactLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
                 <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
-                    <Ionicons name={profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "person-circle-outline"} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Account status</Text>
-                  </View>
-                  <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>{`Signed in with ${accountProviderLabel}`}</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                    {`${accountIdentityLabel} is connected for cross-device sync.`}
-                  </Text>
-                </View>
-                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
-                  <View style={styles.feedbackHeader}>
-                    <Ionicons name="cloud-done-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Save status</Text>
-                  </View>
-                  <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>{backendStatusLabel}</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{backendStatusDetail}</Text>
-                </View>
-                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
-                  <View style={styles.feedbackHeader}>
-                    <Ionicons name="people-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Community settings</Text>
-                  </View>
-                  <Text style={[styles.communityTitle, accountDarkMode && styles.accountDarkTitle]}>Encouragements live in Community</Text>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Set your weekly goal and encouragement person or group from the Community tab.</Text>
-                  <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
-                </View>
-                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
-                  <View style={styles.feedbackHeader}>
                     <Ionicons name="shield-checkmark-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Privacy</Text>
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Account health</Text>
                   </View>
-                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Free coaching stays local. Study notes are not sent to an AI provider or paid API service.</Text>
+                  <View style={styles.accountHealthList}>
+                    {[
+                      {
+                        icon: profile?.authProvider === "google" ? "logo-google" : profile?.authProvider === "apple" ? "logo-apple" : "person-circle-outline",
+                        title: `Signed in with ${accountProviderLabel}`,
+                        body: `${accountIdentityLabel} is connected for cross-device sync.`
+                      },
+                      {
+                        icon: "cloud-done-outline",
+                        title: backendStatusLabel,
+                        body: backendStatusDetail
+                      },
+                      {
+                        icon: "lock-closed-outline",
+                        title: "Private by design",
+                        body: "Free coaching stays local. Study notes are not sent to an AI provider or paid API service."
+                      }
+                    ].map((item) => (
+                      <View key={item.title} style={[styles.accountHealthItem, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Ionicons name={item.icon as any} size={17} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                        <View style={styles.helpTabCopy}>
+                          <Text style={[styles.helpFaqQuestion, accountDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
+                          <Text style={[styles.helpFaqAnswer, accountDarkMode && styles.accountDarkMutedText]}>{item.body}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+                <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
+                  <View style={styles.feedbackHeader}>
+                    <Ionicons name="navigate-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                    <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Quick links</Text>
+                  </View>
+                  <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Jump to related areas without crowding the main account form.</Text>
+                  <ResumeButton label="Open community" icon="people-outline" onPress={() => setTab("accountability")} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Open journal" icon="journal-outline" onPress={() => setTab("journal")} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
                 </View>
                 {adminStats && (
                   <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
@@ -18123,6 +18166,35 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 14
   },
+  accountSubsection: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 12,
+    maxWidth: "100%",
+    minWidth: 0,
+    padding: 12
+  },
+  accountCollapsibleHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between",
+    minHeight: 44
+  },
+  accountCollapsibleTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  accountCollapsibleSummary: {
+    marginTop: 4
+  },
+  accountCollapsibleBody: {
+    gap: 12,
+    marginTop: 12
+  },
   accountDarkLayout: {
     backgroundColor: "#171b1c"
   },
@@ -18537,6 +18609,20 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0,
     padding: 14
+  },
+  accountHealthList: {
+    gap: 10
+  },
+  accountHealthItem: {
+    alignItems: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 9,
+    minWidth: 0,
+    padding: 10
   },
   accountAdminMetricGrid: {
     gap: 10

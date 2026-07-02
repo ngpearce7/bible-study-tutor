@@ -859,6 +859,7 @@ export default function Home() {
   }, [activeProfileId, incomingShareSource, recordUsage]);
 
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const profileAppearanceMode = (profile as any)?.appearanceMode;
   const profileMatchesActiveState =
     !!activeProfileId &&
     profile !== undefined &&
@@ -1425,10 +1426,6 @@ export default function Home() {
     setAccountEmail(profile.authEmail || "");
     setWeeklyGoal(profile.weeklyGoal || "");
     setPartner(profile.accountabilityPartner || "");
-    if (profile.appearanceMode === "light" || profile.appearanceMode === "dark") {
-      setAppearanceMode(profile.appearanceMode);
-      saveStoredAppearanceMode(profile.appearanceMode).catch(() => undefined);
-    }
     setMemoryMilestoneGoalIds(
       Array.isArray((profile as any).memoryMilestoneGoalIds)
         ? normalizeMemoryMilestoneIds((profile as any).memoryMilestoneGoalIds, false)
@@ -1453,6 +1450,15 @@ export default function Home() {
     if (profileUiPreferences.communityCircleToolsOpen !== undefined) setCircleManagerOpen(profileUiPreferences.communityCircleToolsOpen);
     if (profileUiPreferences.communityRecentExpanded !== undefined) setRecentCheckinsExpanded(profileUiPreferences.communityRecentExpanded);
   }, [profile, profileUiPreferences]);
+
+  useEffect(() => {
+    if (profileAppearanceMode !== "light" && profileAppearanceMode !== "dark") return;
+    setAppearanceMode((current) => {
+      if (current === profileAppearanceMode) return current;
+      saveStoredAppearanceMode(profileAppearanceMode).catch(() => undefined);
+      return profileAppearanceMode;
+    });
+  }, [profileAppearanceMode]);
 
   useEffect(() => {
     if (savedDraft === undefined) return;

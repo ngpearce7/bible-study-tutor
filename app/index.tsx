@@ -32,6 +32,14 @@ type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history";
 type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "collection" | "custom";
+type MemoryCollectionPrompt = {
+  source: "study" | "bible";
+  reference: string;
+  translationName: string;
+  verses: BibleVerse[];
+  note?: string;
+  collectionName: string;
+};
 type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
@@ -490,6 +498,8 @@ export default function Home() {
   const [memoryBrowseFiltersOpen, setMemoryBrowseFiltersOpen] = useState(false);
   const [expandedMemoryFilterBook, setExpandedMemoryFilterBook] = useState("");
   const [memoryFilterMobileMenu, setMemoryFilterMobileMenu] = useState<MemoryFilterMobileMenu>(null);
+  const [memoryCollectionPrompt, setMemoryCollectionPrompt] = useState<MemoryCollectionPrompt | null>(null);
+  const [memoryCollectionPromptSaving, setMemoryCollectionPromptSaving] = useState(false);
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
   const [memoryToolbarMoreOpen, setMemoryToolbarMoreOpen] = useState(false);
   const [memoryMilestonePickerOpen, setMemoryMilestonePickerOpen] = useState(false);
@@ -3285,6 +3295,83 @@ export default function Home() {
     setPassageMarkupNotes((current) => ({ ...current, [selectedHighlightedVerseKey]: note }));
   }
 
+  function prepareMemoryCollectionPrompt(source: "study" | "bible", reference: string, translationName: string, verses: BibleVerse[], note?: string) {
+    const collectionName = defaultMemoryCollectionName(reference, verses);
+    setMemoryCollectionPrompt({ source, reference, translationName, verses, note, collectionName });
+  }
+
+  async function saveMemorySelectionAsOne(request: MemoryCollectionPrompt) {
+    if (!activeProfileId) return;
+    const text = request.verses.map((verse) => verse.text.trim()).join(" ");
+    const statusSetter = request.source === "bible" ? setReaderMemoryStatus : setMemoryStatus;
+    statusSetter("Saving passage to Memory...");
+
+    try {
+      await saveMemoryVerse({
+        profileId: activeProfileId,
+        reference: request.reference,
+        verseText: text,
+        translationName: request.translationName,
+        note: request.note || undefined
+      });
+      statusSetter(`${request.reference} was recently added.`);
+      setMemoryStatus(`${request.reference} was recently added.`);
+      trackUsage("memory_saved", {
+        reference: request.reference,
+        translation: request.translationName,
+        tab: request.source
+      });
+      if (request.source === "study") setSelectedVerseKeys([]);
+      setMemoryCollectionPrompt(null);
+    } catch {
+      statusSetter("Could not save to Memory. Check that saving is connected.");
+    }
+  }
+
+  async function saveMemorySelectionAsCollection(request: MemoryCollectionPrompt) {
+    if (!activeProfileId || memoryCollectionPromptSaving) return;
+    const collectionName = (request.collectionName || defaultMemoryCollectionName(request.reference, request.verses)).trim();
+    const sections = splitMemorySelectionIntoSections(request.verses);
+    const statusSetter = request.source === "bible" ? setReaderMemoryStatus : setMemoryStatus;
+
+    if (!sections.length) return;
+    setMemoryCollectionPromptSaving(true);
+    statusSetter(`Creating ${collectionName} collection...`);
+
+    try {
+      for (const section of sections) {
+        const sectionReference = buildMemorySectionReference(section);
+        const memoryVerseId = await saveMemoryVerse({
+          profileId: activeProfileId,
+          reference: sectionReference,
+          verseText: section.map((verse) => verse.text.trim()).join(" "),
+          translationName: request.translationName,
+          note: request.note || undefined
+        });
+        await updateMemoryCollections({
+          profileId: activeProfileId,
+          memoryVerseId,
+          collections: [collectionName]
+        });
+      }
+
+      const message = `${request.reference} was split into ${sections.length} memory sections in ${collectionName}.`;
+      statusSetter(message);
+      setMemoryStatus(message);
+      trackUsage("memory_saved", {
+        reference: request.reference,
+        translation: request.translationName,
+        tab: request.source
+      });
+      if (request.source === "study") setSelectedVerseKeys([]);
+      setMemoryCollectionPrompt(null);
+    } catch {
+      statusSetter("Could not create that Memory collection. Try a smaller selection.");
+    } finally {
+      setMemoryCollectionPromptSaving(false);
+    }
+  }
+
   async function saveSelectedVersesToMemory() {
     if (!activeProfileId || selectedVerses.length === 0 || !passageText) return;
     if (selectedVersesAlreadyInMemory) {
@@ -3297,6 +3384,10 @@ export default function Home() {
       .map((verse) => passageMarkupNotes[verseMarkupKey(verse)]?.trim())
       .filter(Boolean)
       .join("\n");
+    if (shouldOfferMemoryCollectionSplit(selectedVerses)) {
+      prepareMemoryCollectionPrompt("study", reference, passageText.translation_name, selectedVerses, note || undefined);
+      return;
+    }
     setMemoryStatus("Saving verse to Memory...");
     try {
       await saveMemoryVerse({
@@ -3329,6 +3420,10 @@ export default function Home() {
     const verses = selectedReaderVerseObjects;
     if (!verses.length) return;
     const reference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
+    if (shouldOfferMemoryCollectionSplit(verses)) {
+      prepareMemoryCollectionPrompt("bible", reference, readerPassage.translation_name, verses);
+      return;
+    }
 
     setReaderMemoryStatus("Saving to Memory...");
     try {
@@ -9287,6 +9382,7 @@ export default function Home() {
                     title: "Memorize Scripture",
                     steps: [
                       "Save a verse to Memory from Bible or Study.",
+                      "For longer selections, choose Split into collection so the passage becomes smaller review sections.",
                       "Open Memory and press Practice.",
                       "Read the verse, fill every second word, then fill all words.",
                       "Use hints when needed and choose a review rhythm such as daily, weekly, monthly, or annually.",
@@ -9301,6 +9397,7 @@ export default function Home() {
                     steps: [
                       "Open Memory, then Browse.",
                       "Create collections for themes like Identity, Prayer, Promises, or Comfort.",
+                      "To work toward a whole chapter or book, save sections into one collection such as Romans or Psalm 23.",
                       "Filter by collection when you want to review or print a focused set.",
                       "Use bulk review options after filtering if you want to change several review dates together."
                     ],
@@ -9659,6 +9756,81 @@ export default function Home() {
               ) : (
                 <ResumeButton label="Save meditation" icon="journal-outline" onPress={() => saveMemoryMeditation(activeMemoryMeditationVerse)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
               )}
+            </View>
+          </View>
+        </View>
+      )}
+      {memoryCollectionPrompt && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable
+            style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]}
+            onPress={() => !memoryCollectionPromptSaving && setMemoryCollectionPrompt(null)}
+          />
+          <View
+            style={[
+              styles.printOptionsCard,
+              styles.memoryCollectionPromptCard,
+              phoneLayout && styles.phonePrintOptionsCard,
+              accountDarkMode && styles.accountDarkMainCard
+            ]}
+          >
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Save as Memory collection?</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                  {memoryCollectionPrompt.reference} is a longer selection. Split it into smaller sections so it is easier to review.
+                </Text>
+              </View>
+              <Pressable disabled={memoryCollectionPromptSaving} onPress={() => setMemoryCollectionPrompt(null)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+
+            <View style={styles.printOptionGroup}>
+              <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection name</Text>
+              <TextInput
+                value={memoryCollectionPrompt.collectionName}
+                onChangeText={(collectionName) => setMemoryCollectionPrompt((current) => current ? { ...current, collectionName } : current)}
+                placeholder="Romans 1"
+                placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+              />
+            </View>
+
+            <View style={[styles.memoryCollectionPromptSummary, accountDarkMode && styles.memoryDarkSoftPanel]}>
+              <Ionicons name="albums-outline" size={20} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+              <Text style={[styles.memoryCollectionPromptText, accountDarkMode && styles.accountDarkMutedText]}>
+                This will create {splitMemorySelectionIntoSections(memoryCollectionPrompt.verses).length} smaller memory section{splitMemorySelectionIntoSections(memoryCollectionPrompt.verses).length === 1 ? "" : "s"} inside one collection.
+              </Text>
+            </View>
+
+            <View style={styles.printOptionsActions}>
+              <Pressable
+                disabled={memoryCollectionPromptSaving}
+                onPress={() => setMemoryCollectionPrompt(null)}
+                style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}
+              >
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+              </Pressable>
+              {canSaveMemorySelectionAsSingle(memoryCollectionPrompt.verses) && (
+                <Pressable
+                  disabled={memoryCollectionPromptSaving}
+                  onPress={() => saveMemorySelectionAsOne(memoryCollectionPrompt)}
+                  style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}
+                >
+                  <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Save as one</Text>
+                </Pressable>
+              )}
+              <Pressable
+                disabled={memoryCollectionPromptSaving}
+                onPress={() => saveMemorySelectionAsCollection(memoryCollectionPrompt)}
+                style={[styles.resumeButton, styles.primaryResumeButton, phoneLayout && styles.phonePrintOpenButton, memoryCollectionPromptSaving && styles.disabledButton]}
+              >
+                <Ionicons name="folder-open-outline" size={17} color="white" />
+                <Text style={[styles.primaryResumeButtonText, phoneLayout && styles.phonePrintOpenButtonText]}>
+                  {memoryCollectionPromptSaving ? "Saving..." : "Split into collection"}
+                </Text>
+              </Pressable>
             </View>
           </View>
         </View>
@@ -13582,6 +13754,61 @@ function buildReaderStudyReference(book: string, chapter: number, selectedVerses
   const start = sorted[0];
   const end = sorted[sorted.length - 1];
   return start === end ? `${referenceBook} ${chapter}:${start}` : `${referenceBook} ${chapter}:${start}-${end}`;
+}
+
+const MEMORY_SINGLE_TEXT_LIMIT = 4800;
+const MEMORY_COLLECTION_PROMPT_VERSE_THRESHOLD = 12;
+const MEMORY_COLLECTION_SECTION_VERSE_LIMIT = 6;
+const MEMORY_COLLECTION_SECTION_TEXT_LIMIT = 900;
+
+function shouldOfferMemoryCollectionSplit(verses: BibleVerse[]) {
+  if (verses.length <= 1) return false;
+  if (verses.map((verse) => verse.text.trim()).join(" ").length > MEMORY_SINGLE_TEXT_LIMIT) return true;
+  const chapterKeys = new Set(verses.map((verse) => `${verse.book_name}:${verse.chapter}`));
+  return verses.length > MEMORY_COLLECTION_PROMPT_VERSE_THRESHOLD || chapterKeys.size > 1;
+}
+
+function canSaveMemorySelectionAsSingle(verses: BibleVerse[]) {
+  return verses.map((verse) => verse.text.trim()).join(" ").length <= MEMORY_SINGLE_TEXT_LIMIT;
+}
+
+function splitMemorySelectionIntoSections(verses: BibleVerse[]) {
+  const sections: BibleVerse[][] = [];
+  let current: BibleVerse[] = [];
+  let currentTextLength = 0;
+
+  verses.forEach((verse) => {
+    const verseTextLength = verse.text.trim().length;
+    const previous = current[current.length - 1];
+    const chapterChanged = previous && (previous.book_name !== verse.book_name || previous.chapter !== verse.chapter);
+    const sectionFull = current.length >= MEMORY_COLLECTION_SECTION_VERSE_LIMIT;
+    const sectionTooLong = current.length > 0 && currentTextLength + verseTextLength > MEMORY_COLLECTION_SECTION_TEXT_LIMIT;
+
+    if (chapterChanged || sectionFull || sectionTooLong) {
+      sections.push(current);
+      current = [];
+      currentTextLength = 0;
+    }
+
+    current.push(verse);
+    currentTextLength += verseTextLength;
+  });
+
+  if (current.length) sections.push(current);
+  return sections;
+}
+
+function buildMemorySectionReference(verses: BibleVerse[]) {
+  return buildMemoryReference(verses);
+}
+
+function defaultMemoryCollectionName(reference: string, verses: BibleVerse[]) {
+  if (!verses.length) return `${reference} Memory`;
+  const books = Array.from(new Set(verses.map((verse) => normalizeBibleBookName(verse.book_name))));
+  const chapters = Array.from(new Set(verses.map((verse) => verse.chapter))).sort((a, b) => a - b);
+  if (books.length === 1 && chapters.length === 1) return `${books[0]} ${chapters[0]}`;
+  if (books.length === 1 && chapters.length > 1) return `${books[0]} ${chapters[0]}-${chapters[chapters.length - 1]}`;
+  return reference.replace(/:\d+.*$/, "").trim() || `${reference} Memory`;
 }
 
 function shortBibleTranslationName(name?: string) {
@@ -21860,6 +22087,27 @@ const styles = StyleSheet.create({
   memoryPrintOptionsCard: {
     overflow: "hidden"
   },
+  memoryCollectionPromptCard: {
+    maxWidth: 560
+  },
+  memoryCollectionPromptSummary: {
+    alignItems: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 9,
+    padding: 10
+  },
+  memoryCollectionPromptText: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 18,
+    minWidth: 0
+  },
   editorSettingsCard: {
     maxWidth: 520,
     overflow: "hidden"
@@ -22583,6 +22831,9 @@ const styles = StyleSheet.create({
   },
   resumeButtonPressed: {
     opacity: 0.72
+  },
+  disabledButton: {
+    opacity: 0.56
   },
   resumeButtonText: {
     color: colors.coral,

@@ -40,6 +40,13 @@ type MemoryCollectionPrompt = {
   note?: string;
   collectionName: string;
 };
+type MemoryBookCollectionDraft = {
+  book: string;
+  mode: "whole" | "range";
+  startChapter: string;
+  endChapter: string;
+  collectionName: string;
+};
 type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
@@ -500,6 +507,16 @@ export default function Home() {
   const [memoryFilterMobileMenu, setMemoryFilterMobileMenu] = useState<MemoryFilterMobileMenu>(null);
   const [memoryCollectionPrompt, setMemoryCollectionPrompt] = useState<MemoryCollectionPrompt | null>(null);
   const [memoryCollectionPromptSaving, setMemoryCollectionPromptSaving] = useState(false);
+  const [memoryBookCollectionOpen, setMemoryBookCollectionOpen] = useState(false);
+  const [memoryBookCollectionDraft, setMemoryBookCollectionDraft] = useState<MemoryBookCollectionDraft>({
+    book: "Romans",
+    mode: "whole",
+    startChapter: "1",
+    endChapter: String(BIBLE_CHAPTER_COUNTS.Romans || 16),
+    collectionName: "Romans"
+  });
+  const [memoryBookCollectionSaving, setMemoryBookCollectionSaving] = useState(false);
+  const [memoryBookCollectionStatus, setMemoryBookCollectionStatus] = useState("");
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
   const [memoryToolbarMoreOpen, setMemoryToolbarMoreOpen] = useState(false);
   const [memoryMilestonePickerOpen, setMemoryMilestonePickerOpen] = useState(false);
@@ -3369,6 +3386,89 @@ export default function Home() {
       statusSetter("Could not create that Memory collection. Try a smaller selection.");
     } finally {
       setMemoryCollectionPromptSaving(false);
+    }
+  }
+
+  function openMemoryBookCollectionBuilder() {
+    setMemoryBookCollectionStatus("");
+    setMemoryBookCollectionOpen(true);
+  }
+
+  function updateMemoryBookCollectionBook(book: string) {
+    const chapterCount = BIBLE_CHAPTER_COUNTS[book] || 1;
+    setMemoryBookCollectionDraft((current) => ({
+      ...current,
+      book,
+      endChapter: current.mode === "whole" ? String(chapterCount) : String(Math.min(Number(current.endChapter) || chapterCount, chapterCount)),
+      collectionName: current.collectionName === current.book || !current.collectionName.trim() ? normalizeBibleBookName(book) : current.collectionName
+    }));
+  }
+
+  function updateMemoryBookCollectionMode(mode: "whole" | "range") {
+    setMemoryBookCollectionDraft((current) => ({
+      ...current,
+      mode,
+      startChapter: mode === "whole" ? "1" : current.startChapter,
+      endChapter: mode === "whole" ? String(BIBLE_CHAPTER_COUNTS[current.book] || 1) : current.endChapter
+    }));
+  }
+
+  async function createMemoryCollectionFromBible() {
+    if (!activeProfileId || memoryBookCollectionSaving) return;
+    const book = memoryBookCollectionDraft.book;
+    const chapterCount = BIBLE_CHAPTER_COUNTS[book] || 1;
+    const rawStart = memoryBookCollectionDraft.mode === "whole" ? 1 : Number(memoryBookCollectionDraft.startChapter);
+    const rawEnd = memoryBookCollectionDraft.mode === "whole" ? chapterCount : Number(memoryBookCollectionDraft.endChapter);
+    const startChapter = Math.max(1, Math.min(chapterCount, Number.isFinite(rawStart) ? Math.round(rawStart) : 1));
+    const endChapter = Math.max(startChapter, Math.min(chapterCount, Number.isFinite(rawEnd) ? Math.round(rawEnd) : startChapter));
+    const chapters = Array.from({ length: endChapter - startChapter + 1 }, (_, index) => startChapter + index);
+    const collectionName = (memoryBookCollectionDraft.collectionName || `${normalizeBibleBookName(book)} ${startChapter}-${endChapter}`).trim();
+
+    if (chapters.length > 40) {
+      setMemoryBookCollectionStatus("Choose 40 chapters or fewer at a time so the app can create the collection safely.");
+      return;
+    }
+
+    setMemoryBookCollectionSaving(true);
+    setMemoryBookCollectionStatus(`Creating ${collectionName}...`);
+
+    try {
+      for (const chapter of chapters) {
+        const reference = buildReaderStudyReference(book, chapter, []);
+        const controller = new AbortController();
+        const passage = bibleTranslation === "bsb"
+          ? await fetchBsbPassage(reference, controller.signal)
+          : await fetchBibleApiPassage(reference, bibleTranslation, controller.signal);
+        const memoryVerseId = await saveMemoryVerse({
+          profileId: activeProfileId,
+          reference,
+          verseText: (passage.verses || []).map((verse) => verse.text.trim()).join(" "),
+          translationName: passage.translation_name
+        });
+        await updateMemoryCollections({
+          profileId: activeProfileId,
+          memoryVerseId,
+          collections: [collectionName]
+        });
+      }
+
+      const message = `${collectionName} was created with ${chapters.length} chapter${chapters.length === 1 ? "" : "s"}.`;
+      setMemoryBookCollectionStatus(message);
+      setMemoryStatus(message);
+      setMemoryBookCollectionOpen(false);
+      setAddMemoryPanelOpen(false);
+      setMemoryView("browse");
+      setMemoryCollectionFilter(collectionName);
+      trackUsage("memory_collection_created", {
+        reference: chapters.length === 1 ? `${normalizeBibleBookName(book)} ${startChapter}` : `${normalizeBibleBookName(book)} ${startChapter}-${endChapter}`,
+        translation: bibleTranslation.toUpperCase(),
+        tab: "memory",
+        book
+      });
+    } catch {
+      setMemoryBookCollectionStatus("Could not create that collection. Try a smaller chapter range.");
+    } finally {
+      setMemoryBookCollectionSaving(false);
     }
   }
 
@@ -6410,6 +6510,13 @@ export default function Home() {
                           style={[styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
                           labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                         />
+                        <AppButton
+                          label="Collection"
+                          variant="secondary"
+                          onPress={openMemoryBookCollectionBuilder}
+                          style={[styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                        />
                       </View>
                     </View>
                   )}
@@ -6449,6 +6556,7 @@ export default function Home() {
                   <View style={styles.emptyMemoryActions}>
                     <AppButton label="Open Bible" onPress={() => setTab("bible")} />
                     <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                    <AppButton label="Create collection" variant="secondary" onPress={openMemoryBookCollectionBuilder} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                   </View>
                 </View>
               ) : (
@@ -6484,6 +6592,7 @@ export default function Home() {
                         <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
                           <AppButton label={phoneLayout ? "Bible" : "Find in Bible"} onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddActionButton} />
                           <AppButton label={phoneLayout ? "Study" : "Open Study"} variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                          <AppButton label="Collection" variant="secondary" onPress={openMemoryBookCollectionBuilder} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                         </View>
                       )}
                     </View>
@@ -9397,6 +9506,7 @@ export default function Home() {
                     steps: [
                       "Open Memory, then Browse.",
                       "Create collections for themes like Identity, Prayer, Promises, or Comfort.",
+                      "Use Add verses, then Collection, to create a collection from a whole Bible book or chapter range.",
                       "To work toward a whole chapter or book, save sections into one collection such as Romans or Psalm 23.",
                       "Filter by collection when you want to review or print a focused set.",
                       "Use bulk review options after filtering if you want to change several review dates together."
@@ -9829,6 +9939,139 @@ export default function Home() {
                 <Ionicons name="folder-open-outline" size={17} color="white" />
                 <Text style={[styles.primaryResumeButtonText, phoneLayout && styles.phonePrintOpenButtonText]}>
                   {memoryCollectionPromptSaving ? "Saving..." : "Split into collection"}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
+      {memoryBookCollectionOpen && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable
+            style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]}
+            onPress={() => !memoryBookCollectionSaving && setMemoryBookCollectionOpen(false)}
+          />
+          <View
+            style={[
+              styles.printOptionsCard,
+              styles.memoryBookCollectionCard,
+              phoneLayout && styles.phonePrintOptionsCard,
+              accountDarkMode && styles.accountDarkMainCard
+            ]}
+          >
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Create Memory collection</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                  Choose a Bible book or chapter range. Each chapter becomes one saved Memory section in the collection.
+                </Text>
+              </View>
+              <Pressable disabled={memoryBookCollectionSaving} onPress={() => setMemoryBookCollectionOpen(false)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={styles.memoryBookCollectionContent} keyboardShouldPersistTaps="handled">
+              <View style={styles.printOptionGroup}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Book</Text>
+                <View style={[styles.memoryBookPicker, accountDarkMode && styles.memoryDarkSoftPanel]}>
+                  {[
+                    ["New Testament", NEW_TESTAMENT_BOOKS],
+                    ["Old Testament", OLD_TESTAMENT_BOOKS]
+                  ].map(([label, books]) => (
+                    <View key={label as string} style={styles.memoryBookPickerSection}>
+                      <Text style={[styles.memoryBookPickerLabel, accountDarkMode && styles.accountDarkMutedText]}>{label as string}</Text>
+                      <View style={styles.memoryBookPickerGrid}>
+                        {(books as string[]).map((book) => (
+                          <Pressable
+                            key={book}
+                            onPress={() => updateMemoryBookCollectionBook(book)}
+                            style={[styles.memoryBookPickerChip, accountDarkMode && styles.printDarkOptionChip, memoryBookCollectionDraft.book === book && styles.activePrintOptionChip]}
+                          >
+                            <Text style={[styles.memoryBookPickerChipText, accountDarkMode && styles.accountDarkMutedText, memoryBookCollectionDraft.book === book && styles.activePrintOptionChipText]}>{displayBibleBookName(book)}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              <View style={styles.printOptionGroup}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Range</Text>
+                <View style={styles.printOptionChipRow}>
+                  {[
+                    ["whole", `Whole book (${BIBLE_CHAPTER_COUNTS[memoryBookCollectionDraft.book] || 1})`],
+                    ["range", "Chapter range"]
+                  ].map(([key, label]) => (
+                    <Pressable
+                      key={key}
+                      onPress={() => updateMemoryBookCollectionMode(key as "whole" | "range")}
+                      style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryBookCollectionDraft.mode === key && styles.activePrintOptionChip]}
+                    >
+                      <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryBookCollectionDraft.mode === key && styles.activePrintOptionChipText]}>{label}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+                {memoryBookCollectionDraft.mode === "range" && (
+                  <View style={styles.memoryBookRangeRow}>
+                    <TextInput
+                      value={memoryBookCollectionDraft.startChapter}
+                      onChangeText={(startChapter) => setMemoryBookCollectionDraft((current) => ({ ...current, startChapter }))}
+                      keyboardType="number-pad"
+                      placeholder="Start"
+                      placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                      style={[styles.input, styles.memoryBookRangeInput, accountDarkMode && styles.accountDarkInput]}
+                    />
+                    <Text style={[styles.memoryBookRangeDash, accountDarkMode && styles.accountDarkMutedText]}>to</Text>
+                    <TextInput
+                      value={memoryBookCollectionDraft.endChapter}
+                      onChangeText={(endChapter) => setMemoryBookCollectionDraft((current) => ({ ...current, endChapter }))}
+                      keyboardType="number-pad"
+                      placeholder="End"
+                      placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                      style={[styles.input, styles.memoryBookRangeInput, accountDarkMode && styles.accountDarkInput]}
+                    />
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.printOptionGroup}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection name</Text>
+                <TextInput
+                  value={memoryBookCollectionDraft.collectionName}
+                  onChangeText={(collectionName) => setMemoryBookCollectionDraft((current) => ({ ...current, collectionName }))}
+                  placeholder="Romans"
+                  placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                  style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                />
+              </View>
+
+              <View style={[styles.memoryCollectionPromptSummary, accountDarkMode && styles.memoryDarkSoftPanel]}>
+                <Ionicons name="information-circle-outline" size={20} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+                <Text style={[styles.memoryCollectionPromptText, accountDarkMode && styles.accountDarkMutedText]}>
+                  Whole books over 40 chapters should be created in chapter ranges. This keeps the app responsive and avoids creating too much at once.
+                </Text>
+              </View>
+              {!!memoryBookCollectionStatus && <Text style={[styles.saveStatus, accountDarkMode && styles.accountDarkMutedText]}>{memoryBookCollectionStatus}</Text>}
+            </ScrollView>
+
+            <View style={styles.printOptionsActions}>
+              <Pressable
+                disabled={memoryBookCollectionSaving}
+                onPress={() => setMemoryBookCollectionOpen(false)}
+                style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}
+              >
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                disabled={memoryBookCollectionSaving}
+                onPress={createMemoryCollectionFromBible}
+                style={[styles.resumeButton, styles.primaryResumeButton, phoneLayout && styles.phonePrintOpenButton, memoryBookCollectionSaving && styles.disabledButton]}
+              >
+                <Ionicons name="folder-open-outline" size={17} color="white" />
+                <Text style={[styles.primaryResumeButtonText, phoneLayout && styles.phonePrintOpenButtonText]}>
+                  {memoryBookCollectionSaving ? "Creating..." : "Create collection"}
                 </Text>
               </Pressable>
             </View>
@@ -22089,6 +22332,67 @@ const styles = StyleSheet.create({
   },
   memoryCollectionPromptCard: {
     maxWidth: 560
+  },
+  memoryBookCollectionCard: {
+    maxHeight: "86%",
+    maxWidth: 680,
+    overflow: "hidden"
+  },
+  memoryBookCollectionScroll: {
+    flexShrink: 1
+  },
+  memoryBookCollectionContent: {
+    gap: 14,
+    paddingBottom: 4
+  },
+  memoryBookPicker: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 12,
+    padding: 10
+  },
+  memoryBookPickerSection: {
+    gap: 7
+  },
+  memoryBookPickerLabel: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  memoryBookPickerGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  memoryBookPickerChip: {
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 9,
+    paddingVertical: 7
+  },
+  memoryBookPickerChipText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  memoryBookRangeRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8
+  },
+  memoryBookRangeInput: {
+    flex: 1,
+    minWidth: 72
+  },
+  memoryBookRangeDash: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "900"
   },
   memoryCollectionPromptSummary: {
     alignItems: "flex-start",

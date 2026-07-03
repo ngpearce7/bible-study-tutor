@@ -59,13 +59,13 @@ export const MORE_MEMORY_REVIEW_OPTIONS = MEMORY_REVIEW_OPTIONS.filter((option) 
 export const MEMORY_MILESTONE_GOALS: { id: MemoryMilestoneGoalId; label: string; description: string }[] = [
   { id: "reviewsToday", label: "Reviews Today", description: "Completed memory reviews today." },
   { id: "reviewsThisWeek", label: "Reviews This Week", description: "Saved verses reviewed during the current week." },
-  { id: "reviewDaysThisWeek", label: "Review Days This Week", description: "Separate days you returned to memory practice this week." },
+  { id: "reviewDaysThisWeek", label: "Review Days This Week", description: "Separate days you returned to memory practice this week, including repeats." },
   { id: "totalReviews", label: "Total Reviews", description: "Lifetime memory reviews across saved verses." },
   { id: "versesMemorized", label: "Verses Memorized", description: "Saved verses that reached the memorized stage." },
   { id: "versesSaved", label: "Verses Saved", description: "Verses currently saved in Memory." },
   { id: "booksCovered", label: "Books Covered", description: "Bible books represented in reviewed memory verses." },
-  { id: "longestReviewRhythm", label: "Longest Review Rhythm", description: "Your longest run of memory-review days." },
-  { id: "currentReviewRhythm", label: "Current Review Rhythm", description: "Your active run of recent review days." },
+  { id: "longestReviewRhythm", label: "Best Practice Rhythm", description: "Your longest run of memory-practice days." },
+  { id: "currentReviewRhythm", label: "Current Practice Rhythm", description: "Your active run of recent memory-practice days." },
   { id: "mostReviewedVerse", label: "Most Reviewed Verse", description: "The verse you have returned to most often." },
   { id: "dueVersesCleared", label: "Due Verses Cleared", description: "Verses reviewed today and moved out of the due list." },
   { id: "firstTimeReviews", label: "First-Time Reviews", description: "Verses receiving their first full review this week." }
@@ -276,9 +276,11 @@ export function buildMemoryHistorySummary(
 ) {
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
   const repeatedEvents = history.filter((event) => event.event === "repeated");
+  const practiceEvents = history.filter((event) => event.event === "reviewed" || event.event === "repeated");
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedTodayEvents = reviewedEvents.filter((event) => isTodayLocal(event.createdAt));
   const reviewedThisWeekEvents = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7);
+  const practiceThisWeekEvents = practiceEvents.filter((event) => daysAgo(event.createdAt) < 7);
   const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
   const reviewedToday = verses.length
     ? verses.filter((verse) => isTodayLocal(verse.lastReviewedAt)).length
@@ -286,7 +288,7 @@ export function buildMemoryHistorySummary(
   const reviewedThisWeek = verses.length
     ? verses.filter((verse) => Boolean(verse.lastReviewedAt) && daysAgo(verse.lastReviewedAt || 0) < 7).length
     : uniqueReferenceCount(reviewedThisWeekEvents);
-  const reviewDaysThisWeek = uniqueReviewDays(reviewedThisWeekEvents).length;
+  const reviewDaysThisWeek = uniqueReviewDays(practiceThisWeekEvents).length;
   const mostReviewed = verses.length ? mostReviewedVerse(reviewedVerses) : mostFrequentReference(reviewedEvents);
 
   return {
@@ -428,9 +430,11 @@ export function buildMemoryMilestones(
 ) {
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
+  const practiceEvents = history.filter((event) => event.event === "reviewed" || event.event === "repeated");
   const reviewedEventsThisWeek = reviewedEvents.filter((event) => daysAgo(event.createdAt) < 7);
-  const reviewDaysThisWeek = uniqueReviewDays(reviewedEventsThisWeek).length;
-  const reviewDayKeys = uniqueReviewDays(reviewedEvents);
+  const practiceEventsThisWeek = practiceEvents.filter((event) => daysAgo(event.createdAt) < 7);
+  const reviewDaysThisWeek = uniqueReviewDays(practiceEventsThisWeek).length;
+  const reviewDayKeys = uniqueReviewDays(practiceEvents);
   const reviewRhythm = buildReviewRhythm(reviewDayKeys);
   const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
   const reviewedTodayCount = verses.length
@@ -479,7 +483,7 @@ export function buildMemoryMilestones(
       id: "reviewDaysThisWeek",
       title: reviewDaysThisWeek > 0 ? `${formatMilestoneCount(reviewDaysThisWeek)} Review Day${reviewDaysThisWeek === 1 ? "" : "s"}` : "Review Days This Week",
       description: reviewDaysThisWeek > 0
-        ? `You returned to memory practice on ${reviewDaysThisWeek} day${reviewDaysThisWeek === 1 ? "" : "s"} this week.`
+        ? `You returned to memory practice on ${reviewDaysThisWeek} day${reviewDaysThisWeek === 1 ? "" : "s"} this week, including repeats.`
         : "Review on separate days to build a weekly rhythm.",
       achieved: reviewDaysThisWeek > 0
     },
@@ -519,7 +523,7 @@ export function buildMemoryMilestones(
       id: "longestReviewRhythm",
       title: reviewRhythm.longest > 0 ? `${formatMilestoneCount(reviewRhythm.longest)}-Day Best` : "Longest Review Rhythm",
       description: reviewRhythm.longest > 0
-        ? `Your longest memory-review rhythm is ${reviewRhythm.longest} day${reviewRhythm.longest === 1 ? "" : "s"}.`
+        ? `Your best memory-practice rhythm is ${reviewRhythm.longest} day${reviewRhythm.longest === 1 ? "" : "s"}. Current rhythm: ${reviewRhythm.current} day${reviewRhythm.current === 1 ? "" : "s"}.`
         : "Review on consecutive days to begin a rhythm.",
       achieved: reviewRhythm.longest > 0
     },
@@ -527,7 +531,7 @@ export function buildMemoryMilestones(
       id: "currentReviewRhythm",
       title: reviewRhythm.current > 0 ? `${formatMilestoneCount(reviewRhythm.current)}-Day Rhythm` : "Current Review Rhythm",
       description: reviewRhythm.current > 0
-        ? `Your current memory-review rhythm is ${reviewRhythm.current} day${reviewRhythm.current === 1 ? "" : "s"}.`
+        ? `Your current memory-practice rhythm is ${reviewRhythm.current} day${reviewRhythm.current === 1 ? "" : "s"}, including repeats.`
         : "Review today to begin or continue your current rhythm.",
       achieved: reviewRhythm.current > 0
     },

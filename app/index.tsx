@@ -515,6 +515,7 @@ export default function Home() {
     endChapter: String(BIBLE_CHAPTER_COUNTS.Romans || 16),
     collectionName: "Romans"
   });
+  const [memoryBookCollectionTestamentOpen, setMemoryBookCollectionTestamentOpen] = useState<"old" | "new" | null>("new");
   const [memoryBookCollectionSaving, setMemoryBookCollectionSaving] = useState(false);
   const [memoryBookCollectionStatus, setMemoryBookCollectionStatus] = useState("");
   const [memoryHistoryExpanded, setMemoryHistoryExpanded] = useState(false);
@@ -9974,26 +9975,47 @@ export default function Home() {
             <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={styles.memoryBookCollectionContent} keyboardShouldPersistTaps="handled">
               <View style={styles.printOptionGroup}>
                 <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Book</Text>
-                <View style={[styles.memoryBookPicker, accountDarkMode && styles.memoryDarkSoftPanel]}>
+                <View style={styles.memoryBookDropdownStack}>
                   {[
-                    ["New Testament", NEW_TESTAMENT_BOOKS],
-                    ["Old Testament", OLD_TESTAMENT_BOOKS]
-                  ].map(([label, books]) => (
-                    <View key={label as string} style={styles.memoryBookPickerSection}>
-                      <Text style={[styles.memoryBookPickerLabel, accountDarkMode && styles.accountDarkMutedText]}>{label as string}</Text>
-                      <View style={styles.memoryBookPickerGrid}>
-                        {(books as string[]).map((book) => (
-                          <Pressable
-                            key={book}
-                            onPress={() => updateMemoryBookCollectionBook(book)}
-                            style={[styles.memoryBookPickerChip, accountDarkMode && styles.printDarkOptionChip, memoryBookCollectionDraft.book === book && styles.activePrintOptionChip]}
-                          >
-                            <Text style={[styles.memoryBookPickerChipText, accountDarkMode && styles.accountDarkMutedText, memoryBookCollectionDraft.book === book && styles.activePrintOptionChipText]}>{displayBibleBookName(book)}</Text>
-                          </Pressable>
-                        ))}
+                    { id: "new" as const, label: "New Testament", books: NEW_TESTAMENT_BOOKS },
+                    { id: "old" as const, label: "Old Testament", books: OLD_TESTAMENT_BOOKS }
+                  ].map((section) => {
+                    const open = memoryBookCollectionTestamentOpen === section.id;
+                    const selectedInSection = section.books.includes(memoryBookCollectionDraft.book);
+                    return (
+                      <View key={section.id} style={[styles.memoryBookDropdown, accountDarkMode && styles.memoryDarkSoftPanel]}>
+                        <Pressable
+                          accessibilityRole="button"
+                          onPress={() => setMemoryBookCollectionTestamentOpen((current) => current === section.id ? null : section.id)}
+                          style={styles.memoryBookDropdownHeader}
+                        >
+                          <View style={styles.memoryBookDropdownTitleBlock}>
+                            <Text style={[styles.memoryBookDropdownTitle, accountDarkMode && styles.accountDarkTitle]}>{section.label}</Text>
+                            <Text style={[styles.memoryBookDropdownSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                              {selectedInSection ? displayBibleBookName(memoryBookCollectionDraft.book) : `${section.books.length} books`}
+                            </Text>
+                          </View>
+                          <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                        {open && (
+                          <View style={styles.memoryBookPickerGrid}>
+                            {section.books.map((book) => (
+                              <Pressable
+                                key={book}
+                                onPress={() => {
+                                  updateMemoryBookCollectionBook(book);
+                                  setMemoryBookCollectionTestamentOpen(null);
+                                }}
+                                style={[styles.memoryBookPickerChip, accountDarkMode && styles.printDarkOptionChip, memoryBookCollectionDraft.book === book && styles.activePrintOptionChip]}
+                              >
+                                <Text style={[styles.memoryBookPickerChipText, accountDarkMode && styles.accountDarkMutedText, memoryBookCollectionDraft.book === book && styles.activePrintOptionChipText]}>{displayBibleBookName(book)}</Text>
+                              </Pressable>
+                            ))}
+                          </View>
+                        )}
                       </View>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </View>
               </View>
 
@@ -22345,22 +22367,38 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingBottom: 4
   },
-  memoryBookPicker: {
+  memoryBookDropdownStack: {
+    gap: 8
+  },
+  memoryBookDropdown: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
-    gap: 12,
-    padding: 10
+    gap: 8,
+    padding: 9
   },
-  memoryBookPickerSection: {
-    gap: 7
+  memoryBookDropdownHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minHeight: 42
   },
-  memoryBookPickerLabel: {
+  memoryBookDropdownTitleBlock: {
+    flex: 1,
+    minWidth: 0
+  },
+  memoryBookDropdownTitle: {
+    color: colors.oliveDark,
+    fontSize: 14,
+    fontWeight: "900"
+  },
+  memoryBookDropdownSubtitle: {
     color: colors.muted,
     fontSize: 11,
     fontWeight: "900",
-    textTransform: "uppercase"
+    lineHeight: 15
   },
   memoryBookPickerGrid: {
     flexDirection: "row",

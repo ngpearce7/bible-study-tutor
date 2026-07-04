@@ -7145,12 +7145,12 @@ export default function Home() {
                           {highlightedMemorySection && (
                             <View style={[styles.memorySectionSortRow, memoryDarkMode && styles.accountDarkInsetBox]}>
                               <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                                {sectionSort === "oldest" ? "Oldest first" : "Newest first"}
+                                {sectionSort === "oldest" ? "Soonest review first" : "Latest review first"}
                               </Text>
                               <View style={[styles.memorySortToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                                 {[
-                                  ["oldest", "Oldest"],
-                                  ["newest", "Newest"]
+                                  ["oldest", "Soonest"],
+                                  ["newest", "Latest"]
                                 ].map(([key, label]) => (
                                   <Pressable
                                     key={key}
@@ -13669,9 +13669,7 @@ function matchesJournalSearch(entry: any, searchTerm: string) {
 function sortMemoryReviewVerses(verses: any[], sectionTitle: string, sortOrder: MemoryReviewSort) {
   const direction = sortOrder === "oldest" ? 1 : -1;
   const timestampForSort = (verse: any) =>
-    sectionTitle === "Due for Review"
-      ? verse.nextReviewAt || verse.updatedAt || verse.createdAt || 0
-      : verse.lastReviewedAt || verse.nextReviewAt || verse.updatedAt || verse.createdAt || 0;
+    verse.nextReviewAt || verse.lastReviewedAt || verse.updatedAt || verse.createdAt || 0;
 
   return [...verses].sort((a, b) =>
     (timestampForSort(a) - timestampForSort(b)) * direction ||

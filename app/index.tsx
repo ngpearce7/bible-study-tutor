@@ -1999,9 +1999,8 @@ export default function Home() {
         preferredMethodId: method.id,
         appearanceMode: mode
       });
-      setAccountStatus("Appearance saved");
     } catch {
-      setAccountStatus("Appearance saved on this device only");
+      // Appearance still saves locally immediately; avoid placing theme feedback under Personal details.
     }
   }
 

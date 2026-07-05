@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View, type TextInput as TextInputType } from "react-native";
 import {
   formatMemoryBlankValue,
@@ -39,10 +39,11 @@ function MemoryBlankComponent({
   compact = false,
   darkMode = false
 }: MemoryBlankProps) {
+  const [attempted, setAttempted] = useState(false);
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
   const normalizedValue = normalizeMemoryAnswer(value);
   const normalizedAnswer = normalizeMemoryAnswer(token.answer);
-  const incorrect = !!normalizedValue && !correct && (checked || normalizedValue.length >= normalizedAnswer.length);
+  const incorrect = !!normalizedValue && !correct && (attempted || checked || normalizedValue.length > normalizedAnswer.length);
   const canShowMoreHint = memoryHintRevealCount(token.answer, hintLevel) < token.answer.replace(/[^a-z0-9]/gi, "").length;
 
   return (
@@ -50,8 +51,16 @@ function MemoryBlankComponent({
       <TextInput
         ref={inputRef}
         value={value}
-        onChangeText={(nextValue) => onChange(formatMemoryBlankValue(token.answer, nextValue))}
-        onSubmitEditing={onSubmit}
+        onChangeText={(nextValue) => {
+          setAttempted(false);
+          onChange(formatMemoryBlankValue(token.answer, nextValue));
+        }}
+        onFocus={() => setAttempted(false)}
+        onBlur={() => setAttempted(true)}
+        onSubmitEditing={() => {
+          setAttempted(true);
+          onSubmit?.();
+        }}
         autoCapitalize="none"
         blurOnSubmit={false}
         keyboardType={memoryAnswerIsReference(token.answer) ? "numbers-and-punctuation" : "default"}

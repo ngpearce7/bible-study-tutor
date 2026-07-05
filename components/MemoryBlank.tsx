@@ -43,7 +43,7 @@ function MemoryBlankComponent({
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
   const normalizedValue = normalizeMemoryAnswer(value);
   const normalizedAnswer = normalizeMemoryAnswer(token.answer);
-  const incorrect = !!normalizedValue && !correct && (attempted || checked || normalizedValue.length > normalizedAnswer.length);
+  const incorrect = !!normalizedValue && !correct && (attempted || checked || normalizedValue.length >= normalizedAnswer.length);
   const canShowMoreHint = memoryHintRevealCount(token.answer, hintLevel) < token.answer.replace(/[^a-z0-9]/gi, "").length;
 
   return (

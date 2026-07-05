@@ -7293,9 +7293,9 @@ export default function Home() {
                                       style={phoneLayout && styles.phoneMemoryActionButton}
                                       labelStyle={phoneLayout && styles.phoneMemoryActionText}
                                     />
-                                  ) : (
-                                    <ResumeButton label={memoryPracticeLevel === 1 ? "Ready for Step 2" : "Check answers"} icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
-                                  )}
+                                  ) : memoryPracticeLevel === 1 ? (
+                                    <ResumeButton label="Ready for Step 2" icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                                  ) : null}
                                   {memoryPracticeLevel > 1 && (
                                     <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
                                   )}

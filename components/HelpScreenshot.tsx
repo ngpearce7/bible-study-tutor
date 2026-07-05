@@ -70,7 +70,7 @@ export function HelpScreenshot({
               <View style={[styles.helpBlankWord, darkMode && styles.helpDarkBlankWord]} />
               <Text style={[styles.helpMemoryWord, darkMode && styles.accountDarkTitle]}>the</Text>
             </View>
-            <Text style={styles.helpDockButton}>Check answers</Text>
+            <Text style={styles.helpDockButton}>Instant feedback</Text>
           </>
         )}
         {variant === "journal" && (

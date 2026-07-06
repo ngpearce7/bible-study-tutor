@@ -15,6 +15,8 @@ const memoryMilestoneGoalIds = new Set([
   "booksCovered",
   "longestReviewRhythm",
   "currentReviewRhythm",
+  "averagePracticePerDay",
+  "practiceDaysThisMonth",
   "mostReviewedVerse",
   "dueVersesCleared",
   "firstTimeReviews"

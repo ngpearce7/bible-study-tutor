@@ -26,6 +26,8 @@ export type MemoryMilestoneGoalId =
   | "booksCovered"
   | "longestReviewRhythm"
   | "currentReviewRhythm"
+  | "averagePracticePerDay"
+  | "practiceDaysThisMonth"
   | "mostReviewedVerse"
   | "dueVersesCleared"
   | "firstTimeReviews";
@@ -72,17 +74,19 @@ export const MEMORY_MILESTONE_GOALS: { id: MemoryMilestoneGoalId; label: string;
   { id: "booksCovered", label: "Books Covered", description: "Bible books represented in reviewed memory verses." },
   { id: "longestReviewRhythm", label: "Best Practice Rhythm", description: "Your longest run of memory-practice days." },
   { id: "currentReviewRhythm", label: "Current Practice Rhythm", description: "Your active run of recent memory-practice days." },
+  { id: "averagePracticePerDay", label: "Average Practice", description: "Average saved verses practised on days you use Memory." },
+  { id: "practiceDaysThisMonth", label: "Practice Days This Month", description: "How many days you have practised Memory this month." },
   { id: "mostReviewedVerse", label: "Most Reviewed Verse", description: "The verse you have returned to most often." },
   { id: "dueVersesCleared", label: "Due Verses Cleared", description: "Verses reviewed today and moved out of the due list." },
   { id: "firstTimeReviews", label: "First-Time Reviews", description: "Verses receiving their first full review this week." }
 ];
 
 export const DEFAULT_MEMORY_MILESTONE_IDS: MemoryMilestoneGoalId[] = [
-  "reviewsToday",
-  "reviewDaysThisWeek",
-  "totalReviews",
-  "versesMemorized",
-  "booksCovered"
+  "currentReviewRhythm",
+  "longestReviewRhythm",
+  "averagePracticePerDay",
+  "practiceDaysThisMonth",
+  "dueVersesCleared"
 ];
 
 const MEMORY_MILESTONE_LIMIT = 5;
@@ -442,6 +446,8 @@ export function buildMemoryMilestones(
   const practiceEventsThisWeek = practiceEvents.filter((event) => daysAgo(event.createdAt) < 7);
   const reviewDaysThisWeek = uniqueReviewDays(practiceEventsThisWeek).length;
   const reviewDayKeys = uniqueReviewDays(practiceEvents);
+  const averagePracticePerDay = averageUniqueReferencesPerPracticeDay(practiceEvents);
+  const practiceDaysThisMonth = uniquePracticeDaysThisMonth(practiceEvents);
   const recentReviewRhythm = buildReviewRhythm(reviewDayKeys);
   const savedCurrentRhythm = typeof rhythmStats?.currentPracticeRhythm === "number"
     ? (memoryPracticeDayIsActive(rhythmStats.lastPracticeDayKey) ? Math.max(0, rhythmStats.currentPracticeRhythm) : 0)
@@ -551,6 +557,22 @@ export function buildMemoryMilestones(
       achieved: reviewRhythm.current > 0
     },
     {
+      id: "averagePracticePerDay",
+      title: averagePracticePerDay > 0 ? `${formatAveragePracticeCount(averagePracticePerDay)} Avg/Day` : "Average Practice",
+      description: averagePracticePerDay > 0
+        ? `On practice days, you usually practise about ${formatAveragePracticeCount(averagePracticePerDay)} saved verse${averagePracticePerDay === 1 ? "" : "s"}.`
+        : "Practise on a few days to see your usual Memory pace.",
+      achieved: averagePracticePerDay > 0
+    },
+    {
+      id: "practiceDaysThisMonth",
+      title: practiceDaysThisMonth > 0 ? `${formatMilestoneCount(practiceDaysThisMonth)} Practice Day${practiceDaysThisMonth === 1 ? "" : "s"}` : "Practice Days This Month",
+      description: practiceDaysThisMonth > 0
+        ? `You have practised Memory on ${practiceDaysThisMonth} day${practiceDaysThisMonth === 1 ? "" : "s"} this month.`
+        : "Practise this month and your monthly rhythm will appear here.",
+      achieved: practiceDaysThisMonth > 0
+    },
+    {
       id: "mostReviewedVerse",
       title: "Most Reviewed Verse",
       description: mostReviewed
@@ -644,6 +666,42 @@ function uniqueReviewDays(events: { createdAt: number }[]) {
     keys.add(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
   });
   return Array.from(keys);
+}
+
+function averageUniqueReferencesPerPracticeDay(events: { createdAt: number; reference: string }[]) {
+  const dayReferences = new Map<string, Set<string>>();
+  events.forEach((event) => {
+    const key = localDayKeyFromTimestamp(event.createdAt);
+    if (!key) return;
+    const reference = normalizeMemoryText(event.reference);
+    if (!reference) return;
+    const references = dayReferences.get(key) || new Set<string>();
+    references.add(reference);
+    dayReferences.set(key, references);
+  });
+
+  if (dayReferences.size === 0) return 0;
+  const total = Array.from(dayReferences.values()).reduce((sum, references) => sum + references.size, 0);
+  return total / dayReferences.size;
+}
+
+function uniquePracticeDaysThisMonth(events: { createdAt: number }[]) {
+  const now = new Date();
+  const keys = new Set<string>();
+  events.forEach((event) => {
+    const date = new Date(event.createdAt);
+    if (date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth()) {
+      const key = localDayKeyFromTimestamp(event.createdAt);
+      if (key) keys.add(key);
+    }
+  });
+  return keys.size;
+}
+
+function localDayKeyFromTimestamp(timestamp: number) {
+  const date = new Date(timestamp);
+  if (!Number.isFinite(date.getTime())) return "";
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
 function buildReviewRhythm(dayKeys: string[]) {
@@ -748,6 +806,11 @@ function formatMilestoneCount(count: number) {
 
 function formatReviewCountTitle(count: number) {
   return `${formatMilestoneCount(count)} Review${count === 1 ? "" : "s"}`;
+}
+
+function formatAveragePracticeCount(count: number) {
+  if (count <= 0) return "0";
+  return Number.isInteger(count) ? String(count) : count.toFixed(1);
 }
 
 function mostFrequentReference(events: { reference: string }[]) {

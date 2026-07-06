@@ -215,6 +215,14 @@ export default defineSchema({
   })
     .index("by_profile_created", ["profileId", "createdAt"])
     .index("by_profile_memoryVerse_created", ["profileId", "memoryVerseId", "createdAt"]),
+  memoryStats: defineTable({
+    profileId: v.id("profiles"),
+    currentPracticeRhythm: v.number(),
+    bestPracticeRhythm: v.number(),
+    lastPracticeDayKey: v.optional(v.string()),
+    updatedAt: v.number()
+  })
+    .index("by_profile", ["profileId"]),
   feedback: defineTable({
     profileId: v.id("profiles"),
     category: v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other")),

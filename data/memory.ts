@@ -37,6 +37,12 @@ export type MemoryBibleVerse = {
   text: string;
 };
 
+export type MemoryRhythmStats = {
+  currentPracticeRhythm?: number;
+  bestPracticeRhythm?: number;
+  lastPracticeDayKey?: string;
+};
+
 export const MEMORY_REVIEW_OPTIONS: { id: MemoryReviewPreset; label: string; days?: number; common?: boolean }[] = [
   { id: "daily", label: "Every day", days: 1, common: true },
   { id: "three-days", label: "Every 3 days", days: 3, common: true },
@@ -426,7 +432,8 @@ export function buildMemoryWeeklyScripture(
 export function buildMemoryMilestones(
   history: { event: MemoryHistoryEventKind; createdAt: number; reference: string; reviewCount?: number }[],
   verses: MemoryVerseForHistory[] = [],
-  selectedGoalIds: string[] = DEFAULT_MEMORY_MILESTONE_IDS
+  selectedGoalIds: string[] = DEFAULT_MEMORY_MILESTONE_IDS,
+  rhythmStats?: MemoryRhythmStats | null
 ) {
   const addedEvents = history.filter((event) => event.event === "added");
   const reviewedEvents = history.filter((event) => event.event === "reviewed");
@@ -435,7 +442,15 @@ export function buildMemoryMilestones(
   const practiceEventsThisWeek = practiceEvents.filter((event) => daysAgo(event.createdAt) < 7);
   const reviewDaysThisWeek = uniqueReviewDays(practiceEventsThisWeek).length;
   const reviewDayKeys = uniqueReviewDays(practiceEvents);
-  const reviewRhythm = buildReviewRhythm(reviewDayKeys);
+  const recentReviewRhythm = buildReviewRhythm(reviewDayKeys);
+  const savedCurrentRhythm = typeof rhythmStats?.currentPracticeRhythm === "number"
+    ? (memoryPracticeDayIsActive(rhythmStats.lastPracticeDayKey) ? Math.max(0, rhythmStats.currentPracticeRhythm) : 0)
+    : null;
+  const savedBestRhythm = typeof rhythmStats?.bestPracticeRhythm === "number" ? Math.max(0, rhythmStats.bestPracticeRhythm) : null;
+  const reviewRhythm = {
+    current: Math.max(savedCurrentRhythm ?? 0, recentReviewRhythm.current),
+    longest: Math.max(savedBestRhythm ?? 0, savedCurrentRhythm ?? 0, recentReviewRhythm.longest)
+  };
   const reviewedVerses = verses.filter((verse) => (verse.reviewCount || 0) > 0);
   const reviewedTodayCount = verses.length
     ? verses.filter((verse) => isTodayLocal(verse.lastReviewedAt)).length
@@ -661,6 +676,16 @@ function buildReviewRhythm(dayKeys: string[]) {
   const lastDay = days[days.length - 1];
   const current = lastDay === today || lastDay === yesterday ? currentRun : 0;
   return { current, longest };
+}
+
+function memoryPracticeDayIsActive(dayKey?: string) {
+  if (!dayKey) return false;
+  const [year, month, day] = dayKey.split("-").map((part) => Number(part));
+  if (!year || !month || !day) return false;
+  const dayTime = new Date(year, month - 1, day).getTime();
+  const today = startOfLocalDay(Date.now());
+  const yesterday = today - 1000 * 60 * 60 * 24;
+  return dayTime === today || dayTime === yesterday;
 }
 
 function uniqueReferenceCount(events: { reference: string }[]) {

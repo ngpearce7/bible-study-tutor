@@ -138,7 +138,8 @@ export const recordPractice = mutation({
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses"),
     result: v.union(v.literal("again"), v.literal("got-it")),
-    practiceLevel: v.number()
+    practiceLevel: v.number(),
+    localDayKey: v.optional(v.string())
   },
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
@@ -182,6 +183,7 @@ export const recordPractice = mutation({
       nextReviewAt: now + nextReviewDelay,
       createdAt: now
     });
+    await updateMemoryPracticeRhythm(ctx, args.profileId, args.localDayKey, now);
     return true;
   }
 });
@@ -311,7 +313,8 @@ export const recordHistoryEvent = mutation({
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses"),
     event: memoryHistoryEvent,
-    practiceLevel: v.optional(v.number())
+    practiceLevel: v.optional(v.number()),
+    localDayKey: v.optional(v.string())
   },
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
@@ -329,7 +332,30 @@ export const recordHistoryEvent = mutation({
       nextReviewAt: verse.nextReviewAt,
       createdAt: Date.now()
     });
+    if (args.event === "reviewed" || args.event === "repeated") {
+      await updateMemoryPracticeRhythm(ctx, args.profileId, args.localDayKey, Date.now());
+    }
     return true;
+  }
+});
+
+export const stats = query({
+  args: {
+    profileId: v.id("profiles")
+  },
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId);
+    const memoryStats = await ctx.db
+      .query("memoryStats")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .first();
+
+    return {
+      currentPracticeRhythm: memoryStats?.currentPracticeRhythm ?? 0,
+      bestPracticeRhythm: memoryStats?.bestPracticeRhythm ?? 0,
+      lastPracticeDayKey: memoryStats?.lastPracticeDayKey,
+      updatedAt: memoryStats?.updatedAt ?? 0
+    };
   }
 });
 
@@ -356,6 +382,112 @@ async function insertMemoryHistory(
     nextReviewAt: event.nextReviewAt,
     createdAt: event.createdAt
   });
+}
+
+async function updateMemoryPracticeRhythm(ctx: MutationCtx, profileId: Id<"profiles">, localDayKey: string | undefined, now: number) {
+  const dayKey = cleanLocalDayKey(localDayKey) || dayKeyFromTimestamp(now);
+  const existing = await ctx.db
+    .query("memoryStats")
+    .withIndex("by_profile", (q) => q.eq("profileId", profileId))
+    .first();
+
+  if (!existing) {
+    const seed = await recentPracticeRhythmSeed(ctx, profileId);
+    const currentPracticeRhythm = Math.max(1, seed.current);
+    const bestPracticeRhythm = Math.max(1, seed.longest, currentPracticeRhythm);
+    await ctx.db.insert("memoryStats", {
+      profileId,
+      currentPracticeRhythm,
+      bestPracticeRhythm,
+      lastPracticeDayKey: dayKey,
+      updatedAt: now
+    });
+    return;
+  }
+
+  if (existing.lastPracticeDayKey === dayKey) {
+    await ctx.db.patch(existing._id, {
+      bestPracticeRhythm: Math.max(existing.bestPracticeRhythm || 0, existing.currentPracticeRhythm || 1),
+      updatedAt: now
+    });
+    return;
+  }
+
+  const diffDays = dayKeyDifference(existing.lastPracticeDayKey, dayKey);
+  if (diffDays < 0) {
+    await ctx.db.patch(existing._id, { updatedAt: now });
+    return;
+  }
+  const nextCurrent = diffDays === 1 ? (existing.currentPracticeRhythm || 0) + 1 : 1;
+  await ctx.db.patch(existing._id, {
+    currentPracticeRhythm: nextCurrent,
+    bestPracticeRhythm: Math.max(existing.bestPracticeRhythm || 0, nextCurrent),
+    lastPracticeDayKey: dayKey,
+    updatedAt: now
+  });
+}
+
+function cleanLocalDayKey(value: string | undefined) {
+  const cleaned = clampText(value, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(cleaned) ? cleaned : "";
+}
+
+function dayKeyFromTimestamp(timestamp: number) {
+  const date = new Date(timestamp);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
+}
+
+function dayKeyDifference(previousDayKey: string | undefined, nextDayKey: string) {
+  const previousTime = dayKeyToUtcTime(previousDayKey);
+  const nextTime = dayKeyToUtcTime(nextDayKey);
+  if (!Number.isFinite(previousTime) || !Number.isFinite(nextTime)) return 0;
+  return Math.round((nextTime - previousTime) / (1000 * 60 * 60 * 24));
+}
+
+function dayKeyToUtcTime(dayKey: string | undefined) {
+  const cleaned = cleanLocalDayKey(dayKey);
+  if (!cleaned) return Number.NaN;
+  const [year, month, day] = cleaned.split("-").map((part) => Number(part));
+  return Date.UTC(year, month - 1, day);
+}
+
+async function recentPracticeRhythmSeed(ctx: MutationCtx, profileId: Id<"profiles">) {
+  const history = await ctx.db
+    .query("memoryHistory")
+    .withIndex("by_profile_created", (q) => q.eq("profileId", profileId))
+    .order("desc")
+    .take(500);
+  const dayKeys = Array.from(
+    new Set(
+      history
+        .filter((event) => event.event === "reviewed" || event.event === "repeated")
+        .map((event) => dayKeyFromTimestamp(event.createdAt))
+    )
+  );
+  return buildPracticeRhythmFromDayKeys(dayKeys);
+}
+
+function buildPracticeRhythmFromDayKeys(dayKeys: string[]) {
+  if (!dayKeys.length) return { current: 0, longest: 0 };
+  const days = dayKeys
+    .map(dayKeyToUtcTime)
+    .filter((time) => Number.isFinite(time))
+    .sort((a, b) => a - b);
+  if (!days.length) return { current: 0, longest: 0 };
+
+  let longest = 1;
+  let currentRun = 1;
+  for (let index = 1; index < days.length; index += 1) {
+    const diffDays = Math.round((days[index] - days[index - 1]) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) currentRun += 1;
+    else if (diffDays > 1) currentRun = 1;
+    longest = Math.max(longest, currentRun);
+  }
+
+  const today = dayKeyToUtcTime(dayKeyFromTimestamp(Date.now()));
+  const yesterday = today - 1000 * 60 * 60 * 24;
+  const lastDay = days[days.length - 1];
+  return { current: lastDay === today || lastDay === yesterday ? currentRun : 0, longest };
 }
 
 function reviewPresetDelay(preset: ReviewPreset) {

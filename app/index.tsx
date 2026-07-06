@@ -917,6 +917,7 @@ export default function Home() {
   const communityCircles = useQuery((api as any).community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 50 } : "skip");
   const memoryHistory = useQuery((api as any).memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
+  const memoryStats = useQuery((api as any).memory.stats, shouldLoadMemoryHistory ? { profileId: activeProfileId } : "skip");
   const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
   const adminOverview = useQuery((api as any).insights.adminOverview, shouldLoadAdminOverview ? {} : "skip");
   const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
@@ -1345,8 +1346,8 @@ export default function Home() {
   const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems, memoryVerses || [], firstName), [firstName, memoryHistoryItems, memoryVerses]);
   const memoryWeeklyScripture = useMemo(() => buildMemoryWeeklyScripture(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
   const memoryMilestones = useMemo(
-    () => buildMemoryMilestones(memoryHistoryItems, memoryVerses || [], memoryMilestoneGoalIds),
-    [memoryHistoryItems, memoryMilestoneGoalIds, memoryVerses]
+    () => buildMemoryMilestones(memoryHistoryItems, memoryVerses || [], memoryMilestoneGoalIds, memoryStats),
+    [memoryHistoryItems, memoryMilestoneGoalIds, memoryStats, memoryVerses]
   );
   const neglectedMemoryVerses = useMemo(() => buildNeglectedMemoryVerses(memoryVerses || []), [memoryVerses]);
   const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
@@ -3988,7 +3989,8 @@ export default function Home() {
         profileId: activeProfileId,
         memoryVerseId: activeMemoryVerse._id,
         event: "repeated",
-        practiceLevel: memoryPracticeLevel
+        practiceLevel: memoryPracticeLevel,
+        localDayKey: localDayKey()
       }).catch(() => {});
     }
     if (memoryPracticeLevel === 2) setMemoryStepTwoOffset((current) => (current === 0 ? 1 : 0));
@@ -4007,7 +4009,8 @@ export default function Home() {
       profileId: activeProfileId,
       memoryVerseId: activeMemoryVerse._id,
       result,
-      practiceLevel: memoryPracticeLevel
+      practiceLevel: memoryPracticeLevel,
+      localDayKey: localDayKey()
     });
     setMemoryPracticeLevel((current) => Math.min(3, current + 1));
     setMemoryPracticeAnswers({});
@@ -12099,6 +12102,10 @@ function planDayKey(planId: string, day: number) {
 
 function verseMarkupKey(verse: BibleVerse) {
   return `${verse.book_name}:${verse.chapter}:${verse.verse}`;
+}
+
+function localDayKey(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function buildPassageMarkupRecords(markups: PassageMarkupMap, notes: PassageMarkupNoteMap, verses: BibleVerse[]): PassageMarkupRecord[] {

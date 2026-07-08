@@ -899,8 +899,9 @@ export default function Home() {
   const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
   const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
   const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
+  const shouldRenderMemoryHistory = tab === "memory" && memoryView === "history";
   const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
-  const shouldLoadMemoryHistory = profileMatchesActiveState && tab === "memory";
+  const shouldLoadMemoryHistory = profileMatchesActiveState && shouldRenderMemoryHistory;
   const shouldLoadAdminOverview = profileMatchesActiveState && (tab === "account" || tab === "admin");
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
@@ -1337,19 +1338,33 @@ export default function Home() {
   );
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
-  const memoryHistoryItems = memoryHistory || [];
-  const memoryHistorySummary = useMemo(() => buildMemoryHistorySummary(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
+  const memoryHistoryItems = shouldRenderMemoryHistory ? (memoryHistory || []) : [];
+  const memoryHistorySummary = useMemo(
+    () => shouldRenderMemoryHistory
+      ? buildMemoryHistorySummary(memoryHistoryItems, memoryVerses || [])
+      : { reviewedToday: 0, reviewedThisWeek: 0, reviewDaysThisWeek: 0, addedCount: 0, repeatedCount: 0, mostReviewed: null },
+    [memoryHistoryItems, memoryVerses, shouldRenderMemoryHistory]
+  );
   const memoryHistoryEncouragement = useMemo(
-    () => buildMemoryHistoryEncouragement(memoryHistorySummary, firstName),
-    [firstName, memoryHistorySummary]
+    () => shouldRenderMemoryHistory ? buildMemoryHistoryEncouragement(memoryHistorySummary, firstName) : "",
+    [firstName, memoryHistorySummary, shouldRenderMemoryHistory]
   );
-  const memoryWeeklySummary = useMemo(() => buildMemoryWeeklySummary(memoryHistoryItems, memoryVerses || [], firstName), [firstName, memoryHistoryItems, memoryVerses]);
-  const memoryWeeklyScripture = useMemo(() => buildMemoryWeeklyScripture(memoryHistoryItems, memoryVerses || []), [memoryHistoryItems, memoryVerses]);
+  const memoryWeeklySummary = useMemo(
+    () => shouldRenderMemoryHistory ? buildMemoryWeeklySummary(memoryHistoryItems, memoryVerses || [], firstName) : "",
+    [firstName, memoryHistoryItems, memoryVerses, shouldRenderMemoryHistory]
+  );
+  const memoryWeeklyScripture = useMemo(
+    () => shouldRenderMemoryHistory ? buildMemoryWeeklyScripture(memoryHistoryItems, memoryVerses || []) : { reference: "", text: "" },
+    [memoryHistoryItems, memoryVerses, shouldRenderMemoryHistory]
+  );
   const memoryMilestones = useMemo(
-    () => buildMemoryMilestones(memoryHistoryItems, memoryVerses || [], memoryMilestoneGoalIds, memoryStats),
-    [memoryHistoryItems, memoryMilestoneGoalIds, memoryStats, memoryVerses]
+    () => shouldRenderMemoryHistory ? buildMemoryMilestones(memoryHistoryItems, memoryVerses || [], memoryMilestoneGoalIds, memoryStats) : [],
+    [memoryHistoryItems, memoryMilestoneGoalIds, memoryStats, memoryVerses, shouldRenderMemoryHistory]
   );
-  const neglectedMemoryVerses = useMemo(() => buildNeglectedMemoryVerses(memoryVerses || []), [memoryVerses]);
+  const neglectedMemoryVerses = useMemo(
+    () => shouldRenderMemoryHistory ? buildNeglectedMemoryVerses(memoryVerses || []) : [],
+    [memoryVerses, shouldRenderMemoryHistory]
+  );
   const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
   const memoryPracticeText = useMemo(
     () => (activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),

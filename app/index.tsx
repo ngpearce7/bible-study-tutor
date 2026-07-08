@@ -7,7 +7,8 @@ import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { api } from "@/convex/_generated/api";
-import { bibleBooks } from "@/data/bibleBooks";
+import { BIBLE_CHAPTER_COUNTS, BIBLE_BOOK_ALIASES, BSB_BOOK_IDS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, flattenBsbVerseContent, normalizeBibleBookName } from "@/data/bibleLibrary";
+import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
@@ -70,8 +71,6 @@ type UiPreferenceKey =
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
 type ReaderMobileMenu = "old" | "new" | null;
 type MemoryFilterMobileMenu = "old" | "new" | null;
-type BibleSearchScope = "all" | "old" | "new";
-type BibleSearchMode = "word" | "phrase" | "allWords" | "anyWords" | "theme";
 const DARK_MODE_ENABLED = true;
 type AnswerMap = Record<string, string>;
 type BibleTranslationId = "bsb" | "web" | "kjv";
@@ -231,49 +230,6 @@ const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string 
   { id: "kjv", label: "KJV", name: "King James Version" }
 ];
 const COMMUNITY_CIRCLES_ENABLED = process.env.EXPO_PUBLIC_ENABLE_COMMUNITY_CIRCLES === "true";
-const BIBLE_CHAPTER_COUNTS: Record<string, number> = {
-  Genesis: 50, Exodus: 40, Leviticus: 27, Numbers: 36, Deuteronomy: 34, Joshua: 24, Judges: 21, Ruth: 4,
-  "1 Samuel": 31, "2 Samuel": 24, "1 Kings": 22, "2 Kings": 25, "1 Chronicles": 29, "2 Chronicles": 36,
-  Ezra: 10, Nehemiah: 13, Esther: 10, Job: 42, Psalms: 150, Proverbs: 31, Ecclesiastes: 12, "Song of Solomon": 8,
-  Isaiah: 66, Jeremiah: 52, Lamentations: 5, Ezekiel: 48, Daniel: 12, Hosea: 14, Joel: 3, Amos: 9, Obadiah: 1,
-  Jonah: 4, Micah: 7, Nahum: 3, Habakkuk: 3, Zephaniah: 3, Haggai: 2, Zechariah: 14, Malachi: 4,
-  Matthew: 28, Mark: 16, Luke: 24, John: 21, Acts: 28, Romans: 16, "1 Corinthians": 16, "2 Corinthians": 13,
-  Galatians: 6, Ephesians: 6, Philippians: 4, Colossians: 4, "1 Thessalonians": 5, "2 Thessalonians": 3,
-  "1 Timothy": 6, "2 Timothy": 4, Titus: 3, Philemon: 1, Hebrews: 13, James: 5, "1 Peter": 5, "2 Peter": 3,
-  "1 John": 5, "2 John": 1, "3 John": 1, Jude: 1, Revelation: 22
-};
-const BIBLE_BOOK_ALIASES: Record<string, string> = {
-  gen: "Genesis", ge: "Genesis", ex: "Exodus", exo: "Exodus", lev: "Leviticus", le: "Leviticus", num: "Numbers", nu: "Numbers",
-  deut: "Deuteronomy", de: "Deuteronomy", dt: "Deuteronomy", josh: "Joshua", jos: "Joshua", judg: "Judges", jdg: "Judges",
-  ruth: "Ruth", ru: "Ruth", "1sam": "1 Samuel", "1 sam": "1 Samuel", "1sa": "1 Samuel", "1 sa": "1 Samuel",
-  "2sam": "2 Samuel", "2 sam": "2 Samuel", "2sa": "2 Samuel", "2 sa": "2 Samuel", "1ki": "1 Kings", "1 ki": "1 Kings",
-  "1kgs": "1 Kings", "1 kgs": "1 Kings", "1king": "1 Kings", "1 king": "1 Kings", "2ki": "2 Kings", "2 ki": "2 Kings",
-  "2kgs": "2 Kings", "2 kgs": "2 Kings", "2king": "2 Kings", "2 king": "2 Kings", "1chron": "1 Chronicles",
-  "1 chron": "1 Chronicles", "1chr": "1 Chronicles", "1 chr": "1 Chronicles", "1ch": "1 Chronicles", "1 ch": "1 Chronicles",
-  "2chron": "2 Chronicles", "2 chron": "2 Chronicles", "2chr": "2 Chronicles", "2 chr": "2 Chronicles", "2ch": "2 Chronicles",
-  "2 ch": "2 Chronicles", ezra: "Ezra", ezr: "Ezra", neh: "Nehemiah", est: "Esther", job: "Job", ps: "Psalm",
-  psa: "Psalm", psm: "Psalm", psalm: "Psalm", psalms: "Psalm", prov: "Proverbs", pro: "Proverbs", pr: "Proverbs",
-  ecc: "Ecclesiastes", eccl: "Ecclesiastes", song: "Song of Solomon", sos: "Song of Solomon", "song sol": "Song of Solomon",
-  "song of sol": "Song of Solomon", isa: "Isaiah", is: "Isaiah", jer: "Jeremiah", lam: "Lamentations", ezek: "Ezekiel",
-  eze: "Ezekiel", ezk: "Ezekiel", dan: "Daniel", hos: "Hosea", obad: "Obadiah", mic: "Micah", nah: "Nahum",
-  hab: "Habakkuk", zeph: "Zephaniah", zep: "Zephaniah", hag: "Haggai", zech: "Zechariah", zec: "Zechariah",
-  mal: "Malachi", matt: "Matthew", mt: "Matthew", mrk: "Mark", mk: "Mark", lk: "Luke", jn: "John", joh: "John",
-  ac: "Acts", rom: "Romans", ro: "Romans", "1cor": "1 Corinthians", "1 cor": "1 Corinthians", "1co": "1 Corinthians",
-  "1 co": "1 Corinthians", "2cor": "2 Corinthians", "2 cor": "2 Corinthians", "2co": "2 Corinthians", "2 co": "2 Corinthians",
-  gal: "Galatians", ga: "Galatians", eph: "Ephesians", phil: "Philippians", php: "Philippians", col: "Colossians",
-  "1thes": "1 Thessalonians", "1 thes": "1 Thessalonians", "1thess": "1 Thessalonians", "1 thess": "1 Thessalonians",
-  "1th": "1 Thessalonians", "1 th": "1 Thessalonians", "2thes": "2 Thessalonians", "2 thes": "2 Thessalonians",
-  "2thess": "2 Thessalonians", "2 thess": "2 Thessalonians", "2th": "2 Thessalonians", "2 th": "2 Thessalonians",
-  "1tim": "1 Timothy", "1 tim": "1 Timothy", "1ti": "1 Timothy", "1 ti": "1 Timothy", "2tim": "2 Timothy",
-  "2 tim": "2 Timothy", "2ti": "2 Timothy", "2 ti": "2 Timothy", tit: "Titus", philem: "Philemon", phm: "Philemon",
-  heb: "Hebrews", jas: "James", jam: "James", "1pet": "1 Peter", "1 pet": "1 Peter", "1pe": "1 Peter",
-  "1 pe": "1 Peter", "2pet": "2 Peter", "2 pet": "2 Peter", "2pe": "2 Peter", "2 pe": "2 Peter", "1jn": "1 John",
-  "1 jn": "1 John", "1john": "1 John", "1 john": "1 John", "2jn": "2 John", "2 jn": "2 John", "2john": "2 John",
-  "2 john": "2 John", "3jn": "3 John", "3 jn": "3 John", "3john": "3 John", "3 john": "3 John", rev: "Revelation",
-  revelation: "Revelation"
-};
-const OLD_TESTAMENT_BOOKS = bibleBooks.slice(0, bibleBooks.indexOf("Matthew"));
-const NEW_TESTAMENT_BOOKS = bibleBooks.slice(bibleBooks.indexOf("Matthew"));
 const PASSAGE_MARKUP_OPTIONS: { id: PassageMarkupKind; label: string; background: string; color: string }[] = [
   { id: "notice", label: "Notice", background: "#dfead5", color: colors.oliveDark },
   { id: "question", label: "Question", background: "#f4dfb6", color: "#6d4b16" },
@@ -325,15 +281,6 @@ type BiblePassage = {
   translation_id: string;
   translation_name: string;
   translation_note: string;
-};
-type BibleSearchResult = {
-  id: string;
-  book: string;
-  chapter: number;
-  verse: number;
-  text: string;
-  translation: string;
-  sourceQuery: string;
 };
 
 export default function Home() {
@@ -12161,280 +12108,6 @@ function markupRecordsToNoteMap(records: PassageMarkupRecord[]): PassageMarkupNo
   }, {});
 }
 
-function normalizeBibleBookName(bookName: string) {
-  return bookName === "Psalms" ? "Psalm" : bookName;
-}
-
-function displayBibleBookName(bookName: string) {
-  return bookName === "Psalm" ? "Psalms" : bookName;
-}
-
-function bibleSearchTranslationId(translation: "KJV" | "WEB" | "BSB") {
-  if (translation === "KJV") return "KJV";
-  if (translation === "BSB") return "BSB";
-  return "WEB";
-}
-
-async function fetchBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB" | "BSB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
-  if (translation === "BSB") {
-    try {
-      const indexedResults = await fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole);
-      if (indexedResults.length > 0 || !bookFilter) return indexedResults;
-    } catch {
-      if (!bookFilter) return [];
-    }
-    return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole);
-  }
-
-  return fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole);
-}
-
-async function fetchIndexedBibleSearchResults(searchTerm: string, translation: "KJV" | "WEB" | "BSB", scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
-  const params = new URLSearchParams({
-    search: searchTerm,
-    match_case: "false",
-    match_whole: matchWhole ? "true" : "false",
-    limit: "30",
-    page: "1"
-  });
-  if (bookFilter) {
-    const bookIndex = bibleBooks.indexOf(bookFilter);
-    if (bookIndex >= 0) params.set("book", String(bookIndex + 1));
-  } else if (scope !== "all") {
-    params.set("book", scope === "old" ? "ot" : "nt");
-  }
-
-  const response = await fetch(`https://bolls.life/v2/find/${bibleSearchTranslationId(translation)}?${params.toString()}`);
-  if (!response.ok) throw new Error("Bible search failed");
-  const data = await response.json();
-  const rawResults = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
-
-  return rawResults
-    .map((item: any): BibleSearchResult | null => {
-      const bookIndex = Number(item.book || item.book_id || item.bookId || 0) - 1;
-      const book = bibleBooks[bookIndex] || normalizeBibleBookName(String(item.book_name || item.bookName || ""));
-      const chapter = Number(item.chapter || 0);
-      const verse = Number(item.verse || 0);
-      const text = stripHtmlText(String(item.text || item.verse_text || item.content || ""));
-      if (!book || !chapter || !verse || !text) return null;
-      return {
-        id: `${translation}-${book}-${chapter}-${verse}`,
-        book,
-        chapter,
-        verse,
-        text,
-        translation,
-        sourceQuery: searchTerm
-      };
-    })
-    .filter((item: BibleSearchResult | null): item is BibleSearchResult => item !== null);
-}
-
-async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
-  const books = bookFilter
-    ? [bookFilter]
-    : scope === "old"
-      ? OLD_TESTAMENT_BOOKS
-      : scope === "new"
-        ? NEW_TESTAMENT_BOOKS
-        : bibleBooks;
-  const chapters = books.flatMap((book) => Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => ({ book, chapter: index + 1 })));
-  const results: BibleSearchResult[] = [];
-  const batchSize = 8;
-
-  for (let index = 0; index < chapters.length && results.length < 80; index += batchSize) {
-    const batch = chapters.slice(index, index + batchSize);
-    const batchResults = await Promise.all(batch.map(({ book, chapter }) => fetchBsbSearchChapter(searchTerm, book, chapter, matchWhole).catch(() => [] as BibleSearchResult[])));
-    results.push(...batchResults.flat());
-  }
-
-  return results;
-}
-
-async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: number, matchWhole: boolean): Promise<BibleSearchResult[]> {
-  const bookId = BSB_BOOK_IDS[normalizeBibleBookName(book)];
-  if (!bookId) return [];
-
-  const response = await fetch(`https://bible.helloao.org/api/BSB/${bookId}/${chapter}.json`);
-  if (!response.ok) return [];
-
-  const data = await response.json();
-  const verses = (data.chapter?.content || []).filter((item: any) => item.type === "verse" && typeof item.number === "number");
-  return verses
-    .map((item: any): BibleSearchResult => {
-      const verse = Number(item.number);
-      return {
-        id: `BSB-${book}-${chapter}-${verse}`,
-        book,
-        chapter,
-        verse,
-        text: flattenBsbVerseContent(item.content),
-        translation: "BSB",
-        sourceQuery: searchTerm
-      };
-    })
-    .filter((result: BibleSearchResult) => bsbSearchResultMatchesTerm(result.text, searchTerm, matchWhole));
-}
-
-function bsbSearchResultMatchesTerm(text: string, searchTerm: string, matchWhole: boolean) {
-  const normalizedTerm = normalizeBibleSearchText(searchTerm);
-  if (!normalizedTerm) return false;
-  if (matchWhole) return bibleSearchWords(text).includes(normalizedTerm);
-  return normalizeBibleSearchText(text).includes(normalizedTerm);
-}
-
-function buildBibleSearchQueries(query: string, mode: BibleSearchMode) {
-  const words = bibleSearchWords(query);
-  if (mode === "word") return [words[0] || query].filter(Boolean);
-  if (mode === "phrase") return [query];
-  if (mode === "allWords" || mode === "anyWords") return words.length ? words : [query];
-
-  const normalized = query.toLowerCase();
-  const themes: Record<string, string[]> = {
-    anxiety: ["anxious", "fear", "peace", "trouble"],
-    worry: ["anxious", "care", "fear", "peace"],
-    afraid: ["fear not", "afraid", "courage"],
-    fear: ["fear not", "afraid", "courage"],
-    comfort: ["comfort", "peace", "hope"],
-    grief: ["comfort", "mourning", "sorrow"],
-    wisdom: ["wisdom", "understanding", "instruction"],
-    prayer: ["pray", "prayer", "ask"],
-    forgiveness: ["forgive", "forgiven", "mercy"],
-    forgive: ["forgive", "forgiven", "mercy"],
-    love: ["love", "charity", "kindness"],
-    faith: ["faith", "believe", "trust"],
-    hope: ["hope", "promise", "comfort"],
-    scripture: ["scripture", "word", "profitable"],
-    bible: ["scripture", "word", "profitable"],
-    temptation: ["temptation", "endure", "escape"],
-    suffering: ["suffering", "affliction", "comfort"],
-    joy: ["joy", "rejoice", "gladness"],
-    peace: ["peace", "rest", "comfort"],
-    righteousness: ["righteousness", "godliness", "holiness"],
-    repentance: ["repent", "turn", "confess"],
-    near: ["draw nigh", "near", "seek"],
-    purpose: ["purpose", "called", "works"]
-  };
-  const expanded = Object.entries(themes)
-    .filter(([theme]) => normalized.includes(theme))
-    .flatMap(([, terms]) => terms);
-  const questionTerms = normalized.includes("?") || /\bwhat|where|why|how|does|about\b/.test(normalized)
-    ? normalized.replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((word) => word.length > 3 && !["what", "where", "does", "about", "when", "with", "from", "that"].includes(word))
-    : [];
-  return Array.from(new Set([query, ...expanded, ...questionTerms])).slice(0, 5);
-}
-
-function bibleSearchModeLabel(mode: BibleSearchMode) {
-  const labels: Record<BibleSearchMode, string> = {
-    word: "Exact word",
-    phrase: "Exact phrase",
-    allWords: "All words",
-    anyWords: "Any words",
-    theme: "Theme"
-  };
-  return labels[mode];
-}
-
-function filterBibleSearchResultsForMode(results: BibleSearchResult[], query: string, mode: BibleSearchMode) {
-  const words = bibleSearchWords(query);
-  const phrase = normalizeBibleSearchText(query);
-  if (mode === "theme") return results;
-
-  return results.filter((result) => {
-    const text = normalizeBibleSearchText(result.text);
-    const tokens = bibleSearchWords(result.text);
-    if (mode === "phrase") return !!phrase && text.includes(phrase);
-    if (mode === "anyWords") return words.some((word) => tokens.includes(word));
-    return words.length > 0 && words.every((word) => tokens.includes(word));
-  });
-}
-
-function rankBibleSearchResults(results: BibleSearchResult[], query: string, mode: BibleSearchMode) {
-  const words = bibleSearchWords(query);
-  const phrase = normalizeBibleSearchText(query);
-  return results.slice().sort((a, b) => {
-    const aScore = bibleSearchScore(a, words, phrase, mode);
-    const bScore = bibleSearchScore(b, words, phrase, mode);
-    return bScore - aScore || bibleBooks.indexOf(a.book) - bibleBooks.indexOf(b.book) || a.chapter - b.chapter || a.verse - b.verse;
-  });
-}
-
-function bibleSearchScore(result: BibleSearchResult, words: string[], phrase: string, mode: BibleSearchMode) {
-  const text = normalizeBibleSearchText(result.text);
-  const tokens = bibleSearchWords(result.text);
-  let score = 0;
-  if (phrase && text.includes(phrase)) score += mode === "phrase" ? 20 : 8;
-  words.forEach((word) => {
-    const occurrences = tokens.filter((token) => token === word).length;
-    score += occurrences * (mode === "word" ? 10 : 4);
-  });
-  if (result.sourceQuery && words.includes(normalizeBibleSearchText(result.sourceQuery))) score += 2;
-  return score;
-}
-
-function bibleSearchWords(value: string) {
-  return normalizeBibleSearchText(value).split(/\s+/).filter((word) => word.length > 0);
-}
-
-function normalizeBibleSearchText(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-}
-
-function formatSearchDuration(milliseconds: number) {
-  const seconds = milliseconds / 1000;
-  if (seconds < 1) return `${Math.max(0.1, seconds).toFixed(1)} seconds`;
-  if (seconds < 10) return `${seconds.toFixed(1)} seconds`;
-  if (seconds < 60) return `${Math.round(seconds)} seconds`;
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.round(seconds % 60);
-  return `${minutes} min ${remainingSeconds} sec`;
-}
-
-function dedupeBibleSearchResults(results: BibleSearchResult[]) {
-  const seen = new Set<string>();
-  return results.filter((result) => {
-    const key = `${result.book}-${result.chapter}-${result.verse}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-
-function buildBibleSearchBookOptions(scope: BibleSearchScope) {
-  if (scope === "old") return OLD_TESTAMENT_BOOKS;
-  if (scope === "new") return NEW_TESTAMENT_BOOKS;
-  return bibleBooks;
-}
-
-function buildBibleSearchSections(results: BibleSearchResult[], scope: BibleSearchScope, bookFilter: string) {
-  const filtered = results.filter((result) => {
-    if (bookFilter) return result.book === bookFilter;
-    if (scope === "old") return OLD_TESTAMENT_BOOKS.includes(result.book);
-    if (scope === "new") return NEW_TESTAMENT_BOOKS.includes(result.book);
-    return true;
-  });
-
-  if (bookFilter) return [{ title: bookFilter, results: filtered }];
-  if (scope === "old") return [{ title: "Old Testament", results: filtered }];
-  if (scope === "new") return [{ title: "New Testament", results: filtered }];
-
-  return [
-    { title: "Old Testament", results: filtered.filter((result) => OLD_TESTAMENT_BOOKS.includes(result.book)) },
-    { title: "New Testament", results: filtered.filter((result) => NEW_TESTAMENT_BOOKS.includes(result.book)) }
-  ].filter((section) => section.results.length > 0);
-}
-
-function stripHtmlText(text: string) {
-  return text
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 async function fetchBibleApiPassage(reference: string, translation: Exclude<BibleTranslationId, "bsb">, signal: AbortSignal): Promise<BiblePassage> {
   const response = await fetch(`https://bible-api.com/${encodeURIComponent(reference)}?translation=${translation}`, { signal });
   if (!response.ok) throw new Error("Passage not found");
@@ -12508,23 +12181,6 @@ function parseBsbPassageReference(query: string) {
   };
 }
 
-function flattenBsbVerseContent(content: any[]) {
-  return (content || [])
-    .map((piece) => {
-      if (typeof piece === "string") return piece;
-      if (typeof piece?.text === "string") return piece.text;
-      if (typeof piece?.heading === "string") return piece.heading;
-      if (piece?.lineBreak) return " ";
-      return "";
-    })
-    .filter(Boolean)
-    .join(" ")
-    .replace(/\s+([,.;:!?])/g, "$1")
-    .replace(/([“‘(\[])\s+/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function formatBsbReference(parsed: { bookName: string; chapter: number; startVerse?: number; endVerse?: number }) {
   if (!parsed.startVerse) return `${parsed.bookName} ${parsed.chapter}`;
   return `${parsed.bookName} ${parsed.chapter}:${parsed.startVerse}${parsed.endVerse ? `-${parsed.endVerse}` : ""}`;
@@ -12572,75 +12228,6 @@ function normalizeBibleBookLookupKey(value: string) {
     .replace(/\s+/g, " ")
     .trim();
 }
-
-const BSB_BOOK_IDS: Record<string, string> = {
-  Genesis: "GEN",
-  Exodus: "EXO",
-  Leviticus: "LEV",
-  Numbers: "NUM",
-  Deuteronomy: "DEU",
-  Joshua: "JOS",
-  Judges: "JDG",
-  Ruth: "RUT",
-  "1 Samuel": "1SA",
-  "2 Samuel": "2SA",
-  "1 Kings": "1KI",
-  "2 Kings": "2KI",
-  "1 Chronicles": "1CH",
-  "2 Chronicles": "2CH",
-  Ezra: "EZR",
-  Nehemiah: "NEH",
-  Esther: "EST",
-  Job: "JOB",
-  Psalm: "PSA",
-  Proverbs: "PRO",
-  Ecclesiastes: "ECC",
-  "Song of Solomon": "SNG",
-  Isaiah: "ISA",
-  Jeremiah: "JER",
-  Lamentations: "LAM",
-  Ezekiel: "EZK",
-  Daniel: "DAN",
-  Hosea: "HOS",
-  Joel: "JOL",
-  Amos: "AMO",
-  Obadiah: "OBA",
-  Jonah: "JON",
-  Micah: "MIC",
-  Nahum: "NAM",
-  Habakkuk: "HAB",
-  Zephaniah: "ZEP",
-  Haggai: "HAG",
-  Zechariah: "ZEC",
-  Malachi: "MAL",
-  Matthew: "MAT",
-  Mark: "MRK",
-  Luke: "LUK",
-  John: "JHN",
-  Acts: "ACT",
-  Romans: "ROM",
-  "1 Corinthians": "1CO",
-  "2 Corinthians": "2CO",
-  Galatians: "GAL",
-  Ephesians: "EPH",
-  Philippians: "PHP",
-  Colossians: "COL",
-  "1 Thessalonians": "1TH",
-  "2 Thessalonians": "2TH",
-  "1 Timothy": "1TI",
-  "2 Timothy": "2TI",
-  Titus: "TIT",
-  Philemon: "PHM",
-  Hebrews: "HEB",
-  James: "JAS",
-  "1 Peter": "1PE",
-  "2 Peter": "2PE",
-  "1 John": "1JN",
-  "2 John": "2JN",
-  "3 John": "3JN",
-  Jude: "JUD",
-  Revelation: "REV"
-};
 
 function studyKey(passage: string, methodId: string) {
   return `${(passage.trim() || "Selected passage").toLowerCase()}|${methodId}`;

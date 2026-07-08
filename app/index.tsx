@@ -899,6 +899,8 @@ export default function Home() {
   const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
   const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
   const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
+  const shouldLoadCurrentStudyDraft = profileMatchesActiveState && tab === "study";
+  const shouldRenderJournal = tab === "journal";
   const shouldRenderMemoryHistory = tab === "memory" && memoryView === "history";
   const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
   const shouldLoadMemoryHistory = profileMatchesActiveState && shouldRenderMemoryHistory;
@@ -909,7 +911,7 @@ export default function Home() {
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,
-    profileMatchesActiveState ? { profileId: activeProfileId, passage: passage.trim() || "Selected passage", methodId } : "skip"
+    shouldLoadCurrentStudyDraft ? { profileId: activeProfileId, passage: passage.trim() || "Selected passage", methodId } : "skip"
   );
   const drafts = useQuery(api.study.recentDrafts, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, limit: 10 } : "skip");
@@ -1218,8 +1220,8 @@ export default function Home() {
   const bibleSearchTranslation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
   const journalSearchTerm = journalSearch.trim().toLowerCase();
   const pinnedEntryIds = new Set(pinnedJournalEntryIds);
-  const baseVisibleDrafts = (drafts || []).filter((draft: any) => matchesJournalSearch(draft, journalSearchTerm));
-  const baseHighlightJournalEntries = buildHighlightJournalEntries(sessions || [], drafts || [], journalSearchTerm);
+  const baseVisibleDrafts = shouldRenderJournal ? (drafts || []).filter((draft: any) => matchesJournalSearch(draft, journalSearchTerm)) : [];
+  const baseHighlightJournalEntries = shouldRenderJournal ? buildHighlightJournalEntries(sessions || [], drafts || [], journalSearchTerm) : [];
   const totalSavedHighlightCount = countSavedHighlights(sessions || [], drafts || []);
   const savedDataItems = [
     { label: "Completed studies", value: (sessions || []).length, icon: "book-outline" },
@@ -1230,12 +1232,12 @@ export default function Home() {
     { label: "Bible bookmarks", value: bibleBookmarks.length, icon: "bookmark-outline" },
     { label: "Chapters marked read", value: readBibleChapterCount, icon: "checkmark-circle-outline" }
   ];
-  const journalSessionEntries = (sessions || []).filter((entry: any) => {
+  const journalSessionEntries = shouldRenderJournal ? (sessions || []).filter((entry: any) => {
     if (journalFilter === "studies") return !isMemoryMeditationEntry(entry);
     if (journalFilter === "meditations") return isMemoryMeditationEntry(entry);
     return true;
-  });
-  const baseJournalEntries = [
+  }) : [];
+  const baseJournalEntries = shouldRenderJournal ? [
     ...(journalFilter === "reviews" ? dueStudyReviews || [] : []),
     ...(journalFilter === "all" || journalFilter === "pinned" || journalFilter === "studies" || journalFilter === "meditations" ? journalSessionEntries : []),
     ...(journalFilter === "all" || journalFilter === "checkins" ? checkins || [] : [])
@@ -1247,23 +1249,23 @@ export default function Home() {
       const bPinned = pinnedEntryIds.has(String(b._id)) ? 1 : 0;
       if (aPinned !== bPinned && journalFilter === "all") return bPinned - aPinned;
       return (b.completedAt || b.createdAt) - (a.completedAt || a.createdAt);
-    });
-  const journalCalendarItems = buildJournalCalendarItems({
+    }) : [];
+  const journalCalendarItems = shouldRenderJournal ? buildJournalCalendarItems({
     drafts: (journalFilter === "all" || journalFilter === "drafts") ? baseVisibleDrafts : [],
     highlights: journalFilter === "highlights" ? baseHighlightJournalEntries : [],
     entries: baseJournalEntries,
     pinnedEntryIds
-  });
-  const dateFilteredDrafts = baseVisibleDrafts.filter((draft: any) => matchesJournalDateFilter(draft, journalDateFilterKey));
-  const dateFilteredHighlightJournalEntries = baseHighlightJournalEntries.filter((item) => matchesJournalDateFilter(item, journalDateFilterKey));
-  const dateFilteredJournalEntries = baseJournalEntries.filter((entry: any) => matchesJournalDateFilter(entry, journalDateFilterKey));
-  const journalScriptureItems = buildJournalScriptureItems({
+  }) : [];
+  const dateFilteredDrafts = shouldRenderJournal ? baseVisibleDrafts.filter((draft: any) => matchesJournalDateFilter(draft, journalDateFilterKey)) : [];
+  const dateFilteredHighlightJournalEntries = shouldRenderJournal ? baseHighlightJournalEntries.filter((item) => matchesJournalDateFilter(item, journalDateFilterKey)) : [];
+  const dateFilteredJournalEntries = shouldRenderJournal ? baseJournalEntries.filter((entry: any) => matchesJournalDateFilter(entry, journalDateFilterKey)) : [];
+  const journalScriptureItems = shouldRenderJournal ? buildJournalScriptureItems({
     drafts: (journalFilter === "all" || journalFilter === "drafts") ? dateFilteredDrafts : [],
     highlights: journalFilter === "highlights" ? dateFilteredHighlightJournalEntries : [],
     entries: dateFilteredJournalEntries,
     pinnedEntryIds
-  });
-  const journalScriptureBookSections = buildJournalScriptureBookSections(journalScriptureItems);
+  }) : [];
+  const journalScriptureBookSections = shouldRenderJournal ? buildJournalScriptureBookSections(journalScriptureItems) : [];
   const selectedJournalScriptureEntryCount = selectedJournalScriptureBook && selectedJournalScriptureChapter
     ? countJournalScriptureEntries(journalScriptureItems, selectedJournalScriptureBook, selectedJournalScriptureChapter)
     : 0;

@@ -22,6 +22,7 @@ import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
 import { BibleReaderControls } from "@/components/BibleReaderControls";
+import { BibleReaderNavigator } from "@/components/BibleReaderNavigator";
 import { BibleReaderPassage } from "@/components/BibleReaderPassage";
 import { BibleSearchPanel } from "@/components/BibleSearchPanel";
 import { HelpScreenshot } from "@/components/HelpScreenshot";
@@ -5434,300 +5435,68 @@ export default function Home() {
 
         {tab === "bible" && (
           <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
-            <Card
-              style={[
-                styles.bibleReaderNavCard,
-                readerNavCollapsed && styles.collapsedBibleReaderNavCard,
-                compactLayout && styles.fluidCard,
-                compactLayout && readerNavCollapsed && styles.compactCollapsedBibleReaderNavCard,
-                bibleDarkMode && styles.accountDarkMainCard
-              ]}
-            >
-              <Pressable
-                onPress={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
-                style={[styles.readerNavHeader, compactLayout && readerNavCollapsed && styles.compactCollapsedReaderNavHeader]}
-              >
-                {readerNavCollapsed ? (
-                  <View style={[styles.collapsedReaderIconStack, compactLayout && styles.compactCollapsedReaderIconStack]}>
-                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
-                      <Ionicons name="book-outline" size={19} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    </View>
-                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble, !bibleBookmarks.length && styles.inactiveCollapsedReaderIconButton]}>
-                      <Ionicons name={bibleBookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bibleBookmarks.length ? (bibleDarkMode ? "#e9b76a" : colors.coral) : (bibleDarkMode ? "#c8bda9" : colors.muted)} />
-                    </View>
-                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble, !readBibleChapterCount && styles.inactiveCollapsedReaderIconButton]}>
-                      <Ionicons name={readBibleChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readBibleChapterCount ? (bibleDarkMode ? "#e9b76a" : colors.oliveDark) : (bibleDarkMode ? "#c8bda9" : colors.muted)} />
-                    </View>
-                    <View style={[styles.collapsedReaderIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
-                      <Ionicons name="chevron-forward-outline" size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                    </View>
-                  </View>
-                ) : (
-                  <>
-                    <View style={styles.readerNavTitleBlock}>
-                      <Eyebrow>Read Scripture</Eyebrow>
-                      <Text style={[styles.title, bibleDarkMode && styles.accountDarkTitle]}>Bible reader</Text>
-                    </View>
-                    <Ionicons name="chevron-back-outline" size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                  </>
-                )}
-              </Pressable>
-              {!readerNavCollapsed && (
-                <>
-                  <Text style={[styles.titleSupport, bibleDarkMode && styles.accountDarkMutedText]}>Navigate by book and chapter, then send any chapter into Study when you want to slow down.</Text>
-                  <View style={[styles.translationRow, bibleDarkMode && styles.accountDarkSegmentedRow]}>
-                    {BIBLE_TRANSLATIONS.map((translation) => (
-                      <Pressable
-                        key={translation.id}
-                        onPress={() => {
-                          setBibleTranslation(translation.id);
-                          saveStoredBibleTranslation(translation.id).catch(() => undefined);
-                        }}
-                        style={[styles.translationOption, bibleTranslation === translation.id && styles.activeTranslationOption]}
-                      >
-                        <Text style={[styles.translationOptionText, bibleDarkMode && styles.accountDarkMutedText, bibleTranslation === translation.id && styles.activeTranslationOptionText]}>
-                          {translation.label}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                  {!phoneLayout && (
-                    <TextInput
-                      value={readerBookSearch}
-                      onChangeText={setReaderBookSearch}
-                      placeholder="Find a book"
-                      placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
-                      style={[styles.input, bibleDarkMode && styles.accountDarkInput]}
-                    />
-                  )}
-                  {bibleReaderHistory.length > 1 && (
-                    <View style={[styles.readerHistorySection, bibleDarkMode && styles.bibleDarkDividerSection]}>
-                      <Pressable onPress={() => toggleRememberedPanel(setReaderHistoryCollapsed, "bibleReaderHistoryCollapsed")} style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}>
-                        <View style={styles.readerBookmarkHeaderTitle}>
-                          <Ionicons name="time-outline" size={15} color={colors.coral} />
-                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Recent</Text>
-                        </View>
-                        <View style={styles.readerBookmarkHeaderMeta}>
-                          <Text style={[styles.readerBookmarkCount, bibleDarkMode && styles.accountDarkMutedText]}>{bibleReaderHistory.length - 1}</Text>
-                          <Ionicons name={readerHistoryCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                        </View>
-                      </Pressable>
-                      {!readerHistoryCollapsed && (
-                        <>
-                          <View style={styles.readerHistoryActions}>
-                            <Pressable onPress={clearBibleReaderHistory} style={styles.readerHistoryClearButton}>
-                              <Text style={styles.readerProgressClearText}>Clear</Text>
-                            </Pressable>
-                          </View>
-                          <View style={styles.readerHistoryList}>
-                            {bibleReaderHistory.slice(1, phoneLayout ? 5 : 7).map((item) => (
-                              <Pressable
-                                key={`${item.book}-${item.chapter}-${item.translation}`}
-                                onPress={() => openBibleReaderHistoryItem(item)}
-                                style={[styles.readerHistoryChip, bibleDarkMode && styles.accountDarkInsetBox]}
-                              >
-                                <Ionicons name="reader-outline" size={13} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                                <Text numberOfLines={1} style={[styles.readerHistoryText, bibleDarkMode && styles.accountDarkTitle]}>{item.reference}</Text>
-                                <Text style={[styles.readerHistoryTranslation, bibleDarkMode && styles.accountDarkMutedText]}>{item.translation.toUpperCase()}</Text>
-                              </Pressable>
-                            ))}
-                          </View>
-                        </>
-                      )}
-                    </View>
-                  )}
-                  {bibleBookmarks.length > 0 && (
-                    <View style={[styles.readerBookmarkSection, bibleDarkMode && styles.bibleDarkDividerSection]}>
-                      <Pressable
-                        onPress={() => {
-                          setBookmarksCollapsed((value) => {
-                            if (!value) setBookmarksExpanded(false);
-                            const next = !value;
-                            persistUiPreference("bibleBookmarksCollapsed", next);
-                            return next;
-                          });
-                        }}
-                        style={[styles.readerBookmarkHeader, bibleDarkMode && styles.accountDarkInsetBox]}
-                      >
-                        <View style={styles.readerBookmarkHeaderTitle}>
-                          <Ionicons name="bookmark-outline" size={15} color={colors.coral} />
-                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>Bookmarks & notes</Text>
-                        </View>
-                        <View style={styles.readerBookmarkHeaderMeta}>
-                          <Text style={[styles.readerBookmarkCount, bibleDarkMode && styles.accountDarkMutedText]}>{bibleBookmarks.length}</Text>
-                          <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                        </View>
-                      </Pressable>
-                      {!bookmarksCollapsed && (
-                        <>
-                          <TextInput
-                            value={bookmarkSearch}
-                            onChangeText={setBookmarkSearch}
-                            placeholder="Search bookmarks or notes"
-                            placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
-                            style={[styles.input, styles.readerBookmarkSearchInput, bibleDarkMode && styles.accountDarkInput]}
-                          />
-                          <Pressable
-                            onPress={() => setBookmarkNotesOnly((value) => !value)}
-                            style={[styles.readerBookmarkFilterChip, bibleDarkMode && styles.homeDarkResumeButton, bookmarkNotesOnly && styles.activeReaderBookChip]}
-                          >
-                            <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                            <Text style={[styles.readerBookmarkFilterText, bibleDarkMode && styles.homeDarkResumeButtonText, bookmarkNotesOnly && styles.activeReaderBookText]}>With notes</Text>
-                          </Pressable>
-                          {visibleBibleBookmarks.map((bookmark) => (
-                            <View key={bookmark.id} style={styles.readerBookmarkItem}>
-                              <View style={styles.readerBookmarkRow}>
-                                <Pressable onPress={() => openBibleBookmark(bookmark)} style={[styles.readerBookmarkOpen, bibleDarkMode && styles.accountDarkInsetBox]}>
-                                  <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? (bibleDarkMode ? "#e9b76a" : colors.oliveDark) : (bibleDarkMode ? "#e9b76a" : colors.coral)} />
-                                  <Text style={[styles.readerBookmarkText, bibleDarkMode && styles.accountDarkTitle]}>{bookmark.reference}</Text>
-                                </Pressable>
-                                <Pressable onPress={() => openBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, bibleDarkMode && styles.homeDarkIconBubble, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
-                                  <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                                </Pressable>
-                                <Pressable onPress={() => removeBibleBookmark(bookmark.id)} style={styles.readerBookmarkRemove}>
-                                  <Ionicons name="close-outline" size={15} color={colors.muted} />
-                                </Pressable>
-                              </View>
-                              {activeBookmarkNoteId === bookmark.id && (
-                                <View style={styles.readerBookmarkNoteEditor}>
-                                  <TextInput
-                                    value={bookmarkNoteDraft}
-                                    onChangeText={setBookmarkNoteDraft}
-                                    placeholder="Add a note"
-                                    multiline
-                                    placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
-                                    style={[styles.input, styles.readerBookmarkNoteInput, phoneLayout && styles.mobileReaderBookmarkNoteInput, bibleDarkMode && styles.accountDarkInput]}
-                                  />
-                                  <View style={styles.readerBookmarkNoteActions}>
-                                    <Pressable onPress={() => saveBookmarkNote(bookmark.id)} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
-                                      <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Save note</Text>
-                                    </Pressable>
-                                    {!!bookmark.note?.trim() && (
-                                      <Pressable onPress={() => deleteBookmarkNote(bookmark.id)} style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}>
-                                        <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Delete note</Text>
-                                      </Pressable>
-                                    )}
-                                    <Pressable
-                                      onPress={() => {
-                                        setActiveBookmarkNoteId("");
-                                        setBookmarkNoteDraft("");
-                                        dismissMobileInputFocus();
-                                      }}
-                                      style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
-                                    >
-                                      <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
-                                    </Pressable>
-                                  </View>
-                                </View>
-                              )}
-                            </View>
-                          ))}
-                          {filteredBibleBookmarks.length > 3 && (
-                            <Pressable onPress={() => setBookmarksExpanded((value) => !value)} style={styles.readerBookmarkExpandButton}>
-                              <Text style={[styles.readerBookmarkExpandText, bibleDarkMode && styles.studyDarkAccentText]}>
-                                {bookmarksExpanded ? "Show latest 3" : `Show all ${filteredBibleBookmarks.length}`}
-                              </Text>
-                              <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                            </Pressable>
-                          )}
-                          {!visibleBibleBookmarks.length && <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>No matching bookmarks.</Text>}
-                        </>
-                      )}
-                    </View>
-                  )}
-                  {phoneLayout ? (
-                    <View style={styles.mobileReaderPicker}>
-                      {[
-                        { id: "old" as ReaderMobileMenu, title: "Old Testament", books: OLD_TESTAMENT_BOOKS },
-                        { id: "new" as ReaderMobileMenu, title: "New Testament", books: NEW_TESTAMENT_BOOKS }
-                      ].map((section) => (
-                        <View key={section.id} style={styles.mobileReaderDropdown}>
-                          <Pressable
-                            onPress={() => setReaderMobileMenu((current) => current === section.id ? null : section.id)}
-                            style={[styles.mobileReaderDropdownButton, bibleDarkMode && styles.accountDarkInsetBox]}
-                          >
-                            <Text style={[styles.mobileReaderDropdownText, bibleDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                            <Ionicons name={readerMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                          </Pressable>
-                          {readerMobileMenu === section.id && (
-                            <>
-                              <View style={styles.mobileReaderBookList}>
-                                {section.books.map((book) => (
-                                  <View key={book} style={[styles.mobileReaderBookBlock, expandedMobileReaderBook === book && styles.expandedMobileReaderBookBlock]}>
-                                    <Pressable
-                                      onPress={() => selectMobileReaderBook(book)}
-                                      style={[styles.mobileReaderBookOption, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && styles.activeMobileReaderBookOption]}
-                                    >
-                                      <Text style={[styles.mobileReaderBookText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
-                                    </Pressable>
-                                    {expandedMobileReaderBook === book && (
-                                      <View style={[styles.mobileReaderChapterPanel, bibleDarkMode && styles.accountDarkSection]}>
-                                        <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{book}</Text>
-                                        <View style={styles.mobileReaderChapterGrid}>
-                                          {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
-                                            <Pressable
-                                              key={chapter}
-                                              onPress={() => selectReaderChapter(chapter, book)}
-                                              style={[styles.mobileReaderChapterSquare, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
-                                            >
-                                              <Text style={[styles.mobileReaderChapterText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
-                                            </Pressable>
-                                          ))}
-                                        </View>
-                                      </View>
-                                    )}
-                                  </View>
-                                ))}
-                              </View>
-                            </>
-                          )}
-                        </View>
-                      ))}
-                    </View>
-                  ) : (
-                    <View style={styles.readerBookSections}>
-                      {readerBookSections.map((section) => (
-                        <View key={section.title} style={styles.readerBookSection}>
-                          <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
-                          <View style={styles.desktopReaderBookList}>
-                            {section.books.map((book) => (
-                              <View key={book} style={[styles.desktopReaderBookBlock, expandedMobileReaderBook === book && styles.expandedDesktopReaderBookBlock]}>
-                                <Pressable
-                                  onPress={() => selectReaderBook(book)}
-                                  style={[styles.readerBookChip, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && styles.activeReaderBookChip]}
-                                >
-                                  <Text style={[styles.readerBookText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && styles.activeReaderBookText]}>{book}</Text>
-                                </Pressable>
-                                {expandedMobileReaderBook === book && (
-                                  <View style={[styles.desktopReaderChapterPanel, bibleDarkMode && styles.accountDarkSection]}>
-                                    <View style={styles.desktopReaderChapterHeader}>
-                                      <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{book}</Text>
-                                      <Text style={[styles.readerChapterCountText, bibleDarkMode && styles.accountDarkMutedText]}>{BIBLE_CHAPTER_COUNTS[book] || 1} chapters</Text>
-                                    </View>
-                                    <View style={styles.desktopReaderChapterGrid}>
-                                      {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
-                                        <Pressable
-                                          key={chapter}
-                                          onPress={() => selectReaderChapter(chapter, book)}
-                                          style={[styles.mobileReaderChapterSquare, bibleDarkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
-                                        >
-                                          <Text style={[styles.mobileReaderChapterText, bibleDarkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
-                                        </Pressable>
-                                      ))}
-                                    </View>
-                                  </View>
-                                )}
-                              </View>
-                            ))}
-                          </View>
-                        </View>
-                      ))}
-                      {!readerBookSections.length && <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>No matching books found.</Text>}
-                    </View>
-                  )}
-                </>
-              )}
-            </Card>
+            <BibleReaderNavigator
+              styles={styles}
+              darkMode={bibleDarkMode}
+              phoneLayout={phoneLayout}
+              compactLayout={compactLayout}
+              collapsed={readerNavCollapsed}
+              translations={BIBLE_TRANSLATIONS}
+              translationId={bibleTranslation}
+              readChapterCount={readBibleChapterCount}
+              bookmarks={bibleBookmarks}
+              history={bibleReaderHistory}
+              historyCollapsed={readerHistoryCollapsed}
+              bookmarksCollapsed={bookmarksCollapsed}
+              bookmarksExpanded={bookmarksExpanded}
+              bookmarkNotesOnly={bookmarkNotesOnly}
+              bookmarkSearch={bookmarkSearch}
+              bookSearch={readerBookSearch}
+              visibleBookmarks={visibleBibleBookmarks}
+              filteredBookmarksCount={filteredBibleBookmarks.length}
+              activeBookmarkNoteId={activeBookmarkNoteId}
+              bookmarkNoteDraft={bookmarkNoteDraft}
+              mobileMenu={readerMobileMenu}
+              expandedBook={expandedMobileReaderBook}
+              readerBook={readerBook}
+              readerChapter={readerChapter}
+              readerBookSections={readerBookSections}
+              onToggleCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
+              onSelectTranslation={(nextTranslationId) => {
+                setBibleTranslation(nextTranslationId as BibleTranslationId);
+                saveStoredBibleTranslation(nextTranslationId as BibleTranslationId).catch(() => undefined);
+              }}
+              onBookSearchChange={setReaderBookSearch}
+              onToggleHistoryCollapsed={() => toggleRememberedPanel(setReaderHistoryCollapsed, "bibleReaderHistoryCollapsed")}
+              onClearHistory={clearBibleReaderHistory}
+              onOpenHistoryItem={openBibleReaderHistoryItem}
+              onToggleBookmarksCollapsed={() => {
+                setBookmarksCollapsed((value) => {
+                  if (!value) setBookmarksExpanded(false);
+                  const next = !value;
+                  persistUiPreference("bibleBookmarksCollapsed", next);
+                  return next;
+                });
+              }}
+              onBookmarkSearchChange={setBookmarkSearch}
+              onToggleBookmarkNotesOnly={() => setBookmarkNotesOnly((value) => !value)}
+              onOpenBookmark={openBibleBookmark}
+              onOpenBookmarkNote={openBookmarkNote}
+              onRemoveBookmark={removeBibleBookmark}
+              onBookmarkNoteDraftChange={setBookmarkNoteDraft}
+              onSaveBookmarkNote={saveBookmarkNote}
+              onDeleteBookmarkNote={deleteBookmarkNote}
+              onCancelBookmarkNote={() => {
+                setActiveBookmarkNoteId("");
+                setBookmarkNoteDraft("");
+                dismissMobileInputFocus();
+              }}
+              onToggleBookmarksExpanded={() => setBookmarksExpanded((value) => !value)}
+              onToggleMobileMenu={setReaderMobileMenu}
+              onSelectMobileBook={selectMobileReaderBook}
+              onSelectBook={selectReaderBook}
+              onSelectChapter={selectReaderChapter}
+            />
 
             <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
               <BibleSearchPanel

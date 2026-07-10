@@ -21,6 +21,7 @@ import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
+import { BibleSearchPanel } from "@/components/BibleSearchPanel";
 import { HelpScreenshot } from "@/components/HelpScreenshot";
 import { MemoryBlank } from "@/components/MemoryBlank";
 import { useAction, useMutation, useQuery } from "convex/react";
@@ -5727,270 +5728,46 @@ export default function Home() {
             </Card>
 
             <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
-              <View style={[styles.bibleSearchPanel, bibleDarkMode && styles.accountDarkSection]}>
-                <Pressable onPress={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")} style={styles.bibleSearchHeader}>
-                  <View style={styles.feedbackHeader}>
-                    <Ionicons name="search-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.coral} />
-                    <Text style={[styles.feedbackTitle, bibleDarkMode && styles.studyDarkAccentText]}>Search Scripture</Text>
-                  </View>
-                  <View style={styles.bibleSearchHeaderMeta}>
-                    <Text style={[styles.bibleSearchTranslationText, bibleDarkMode && styles.accountDarkMutedText]}>{bibleSearchTranslation}</Text>
-                    <Ionicons name={bibleSearchCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                  </View>
-                </Pressable>
-                {!bibleSearchCollapsed && (
+              <BibleSearchPanel
+                styles={styles}
+                darkMode={bibleDarkMode}
+                phoneLayout={phoneLayout}
+                collapsed={bibleSearchCollapsed}
+                query={bibleSearchQuery}
+                scope={bibleSearchScope}
+                mode={bibleSearchMode}
+                book={bibleSearchBook}
+                bookOptions={bibleSearchBookOptions}
+                bookMenuOpen={bibleSearchBookMenuOpen}
+                criteriaOpen={bibleSearchCriteriaOpen}
+                translationLabel={bibleSearchTranslation}
+                translationId={bibleTranslation}
+                status={bibleSearchStatus}
+                duration={bibleSearchDuration}
+                activeQuery={bibleSearchActiveQuery}
+                sections={bibleSearchSections}
+                onToggleCollapsed={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")}
+                onQueryChange={setBibleSearchQuery}
+                onRunSearch={runBibleSearch}
+                onClearSearch={clearBibleSearch}
+                onToggleCriteria={() => setBibleSearchCriteriaOpen((value) => !value)}
+                onSelectScope={setBibleSearchScope}
+                onSelectMode={setBibleSearchMode}
+                onToggleBookMenu={() => setBibleSearchBookMenuOpen((value) => !value)}
+                onSelectBook={(nextBook) => {
+                  setBibleSearchBook(nextBook);
+                  setBibleSearchBookMenuOpen(false);
+                }}
+                onSummaryLayout={(event) => {
+                  bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
+                }}
+                renderResultActions={(result) => (
                   <>
-                    <Text style={[styles.helpIntro, bibleDarkMode && styles.accountDarkMutedText]}>Choose how closely Scripture should match your search. Exact word is best when you remember a specific word.</Text>
-                    <View style={[styles.bibleSearchInputRow, phoneLayout && styles.phoneBibleSearchInputRow]}>
-                      <TextInput
-                        value={bibleSearchQuery}
-                        onChangeText={setBibleSearchQuery}
-                        onSubmitEditing={runBibleSearch}
-                        placeholder="Try “draw near”, “anxiety”, or “what does Scripture teach?”"
-                        placeholderTextColor={bibleDarkMode ? "#8f8678" : undefined}
-                        style={[styles.input, styles.bibleSearchInput, phoneLayout && styles.phoneBibleSearchInput, bibleDarkMode && styles.accountDarkInput]}
-                      />
-                      <AppButton label="Search" onPress={runBibleSearch} style={phoneLayout && styles.phoneBibleSearchButton} />
-                      <Pressable
-                        accessibilityRole="button"
-                        onPress={clearBibleSearch}
-                        style={[styles.bibleSearchClearButton, phoneLayout && styles.phoneBibleSearchButton, bibleDarkMode && styles.homeDarkResumeButton]}
-                      >
-                        <Ionicons name="close-circle-outline" size={16} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        <Text style={[styles.bibleSearchClearText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
-                      </Pressable>
-                    </View>
-                    {phoneLayout ? (
-                      <View style={[styles.mobileBibleCriteriaDropdown, bibleDarkMode && styles.accountDarkInsetBox]}>
-                        <Pressable
-                          accessibilityRole="button"
-                          onPress={() => setBibleSearchCriteriaOpen((value) => !value)}
-                          style={styles.mobileBibleCriteriaHeader}
-                        >
-                          <View style={styles.mobileBibleCriteriaCopy}>
-                            <Text style={[styles.mobileBibleCriteriaTitle, bibleDarkMode && styles.accountDarkTitle]}>Search criteria</Text>
-                            <Text numberOfLines={1} style={[styles.mobileBibleCriteriaSummary, bibleDarkMode && styles.accountDarkMutedText]}>
-                              {`${bibleSearchScope === "old" ? "Old Testament" : bibleSearchScope === "new" ? "New Testament" : "All"} · ${bibleSearchModeLabel(bibleSearchMode)} · ${bibleSearchBook || "Any book"}`}
-                            </Text>
-                          </View>
-                          <Ionicons name={bibleSearchCriteriaOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                        </Pressable>
-                        {bibleSearchCriteriaOpen && (
-                          <View style={styles.mobileBibleCriteriaPanel}>
-                            <View style={styles.mobileBibleCriteriaGroup}>
-                              <Text style={[styles.mobileBibleCriteriaLabel, bibleDarkMode && styles.accountDarkMutedText]}>Where to search</Text>
-                              <View style={styles.mobileBibleCriteriaChipRow}>
-                                {[
-                                  ["all", "All"],
-                                  ["old", "Old Testament"],
-                                  ["new", "New Testament"]
-                                ].map(([scope, label]) => (
-                                  <Pressable
-                                    key={scope}
-                                    onPress={() => setBibleSearchScope(scope as BibleSearchScope)}
-                                    style={[styles.bibleSearchChip, styles.phoneBibleSearchChip, bibleDarkMode && styles.printDarkOptionChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
-                                  >
-                                    <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
-                                  </Pressable>
-                                ))}
-                              </View>
-                            </View>
-                            <View style={styles.mobileBibleCriteriaGroup}>
-                              <Text style={[styles.mobileBibleCriteriaLabel, bibleDarkMode && styles.accountDarkMutedText]}>Match type</Text>
-                              <View style={styles.mobileBibleCriteriaChipRow}>
-                                {([
-                                  ["word", "Word"],
-                                  ["phrase", "Phrase"],
-                                  ["allWords", "All words"],
-                                  ["anyWords", "Any words"],
-                                  ["theme", "Theme"]
-                                ] as [BibleSearchMode, string][]).map(([mode, label]) => (
-                                  <Pressable
-                                    key={mode}
-                                    onPress={() => setBibleSearchMode(mode)}
-                                    style={[styles.bibleSearchChip, styles.phoneBibleSearchChip, bibleDarkMode && styles.printDarkOptionChip, bibleSearchMode === mode && styles.activeBibleSearchChip]}
-                                  >
-                                    <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchMode === mode && styles.activeBibleSearchChipText]}>{label}</Text>
-                                  </Pressable>
-                                ))}
-                              </View>
-                            </View>
-                            <View style={styles.mobileBibleCriteriaGroup}>
-                              <Text style={[styles.mobileBibleCriteriaLabel, bibleDarkMode && styles.accountDarkMutedText]}>Book</Text>
-                              {Platform.OS === "web" ? (
-                                <select
-                                  aria-label="Book filter"
-                                  value={bibleSearchBook}
-                                  onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
-                                  style={StyleSheet.flatten([styles.bibleSearchSelect, styles.phoneBibleSearchSelect, bibleDarkMode && styles.bibleDarkSearchSelect]) as any}
-                                >
-                                  <option value="">Any book</option>
-                                  {bibleSearchBookOptions.map((book) => (
-                                    <option key={book} value={book}>{book}</option>
-                                  ))}
-                                </select>
-                              ) : (
-                                <>
-                                  <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, styles.phoneBibleSearchSelectButton, bibleDarkMode && styles.printDarkOptionChip]}>
-                                    <Text numberOfLines={1} style={[styles.bibleSearchSelectText, bibleDarkMode && styles.accountDarkText]}>{bibleSearchBook || "Any book"}</Text>
-                                    <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                                  </Pressable>
-                                  {bibleSearchBookMenuOpen && (
-                                    <View style={[styles.bibleSearchSelectMenu, bibleDarkMode && styles.accountDarkSection]}>
-                                      <Pressable
-                                        onPress={() => {
-                                          setBibleSearchBook("");
-                                          setBibleSearchBookMenuOpen(false);
-                                        }}
-                                        style={styles.bibleSearchSelectOption}
-                                      >
-                                        <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText]}>Any book</Text>
-                                      </Pressable>
-                                      {bibleSearchBookOptions.map((book) => (
-                                        <Pressable
-                                          key={book}
-                                          onPress={() => {
-                                            setBibleSearchBook(book);
-                                            setBibleSearchBookMenuOpen(false);
-                                          }}
-                                          style={[styles.bibleSearchSelectOption, bibleSearchBook === book && styles.activeBibleSearchSelectOption]}
-                                        >
-                                          <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
-                                        </Pressable>
-                                      ))}
-                                    </View>
-                                  )}
-                                </>
-                              )}
-                            </View>
-                          </View>
-                        )}
-                      </View>
-                    ) : (
-                      <View style={styles.bibleSearchControls}>
-                        {[
-                          ["all", "All"],
-                          ["old", "Old Testament"],
-                          ["new", "New Testament"]
-                        ].map(([scope, label]) => (
-                          <Pressable
-                            key={scope}
-                            onPress={() => setBibleSearchScope(scope as BibleSearchScope)}
-                            style={[styles.bibleSearchChip, bibleDarkMode && styles.printDarkOptionChip, bibleSearchScope === scope && styles.activeBibleSearchChip]}
-                          >
-                            <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchScope === scope && styles.activeBibleSearchChipText]}>{label}</Text>
-                          </Pressable>
-                        ))}
-                        <View style={styles.bibleSearchRefineRow}>
-                          <View style={styles.bibleSearchModeGroup}>
-                            {([
-                              ["word", "Word"],
-                              ["phrase", "Phrase"],
-                              ["allWords", "All words"],
-                              ["anyWords", "Any words"],
-                              ["theme", "Theme"]
-                            ] as [BibleSearchMode, string][]).map(([mode, label]) => (
-                              <Pressable
-                                key={mode}
-                                onPress={() => setBibleSearchMode(mode)}
-                                style={[styles.bibleSearchChip, styles.bibleSearchExactChip, bibleDarkMode && styles.printDarkOptionChip, bibleSearchMode === mode && styles.activeBibleSearchChip]}
-                              >
-                                <Text style={[styles.bibleSearchChipText, bibleDarkMode && styles.accountDarkMutedText, bibleSearchMode === mode && styles.activeBibleSearchChipText]}>{label}</Text>
-                              </Pressable>
-                            ))}
-                          </View>
-                          <View style={styles.bibleSearchBookFilter}>
-                            {Platform.OS === "web" ? (
-                              <select
-                                aria-label="Book filter"
-                                value={bibleSearchBook}
-                                onChange={(event) => setBibleSearchBook(event.currentTarget.value)}
-                                style={StyleSheet.flatten([styles.bibleSearchSelect, bibleDarkMode && styles.bibleDarkSearchSelect]) as any}
-                              >
-                                <option value="">Any book</option>
-                                {bibleSearchBookOptions.map((book) => (
-                                  <option key={book} value={book}>{book}</option>
-                                ))}
-                              </select>
-                            ) : (
-                              <>
-                                <Pressable onPress={() => setBibleSearchBookMenuOpen((value) => !value)} style={[styles.bibleSearchSelectButton, bibleDarkMode && styles.printDarkOptionChip]}>
-                                  <Text numberOfLines={1} style={[styles.bibleSearchSelectText, bibleDarkMode && styles.accountDarkText]}>{bibleSearchBook || "Any book"}</Text>
-                                  <Ionicons name={bibleSearchBookMenuOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={bibleDarkMode ? "#c8bda9" : colors.muted} />
-                                </Pressable>
-                                {bibleSearchBookMenuOpen && (
-                                  <View style={[styles.bibleSearchSelectMenu, bibleDarkMode && styles.accountDarkSection]}>
-                                    <Pressable
-                                      onPress={() => {
-                                        setBibleSearchBook("");
-                                        setBibleSearchBookMenuOpen(false);
-                                      }}
-                                      style={styles.bibleSearchSelectOption}
-                                    >
-                                      <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText]}>Any book</Text>
-                                    </Pressable>
-                                    {bibleSearchBookOptions.map((book) => (
-                                      <Pressable
-                                        key={book}
-                                        onPress={() => {
-                                          setBibleSearchBook(book);
-                                          setBibleSearchBookMenuOpen(false);
-                                        }}
-                                        style={[styles.bibleSearchSelectOption, bibleSearchBook === book && styles.activeBibleSearchSelectOption]}
-                                      >
-                                        <Text style={[styles.bibleSearchSelectOptionText, bibleDarkMode && styles.accountDarkText, bibleSearchBook === book && styles.activeBibleSearchChipText]}>{book}</Text>
-                                      </Pressable>
-                                    ))}
-                                  </View>
-                                )}
-                              </>
-                            )}
-                          </View>
-                        </View>
-                      </View>
-                    )}
+                    <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
+                    <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
                   </>
                 )}
-                {!bibleSearchCollapsed && (!!bibleSearchStatus || !!bibleSearchDuration || !!bibleSearchActiveQuery) && (
-                  <View
-                    onLayout={(event) => {
-                      bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
-                    }}
-                    style={[styles.bibleSearchSummaryBlock, bibleDarkMode && styles.accountDarkInsetBox]}
-                  >
-                    {!!bibleSearchStatus && <Text style={[styles.bibleSearchStatusText, bibleDarkMode && styles.studyDarkAccentText]}>{bibleSearchStatus}</Text>}
-                    {!!bibleSearchDuration && <Text style={[styles.bibleSearchDurationText, bibleDarkMode && styles.accountDarkText]}>{bibleSearchDuration}</Text>}
-                    {!!bibleSearchActiveQuery && (
-                      <Text style={[styles.bibleSearchFootnote, bibleDarkMode && styles.accountDarkMutedText]}>
-                        {bibleTranslation === "bsb"
-                          ? "Search is using BSB text. Word mode only matches whole words."
-                          : "Word mode only matches whole words. Use Theme when you want broader ideas."}
-                      </Text>
-                    )}
-                  </View>
-                )}
-                {!bibleSearchCollapsed && bibleSearchSections.map((section) => (
-                  <View key={section.title} style={styles.bibleSearchResultSection}>
-                    <View style={styles.bibleSearchSectionHeader}>
-                      <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>{section.title}</Text>
-                      <Text style={[styles.bibleSearchSectionCount, bibleDarkMode && styles.homeDarkResumeButtonText]}>{section.results.length}</Text>
-                    </View>
-                    {section.results.map((result) => (
-                      <View key={result.id} style={[styles.bibleSearchResultCard, bibleDarkMode && styles.accountDarkInsetBox]}>
-                        <View style={styles.bibleSearchResultHeader}>
-                          <Text style={[styles.bibleSearchResultReference, bibleDarkMode && styles.accountDarkTitle]}>{`${result.book} ${result.chapter}:${result.verse}`}</Text>
-                          <Text style={[styles.bibleSearchSourceQuery, bibleDarkMode && styles.accountDarkMutedText]}>{result.sourceQuery}</Text>
-                        </View>
-                        <Text style={[styles.bibleSearchResultText, bibleDarkMode && styles.accountDarkText]}>{result.text}</Text>
-                        <View style={styles.bibleSearchResultActions}>
-                          <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
-                          <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
-                        </View>
-                      </View>
-                    ))}
-                  </View>
-                ))}
-              </View>
+              />
 
               <View style={styles.readerHeader}>
                 <View>

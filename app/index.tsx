@@ -21,6 +21,7 @@ import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
+import { BibleReaderControls } from "@/components/BibleReaderControls";
 import { BibleReaderPassage } from "@/components/BibleReaderPassage";
 import { BibleSearchPanel } from "@/components/BibleSearchPanel";
 import { HelpScreenshot } from "@/components/HelpScreenshot";
@@ -5770,83 +5771,30 @@ export default function Home() {
                 )}
               />
 
-              <View style={styles.readerHeader}>
-                <View>
-                  <Eyebrow>{bibleTranslation.toUpperCase()}</Eyebrow>
-                  <View style={styles.readerTitleRow}>
-                    <Text style={[styles.stepTitle, bibleDarkMode && styles.accountDarkTitle]}>{readerStudyReference}</Text>
-                    {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={colors.coral} />}
-                  </View>
-                </View>
-                <AppButton label={selectedReaderVerses.length ? "Study selected" : "Study this"} variant="secondary" onPress={openReaderChapterInStudy} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} />
-              </View>
-              {selectedReaderVerses.length > 0 && (
-                <View style={[styles.readerSelectionBar, bibleDarkMode && styles.accountDarkSection]}>
-                  <Text style={[styles.readerSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{`${selectedReaderVerses.length} verse${selectedReaderVerses.length === 1 ? "" : "s"} selected`}</Text>
-                  <Pressable
-                    onPress={clearReaderSelection}
-                    style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
-                  >
-                    <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
-                  </Pressable>
-                </View>
-              )}
-              <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>
-                <Pressable accessibilityRole="button" {...readerIconHoverProps("Previous chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(-1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
-                  <Ionicons name="chevron-back-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                </Pressable>
-                <View style={[styles.readerChapterControl, phoneLayout && styles.phoneReaderChapterControl, bibleDarkMode && styles.accountDarkInsetBox]}>
-                  <Text numberOfLines={1} style={[styles.readerChapterLabel, phoneLayout && styles.phoneReaderChapterLabel, bibleDarkMode && styles.accountDarkMutedText]}>
-                    {phoneLayout ? "Ch" : "Ch."}
-                  </Text>
-                  <TextInput
-                    value={readerChapterDraft}
-                    onChangeText={setReaderChapterDraft}
-                    onBlur={() => commitReaderChapter()}
-                    onSubmitEditing={() => commitReaderChapter()}
-                    keyboardType="number-pad"
-                    selectTextOnFocus
-                    style={[styles.readerChapterInput, phoneLayout && styles.phoneReaderChapterInput, bibleDarkMode && styles.accountDarkInput]}
-                  />
-                  <Text numberOfLines={1} style={[styles.readerChapterCountText, phoneLayout && styles.phoneReaderChapterCountText, bibleDarkMode && styles.accountDarkMutedText]}>
-                    {phoneLayout ? `/ ${readerChapterCount}` : `of ${readerChapterCount}`}
-                  </Text>
-                </View>
-                <Pressable
-                  accessibilityRole="button"
-                  {...readerIconHoverProps(currentChapterRead ? "Chapter read" : "Mark chapter read")}
-                  onPress={() => {
-                    hideReaderTooltip();
-                    toggleReaderChapterRead();
-                  }}
-                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble, currentChapterRead && styles.activeReaderReadButton]}
-                >
-                  <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  {...readerIconHoverProps(currentChapterBookmarked ? "Chapter bookmarked" : "Bookmark chapter")}
-                  onPress={() => {
-                    hideReaderTooltip();
-                    saveBibleBookmark();
-                  }}
-                  style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble, currentChapterBookmarked && styles.activeReaderBookmarkButton]}
-                >
-                  <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                </Pressable>
-                <Pressable accessibilityRole="button" {...readerIconHoverProps("Next chapter")} onPress={() => { hideReaderTooltip(); moveReaderChapter(1); }} style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, bibleDarkMode && styles.homeDarkIconBubble]}>
-                  <Ionicons name="chevron-forward-outline" size={18} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                </Pressable>
-              </View>
-              {Platform.OS === "web" && !!readerIconTooltip && <Text style={styles.readerIconTooltip}>{readerIconTooltip}</Text>}
-              <View style={styles.readerProgressRow}>
-                <Text style={[styles.readerProgressText, bibleDarkMode && styles.accountDarkMutedText]}>{`${readBibleChapterCount} chapter${readBibleChapterCount === 1 ? "" : "s"} read`}</Text>
-                {readBibleChapterCount > 0 && (
-                  <Pressable onPress={clearBibleReadingProgress} style={styles.readerProgressClearButton}>
-                    <Text style={styles.readerProgressClearText}>Clear all</Text>
-                  </Pressable>
-                )}
-              </View>
+              <BibleReaderControls
+                styles={styles}
+                darkMode={bibleDarkMode}
+                phoneLayout={phoneLayout}
+                translationId={bibleTranslation}
+                readerReference={readerStudyReference}
+                chapterDraft={readerChapterDraft}
+                chapterCount={readerChapterCount}
+                selectedVerseCount={selectedReaderVerses.length}
+                currentChapterRead={currentChapterRead}
+                currentChapterBookmarked={currentChapterBookmarked}
+                readChapterCount={readBibleChapterCount}
+                tooltip={readerIconTooltip}
+                onStudy={openReaderChapterInStudy}
+                onClearSelection={clearReaderSelection}
+                onMoveChapter={moveReaderChapter}
+                onChapterDraftChange={setReaderChapterDraft}
+                onCommitChapter={commitReaderChapter}
+                onToggleChapterRead={toggleReaderChapterRead}
+                onBookmarkChapter={() => saveBibleBookmark()}
+                onClearReadingProgress={clearBibleReadingProgress}
+                readerIconHoverProps={readerIconHoverProps}
+                hideReaderTooltip={hideReaderTooltip}
+              />
               <BibleReaderPassage
                 styles={styles}
                 darkMode={bibleDarkMode}

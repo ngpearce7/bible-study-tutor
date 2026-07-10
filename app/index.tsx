@@ -21,6 +21,7 @@ import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
+import { BibleReaderPassage } from "@/components/BibleReaderPassage";
 import { BibleSearchPanel } from "@/components/BibleSearchPanel";
 import { HelpScreenshot } from "@/components/HelpScreenshot";
 import { MemoryBlank } from "@/components/MemoryBlank";
@@ -5846,107 +5847,43 @@ export default function Home() {
                   </Pressable>
                 )}
               </View>
-              {readerPassage?.verses?.length ? (
-                <View
-                  onLayout={(event) => {
-                    readerPassageBoxYRef.current = event.nativeEvent.layout.y;
-                  }}
-                  style={[styles.readerPassageBox, phoneLayout && styles.phoneReaderPassageBox, phoneLayout && selectedReaderVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock, bibleDarkMode && styles.accountDarkInsetBox]}
-                >
-                  {readerPassage.verses.map((verse) => (
-                    <View
-                      key={`${verse.chapter}-${verse.verse}`}
-                      onLayout={(event) => {
-                        readerVerseYRef.current[verse.verse] = event.nativeEvent.layout.y;
-                        if (pendingReaderFocusVerse === verse.verse) {
-                          setPendingReaderFocusVerse(0);
-                          scrollReaderToVerse(verse.verse);
-                        }
-                      }}
-                    >
-                      <Pressable
-                        onPress={() => toggleReaderVerse(verse.verse)}
-                        style={[styles.readerVerseRow, phoneLayout && styles.phoneReaderVerseRow, bibleDarkMode && styles.bibleDarkVerseRow, selectedReaderVerses.includes(verse.verse) && styles.selectedReaderVerseRow, phoneLayout && selectedReaderVerses.includes(verse.verse) && styles.phoneSelectedReaderVerseRow]}
-                      >
-                        <Text style={[styles.readerVerseNumber, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>
-                        <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText, bibleDarkMode && !selectedReaderVerses.includes(verse.verse) && styles.accountDarkText]}>{verse.text}</Text>
-                        <View style={[styles.readerVerseIconRow, phoneLayout && styles.phoneReaderVerseIconRow]}>
-                          {readerMemoryVerseKeys.has(verseMarkupKey(verse)) && (
-                            <Ionicons name="sparkles" size={15} color={colors.coral} />
-                          )}
-                          {isReaderVerseBookmarked(verse.verse, bibleBookmarks, readerBook, readerChapter) && (
-                            <Ionicons name="bookmark" size={15} color={colors.coral} />
-                          )}
-                          {isReaderVerseBookmarkNoted(verse.verse, bibleBookmarks, readerBook, readerChapter) && (
-                            <Ionicons name="document-text" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                          )}
-                        </View>
-                      </Pressable>
-                      {!phoneLayout && selectedReaderVerses.length > 0 && verse.verse === activeReaderActionVerse && (
-                        <View style={[styles.inlineReaderActionBar, bibleDarkMode && styles.studyDarkFloatingBar]}>
-                          <Text style={[styles.readerSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerStudyReference}</Text>
-                          <View style={styles.inlineReaderActions}>
-                            <Pressable onPress={openReaderChapterInStudy} style={styles.inlineReaderStudyButton}>
-                              <Text style={styles.inlineReaderStudyText}>Study selected</Text>
-                            </Pressable>
-                            <Pressable
-                              onPress={() => saveBibleBookmark(selectedReaderVerses)}
-                              style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
-                            >
-                              <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>
-                                {currentSelectionBookmarked ? "Bookmarked" : "Bookmark"}
-                              </Text>
-                            </Pressable>
-                            <Pressable onPress={openSelectedReaderNote} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
-                              <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
-                            </Pressable>
-                            <Pressable onPress={openReaderWorksheetOptions} style={[styles.inlineReaderBookmarkButton, bibleDarkMode && styles.homeDarkResumeButton]}>
-                              <Ionicons name="print-outline" size={14} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                              <Text style={[styles.inlineReaderBookmarkText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Print</Text>
-                            </Pressable>
-                            <Pressable onPress={saveSelectedReaderVersesToMemory} style={[styles.inlineReaderBookmarkButton, styles.memoryReaderButton, selectedReaderVersesAlreadyInMemory && styles.savedMemoryButton]}>
-                              <Ionicons name="sparkles-outline" size={14} color="white" />
-                              <Text style={styles.memoryReaderButtonText}>{selectedReaderVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
-                            </Pressable>
-                            <Pressable
-                              onPress={clearReaderSelection}
-                              style={[styles.clearMarkupButton, bibleDarkMode && styles.homeDarkResumeButton]}
-                            >
-                              <Text style={[styles.clearMarkupText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
-                            </Pressable>
-                          </View>
-                        </View>
-                      )}
-                    </View>
-                  ))}
-                  <View style={[styles.readerBottomNav, bibleDarkMode && styles.bibleDarkDividerSection]}>
-                    <Pressable onPress={() => moveReaderChapter(-1)} style={[styles.readerBottomNavButton, bibleDarkMode && styles.homeDarkResumeButton]}>
-                      <Ionicons name="chevron-back-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
-                    </Pressable>
-                    <Pressable onPress={toggleReaderChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, bibleDarkMode && styles.homeDarkResumeButton, currentChapterRead && styles.activeReaderReadButton]}>
-                      <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : (bibleDarkMode ? "#e9b76a" : colors.oliveDark)} />
-                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText, currentChapterRead && styles.activeReaderReadButtonText]}>
-                        {currentChapterRead ? "Chapter read" : "Mark read"}
-                      </Text>
-                    </Pressable>
-                    <Pressable onPress={() => moveReaderChapter(1)} style={[styles.readerBottomNavButton, bibleDarkMode && styles.homeDarkResumeButton]}>
-                      <Text style={[styles.readerBottomNavText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Next</Text>
-                      <Ionicons name="chevron-forward-outline" size={15} color={bibleDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    </Pressable>
-                  </View>
-                  <Text style={[styles.translationNote, bibleDarkMode && styles.accountDarkMutedText]}>
-                    {readerPassage.translation_name} · {readerPassage.translation_note || "Public Domain"}
-                  </Text>
-                </View>
-              ) : (
-                <View style={styles.passageStatusBox}>
-                  <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>{readerStatus}</Text>
-                </View>
-              )}
-              {!!readerMemoryStatus && <Text style={styles.saveStatus}>{readerMemoryStatus}</Text>}
+              <BibleReaderPassage
+                styles={styles}
+                darkMode={bibleDarkMode}
+                phoneLayout={phoneLayout}
+                passage={readerPassage}
+                status={readerStatus}
+                memoryStatus={readerMemoryStatus}
+                selectedVerses={selectedReaderVerses}
+                activeActionVerse={activeReaderActionVerse}
+                readerReference={readerStudyReference}
+                memoryVerseKeys={readerMemoryVerseKeys}
+                currentSelectionBookmarked={currentSelectionBookmarked}
+                currentSelectionBookmark={currentSelectionBookmark}
+                selectedVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
+                currentChapterRead={currentChapterRead}
+                onPassageLayout={(event) => {
+                  readerPassageBoxYRef.current = event.nativeEvent.layout.y;
+                }}
+                onVerseLayout={(verseNumber, event) => {
+                  readerVerseYRef.current[verseNumber] = event.nativeEvent.layout.y;
+                  if (pendingReaderFocusVerse === verseNumber) {
+                    setPendingReaderFocusVerse(0);
+                    scrollReaderToVerse(verseNumber);
+                  }
+                }}
+                onToggleVerse={toggleReaderVerse}
+                onOpenStudy={openReaderChapterInStudy}
+                onBookmarkSelection={() => saveBibleBookmark(selectedReaderVerses)}
+                onOpenNote={openSelectedReaderNote}
+                onPrintWorksheet={openReaderWorksheetOptions}
+                onSaveMemory={saveSelectedReaderVersesToMemory}
+                onClearSelection={clearReaderSelection}
+                onMoveChapter={moveReaderChapter}
+                onToggleChapterRead={toggleReaderChapterRead}
+                isVerseBookmarked={(verseNumber) => isReaderVerseBookmarked(verseNumber, bibleBookmarks, readerBook, readerChapter)}
+                isVerseNoted={(verseNumber) => isReaderVerseBookmarkNoted(verseNumber, bibleBookmarks, readerBook, readerChapter)}
+              />
             </Card>
           </View>
         )}

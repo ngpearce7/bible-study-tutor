@@ -14,7 +14,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MEMORY_MILESTONE_GOALS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -27,6 +27,7 @@ import { BibleReaderPassage } from "@/components/BibleReaderPassage";
 import { BibleSearchPanel } from "@/components/BibleSearchPanel";
 import { HelpScreenshot } from "@/components/HelpScreenshot";
 import { MemoryBlank } from "@/components/MemoryBlank";
+import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { createElement, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -6026,181 +6027,27 @@ export default function Home() {
                     </>
                   )}
                   {!phoneMemoryFocusMode && memoryView === "history" && (
-                    <View style={styles.memoryHistoryStack}>
-                        <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
-                        <View style={styles.memoryHistorySummaryHeader}>
-                          <View style={styles.memoryHistorySummaryTextBlock}>
-                            <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory engagement</Text>
-                          </View>
-                          <Ionicons name="time-outline" size={22} color={colors.coral} />
-                        </View>
-                        <View style={[styles.memoryHistoryEncouragementBox, memoryDarkMode && styles.accountDarkInsetBox]}>
-                          <View style={styles.memoryEncouragementHeader}>
-                            <Ionicons name="sparkles-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
-                            <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Encouragement</Text>
-                          </View>
-                          {phoneLayout ? (
-                            <View style={styles.phoneMemoryEncouragementStack}>
-                              <View style={styles.phoneMemoryEncouragementItem}>
-                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
-                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
-                              </View>
-                              <View style={styles.phoneMemoryEncouragementItem}>
-                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
-                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
-                                <Text style={[styles.memoryWeeklyInlineScripture, memoryDarkMode && styles.accountDarkMutedText]}>
-                                  "{memoryWeeklyScripture.text}" - {memoryWeeklyScripture.reference}
-                                </Text>
-                              </View>
-                            </View>
-                          ) : (
-                            <View style={styles.memoryEncouragementGrid}>
-                              <View style={styles.memoryEncouragementBlock}>
-                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Today</Text>
-                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEncouragement}</Text>
-                              </View>
-                              <View style={styles.memoryEncouragementBlock}>
-                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>This week</Text>
-                                <Text style={[styles.memoryHistoryEncouragementText, memoryDarkMode && styles.accountDarkText]}>{memoryWeeklySummary}</Text>
-                              </View>
-                              <View style={[styles.memoryWeeklyScriptureBox, memoryDarkMode && styles.accountDarkSection]}>
-                                <Text style={[styles.memoryWeeklyScriptureText, memoryDarkMode && styles.accountDarkText]}>"{memoryWeeklyScripture.text}"</Text>
-                                <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryWeeklyScripture.reference}</Text>
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                        <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
-                          <Metric value={memoryHistorySummary.reviewedToday} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-                          <Metric value={memoryHistorySummary.reviewedThisWeek} label="this week" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-                          <Metric value={memoryHistorySummary.addedCount} label="added" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-                        </View>
-                        {memoryHistorySummary.mostReviewed && (
-                          <View style={[styles.memoryHistoryHighlight, memoryDarkMode && styles.accountDarkInsetBox]}>
-                            <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Most reviewed</Text>
-                            <Text style={[styles.body, memoryDarkMode && styles.accountDarkText]}>{memoryHistorySummary.mostReviewed.reference}</Text>
-                            <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{memoryHistorySummary.mostReviewed.count} review{memoryHistorySummary.mostReviewed.count === 1 ? "" : "s"} recorded</Text>
-                          </View>
-                        )}
-                        {neglectedMemoryVerses.length > 0 && (
-                          <View style={[styles.memoryHistoryHighlight, memoryDarkMode && styles.accountDarkInsetBox]}>
-                            <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Worth revisiting</Text>
-                            <View style={styles.memoryHistoryList}>
-                              {neglectedMemoryVerses.map((verse: any) => (
-                                <View key={String(verse._id)} style={styles.neglectedMemoryRow}>
-                                  <View style={styles.memoryHistoryTextBlock}>
-                                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
-                                    <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{neglectedMemoryVerseLabel(verse.daysSinceReview, verse.reviewCount)}</Text>
-                                  </View>
-                                  <Pressable
-                                    accessibilityRole="button"
-                                    onPress={() => startMemoryPractice(verse)}
-                                    style={[styles.neglectedMemoryPracticeButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                                  >
-                                    <Text style={[styles.neglectedMemoryPracticeText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Practice</Text>
-                                  </Pressable>
-                                </View>
-                              ))}
-                            </View>
-                          </View>
-                        )}
-                      </View>
-                      <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
-                        <View style={styles.memoryHistorySummaryHeader}>
-                          <View style={styles.memoryHistorySummaryTextBlock}>
-                            <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory milestones</Text>
-                            <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
-                              Choose up to five goals to keep in view.
-                            </Text>
-                          </View>
-                          <Pressable
-                            accessibilityRole="button"
-                            onPress={() => setMemoryMilestonePickerOpen((current) => !current)}
-                            style={[styles.memoryHistoryMoreButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                          >
-                            <Text style={[styles.memoryHistoryMoreText, memoryDarkMode && styles.homeDarkResumeButtonText]}>
-                              {memoryMilestonePickerOpen ? "Hide goals" : "Choose goals"}
-                            </Text>
-                            <Ionicons name={memoryMilestonePickerOpen ? "chevron-up-outline" : "options-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                          </Pressable>
-                        </View>
-                        {memoryMilestonePickerOpen && (
-                          <View style={[styles.memoryMilestonePicker, memoryDarkMode && styles.accountDarkInsetBox]}>
-                            <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>
-                              Tracking {memoryMilestoneGoalIds.length} of 5
-                            </Text>
-                            <View style={styles.memoryMilestoneGoalGrid}>
-                              {MEMORY_MILESTONE_GOALS.map((goal) => {
-                                const selected = memoryMilestoneGoalIds.includes(goal.id);
-                                return (
-                                  <Pressable
-                                    key={goal.id}
-                                    accessibilityRole="button"
-                                    onPress={() => toggleMemoryMilestoneGoal(goal.id)}
-                                    style={[
-                                      styles.memoryMilestoneGoalChip,
-                                      memoryDarkMode && styles.printDarkOptionChip,
-                                      selected && styles.activeFilterChip
-                                    ]}
-                                  >
-                                    <Ionicons name={selected ? "checkmark-circle" : "ellipse-outline"} size={15} color={selected ? "#ffffff" : memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                                    <View style={styles.memoryHistoryTextBlock}>
-                                      <Text style={[styles.memoryMilestoneGoalTitle, memoryDarkMode && styles.accountDarkText, selected && styles.activeFilterText]}>{goal.label}</Text>
-                                      <Text style={[styles.memoryMilestoneGoalDescription, memoryDarkMode && styles.accountDarkMutedText, selected && styles.activeFilterText]}>{goal.description}</Text>
-                                    </View>
-                                  </Pressable>
-                                );
-                              })}
-                            </View>
-                            {!!memoryMilestoneStatus && <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryMilestoneStatus}</Text>}
-                          </View>
-                        )}
-                        <View style={styles.memoryMilestoneList}>
-                          {memoryMilestones.map((milestone) => (
-                            <View key={milestone.id || milestone.title} style={[styles.memoryMilestoneItem, memoryDarkMode && styles.accountDarkInsetBox]}>
-                              <Ionicons name={milestone.achieved ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
-                              <View style={styles.memoryHistoryTextBlock}>
-                                <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{milestone.title}</Text>
-                                <Text style={[styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>{milestone.description}</Text>
-                              </View>
-                            </View>
-                          ))}
-                        </View>
-                      </View>
-                      <View style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkSection]}>
-                        <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Recent memory activity</Text>
-                        {memoryHistoryItems.length === 0 ? (
-                          <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Your history will appear here as you add, review, repeat, and schedule memory verses.</Text>
-                        ) : (
-                          <View style={styles.memoryHistoryList}>
-                            {visibleMemoryHistoryItems.map((item: any) => (
-                              <View key={item._id} style={[styles.memoryHistoryItem, memoryDarkMode && styles.accountDarkInsetBox]}>
-                                <View style={[styles.memoryHistoryIcon, memoryDarkMode && styles.homeDarkIconBubble]}>
-                                  <Ionicons name={memoryHistoryEventIcon(item.event) as any} size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
-                                </View>
-                                <View style={styles.memoryHistoryTextBlock}>
-                                  <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{memoryHistoryEventLabel(item.event, item.practiceLevel)}</Text>
-                                  <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{item.reference}</Text>
-                                  <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{formatMemoryHistoryDate(item.createdAt)}</Text>
-                                </View>
-                              </View>
-                            ))}
-                            {memoryHistoryItems.length > 10 && (
-                              <Pressable
-                                accessibilityRole="button"
-                                onPress={() => setMemoryHistoryExpanded((expanded) => !expanded)}
-                                style={[styles.memoryHistoryMoreButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                              >
-                                <Text style={[styles.memoryHistoryMoreText, memoryDarkMode && styles.homeDarkResumeButtonText]}>
-                                  {memoryHistoryExpanded ? "Show less" : `Show more (${Math.min(memoryHistoryItems.length, 30) - 10})`}
-                                </Text>
-                                <Ionicons name={memoryHistoryExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
-                              </Pressable>
-                            )}
-                          </View>
-                        )}
-                      </View>
-                    </View>
+                    <MemoryHistoryPanel
+                      styles={styles}
+                      darkMode={memoryDarkMode}
+                      phoneLayout={phoneLayout}
+                      historySummary={memoryHistorySummary}
+                      todayEncouragement={memoryHistoryEncouragement}
+                      weeklySummary={memoryWeeklySummary}
+                      weeklyScripture={memoryWeeklyScripture}
+                      neglectedVerses={neglectedMemoryVerses}
+                      milestones={memoryMilestones}
+                      milestoneGoalIds={memoryMilestoneGoalIds}
+                      milestonePickerOpen={memoryMilestonePickerOpen}
+                      milestoneStatus={memoryMilestoneStatus}
+                      historyItems={memoryHistoryItems}
+                      visibleHistoryItems={visibleMemoryHistoryItems}
+                      historyExpanded={memoryHistoryExpanded}
+                      onPracticeVerse={startMemoryPractice}
+                      onToggleMilestonePicker={() => setMemoryMilestonePickerOpen((current) => !current)}
+                      onToggleMilestoneGoal={toggleMemoryMilestoneGoal}
+                      onToggleHistoryExpanded={() => setMemoryHistoryExpanded((expanded) => !expanded)}
+                    />
                   )}
                   {!phoneMemoryFocusMode && memoryView === "browse" && (
                     <>

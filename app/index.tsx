@@ -7,7 +7,8 @@ import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { api } from "@/convex/_generated/api";
-import { BIBLE_CHAPTER_COUNTS, BIBLE_BOOK_ALIASES, BSB_BOOK_IDS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, flattenBsbVerseContent, normalizeBibleBookName } from "@/data/bibleLibrary";
+import { fetchBibleApiPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
@@ -268,21 +269,6 @@ function usernameIsValid(username: string) {
 function authInputLooksLikeEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
-type BibleVerse = {
-  book_name: string;
-  chapter: number;
-  verse: number;
-  text: string;
-};
-type BiblePassage = {
-  reference: string;
-  text: string;
-  verses?: BibleVerse[];
-  translation_id: string;
-  translation_name: string;
-  translation_note: string;
-};
-
 export default function Home() {
   const { width, height } = useWindowDimensions();
   const ensureProfile = useMutation(api.study.ensureProfile);
@@ -12108,149 +12094,8 @@ function markupRecordsToNoteMap(records: PassageMarkupRecord[]): PassageMarkupNo
   }, {});
 }
 
-async function fetchBibleApiPassage(reference: string, translation: Exclude<BibleTranslationId, "bsb">, signal: AbortSignal): Promise<BiblePassage> {
-  const response = await fetch(`https://bible-api.com/${encodeURIComponent(reference)}?translation=${translation}`, { signal });
-  if (!response.ok) throw new Error("Passage not found");
-  const data = (await response.json()) as BiblePassage;
-  const verses = data.verses?.map((verse) => ({
-    ...verse,
-    text: normalizeBibleApiText(verse.text)
-  }));
-
-  return {
-    ...data,
-    text: verses?.map((verse) => verse.text).join("\n") || normalizeBibleApiText(data.text),
-    verses
-  };
-}
-
-function normalizeBibleApiText(text: string) {
-  return text.replace(/\s+/g, " ").trim();
-}
-
-async function fetchBsbPassage(reference: string, signal: AbortSignal): Promise<BiblePassage> {
-  const parsed = parseBsbPassageReference(reference);
-  if (!parsed) throw new Error("BSB needs a chapter reference");
-
-  const response = await fetch(`https://bible.helloao.org/api/BSB/${parsed.bookId}/${parsed.chapter}.json`, { signal });
-  if (!response.ok) throw new Error("BSB passage not found");
-
-  const data = await response.json();
-  const allVerses = (data.chapter?.content || []).filter((item: any) => item.type === "verse" && typeof item.number === "number");
-  const selectedVerses = allVerses.filter((item: any) => {
-    if (!parsed.startVerse) return true;
-    return item.number >= parsed.startVerse && item.number <= (parsed.endVerse || parsed.startVerse);
-  });
-
-  if (!selectedVerses.length) throw new Error("No BSB verses found");
-
-  const verses = selectedVerses.map((item: any) => ({
-    book_name: data.book?.commonName || parsed.bookName,
-    chapter: parsed.chapter,
-    verse: item.number,
-    text: flattenBsbVerseContent(item.content)
-  }));
-
-  return {
-    reference: formatBsbReference(parsed),
-    text: verses.map((verse: BibleVerse) => verse.text).join("\n"),
-    verses,
-    translation_id: "BSB",
-    translation_name: "Berean Standard Bible",
-    translation_note: "Public Domain"
-  };
-}
-
-function parseBsbPassageReference(query: string) {
-  const compact = query.trim().replace(/\s+/g, " ").replace(/\s*:\s*/g, ":").replace(/\s*-\s*/g, "-");
-  const resolved = resolveBibleBookReference(compact);
-  if (!resolved) return null;
-
-  const bookName = normalizeBibleBookName(resolved.book);
-  const bookId = BSB_BOOK_IDS[bookName];
-  const rest = resolved.rest;
-  const match = rest.match(/^(\d+)(?::(\d+)(?:-(\d+))?)?$/);
-  if (!bookId || !match) return null;
-
-  return {
-    bookName,
-    bookId,
-    chapter: Number(match[1]),
-    startVerse: match[2] ? Number(match[2]) : undefined,
-    endVerse: match[3] ? Number(match[3]) : undefined
-  };
-}
-
-function formatBsbReference(parsed: { bookName: string; chapter: number; startVerse?: number; endVerse?: number }) {
-  if (!parsed.startVerse) return `${parsed.bookName} ${parsed.chapter}`;
-  return `${parsed.bookName} ${parsed.chapter}:${parsed.startVerse}${parsed.endVerse ? `-${parsed.endVerse}` : ""}`;
-}
-
-function resolveBibleBookReference(reference: string) {
-  const normalizedReference = normalizeBibleBookLookupKey(reference);
-  const aliases = buildBibleBookAliasEntries();
-  const matched = aliases.find(({ key }) => {
-    if (normalizedReference === key) return true;
-    if (!normalizedReference.startsWith(key)) return false;
-    const nextChar = normalizedReference.slice(key.length, key.length + 1);
-    return !nextChar || /\s|\d|:|-/.test(nextChar);
-  });
-
-  if (!matched) return null;
-
-  return {
-    book: matched.book,
-    rest: normalizedReference.slice(matched.key.length).trim()
-  };
-}
-
-function buildBibleBookAliasEntries() {
-  const entries = new Map<string, string>();
-  const add = (alias: string, book: string) => {
-    const key = normalizeBibleBookLookupKey(alias);
-    if (key) entries.set(key, book);
-  };
-
-  [...bibleBooks, "Psalm"].forEach((book) => {
-    add(book, book);
-    add(book.replace(/\s+/g, ""), book);
-  });
-  Object.entries(BIBLE_BOOK_ALIASES).forEach(([alias, book]) => add(alias, book));
-
-  return Array.from(entries, ([key, book]) => ({ key, book })).sort((a, b) => b.key.length - a.key.length);
-}
-
-function normalizeBibleBookLookupKey(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[.]/g, "")
-    .replace(/&/g, " and ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function studyKey(passage: string, methodId: string) {
   return `${(passage.trim() || "Selected passage").toLowerCase()}|${methodId}`;
-}
-
-function parsePassageQuery(query: string) {
-  const compact = query.trim().replace(/\s+/g, " ");
-  if (!compact) return { reference: "" };
-
-  const normalized = compact.replace(/\s*:\s*/g, ":").replace(/\s*-\s*/g, "-");
-  const resolved = resolveBibleBookReference(normalized);
-  if (!resolved) return { reference: normalized };
-
-  const rest = resolved.rest;
-  const parts = rest.match(/^(\d+)?(?:\s+|:)?(\d+)?(?:-(\d+))?$/);
-  const chapter = parts?.[1] || "";
-  const startVerse = parts?.[2] || "";
-  const endVerse = parts?.[3] || "";
-  const verse = startVerse ? `:${startVerse}${endVerse ? `-${endVerse}` : ""}` : "";
-
-  return {
-    reference: `${normalizeBibleBookName(resolved.book)}${chapter ? ` ${chapter}` : ""}${verse}`.trim()
-  };
 }
 
 function findTypedScriptureReference(text: string) {

@@ -1,5 +1,5 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 const publicDir = join(process.cwd(), "public");
 const productionSiteUrl = "https://biblestudytutor.org";
@@ -50,7 +50,97 @@ const seoPages = [
       ["Reflective methods", "Use Lectio Divina, READ, and prayerful reflection when you want to respond slowly and personally to Scripture."]
     ],
     cta: "Choose a study method",
-    related: ["/printable-bible-study-worksheets", "/bible-study-for-beginners", "/online-bible-study-journal"]
+    related: ["/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive"]
+  },
+  {
+    path: "/how-to-study-the-bible",
+    file: "how-to-study-the-bible.html",
+    title: "How to Study the Bible | A Simple Guide for Bible Study",
+    description: "Learn how to study the Bible with a simple Scripture-first rhythm: read carefully, observe the passage, understand the meaning, respond in prayer, and apply it.",
+    heading: "How to study the Bible",
+    intro: "Bible Study Tutor helps you study the Bible with a calm, repeatable rhythm: open Scripture, slow down, notice what is there, understand the passage, and respond faithfully.",
+    sections: [
+      ["Begin with prayer and context", "Ask God for wisdom, read the surrounding verses, and notice who is speaking, what is happening, and where the passage sits in the wider book."],
+      ["Observe before applying", "Look for repeated words, commands, promises, contrasts, people, places, and questions before rushing to a personal takeaway."],
+      ["Respond with obedience", "A good Bible study does not stop at information. Write a prayer, choose one next step, and return to the passage through the week."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-for-beginners", "/how-to-study-a-bible-passage", "/bible-study-methods"]
+  },
+  {
+    path: "/how-to-study-a-bible-passage",
+    file: "how-to-study-a-bible-passage.html",
+    title: "How to Study a Bible Passage | Observe, Interpret and Apply Scripture",
+    description: "Learn how to study a Bible passage by reading the text, making observations, interpreting the meaning, applying the truth, and saving your notes.",
+    heading: "How to study a Bible passage",
+    intro: "When you study a Bible passage, the goal is to listen carefully to the text before deciding what it means for life. Bible Study Tutor gives you a structured way to do that.",
+    sections: [
+      ["Read the passage more than once", "Read slowly, then reread. Notice the flow of thought, key words, commands, promises, and anything that surprises you."],
+      ["Ask what the author meant", "Interpret the passage in context. Look at the chapter, the book, the audience, and how the passage points to God’s character and work."],
+      ["Write a clear response", "Turn your study into prayer, action, memory, or encouragement. Save the notes in your journal so you can revisit them later."]
+    ],
+    cta: "Study a passage now",
+    related: ["/how-to-study-the-bible", "/bible-study-methods/oia", "/printable-bible-study-worksheets"]
+  },
+  {
+    path: "/bible-study-methods/soap",
+    file: "bible-study-methods/soap.html",
+    title: "SOAP Bible Study Method | Scripture, Observation, Application and Prayer",
+    description: "Use the SOAP Bible study method to read Scripture, write observations, apply the passage, and pray through what God is teaching you.",
+    heading: "SOAP Bible study method",
+    intro: "SOAP is a simple Bible study method for turning Scripture reading into thoughtful reflection, prayer, and everyday obedience.",
+    sections: [
+      ["Scripture", "Choose a passage and write down the verse or section that stands out. This keeps the study anchored in the biblical text."],
+      ["Observation and application", "Notice what the passage says, then ask how it speaks to your beliefs, actions, relationships, and trust in God."],
+      ["Prayer", "Finish by praying honestly through what you have seen, asking God for help to receive and obey His Word."]
+    ],
+    cta: "Practise SOAP",
+    related: ["/bible-study-methods", "/bible-study-methods/oia", "/printable-bible-study-worksheet-for-small-groups"]
+  },
+  {
+    path: "/bible-study-methods/inductive",
+    file: "bible-study-methods/inductive.html",
+    title: "Inductive Bible Study Method | Observation, Interpretation and Application",
+    description: "Learn the inductive Bible study method with observation, interpretation, and application steps for deeper Scripture study.",
+    heading: "Inductive Bible study method",
+    intro: "Inductive Bible study helps you move from careful observation to faithful interpretation and practical application without skipping over the text.",
+    sections: [
+      ["Observation", "Mark repeated words, commands, contrasts, people, places, timing, and structure. Ask what the passage actually says."],
+      ["Interpretation", "Use context to understand the author’s meaning. Ask how the passage fits the chapter, the book, and the message of Scripture."],
+      ["Application", "Respond with specific obedience, repentance, trust, worship, or prayer rather than vague good intentions."]
+    ],
+    cta: "Try inductive study",
+    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/oia", "/how-to-study-romans"]
+  },
+  {
+    path: "/bible-study-methods/oia",
+    file: "bible-study-methods/oia.html",
+    title: "OIA Bible Study Method | Observation, Interpretation and Application",
+    description: "Use the OIA Bible study method to observe the passage, interpret the meaning, and apply Scripture to daily life.",
+    heading: "OIA Bible study method",
+    intro: "OIA is a clear and memorable way to study Scripture: observe what the passage says, interpret what it means, and apply it faithfully.",
+    sections: [
+      ["Observation", "Slow down and list what you see in the passage before explaining it. Look for words, themes, logic, emotion, and movement."],
+      ["Interpretation", "Ask what the passage meant in context, what it reveals about God, and how it connects with the surrounding Scripture."],
+      ["Application", "Write one honest response. That might be something to believe, confess, obey, pray, remember, or share."]
+    ],
+    cta: "Practise OIA",
+    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/inductive", "/bible-study-methods/soap"]
+  },
+  {
+    path: "/bible-study-methods/lectio-divina",
+    file: "bible-study-methods/lectio-divina.html",
+    title: "Lectio Divina Bible Study Method | Prayerful Scripture Reflection",
+    description: "Practise Lectio Divina with Scripture reading, meditation, prayer, and quiet response while keeping the Bible passage central.",
+    heading: "Lectio Divina Bible study method",
+    intro: "Lectio Divina is a prayerful way to read Scripture slowly, listen attentively, and respond to God with reflection and prayer.",
+    sections: [
+      ["Read", "Read the passage slowly and notice a word, phrase, or image that draws your attention."],
+      ["Reflect and pray", "Meditate on the passage in context, then pray honestly about what it reveals and how it speaks into your life."],
+      ["Carry", "Choose a short phrase or truth from the passage to carry with you through the day."]
+    ],
+    cta: "Try Lectio Divina",
+    related: ["/bible-study-methods", "/bible-study-journal", "/bible-memory-verses"]
   },
   {
     path: "/features",
@@ -95,7 +185,22 @@ const seoPages = [
       ["Keep a record", "Save studies to your journal so your understanding, prayers, and next steps are easy to revisit later."]
     ],
     cta: "Open guided study",
-    related: ["/bible-study-methods", "/printable-bible-study-worksheets", "/online-bible-study-journal"]
+    related: ["/how-to-study-the-bible", "/how-to-study-a-bible-passage", "/bible-study-methods/soap"]
+  },
+  {
+    path: "/printable-bible-study-worksheet-for-small-groups",
+    file: "printable-bible-study-worksheet-for-small-groups.html",
+    title: "Printable Bible Study Worksheet for Small Groups | Free Group Study Sheet",
+    description: "Create printable Bible study worksheets for small groups with selected Scripture, guided questions, writing space, and study methods.",
+    heading: "Printable Bible study worksheet for small groups",
+    intro: "Bible Study Tutor can help small group leaders prepare simple Scripture worksheets that work well around a table, in a class, or in a church group.",
+    sections: [
+      ["Choose the passage", "Select the verses your group will study and print the Scripture with enough room for people to write their own observations."],
+      ["Use a shared method", "SOAP, OIA, Inductive Study, and Lectio Divina can give the group a common rhythm without making the handout complicated."],
+      ["Encourage discussion", "Printed worksheets help people arrive prepared, record prayer points, and keep a useful record after the meeting."]
+    ],
+    cta: "Print a worksheet",
+    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheets", "/bible-study-methods/soap"]
   },
   {
     path: "/online-bible-study-journal",
@@ -111,6 +216,21 @@ const seoPages = [
     ],
     cta: "Open the journal",
     related: ["/bible-study-methods", "/bible-highlighting-and-notes", "/bible-memory-verses"]
+  },
+  {
+    path: "/bible-study-journal",
+    file: "bible-study-journal.html",
+    title: "Bible Study Journal | Save Scripture Notes, Prayers and Reflections",
+    description: "Use a Bible study journal to save Scripture notes, prayers, reflections, meditations, highlights, bookmarks, and completed studies.",
+    heading: "Bible study journal",
+    intro: "A Bible study journal helps you remember what you have read, how you prayed, and how Scripture shaped your thinking over time.",
+    sections: [
+      ["Save more than notes", "Bible Study Tutor can keep guided studies, meditations, highlights, bookmarks, drafts, and prayerful reflections together."],
+      ["Find your way back", "Filter journal entries by Scripture, date, type, status, or pinned favourites when you want to revisit a passage."],
+      ["Build a record of growth", "Your journal becomes a quiet history of what God has been teaching you through Scripture."]
+    ],
+    cta: "Open the journal",
+    related: ["/online-bible-study-journal", "/how-to-study-a-bible-passage", "/bible-highlighting-and-notes"]
   },
   {
     path: "/bible-memory-verses",
@@ -201,6 +321,36 @@ const seoPages = [
     ],
     cta: "Open Bible Study Tutor",
     related: ["/free-bible-study-app", "/bible-study-for-small-groups", "/about"]
+  },
+  {
+    path: "/how-to-study-romans",
+    file: "how-to-study-romans.html",
+    title: "How to Study Romans | A Practical Guide to Paul’s Letter",
+    description: "Learn how to study Romans by tracing Paul’s argument, noting key themes, reading in context, journaling observations, and applying the gospel carefully.",
+    heading: "How to study Romans",
+    intro: "Romans is rich, structured, and deeply theological. Bible Study Tutor can help you move through it slowly by passage, theme, question, and response.",
+    sections: [
+      ["Trace the argument", "Romans builds carefully. Watch for connecting words, repeated ideas, and the movement from sin and grace to new life and practical obedience."],
+      ["Keep gospel themes in view", "Notice righteousness, faith, grace, law, sin, union with Christ, the Spirit, mercy, and transformed living."],
+      ["Study in manageable sections", "Romans rewards slow study. Use guided notes, memory collections, and journal entries rather than trying to master the whole letter at once."]
+    ],
+    cta: "Study Romans",
+    related: ["/bible-study-methods/inductive", "/how-to-study-a-bible-passage", "/bible-study-journal"]
+  },
+  {
+    path: "/how-to-study-the-gospel-of-john",
+    file: "how-to-study-the-gospel-of-john.html",
+    title: "How to Study the Gospel of John | Read John’s Gospel with Purpose",
+    description: "Learn how to study the Gospel of John by following signs, conversations, I am sayings, belief, witness, and the purpose of John’s Gospel.",
+    heading: "How to study the Gospel of John",
+    intro: "The Gospel of John invites readers to see who Jesus is and believe in Him. Bible Study Tutor helps you slow down and follow John’s purpose passage by passage.",
+    sections: [
+      ["Look for signs and responses", "Notice Jesus’ signs, the conversations that follow, and how different people respond with belief, confusion, opposition, or worship."],
+      ["Trace John’s themes", "Watch for light, life, belief, witness, glory, love, truth, the Father, the Son, and the Spirit."],
+      ["Read toward John’s purpose", "John says his Gospel was written so readers may believe that Jesus is the Christ, the Son of God, and have life in His name."]
+    ],
+    cta: "Study John’s Gospel",
+    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/lectio-divina", "/bible-study-for-beginners"]
   }
 ];
 
@@ -393,5 +543,6 @@ function pngToIco(png, width, height) {
 function writeFileIfChanged(filePath, content) {
   const next = Buffer.isBuffer(content) ? content : Buffer.from(String(content));
   if (existsSync(filePath) && Buffer.compare(readFileSync(filePath), next) === 0) return;
+  mkdirSync(dirname(filePath), { recursive: true });
   writeFileSync(filePath, content);
 }

@@ -6,11 +6,20 @@
 dist/
 node_modules/
 public/about.html
+public/bible-highlighting-and-notes.html
+public/bible-memory-verses.html
+public/bible-study-app-for-churches.html
+public/bible-study-for-beginners.html
+public/bible-study-for-small-groups.html
 public/bible-study-methods.html
 public/features.html
+public/free-bible-study-app.html
+public/online-bible-study-journal.html
+public/printable-bible-memory-cards.html
 public/favicon.png
 public/icon.png
 public/printable-bible-study-worksheets.html
+public/scripture-memorization-app.html
 public/sitemap.xml
 
 # @generated expo-cli sync-2b81b286409207a5da26e14c78851eb30d8ccbdb

@@ -874,13 +874,24 @@ function getCtaHref(page, appUrl) {
 }
 
 function getAppEntryQuery(page) {
+  if (page.path === "/bible-study-methods") return "tab=methods";
+  if (page.path.startsWith("/bible-study-methods/")) {
+    const methodSlug = page.path.split("/").filter(Boolean).pop() || "";
+    const methodMap = {
+      soap: "soap",
+      inductive: "inductive",
+      oia: "oia",
+      "lectio-divina": "lectio"
+    };
+    const methodId = methodMap[methodSlug] || "";
+    return methodId ? `tab=study&method=${methodId}` : "tab=methods";
+  }
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
-  if (value.includes("journal")) return "tab=journal";
   if (value.includes("memor") || value.includes("memory")) return "tab=memory";
   if (value.includes("worksheet") || value.includes("printable") || value.includes("reader") || value.includes("highlight")) return "tab=bible";
-  if (value.includes("method") || value.includes("soap") || value.includes("inductive") || value.includes("lectio") || value.includes("oia")) return "tab=methods";
-  if (value.includes("group") || value.includes("church") || value.includes("encouragement")) return "tab=community";
-  if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "";
+  if (value.includes("method")) return "tab=methods";
+  if (value.includes("journal") || value.includes("group") || value.includes("church") || value.includes("encouragement")) return "tab=study";
+  if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "tab=home";
   return "tab=study";
 }
 

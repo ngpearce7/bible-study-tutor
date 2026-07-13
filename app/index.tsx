@@ -34,6 +34,7 @@ import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, 
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
+const publicUrlTabs = new Set<Tab>(["home", "study", "bible", "plans", "methods", "memory", "help"]);
 type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
@@ -600,6 +601,8 @@ export default function Home() {
   const previousActiveProfileIdRef = useRef("");
   const loadedDraftRevisionRef = useRef(0);
   const isHydratingDraftRef = useRef(false);
+  const hasReadInitialUrlRef = useRef(false);
+  const skipInitialUrlSyncRef = useRef(true);
 
   useEffect(() => {
     if (tab === "journal" && previousTabRef.current !== "journal") {
@@ -620,18 +623,52 @@ export default function Home() {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     const url = new URL(window.location.href);
     const requestedTab = url.searchParams.get("tab");
+    const requestedMethod = url.searchParams.get("method");
     const sharedSource = url.searchParams.get("shared");
     const pendingTab = typeof localStorage !== "undefined" ? localStorage.getItem("bibleStudyTutorReturnTab") : "";
-    const nextTab = tabs.includes(requestedTab as Tab) ? requestedTab : tabs.includes(pendingTab as Tab) ? pendingTab : "";
+    const nextTab = publicUrlTabs.has(requestedTab as Tab) ? requestedTab : tabs.includes(pendingTab as Tab) ? pendingTab : "";
     if (nextTab) setTab(nextTab as Tab);
+    if (requestedMethod && methods.some((item) => item.id === requestedMethod)) {
+      setMethodId(requestedMethod);
+      setStepIndex(0);
+      setStudyPhase("study");
+    }
     if (sharedSource) setIncomingShareSource(sharedSource.slice(0, 40));
     if (typeof localStorage !== "undefined") localStorage.removeItem("bibleStudyTutorReturnTab");
-    if (requestedTab || sharedSource) {
-      url.searchParams.delete("tab");
-      url.searchParams.delete("shared");
+    if (requestedTab && !publicUrlTabs.has(requestedTab as Tab)) {
+      url.searchParams.set("tab", "home");
+      url.searchParams.delete("method");
       window.history.replaceState({}, "", url.pathname + url.search + url.hash);
     }
+    hasReadInitialUrlRef.current = true;
   }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined" || !hasReadInitialUrlRef.current) return;
+    const url = new URL(window.location.href);
+    const currentUrlTab = url.searchParams.get("tab");
+    if (currentUrlTab && !publicUrlTabs.has(currentUrlTab as Tab)) {
+      url.searchParams.set("tab", "home");
+      url.searchParams.delete("method");
+      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+    }
+    if (skipInitialUrlSyncRef.current) {
+      skipInitialUrlSyncRef.current = false;
+      return;
+    }
+    if (publicUrlTabs.has(tab)) {
+      if (url.searchParams.get("tab") !== tab) {
+        url.searchParams.set("tab", tab);
+      }
+      if (tab !== "study") {
+        url.searchParams.delete("method");
+      }
+    } else if (url.searchParams.has("tab") || url.searchParams.has("method")) {
+      url.searchParams.delete("tab");
+      url.searchParams.delete("method");
+    }
+    window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+  }, [tab]);
 
   useEffect(() => {
     if (authLoading) {

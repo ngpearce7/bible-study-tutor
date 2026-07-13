@@ -728,12 +728,22 @@ function buildSeoPage(page, baseUrl) {
   const canonical = baseUrl ? `${baseUrl}${page.path}` : page.path;
   const appUrl = baseUrl ? `${baseUrl}/` : "/";
   const image = baseUrl ? `${baseUrl}/icon.png` : "/icon.png";
+  const ctaHref = getCtaHref(page, appUrl);
+  const breadcrumbs = getBreadcrumbs(page);
   const relatedPages = (page.related || [])
     .map((path) => seoPages.find((candidate) => candidate.path === path))
     .filter(Boolean);
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
     .join("\n");
+  const breadcrumbLinks = breadcrumbs
+    .map((crumb, index) => {
+      const isLast = index === breadcrumbs.length - 1;
+      return isLast
+        ? `<span aria-current="page">${escapeHtml(crumb.label)}</span>`
+        : `<a href="${escapeHtml(crumb.href)}">${escapeHtml(crumb.label)}</a>`;
+    })
+    .join("\n          <span aria-hidden=\"true\">/</span>\n          ");
   const relatedLinks = relatedPages.length
     ? `<aside class="related" aria-labelledby="related-heading">
         <h2 id="related-heading">Related Bible study resources</h2>
@@ -783,10 +793,16 @@ function buildSeoPage(page, baseUrl) {
       :root { color-scheme: light; --ink: #241d19; --muted: #6f665c; --paper: #f8f1e6; --panel: #fffdf8; --line: #e4d6c5; --olive: #39452e; --coral: #c96750; }
       * { box-sizing: border-box; }
       body { background: var(--paper); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; }
-      main { margin: 0 auto; max-width: 980px; padding: 48px 20px; }
-      nav { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 36px; }
-      nav a, .button { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-weight: 800; min-height: 42px; padding: 10px 16px; text-decoration: none; }
-      nav a { background: transparent; color: var(--olive); padding-left: 0; }
+      .shell { margin: 0 auto; max-width: 980px; padding-left: 20px; padding-right: 20px; }
+      .site-header { border-bottom: 1px solid var(--line); background: rgba(255, 253, 248, .72); }
+      .site-header .shell { align-items: center; display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; padding-bottom: 18px; padding-top: 18px; }
+      .brand { color: var(--olive); font-weight: 900; text-decoration: none; }
+      .main-nav { display: flex; flex-wrap: wrap; gap: 14px; }
+      .main-nav a { color: var(--olive); font-weight: 800; text-decoration: none; }
+      main { padding-bottom: 48px; padding-top: 34px; }
+      .breadcrumb { align-items: center; color: var(--muted); display: flex; flex-wrap: wrap; font-size: 14px; gap: 8px; margin-bottom: 22px; }
+      .breadcrumb a { color: var(--olive); font-weight: 800; text-decoration: none; }
+      .button { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-weight: 800; min-height: 42px; padding: 10px 16px; text-decoration: none; }
       .hero { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: clamp(24px, 5vw, 46px); }
       .eyebrow { color: var(--coral); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
       h1 { color: var(--olive); font-size: clamp(34px, 7vw, 64px); line-height: .98; margin: 12px 0 18px; max-width: 780px; }
@@ -801,35 +817,88 @@ function buildSeoPage(page, baseUrl) {
       .related-grid a { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); display: grid; gap: 6px; padding: 16px; text-decoration: none; }
       .related-grid strong { color: var(--olive); font-size: 16px; }
       .related-grid span { color: var(--muted); font-size: 14px; line-height: 1.45; }
-      footer { border-top: 1px solid var(--line); color: var(--muted); display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 42px; padding-top: 18px; }
-      footer a { color: var(--olive); font-weight: 800; }
+      .cta-section { background: var(--olive); border-radius: 18px; color: white; margin-top: 30px; padding: 24px; }
+      .cta-section h2 { color: white; }
+      .cta-section p { color: rgba(255, 255, 255, .84); margin-bottom: 16px; max-width: 680px; }
+      .cta-section .button { background: var(--coral); }
+      .site-footer { border-top: 1px solid var(--line); color: var(--muted); }
+      .site-footer .shell { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; padding-bottom: 26px; padding-top: 18px; }
+      .site-footer a { color: var(--olive); font-weight: 800; }
     </style>
   </head>
   <body>
-    <main>
-      <nav aria-label="Main">
-        <a href="/">Open app</a>
-        <a href="/about">About</a>
-        <a href="/printable-bible-study-worksheets">Worksheets</a>
-        <a href="/bible-study-methods">Methods</a>
-        <a href="/features">Features</a>
-      </nav>
-      <div class="hero">
-        <div class="eyebrow">Bible Study Tutor</div>
-        <h1>${escapeHtml(page.heading)}</h1>
-        <p class="intro">${escapeHtml(page.intro)}</p>
+    <header class="site-header">
+      <div class="shell">
+        <a class="brand" href="/">Bible Study Tutor</a>
+        <nav class="main-nav" aria-label="Main">
+          <a href="/">Open app</a>
+          <a href="/about">About</a>
+          <a href="/printable-bible-study-worksheets">Worksheets</a>
+          <a href="/bible-study-methods">Methods</a>
+          <a href="/features">Features</a>
+        </nav>
       </div>
+    </header>
+    <main class="shell">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+          ${breadcrumbLinks}
+      </nav>
+      <section class="hero" aria-labelledby="page-heading">
+        <div class="eyebrow">Bible Study Tutor</div>
+        <h1 id="page-heading">${escapeHtml(page.heading)}</h1>
+        <p class="intro">${escapeHtml(page.intro)}</p>
+      </section>
       <div class="grid">${sections}</div>
       ${relatedLinks}
-      <a class="button" href="${escapeHtml(appUrl)}">${escapeHtml(page.cta)}</a>
-      <footer>
+      <section class="cta-section" aria-labelledby="cta-heading">
+        <h2 id="cta-heading">Continue in Bible Study Tutor</h2>
+        <p>Open the app and use the guided tools, Bible reader, journal, memory verses, and printable worksheets alongside this guide.</p>
+        <a class="button" href="${escapeHtml(ctaHref)}">${escapeHtml(page.cta)}</a>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div class="shell">
         <span>Free Bible study app for desktop, mobile, and printable worksheets.</span>
         <span><a href="/">Bible Study Tutor</a></span>
-      </footer>
-    </main>
+      </div>
+    </footer>
   </body>
 </html>
 `;
+}
+
+function getCtaHref(page, appUrl) {
+  const query = getAppEntryQuery(page);
+  if (!query) return appUrl;
+  return appUrl.includes("?") ? `${appUrl}&${query}` : `${appUrl}?${query}`;
+}
+
+function getAppEntryQuery(page) {
+  const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
+  if (value.includes("journal")) return "tab=journal";
+  if (value.includes("memor") || value.includes("memory")) return "tab=memory";
+  if (value.includes("worksheet") || value.includes("printable") || value.includes("reader") || value.includes("highlight")) return "tab=bible";
+  if (value.includes("method") || value.includes("soap") || value.includes("inductive") || value.includes("lectio") || value.includes("oia")) return "tab=methods";
+  if (value.includes("group") || value.includes("church") || value.includes("encouragement")) return "tab=community";
+  if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "";
+  return "tab=study";
+}
+
+function getBreadcrumbs(page) {
+  const breadcrumbs = [{ label: "Home", href: "/" }];
+  if (page.path.startsWith("/bible-study-methods/")) {
+    breadcrumbs.push({ label: "Bible study methods", href: "/bible-study-methods" });
+  } else if (page.path.startsWith("/how-to-study-")) {
+    breadcrumbs.push({ label: "Study guides", href: "/how-to-study-the-bible" });
+  } else if (page.path.includes("worksheet")) {
+    breadcrumbs.push({ label: "Worksheets", href: "/printable-bible-study-worksheets" });
+  } else if (page.path.includes("memory") || page.path.includes("memorization")) {
+    breadcrumbs.push({ label: "Memory verses", href: "/bible-memory-verses" });
+  } else if (page.path.includes("journal")) {
+    breadcrumbs.push({ label: "Journal", href: "/bible-study-journal" });
+  }
+  breadcrumbs.push({ label: page.heading, href: page.path });
+  return breadcrumbs;
 }
 
 function escapeHtml(value) {

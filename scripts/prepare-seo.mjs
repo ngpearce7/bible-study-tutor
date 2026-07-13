@@ -501,6 +501,176 @@ const seoPages = [
     ],
     cta: "Study John’s Gospel",
     related: ["/how-to-study-a-bible-passage", "/bible-study-methods/lectio-divina", "/bible-study-for-beginners"]
+  },
+  {
+    path: "/how-to-study-genesis",
+    file: "how-to-study-genesis.html",
+    title: "How to Study Genesis | Creation, Covenant, Fall and Promise",
+    description: "Learn how to study Genesis by tracing creation, fall, covenant, promise, family stories, and God’s faithfulness through the first book of the Bible.",
+    heading: "How to study Genesis",
+    intro: "Genesis lays the foundation for the Bible’s story of creation, sin, promise, covenant, blessing, and God’s faithfulness. Study it slowly and watch how its themes echo through Scripture.",
+    sections: [
+      ["Why Genesis matters", "Genesis introduces God as Creator, shows the seriousness of sin, and begins the story of promise through Abraham and his family."],
+      ["How to approach it", "Read Genesis as narrative. Notice repeated promises, family tensions, covenant language, blessing, exile, land, and God’s patient faithfulness."],
+      ["Recommended study method", "Use the inductive method to observe the story carefully, interpret each scene in context, and apply what it reveals about God and human need."],
+      ["Suggested starter passages", "Begin with Genesis 1:1-2:3, Genesis 3, Genesis 12:1-9, Genesis 15, and Genesis 50:15-21."],
+      ["Links to Bible study methods", "Genesis pairs well with inductive study, character study, word study, and cross-reference study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/inductive", "/bible-study-methods/character-study", "/bible-study-methods/cross-reference-study"]
+  },
+  {
+    path: "/how-to-study-psalms",
+    file: "how-to-study-psalms.html",
+    title: "How to Study Psalms | Prayer, Worship, Lament and Trust",
+    description: "Learn how to study Psalms by reading Hebrew poetry, noticing prayer, lament, praise, trust, kingship, wisdom, and honest worship before God.",
+    heading: "How to study Psalms",
+    intro: "Psalms teaches God’s people to pray, worship, lament, remember, confess, and trust. It is both deeply personal and richly theological.",
+    sections: [
+      ["Why Psalms matters", "Psalms gives language for joy, fear, grief, repentance, thanksgiving, worship, and confidence in the Lord."],
+      ["How to approach it", "Read each psalm as poetry and prayer. Notice parallel lines, images, emotional movement, repeated words, and how the psalm addresses God."],
+      ["Recommended study method", "Use Lectio Divina or SOAP when praying through a psalm, and use word study for repeated themes such as refuge, steadfast love, and righteousness."],
+      ["Suggested starter passages", "Begin with Psalm 1, Psalm 23, Psalm 27, Psalm 51, Psalm 103, and Psalm 139."],
+      ["Links to Bible study methods", "Psalms works well with Lectio Divina, SOAP, word study, and topical study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/lectio-divina", "/bible-study-methods/soap", "/bible-study-methods/word-study"]
+  },
+  {
+    path: "/how-to-study-proverbs",
+    file: "how-to-study-proverbs.html",
+    title: "How to Study Proverbs | Wisdom, Character and the Fear of the Lord",
+    description: "Learn how to study Proverbs by tracing wisdom, folly, speech, work, money, relationships, discipline, and the fear of the Lord.",
+    heading: "How to study Proverbs",
+    intro: "Proverbs trains readers in wise living before God. It calls us to fear the Lord, receive instruction, and practise wisdom in ordinary life.",
+    sections: [
+      ["Why Proverbs matters", "Proverbs connects faith with daily choices, words, habits, relationships, work, money, correction, and character."],
+      ["How to approach it", "Read proverbs as wisdom sayings, not mechanical promises. Compare related sayings and notice patterns across the whole book."],
+      ["Recommended study method", "Use topical study to gather related proverbs, then use application prompts to move from insight to concrete wise practice."],
+      ["Suggested starter passages", "Begin with Proverbs 1:1-7, Proverbs 3:1-12, Proverbs 4:20-27, Proverbs 10, and Proverbs 31:10-31."],
+      ["Links to Bible study methods", "Proverbs pairs naturally with topical study, word study, and OIA."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/topical-study", "/bible-study-methods/word-study", "/bible-study-methods/oia"]
+  },
+  {
+    path: "/how-to-study-matthew",
+    file: "how-to-study-matthew.html",
+    title: "How to Study Matthew | Jesus the King and Fulfilled Promise",
+    description: "Learn how to study Matthew by tracing Jesus as King, fulfilled prophecy, discipleship, parables, kingdom teaching, and the Great Commission.",
+    heading: "How to study Matthew",
+    intro: "Matthew presents Jesus as the promised King and Messiah who fulfills Scripture and calls His disciples to kingdom life.",
+    sections: [
+      ["Why Matthew matters", "Matthew connects Jesus with Israel’s story, highlights fulfilled Scripture, and teaches what discipleship under the King looks like."],
+      ["How to approach it", "Notice Old Testament quotations, kingdom language, teaching blocks, parables, conflict, and Jesus’ authority."],
+      ["Recommended study method", "Use cross-reference study for fulfilled prophecy and inductive study for major teaching sections like the Sermon on the Mount."],
+      ["Suggested starter passages", "Begin with Matthew 5-7, Matthew 13, Matthew 16:13-28, Matthew 26-28, and Matthew 28:16-20."],
+      ["Links to Bible study methods", "Matthew works well with cross-reference study, inductive study, and character study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/how-to-study-the-gospel-of-john"]
+  },
+  {
+    path: "/how-to-study-mark",
+    file: "how-to-study-mark.html",
+    title: "How to Study Mark | The Servant King and the Way of the Cross",
+    description: "Learn how to study Mark by following Jesus’ authority, urgency, miracles, discipleship, suffering, and the way of the cross.",
+    heading: "How to study Mark",
+    intro: "Mark moves quickly and focuses sharply on Jesus’ authority, His suffering, and the call to follow Him on the way of the cross.",
+    sections: [
+      ["Why Mark matters", "Mark shows Jesus as the powerful Son of God who serves, suffers, and calls disciples to costly faith."],
+      ["How to approach it", "Watch the pace of the narrative, repeated misunderstandings, miracle stories, conflict, and the turning point around Peter’s confession."],
+      ["Recommended study method", "Use OIA to keep the story moving from observation to meaning and application without overcomplicating short narrative scenes."],
+      ["Suggested starter passages", "Begin with Mark 1:1-15, Mark 2:1-12, Mark 4:35-41, Mark 8:27-38, Mark 10:35-45, and Mark 15-16."],
+      ["Links to Bible study methods", "Mark pairs well with OIA, character study, and inductive study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/oia", "/bible-study-methods/character-study", "/how-to-study-a-bible-passage"]
+  },
+  {
+    path: "/how-to-study-luke",
+    file: "how-to-study-luke.html",
+    title: "How to Study Luke | Jesus, Mercy, Mission and the Outsider",
+    description: "Learn how to study Luke by tracing Jesus’ compassion, parables, prayer, the Spirit, salvation, outsiders, and God’s mission.",
+    heading: "How to study Luke",
+    intro: "Luke gives an orderly account of Jesus’ life and ministry, highlighting mercy, prayer, the Spirit, salvation, and good news for all kinds of people.",
+    sections: [
+      ["Why Luke matters", "Luke emphasizes Jesus’ compassion, concern for the poor and outsider, prayerful dependence, and the unfolding mission of God."],
+      ["How to approach it", "Notice meals, parables, reversals, references to the Spirit, prayer, women, outsiders, and the journey toward Jerusalem."],
+      ["Recommended study method", "Use character study for encounters with Jesus and topical study for themes such as mercy, prayer, and mission."],
+      ["Suggested starter passages", "Begin with Luke 4:16-30, Luke 10:25-37, Luke 15, Luke 18:9-14, Luke 19:1-10, and Luke 24."],
+      ["Links to Bible study methods", "Luke works well with character study, topical study, and Lectio Divina."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/character-study", "/bible-study-methods/topical-study", "/bible-study-methods/lectio-divina"]
+  },
+  {
+    path: "/how-to-study-acts",
+    file: "how-to-study-acts.html",
+    title: "How to Study Acts | The Spirit, Mission and the Early Church",
+    description: "Learn how to study Acts by tracing the Holy Spirit, gospel mission, the early church, prayer, persecution, and the spread of the Word.",
+    heading: "How to study Acts",
+    intro: "Acts shows the risen Jesus continuing His mission by the Holy Spirit through the witness of the early church.",
+    sections: [
+      ["Why Acts matters", "Acts helps readers understand the spread of the gospel, the work of the Spirit, the shape of the early church, and mission across cultures."],
+      ["How to approach it", "Follow geography, speeches, prayer, opposition, conversions, church life, and repeated statements about the Word growing."],
+      ["Recommended study method", "Use inductive study for narrative flow and cross-reference study when speeches explain Old Testament promises fulfilled in Christ."],
+      ["Suggested starter passages", "Begin with Acts 1:1-11, Acts 2, Acts 4:23-31, Acts 8, Acts 10, Acts 13, and Acts 17:16-34."],
+      ["Links to Bible study methods", "Acts pairs well with inductive study, cross-reference study, and character study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/inductive", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study"]
+  },
+  {
+    path: "/how-to-study-ephesians",
+    file: "how-to-study-ephesians.html",
+    title: "How to Study Ephesians | Identity in Christ and Gospel-Shaped Life",
+    description: "Learn how to study Ephesians by tracing identity in Christ, grace, the church, unity, prayer, spiritual growth, and gospel-shaped living.",
+    heading: "How to study Ephesians",
+    intro: "Ephesians lifts our eyes to God’s grace in Christ and then shows how that grace reshapes the church, relationships, speech, work, and spiritual battle.",
+    sections: [
+      ["Why Ephesians matters", "Ephesians gives a rich picture of salvation, identity in Christ, unity in the church, and practical holiness."],
+      ["How to approach it", "Notice the movement from gospel truth in chapters 1-3 to gospel-shaped living in chapters 4-6."],
+      ["Recommended study method", "Use word study for repeated phrases such as in Christ, grace, walk, and body, then use OIA for application."],
+      ["Suggested starter passages", "Begin with Ephesians 1:3-14, Ephesians 2:1-10, Ephesians 3:14-21, Ephesians 4:1-16, and Ephesians 6:10-20."],
+      ["Links to Bible study methods", "Ephesians works well with word study, OIA, and topical study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/word-study", "/bible-study-methods/oia", "/bible-study-methods/topical-study"]
+  },
+  {
+    path: "/how-to-study-philippians",
+    file: "how-to-study-philippians.html",
+    title: "How to Study Philippians | Joy, Humility and Life in Christ",
+    description: "Learn how to study Philippians by tracing joy, partnership, humility, suffering, contentment, prayer, and the mind of Christ.",
+    heading: "How to study Philippians",
+    intro: "Philippians is a warm letter about joy in Christ, gospel partnership, humility, endurance, and contentment in every circumstance.",
+    sections: [
+      ["Why Philippians matters", "Philippians teaches joy that is rooted in Christ rather than circumstances and shows how the gospel shapes humility and perseverance."],
+      ["How to approach it", "Watch for repeated language about joy, partnership, the gospel, thinking, standing firm, and life in Christ."],
+      ["Recommended study method", "Use SOAP for devotional study and word study for repeated themes such as joy, mind, gospel, and contentment."],
+      ["Suggested starter passages", "Begin with Philippians 1:3-11, Philippians 1:21-30, Philippians 2:1-11, Philippians 3:7-14, and Philippians 4:4-13."],
+      ["Links to Bible study methods", "Philippians pairs well with SOAP, word study, and Lectio Divina."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/soap", "/bible-study-methods/word-study", "/bible-study-methods/lectio-divina"]
+  },
+  {
+    path: "/how-to-study-james",
+    file: "how-to-study-james.html",
+    title: "How to Study James | Faith, Wisdom, Works and Steadfastness",
+    description: "Learn how to study James by tracing practical faith, wisdom, trials, speech, humility, works, prayer, and steadfast obedience.",
+    heading: "How to study James",
+    intro: "James is direct, practical, and searching. It presses readers to receive God’s wisdom and live out genuine faith with steadfast obedience.",
+    sections: [
+      ["Why James matters", "James connects faith with trials, speech, generosity, humility, prayer, wisdom, and active obedience."],
+      ["How to approach it", "Read James as wisdom-filled instruction. Notice commands, contrasts, illustrations, and repeated concern for whole-hearted faith."],
+      ["Recommended study method", "Use topical study for themes like speech and wisdom, and use OIA to move from each command to faithful application."],
+      ["Suggested starter passages", "Begin with James 1:2-8, James 1:19-27, James 2:14-26, James 3:1-12, James 4:1-10, and James 5:13-20."],
+      ["Links to Bible study methods", "James works well with topical study, OIA, SOAP, and word study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/bible-study-methods/topical-study", "/bible-study-methods/oia", "/bible-study-methods/soap"]
   }
 ];
 

@@ -143,6 +143,81 @@ const seoPages = [
     related: ["/bible-study-methods", "/bible-study-journal", "/bible-memory-verses"]
   },
   {
+    path: "/bible-study-methods/verse-mapping",
+    file: "bible-study-methods/verse-mapping.html",
+    title: "Verse Mapping Bible Study Method | Explore Scripture Word by Word",
+    description: "Use the verse mapping Bible study method to examine key words, context, cross references, themes, and personal response in a single Scripture passage.",
+    heading: "Verse mapping Bible study method",
+    intro: "Verse mapping helps you slow down over one verse or short passage, tracing words, context, themes, and connections so the Scripture becomes clearer.",
+    sections: [
+      ["Choose a focused passage", "Start with one verse or a short section, then write the reference, surrounding context, and any words that need closer attention."],
+      ["Trace words and connections", "Look up repeated words, related passages, themes, people, places, and how the verse fits the wider chapter."],
+      ["Respond with clarity", "Summarize what the verse teaches, write a prayer, and note one way to remember or apply the passage."]
+    ],
+    cta: "Try verse mapping",
+    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/printable-bible-study-journal"]
+  },
+  {
+    path: "/bible-study-methods/word-study",
+    file: "bible-study-methods/word-study.html",
+    title: "Bible Word Study Method | Study Key Words in Scripture",
+    description: "Learn a Bible word study method for tracing key words, repeated phrases, context, meaning, and application without losing sight of the passage.",
+    heading: "Bible word study method",
+    intro: "A Bible word study helps you pay attention to important words in a passage while keeping the meaning anchored in context.",
+    sections: [
+      ["Start with the passage", "Choose a word that carries weight in the text, then read the whole paragraph or chapter before studying the word by itself."],
+      ["Look for repeated use", "Notice where the word appears nearby, how the author uses it, and whether related words or phrases develop the same idea."],
+      ["Return to the main point", "A word study should help you understand the passage better, not pull the word away from what the passage is saying."]
+    ],
+    cta: "Start a word study",
+    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/topical-study", "/bible-study-methods/inductive"]
+  },
+  {
+    path: "/bible-study-methods/topical-study",
+    file: "bible-study-methods/topical-study.html",
+    title: "Topical Bible Study Method | Study Scripture by Theme",
+    description: "Use a topical Bible study method to trace a theme across Scripture while reading each passage carefully in its own context.",
+    heading: "Topical Bible study method",
+    intro: "Topical study helps you follow a biblical theme across multiple passages while still reading each verse in context.",
+    sections: [
+      ["Define the topic carefully", "Begin with a clear question or theme, such as prayer, wisdom, identity in Christ, forgiveness, or the fear of the Lord."],
+      ["Gather passages thoughtfully", "Read several passages that speak to the topic, noting their setting, audience, and main point before comparing them."],
+      ["Summarize what Scripture teaches", "Look for patterns, tensions, commands, promises, and a faithful response shaped by the whole counsel of Scripture."]
+    ],
+    cta: "Try topical study",
+    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study"]
+  },
+  {
+    path: "/bible-study-methods/character-study",
+    file: "bible-study-methods/character-study.html",
+    title: "Bible Character Study Method | Learn from People in Scripture",
+    description: "Use a Bible character study method to examine a person in Scripture, their context, choices, faith, failures, and what their story reveals about God.",
+    heading: "Bible character study method",
+    intro: "Character study helps you learn from the people in Scripture while keeping the focus on God’s character, promises, warnings, and grace.",
+    sections: [
+      ["Follow the person in context", "Read the passages where the person appears, noting setting, relationships, choices, conflicts, and turning points."],
+      ["Notice faith and failure", "Ask what the person believed, feared, obeyed, resisted, learned, or misunderstood as the story unfolds."],
+      ["Look beyond the example", "A character study is not just moral advice. Ask what the account reveals about God and how it points to faithful trust and obedience."]
+    ],
+    cta: "Start a character study",
+    related: ["/bible-study-methods/topical-study", "/bible-study-methods/inductive", "/bible-study-methods/verse-mapping"]
+  },
+  {
+    path: "/bible-study-methods/cross-reference-study",
+    file: "bible-study-methods/cross-reference-study.html",
+    title: "Cross Reference Bible Study Method | Let Scripture Interpret Scripture",
+    description: "Use a cross reference Bible study method to compare related passages, clarify meaning, trace themes, and understand Scripture with Scripture.",
+    heading: "Cross reference Bible study method",
+    intro: "Cross-reference study helps you compare related passages so Scripture sheds light on Scripture without losing the main passage you started with.",
+    sections: [
+      ["Begin with one main text", "Choose a passage and identify the words, themes, quotations, or ideas that need to be compared with other Scriptures."],
+      ["Compare related passages", "Read cross references carefully, noting similarities, differences, fulfillment, background, and how each passage contributes."],
+      ["Return to the original passage", "Use the related passages to clarify meaning, then write a short summary of what the original passage teaches."]
+    ],
+    cta: "Study cross references",
+    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/topical-study", "/how-to-study-a-bible-passage"]
+  },
+  {
     path: "/features",
     file: "features.html",
     title: "Bible Study Tutor Features | Read, Study, Journal, Memorize and Print",
@@ -201,6 +276,81 @@ const seoPages = [
     ],
     cta: "Print a worksheet",
     related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheets", "/bible-study-methods/soap"]
+  },
+  {
+    path: "/printable-soap-bible-study-worksheet",
+    file: "printable-soap-bible-study-worksheet.html",
+    title: "Printable SOAP Bible Study Worksheet | Free Scripture Study Sheet",
+    description: "Create a printable SOAP Bible study worksheet with Scripture, observation, application, and prayer sections for personal study or groups.",
+    heading: "Printable SOAP Bible study worksheet",
+    intro: "A printable SOAP worksheet gives readers a simple way to slow down with Scripture, write observations, apply the passage, and respond in prayer.",
+    sections: [
+      ["Scripture section", "Choose the passage and print the selected verses so the study begins with the Bible text, not only a blank form."],
+      ["Observation and application space", "Use guided space to write what the passage says and how it calls for trust, obedience, repentance, or encouragement."],
+      ["Prayer response", "Finish the worksheet with a prayer shaped by the passage, making the study personal without losing the text."]
+    ],
+    cta: "Print a SOAP worksheet",
+    related: ["/bible-study-methods/soap", "/printable-bible-study-worksheets", "/printable-bible-study-worksheet-for-small-groups"]
+  },
+  {
+    path: "/printable-inductive-bible-study-worksheet",
+    file: "printable-inductive-bible-study-worksheet.html",
+    title: "Printable Inductive Bible Study Worksheet | Observation, Interpretation, Application",
+    description: "Create a printable inductive Bible study worksheet with observation, interpretation, and application space for deeper Scripture study.",
+    heading: "Printable inductive Bible study worksheet",
+    intro: "An inductive worksheet helps readers slow down, mark observations, interpret the passage in context, and write a specific response.",
+    sections: [
+      ["Observation space", "Record repeated words, structure, commands, contrasts, people, places, and questions directly from the passage."],
+      ["Interpretation prompts", "Use context, surrounding verses, and related Scripture to ask what the passage means before applying it."],
+      ["Application response", "Write one clear next step, prayer, or truth to remember after studying the passage."]
+    ],
+    cta: "Print an inductive worksheet",
+    related: ["/bible-study-methods/inductive", "/how-to-study-a-bible-passage", "/printable-bible-study-worksheets"]
+  },
+  {
+    path: "/printable-bible-study-journal",
+    file: "printable-bible-study-journal.html",
+    title: "Printable Bible Study Journal | Free Scripture Reflection Pages",
+    description: "Use printable Bible study journal pages to record Scripture notes, prayers, observations, applications, memory verses, and reflections.",
+    heading: "Printable Bible study journal",
+    intro: "Printable Bible study journal pages give people room to write by hand while still following a clear Scripture-centred rhythm.",
+    sections: [
+      ["Write Scripture notes", "Use journal space for observations, questions, key words, cross references, and what the passage reveals about God."],
+      ["Record prayer and response", "Turn study into prayer, application, repentance, gratitude, or encouragement for someone else."],
+      ["Use alongside the app", "Bible Study Tutor supports both digital journaling and printable worksheets so people can study in the format that helps them most."]
+    ],
+    cta: "Open journal tools",
+    related: ["/bible-study-journal", "/online-bible-study-journal", "/bible-study-methods/verse-mapping"]
+  },
+  {
+    path: "/bible-study-worksheet-for-youth-groups",
+    file: "bible-study-worksheet-for-youth-groups.html",
+    title: "Bible Study Worksheet for Youth Groups | Printable Scripture Study",
+    description: "Create printable Bible study worksheets for youth groups with selected Scripture, simple prompts, writing space, and guided study methods.",
+    heading: "Bible study worksheet for youth groups",
+    intro: "Youth group Bible study worksheets should be clear, Scripture-centred, and practical enough to help students read, think, discuss, and respond.",
+    sections: [
+      ["Keep the passage visible", "Print the selected Scripture so students can mark, reread, and discuss the passage without needing to switch apps or screens."],
+      ["Use simple guided prompts", "SOAP, OIA, and READ-style questions help students notice what the passage says and how to respond."],
+      ["Support discussion", "Worksheets can give quieter students time to think and write before sharing in a youth group setting."]
+    ],
+    cta: "Prepare a youth worksheet",
+    related: ["/printable-bible-study-worksheets", "/bible-study-methods/soap", "/bible-study-methods/oia"]
+  },
+  {
+    path: "/bible-study-worksheet-for-church-groups",
+    file: "bible-study-worksheet-for-church-groups.html",
+    title: "Bible Study Worksheet for Church Groups | Printable Group Study Pages",
+    description: "Create printable Bible study worksheets for church groups with Scripture passages, guided questions, prayer space, and group discussion prompts.",
+    heading: "Bible study worksheet for church groups",
+    intro: "Church group worksheets help people study the same passage together while leaving space for personal notes, prayer, and discussion.",
+    sections: [
+      ["Use one shared passage", "Print the selected Scripture and method prompts so everyone can follow the same study path during the group."],
+      ["Make room for prayer", "Include space for reflection, prayer points, application, and encouragement after the discussion."],
+      ["Serve different learning styles", "Printable worksheets help people who prefer handwriting, need structure, or want to keep a paper record."]
+    ],
+    cta: "Prepare a church worksheet",
+    related: ["/bible-study-app-for-churches", "/printable-bible-study-worksheet-for-small-groups", "/bible-study-methods/inductive"]
   },
   {
     path: "/online-bible-study-journal",

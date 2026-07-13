@@ -16,11 +16,11 @@ import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
-import { buildEditableMemoryCardsDocHtml, buildPrintableMemoryCardsHtml, buildPrintableStudyWorksheetHtml, type MemoryCardLayout, type WorksheetWritingSpace } from "@/data/printableWorksheet";
+import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
-import { AdminDashboard, type AdminStats } from "@/components/AdminDashboard";
+import type { AdminStats } from "@/components/AdminDashboard";
 import { BibleReaderControls } from "@/components/BibleReaderControls";
 import { BibleReaderNavigator } from "@/components/BibleReaderNavigator";
 import { BibleReaderPassage } from "@/components/BibleReaderPassage";
@@ -29,12 +29,13 @@ import { HelpScreenshot } from "@/components/HelpScreenshot";
 import { MemoryBlank } from "@/components/MemoryBlank";
 import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { createElement, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
 const publicUrlTabs = new Set<Tab>(["home", "study", "bible", "plans", "methods", "memory", "help"]);
+const LazyAdminDashboard = lazy(() => import("@/components/AdminDashboard").then((module) => ({ default: module.AdminDashboard })));
 type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
@@ -3570,7 +3571,7 @@ export default function Home() {
     });
   }
 
-  function openPrintableWorksheet() {
+  async function openPrintableWorksheet() {
     if (!printWorksheetRequest) return;
     if (Platform.OS !== "web" || typeof window === "undefined") {
       if (printWorksheetRequest.source === "bible") {
@@ -3583,15 +3584,6 @@ export default function Home() {
     }
 
     const selectedMethod = methods.find((item) => item.id === printWorksheetMethodId) || method;
-    const worksheetHtml = buildPrintableStudyWorksheetHtml({
-      reference: printWorksheetRequest.reference,
-      translation: printWorksheetRequest.translation,
-      method: selectedMethod,
-      verses: printWorksheetRequest.verses,
-      writingSpace: printWorksheetWritingSpace,
-      includeMemory: printWorksheetIncludes.memory,
-      includeInsight: printWorksheetIncludes.insight
-    });
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
       if (printWorksheetRequest.source === "bible") {
@@ -3601,6 +3593,17 @@ export default function Home() {
       }
       return;
     }
+
+    const { buildPrintableStudyWorksheetHtml } = await import("@/data/printableWorksheet");
+    const worksheetHtml = buildPrintableStudyWorksheetHtml({
+      reference: printWorksheetRequest.reference,
+      translation: printWorksheetRequest.translation,
+      method: selectedMethod,
+      verses: printWorksheetRequest.verses,
+      writingSpace: printWorksheetWritingSpace,
+      includeMemory: printWorksheetIncludes.memory,
+      includeInsight: printWorksheetIncludes.insight
+    });
 
     printWindow.document.open();
     printWindow.document.write(worksheetHtml);
@@ -3714,7 +3717,7 @@ export default function Home() {
     );
   }
 
-  function openPrintableMemoryCards() {
+  async function openPrintableMemoryCards() {
     if (!memoryPrintVerses.length) {
       setMemoryStatus("Select at least one saved memory verse before opening cards.");
       return;
@@ -3725,6 +3728,13 @@ export default function Home() {
       return;
     }
 
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      setMemoryStatus("Allow pop-ups to open printable memory cards.");
+      return;
+    }
+
+    const { buildPrintableMemoryCardsHtml } = await import("@/data/printableWorksheet");
     const html = buildPrintableMemoryCardsHtml({
       verses: memoryPrintVerses.map((verse: any) => ({
         reference: verse.reference,
@@ -3735,11 +3745,6 @@ export default function Home() {
       copies: memoryPrintCopies,
       safePrint: memoryPrintSafeMode
     });
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      setMemoryStatus("Allow pop-ups to open printable memory cards.");
-      return;
-    }
 
     printWindow.document.open();
     printWindow.document.write(html);
@@ -3756,7 +3761,7 @@ export default function Home() {
     setMemoryPrintOptionsOpen(false);
   }
 
-  function downloadEditableMemoryCards() {
+  async function downloadEditableMemoryCards() {
     if (!memoryPrintVerses.length) {
       setMemoryStatus("Select at least one saved memory verse before downloading cards.");
       return;
@@ -3766,6 +3771,7 @@ export default function Home() {
       return;
     }
 
+    const { buildEditableMemoryCardsDocHtml } = await import("@/data/printableWorksheet");
     const html = buildEditableMemoryCardsDocHtml({
       verses: memoryPrintVerses.map((verse: any) => ({
         reference: verse.reference,
@@ -7913,30 +7919,32 @@ export default function Home() {
         )}
 
         {tab === "admin" && (
-          <AdminDashboard
-            adminStats={adminStats}
-            adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
-            adminUserDetail={adminUserDetail}
-            adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
-            adminMaintenanceStatus={adminMaintenanceStatus}
-            pendingConfirmId={pendingAdminDeletionRequestId}
-            selectedProfileId={selectedAdminProfileId}
-            selectedRegion={selectedAdminRegion}
-            compactLayout={compactLayout}
-            phoneLayout={phoneLayout}
-            darkMode={adminDarkMode}
-            styles={styles}
-            MetricComponent={Metric}
-            onApproveDeletion={approveAdminDeletionRequest}
-            onCancelDeletion={cancelAdminDeletionRequest}
-            onCleanupLocalProfiles={cleanupEmptyLocalProfiles}
-            onMarkFeedbackStatus={markFeedbackStatus}
-            onOpenAccount={() => setTab("account")}
-            onSelectProfile={setSelectedAdminProfileId}
-            onSelectRegion={setSelectedAdminRegion}
-            onMarkSecurityReviewed={markAdminProfileSecurityReviewed}
-            onSetProfileSuspension={setAdminProfileSuspension}
-          />
+          <Suspense fallback={<Card style={[styles.mainCard, adminDarkMode && styles.accountDarkMainCard]}><Text style={[styles.body, adminDarkMode && styles.accountDarkText]}>Loading admin insights...</Text></Card>}>
+            <LazyAdminDashboard
+              adminStats={adminStats}
+              adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
+              adminUserDetail={adminUserDetail}
+              adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
+              adminMaintenanceStatus={adminMaintenanceStatus}
+              pendingConfirmId={pendingAdminDeletionRequestId}
+              selectedProfileId={selectedAdminProfileId}
+              selectedRegion={selectedAdminRegion}
+              compactLayout={compactLayout}
+              phoneLayout={phoneLayout}
+              darkMode={adminDarkMode}
+              styles={styles}
+              MetricComponent={Metric}
+              onApproveDeletion={approveAdminDeletionRequest}
+              onCancelDeletion={cancelAdminDeletionRequest}
+              onCleanupLocalProfiles={cleanupEmptyLocalProfiles}
+              onMarkFeedbackStatus={markFeedbackStatus}
+              onOpenAccount={() => setTab("account")}
+              onSelectProfile={setSelectedAdminProfileId}
+              onSelectRegion={setSelectedAdminRegion}
+              onMarkSecurityReviewed={markAdminProfileSecurityReviewed}
+              onSetProfileSuspension={setAdminProfileSuspension}
+            />
+          </Suspense>
         )}
 
         {tab === "journal" && (

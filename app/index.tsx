@@ -17,13 +17,7 @@ import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
-import { BibleReaderControls } from "@/components/BibleReaderControls";
-import { BibleReaderNavigator } from "@/components/BibleReaderNavigator";
-import { BibleReaderPassage } from "@/components/BibleReaderPassage";
-import { BibleSearchPanel } from "@/components/BibleSearchPanel";
-import { HelpScreenshot } from "@/components/HelpScreenshot";
 import { MemoryBlank } from "@/components/MemoryBlank";
-import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -32,6 +26,9 @@ type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accoun
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
 const publicUrlTabs = new Set<Tab>(["home", "study", "bible", "plans", "methods", "memory", "help"]);
 const LazyAdminDashboard = lazy(() => import("@/components/AdminDashboard").then((module) => ({ default: module.AdminDashboard })));
+const LazyBibleTab = lazy(() => import("@/components/BibleTab").then((module) => ({ default: module.BibleTab })));
+const LazyHelpScreenshot = lazy(() => import("@/components/HelpScreenshot").then((module) => ({ default: module.HelpScreenshot })));
+const LazyMemoryHistoryPanel = lazy(() => import("@/components/MemoryHistoryPanel").then((module) => ({ default: module.MemoryHistoryPanel })));
 const LazyStudyNoteTiptapEditor = lazy(() => import("@/components/StudyNoteTiptapEditor").then((module) => ({ default: module.StudyNoteTiptapEditor })));
 type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
@@ -5503,35 +5500,35 @@ export default function Home() {
         )}
 
         {tab === "bible" && (
-          <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
-            <BibleReaderNavigator
+          <Suspense fallback={<Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>Loading Bible reader...</Text></Card>}>
+            <LazyBibleTab
               styles={styles}
-              darkMode={bibleDarkMode}
-              phoneLayout={phoneLayout}
               compactLayout={compactLayout}
-              collapsed={readerNavCollapsed}
+              phoneLayout={phoneLayout}
+              bibleDarkMode={bibleDarkMode}
+              readerNavCollapsed={readerNavCollapsed}
               translations={BIBLE_TRANSLATIONS}
-              translationId={bibleTranslation}
-              readChapterCount={readBibleChapterCount}
-              bookmarks={bibleBookmarks}
-              history={bibleReaderHistory}
-              historyCollapsed={readerHistoryCollapsed}
+              bibleTranslation={bibleTranslation}
+              readBibleChapterCount={readBibleChapterCount}
+              bibleBookmarks={bibleBookmarks}
+              bibleReaderHistory={bibleReaderHistory}
+              readerHistoryCollapsed={readerHistoryCollapsed}
               bookmarksCollapsed={bookmarksCollapsed}
               bookmarksExpanded={bookmarksExpanded}
               bookmarkNotesOnly={bookmarkNotesOnly}
               bookmarkSearch={bookmarkSearch}
-              bookSearch={readerBookSearch}
-              visibleBookmarks={visibleBibleBookmarks}
-              filteredBookmarksCount={filteredBibleBookmarks.length}
+              readerBookSearch={readerBookSearch}
+              visibleBibleBookmarks={visibleBibleBookmarks}
+              filteredBibleBookmarks={filteredBibleBookmarks}
               activeBookmarkNoteId={activeBookmarkNoteId}
               bookmarkNoteDraft={bookmarkNoteDraft}
-              mobileMenu={readerMobileMenu}
-              expandedBook={expandedMobileReaderBook}
+              readerMobileMenu={readerMobileMenu}
+              expandedMobileReaderBook={expandedMobileReaderBook}
               readerBook={readerBook}
               readerChapter={readerChapter}
               readerBookSections={readerBookSections}
-              onToggleCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
-              onSelectTranslation={(nextTranslationId) => {
+              onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
+              onSelectTranslation={(nextTranslationId: string) => {
                 setBibleTranslation(nextTranslationId as BibleTranslationId);
                 saveStoredBibleTranslation(nextTranslationId as BibleTranslationId).catch(() => undefined);
               }}
@@ -5565,113 +5562,84 @@ export default function Home() {
               onSelectMobileBook={selectMobileReaderBook}
               onSelectBook={selectReaderBook}
               onSelectChapter={selectReaderChapter}
+              bibleSearchCollapsed={bibleSearchCollapsed}
+              bibleSearchQuery={bibleSearchQuery}
+              bibleSearchScope={bibleSearchScope}
+              bibleSearchMode={bibleSearchMode}
+              bibleSearchBook={bibleSearchBook}
+              bibleSearchBookOptions={bibleSearchBookOptions}
+              bibleSearchBookMenuOpen={bibleSearchBookMenuOpen}
+              bibleSearchCriteriaOpen={bibleSearchCriteriaOpen}
+              bibleSearchTranslation={bibleSearchTranslation}
+              bibleSearchStatus={bibleSearchStatus}
+              bibleSearchDuration={bibleSearchDuration}
+              bibleSearchActiveQuery={bibleSearchActiveQuery}
+              bibleSearchSections={bibleSearchSections}
+              onToggleBibleSearchCollapsed={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")}
+              onBibleSearchQueryChange={setBibleSearchQuery}
+              onRunBibleSearch={runBibleSearch}
+              onClearBibleSearch={clearBibleSearch}
+              onToggleBibleSearchCriteria={() => setBibleSearchCriteriaOpen((value) => !value)}
+              onSelectBibleSearchScope={setBibleSearchScope}
+              onSelectBibleSearchMode={setBibleSearchMode}
+              onToggleBibleSearchBookMenu={() => setBibleSearchBookMenuOpen((value) => !value)}
+              onSelectBibleSearchBook={(nextBook: string) => {
+                setBibleSearchBook(nextBook);
+                setBibleSearchBookMenuOpen(false);
+              }}
+              onBibleSearchSummaryLayout={(event: any) => {
+                bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
+              }}
+              renderBibleSearchResultActions={(result: BibleSearchResult) => (
+                <>
+                  <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
+                </>
+              )}
+              readerStudyReference={readerStudyReference}
+              readerChapterDraft={readerChapterDraft}
+              readerChapterCount={readerChapterCount}
+              selectedReaderVerses={selectedReaderVerses}
+              currentChapterRead={currentChapterRead}
+              currentChapterBookmarked={currentChapterBookmarked}
+              readerIconTooltip={readerIconTooltip}
+              onStudyReaderChapter={openReaderChapterInStudy}
+              onClearReaderSelection={clearReaderSelection}
+              onMoveReaderChapter={moveReaderChapter}
+              onChapterDraftChange={setReaderChapterDraft}
+              onCommitChapter={commitReaderChapter}
+              onToggleChapterRead={toggleReaderChapterRead}
+              onBookmarkChapter={() => saveBibleBookmark()}
+              onClearReadingProgress={clearBibleReadingProgress}
+              readerIconHoverProps={readerIconHoverProps}
+              hideReaderTooltip={hideReaderTooltip}
+              readerPassage={readerPassage}
+              readerStatus={readerStatus}
+              readerMemoryStatus={readerMemoryStatus}
+              activeReaderActionVerse={activeReaderActionVerse}
+              readerMemoryVerseKeys={readerMemoryVerseKeys}
+              currentSelectionBookmarked={currentSelectionBookmarked}
+              currentSelectionBookmark={currentSelectionBookmark}
+              selectedReaderVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
+              onPassageLayout={(event: any) => {
+                readerPassageBoxYRef.current = event.nativeEvent.layout.y;
+              }}
+              onVerseLayout={(verseNumber: number, event: any) => {
+                readerVerseYRef.current[verseNumber] = event.nativeEvent.layout.y;
+                if (pendingReaderFocusVerse === verseNumber) {
+                  setPendingReaderFocusVerse(0);
+                  scrollReaderToVerse(verseNumber);
+                }
+              }}
+              onToggleVerse={toggleReaderVerse}
+              onBookmarkSelection={() => saveBibleBookmark(selectedReaderVerses)}
+              onOpenNote={openSelectedReaderNote}
+              onPrintWorksheet={openReaderWorksheetOptions}
+              onSaveMemory={saveSelectedReaderVersesToMemory}
+              isVerseBookmarked={(verseNumber: number) => isReaderVerseBookmarked(verseNumber, bibleBookmarks, readerBook, readerChapter)}
+              isVerseNoted={(verseNumber: number) => isReaderVerseBookmarkNoted(verseNumber, bibleBookmarks, readerBook, readerChapter)}
             />
-
-            <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
-              <BibleSearchPanel
-                styles={styles}
-                darkMode={bibleDarkMode}
-                phoneLayout={phoneLayout}
-                collapsed={bibleSearchCollapsed}
-                query={bibleSearchQuery}
-                scope={bibleSearchScope}
-                mode={bibleSearchMode}
-                book={bibleSearchBook}
-                bookOptions={bibleSearchBookOptions}
-                bookMenuOpen={bibleSearchBookMenuOpen}
-                criteriaOpen={bibleSearchCriteriaOpen}
-                translationLabel={bibleSearchTranslation}
-                translationId={bibleTranslation}
-                status={bibleSearchStatus}
-                duration={bibleSearchDuration}
-                activeQuery={bibleSearchActiveQuery}
-                sections={bibleSearchSections}
-                onToggleCollapsed={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")}
-                onQueryChange={setBibleSearchQuery}
-                onRunSearch={runBibleSearch}
-                onClearSearch={clearBibleSearch}
-                onToggleCriteria={() => setBibleSearchCriteriaOpen((value) => !value)}
-                onSelectScope={setBibleSearchScope}
-                onSelectMode={setBibleSearchMode}
-                onToggleBookMenu={() => setBibleSearchBookMenuOpen((value) => !value)}
-                onSelectBook={(nextBook) => {
-                  setBibleSearchBook(nextBook);
-                  setBibleSearchBookMenuOpen(false);
-                }}
-                onSummaryLayout={(event) => {
-                  bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
-                }}
-                renderResultActions={(result) => (
-                  <>
-                    <ResumeButton label="Read" icon="reader-outline" onPress={() => openBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
-                    <ResumeButton label="Study" icon="book-outline" onPress={() => studyBibleSearchResult(result)} style={bibleDarkMode && styles.homeDarkResumeButton} labelStyle={bibleDarkMode && styles.homeDarkResumeButtonText} iconColor={bibleDarkMode ? "#e9b76a" : undefined} />
-                  </>
-                )}
-              />
-
-              <BibleReaderControls
-                styles={styles}
-                darkMode={bibleDarkMode}
-                phoneLayout={phoneLayout}
-                translationId={bibleTranslation}
-                readerReference={readerStudyReference}
-                chapterDraft={readerChapterDraft}
-                chapterCount={readerChapterCount}
-                selectedVerseCount={selectedReaderVerses.length}
-                currentChapterRead={currentChapterRead}
-                currentChapterBookmarked={currentChapterBookmarked}
-                readChapterCount={readBibleChapterCount}
-                tooltip={readerIconTooltip}
-                onStudy={openReaderChapterInStudy}
-                onClearSelection={clearReaderSelection}
-                onMoveChapter={moveReaderChapter}
-                onChapterDraftChange={setReaderChapterDraft}
-                onCommitChapter={commitReaderChapter}
-                onToggleChapterRead={toggleReaderChapterRead}
-                onBookmarkChapter={() => saveBibleBookmark()}
-                onClearReadingProgress={clearBibleReadingProgress}
-                readerIconHoverProps={readerIconHoverProps}
-                hideReaderTooltip={hideReaderTooltip}
-              />
-              <BibleReaderPassage
-                styles={styles}
-                darkMode={bibleDarkMode}
-                phoneLayout={phoneLayout}
-                passage={readerPassage}
-                status={readerStatus}
-                memoryStatus={readerMemoryStatus}
-                selectedVerses={selectedReaderVerses}
-                activeActionVerse={activeReaderActionVerse}
-                readerReference={readerStudyReference}
-                memoryVerseKeys={readerMemoryVerseKeys}
-                currentSelectionBookmarked={currentSelectionBookmarked}
-                currentSelectionBookmark={currentSelectionBookmark}
-                selectedVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
-                currentChapterRead={currentChapterRead}
-                onPassageLayout={(event) => {
-                  readerPassageBoxYRef.current = event.nativeEvent.layout.y;
-                }}
-                onVerseLayout={(verseNumber, event) => {
-                  readerVerseYRef.current[verseNumber] = event.nativeEvent.layout.y;
-                  if (pendingReaderFocusVerse === verseNumber) {
-                    setPendingReaderFocusVerse(0);
-                    scrollReaderToVerse(verseNumber);
-                  }
-                }}
-                onToggleVerse={toggleReaderVerse}
-                onOpenStudy={openReaderChapterInStudy}
-                onBookmarkSelection={() => saveBibleBookmark(selectedReaderVerses)}
-                onOpenNote={openSelectedReaderNote}
-                onPrintWorksheet={openReaderWorksheetOptions}
-                onSaveMemory={saveSelectedReaderVersesToMemory}
-                onClearSelection={clearReaderSelection}
-                onMoveChapter={moveReaderChapter}
-                onToggleChapterRead={toggleReaderChapterRead}
-                isVerseBookmarked={(verseNumber) => isReaderVerseBookmarked(verseNumber, bibleBookmarks, readerBook, readerChapter)}
-                isVerseNoted={(verseNumber) => isReaderVerseBookmarkNoted(verseNumber, bibleBookmarks, readerBook, readerChapter)}
-              />
-            </Card>
-          </View>
+          </Suspense>
         )}
 
         {tab === "plans" && (
@@ -6095,27 +6063,29 @@ export default function Home() {
                     </>
                   )}
                   {!phoneMemoryFocusMode && memoryView === "history" && (
-                    <MemoryHistoryPanel
-                      styles={styles}
-                      darkMode={memoryDarkMode}
-                      phoneLayout={phoneLayout}
-                      historySummary={memoryHistorySummary}
-                      todayEncouragement={memoryHistoryEncouragement}
-                      weeklySummary={memoryWeeklySummary}
-                      weeklyScripture={memoryWeeklyScripture}
-                      neglectedVerses={neglectedMemoryVerses}
-                      milestones={memoryMilestones}
-                      milestoneGoalIds={memoryMilestoneGoalIds}
-                      milestonePickerOpen={memoryMilestonePickerOpen}
-                      milestoneStatus={memoryMilestoneStatus}
-                      historyItems={memoryHistoryItems}
-                      visibleHistoryItems={visibleMemoryHistoryItems}
-                      historyExpanded={memoryHistoryExpanded}
-                      onPracticeVerse={startMemoryPractice}
-                      onToggleMilestonePicker={() => setMemoryMilestonePickerOpen((current) => !current)}
-                      onToggleMilestoneGoal={toggleMemoryMilestoneGoal}
-                      onToggleHistoryExpanded={() => setMemoryHistoryExpanded((expanded) => !expanded)}
-                    />
+                    <Suspense fallback={<Card style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory history...</Text></Card>}>
+                      <LazyMemoryHistoryPanel
+                        styles={styles}
+                        darkMode={memoryDarkMode}
+                        phoneLayout={phoneLayout}
+                        historySummary={memoryHistorySummary}
+                        todayEncouragement={memoryHistoryEncouragement}
+                        weeklySummary={memoryWeeklySummary}
+                        weeklyScripture={memoryWeeklyScripture}
+                        neglectedVerses={neglectedMemoryVerses}
+                        milestones={memoryMilestones}
+                        milestoneGoalIds={memoryMilestoneGoalIds}
+                        milestonePickerOpen={memoryMilestonePickerOpen}
+                        milestoneStatus={memoryMilestoneStatus}
+                        historyItems={memoryHistoryItems}
+                        visibleHistoryItems={visibleMemoryHistoryItems}
+                        historyExpanded={memoryHistoryExpanded}
+                        onPracticeVerse={startMemoryPractice}
+                        onToggleMilestonePicker={() => setMemoryMilestonePickerOpen((current) => !current)}
+                        onToggleMilestoneGoal={toggleMemoryMilestoneGoal}
+                        onToggleHistoryExpanded={() => setMemoryHistoryExpanded((expanded) => !expanded)}
+                      />
+                    </Suspense>
                   )}
                   {!phoneMemoryFocusMode && memoryView === "browse" && (
                     <>
@@ -8677,34 +8647,36 @@ export default function Home() {
             </View>
 
             <View style={[styles.helpWalkthroughGrid, phoneLayout && styles.phoneHelpGrid]}>
-              <HelpScreenshot
-                title="Bible reader"
-                caption="Read by book and chapter, search Scripture, then tap Read to open a result with that verse selected."
-                variant="bible"
-                darkMode={helpDarkMode}
-                styles={styles}
-              />
-              <HelpScreenshot
-                title="Guided study"
-                caption="Follow the current step, write notes in the box, then save and continue. Focus mode hides extra panels."
-                variant="study"
-                darkMode={helpDarkMode}
-                styles={styles}
-              />
-              <HelpScreenshot
-                title="Memory practice"
-                caption="Save verses to Memory, practise them in three steps, meditate slowly, or download editable verse cards."
-                variant="memory"
-                darkMode={helpDarkMode}
-                styles={styles}
-              />
-              <HelpScreenshot
-                title="Journal review"
-                caption="Your saved studies, highlights, encouragements, and reflections collect here for later review."
-                variant="journal"
-                darkMode={helpDarkMode}
-                styles={styles}
-              />
+              <Suspense fallback={<Text style={[styles.muted, helpDarkMode && styles.accountDarkMutedText]}>Loading visual guide...</Text>}>
+                <LazyHelpScreenshot
+                  title="Bible reader"
+                  caption="Read by book and chapter, search Scripture, then tap Read to open a result with that verse selected."
+                  variant="bible"
+                  darkMode={helpDarkMode}
+                  styles={styles}
+                />
+                <LazyHelpScreenshot
+                  title="Guided study"
+                  caption="Follow the current step, write notes in the box, then save and continue. Focus mode hides extra panels."
+                  variant="study"
+                  darkMode={helpDarkMode}
+                  styles={styles}
+                />
+                <LazyHelpScreenshot
+                  title="Memory practice"
+                  caption="Save verses to Memory, practise them in three steps, meditate slowly, or download editable verse cards."
+                  variant="memory"
+                  darkMode={helpDarkMode}
+                  styles={styles}
+                />
+                <LazyHelpScreenshot
+                  title="Journal review"
+                  caption="Your saved studies, highlights, encouragements, and reflections collect here for later review."
+                  variant="journal"
+                  darkMode={helpDarkMode}
+                  styles={styles}
+                />
+              </Suspense>
             </View>
 
             <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>

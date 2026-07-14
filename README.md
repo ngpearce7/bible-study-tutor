@@ -80,4 +80,13 @@ EXPO_PUBLIC_SITE_URL=https://biblestudytutor.org
 SITE_URL=https://biblestudytutor.org
 ```
 
+For privacy-friendly public analytics, the app can record broad, non-content events to Convex. Keep this disabled locally, then enable it in production only when the Convex backend has been deployed:
+
+```bash
+EXPO_PUBLIC_ANALYTICS_ENABLED=true
+EXPO_PUBLIC_CONVEX_SITE_URL=https://your-production-deployment.convex.site
+```
+
+These public analytics events do not store journal text, study answers, notes, email addresses, names, Scripture search text, or community/encouragement content.
+
 Study coaching is generated locally in the app using built-in prompts. It does not require an AI provider account or paid API credits.

@@ -1819,6 +1819,7 @@ export default function Home() {
 
   function switchMethod(nextMethodId: string) {
     if (nextMethodId === method.id) return;
+    trackPublicAnalytics({ eventType: "method_selected", source: "study_method_switcher", ctaTarget: `/?tab=study&method=${nextMethodId}`, methodId: nextMethodId });
     setMethodId(nextMethodId);
     setStepIndex(0);
     setStudyPhase("study");
@@ -4673,6 +4674,8 @@ export default function Home() {
               onPress={() => {
                 if (key === "study") trackPublicAnalytics({ eventType: "start_study_clicked", source: "main_menu", ctaTarget: "/?tab=study" });
                 if (key === "bible") trackPublicAnalytics({ eventType: "bible_reader_opened", source: "main_menu", ctaTarget: "/?tab=bible" });
+                if (key === "plans") trackPublicAnalytics({ eventType: "plans_opened", source: "main_menu", ctaTarget: "/?tab=plans" });
+                if (key === "memory") trackPublicAnalytics({ eventType: "memory_opened", source: "main_menu", ctaTarget: "/?tab=memory" });
                 setTab(key as Tab);
                 if (phoneLayout) setMobileMenuOpen(false);
               }}
@@ -4816,7 +4819,17 @@ export default function Home() {
                 </View>
                 <View style={styles.homeSmallActions}>
                   <ResumeButton label="Choose method" icon="layers-outline" onPress={() => setTab("methods")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
-                  <ResumeButton label="Open plans" icon="calendar-outline" onPress={() => setTab("plans")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton
+                    label="Open plans"
+                    icon="calendar-outline"
+                    onPress={() => {
+                      trackPublicAnalytics({ eventType: "plans_opened", source: "home_glance", ctaTarget: "/?tab=plans" });
+                      setTab("plans");
+                    }}
+                    style={homeDarkMode && styles.homeDarkResumeButton}
+                    labelStyle={homeDarkMode && styles.homeDarkResumeButtonText}
+                    iconColor={homeDarkMode ? "#e9b76a" : undefined}
+                  />
                 </View>
               </Card>
             </View>

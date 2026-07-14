@@ -5,6 +5,9 @@ type PublicAnalyticsEventType =
   | "seo_cta_clicked"
   | "start_study_clicked"
   | "bible_reader_opened"
+  | "plans_opened"
+  | "memory_opened"
+  | "method_selected"
   | "method_page_cta_clicked"
   | "worksheet_cta_clicked"
   | "account_creation_started"
@@ -31,13 +34,15 @@ export function trackPublicAnalytics(event: PublicAnalyticsEvent) {
 
   const pagePath = event.pagePath || currentPublicPath();
   if (isPrivatePath(pagePath)) return;
+  const safePagePath = safePublicPath(pagePath);
+  if (!safePagePath) return;
 
   fetch(`${analyticsBaseUrl.replace(/\/$/, "")}/analytics`, {
     method: "POST",
     headers: { "content-type": "text/plain" },
     body: JSON.stringify({
       eventType: event.eventType,
-      pagePath,
+      pagePath: safePagePath,
       source: event.source,
       ctaTarget: event.ctaTarget,
       methodId: event.methodId
@@ -55,4 +60,21 @@ function isPrivatePath(path?: string) {
   if (!path) return false;
   return /^\/(?:account|admin|journal|accountability|community)(?:[/?#]|$)/i.test(path) ||
     /^\/\?tab=(?:account|admin|journal|accountability|community)(?:&|$)/i.test(path);
+}
+
+function safePublicPath(path?: string) {
+  if (!path?.startsWith("/")) return undefined;
+  try {
+    const url = new URL(path, "https://biblestudytutor.org");
+    if (/^\/(?:account|admin|journal|accountability|community)(?:\/|$)/i.test(url.pathname)) return undefined;
+    const safeParams = new URLSearchParams();
+    const tab = url.searchParams.get("tab");
+    if (tab && ["home", "study", "bible", "plans", "methods", "memory", "help"].includes(tab)) safeParams.set("tab", tab);
+    const method = url.searchParams.get("method");
+    if (method && /^[a-z0-9-]{1,40}$/i.test(method)) safeParams.set("method", method);
+    const query = safeParams.toString();
+    return `${url.pathname || "/"}${query ? `?${query}` : ""}`.slice(0, 160);
+  } catch {
+    return undefined;
+  }
 }

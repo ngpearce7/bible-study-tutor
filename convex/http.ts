@@ -12,6 +12,9 @@ const publicAnalyticsEventTypes = new Set([
   "seo_cta_clicked",
   "start_study_clicked",
   "bible_reader_opened",
+  "plans_opened",
+  "memory_opened",
+  "method_selected",
   "method_page_cta_clicked",
   "worksheet_cta_clicked",
   "account_creation_started",
@@ -38,6 +41,11 @@ function analyticsCorsHeaders(req: Request) {
   };
 }
 
+function isAllowedAnalyticsOrigin(req: Request) {
+  const origin = req.headers.get("origin");
+  return !origin || allowedAnalyticsOrigins.has(origin);
+}
+
 function cleanAnalyticsText(value: unknown, maxLength: number) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : undefined;
 }
@@ -45,15 +53,33 @@ function cleanAnalyticsText(value: unknown, maxLength: number) {
 function cleanPublicPath(value: unknown) {
   const path = cleanAnalyticsText(value, 160);
   if (!path?.startsWith("/")) return undefined;
-  if (/^\/(?:account|admin|journal|accountability|community)(?:[/?#]|$)/i.test(path)) return undefined;
-  if (/^\/\?tab=(?:account|admin|journal|accountability|community)(?:&|$)/i.test(path)) return undefined;
-  return path;
+  try {
+    const url = new URL(path, "https://biblestudytutor.org");
+    if (/^\/(?:account|admin|journal|accountability|community)(?:\/|$)/i.test(url.pathname)) return undefined;
+
+    const safeParams = new URLSearchParams();
+    const tab = url.searchParams.get("tab");
+    if (tab && ["home", "study", "bible", "plans", "methods", "memory", "help"].includes(tab)) {
+      safeParams.set("tab", tab);
+    }
+    const method = url.searchParams.get("method");
+    if (method && /^[a-z0-9-]{1,40}$/i.test(method)) {
+      safeParams.set("method", method);
+    }
+    const query = safeParams.toString();
+    return `${url.pathname || "/"}${query ? `?${query}` : ""}`.slice(0, 160);
+  } catch {
+    return undefined;
+  }
 }
 
 http.route({
   path: "/analytics",
   method: "OPTIONS",
   handler: httpAction(async (_ctx, req) => {
+    if (!isAllowedAnalyticsOrigin(req)) {
+      return new Response(null, { status: 403, headers: analyticsCorsHeaders(req) });
+    }
     return new Response(null, { status: 204, headers: analyticsCorsHeaders(req) });
   })
 });
@@ -63,6 +89,10 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, req) => {
     const headers = analyticsCorsHeaders(req);
+    if (!isAllowedAnalyticsOrigin(req)) {
+      return new Response(JSON.stringify({ ok: false }), { status: 403, headers });
+    }
+
     let payload: Record<string, unknown> = {};
     try {
       const raw = await req.text();

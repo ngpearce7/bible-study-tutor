@@ -11,6 +11,9 @@ const publicAnalyticsEventType = v.union(
   v.literal("seo_cta_clicked"),
   v.literal("start_study_clicked"),
   v.literal("bible_reader_opened"),
+  v.literal("plans_opened"),
+  v.literal("memory_opened"),
+  v.literal("method_selected"),
   v.literal("method_page_cta_clicked"),
   v.literal("worksheet_cta_clicked"),
   v.literal("account_creation_started"),
@@ -129,6 +132,12 @@ export const recordPublicAnalytics = internalMutation({
     methodId: v.optional(v.string())
   },
   handler: async (ctx, args) => {
+    const oneMinuteAgo = Date.now() - 60 * 1000;
+    const recentPublicEvents = await ctx.db.query("publicAnalyticsEvents").withIndex("by_created").order("desc").take(600);
+    if (recentPublicEvents.length >= 600 && recentPublicEvents[recentPublicEvents.length - 1]?.createdAt >= oneMinuteAgo) {
+      return null;
+    }
+
     return await ctx.db.insert("publicAnalyticsEvents", {
       eventType: args.eventType,
       pagePath: sanitizePublicPath(args.pagePath),
@@ -772,10 +781,25 @@ function clampOptionalText(value: string | undefined, maxLength: number) {
 
 function sanitizePublicPath(value: string | undefined) {
   const cleaned = clampText(value, 160);
-  if (!cleaned) return undefined;
-  if (/^\/(?:account|admin|journal|accountability|community)(?:[/?#]|$)/i.test(cleaned)) return undefined;
-  if (/^\/\?tab=(?:account|admin|journal|accountability|community)(?:&|$)/i.test(cleaned)) return undefined;
-  return cleaned.startsWith("/") ? cleaned : undefined;
+  if (!cleaned?.startsWith("/")) return undefined;
+  try {
+    const url = new URL(cleaned, "https://biblestudytutor.org");
+    if (/^\/(?:account|admin|journal|accountability|community)(?:\/|$)/i.test(url.pathname)) return undefined;
+
+    const safeParams = new URLSearchParams();
+    const tab = url.searchParams.get("tab");
+    if (tab && ["home", "study", "bible", "plans", "methods", "memory", "help"].includes(tab)) {
+      safeParams.set("tab", tab);
+    }
+    const method = url.searchParams.get("method");
+    if (method && /^[a-z0-9-]{1,40}$/i.test(method)) {
+      safeParams.set("method", method);
+    }
+    const query = safeParams.toString();
+    return `${url.pathname || "/"}${query ? `?${query}` : ""}`.slice(0, 160);
+  } catch {
+    return undefined;
+  }
 }
 
 function clampNumber(value: number | undefined, min: number, max: number) {

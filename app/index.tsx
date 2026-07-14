@@ -600,12 +600,14 @@ export default function Home() {
   }, [tab]);
 
   useEffect(() => {
-    if (Platform.OS !== "web") return;
-    return runWhenBrowserIdle(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined") return;
+    const timer = window.setTimeout(() => {
       Ionicons.loadFont()
         .then(() => setIconFontReady(true))
         .catch(() => setIconFontReady(true));
-    }, 1600);
+    }, 250);
+
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {

@@ -950,17 +950,20 @@ function getAppEntryQuery(page) {
     return methodId ? `tab=study&method=${methodId}` : "tab=methods";
   }
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
+  if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "tab=home";
   if (value.includes("memor") || value.includes("memory")) return "tab=memory";
   if (value.includes("worksheet") || value.includes("printable") || value.includes("reader") || value.includes("highlight")) return "tab=bible";
   if (value.includes("method")) return "tab=methods";
   if (value.includes("journal") || value.includes("group") || value.includes("church") || value.includes("encouragement")) return "tab=study";
-  if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "tab=home";
   return "tab=study";
 }
 
 function getStandardCtaLabel(page) {
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
+  if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "Start a guided study";
   if (page.path === "/bible-study-methods" || value.includes("method")) return "Choose a study method";
+  if (page.path.includes("memory-card")) return "Print memory cards";
+  if (value.includes("memor") || value.includes("memory")) return "Open memory verses";
   if (value.includes("worksheet") || value.includes("printable")) return "Print a worksheet";
   if (value.includes("reader") || value.includes("highlight")) return "Open the Bible reader";
   return "Start a guided study";

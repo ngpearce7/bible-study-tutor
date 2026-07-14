@@ -139,7 +139,12 @@ export function BibleSearchPanel({
 
   return (
     <View style={[styles.bibleSearchPanel, darkMode && styles.accountDarkSection]}>
-      <Pressable onPress={onToggleCollapsed} style={styles.bibleSearchHeader}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={collapsed ? "Show Scripture search" : "Hide Scripture search"}
+        onPress={onToggleCollapsed}
+        style={styles.bibleSearchHeader}
+      >
         <View style={styles.feedbackHeader}>
           <Ionicons name="search-outline" size={18} color={iconColor} />
           <Text style={[styles.feedbackTitle, darkMode && styles.studyDarkAccentText]}>Search Scripture</Text>
@@ -155,6 +160,7 @@ export function BibleSearchPanel({
           <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Choose how closely Scripture should match your search. Exact word is best when you remember a specific word.</Text>
           <View style={[styles.bibleSearchInputRow, phoneLayout && styles.phoneBibleSearchInputRow]}>
             <TextInput
+              accessibilityLabel="Search Scripture"
               value={query}
               onChangeText={onQueryChange}
               onSubmitEditing={onRunSearch}
@@ -165,6 +171,7 @@ export function BibleSearchPanel({
             <AppButton label="Search" onPress={onRunSearch} style={phoneLayout && styles.phoneBibleSearchButton} />
             <Pressable
               accessibilityRole="button"
+              accessibilityLabel="Clear Scripture search"
               onPress={onClearSearch}
               style={[styles.bibleSearchClearButton, phoneLayout && styles.phoneBibleSearchButton, darkMode && styles.homeDarkResumeButton]}
             >
@@ -175,7 +182,12 @@ export function BibleSearchPanel({
 
           {phoneLayout ? (
             <View style={[styles.mobileBibleCriteriaDropdown, darkMode && styles.accountDarkInsetBox]}>
-              <Pressable accessibilityRole="button" onPress={onToggleCriteria} style={styles.mobileBibleCriteriaHeader}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={criteriaOpen ? "Hide Scripture search criteria" : "Show Scripture search criteria"}
+                onPress={onToggleCriteria}
+                style={styles.mobileBibleCriteriaHeader}
+              >
                 <View style={styles.mobileBibleCriteriaCopy}>
                   <Text style={[styles.mobileBibleCriteriaTitle, darkMode && styles.accountDarkTitle]}>Search criteria</Text>
                   <Text numberOfLines={1} style={[styles.mobileBibleCriteriaSummary, darkMode && styles.accountDarkMutedText]}>
@@ -193,6 +205,8 @@ export function BibleSearchPanel({
                       {SEARCH_SCOPES.map(([itemScope, label]) => (
                         <Pressable
                           key={itemScope}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Search ${label}`}
                           onPress={() => onSelectScope(itemScope)}
                           style={[styles.bibleSearchChip, styles.phoneBibleSearchChip, darkMode && styles.printDarkOptionChip, scope === itemScope && styles.activeBibleSearchChip]}
                         >
@@ -208,6 +222,8 @@ export function BibleSearchPanel({
                       {SEARCH_MODES.map(([itemMode, label]) => (
                         <Pressable
                           key={itemMode}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Use ${label} search mode`}
                           onPress={() => onSelectMode(itemMode)}
                           style={[styles.bibleSearchChip, styles.phoneBibleSearchChip, darkMode && styles.printDarkOptionChip, mode === itemMode && styles.activeBibleSearchChip]}
                         >

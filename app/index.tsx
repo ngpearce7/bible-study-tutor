@@ -4904,6 +4904,7 @@ export default function Home() {
                     <View style={[styles.smartPassageHeader, studyDarkMode && styles.accountDarkInput]}>
                       <Ionicons name="search-outline" size={20} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                       <TextInput
+                        accessibilityLabel="Bible passage reference"
                         value={passageQuery}
                         onChangeText={setPassageQuery}
                         onSubmitEditing={() => applyPassageQuery()}
@@ -4911,7 +4912,7 @@ export default function Home() {
                         placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
                         style={[styles.smartPassageInput, studyDarkMode && styles.accountDarkText]}
                       />
-                      <Pressable onPress={() => applyPassageQuery()} style={styles.useInlineButton}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Use this Bible passage" onPress={() => applyPassageQuery()} style={styles.useInlineButton}>
                         <Text style={styles.useInlineText}>Use</Text>
                       </Pressable>
                     </View>
@@ -7575,15 +7576,16 @@ export default function Home() {
                       </Pressable>
                     </View>
                     <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
-                      <Pressable onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Sign in to an existing account" onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
                       </Pressable>
-                      <Pressable onPress={() => setAuthFlow("signUp")} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signUp" && styles.accountDarkActiveSegment]}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Create a free account" onPress={() => setAuthFlow("signUp")} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signUp" && styles.accountDarkActiveSegment]}>
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signUp" && styles.activeAuthFlowText]}>Create account</Text>
                       </Pressable>
                     </View>
                     {authFlow === "signUp" && (
                       <TextInput
+                        accessibilityLabel="Your name"
                         value={authName}
                         onChangeText={setAuthName}
                         autoCapitalize="words"
@@ -7593,6 +7595,7 @@ export default function Home() {
                       />
                     )}
                     <TextInput
+                      accessibilityLabel="Email address or username"
                       value={authIdentifier}
                       onChangeText={setAuthIdentifier}
                       autoCapitalize="none"
@@ -7606,6 +7609,7 @@ export default function Home() {
                         : "Use an email address, or choose a unique username without sharing your email."}
                     </Text>
                     <TextInput
+                      accessibilityLabel="Password"
                       value={authPassword}
                       onChangeText={setAuthPassword}
                       autoCapitalize="none"
@@ -7623,7 +7627,7 @@ export default function Home() {
                 <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
                   <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Personal details</Text>
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
-                  <TextInput value={displayName} onChangeText={setDisplayName} placeholder="Display name" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, accountDarkMode && styles.accountDarkInput]} />
+                  <TextInput accessibilityLabel="Display name" value={displayName} onChangeText={setDisplayName} placeholder="Display name" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, accountDarkMode && styles.accountDarkInput]} />
                   {!!profile?.authUsername && (
                     <View style={[styles.signedInBadge, styles.accountUsernameBadge, accountDarkMode && styles.accountDarkBadge]}>
                       <Ionicons name="person-circle-outline" size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -7631,6 +7635,7 @@ export default function Home() {
                     </View>
                   )}
                   <TextInput
+                    accessibilityLabel={profile?.authUsername ? "Optional email for account recovery" : "Email address"}
                     value={accountEmail}
                     onChangeText={setAccountEmail}
                     autoCapitalize="none"
@@ -7653,6 +7658,7 @@ export default function Home() {
                   <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Change password</Text>
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Use this if you signed in with email or username and password.</Text>
                   <TextInput
+                    accessibilityLabel="Current password"
                     value={currentAccountPassword}
                     onChangeText={setCurrentAccountPassword}
                     autoCapitalize="none"
@@ -7662,6 +7668,7 @@ export default function Home() {
                     style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                   />
                   <TextInput
+                    accessibilityLabel="New password"
                     value={newAccountPassword}
                     onChangeText={setNewAccountPassword}
                     autoCapitalize="none"
@@ -8994,6 +9001,7 @@ export default function Home() {
                 ))}
               </View>
               <TextInput
+                accessibilityLabel="Feedback message"
                 multiline
                 value={feedbackMessage}
                 onChangeText={setFeedbackMessage}
@@ -10623,13 +10631,14 @@ function WritingPromptChips({
       {isCustomizing && (
         <View style={styles.customPromptEditor}>
           <TextInput
+            accessibilityLabel="Custom note starter phrase"
             value={draftPrompt}
             onChangeText={setDraftPrompt}
             placeholder="Add your own starter phrase"
             placeholderTextColor={darkMode ? "#8f8678" : undefined}
             style={[styles.customPromptInput, darkMode && styles.accountDarkInput]}
           />
-          <Pressable onPress={addPrompt} style={styles.addPromptButton}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Add custom note starter phrase" onPress={addPrompt} style={styles.addPromptButton}>
             <Text style={styles.addPromptText}>Add</Text>
           </Pressable>
         </View>
@@ -10652,6 +10661,7 @@ function CustomStudyReviewControl({
     <View style={styles.customReviewControl}>
       <Text style={styles.customReviewLabel}>Custom</Text>
       <TextInput
+        accessibilityLabel="Custom review interval in days"
         value={value}
         onChangeText={onChange}
         keyboardType="number-pad"
@@ -10659,7 +10669,7 @@ function CustomStudyReviewControl({
         style={styles.customReviewInput}
       />
       <Text style={styles.customReviewUnit}>days</Text>
-      <Pressable onPress={onSchedule} style={styles.addPromptButton}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Set custom review interval" onPress={onSchedule} style={styles.addPromptButton}>
         <Text style={styles.addPromptText}>Set</Text>
       </Pressable>
     </View>

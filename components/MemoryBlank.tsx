@@ -49,6 +49,7 @@ function MemoryBlankComponent({
   return (
     <View style={[styles.wrap, { width: memoryBlankWidth(token.answer, compact) }]}>
       <TextInput
+        accessibilityLabel="Memory verse blank"
         ref={inputRef}
         value={value}
         onChangeText={(nextValue) => {

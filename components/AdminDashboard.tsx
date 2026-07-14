@@ -470,6 +470,7 @@ function AdminUserDirectory({
         <View style={[styles.adminDirectorySearchBox, darkMode && styles.accountDarkInput]}>
           <Ionicons name="search-outline" size={17} color={colors.coral} />
           <TextInput
+            accessibilityLabel="Search users by name or email"
             value={searchTerm}
             onChangeText={setSearchTerm}
             placeholder="Search name or email"
@@ -477,7 +478,7 @@ function AdminUserDirectory({
             style={[styles.adminDirectorySearchInput, darkMode && styles.accountDarkText]}
           />
           {!!searchTerm && (
-            <Pressable onPress={() => setSearchTerm("")} style={styles.clearSearchButton}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Clear user search" onPress={() => setSearchTerm("")} style={styles.clearSearchButton}>
               <Ionicons name="close-outline" size={17} color={darkMode ? "#c8bda9" : colors.muted} />
             </Pressable>
           )}
@@ -652,6 +653,7 @@ function AdminUserDetail({ styles, MetricComponent, detail, onMarkSecurityReview
           {reviewToolsOpen && (
             <View style={styles.adminReviewForm}>
               <TextInput
+                accessibilityLabel="Admin review note"
                 value={reviewNote}
                 onChangeText={setReviewNote}
                 placeholder="Optional admin note"

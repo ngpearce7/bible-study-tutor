@@ -160,6 +160,8 @@ export function BibleReaderNavigator({
             {translations.map((translation) => (
               <Pressable
                 key={translation.id}
+                accessibilityRole="button"
+                accessibilityLabel={`Use ${translation.label} translation`}
                 onPress={() => onSelectTranslation(translation.id)}
                 style={[styles.translationOption, translationId === translation.id && styles.activeTranslationOption]}
               >
@@ -172,6 +174,7 @@ export function BibleReaderNavigator({
 
           {!phoneLayout && (
             <TextInput
+              accessibilityLabel="Find a Bible book"
               value={bookSearch}
               onChangeText={onBookSearchChange}
               placeholder="Find a book"
@@ -182,7 +185,12 @@ export function BibleReaderNavigator({
 
           {history.length > 1 && (
             <View style={[styles.readerHistorySection, darkMode && styles.bibleDarkDividerSection]}>
-              <Pressable onPress={onToggleHistoryCollapsed} style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={historyCollapsed ? "Show recent Bible reading history" : "Hide recent Bible reading history"}
+                onPress={onToggleHistoryCollapsed}
+                style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
+              >
                 <View style={styles.readerBookmarkHeaderTitle}>
                   <Ionicons name="time-outline" size={15} color={colors.coral} />
                   <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Recent</Text>
@@ -195,7 +203,7 @@ export function BibleReaderNavigator({
               {!historyCollapsed && (
                 <>
                   <View style={styles.readerHistoryActions}>
-                    <Pressable onPress={onClearHistory} style={styles.readerHistoryClearButton}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Clear Bible reading history" onPress={onClearHistory} style={styles.readerHistoryClearButton}>
                       <Text style={styles.readerProgressClearText}>Clear</Text>
                     </Pressable>
                   </View>
@@ -203,6 +211,8 @@ export function BibleReaderNavigator({
                     {history.slice(1, phoneLayout ? 5 : 7).map((item) => (
                       <Pressable
                         key={`${item.book}-${item.chapter}-${item.translation}`}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open recent reading ${item.reference}`}
                         onPress={() => onOpenHistoryItem(item)}
                         style={[styles.readerHistoryChip, darkMode && styles.accountDarkInsetBox]}
                       >
@@ -219,7 +229,12 @@ export function BibleReaderNavigator({
 
           {bookmarks.length > 0 && (
             <View style={[styles.readerBookmarkSection, darkMode && styles.bibleDarkDividerSection]}>
-              <Pressable onPress={onToggleBookmarksCollapsed} style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={bookmarksCollapsed ? "Show bookmarks and notes" : "Hide bookmarks and notes"}
+                onPress={onToggleBookmarksCollapsed}
+                style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
+              >
                 <View style={styles.readerBookmarkHeaderTitle}>
                   <Ionicons name="bookmark-outline" size={15} color={colors.coral} />
                   <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Bookmarks & notes</Text>
@@ -232,6 +247,7 @@ export function BibleReaderNavigator({
               {!bookmarksCollapsed && (
                 <>
                   <TextInput
+                    accessibilityLabel="Search bookmarks or notes"
                     value={bookmarkSearch}
                     onChangeText={onBookmarkSearchChange}
                     placeholder="Search bookmarks or notes"
@@ -239,6 +255,8 @@ export function BibleReaderNavigator({
                     style={[styles.input, styles.readerBookmarkSearchInput, darkMode && styles.accountDarkInput]}
                   />
                   <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={bookmarkNotesOnly ? "Show all bookmarks" : "Show only bookmarks with notes"}
                     onPress={onToggleBookmarkNotesOnly}
                     style={[styles.readerBookmarkFilterChip, darkMode && styles.homeDarkResumeButton, bookmarkNotesOnly && styles.activeReaderBookChip]}
                   >
@@ -248,20 +266,21 @@ export function BibleReaderNavigator({
                   {visibleBookmarks.map((bookmark) => (
                     <View key={bookmark.id} style={styles.readerBookmarkItem}>
                       <View style={styles.readerBookmarkRow}>
-                        <Pressable onPress={() => onOpenBookmark(bookmark)} style={[styles.readerBookmarkOpen, darkMode && styles.accountDarkInsetBox]}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Open ${bookmark.reference}`} onPress={() => onOpenBookmark(bookmark)} style={[styles.readerBookmarkOpen, darkMode && styles.accountDarkInsetBox]}>
                           <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? (darkMode ? "#e9b76a" : colors.oliveDark) : (darkMode ? "#e9b76a" : colors.coral)} />
                           <Text style={[styles.readerBookmarkText, darkMode && styles.accountDarkTitle]}>{bookmark.reference}</Text>
                         </Pressable>
-                        <Pressable onPress={() => onOpenBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, darkMode && styles.homeDarkIconBubble, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Edit note for ${bookmark.reference}`} onPress={() => onOpenBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, darkMode && styles.homeDarkIconBubble, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
                           <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
                         </Pressable>
-                        <Pressable onPress={() => onRemoveBookmark(bookmark.id)} style={styles.readerBookmarkRemove}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${bookmark.reference}`} onPress={() => onRemoveBookmark(bookmark.id)} style={styles.readerBookmarkRemove}>
                           <Ionicons name="close-outline" size={15} color={colors.muted} />
                         </Pressable>
                       </View>
                       {activeBookmarkNoteId === bookmark.id && (
                         <View style={styles.readerBookmarkNoteEditor}>
                           <TextInput
+                            accessibilityLabel={`Note for ${bookmark.reference}`}
                             value={bookmarkNoteDraft}
                             onChangeText={onBookmarkNoteDraftChange}
                             placeholder="Add a note"

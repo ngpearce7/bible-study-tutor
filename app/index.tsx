@@ -1,6 +1,5 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { api } from "@/convex/_generated/api";
 import { fetchBibleApiPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
@@ -9,7 +8,7 @@ import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
-import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
@@ -17,7 +16,7 @@ import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
-import { MemoryBlank } from "@/components/MemoryBlank";
+import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -31,7 +30,6 @@ const LazyCommunityTab = lazy(() => import("@/components/CommunityTab").then((mo
 const LazyHelpTab = lazy(() => import("@/components/HelpTab").then((module) => ({ default: module.HelpTab })));
 const LazyJournalTab = lazy(() => import("@/components/JournalTab").then((module) => ({ default: module.JournalTab })));
 const LazyMemoryTab = lazy(() => import("@/components/MemoryTab").then((module) => ({ default: module.MemoryTab })));
-const LazyMemoryHistoryPanel = lazy(() => import("@/components/MemoryHistoryPanel").then((module) => ({ default: module.MemoryHistoryPanel })));
 const LazyStudyNoteTiptapEditor = lazy(() => import("@/components/StudyNoteTiptapEditor").then((module) => ({ default: module.StudyNoteTiptapEditor })));
 type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
@@ -5221,6 +5219,7 @@ export default function Home() {
                       ))}
                     </View>
                     <CustomStudyReviewControl
+                      styles={styles}
                       value={customStudyReviewDays}
                       onChange={setCustomStudyReviewDays}
                       onSchedule={() => scheduleStudyReview(savedStudySummary.sessionId)}
@@ -5245,7 +5244,7 @@ export default function Home() {
                       .map((item) => (
                         <View key={item.stepTitle} style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
                           <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>{item.stepTitle}</Text>
-                          <FormattedNoteText text={item.answer} />
+                          <FormattedNoteText styles={styles} text={item.answer} darkMode={studyDarkMode} />
                         </View>
                       ))}
                   </View>
@@ -6594,12 +6593,10 @@ export default function Home() {
               journalFilterOptions={journalFilterOptions}
               totalSavedHighlightCount={totalSavedHighlightCount}
               buildJournalGuideText={buildJournalGuideText}
-              JournalCalendarComponent={JournalCalendar}
               journalCalendarMonth={journalCalendarMonth}
               journalCalendarItems={journalCalendarItems}
               setJournalCalendarMonth={setJournalCalendarMonth}
               addMonths={addMonths}
-              JournalScriptureBrowserComponent={JournalScriptureBrowser}
               journalScriptureBookSections={journalScriptureBookSections}
               expandedJournalScriptureBook={expandedJournalScriptureBook}
               setExpandedJournalScriptureBook={setExpandedJournalScriptureBook}
@@ -6618,8 +6615,6 @@ export default function Home() {
               isJournalEntryExpanded={isJournalEntryExpanded}
               toggleJournalEntryExpanded={toggleJournalEntryExpanded}
               formatJournalCreatedDate={formatJournalCreatedDate}
-              FormattedNoteTextComponent={FormattedNoteText}
-              PassageMarkupSummaryComponent={PassageMarkupSummary}
               ResumeButtonComponent={ResumeButton}
               resumeDraft={resumeDraft}
               pendingArchiveDraftId={pendingArchiveDraftId}
@@ -6667,9 +6662,6 @@ export default function Home() {
               setStudyReviewNote={setStudyReviewNote}
               completeStudyReview={completeStudyReview}
               studyReviewStatus={studyReviewStatus}
-              JournalMeditationScriptureComponent={JournalMeditationScripture}
-              JournalMeditationAnswerComponent={JournalMeditationAnswer}
-              HighlightReflectionSummaryComponent={HighlightReflectionSummary}
               isSavingJournalEdit={isSavingJournalEdit}
               saveJournalEntryEdit={saveJournalEntryEdit}
               cancelEditJournalEntry={cancelEditJournalEntry}
@@ -6680,7 +6672,6 @@ export default function Home() {
               deleteJournalEntry={deleteJournalEntry}
               STUDY_REVIEW_OPTIONS={STUDY_REVIEW_OPTIONS}
               scheduleStudyReview={scheduleStudyReview}
-              CustomStudyReviewControlComponent={CustomStudyReviewControl}
               customStudyReviewDays={customStudyReviewDays}
               setCustomStudyReviewDays={setCustomStudyReviewDays}
               showJournalEmptyState={showJournalEmptyState}
@@ -8350,34 +8341,6 @@ function WritingPromptChips({
   );
 }
 
-function CustomStudyReviewControl({
-  value,
-  onChange,
-  onSchedule
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  onSchedule: () => void;
-}) {
-  return (
-    <View style={styles.customReviewControl}>
-      <Text style={styles.customReviewLabel}>Custom</Text>
-      <TextInput
-        accessibilityLabel="Custom review interval in days"
-        value={value}
-        onChangeText={onChange}
-        keyboardType="number-pad"
-        placeholder="14"
-        style={styles.customReviewInput}
-      />
-      <Text style={styles.customReviewUnit}>days</Text>
-      <Pressable accessibilityRole="button" accessibilityLabel="Set custom review interval" onPress={onSchedule} style={styles.addPromptButton}>
-        <Text style={styles.addPromptText}>Set</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 function LegalDocument({
   title,
   icon,
@@ -8444,336 +8407,6 @@ function CollapsibleStudyPanel({
         <Ionicons name={collapsed ? "chevron-down-outline" : "chevron-up-outline"} size={17} color={darkMode ? "#c8bda9" : colors.muted} />
       </Pressable>
       {!collapsed && children}
-    </View>
-  );
-}
-
-function FormattedNoteText({ text, darkMode = false }: { text: string; darkMode?: boolean }) {
-  if (!text.trim()) return null;
-  const displayText = Platform.OS === "web" ? text : richHtmlToMarkupText(text);
-
-  if (Platform.OS === "web" && /<\/?[a-z][\s\S]*>/i.test(displayText)) {
-    return createElement("div", {
-      style: {
-        color: colors.ink,
-        ...(darkMode ? { color: "#f7eddc" } : {}),
-        fontSize: 15,
-        lineHeight: "21px",
-        marginBottom: 8
-      },
-      dangerouslySetInnerHTML: { __html: sanitizeEditorHtml(displayText) }
-    });
-  }
-
-  return (
-    <View style={styles.formattedNote}>
-      {displayText.split("\n").map((line, index) => {
-        const isBullet = line.trimStart().startsWith("- ");
-        const content = isBullet ? line.trimStart().slice(2) : line;
-
-        return (
-          <View key={`${line}-${index}`} style={isBullet ? styles.formattedBulletRow : undefined}>
-            {isBullet && <Text style={styles.formattedBullet}>•</Text>}
-            <Text style={[styles.body, darkMode && styles.accountDarkText, isBullet && styles.formattedBulletText]}>{renderFormattedNoteSegments(content)}</Text>
-          </View>
-        );
-      })}
-    </View>
-  );
-}
-
-function JournalMeditationScripture({ text, darkMode = false }: { text: string; darkMode?: boolean }) {
-  const [referenceLine, ...verseLines] = text.split(/\n+/).map((line) => line.trim()).filter(Boolean);
-  const verseText = verseLines.join(" ").trim() || text.trim();
-
-  return (
-    <View style={[styles.journalMeditationScriptureBox, darkMode && styles.journalDarkMeditationScriptureBox]}>
-      <View style={styles.feedbackHeader}>
-        <Ionicons name="book-outline" size={16} color={darkMode ? "#e9b76a" : colors.coral} />
-        <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Scripture</Text>
-      </View>
-      {!!referenceLine && <Text style={[styles.journalMeditationReference, darkMode && styles.accountDarkTitle]}>{referenceLine}</Text>}
-      <Text style={[styles.journalMeditationVerseText, darkMode && styles.accountDarkText]}>{verseText}</Text>
-    </View>
-  );
-}
-
-function JournalMeditationAnswer({ title, text, darkMode = false }: { title: string; text: string; darkMode?: boolean }) {
-  const icon = getMeditationAnswerIcon(title);
-  const iconColor = darkMode ? "#e9b76a" : colors.coral;
-
-  return (
-    <View style={styles.journalMeditationAnswer}>
-      <View style={styles.journalMeditationAnswerHeader}>
-        <MaterialCommunityIcons name={icon as any} size={18} color={iconColor} />
-        <Text style={[styles.journalMeditationAnswerTitle, darkMode && styles.studyDarkAccentText]}>{title}</Text>
-      </View>
-      <FormattedNoteText text={text} darkMode={darkMode} />
-    </View>
-  );
-}
-
-function getMeditationAnswerIcon(title: string) {
-  const normalized = title.trim().toLowerCase();
-  if (normalized === "notice") return "eye-outline";
-  if (normalized === "reflect") return "lightbulb-outline";
-  if (normalized === "pray") return "hands-pray";
-  if (normalized === "carry") return "book-account-outline";
-  return "book-open-page-variant-outline";
-}
-
-function renderFormattedNoteSegments(text: string) {
-  const segments = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|__[^_]+__|==[^=]+==)/g).filter((segment) => segment.length > 0);
-
-  return segments.map((segment, index) => {
-    if (segment.startsWith("**") && segment.endsWith("**")) {
-      return (
-        <Text key={`${segment}-${index}`} style={styles.formattedBold}>
-          {segment.slice(2, -2)}
-        </Text>
-      );
-    }
-    if (segment.startsWith("*") && segment.endsWith("*")) {
-      return (
-        <Text key={`${segment}-${index}`} style={styles.formattedItalic}>
-          {segment.slice(1, -1)}
-        </Text>
-      );
-    }
-    if (segment.startsWith("__") && segment.endsWith("__")) {
-      return (
-        <Text key={`${segment}-${index}`} style={styles.formattedUnderline}>
-          {segment.slice(2, -2)}
-        </Text>
-      );
-    }
-    if (segment.startsWith("==") && segment.endsWith("==")) {
-      return (
-        <Text key={`${segment}-${index}`} style={styles.formattedHighlight}>
-          {segment.slice(2, -2)}
-        </Text>
-      );
-    }
-    return segment;
-  });
-}
-
-function PassageMarkupSummary({ markups, darkMode = false }: { markups: PassageMarkupRecord[]; darkMode?: boolean }) {
-  if (!markups.length) return null;
-
-  return (
-    <View style={[styles.journalShareBox, darkMode && styles.accountDarkInsetBox]}>
-      <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Highlights</Text>
-      <View style={styles.markupSummaryRow}>
-        {markups.map((markup) => {
-          const option = PASSAGE_MARKUP_OPTIONS.find((item) => item.id === markup.kind);
-
-          return (
-            <View key={markup.key} style={styles.markupSummaryItem}>
-              <View style={[styles.markupSummaryChip, option && { backgroundColor: option.background }]}>
-                <Text style={[styles.markupSummaryText, option && { color: option.color }]}>
-                  {markup.reference} · {markup.label}
-                </Text>
-              </View>
-              {!!markup.note && <Text style={[styles.markupSummaryNote, darkMode && styles.accountDarkText]}>{markup.note}</Text>}
-            </View>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
-function JournalCalendar({
-  monthStart,
-  items,
-  selectedDateKey,
-  onSelectDate,
-  onPreviousMonth,
-  onNextMonth,
-  darkMode = false
-}: {
-  monthStart: number;
-  items: JournalCalendarItem[];
-  selectedDateKey: string;
-  onSelectDate: (dateKey: string) => void;
-  onPreviousMonth: () => void;
-  onNextMonth: () => void;
-  darkMode?: boolean;
-}) {
-  const cells = buildJournalCalendarCells(monthStart, items);
-
-  return (
-    <View style={[styles.journalCalendarBox, darkMode && styles.accountDarkSection]}>
-      <View style={styles.journalCalendarHeader}>
-        <Pressable onPress={onPreviousMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
-          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-        </Pressable>
-        <Text style={[styles.journalCalendarTitle, darkMode && styles.accountDarkTitle]}>
-          {new Date(monthStart).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
-        </Text>
-        <Pressable onPress={onNextMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
-          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-        </Pressable>
-      </View>
-      <View style={styles.calendarWeekdayRow}>
-        {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
-          <Text key={`${day}-${index}`} style={[styles.calendarWeekday, darkMode && styles.accountDarkMutedText]}>{day}</Text>
-        ))}
-      </View>
-      <View style={styles.calendarGrid}>
-        {cells.map((cell) => {
-          const selected = selectedDateKey === cell.dateKey;
-          return (
-            <Pressable
-              key={cell.dateKey}
-              onPress={() => onSelectDate(selected ? "" : cell.dateKey)}
-              style={[
-                styles.calendarDayCell,
-                darkMode && styles.journalDarkCalendarDayCell,
-                !cell.inMonth && styles.inactiveCalendarDayCell,
-                selected && styles.selectedCalendarDayCell,
-                cell.count > 0 && !selected && styles.activeCalendarDayCell,
-                darkMode && cell.count > 0 && !selected && styles.journalDarkActiveCalendarDayCell
-              ]}
-            >
-              <Text style={[styles.calendarDayNumber, darkMode && styles.accountDarkText, selected && styles.selectedCalendarDayNumber, !cell.inMonth && styles.inactiveCalendarDayNumber]}>
-                {cell.day}
-              </Text>
-              {cell.count > 0 && (
-                <Text style={[styles.calendarEntryCount, selected && styles.selectedCalendarEntryCount]}>
-                  {cell.count}
-                </Text>
-              )}
-            </Pressable>
-          );
-        })}
-      </View>
-    </View>
-  );
-}
-
-function JournalScriptureBrowser({
-  sections,
-  expandedBook,
-  selectedBook,
-  selectedChapter,
-  onToggleBook,
-  onSelectChapter,
-  darkMode = false
-}: {
-  sections: { title: string; books: { book: string; chapters: { chapter: number; entryCount: number; verseCount: number }[] }[] }[];
-  expandedBook: string;
-  selectedBook: string;
-  selectedChapter: number;
-  onToggleBook: (book: string) => void;
-  onSelectChapter: (book: string, chapter: number) => void;
-  darkMode?: boolean;
-}) {
-  const activeBookSet = new Set(sections.flatMap((section) => section.books.map((item) => item.book)));
-
-  return (
-    <View style={[styles.journalScriptureBox, darkMode && styles.accountDarkSection]}>
-      {sections.length === 0 ? (
-        <View style={styles.emptyJournalScriptureBox}>
-          <Ionicons name="book-outline" size={22} color={colors.coral} />
-          <Text style={[styles.emptyJournalTitle, darkMode && styles.accountDarkTitle]}>No passage entries yet</Text>
-          <Text style={[styles.emptyJournalText, darkMode && styles.accountDarkMutedText]}>Saved studies, drafts, and highlights with scripture references will appear here.</Text>
-        </View>
-      ) : (
-        sections.map((section) => (
-          <View key={section.title} style={styles.journalScriptureSection}>
-            <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{section.title}</Text>
-            <View style={styles.desktopReaderBookList}>
-              {section.books.map(({ book, chapters }) => {
-                const expanded = expandedBook === book;
-                const selected = selectedBook === book;
-                return (
-                  <View key={book} style={[styles.desktopReaderBookBlock, expanded && styles.expandedDesktopReaderBookBlock]}>
-                    <Pressable
-                      onPress={() => onToggleBook(book)}
-                      style={[
-                        styles.readerBookChip,
-                        darkMode && styles.printDarkOptionChip,
-                        activeBookSet.has(book) && styles.journalScriptureActiveBookChip,
-                        darkMode && activeBookSet.has(book) && styles.journalDarkScriptureActiveBookChip,
-                        selected && styles.activeReaderBookChip
-                      ]}
-                    >
-                      <Text style={[styles.readerBookText, darkMode && styles.accountDarkMutedText, selected && styles.activeReaderBookText]}>{book}</Text>
-                    </Pressable>
-                    {expanded && (
-                      <View style={[styles.desktopReaderChapterPanel, darkMode && styles.accountDarkInsetBox]}>
-                        <View style={styles.desktopReaderChapterHeader}>
-                          <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
-                          <Text style={[styles.readerChapterCountText, darkMode && styles.accountDarkMutedText]}>{`${chapters.length} chapter${chapters.length === 1 ? "" : "s"}`}</Text>
-                        </View>
-                        <View style={styles.desktopReaderChapterGrid}>
-                          {chapters.map(({ chapter, entryCount, verseCount }) => {
-                            const chapterSelected = selectedBook === book && selectedChapter === chapter;
-                            return (
-                              <Pressable
-                                key={`${book}-${chapter}`}
-                                onPress={() => onSelectChapter(book, chapter)}
-                                style={[styles.journalScriptureChapterSquare, darkMode && styles.printDarkOptionChip, chapterSelected && styles.activeMobileReaderChapterSquare]}
-                              >
-                                <Text style={[styles.mobileReaderChapterText, darkMode && styles.accountDarkMutedText, chapterSelected && styles.activeMobileReaderChapterText]}>{chapter}</Text>
-                                <Text style={[styles.journalScriptureChapterCount, chapterSelected && styles.activeMobileReaderChapterText]}>
-                                  {verseCount > 0 ? `${verseCount}v` : `${entryCount}e`}
-                                </Text>
-                              </Pressable>
-                            );
-                          })}
-                        </View>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ))
-      )}
-    </View>
-  );
-}
-
-function HighlightReflectionSummary({ note, darkMode = false }: { note: string; darkMode?: boolean }) {
-  const reflection = parseHighlightReflectionNote(note);
-  const sections = [
-    ["Key insight", reflection.keyInsight],
-    ["Prayer", reflection.prayer],
-    ["Next step", reflection.nextStep]
-  ].filter(([, value]) => value);
-
-  if (!reflection.passage && !reflection.highlights && sections.length === 0) {
-    return <Text style={[styles.body, darkMode && styles.accountDarkText]}>{note || "No note added."}</Text>;
-  }
-
-  return (
-    <View style={[styles.reflectionSummaryBox, darkMode && styles.accountDarkInsetBox]}>
-      <View style={styles.reflectionSummaryHeader}>
-        <Ionicons name="sparkles-outline" size={18} color={colors.coral} />
-        <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Reflection</Text>
-      </View>
-      {!!reflection.passage && (
-        <View style={styles.reflectionSummarySection}>
-          <Text style={styles.reflectionSummaryLabel}>Passage</Text>
-          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{reflection.passage}</Text>
-        </View>
-      )}
-      {!!reflection.highlights && (
-        <View style={styles.reflectionSummarySection}>
-          <Text style={styles.reflectionSummaryLabel}>Highlights</Text>
-          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{reflection.highlights}</Text>
-        </View>
-      )}
-      {sections.map(([label, value]) => (
-        <View key={label} style={styles.reflectionSummarySection}>
-          <Text style={styles.reflectionSummaryLabel}>{label}</Text>
-          <Text style={[styles.body, darkMode && styles.accountDarkText]}>{value}</Text>
-        </View>
-      ))}
     </View>
   );
 }

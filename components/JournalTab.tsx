@@ -1,6 +1,16 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text, TextInput, View } from "react-native";
 
+import {
+  CustomStudyReviewControl,
+  FormattedNoteText,
+  HighlightReflectionSummary,
+  JournalCalendar,
+  JournalMeditationAnswer,
+  JournalMeditationScripture,
+  JournalScriptureBrowser,
+  PassageMarkupSummary
+} from "@/components/JournalDisplayHelpers";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 
 export function JournalTab(props: any) {
@@ -23,12 +33,10 @@ export function JournalTab(props: any) {
     journalFilterOptions,
     totalSavedHighlightCount,
     buildJournalGuideText,
-    JournalCalendarComponent,
     journalCalendarMonth,
     journalCalendarItems,
     setJournalCalendarMonth,
     addMonths,
-    JournalScriptureBrowserComponent,
     journalScriptureBookSections,
     expandedJournalScriptureBook,
     setExpandedJournalScriptureBook,
@@ -47,8 +55,6 @@ export function JournalTab(props: any) {
     isJournalEntryExpanded,
     toggleJournalEntryExpanded,
     formatJournalCreatedDate,
-    FormattedNoteTextComponent,
-    PassageMarkupSummaryComponent,
     ResumeButtonComponent,
     resumeDraft,
     pendingArchiveDraftId,
@@ -96,9 +102,6 @@ export function JournalTab(props: any) {
     setStudyReviewNote,
     completeStudyReview,
     studyReviewStatus,
-    JournalMeditationScriptureComponent,
-    JournalMeditationAnswerComponent,
-    HighlightReflectionSummaryComponent,
     isSavingJournalEdit,
     saveJournalEntryEdit,
     cancelEditJournalEntry,
@@ -109,7 +112,6 @@ export function JournalTab(props: any) {
     deleteJournalEntry,
     STUDY_REVIEW_OPTIONS,
     scheduleStudyReview,
-    CustomStudyReviewControlComponent,
     customStudyReviewDays,
     setCustomStudyReviewDays,
     showJournalEmptyState,
@@ -117,15 +119,7 @@ export function JournalTab(props: any) {
     friendlyName,
     setTab
   } = props;
-  const JournalCalendar = JournalCalendarComponent;
-  const JournalScriptureBrowser = JournalScriptureBrowserComponent;
-  const FormattedNoteText = FormattedNoteTextComponent;
-  const PassageMarkupSummary = PassageMarkupSummaryComponent;
   const ResumeButton = ResumeButtonComponent;
-  const JournalMeditationScripture = JournalMeditationScriptureComponent;
-  const JournalMeditationAnswer = JournalMeditationAnswerComponent;
-  const HighlightReflectionSummary = HighlightReflectionSummaryComponent;
-  const CustomStudyReviewControl = CustomStudyReviewControlComponent;
 
   return (
     <View style={journalDarkMode && styles.accountDarkLayout}>
@@ -221,6 +215,7 @@ export function JournalTab(props: any) {
       </View>
       {journalView === "calendar" && (
         <JournalCalendar
+          styles={styles}
           monthStart={journalCalendarMonth}
           items={journalCalendarItems}
           selectedDateKey={journalDateFilterKey}
@@ -232,6 +227,7 @@ export function JournalTab(props: any) {
       )}
       {journalView === "scripture" && (
         <JournalScriptureBrowser
+          styles={styles}
           sections={journalScriptureBookSections}
           expandedBook={expandedJournalScriptureBook}
           selectedBook={selectedJournalScriptureBook}
@@ -348,10 +344,10 @@ export function JournalTab(props: any) {
                           <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                             <Text style={styles.bold}>{item.stepTitle}: </Text>
                           </Text>
-                          <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
+                          <FormattedNoteText styles={styles} text={item.answer} darkMode={journalDarkMode} />
                         </View>
                       ))}
-                    <PassageMarkupSummary markups={draft.passageMarkups || []} darkMode={journalDarkMode} />
+                    <PassageMarkupSummary styles={styles} markups={draft.passageMarkups || []} darkMode={journalDarkMode} />
                     <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
                       <ResumeButton label="Resume into study" onPress={() => resumeDraft(draft)} style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]} iconColor={journalDarkMode ? "#e9b76a" : undefined} />
                       <ResumeButton
@@ -399,7 +395,7 @@ export function JournalTab(props: any) {
                 </Pressable>
                 {expanded && (
                   <>
-                    <PassageMarkupSummary markups={item.markups} darkMode={journalDarkMode} />
+                    <PassageMarkupSummary styles={styles} markups={item.markups} darkMode={journalDarkMode} />
                     {activeReflectionEntryId === item.id && (
                       <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkInsetBox]}>
                         <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Create reflection</Text>
@@ -608,21 +604,21 @@ export function JournalTab(props: any) {
                         <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.shareNote}</Text>
                       </View>
                     )}
-                    <PassageMarkupSummary markups={entry.passageMarkups || []} darkMode={journalDarkMode} />
+                    <PassageMarkupSummary styles={styles} markups={entry.passageMarkups || []} darkMode={journalDarkMode} />
                     {entry.answers
                       .filter((item: any) => item.answer.trim())
                       .map((item: any) => (
                         <View key={item.stepTitle}>
                           {memoryMeditation && item.stepTitle === "Scripture" ? (
-                            <JournalMeditationScripture text={item.answer} darkMode={journalDarkMode} />
+                            <JournalMeditationScripture styles={styles} text={item.answer} darkMode={journalDarkMode} />
                           ) : memoryMeditation ? (
-                            <JournalMeditationAnswer title={item.stepTitle} text={item.answer} darkMode={journalDarkMode} />
+                            <JournalMeditationAnswer styles={styles} title={item.stepTitle} text={item.answer} darkMode={journalDarkMode} />
                           ) : (
                             <>
                               <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                                 <Text style={styles.bold}>{item.stepTitle}: </Text>
                               </Text>
-                              <FormattedNoteText text={item.answer} darkMode={journalDarkMode} />
+                              <FormattedNoteText styles={styles} text={item.answer} darkMode={journalDarkMode} />
                             </>
                           )}
                         </View>
@@ -640,7 +636,7 @@ export function JournalTab(props: any) {
                     )}
                   </>
                 ) : isHighlightReflection(entry) ? (
-                  <HighlightReflectionSummary note={entry.note || ""} darkMode={journalDarkMode} />
+                  <HighlightReflectionSummary styles={styles} note={entry.note || ""} darkMode={journalDarkMode} />
                 ) : (
                   <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.note || "No note added."}</Text>
                 )}
@@ -706,6 +702,7 @@ export function JournalTab(props: any) {
                       ))}
                     </View>
                     <CustomStudyReviewControl
+                      styles={styles}
                       value={customStudyReviewDays}
                       onChange={setCustomStudyReviewDays}
                       onSchedule={() => {

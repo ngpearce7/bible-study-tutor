@@ -679,16 +679,12 @@ const seoPages = [
 ];
 
 mkdirSync(publicDir, { recursive: true });
-copyFileSync(
-  join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "Ionicons.ttf"),
-  join(publicDir, "ionicons.ttf")
-);
-copyFileSync(
-  join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "MaterialCommunityIcons.ttf"),
-  join(publicDir, "material-community-icons.ttf")
-);
 copyFileSync(join(process.cwd(), "assets", "icon.png"), join(publicDir, "icon.png"));
 copyFileSync(join(process.cwd(), "assets", "favicon.png"), join(publicDir, "favicon.png"));
+copyFileSync(join(process.cwd(), "assets", "apple-touch-icon.png"), join(publicDir, "apple-touch-icon.png"));
+copyFileSync(join(process.cwd(), "assets", "social-preview.png"), join(publicDir, "social-preview.png"));
+rmSync(join(publicDir, "ionicons.ttf"), { force: true });
+rmSync(join(publicDir, "material-community-icons.ttf"), { force: true });
 writeFileIfChanged(join(publicDir, "favicon.ico"), pngToIco(readFileSync(join(process.cwd(), "assets", "favicon.png")), 48, 48));
 
 const robots = [
@@ -731,7 +727,7 @@ ${sitemapUrls.map((url) => `  <url>
 function buildSeoPage(page, baseUrl) {
   const canonical = baseUrl ? `${baseUrl}${page.path}` : page.path;
   const appUrl = baseUrl ? `${baseUrl}/` : "/";
-  const image = baseUrl ? `${baseUrl}/icon.png` : "/icon.png";
+  const image = baseUrl ? `${baseUrl}/social-preview.png` : "/social-preview.png";
   const ctaHref = getCtaHref(page, appUrl);
   const ctaLabel = getStandardCtaLabel(page);
   const analyticsSnippet = buildAnalyticsSnippet(page, ctaHref);
@@ -783,7 +779,7 @@ function buildSeoPage(page, baseUrl) {
     <link rel="canonical" href="${escapeHtml(canonical)}" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Bible Study Tutor" />
     <meta property="og:title" content="${escapeHtml(page.title)}" />

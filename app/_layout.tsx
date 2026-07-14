@@ -10,7 +10,8 @@ const SITE_TITLE = "Bible Study Tutor | Free Bible Study App and Printable Works
 const SITE_DESCRIPTION =
   "A free Bible study app for desktop and mobile with Scripture reading, guided Bible study methods, printable worksheets, journaling, memory verses, highlights, and simple church encouragements.";
 const siteUrl = (process.env.EXPO_PUBLIC_SITE_URL || "").replace(/\/$/, "");
-const siteImage = siteUrl ? `${siteUrl}/icon.png` : undefined;
+const siteImage = siteUrl ? `${siteUrl}/social-preview.png` : undefined;
+const siteIcon = siteUrl ? `${siteUrl}/apple-touch-icon.png` : undefined;
 const structuredDataItems = [
   {
     "@context": "https://schema.org",
@@ -39,7 +40,7 @@ const structuredDataItems = [
     "@type": "Organization",
     name: "Bible Study Tutor",
     url: siteUrl || undefined,
-    logo: siteImage
+    logo: siteIcon
   }
 ].map((item) => Object.fromEntries(Object.entries(item).filter(([, value]) => value !== undefined)));
 const structuredData = {
@@ -120,11 +121,8 @@ export default function RootLayout() {
         {siteUrl ? <link rel="canonical" href={siteUrl} /> : null}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="apple-touch-icon" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
-        <link rel="preload" href="/ionicons.ttf" as="font" type="font/ttf" crossOrigin="" />
-        <link rel="preload" href="/material-community-icons.ttf" as="font" type="font/ttf" crossOrigin="" />
-        <style>{'@font-face{font-family:"ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}@font-face{font-family:"Ionicons";src:url("/ionicons.ttf") format("truetype");font-display:block;}@font-face{font-family:"material-community";src:url("/material-community-icons.ttf") format("truetype");font-display:block;}@font-face{font-family:"MaterialCommunityIcons";src:url("/material-community-icons.ttf") format("truetype");font-display:block;}'}</style>
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Head>
       <StatusBar style="dark" />

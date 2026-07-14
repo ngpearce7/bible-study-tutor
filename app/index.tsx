@@ -12,6 +12,7 @@ import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS 
 import { COMMON_MEMORY_REVIEW_OPTIONS, DEFAULT_MEMORY_MILESTONE_IDS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryProgressLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
+import { trackPublicAnalytics } from "@/data/publicAnalytics";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -1689,6 +1690,7 @@ export default function Home() {
     setLoadedDraftKey("");
     setSaveStatus(`Completed and saved${firstName ? `, ${firstName}` : ""}`);
     trackUsage("study_completed", { reference: passageText?.reference || passage, methodId: method.id, methodName: method.name, translation: passageText?.translation_name, tab: "study" });
+    trackPublicAnalytics({ eventType: "study_completed", source: "study", ctaTarget: "/?tab=study", methodId: method.id });
     setCheckinNote(finalShareNote);
     if (activePlanDayKey) {
       setCompletedPlanDayKeys((current) => {
@@ -2103,6 +2105,9 @@ export default function Home() {
     }
 
     setAuthStatus(authFlow === "signIn" ? "Signing in..." : "Creating account...");
+    if (authFlow === "signUp") {
+      trackPublicAnalytics({ eventType: "account_creation_started", source: credentialMode, ctaTarget: "/?tab=account" });
+    }
     try {
       const signInParams: Record<string, string> = {
         email: accountId,
@@ -2140,6 +2145,16 @@ export default function Home() {
   function trackUsage(eventType: string, details: { reference?: string; methodId?: string; methodName?: string; translation?: string; tab?: string; book?: string; chapter?: number } = {}) {
     if (!activeProfileId) return;
     recordUsage({ profileId: activeProfileId, eventType, ...details }).catch(() => undefined);
+  }
+
+  function openStudyFromPublicSource(source: string) {
+    trackPublicAnalytics({ eventType: "start_study_clicked", source, ctaTarget: "/?tab=study" });
+    setTab("study");
+  }
+
+  function openBibleFromPublicSource(source: string) {
+    trackPublicAnalytics({ eventType: "bible_reader_opened", source, ctaTarget: "/?tab=bible" });
+    setTab("bible");
   }
 
   async function submitUserFeedback() {
@@ -2956,12 +2971,14 @@ export default function Home() {
         if (nav?.share) {
           await nav.share({ title: "Bible Study Tutor", text: message, url: APP_SHARE_URL });
           trackUsage("app_shared", { reference: "Share button", tab: "help" });
+          trackPublicAnalytics({ eventType: "app_shared", source: "share_button", ctaTarget: APP_SHARE_URL });
           setAppShareStatus("Share sheet opened.");
           return;
         }
         if (nav?.clipboard?.writeText) {
           await nav.clipboard.writeText(APP_SHARE_URL);
           trackUsage("app_shared", { reference: "Copy link", tab: "help" });
+          trackPublicAnalytics({ eventType: "app_shared", source: "copy_link", ctaTarget: APP_SHARE_URL });
           setAppShareStatus("Link copied. Paste it into a message, email, or group chat.");
           return;
         }
@@ -2970,6 +2987,7 @@ export default function Home() {
       const { Share } = await import("react-native");
       await Share.share({ title: "Bible Study Tutor", message });
       trackUsage("app_shared", { reference: "Share button", tab: "help" });
+      trackPublicAnalytics({ eventType: "app_shared", source: "share_button", ctaTarget: APP_SHARE_URL });
       setAppShareStatus("Share sheet opened.");
     } catch {
       setAppShareStatus("Could not share from this device right now.");
@@ -2983,6 +3001,7 @@ export default function Home() {
       if (Platform.OS === "web" && navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(APP_SHARE_URL);
         trackUsage("app_shared", { reference: "Copy link", tab: "help" });
+        trackPublicAnalytics({ eventType: "app_shared", source: "copy_link", ctaTarget: APP_SHARE_URL });
         setAppShareStatus("Link copied.");
         return;
       }
@@ -3593,6 +3612,12 @@ export default function Home() {
       methodName: selectedMethod.name,
       translation: printWorksheetRequest.translation,
       tab: printWorksheetRequest.source
+    });
+    trackPublicAnalytics({
+      eventType: "worksheet_cta_clicked",
+      source: printWorksheetRequest.source,
+      ctaTarget: "/?tab=bible",
+      methodId: selectedMethod.id
     });
     setPrintWorksheetRequest(null);
   }
@@ -4646,6 +4671,8 @@ export default function Home() {
             <Pressable
               key={key}
               onPress={() => {
+                if (key === "study") trackPublicAnalytics({ eventType: "start_study_clicked", source: "main_menu", ctaTarget: "/?tab=study" });
+                if (key === "bible") trackPublicAnalytics({ eventType: "bible_reader_opened", source: "main_menu", ctaTarget: "/?tab=bible" });
                 setTab(key as Tab);
                 if (phoneLayout) setMobileMenuOpen(false);
               }}
@@ -4698,11 +4725,11 @@ export default function Home() {
                   Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, and review in one simple place.
                 </Text>
                 <View style={styles.homeActionRow}>
-                  <AppButton label="Start a study" onPress={() => setTab("study")} style={phoneLayout && styles.homePhoneActionButton} />
+                  <AppButton label="Start a study" onPress={() => openStudyFromPublicSource("home_hero")} style={phoneLayout && styles.homePhoneActionButton} />
                   <AppButton
                     label="Read Scripture"
                     variant="secondary"
-                    onPress={() => setTab("bible")}
+                    onPress={() => openBibleFromPublicSource("home_hero")}
                     style={[phoneLayout && styles.homePhoneActionButton, homeDarkMode && styles.homeDarkResumeButton]}
                     labelStyle={homeDarkMode && styles.homeDarkResumeButtonText}
                   />
@@ -8551,11 +8578,11 @@ export default function Home() {
                 Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, share Scripture, and print worksheets for pen-and-paper study.
               </Text>
               <View style={styles.helpActionRow}>
-                <AppButton label="Read the Bible" onPress={() => setTab("bible")} style={phoneLayout && styles.phoneFullWidthButton} />
+                <AppButton label="Read the Bible" onPress={() => openBibleFromPublicSource("help_hero")} style={phoneLayout && styles.phoneFullWidthButton} />
                 <AppButton
                   label="Start a study"
                   variant="secondary"
-                  onPress={() => setTab("study")}
+                  onPress={() => openStudyFromPublicSource("help_hero")}
                   style={[phoneLayout && styles.phoneFullWidthButton, helpDarkMode && styles.homeDarkResumeButton]}
                   labelStyle={helpDarkMode && styles.homeDarkResumeButtonText}
                 />

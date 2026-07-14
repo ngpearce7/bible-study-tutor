@@ -11,6 +11,9 @@ export type AdminStats = {
     activeProfiles7d: number;
     profilesWithStudies: number;
     events: number;
+    publicEvents?: number;
+    publicPageViews7d?: number;
+    publicConversions7d?: number;
     feedback: number;
     newFeedback: number;
     appShares: number;
@@ -25,6 +28,9 @@ export type AdminStats = {
   topSearches: { label: string; count: number }[];
   shareSources: { label: string; count: number }[];
   eventBreakdown: { label: string; count: number }[];
+  publicEventBreakdown?: { label: string; count: number }[];
+  topPublicPages?: { label: string; count: number }[];
+  topPublicCtas?: { label: string; count: number }[];
   feedbackByCategory: { label: string; count: number }[];
   feedbackByStatus: { label: string; count: number }[];
   securityByType?: { label: string; count: number }[];
@@ -44,6 +50,15 @@ export type AdminStats = {
     reference?: string;
     methodName?: string;
     tab?: string;
+    createdAt: number;
+  }[];
+  recentPublicEvents?: {
+    _id: string;
+    eventType: string;
+    pagePath?: string;
+    source?: string;
+    ctaTarget?: string;
+    methodId?: string;
     createdAt: number;
   }[];
   recentFeedback: any[];
@@ -139,6 +154,8 @@ export const AdminDashboard = memo(function AdminDashboard({
         <MetricComponent value={adminStats.totals.profilesWithStudies} label="with studies" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.newFeedback} label="new feedback" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.appShares || 0} label="app shares" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <MetricComponent value={adminStats.totals.publicPageViews7d || 0} label="SEO views 7d" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
+        <MetricComponent value={adminStats.totals.publicConversions7d || 0} label="SEO actions 7d" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.pendingDeletionRequests} label="deletion requests" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.securityEvents24h || 0} label="security 24h" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
         <MetricComponent value={adminStats.totals.suspendedProfiles || 0} label="suspended" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
@@ -209,6 +226,18 @@ export const AdminDashboard = memo(function AdminDashboard({
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <AdminCountList styles={styles} title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+      </View>
+
+      <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList styles={styles} title="Public SEO pages" items={adminStats.topPublicPages || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList styles={styles} title="Public CTA actions" items={adminStats.topPublicCtas || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <AdminCountList styles={styles} title="Public event breakdown" items={adminStats.publicEventBreakdown || []} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
       </View>
 

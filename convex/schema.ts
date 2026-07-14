@@ -250,6 +250,27 @@ export default defineSchema({
     .index("by_profile_created", ["profileId", "createdAt"])
     .index("by_event_type_created", ["eventType", "createdAt"])
     .index("by_created", ["createdAt"]),
+  publicAnalyticsEvents: defineTable({
+    eventType: v.union(
+      v.literal("public_page_view"),
+      v.literal("seo_cta_clicked"),
+      v.literal("start_study_clicked"),
+      v.literal("bible_reader_opened"),
+      v.literal("method_page_cta_clicked"),
+      v.literal("worksheet_cta_clicked"),
+      v.literal("account_creation_started"),
+      v.literal("study_completed"),
+      v.literal("app_shared")
+    ),
+    pagePath: v.optional(v.string()),
+    source: v.optional(v.string()),
+    ctaTarget: v.optional(v.string()),
+    methodId: v.optional(v.string()),
+    createdAt: v.number()
+  })
+    .index("by_created", ["createdAt"])
+    .index("by_event_type_created", ["eventType", "createdAt"])
+    .index("by_page_path_created", ["pagePath", "createdAt"]),
   adminNotificationState: defineTable({
     key: v.string(),
     profileId: v.optional(v.id("profiles")),

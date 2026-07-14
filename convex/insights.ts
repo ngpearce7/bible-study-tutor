@@ -1,11 +1,22 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertProfileCanWrite, enforceRecentLimit, logSecurityEvent } from "./security";
 import { v } from "convex/values";
 
 const feedbackCategory = v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other"));
+const publicAnalyticsEventType = v.union(
+  v.literal("public_page_view"),
+  v.literal("seo_cta_clicked"),
+  v.literal("start_study_clicked"),
+  v.literal("bible_reader_opened"),
+  v.literal("method_page_cta_clicked"),
+  v.literal("worksheet_cta_clicked"),
+  v.literal("account_creation_started"),
+  v.literal("study_completed"),
+  v.literal("app_shared")
+);
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 
 function usernameFromCredential(value?: string) {
@@ -109,6 +120,26 @@ export const recordUsage = mutation({
   }
 });
 
+export const recordPublicAnalytics = internalMutation({
+  args: {
+    eventType: publicAnalyticsEventType,
+    pagePath: v.optional(v.string()),
+    source: v.optional(v.string()),
+    ctaTarget: v.optional(v.string()),
+    methodId: v.optional(v.string())
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("publicAnalyticsEvents", {
+      eventType: args.eventType,
+      pagePath: sanitizePublicPath(args.pagePath),
+      source: clampOptionalText(args.source, 80),
+      ctaTarget: clampOptionalText(args.ctaTarget, 120),
+      methodId: clampOptionalText(args.methodId, 80),
+      createdAt: Date.now()
+    });
+  }
+});
+
 export const requestAccountDeletion = mutation({
   args: {
     profileId: v.id("profiles"),
@@ -177,8 +208,9 @@ export const adminOverview = query({
   handler: async (ctx) => {
     if (!(await isAdmin(ctx))) return null;
 
-    const [events, feedback, profiles, sessions, deletionRequests, securityEvents] = await Promise.all([
+    const [events, publicEvents, feedback, profiles, sessions, deletionRequests, securityEvents] = await Promise.all([
       ctx.db.query("usageEvents").withIndex("by_created").order("desc").take(500),
+      ctx.db.query("publicAnalyticsEvents").withIndex("by_created").order("desc").take(500),
       ctx.db.query("feedback").withIndex("by_created").order("desc").take(50),
       ctx.db.query("profiles").collect(),
       ctx.db.query("sessions").collect(),
@@ -190,6 +222,7 @@ export const adminOverview = query({
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
     const studyProfileIds = new Set(sessions.map((item) => item.profileId));
     const shareEvents = events.filter((item) => item.eventType === "app_shared");
+    const recentPublicEvents = publicEvents.filter((item) => item.createdAt >= sevenDaysAgo);
     const recentSecurityEvents = securityEvents.filter((item) => item.createdAt >= sevenDaysAgo);
     const profileLookup = new Map(profiles.map((profile) => [profile._id, profile]));
     const securityEventRows = [];
@@ -218,6 +251,9 @@ export const adminOverview = query({
         activeProfiles7d: activeProfileIds.size,
         profilesWithStudies: studyProfileIds.size,
         events: events.length,
+        publicEvents: publicEvents.length,
+        publicPageViews7d: recentPublicEvents.filter((item) => item.eventType === "public_page_view").length,
+        publicConversions7d: recentPublicEvents.filter((item) => item.eventType !== "public_page_view").length,
         feedback: feedback.length,
         newFeedback: feedback.filter((item) => item.status === "new").length,
         appShares: shareEvents.length,
@@ -232,6 +268,9 @@ export const adminOverview = query({
       topSearches: topCounts(events.filter((item) => item.eventType === "bible_search").map((item) => item.reference).filter(isString), 8),
       shareSources: topCounts(shareEvents.map((item) => item.reference).filter(isString), 8),
       eventBreakdown: topCounts(events.map((item) => item.eventType).filter(isString), 10),
+      publicEventBreakdown: topCounts(publicEvents.map((item) => item.eventType).filter(isString), 10),
+      topPublicPages: topCounts(publicEvents.filter((item) => item.eventType === "public_page_view").map((item) => item.pagePath).filter(isString), 8),
+      topPublicCtas: topCounts(publicEvents.filter((item) => item.eventType !== "public_page_view").map((item) => item.ctaTarget || item.source || item.eventType).filter(isString), 8),
       feedbackByCategory: topCounts(feedback.map((item) => item.category).filter(isString), 8),
       feedbackByStatus: topCounts(feedback.map((item) => item.status).filter(isString), 8),
       securityByType: topCounts(recentSecurityEvents.map((item) => securityEventGroup(item.eventType, item.details)).filter(isString), 8),
@@ -242,6 +281,15 @@ export const adminOverview = query({
         reference: item.reference,
         methodName: item.methodName,
         tab: item.tab,
+        createdAt: item.createdAt
+      })),
+      recentPublicEvents: publicEvents.slice(0, 12).map((item) => ({
+        _id: item._id,
+        eventType: item.eventType,
+        pagePath: item.pagePath,
+        source: item.source,
+        ctaTarget: item.ctaTarget,
+        methodId: item.methodId,
         createdAt: item.createdAt
       })),
       recentFeedback: feedback.slice(0, 12),
@@ -720,6 +768,14 @@ function clampText(value: string | undefined, maxLength: number) {
 function clampOptionalText(value: string | undefined, maxLength: number) {
   const cleaned = clampText(value, maxLength);
   return cleaned || undefined;
+}
+
+function sanitizePublicPath(value: string | undefined) {
+  const cleaned = clampText(value, 160);
+  if (!cleaned) return undefined;
+  if (/^\/(?:account|admin|journal|accountability|community)(?:[/?#]|$)/i.test(cleaned)) return undefined;
+  if (/^\/\?tab=(?:account|admin|journal|accountability|community)(?:&|$)/i.test(cleaned)) return undefined;
+  return cleaned.startsWith("/") ? cleaned : undefined;
 }
 
 function clampNumber(value: number | undefined, min: number, max: number) {

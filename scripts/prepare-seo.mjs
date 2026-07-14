@@ -6,6 +6,10 @@ const productionSiteUrl = "https://biblestudytutor.org";
 const rawSiteUrl = process.env.EXPO_PUBLIC_SITE_URL || process.env.SITE_URL || "";
 const normalizedSiteUrl = rawSiteUrl.replace(/\/$/, "");
 const siteUrl = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedSiteUrl) ? productionSiteUrl : normalizedSiteUrl || productionSiteUrl;
+const analyticsEnabled = process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === "true";
+const rawConvexSiteUrl = process.env.EXPO_PUBLIC_CONVEX_SITE_URL || "";
+const rawConvexUrl = process.env.EXPO_PUBLIC_CONVEX_URL || "";
+const analyticsSiteUrl = (rawConvexSiteUrl || (rawConvexUrl.endsWith(".convex.cloud") ? rawConvexUrl.replace(".convex.cloud", ".convex.site") : "")).replace(/\/$/, "");
 const seoPages = [
   {
     path: "/about",
@@ -729,6 +733,7 @@ function buildSeoPage(page, baseUrl) {
   const appUrl = baseUrl ? `${baseUrl}/` : "/";
   const image = baseUrl ? `${baseUrl}/icon.png` : "/icon.png";
   const ctaHref = getCtaHref(page, appUrl);
+  const analyticsSnippet = buildAnalyticsSnippet(page, ctaHref);
   const breadcrumbs = getBreadcrumbs(page);
   const relatedPages = (page.related || [])
     .map((path) => seoPages.find((candidate) => candidate.path === path))
@@ -789,6 +794,7 @@ function buildSeoPage(page, baseUrl) {
     <meta name="twitter:description" content="${escapeHtml(page.description)}" />
     <meta name="twitter:image" content="${escapeHtml(image)}" />
     <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
+    ${analyticsSnippet}
     <style>
       :root { color-scheme: light; --ink: #241d19; --muted: #6f665c; --paper: #f8f1e6; --panel: #fffdf8; --line: #e4d6c5; --olive: #39452e; --coral: #c96750; }
       * { box-sizing: border-box; }
@@ -865,6 +871,57 @@ function buildSeoPage(page, baseUrl) {
   </body>
 </html>
 `;
+}
+
+function buildAnalyticsSnippet(page, ctaHref) {
+  if (!analyticsEnabled || !analyticsSiteUrl) return "";
+  const eventType = publicCtaEventType(page);
+  return `<script>
+      (function () {
+        var endpoint = ${JSON.stringify(`${analyticsSiteUrl}/analytics`)};
+        var pagePath = ${JSON.stringify(page.path)};
+        var ctaTarget = ${JSON.stringify(ctaHref)};
+        var methodId = ${JSON.stringify(methodIdForSeoPage(page))};
+        function track(eventType, source) {
+          try {
+            var payload = JSON.stringify({ eventType: eventType, pagePath: pagePath, ctaTarget: ctaTarget, methodId: methodId || undefined, source: source });
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon(endpoint, new Blob([payload], { type: "text/plain" }));
+              return;
+            }
+            fetch(endpoint, { method: "POST", headers: { "content-type": "text/plain" }, body: payload, keepalive: true });
+          } catch (error) {}
+        }
+        track("public_page_view", "seo_page");
+        document.addEventListener("click", function (event) {
+          var link = event.target && event.target.closest ? event.target.closest(".cta-section .button") : null;
+          if (link) track(${JSON.stringify(eventType)}, "seo_cta");
+        });
+      })();
+    </script>`;
+}
+
+function publicCtaEventType(page) {
+  if (page.path.startsWith("/bible-study-methods/")) return "method_page_cta_clicked";
+  if (page.path.includes("worksheet") || page.path.includes("printable")) return "worksheet_cta_clicked";
+  return "seo_cta_clicked";
+}
+
+function methodIdForSeoPage(page) {
+  if (!page.path.startsWith("/bible-study-methods/")) return "";
+  const methodSlug = page.path.split("/").filter(Boolean).pop() || "";
+  const methodMap = {
+    soap: "soap",
+    inductive: "inductive",
+    oia: "oia",
+    "lectio-divina": "lectio",
+    "verse-mapping": "verse-mapping",
+    "word-study": "word-study",
+    "topical-study": "topical-study",
+    "character-study": "character-study",
+    "cross-reference-study": "cross-reference-study"
+  };
+  return methodMap[methodSlug] || "";
 }
 
 function getCtaHref(page, appUrl) {

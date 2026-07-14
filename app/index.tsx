@@ -223,6 +223,25 @@ const APP_SHARE_QR_DARK_URI = `https://api.qrserver.com/v1/create-qr-code/?size=
 const COMMUNITY_STATUS_BUSY_PREFIXES = ["Posting", "Creating", "Looking", "Checking", "Accepting", "Joining", "Saving"];
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 
+function runWhenBrowserIdle(task: () => void, timeout = 900) {
+  if (Platform.OS !== "web" || typeof window === "undefined") {
+    const timer = setTimeout(task, 0);
+    return () => clearTimeout(timer);
+  }
+
+  const requestIdle = (window as any).requestIdleCallback;
+  const cancelIdle = (window as any).cancelIdleCallback;
+  if (typeof requestIdle === "function") {
+    const id = requestIdle(task, { timeout });
+    return () => {
+      if (typeof cancelIdle === "function") cancelIdle(id);
+    };
+  }
+
+  const timer = window.setTimeout(task, Math.min(timeout, 300));
+  return () => window.clearTimeout(timer);
+}
+
 function communityStatusShouldHold(message: string) {
   return COMMUNITY_STATUS_BUSY_PREFIXES.some((prefix) => message.startsWith(prefix));
 }
@@ -581,9 +600,11 @@ export default function Home() {
 
   useEffect(() => {
     if (Platform.OS !== "web") return;
-    Ionicons.loadFont()
-      .then(() => setIconFontReady(true))
-      .catch(() => setIconFontReady(true));
+    return runWhenBrowserIdle(() => {
+      Ionicons.loadFont()
+        .then(() => setIconFontReady(true))
+        .catch(() => setIconFontReady(true));
+    }, 1600);
   }, []);
 
   useEffect(() => {
@@ -673,59 +694,62 @@ export default function Home() {
   }, [authLoading, authName, ensureProfile, isAuthenticated]);
 
   useEffect(() => {
-    getPinnedJournalEntries()
-      .then(setPinnedJournalEntryIds)
-      .catch(() => undefined);
-    getCompletedPlanDays()
-      .then(setCompletedPlanDayKeys)
-      .catch(() => undefined);
-    getStoredCheckinPartners()
-      .then(setCheckinPartners)
-      .catch(() => undefined);
-    getActiveCheckinPartnerId()
-      .then(setActiveCheckinPartnerId)
-      .catch(() => undefined);
-    getStoredBibleTranslation()
-      .then(setBibleTranslation)
-      .catch(() => undefined);
     getStoredAppearanceMode()
       .then(setAppearanceMode)
       .catch(() => undefined);
-    getStoredBibleReaderPosition()
-      .then((position) => {
-        if (!position || !bibleBooks.includes(position.book)) return;
-        const chapterCount = BIBLE_CHAPTER_COUNTS[position.book] || 1;
-        setReaderBook(position.book);
-        setReaderChapter(Math.min(Math.max(position.chapter, 1), chapterCount));
-      })
-      .catch(() => undefined);
-    getStoredBibleReaderHistory()
-      .then(setBibleReaderHistory)
-      .catch(() => undefined);
-    getStoredBibleReadChapters()
-      .then(setReadBibleChapters)
-      .catch(() => undefined);
-    getStoredBibleBookmarks()
-      .then(setBibleBookmarks)
-      .catch(() => undefined);
-    getStoredStudyFocusMode()
-      .then(setStudyFocusMode)
-      .catch(() => undefined);
-    getStoredTutorCoachingEnabled()
-      .then(setShowCoaching)
-      .catch(() => undefined);
-    getStoredCollapsedStudyPanels()
-      .then(setCollapsedStudyPanels)
-      .catch(() => undefined);
-    getStoredCustomWritingPrompts()
-      .then(setCustomWritingPrompts)
-      .catch(() => undefined);
-    getStoredMemoryReviewSorts()
-      .then((sorts) => {
-        setDueMemoryReviewSort(sorts.due);
-        setReviewedMemoryReviewSort(sorts.reviewed);
-      })
-      .catch(() => undefined);
+
+    return runWhenBrowserIdle(() => {
+      getPinnedJournalEntries()
+        .then(setPinnedJournalEntryIds)
+        .catch(() => undefined);
+      getCompletedPlanDays()
+        .then(setCompletedPlanDayKeys)
+        .catch(() => undefined);
+      getStoredCheckinPartners()
+        .then(setCheckinPartners)
+        .catch(() => undefined);
+      getActiveCheckinPartnerId()
+        .then(setActiveCheckinPartnerId)
+        .catch(() => undefined);
+      getStoredBibleTranslation()
+        .then(setBibleTranslation)
+        .catch(() => undefined);
+      getStoredBibleReaderPosition()
+        .then((position) => {
+          if (!position || !bibleBooks.includes(position.book)) return;
+          const chapterCount = BIBLE_CHAPTER_COUNTS[position.book] || 1;
+          setReaderBook(position.book);
+          setReaderChapter(Math.min(Math.max(position.chapter, 1), chapterCount));
+        })
+        .catch(() => undefined);
+      getStoredBibleReaderHistory()
+        .then(setBibleReaderHistory)
+        .catch(() => undefined);
+      getStoredBibleReadChapters()
+        .then(setReadBibleChapters)
+        .catch(() => undefined);
+      getStoredBibleBookmarks()
+        .then(setBibleBookmarks)
+        .catch(() => undefined);
+      getStoredStudyFocusMode()
+        .then(setStudyFocusMode)
+        .catch(() => undefined);
+      getStoredTutorCoachingEnabled()
+        .then(setShowCoaching)
+        .catch(() => undefined);
+      getStoredCollapsedStudyPanels()
+        .then(setCollapsedStudyPanels)
+        .catch(() => undefined);
+      getStoredCustomWritingPrompts()
+        .then(setCustomWritingPrompts)
+        .catch(() => undefined);
+      getStoredMemoryReviewSorts()
+        .then((sorts) => {
+          setDueMemoryReviewSort(sorts.due);
+          setReviewedMemoryReviewSort(sorts.reviewed);
+        })
+        .catch(() => undefined);
+    });
   }, []);
 
   useEffect(() => {
@@ -1079,13 +1103,14 @@ export default function Home() {
   const hasShareInsightTarget = !!activeShareInsightTargetName;
   const communityMessage = buildCommunityMessage({ partner: activeCommunityTargetName || "", senderName: firstName, checkinNote });
   const currentCoaching = buildCoachingFeedback(method.id, step.title, stripNoteFormatting(answers[answerKey] || ""));
+  const shouldPrepareBibleUi = tab === "bible";
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
-  const filteredReaderBooks = bibleBooks.filter((book) => book.toLowerCase().includes(readerBookSearch.trim().toLowerCase()));
-  const readerBookSections = [
+  const filteredReaderBooks = shouldPrepareBibleUi ? bibleBooks.filter((book) => book.toLowerCase().includes(readerBookSearch.trim().toLowerCase())) : [];
+  const readerBookSections = shouldPrepareBibleUi ? [
     { title: "Old Testament", books: OLD_TESTAMENT_BOOKS.filter((book) => filteredReaderBooks.includes(book)) },
     { title: "New Testament", books: NEW_TESTAMENT_BOOKS.filter((book) => filteredReaderBooks.includes(book)) }
-  ].filter((section) => section.books.length > 0);
+  ].filter((section) => section.books.length > 0) : [];
   const readerChapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 1;
   const activeReaderActionVerse = selectedReaderVerses.includes(readerActionVerse) ? readerActionVerse : selectedReaderVerses[selectedReaderVerses.length - 1] || 0;
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
@@ -1096,13 +1121,13 @@ export default function Home() {
     : undefined;
   const currentSelectionBookmarked =
     selectedReaderVerses.length > 0 && !!currentSelectionBookmark && currentSelectionBookmark.bookmarked !== false;
-  const filteredBibleBookmarks = bibleBookmarks
+  const filteredBibleBookmarks = shouldPrepareBibleUi ? bibleBookmarks
     .filter((bookmark) => {
       const query = bookmarkSearch.trim().toLowerCase();
       const matchesSearch = !query || `${bookmark.reference} ${bookmark.note || ""}`.toLowerCase().includes(query);
       const matchesNoteFilter = !bookmarkNotesOnly || !!bookmark.note?.trim();
       return matchesSearch && matchesNoteFilter;
-    });
+    }) : [];
   const visibleBibleBookmarks = filteredBibleBookmarks.slice(0, bookmarksExpanded ? filteredBibleBookmarks.length : 3);
   const showReaderTooltipAfterDelay = (label: string) => {
     if (readerTooltipTimerRef.current) clearTimeout(readerTooltipTimerRef.current);
@@ -1143,22 +1168,23 @@ export default function Home() {
     [memoryVerses, passageText?.verses]
   );
   const readerMemoryVerseKeys = useMemo(
-    () => buildMemoryVerseKeySet(readerPassage?.verses || [], memoryVerses || []),
-    [memoryVerses, readerPassage?.verses]
+    () => shouldPrepareBibleUi ? buildMemoryVerseKeySet(readerPassage?.verses || [], memoryVerses || []) : new Set<string>(),
+    [memoryVerses, readerPassage?.verses, shouldPrepareBibleUi]
   );
   const selectedVersesAlreadyInMemory = selectedVerses.length > 0 && selectedVerses.every((verse) => memoryVerseKeys.has(verseMarkupKey(verse)));
   const selectedReaderVerseObjects = useMemo(() => {
+    if (!shouldPrepareBibleUi) return [];
     const selectedSet = new Set(selectedReaderVerses);
     return (readerPassage?.verses || [])
       .filter((verse) => selectedSet.has(verse.verse))
       .sort((a, b) => a.verse - b.verse);
-  }, [readerPassage?.verses, selectedReaderVerses]);
+  }, [readerPassage?.verses, selectedReaderVerses, shouldPrepareBibleUi]);
   const selectedReaderVersesAlreadyInMemory =
     selectedReaderVerseObjects.length > 0 &&
     selectedReaderVerseObjects.every((verse) => readerMemoryVerseKeys.has(verseMarkupKey(verse)));
   const adminStats = adminOverview as AdminStats | null;
-  const bibleSearchBookOptions = useMemo(() => buildBibleSearchBookOptions(bibleSearchScope), [bibleSearchScope]);
-  const bibleSearchSections = useMemo(() => buildBibleSearchSections(bibleSearchResults, bibleSearchScope, bibleSearchBook), [bibleSearchBook, bibleSearchResults, bibleSearchScope]);
+  const bibleSearchBookOptions = useMemo(() => shouldPrepareBibleUi ? buildBibleSearchBookOptions(bibleSearchScope) : [], [bibleSearchScope, shouldPrepareBibleUi]);
+  const bibleSearchSections = useMemo(() => shouldPrepareBibleUi ? buildBibleSearchSections(bibleSearchResults, bibleSearchScope, bibleSearchBook) : [], [bibleSearchBook, bibleSearchResults, bibleSearchScope, shouldPrepareBibleUi]);
   const bibleSearchTranslation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
   const journalSearchTerm = journalSearch.trim().toLowerCase();
   const pinnedEntryIds = new Set(pinnedJournalEntryIds);
@@ -1233,19 +1259,20 @@ export default function Home() {
     { key: "checkins", label: "Encouragements", icon: "chatbubbles-outline" }
   ];
   const activeJournalFilterLabel = journalFilterOptions.find((item) => item.key === journalFilter)?.label || "All";
-  const activeMemoryVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryVerseId);
-  const activeMemoryMeditationVerse = (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId);
-  const memoryQueueSections = useMemo(() => buildMemoryQueueSections(memoryVerses || []), [memoryVerses]);
+  const shouldPrepareMemoryUi = tab === "memory" || memoryPrintOptionsOpen || !!activeMemoryVerseId || !!activeMemoryMeditationVerseId;
+  const activeMemoryVerse = shouldPrepareMemoryUi ? (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryVerseId) : undefined;
+  const activeMemoryMeditationVerse = shouldPrepareMemoryUi ? (memoryVerses || []).find((item: any) => String(item._id) === activeMemoryMeditationVerseId) : undefined;
+  const memoryQueueSections = useMemo(() => shouldPrepareMemoryUi ? buildMemoryQueueSections(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
   const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
-  const memoryCollectionOptions = useMemo(() => buildMemoryCollectionOptions(memoryVerses || []), [memoryVerses]);
+  const memoryCollectionOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryCollectionOptions(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
   const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All collections" : memoryCollectionFilter;
   const activeMemoryCollectionDueCount = memoryCollectionFilter === "all"
     ? 0
     : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
-  const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryVerses || []), [memoryVerses]);
-  const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter), [memoryBookFilter, memoryVerses]);
+  const memoryBookOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryBookOptions(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
+  const memoryChapterOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter) : [], [memoryBookFilter, memoryVerses, shouldPrepareMemoryUi]);
   const memoryBookCounts = useMemo(() => new Map(memoryBookOptions.map((book) => [book.book, book.count])), [memoryBookOptions]);
   const memoryBookSections = useMemo(
     () => [
@@ -1277,8 +1304,8 @@ export default function Home() {
     memoryBrowseStatusLabel
   ].filter(Boolean).join(" · ") || "All saved verses";
   const memoryBrowseSections = useMemo(
-    () => buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter),
-    [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses]
+    () => shouldPrepareMemoryUi ? buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter) : [],
+    [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses, shouldPrepareMemoryUi]
   );
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
@@ -1311,12 +1338,12 @@ export default function Home() {
   );
   const visibleMemoryHistoryItems = memoryHistoryExpanded ? memoryHistoryItems.slice(0, 30) : memoryHistoryItems.slice(0, 10);
   const memoryPracticeText = useMemo(
-    () => (activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),
-    [activeMemoryVerse]
+    () => (shouldPrepareMemoryUi && activeMemoryVerse ? buildMemoryPracticeText(activeMemoryVerse) : ""),
+    [activeMemoryVerse, shouldPrepareMemoryUi]
   );
   const memoryPracticeTokens = useMemo(
-    () => (memoryPracticeText ? buildMemoryPracticeTokens(memoryPracticeText, memoryPracticeLevel, memoryStepTwoOffset) : []),
-    [memoryPracticeLevel, memoryPracticeText, memoryStepTwoOffset]
+    () => (shouldPrepareMemoryUi && memoryPracticeText ? buildMemoryPracticeTokens(memoryPracticeText, memoryPracticeLevel, memoryStepTwoOffset) : []),
+    [memoryPracticeLevel, memoryPracticeText, memoryStepTwoOffset, shouldPrepareMemoryUi]
   );
   const memoryBlankTokens = memoryPracticeTokens.filter((token) => token.blank);
   const firstMemoryBlankIndex = memoryBlankTokens[0]?.index ?? -1;
@@ -1353,7 +1380,7 @@ export default function Home() {
   const communityDarkMode = accountDarkMode;
   const adminDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
-  const visibleMemorySections = (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
+  const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
       ...section,
       verses: phoneMemoryFocusMode
@@ -1362,8 +1389,8 @@ export default function Home() {
           ? sortMemoryReviewVerses(section.verses, section.title, section.title === "Reviewed" ? reviewedMemoryReviewSort : dueMemoryReviewSort)
         : section.verses
     }))
-    .filter((section) => section.verses.length > 0);
-  const currentBrowseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
+    .filter((section) => section.verses.length > 0) : [];
+  const currentBrowseMemoryVerses = shouldPrepareMemoryUi ? memoryBrowseSections.flatMap((section) => section.verses) : [];
   const currentBrowseReviewPreset = currentBrowseMemoryVerses.length
     ? currentBrowseMemoryVerses.every((verse: any) => reviewPresetForStoredRhythm(verse.reviewPreset, verse.reviewIntervalDays, verse.nextReviewAt) === reviewPresetForStoredRhythm(currentBrowseMemoryVerses[0].reviewPreset, currentBrowseMemoryVerses[0].reviewIntervalDays, currentBrowseMemoryVerses[0].nextReviewAt))
       ? reviewPresetForStoredRhythm(currentBrowseMemoryVerses[0].reviewPreset, currentBrowseMemoryVerses[0].reviewIntervalDays, currentBrowseMemoryVerses[0].nextReviewAt)
@@ -1495,6 +1522,8 @@ export default function Home() {
   }, [answerKey]);
 
   useEffect(() => {
+    if (tab !== "study") return;
+
     const trimmed = passage.trim();
     if (!trimmed) {
       setPassageText(null);
@@ -1528,9 +1557,11 @@ export default function Home() {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [passage, passageReloadKey, bibleTranslation]);
+  }, [passage, passageReloadKey, bibleTranslation, tab]);
 
   useEffect(() => {
+    if (tab !== "bible") return;
+
     const controller = new AbortController();
     const reference = `${readerBook} ${readerChapter}`;
     setReaderStatus("Loading chapter...");
@@ -1554,7 +1585,7 @@ export default function Home() {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [readerBook, readerChapter, bibleTranslation]);
+  }, [readerBook, readerChapter, bibleTranslation, tab]);
 
   useEffect(() => {
     setActiveBookmarkNoteId("");

@@ -733,6 +733,7 @@ function buildSeoPage(page, baseUrl) {
   const appUrl = baseUrl ? `${baseUrl}/` : "/";
   const image = baseUrl ? `${baseUrl}/icon.png` : "/icon.png";
   const ctaHref = getCtaHref(page, appUrl);
+  const ctaLabel = getStandardCtaLabel(page);
   const analyticsSnippet = buildAnalyticsSnippet(page, ctaHref);
   const breadcrumbs = getBreadcrumbs(page);
   const relatedPages = (page.related || [])
@@ -858,8 +859,8 @@ function buildSeoPage(page, baseUrl) {
       ${relatedLinks}
       <section class="cta-section" aria-labelledby="cta-heading">
         <h2 id="cta-heading">Continue in Bible Study Tutor</h2>
-        <p>Open the app and use the guided tools, Bible reader, journal, memory verses, and printable worksheets alongside this guide.</p>
-        <a class="button" href="${escapeHtml(ctaHref)}">${escapeHtml(page.cta)}</a>
+        <p>Open the free app on desktop or mobile. Bible Study Tutor is privacy-aware, has no public timeline, and includes guided study, the Bible reader, memory verses, journal tools, and printable worksheets.</p>
+        <a class="button" href="${escapeHtml(ctaHref)}" aria-label="${escapeHtml(`${ctaLabel} in Bible Study Tutor`)}">${escapeHtml(ctaLabel)}</a>
       </section>
     </main>
     <footer class="site-footer">
@@ -938,7 +939,12 @@ function getAppEntryQuery(page) {
       soap: "soap",
       inductive: "inductive",
       oia: "oia",
-      "lectio-divina": "lectio"
+      "lectio-divina": "lectio",
+      "verse-mapping": "verse-mapping",
+      "word-study": "word-study",
+      "topical-study": "topical-study",
+      "character-study": "character-study",
+      "cross-reference-study": "cross-reference-study"
     };
     const methodId = methodMap[methodSlug] || "";
     return methodId ? `tab=study&method=${methodId}` : "tab=methods";
@@ -950,6 +956,14 @@ function getAppEntryQuery(page) {
   if (value.includes("journal") || value.includes("group") || value.includes("church") || value.includes("encouragement")) return "tab=study";
   if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "tab=home";
   return "tab=study";
+}
+
+function getStandardCtaLabel(page) {
+  const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
+  if (page.path === "/bible-study-methods" || value.includes("method")) return "Choose a study method";
+  if (value.includes("worksheet") || value.includes("printable")) return "Print a worksheet";
+  if (value.includes("reader") || value.includes("highlight")) return "Open the Bible reader";
+  return "Start a guided study";
 }
 
 function getBreadcrumbs(page) {

@@ -69,6 +69,8 @@ export function BibleReaderControls({
         <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
           <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>{`${selectedVerseCount} verse${selectedVerseCount === 1 ? "" : "s"} selected`}</Text>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Clear selected Bible verses"
             onPress={onClearSelection}
             style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton]}
           >
@@ -95,6 +97,7 @@ export function BibleReaderControls({
             {phoneLayout ? "Ch" : "Ch."}
           </Text>
           <TextInput
+            accessibilityLabel="Bible chapter number"
             value={chapterDraft}
             onChangeText={onChapterDraftChange}
             onBlur={onCommitChapter}
@@ -150,7 +153,7 @@ export function BibleReaderControls({
       <View style={styles.readerProgressRow}>
         <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>{`${readChapterCount} chapter${readChapterCount === 1 ? "" : "s"} read`}</Text>
         {readChapterCount > 0 && (
-          <Pressable onPress={onClearReadingProgress} style={styles.readerProgressClearButton}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Clear all Bible reading progress" onPress={onClearReadingProgress} style={styles.readerProgressClearButton}>
             <Text style={styles.readerProgressClearText}>Clear all</Text>
           </Pressable>
         )}

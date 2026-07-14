@@ -4728,9 +4728,9 @@ export default function Home() {
                   Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, and review in one simple place.
                 </Text>
                 <View style={styles.homeActionRow}>
-                  <AppButton label="Start a study" onPress={() => openStudyFromPublicSource("home_hero")} style={phoneLayout && styles.homePhoneActionButton} />
+                  <AppButton label="Start a guided study" onPress={() => openStudyFromPublicSource("home_hero")} style={phoneLayout && styles.homePhoneActionButton} />
                   <AppButton
-                    label="Read Scripture"
+                    label="Open the Bible reader"
                     variant="secondary"
                     onPress={() => openBibleFromPublicSource("home_hero")}
                     style={[phoneLayout && styles.homePhoneActionButton, homeDarkMode && styles.homeDarkResumeButton]}
@@ -4790,13 +4790,20 @@ export default function Home() {
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
                 <View style={styles.homePathList}>
                   {[
-                    ["Read", "Open the Bible reader and choose a passage.", "reader-outline", "bible"],
-                    ["Study", `Work through ${method.short} with notes and highlights.`, "book-outline", "study"],
+                    ["Bible reader", "Read, search, select verses, or print a worksheet.", "reader-outline", "bible"],
+                    ["Guided study", `Work through ${method.short} with notes and highlights.`, "book-outline", "study"],
+                    ["Study methods", "Choose SOAP, OIA, Inductive, Lectio Divina, or another method.", "layers-outline", "methods"],
+                    ["Worksheets", "Select verses in the Bible reader and print for pen-and-paper study.", "print-outline", "bible"],
                     ["Remember", dueMemoryCount > 0 ? `${dueMemoryCount} memory review${dueMemoryCount === 1 ? "" : "s"} due.` : "Save a verse worth carrying.", "sparkles-outline", "memory"],
-                    ["Reflect", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your journal connected to Scripture.", "journal-outline", "journal"],
-                    ["Share", effectivePartner ? `Encourage ${effectivePartner}.` : "Bring one honest sentence to someone.", "people-outline", "accountability"]
+                    ["Journal", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your notes connected to Scripture.", "journal-outline", "journal"]
                   ].map(([title, detail, icon, target]) => (
-                    <Pressable key={title} onPress={() => setTab(target as Tab)} style={[styles.homePathItem, homeDarkMode && styles.homeDarkPathItem]}>
+                    <Pressable
+                      key={title}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Open ${title}`}
+                      onPress={() => setTab(target as Tab)}
+                      style={[styles.homePathItem, homeDarkMode && styles.homeDarkPathItem]}
+                    >
                       <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
                         <Ionicons name={icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </View>
@@ -4846,17 +4853,27 @@ export default function Home() {
                     <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
                   </View>
                   <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
-                    <Pressable onPress={() => setStudyMethodPickerOpen((value) => !value)} style={[styles.compactMethodPicker, studyDarkMode && styles.studyDarkPillControl]}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={studyMethodPickerOpen ? "Hide study method picker" : "Show study method picker"}
+                      onPress={() => setStudyMethodPickerOpen((value) => !value)}
+                      style={[styles.compactMethodPicker, studyDarkMode && styles.studyDarkPillControl]}
+                    >
                       <Text style={[styles.compactMethodLabel, studyDarkMode && styles.studyDarkAccentText]}>Method</Text>
                       <Text style={[styles.compactMethodCurrent, studyDarkMode && styles.accountDarkTitle]}>{method.short}</Text>
                       <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                     </Pressable>
                   </View>
-                  <Pressable onPress={() => {
-                    const nextValue = !studyFocusMode;
-                    setStudyFocusMode(nextValue);
-                    saveStoredStudyFocusMode(nextValue).catch(() => undefined);
-                  }} style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyDarkMode && styles.studyDarkTogglePill, studyFocusMode && styles.activeTogglePill]}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={studyFocusMode ? "Turn study focus mode off" : "Turn study focus mode on"}
+                    onPress={() => {
+                      const nextValue = !studyFocusMode;
+                      setStudyFocusMode(nextValue);
+                      saveStoredStudyFocusMode(nextValue).catch(() => undefined);
+                    }}
+                    style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyDarkMode && styles.studyDarkTogglePill, studyFocusMode && styles.activeTogglePill]}
+                  >
                     <Text style={[styles.toggleText, studyDarkMode && styles.accountDarkMutedText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus on" : "Normal"}</Text>
                   </Pressable>
                 </View>
@@ -8591,9 +8608,9 @@ export default function Home() {
                 Bible Study Tutor is a free Bible study app for desktop and mobile, made to help people and churches read, study, remember, journal, share Scripture, and print worksheets for pen-and-paper study.
               </Text>
               <View style={styles.helpActionRow}>
-                <AppButton label="Read the Bible" onPress={() => openBibleFromPublicSource("help_hero")} style={phoneLayout && styles.phoneFullWidthButton} />
+                <AppButton label="Open the Bible reader" onPress={() => openBibleFromPublicSource("help_hero")} style={phoneLayout && styles.phoneFullWidthButton} />
                 <AppButton
-                  label="Start a study"
+                  label="Start a guided study"
                   variant="secondary"
                   onPress={() => openStudyFromPublicSource("help_hero")}
                   style={[phoneLayout && styles.phoneFullWidthButton, helpDarkMode && styles.homeDarkResumeButton]}
@@ -8627,7 +8644,11 @@ export default function Home() {
                 {!!appShareStatus && <Text style={styles.saveStatus}>{appShareStatus}</Text>}
               </View>
               <View style={[styles.helpQrFrame, helpDarkMode && styles.helpDarkQrFrame]}>
-                <Image source={{ uri: helpDarkMode ? APP_SHARE_QR_DARK_URI : APP_SHARE_QR_URI }} style={styles.helpQrImage} />
+                <Image
+                  source={{ uri: helpDarkMode ? APP_SHARE_QR_DARK_URI : APP_SHARE_QR_URI }}
+                  style={styles.helpQrImage}
+                  accessibilityLabel="QR code that opens Bible Study Tutor"
+                />
                 <Text style={[styles.helpQrCaption, helpDarkMode && styles.accountDarkMutedText]}>Scan to open</Text>
               </View>
             </Card>

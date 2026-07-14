@@ -86,12 +86,159 @@ export function CommunityTab(props: any) {
     setCommunityHistoryCircleId,
     communityHistoryCircleOptions,
     communityHistoryGroups,
-    renderCommunityHistoryItem,
     visibleCheckins,
     checkins,
     recentCheckinsExpanded,
-    setRecentCheckinsExpanded
+    setRecentCheckinsExpanded,
+    communityReactionOverrides,
+    pendingCheckinDeleteId,
+    editingCommunityPostId,
+    editingRecentCheckinId,
+    editCommunityPostNote,
+    editRecentCheckinNote,
+    isSavingCommunityPostEdit,
+    isSavingRecentCheckinEdit,
+    focusedCommunityItemId,
+    setFocusedCommunityItemId,
+    setEditCommunityPostNote,
+    setEditRecentCheckinNote,
+    toggleCommunityReaction,
+    saveCommunityPostEdit,
+    saveRecentCheckinEdit,
+    cancelEditCommunityPost,
+    cancelEditRecentCheckin,
+    copyPastCheckinMessage,
+    startEditCommunityPost,
+    startEditRecentCheckin,
+    deleteCommunityPost,
+    deleteRecentCheckin
   } = props;
+
+  function renderCommunityHistoryItem(item: any) {
+    const sharedTo = Array.isArray(item.sharedTo) ? item.sharedTo : [];
+    const itemIsPost = item.itemType === "communityPost";
+    const canEditItem = !itemIsPost || item.canEdit !== false;
+    const reactionPostId = item.sharedPostId || sharedTo.find((destination: any) => destination.postId)?.postId || (itemIsPost ? item._id : undefined);
+    const reactionOverride = reactionPostId ? communityReactionOverrides[String(reactionPostId)] : undefined;
+    const reactionCounts = reactionOverride?.reactions || item.reactions || {};
+    const myReactions = reactionOverride?.myReactions || (Array.isArray(item.myReactions) ? item.myReactions : []);
+    const reactionOptions = [
+      { key: "amen", label: "Amen", symbol: "🙌", count: reactionCounts.amen || 0 },
+      { key: "praying", label: "Praying", symbol: "🙏", count: reactionCounts.praying || 0 }
+    ] as const;
+    const destinationText = sharedTo.length > 0
+      ? `Shared to ${sharedTo.map((destination: any) => destination.circleName || destination.friendName).filter(Boolean).join(", ")}`
+      : itemIsPost ? "Shared post" : "Private encouragement";
+    const deletePending = !itemIsPost && pendingCheckinDeleteId === item._id;
+    const itemIsEditing = itemIsPost ? editingCommunityPostId === item._id : editingRecentCheckinId === item._id;
+    const editValue = itemIsPost ? editCommunityPostNote : editRecentCheckinNote;
+    const saveBusy = itemIsPost ? isSavingCommunityPostEdit : isSavingRecentCheckinEdit;
+    const itemLabel = itemIsPost ? item.mood || "study insight" : item.mood === "check-in" ? "encouragement" : item.mood || "encouragement";
+    const focusedItem = String(focusedCommunityItemId) === String(item._id);
+    const showActionRow = focusedItem || itemIsEditing || deletePending;
+    const authorText = item.authorLabel || "";
+    const itemMeta = [
+      new Date(item.createdAt).toLocaleDateString(),
+      authorText,
+      destinationText,
+      item.passageReference
+    ].filter(Boolean).join(" · ");
+
+    return (
+      <Pressable
+        key={item._id}
+        onPress={() => {
+          if (!itemIsEditing) setFocusedCommunityItemId((current: string) => String(current) === String(item._id) ? "" : String(item._id));
+        }}
+        style={[styles.checkinHistoryItem, communityDarkMode && styles.accountDarkInsetBox, focusedItem && styles.focusedCheckinHistoryItem, communityDarkMode && focusedItem && styles.accountDarkSection, phoneLayout && styles.phoneCheckinHistoryItem]}
+        accessibilityRole="button"
+        accessibilityLabel={showActionRow ? "Hide post actions" : "Show post actions"}
+      >
+        <View style={styles.checkinHistoryHeader}>
+          <View style={styles.checkinHistoryMeta}>
+            <View style={styles.checkinTitleRow}>
+              <Text style={[styles.checkinMood, communityDarkMode && styles.accountDarkTitle]}>{itemLabel}</Text>
+            </View>
+            <Text style={[styles.checkinDestinationText, communityDarkMode && styles.accountDarkMutedText]}>{itemMeta}</Text>
+          </View>
+        </View>
+        {itemIsEditing ? (
+          <TextInput
+            value={editValue}
+            onChangeText={itemIsPost ? setEditCommunityPostNote : setEditRecentCheckinNote}
+            multiline
+            placeholderTextColor={communityDarkMode ? "#8f8678" : undefined}
+            style={[styles.input, styles.checkinEditInput, communityDarkMode && styles.accountDarkInput]}
+          />
+        ) : (
+          <Text style={[styles.lastCheckinText, communityDarkMode && styles.accountDarkText]}>{item.note || "No note added."}</Text>
+        )}
+        {(reactionPostId && !itemIsEditing) || showActionRow ? (
+          <View style={[styles.communityPostFooterRow, phoneLayout && styles.phoneCommunityPostFooterRow]}>
+            {reactionPostId && !itemIsEditing ? (
+              <View style={styles.circleReactionRow}>
+                {reactionOptions.map((reaction) => {
+                  const active = myReactions.includes(reaction.key);
+                  return (
+                    <Pressable
+                      key={reaction.key}
+                      onPress={(event) => {
+                        event.stopPropagation?.();
+                        toggleCommunityReaction(reactionPostId, reaction.key, reactionCounts, myReactions);
+                      }}
+                      style={[styles.circleReactionChip, communityDarkMode && styles.accountDarkSection, active && styles.activeCircleReactionChip]}
+                      accessibilityLabel={`${reaction.label} reaction`}
+                    >
+                      <Text style={styles.circleReactionSymbol}>{reaction.symbol}</Text>
+                      {reaction.count > 0 && (
+                        <Text style={[styles.circleReactionText, communityDarkMode && styles.accountDarkMutedText, active && styles.activeCircleReactionText]}>{reaction.count}</Text>
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : <View />}
+            {showActionRow && <View style={[styles.checkinActionRow, phoneLayout && styles.phoneCheckinActionRow]}>
+              {itemIsEditing && canEditItem ? (
+                <>
+                  <Pressable
+                    onPress={() => itemIsPost ? saveCommunityPostEdit(item) : saveRecentCheckinEdit(item)}
+                    style={[styles.checkinIconButton, styles.checkinSaveIconButton]}
+                    accessibilityLabel={itemIsPost ? "Save shared post changes" : "Save encouragement changes"}
+                  >
+                    <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
+                  </Pressable>
+                  <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel="Cancel edit">
+                    <Ionicons name="close-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Pressable onPress={() => copyPastCheckinMessage(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
+                    <Ionicons name="copy-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  </Pressable>
+                  {canEditItem && (
+                    <>
+                      <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
+                        <Ionicons name="create-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
+                        style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
+                        accessibilityLabel={deletePending ? "Confirm delete encouragement" : itemIsPost ? "Remove shared post" : "Remove encouragement"}
+                      >
+                        <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                      </Pressable>
+                    </>
+                  )}
+                </>
+              )}
+            </View>}
+          </View>
+        ) : null}
+      </Pressable>
+    );
+  }
 
   return (
     <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, communityDarkMode && styles.accountDarkLayout]}>

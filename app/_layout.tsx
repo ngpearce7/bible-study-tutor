@@ -123,6 +123,7 @@ export default function RootLayout() {
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
+        <style>{'@font-face{font-family:"ionicons";src:url("/ionicons.ttf") format("truetype");font-display:swap;}@font-face{font-family:"Ionicons";src:url("/ionicons.ttf") format("truetype");font-display:swap;}'}</style>
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Head>
       <StatusBar style="dark" />

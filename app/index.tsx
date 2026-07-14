@@ -340,6 +340,7 @@ export default function Home() {
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
+  const [appInitializationAllowed, setAppInitializationAllowed] = useState(Platform.OS !== "web");
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [, setIconFontReady] = useState(Platform.OS !== "web");
@@ -659,6 +660,31 @@ export default function Home() {
   }, [tab]);
 
   useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined" || appInitializationAllowed) return;
+    if (tab !== "home") {
+      setAppInitializationAllowed(true);
+      return;
+    }
+
+    const allowInitialization = () => setAppInitializationAllowed(true);
+    const interactionOptions = { once: true, passive: true } as AddEventListenerOptions;
+    const interactionEvents = ["pointerdown", "touchstart", "keydown", "wheel"];
+    interactionEvents.forEach((eventName) => {
+      window.addEventListener(eventName, allowInitialization, interactionOptions);
+    });
+    const cancelIdle = runWhenBrowserIdle(allowInitialization, 2600);
+
+    return () => {
+      interactionEvents.forEach((eventName) => {
+        window.removeEventListener(eventName, allowInitialization);
+      });
+      cancelIdle();
+    };
+  }, [appInitializationAllowed, tab]);
+
+  useEffect(() => {
+    if (!appInitializationAllowed) return;
+
     if (authLoading) {
       setProfileId(null);
       setProfileAuthState(null);
@@ -691,12 +717,16 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [authLoading, authName, ensureProfile, isAuthenticated]);
+  }, [appInitializationAllowed, authLoading, authName, ensureProfile, isAuthenticated]);
 
   useEffect(() => {
     getStoredAppearanceMode()
       .then(setAppearanceMode)
       .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    if (!appInitializationAllowed) return;
 
     return runWhenBrowserIdle(() => {
       getPinnedJournalEntries()
@@ -750,14 +780,16 @@ export default function Home() {
         })
         .catch(() => undefined);
     });
-  }, []);
+  }, [appInitializationAllowed]);
 
   useEffect(() => {
+    if (!appInitializationAllowed) return;
+
     saveStoredMemoryReviewSorts({
       due: dueMemoryReviewSort,
       reviewed: reviewedMemoryReviewSort
     }).catch(() => undefined);
-  }, [dueMemoryReviewSort, reviewedMemoryReviewSort]);
+  }, [appInitializationAllowed, dueMemoryReviewSort, reviewedMemoryReviewSort]);
 
   useEffect(() => {
     return () => {

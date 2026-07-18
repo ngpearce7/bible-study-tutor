@@ -155,7 +155,7 @@ export function BibleReaderControls({
 
       <View style={styles.readerProgressRow}>
         <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>
-          {`${readerReference.split(" ").slice(0, -1).join(" ") || readerReference}: ${currentBookReadChapterCount} of ${chapterCount} chapter${chapterCount === 1 ? "" : "s"} read`}
+          {`${readerReference.split(" ").slice(0, -1).join(" ") || readerReference}: ${currentBookReadChapterCount} of ${chapterCount} chapter${chapterCount === 1 ? "" : "s"} marked read`}
         </Text>
         {readChapterCount > 0 && (
           <Pressable accessibilityRole="button" accessibilityLabel="Clear all Bible reading progress" onPress={onClearReadingProgress} style={styles.readerProgressClearButton}>

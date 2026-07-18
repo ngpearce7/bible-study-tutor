@@ -11160,6 +11160,37 @@ const styles = StyleSheet.create({
   readerHistoryList: {
     gap: 6
   },
+  readerQuickListToggle: {
+    alignItems: "center",
+    backgroundColor: "#f8efe4",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    padding: 4
+  },
+  readerQuickListToggleButton: {
+    alignItems: "center",
+    borderRadius: 8,
+    flex: 1,
+    flexDirection: "row",
+    gap: 5,
+    justifyContent: "center",
+    minHeight: 30,
+    paddingHorizontal: 8,
+    paddingVertical: 5
+  },
+  readerQuickListToggleText: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  readerQuickListToggleCount: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "900"
+  },
   readerHistoryChip: {
     alignItems: "center",
     backgroundColor: "#fff6eb",
@@ -11181,6 +11212,52 @@ const styles = StyleSheet.create({
   readerHistoryTranslation: {
     color: colors.muted,
     fontSize: 10,
+    fontWeight: "900"
+  },
+  readerReadChapterList: {
+    gap: 8
+  },
+  readerReadChapterBook: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 7,
+    paddingHorizontal: 9,
+    paddingVertical: 8
+  },
+  readerReadChapterBookHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  readerReadChapterBookTitle: {
+    color: colors.ink,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "900",
+    minWidth: 0
+  },
+  readerReadChapterGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6
+  },
+  readerReadChapterChip: {
+    alignItems: "center",
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 8,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 28,
+    minWidth: 34,
+    paddingHorizontal: 8
+  },
+  readerReadChapterChipText: {
+    color: colors.ink,
+    fontSize: 11,
     fontWeight: "900"
   },
   readerBookmarkHeader: {

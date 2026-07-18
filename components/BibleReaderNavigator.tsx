@@ -1,10 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "@/data/bibleLibrary";
 import { Card, Eyebrow, colors } from "@/components/ui";
 
 type ReaderMobileMenu = "old" | "new" | null;
+type ReaderQuickListView = "recent" | "read";
 
 type BibleTranslationOption = {
   id: string;
@@ -115,12 +117,20 @@ export function BibleReaderNavigator({
   onSelectBook,
   onSelectChapter
 }: BibleReaderNavigatorProps) {
+  const [quickListView, setQuickListView] = useState<ReaderQuickListView>("recent");
   const getReadChapterSet = (book: string) => new Set(readChapters[book] || []);
   const getReadProgressLabel = (book: string) => {
     const total = BIBLE_CHAPTER_COUNTS[book] || 1;
     const read = readChapters[book]?.length || 0;
     return `${read} of ${total} read`;
   };
+  const readChapterSections = [...OLD_TESTAMENT_BOOKS, ...NEW_TESTAMENT_BOOKS]
+    .map((book) => ({
+      book,
+      chapters: [...(readChapters[book] || [])].sort((a, b) => a - b)
+    }))
+    .filter((section) => section.chapters.length > 0);
+  const quickListCount = quickListView === "read" ? readChapterCount : Math.max(0, history.length - 1);
 
   return (
     <Card
@@ -192,45 +202,107 @@ export function BibleReaderNavigator({
             />
           )}
 
-          {history.length > 1 && (
+          {(history.length > 1 || readChapterCount > 0) && (
             <View style={[styles.readerHistorySection, darkMode && styles.bibleDarkDividerSection]}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={historyCollapsed ? "Show recent Bible reading history" : "Hide recent Bible reading history"}
+                accessibilityLabel={historyCollapsed ? "Show Bible reading quick lists" : "Hide Bible reading quick lists"}
                 onPress={onToggleHistoryCollapsed}
                 style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
               >
                 <View style={styles.readerBookmarkHeaderTitle}>
-                  <Ionicons name="time-outline" size={15} color={colors.coral} />
-                  <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Recent</Text>
+                  <Ionicons name={quickListView === "read" ? "checkmark-circle-outline" : "time-outline"} size={15} color={colors.coral} />
+                  <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{quickListView === "read" ? "Read chapters" : "Recent"}</Text>
                 </View>
                 <View style={styles.readerBookmarkHeaderMeta}>
-                  <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{history.length - 1}</Text>
+                  <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{quickListCount}</Text>
                   <Ionicons name={historyCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={darkMode ? "#c8bda9" : colors.muted} />
                 </View>
               </Pressable>
               {!historyCollapsed && (
                 <>
-                  <View style={styles.readerHistoryActions}>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Clear Bible reading history" onPress={onClearHistory} style={styles.readerHistoryClearButton}>
-                      <Text style={styles.readerProgressClearText}>Clear</Text>
-                    </Pressable>
-                  </View>
-                  <View style={styles.readerHistoryList}>
-                    {history.slice(1, phoneLayout ? 5 : 7).map((item) => (
+                  <View style={[styles.readerQuickListToggle, darkMode && styles.accountDarkSegmentedRow]}>
+                    {[
+                      { id: "recent" as ReaderQuickListView, label: "Recent", count: Math.max(0, history.length - 1) },
+                      { id: "read" as ReaderQuickListView, label: "Read chapters", count: readChapterCount }
+                    ].map((option) => (
                       <Pressable
-                        key={`${item.book}-${item.chapter}-${item.translation}`}
+                        key={option.id}
                         accessibilityRole="button"
-                        accessibilityLabel={`Open recent reading ${item.reference}`}
-                        onPress={() => onOpenHistoryItem(item)}
-                        style={[styles.readerHistoryChip, darkMode && styles.accountDarkInsetBox]}
+                        accessibilityLabel={`Show ${option.label.toLowerCase()}`}
+                        onPress={() => setQuickListView(option.id)}
+                        style={[styles.readerQuickListToggleButton, quickListView === option.id && styles.activeTranslationOption]}
                       >
-                        <Ionicons name="reader-outline" size={13} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                        <Text numberOfLines={1} style={[styles.readerHistoryText, darkMode && styles.accountDarkTitle]}>{item.reference}</Text>
-                        <Text style={[styles.readerHistoryTranslation, darkMode && styles.accountDarkMutedText]}>{item.translation.toUpperCase()}</Text>
+                        <Text style={[styles.readerQuickListToggleText, darkMode && styles.accountDarkMutedText, quickListView === option.id && styles.activeTranslationOptionText]}>{option.label}</Text>
+                        <Text style={[styles.readerQuickListToggleCount, darkMode && styles.accountDarkMutedText, quickListView === option.id && styles.activeTranslationOptionText]}>{option.count}</Text>
                       </Pressable>
                     ))}
                   </View>
+
+                  {quickListView === "recent" ? (
+                    <>
+                      {history.length > 1 && (
+                        <View style={styles.readerHistoryActions}>
+                          <Pressable accessibilityRole="button" accessibilityLabel="Clear Bible reading history" onPress={onClearHistory} style={styles.readerHistoryClearButton}>
+                            <Text style={styles.readerProgressClearText}>Clear</Text>
+                          </Pressable>
+                        </View>
+                      )}
+                      <View style={styles.readerHistoryList}>
+                        {history.slice(1, phoneLayout ? 5 : 7).map((item) => (
+                          <Pressable
+                            key={`${item.book}-${item.chapter}-${item.translation}`}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Open recent reading ${item.reference}`}
+                            onPress={() => onOpenHistoryItem(item)}
+                            style={[styles.readerHistoryChip, darkMode && styles.accountDarkInsetBox]}
+                          >
+                            <Ionicons name="reader-outline" size={13} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                            <Text numberOfLines={1} style={[styles.readerHistoryText, darkMode && styles.accountDarkTitle]}>{item.reference}</Text>
+                            <Text style={[styles.readerHistoryTranslation, darkMode && styles.accountDarkMutedText]}>{item.translation.toUpperCase()}</Text>
+                          </Pressable>
+                        ))}
+                        {history.length <= 1 && <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>No recent chapters yet.</Text>}
+                      </View>
+                    </>
+                  ) : (
+                    <View style={styles.readerReadChapterList}>
+                      {readChapterSections.map((section) => (
+                        <View key={section.book} style={[styles.readerReadChapterBook, darkMode && styles.accountDarkInsetBox]}>
+                          <View style={styles.readerReadChapterBookHeader}>
+                            <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>{section.book}</Text>
+                            <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{`${section.chapters.length} of ${BIBLE_CHAPTER_COUNTS[section.book] || 1}`}</Text>
+                          </View>
+                          <View style={styles.readerReadChapterGrid}>
+                            {section.chapters.map((chapter) => (
+                              <Pressable
+                                key={`${section.book}-${chapter}`}
+                                accessibilityRole="button"
+                                accessibilityLabel={`Open ${section.book} chapter ${chapter}`}
+                                onPress={() => onSelectChapter(chapter, section.book)}
+                                style={[
+                                  styles.readerReadChapterChip,
+                                  darkMode && styles.printDarkOptionChip,
+                                  readerBook === section.book && readerChapter === chapter && styles.activeMobileReaderChapterSquare
+                                ]}
+                              >
+                                <Text
+                                  style={[
+                                    styles.readerReadChapterChipText,
+                                    darkMode && styles.accountDarkMutedText,
+                                    readerBook === section.book && readerChapter === chapter && styles.activeMobileReaderChapterText
+                                  ]}
+                                >
+                                  {chapter}
+                                </Text>
+                              </Pressable>
+                            ))}
+                          </View>
+                        </View>
+                      ))}
+                      {!readChapterSections.length && <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>No chapters marked read yet.</Text>}
+                    </View>
+                  )}
                 </>
               )}
             </View>

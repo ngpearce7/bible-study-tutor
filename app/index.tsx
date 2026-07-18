@@ -4265,6 +4265,17 @@ export default function Home() {
     persistBibleReaderState({ readChapters: {} });
   }
 
+  function clearBibleReadBook(book: string) {
+    setReadBibleChapters((current) => {
+      if (!current[book]?.length) return current;
+      const next = { ...current };
+      delete next[book];
+      saveStoredBibleReadChapters(next).catch(() => undefined);
+      persistBibleReaderState({ readChapters: next });
+      return next;
+    });
+  }
+
   function dismissBibleSearchInput() {
     if (!phoneLayout) return;
     Keyboard.dismiss();
@@ -5608,6 +5619,7 @@ export default function Home() {
               onSelectMobileBook={selectMobileReaderBook}
               onSelectBook={selectReaderBook}
               onSelectChapter={selectReaderChapter}
+              onClearReadBook={clearBibleReadBook}
               bibleSearchCollapsed={bibleSearchCollapsed}
               bibleSearchQuery={bibleSearchQuery}
               bibleSearchScope={bibleSearchScope}
@@ -11217,6 +11229,28 @@ const styles = StyleSheet.create({
   readerReadChapterList: {
     gap: 8
   },
+  readerReadChapterSwipeWrap: {
+    overflow: "hidden",
+    position: "relative"
+  },
+  readerReadChapterSwipeClear: {
+    alignItems: "center",
+    backgroundColor: colors.coral,
+    borderRadius: 10,
+    bottom: 0,
+    gap: 2,
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    position: "absolute",
+    right: 0,
+    top: 0,
+    width: 70
+  },
+  readerReadChapterSwipeClearText: {
+    color: "white",
+    fontSize: 10,
+    fontWeight: "900"
+  },
   readerReadChapterBook: {
     backgroundColor: "#fff6eb",
     borderColor: colors.line,
@@ -11226,11 +11260,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 8
   },
+  readerReadChapterBookRevealed: {
+    transform: [{ translateX: -76 }]
+  },
   readerReadChapterBookHeader: {
     alignItems: "center",
     flexDirection: "row",
     gap: 8,
     justifyContent: "space-between"
+  },
+  readerReadChapterBookMeta: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 8
   },
   readerReadChapterBookTitle: {
     color: colors.ink,
@@ -11238,6 +11281,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900",
     minWidth: 0
+  },
+  readerReadChapterClearButton: {
+    paddingHorizontal: 4,
+    paddingVertical: 3
   },
   readerReadChapterGrid: {
     flexDirection: "row",

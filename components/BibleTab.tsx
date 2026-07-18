@@ -55,6 +55,7 @@ export function BibleTab({
   onSelectMobileBook,
   onSelectBook,
   onSelectChapter,
+  onClearReadBook,
   bibleSearchCollapsed,
   bibleSearchQuery,
   bibleSearchScope,
@@ -164,6 +165,7 @@ export function BibleTab({
         onSelectMobileBook={onSelectMobileBook}
         onSelectBook={onSelectBook}
         onSelectChapter={onSelectChapter}
+        onClearReadBook={onClearReadBook}
       />
 
       <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>

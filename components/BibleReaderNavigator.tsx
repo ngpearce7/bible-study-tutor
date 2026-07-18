@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { useMemo, useState } from "react";
+import { PanResponder, Pressable, Text, TextInput, View } from "react-native";
 
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "@/data/bibleLibrary";
 import { Card, Eyebrow, colors } from "@/components/ui";
@@ -66,6 +66,7 @@ type BibleReaderNavigatorProps = {
   onSelectMobileBook: (book: string) => void;
   onSelectBook: (book: string) => void;
   onSelectChapter: (chapter: number, book: string) => void;
+  onClearReadBook: (book: string) => void;
 };
 
 export function BibleReaderNavigator({
@@ -115,7 +116,8 @@ export function BibleReaderNavigator({
   onToggleMobileMenu,
   onSelectMobileBook,
   onSelectBook,
-  onSelectChapter
+  onSelectChapter,
+  onClearReadBook
 }: BibleReaderNavigatorProps) {
   const [quickListView, setQuickListView] = useState<ReaderQuickListView>("recent");
   const getReadChapterSet = (book: string) => new Set(readChapters[book] || []);
@@ -268,37 +270,17 @@ export function BibleReaderNavigator({
                   ) : (
                     <View style={styles.readerReadChapterList}>
                       {readChapterSections.map((section) => (
-                        <View key={section.book} style={[styles.readerReadChapterBook, darkMode && styles.accountDarkInsetBox]}>
-                          <View style={styles.readerReadChapterBookHeader}>
-                            <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>{section.book}</Text>
-                            <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{`${section.chapters.length} of ${BIBLE_CHAPTER_COUNTS[section.book] || 1}`}</Text>
-                          </View>
-                          <View style={styles.readerReadChapterGrid}>
-                            {section.chapters.map((chapter) => (
-                              <Pressable
-                                key={`${section.book}-${chapter}`}
-                                accessibilityRole="button"
-                                accessibilityLabel={`Open ${section.book} chapter ${chapter}`}
-                                onPress={() => onSelectChapter(chapter, section.book)}
-                                style={[
-                                  styles.readerReadChapterChip,
-                                  darkMode && styles.printDarkOptionChip,
-                                  readerBook === section.book && readerChapter === chapter && styles.activeMobileReaderChapterSquare
-                                ]}
-                              >
-                                <Text
-                                  style={[
-                                    styles.readerReadChapterChipText,
-                                    darkMode && styles.accountDarkMutedText,
-                                    readerBook === section.book && readerChapter === chapter && styles.activeMobileReaderChapterText
-                                  ]}
-                                >
-                                  {chapter}
-                                </Text>
-                              </Pressable>
-                            ))}
-                          </View>
-                        </View>
+                        <ReadChapterBookCard
+                          key={section.book}
+                          styles={styles}
+                          darkMode={darkMode}
+                          phoneLayout={phoneLayout}
+                          section={section}
+                          active={readerBook === section.book}
+                          activeChapter={readerBook === section.book ? readerChapter : 0}
+                          onSelectChapter={onSelectChapter}
+                          onClearReadBook={onClearReadBook}
+                        />
                       ))}
                       {!readChapterSections.length && <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>No chapters marked read yet.</Text>}
                     </View>
@@ -539,5 +521,110 @@ export function BibleReaderNavigator({
         </>
       )}
     </Card>
+  );
+}
+
+function ReadChapterBookCard({
+  styles,
+  darkMode,
+  phoneLayout,
+  section,
+  active,
+  activeChapter,
+  onSelectChapter,
+  onClearReadBook
+}: {
+  styles: any;
+  darkMode: boolean;
+  phoneLayout: boolean;
+  section: { book: string; chapters: number[] };
+  active: boolean;
+  activeChapter: number;
+  onSelectChapter: (chapter: number, book: string) => void;
+  onClearReadBook: (book: string) => void;
+}) {
+  const [clearRevealed, setClearRevealed] = useState(false);
+  const panResponder = useMemo(
+    () => PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gesture) => phoneLayout && Math.abs(gesture.dx) > 18 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dx < -35) setClearRevealed(true);
+        if (gesture.dx > 25) setClearRevealed(false);
+      }
+    }),
+    [phoneLayout]
+  );
+
+  const clearBook = () => {
+    setClearRevealed(false);
+    onClearReadBook(section.book);
+  };
+
+  return (
+    <View style={styles.readerReadChapterSwipeWrap} {...(phoneLayout ? panResponder.panHandlers : {})}>
+      {phoneLayout && clearRevealed && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Clear read chapters for ${section.book}`}
+          onPress={clearBook}
+          style={styles.readerReadChapterSwipeClear}
+        >
+          <Ionicons name="trash-outline" size={16} color="white" />
+          <Text style={styles.readerReadChapterSwipeClearText}>Clear</Text>
+        </Pressable>
+      )}
+      <View
+        style={[
+          styles.readerReadChapterBook,
+          darkMode && styles.accountDarkInsetBox,
+          phoneLayout && clearRevealed && styles.readerReadChapterBookRevealed
+        ]}
+      >
+        <View style={styles.readerReadChapterBookHeader}>
+          <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>{section.book}</Text>
+          <View style={styles.readerReadChapterBookMeta}>
+            <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{`${section.chapters.length} of ${BIBLE_CHAPTER_COUNTS[section.book] || 1}`}</Text>
+            {!phoneLayout && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Clear read chapters for ${section.book}`}
+                onPress={clearBook}
+                style={styles.readerReadChapterClearButton}
+              >
+                <Text style={styles.readerProgressClearText}>Clear</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+        <View style={styles.readerReadChapterGrid}>
+          {section.chapters.map((chapter) => (
+            <Pressable
+              key={`${section.book}-${chapter}`}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${section.book} chapter ${chapter}`}
+              onPress={() => {
+                setClearRevealed(false);
+                onSelectChapter(chapter, section.book);
+              }}
+              style={[
+                styles.readerReadChapterChip,
+                darkMode && styles.printDarkOptionChip,
+                active && activeChapter === chapter && styles.activeMobileReaderChapterSquare
+              ]}
+            >
+              <Text
+                style={[
+                  styles.readerReadChapterChipText,
+                  darkMode && styles.accountDarkMutedText,
+                  active && activeChapter === chapter && styles.activeMobileReaderChapterText
+                ]}
+              >
+                {chapter}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+    </View>
   );
 }

@@ -18,7 +18,7 @@ type MemoryBlankProps = {
   hintLevel: number;
   inputRef?: (input: TextInputType | null) => void;
   onChange: (value: string, plainText?: string) => void;
-  onSubmit?: () => void;
+  onSubmit?: (value: string) => void;
   onMoreHint: () => void;
   returnKeyType?: "next" | "done";
   compact?: boolean;
@@ -58,9 +58,9 @@ function MemoryBlankComponent({
         }}
         onFocus={() => setAttempted(false)}
         onBlur={() => setAttempted(true)}
-        onSubmitEditing={() => {
+        onSubmitEditing={(event) => {
           setAttempted(true);
-          onSubmit?.();
+          onSubmit?.(event.nativeEvent?.text ?? value);
         }}
         autoCapitalize="none"
         blurOnSubmit={false}

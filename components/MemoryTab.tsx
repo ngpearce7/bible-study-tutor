@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Suspense } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
-import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, reviewPresetForStoredRhythm } from "@/data/memory";
+import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { MemoryBlank } from "@/components/MemoryBlank";
 import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
@@ -792,7 +792,19 @@ export function MemoryTab(props: any) {
                                       memoryBlankInputRefs.current[token.index] = input;
                                     }}
                                     onChange={(value) => updateMemoryPracticeAnswer(token.index, value)}
-                                    onSubmit={() => focusMemoryBlankAfter(token.index, memoryPracticeAnswers)}
+                                    onSubmit={(submittedValue) => {
+                                      const nextAnswers = { ...memoryPracticeAnswers, [token.index]: submittedValue || memoryPracticeAnswers[token.index] || "" };
+                                      const allAnswersCorrect =
+                                        memoryBlankTokens.length > 0 &&
+                                        memoryBlankTokens.every((blank) => normalizeMemoryAnswer(nextAnswers[blank.index] || "") === normalizeMemoryAnswer(blank.answer));
+
+                                      if (blankIndex === memoryBlankTokens.length - 1 && allAnswersCorrect && memoryPracticeLevel > 1) {
+                                        continueMemoryPractice(true);
+                                        return;
+                                      }
+
+                                      focusMemoryBlankAfter(token.index, nextAnswers);
+                                    }}
                                     onMoreHint={() => showMoreMemoryHint(token.index)}
                                     returnKeyType={blankIndex === memoryBlankTokens.length - 1 ? "done" : "next"}
                                     compact={phoneLayout}

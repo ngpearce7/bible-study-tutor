@@ -3954,8 +3954,8 @@ export default function Home() {
     );
   }
 
-  async function continueMemoryPractice() {
-    if (!activeMemoryVerse || !memoryPracticeAllCorrect) return;
+  async function continueMemoryPractice(forceCorrect = false) {
+    if (!activeMemoryVerse || (!memoryPracticeAllCorrect && !forceCorrect)) return;
     const completedFinalStep = memoryPracticeLevel >= 3;
     await markMemoryPractice("got-it");
     if (completedFinalStep) {
@@ -7505,7 +7505,8 @@ function ResumeButton({
     ? {
         tabIndex: 0,
         onKeyDown: (event: any) => {
-          if (event.key !== "Enter") return;
+          const key = event.key || event.nativeEvent?.key;
+          if (key !== "Enter") return;
           event.preventDefault?.();
           onPress();
         }

@@ -163,10 +163,15 @@ export function BibleReaderPassage({
             <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
             <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
           </Pressable>
-          <Pressable onPress={onToggleChapterRead} style={[styles.readerBottomNavButton, styles.readerBottomReadButton, darkMode && styles.homeDarkResumeButton, currentChapterRead && styles.activeReaderReadButton]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={currentChapterRead ? "Mark current Bible chapter unread" : "Mark current Bible chapter read"}
+            onPress={onToggleChapterRead}
+            style={[styles.readerBottomNavButton, styles.readerBottomReadButton, darkMode && styles.homeDarkResumeButton, currentChapterRead && styles.activeReaderReadButton]}
+          >
             <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
             <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText, currentChapterRead && styles.activeReaderReadButtonText]}>
-              {currentChapterRead ? "Chapter read" : "Mark read"}
+              {currentChapterRead ? "Mark Unread" : "Mark Chapter Read"}
             </Text>
           </Pressable>
           <Pressable onPress={() => onMoveChapter(1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>

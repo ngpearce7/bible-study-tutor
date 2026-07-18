@@ -113,7 +113,8 @@ export function BibleReaderControls({
 
         <Pressable
           accessibilityRole="button"
-          {...readerIconHoverProps(currentChapterRead ? "Chapter read" : "Mark chapter read")}
+          accessibilityLabel={currentChapterRead ? "Mark current Bible chapter unread" : "Mark current Bible chapter read"}
+          {...readerIconHoverProps(currentChapterRead ? "Mark unread" : "Mark chapter read")}
           onPress={() => {
             hideReaderTooltip();
             onToggleChapterRead();

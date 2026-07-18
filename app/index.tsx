@@ -5451,6 +5451,7 @@ export default function Home() {
               translations={BIBLE_TRANSLATIONS}
               bibleTranslation={bibleTranslation}
               readBibleChapterCount={readBibleChapterCount}
+              readBibleChapters={readBibleChapters}
               bibleBookmarks={bibleBookmarks}
               bibleReaderHistory={bibleReaderHistory}
               readerHistoryCollapsed={readerHistoryCollapsed}
@@ -10868,8 +10869,17 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
+    gap: 1,
     justifyContent: "center",
     width: 38
+  },
+  readMobileReaderChapterSquare: {
+    backgroundColor: "#edf2dc",
+    borderColor: "rgba(102, 114, 78, 0.38)"
+  },
+  darkReadMobileReaderChapterSquare: {
+    backgroundColor: "rgba(233, 183, 106, 0.14)",
+    borderColor: "rgba(233, 183, 106, 0.38)"
   },
   activeMobileReaderChapterSquare: {
     backgroundColor: colors.coral,
@@ -10880,8 +10890,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900"
   },
+  readMobileReaderChapterText: {
+    color: colors.oliveDark
+  },
+  darkReadMobileReaderChapterText: {
+    color: "#e9b76a"
+  },
   activeMobileReaderChapterText: {
     color: "white"
+  },
+  readerChapterPanelHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  readerChapterReadCountText: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900"
   },
   memoryBookFilterOption: {
     alignItems: "center",

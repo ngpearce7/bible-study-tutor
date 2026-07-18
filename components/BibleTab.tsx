@@ -15,6 +15,7 @@ export function BibleTab({
   translations,
   bibleTranslation,
   readBibleChapterCount,
+  readBibleChapters,
   bibleBookmarks,
   bibleReaderHistory,
   readerHistoryCollapsed,
@@ -123,6 +124,7 @@ export function BibleTab({
         translations={translations}
         translationId={bibleTranslation}
         readChapterCount={readBibleChapterCount}
+        readChapters={readBibleChapters}
         bookmarks={bibleBookmarks}
         history={bibleReaderHistory}
         historyCollapsed={readerHistoryCollapsed}

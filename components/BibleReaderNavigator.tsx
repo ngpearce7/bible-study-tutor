@@ -25,6 +25,7 @@ type BibleReaderNavigatorProps = {
   translations: BibleTranslationOption[];
   translationId: string;
   readChapterCount: number;
+  readChapters: Record<string, number[]>;
   bookmarks: any[];
   history: any[];
   historyCollapsed: boolean;
@@ -74,6 +75,7 @@ export function BibleReaderNavigator({
   translations,
   translationId,
   readChapterCount,
+  readChapters,
   bookmarks,
   history,
   historyCollapsed,
@@ -113,6 +115,13 @@ export function BibleReaderNavigator({
   onSelectBook,
   onSelectChapter
 }: BibleReaderNavigatorProps) {
+  const getReadChapterSet = (book: string) => new Set(readChapters[book] || []);
+  const getReadProgressLabel = (book: string) => {
+    const total = BIBLE_CHAPTER_COUNTS[book] || 1;
+    const read = readChapters[book]?.length || 0;
+    return `${read} of ${total} read`;
+  };
+
   return (
     <Card
       style={[
@@ -348,17 +357,41 @@ export function BibleReaderNavigator({
                           </Pressable>
                           {expandedBook === book && (
                             <View style={[styles.mobileReaderChapterPanel, darkMode && styles.accountDarkSection]}>
-                              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
+                              <View style={styles.readerChapterPanelHeader}>
+                                <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
+                                <Text style={[styles.readerChapterReadCountText, darkMode && styles.accountDarkMutedText]}>{getReadProgressLabel(book)}</Text>
+                              </View>
                               <View style={styles.mobileReaderChapterGrid}>
-                                {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
-                                  <Pressable
-                                    key={chapter}
-                                    onPress={() => onSelectChapter(chapter, book)}
-                                    style={[styles.mobileReaderChapterSquare, darkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
-                                  >
-                                    <Text style={[styles.mobileReaderChapterText, darkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
-                                  </Pressable>
-                                ))}
+                                {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => {
+                                  const chapterRead = getReadChapterSet(book).has(chapter);
+                                  const chapterActive = readerBook === book && readerChapter === chapter;
+                                  return (
+                                    <Pressable
+                                      key={chapter}
+                                      accessibilityRole="button"
+                                      accessibilityLabel={`${book} chapter ${chapter}${chapterRead ? ", read" : ""}`}
+                                      onPress={() => onSelectChapter(chapter, book)}
+                                      style={[
+                                        styles.mobileReaderChapterSquare,
+                                        darkMode && styles.printDarkOptionChip,
+                                        chapterRead && styles.readMobileReaderChapterSquare,
+                                        darkMode && chapterRead && styles.darkReadMobileReaderChapterSquare,
+                                        chapterActive && styles.activeMobileReaderChapterSquare
+                                      ]}
+                                    >
+                                      <Text style={[
+                                        styles.mobileReaderChapterText,
+                                        darkMode && styles.accountDarkMutedText,
+                                        chapterRead && styles.readMobileReaderChapterText,
+                                        darkMode && chapterRead && styles.darkReadMobileReaderChapterText,
+                                        chapterActive && styles.activeMobileReaderChapterText
+                                      ]}>{chapter}</Text>
+                                      {chapterRead && (
+                                        <Ionicons name="checkmark" size={10} color={chapterActive ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                                      )}
+                                    </Pressable>
+                                  );
+                                })}
                               </View>
                             </View>
                           )}
@@ -387,18 +420,39 @@ export function BibleReaderNavigator({
                           <View style={[styles.desktopReaderChapterPanel, darkMode && styles.accountDarkSection]}>
                             <View style={styles.desktopReaderChapterHeader}>
                               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
-                              <Text style={[styles.readerChapterCountText, darkMode && styles.accountDarkMutedText]}>{BIBLE_CHAPTER_COUNTS[book] || 1} chapters</Text>
+                              <Text style={[styles.readerChapterCountText, darkMode && styles.accountDarkMutedText]}>{getReadProgressLabel(book)}</Text>
                             </View>
                             <View style={styles.desktopReaderChapterGrid}>
-                              {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => (
-                                <Pressable
-                                  key={chapter}
-                                  onPress={() => onSelectChapter(chapter, book)}
-                                  style={[styles.mobileReaderChapterSquare, darkMode && styles.printDarkOptionChip, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterSquare]}
-                                >
-                                  <Text style={[styles.mobileReaderChapterText, darkMode && styles.accountDarkMutedText, readerBook === book && readerChapter === chapter && styles.activeMobileReaderChapterText]}>{chapter}</Text>
-                                </Pressable>
-                              ))}
+                              {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => {
+                                const chapterRead = getReadChapterSet(book).has(chapter);
+                                const chapterActive = readerBook === book && readerChapter === chapter;
+                                return (
+                                  <Pressable
+                                    key={chapter}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`${book} chapter ${chapter}${chapterRead ? ", read" : ""}`}
+                                    onPress={() => onSelectChapter(chapter, book)}
+                                    style={[
+                                      styles.mobileReaderChapterSquare,
+                                      darkMode && styles.printDarkOptionChip,
+                                      chapterRead && styles.readMobileReaderChapterSquare,
+                                      darkMode && chapterRead && styles.darkReadMobileReaderChapterSquare,
+                                      chapterActive && styles.activeMobileReaderChapterSquare
+                                    ]}
+                                  >
+                                    <Text style={[
+                                      styles.mobileReaderChapterText,
+                                      darkMode && styles.accountDarkMutedText,
+                                      chapterRead && styles.readMobileReaderChapterText,
+                                      darkMode && chapterRead && styles.darkReadMobileReaderChapterText,
+                                      chapterActive && styles.activeMobileReaderChapterText
+                                    ]}>{chapter}</Text>
+                                    {chapterRead && (
+                                      <Ionicons name="checkmark" size={10} color={chapterActive ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                                    )}
+                                  </Pressable>
+                                );
+                              })}
                             </View>
                           </View>
                         )}

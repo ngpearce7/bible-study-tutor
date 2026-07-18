@@ -596,6 +596,8 @@ export default function Home() {
   const previousActiveProfileIdRef = useRef("");
   const appliedBibleReaderProfileIdRef = useRef("");
   const appliedBibleReaderStateSignatureRef = useRef("");
+  const pendingBibleReaderStateSignatureRef = useRef("");
+  const pendingBibleReaderStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedDraftRevisionRef = useRef(0);
   const isHydratingDraftRef = useRef(false);
   const hasReadInitialUrlRef = useRef(false);
@@ -806,6 +808,7 @@ export default function Home() {
   useEffect(() => {
     return () => {
       if (readerTooltipTimerRef.current) clearTimeout(readerTooltipTimerRef.current);
+      if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
     };
   }, []);
 
@@ -849,6 +852,9 @@ export default function Home() {
     previousActiveProfileIdRef.current = nextProfileKey;
     appliedBibleReaderProfileIdRef.current = "";
     appliedBibleReaderStateSignatureRef.current = "";
+    pendingBibleReaderStateSignatureRef.current = "";
+    if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+    pendingBibleReaderStateTimerRef.current = null;
     loadedDraftRevisionRef.current = 0;
     setLoadedDraftKey("");
     setAnswers({});
@@ -1525,6 +1531,12 @@ export default function Home() {
     }
 
     const signature = JSON.stringify(syncedReaderState);
+    if (pendingBibleReaderStateSignatureRef.current && pendingBibleReaderStateSignatureRef.current !== signature) return;
+    if (pendingBibleReaderStateSignatureRef.current === signature) {
+      pendingBibleReaderStateSignatureRef.current = "";
+      if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+      pendingBibleReaderStateTimerRef.current = null;
+    }
     if (appliedBibleReaderStateSignatureRef.current === signature) return;
     appliedBibleReaderProfileIdRef.current = String(activeProfileId || "");
     appliedBibleReaderStateSignatureRef.current = signature;
@@ -1550,7 +1562,7 @@ export default function Home() {
       setBibleBookmarks(syncedReaderState.bookmarks);
       saveStoredBibleBookmarks(syncedReaderState.bookmarks).catch(() => undefined);
     }
-  }, [activeProfileId, bibleBookmarks, bibleReaderHistory, bibleTranslation, isAuthenticated, profile, profileMatchesActiveState, readBibleChapters, readerBook, readerChapter]);
+  }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState]);
 
   useEffect(() => {
     if (profileAppearanceMode !== "light" && profileAppearanceMode !== "dark") return;
@@ -4547,7 +4559,17 @@ export default function Home() {
 
     const signature = JSON.stringify(state);
     appliedBibleReaderStateSignatureRef.current = signature;
-    saveBibleReaderState({ profileId: activeProfileId, state }).catch(() => undefined);
+    pendingBibleReaderStateSignatureRef.current = signature;
+    if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+    pendingBibleReaderStateTimerRef.current = setTimeout(() => {
+      if (pendingBibleReaderStateSignatureRef.current === signature) pendingBibleReaderStateSignatureRef.current = "";
+      pendingBibleReaderStateTimerRef.current = null;
+    }, 5000);
+    saveBibleReaderState({ profileId: activeProfileId, state }).catch(() => {
+      if (pendingBibleReaderStateSignatureRef.current === signature) pendingBibleReaderStateSignatureRef.current = "";
+      if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+      pendingBibleReaderStateTimerRef.current = null;
+    });
   }
 
   function toggleMemoryMilestoneGoal(goalId: MemoryMilestoneGoalId) {

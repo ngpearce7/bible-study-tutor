@@ -7501,10 +7501,22 @@ function ResumeButton({
   iconColor?: string;
 }) {
   const primary = variant === "primary";
+  const keyboardActivationProps: any = Platform.OS === "web"
+    ? {
+        tabIndex: 0,
+        onKeyDown: (event: any) => {
+          if (event.key !== "Enter") return;
+          event.preventDefault?.();
+          onPress();
+        }
+      }
+    : {};
 
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
+      {...keyboardActivationProps}
       onPress={onPress}
       style={({ pressed }) => [styles.resumeButton, primary && styles.primaryResumeButton, pressed && styles.resumeButtonPressed, style]}
     >

@@ -1166,6 +1166,7 @@ export default function Home() {
   const readerChapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 1;
   const activeReaderActionVerse = selectedReaderVerses.includes(readerActionVerse) ? readerActionVerse : selectedReaderVerses[selectedReaderVerses.length - 1] || 0;
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
+  const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
@@ -5553,6 +5554,7 @@ export default function Home() {
               bibleTranslation={bibleTranslation}
               readBibleChapterCount={readBibleChapterCount}
               readBibleChapters={readBibleChapters}
+              currentBookReadChapterCount={currentBookReadChapterCount}
               bibleBookmarks={bibleBookmarks}
               bibleReaderHistory={bibleReaderHistory}
               readerHistoryCollapsed={readerHistoryCollapsed}

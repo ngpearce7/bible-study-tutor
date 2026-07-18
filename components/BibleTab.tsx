@@ -16,6 +16,7 @@ export function BibleTab({
   bibleTranslation,
   readBibleChapterCount,
   readBibleChapters,
+  currentBookReadChapterCount,
   bibleBookmarks,
   bibleReaderHistory,
   readerHistoryCollapsed,
@@ -209,6 +210,7 @@ export function BibleTab({
           currentChapterRead={currentChapterRead}
           currentChapterBookmarked={currentChapterBookmarked}
           readChapterCount={readBibleChapterCount}
+          currentBookReadChapterCount={currentBookReadChapterCount}
           tooltip={readerIconTooltip}
           onStudy={onStudyReaderChapter}
           onClearSelection={onClearReaderSelection}

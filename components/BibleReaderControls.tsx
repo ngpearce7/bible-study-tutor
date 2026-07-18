@@ -15,6 +15,7 @@ type BibleReaderControlsProps = {
   currentChapterRead: boolean;
   currentChapterBookmarked: boolean;
   readChapterCount: number;
+  currentBookReadChapterCount: number;
   tooltip: string;
   onStudy: () => void;
   onClearSelection: () => void;
@@ -40,6 +41,7 @@ export function BibleReaderControls({
   currentChapterRead,
   currentChapterBookmarked,
   readChapterCount,
+  currentBookReadChapterCount,
   tooltip,
   onStudy,
   onClearSelection,
@@ -152,7 +154,9 @@ export function BibleReaderControls({
       {Platform.OS === "web" && !!tooltip && <Text style={styles.readerIconTooltip}>{tooltip}</Text>}
 
       <View style={styles.readerProgressRow}>
-        <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>{`${readChapterCount} chapter${readChapterCount === 1 ? "" : "s"} read`}</Text>
+        <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>
+          {`${readerReference.split(" ").slice(0, -1).join(" ") || readerReference}: ${currentBookReadChapterCount} of ${chapterCount} chapter${chapterCount === 1 ? "" : "s"} read`}
+        </Text>
         {readChapterCount > 0 && (
           <Pressable accessibilityRole="button" accessibilityLabel="Clear all Bible reading progress" onPress={onClearReadingProgress} style={styles.readerProgressClearButton}>
             <Text style={styles.readerProgressClearText}>Clear all</Text>

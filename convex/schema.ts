@@ -21,6 +21,31 @@ const scriptureInsertSettings = v.object({
 });
 
 const uiPreferences = v.record(v.string(), v.boolean());
+const bibleReaderHistoryItem = v.object({
+  book: v.string(),
+  chapter: v.number(),
+  reference: v.string(),
+  translation: v.union(v.literal("bsb"), v.literal("web"), v.literal("kjv")),
+  updatedAt: v.string()
+});
+const bibleBookmark = v.object({
+  id: v.string(),
+  book: v.string(),
+  chapter: v.number(),
+  startVerse: v.optional(v.number()),
+  endVerse: v.optional(v.number()),
+  reference: v.string(),
+  bookmarked: v.optional(v.boolean()),
+  note: v.optional(v.string()),
+  createdAt: v.string()
+});
+const bibleReaderState = v.object({
+  translation: v.optional(v.union(v.literal("bsb"), v.literal("web"), v.literal("kjv"))),
+  position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
+  history: v.optional(v.array(bibleReaderHistoryItem)),
+  readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
+  bookmarks: v.optional(v.array(bibleBookmark))
+});
 
 export default defineSchema({
   ...authTables,
@@ -38,6 +63,7 @@ export default defineSchema({
     appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
     scriptureInsertSettings: v.optional(scriptureInsertSettings),
     uiPreferences: v.optional(uiPreferences),
+    bibleReaderState: v.optional(bibleReaderState),
     memoryMilestoneGoalIds: v.optional(v.array(v.string())),
     suspendedAt: v.optional(v.number()),
     suspendedBy: v.optional(v.id("users")),

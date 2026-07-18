@@ -22,6 +22,25 @@ const memoryMilestoneGoalIds = new Set([
   "firstTimeReviews"
 ]);
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
+const bibleTranslation = v.union(v.literal("bsb"), v.literal("web"), v.literal("kjv"));
+const bibleReaderHistoryItem = v.object({
+  book: v.string(),
+  chapter: v.number(),
+  reference: v.string(),
+  translation: bibleTranslation,
+  updatedAt: v.string()
+});
+const bibleBookmark = v.object({
+  id: v.string(),
+  book: v.string(),
+  chapter: v.number(),
+  startVerse: v.optional(v.number()),
+  endVerse: v.optional(v.number()),
+  reference: v.string(),
+  bookmarked: v.optional(v.boolean()),
+  note: v.optional(v.string()),
+  createdAt: v.string()
+});
 
 function usernameFromCredential(value?: string) {
   const email = (value || "").trim().toLowerCase();
@@ -184,6 +203,28 @@ export const saveMemoryMilestoneGoals = mutation({
         .map((goalId) => clampText(goalId, 80))
         .filter((goalId) => memoryMilestoneGoalIds.has(goalId))
         .slice(0, 5),
+      updatedAt: Date.now()
+    });
+  }
+});
+
+export const saveBibleReaderState = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    state: v.object({
+      translation: v.optional(bibleTranslation),
+      position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
+      history: v.optional(v.array(bibleReaderHistoryItem)),
+      readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
+      bookmarks: v.optional(v.array(bibleBookmark))
+    })
+  },
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    assertProfileCanWrite(profile);
+
+    await ctx.db.patch(args.profileId, {
+      bibleReaderState: cleanBibleReaderState(args.state),
       updatedAt: Date.now()
     });
   }
@@ -471,6 +512,63 @@ function reactionSummary(reactions: Doc<"communityReactions">[]) {
     amen: reactions.filter((reaction) => reaction.reaction === "amen").length,
     praying: reactions.filter((reaction) => reaction.reaction === "praying").length,
     encouraged: reactions.filter((reaction) => reaction.reaction === "encouraged").length
+  };
+}
+
+function cleanBibleReaderState(state: {
+  translation?: "bsb" | "web" | "kjv";
+  position?: { book: string; chapter: number };
+  history?: Array<{ book: string; chapter: number; reference: string; translation: "bsb" | "web" | "kjv"; updatedAt: string }>;
+  readChapters?: Record<string, number[]>;
+  bookmarks?: Array<{
+    id: string;
+    book: string;
+    chapter: number;
+    startVerse?: number;
+    endVerse?: number;
+    reference: string;
+    bookmarked?: boolean;
+    note?: string;
+    createdAt: string;
+  }>;
+}) {
+  const readChapters = Object.entries(state.readChapters || {}).reduce<Record<string, number[]>>((map, [book, chapters]) => {
+    const cleanedBook = clampText(book, 80);
+    if (!cleanedBook || !Array.isArray(chapters)) return map;
+    const normalized = Array.from(new Set(chapters.map((chapter) => Math.round(chapter)).filter((chapter) => chapter > 0 && chapter <= 200)))
+      .sort((a, b) => a - b)
+      .slice(0, 200);
+    if (normalized.length) map[cleanedBook] = normalized;
+    return map;
+  }, {});
+
+  return {
+    translation: state.translation,
+    position: state.position
+      ? {
+          book: clampText(state.position.book, 80),
+          chapter: Math.max(1, Math.min(200, Math.round(state.position.chapter)))
+        }
+      : undefined,
+    history: (state.history || []).slice(0, 12).map((item) => ({
+      book: clampText(item.book, 80),
+      chapter: Math.max(1, Math.min(200, Math.round(item.chapter))),
+      reference: clampText(item.reference, 120),
+      translation: item.translation,
+      updatedAt: clampText(item.updatedAt, 40)
+    })),
+    readChapters,
+    bookmarks: (state.bookmarks || []).slice(0, 30).map((bookmark) => ({
+      id: clampText(bookmark.id, 160),
+      book: clampText(bookmark.book, 80),
+      chapter: Math.max(1, Math.min(200, Math.round(bookmark.chapter))),
+      startVerse: bookmark.startVerse ? Math.max(1, Math.min(300, Math.round(bookmark.startVerse))) : undefined,
+      endVerse: bookmark.endVerse ? Math.max(1, Math.min(300, Math.round(bookmark.endVerse))) : undefined,
+      reference: clampText(bookmark.reference, 120),
+      bookmarked: bookmark.bookmarked,
+      note: clampOptionalText(bookmark.note, 1200),
+      createdAt: clampText(bookmark.createdAt, 40)
+    }))
   };
 }
 

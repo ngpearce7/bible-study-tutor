@@ -150,6 +150,13 @@ type ScriptureInsertSettings = {
   highlightColor: string;
   referencePosition: "front" | "end";
 };
+type SyncedBibleReaderState = {
+  translation?: BibleTranslationId;
+  position?: { book: string; chapter: number };
+  history?: StoredBibleReaderHistoryItem[];
+  readChapters?: StoredBibleReadChapters;
+  bookmarks?: StoredBibleBookmark[];
+};
 
 const SCRIPTURE_INSERT_SETTINGS_KEY = "bible-study-tutor-scripture-insert-settings";
 const DEFAULT_SCRIPTURE_INSERT_SETTINGS: ScriptureInsertSettings = {
@@ -275,6 +282,7 @@ export default function Home() {
   const saveScriptureInsertSettings = useMutation((api as any).accountability.saveScriptureInsertSettings);
   const saveUiPreference = useMutation((api as any).accountability.saveUiPreference);
   const saveMemoryMilestoneGoals = useMutation((api as any).accountability.saveMemoryMilestoneGoals);
+  const saveBibleReaderState = useMutation((api as any).accountability.saveBibleReaderState);
   const changePassword = useAction(api.accountability.changePassword);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
   const deleteCheckinMutation = useMutation(api.accountability.deleteCheckin);
@@ -586,6 +594,8 @@ export default function Home() {
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
   const previousActiveProfileIdRef = useRef("");
+  const appliedBibleReaderProfileIdRef = useRef("");
+  const appliedBibleReaderStateSignatureRef = useRef("");
   const loadedDraftRevisionRef = useRef(0);
   const isHydratingDraftRef = useRef(false);
   const hasReadInitialUrlRef = useRef(false);
@@ -837,6 +847,8 @@ export default function Home() {
     }
     if (previousActiveProfileIdRef.current === nextProfileKey) return;
     previousActiveProfileIdRef.current = nextProfileKey;
+    appliedBibleReaderProfileIdRef.current = "";
+    appliedBibleReaderStateSignatureRef.current = "";
     loadedDraftRevisionRef.current = 0;
     setLoadedDraftKey("");
     setAnswers({});
@@ -1501,6 +1513,46 @@ export default function Home() {
   }, [profile, profileUiPreferences]);
 
   useEffect(() => {
+    if (!profileMatchesActiveState || !isAuthenticated || !profile) return;
+    const syncedReaderState = normalizeSyncedBibleReaderState((profile as any).bibleReaderState);
+    if (!syncedReaderState) {
+      const profileKey = String(activeProfileId || "");
+      if (appliedBibleReaderProfileIdRef.current !== profileKey && hasLocalBibleReaderState({ history: bibleReaderHistory, readChapters: readBibleChapters, bookmarks: bibleBookmarks })) {
+        appliedBibleReaderProfileIdRef.current = profileKey;
+        persistBibleReaderState();
+      }
+      return;
+    }
+
+    const signature = JSON.stringify(syncedReaderState);
+    if (appliedBibleReaderStateSignatureRef.current === signature) return;
+    appliedBibleReaderProfileIdRef.current = String(activeProfileId || "");
+    appliedBibleReaderStateSignatureRef.current = signature;
+
+    if (syncedReaderState.translation) {
+      setBibleTranslation(syncedReaderState.translation);
+      saveStoredBibleTranslation(syncedReaderState.translation).catch(() => undefined);
+    }
+    if (syncedReaderState.position && bibleBooks.includes(syncedReaderState.position.book)) {
+      const chapterCount = BIBLE_CHAPTER_COUNTS[syncedReaderState.position.book] || 1;
+      setReaderBook(syncedReaderState.position.book);
+      setReaderChapter(Math.min(Math.max(syncedReaderState.position.chapter, 1), chapterCount));
+    }
+    if (syncedReaderState.history) {
+      setBibleReaderHistory(syncedReaderState.history);
+      saveStoredBibleReaderHistory(syncedReaderState.history).catch(() => undefined);
+    }
+    if (syncedReaderState.readChapters) {
+      setReadBibleChapters(syncedReaderState.readChapters);
+      saveStoredBibleReadChapters(syncedReaderState.readChapters).catch(() => undefined);
+    }
+    if (syncedReaderState.bookmarks) {
+      setBibleBookmarks(syncedReaderState.bookmarks);
+      saveStoredBibleBookmarks(syncedReaderState.bookmarks).catch(() => undefined);
+    }
+  }, [activeProfileId, bibleBookmarks, bibleReaderHistory, bibleTranslation, isAuthenticated, profile, profileMatchesActiveState, readBibleChapters, readerBook, readerChapter]);
+
+  useEffect(() => {
     if (profileAppearanceMode !== "light" && profileAppearanceMode !== "dark") return;
     setAppearanceMode((current) => {
       if (current === profileAppearanceMode) return current;
@@ -1639,6 +1691,7 @@ export default function Home() {
     saveStoredBibleReaderPosition({ book: readerBook, chapter: readerChapter }).catch(() => undefined);
     setBibleReaderHistory((current) => {
       const reference = buildReaderStudyReference(readerBook, readerChapter, []);
+      const position = { book: readerBook, chapter: readerChapter };
       const nextItem: StoredBibleReaderHistoryItem = {
         book: readerBook,
         chapter: readerChapter,
@@ -1651,9 +1704,10 @@ export default function Home() {
         ...current.filter((item) => !(item.book === readerBook && item.chapter === readerChapter))
       ].slice(0, 8);
       saveStoredBibleReaderHistory(next).catch(() => undefined);
+      persistBibleReaderState({ position, history: next, translation: bibleTranslation });
       return next;
     });
-  }, [bibleTranslation, readerBook, readerChapter]);
+  }, [activeProfileId, bibleTranslation, isAuthenticated, profileMatchesActiveState, readerBook, readerChapter]);
 
   useEffect(() => {
     if (profileUiPreferences.studyInstructionsCollapsed === undefined) setInstructionsCollapsed(false);
@@ -4157,6 +4211,7 @@ export default function Home() {
   function clearBibleReaderHistory() {
     setBibleReaderHistory([]);
     saveStoredBibleReaderHistory([]).catch(() => undefined);
+    persistBibleReaderState({ history: [] });
   }
 
   function toggleReaderChapterRead() {
@@ -4178,6 +4233,7 @@ export default function Home() {
         delete next[readerBook];
       }
       saveStoredBibleReadChapters(next).catch(() => undefined);
+      persistBibleReaderState({ readChapters: next });
       return next;
     });
     if (!wasRead) {
@@ -4193,6 +4249,7 @@ export default function Home() {
   function clearBibleReadingProgress() {
     setReadBibleChapters({});
     saveStoredBibleReadChapters({}).catch(() => undefined);
+    persistBibleReaderState({ readChapters: {} });
   }
 
   function dismissBibleSearchInput() {
@@ -4312,6 +4369,7 @@ export default function Home() {
       const withoutDuplicate = current.filter((item) => item.reference !== bookmark.reference);
       const next = [savedBookmark, ...withoutDuplicate].slice(0, 30);
       saveStoredBibleBookmarks(next).catch(() => undefined);
+      persistBibleReaderState({ bookmarks: next });
       return next;
     });
     trackUsage("bookmark_saved", { reference: bookmark.reference, tab: "bible", book: readerBook, chapter: readerChapter });
@@ -4327,6 +4385,7 @@ export default function Home() {
         const withoutDuplicate = current.filter((item) => item.reference !== bookmark.reference);
         const next = [bookmark, ...withoutDuplicate].slice(0, 30);
         saveStoredBibleBookmarks(next).catch(() => undefined);
+        persistBibleReaderState({ bookmarks: next });
         return next;
       });
     }
@@ -4357,6 +4416,7 @@ export default function Home() {
         .map((item) => item.id === bookmarkId ? { ...item, bookmarked: false } : item)
         .filter((item) => item.bookmarked !== false || !!item.note?.trim());
       saveStoredBibleBookmarks(next).catch(() => undefined);
+      persistBibleReaderState({ bookmarks: next });
       return next;
     });
     if (activeBookmarkNoteId === bookmarkId) {
@@ -4380,6 +4440,7 @@ export default function Home() {
         .map((bookmark) => bookmark.id === bookmarkId ? { ...bookmark, ...(note ? { note } : { note: undefined }) } : bookmark)
         .filter((bookmark) => bookmark.bookmarked !== false || !!bookmark.note?.trim());
       saveStoredBibleBookmarks(next).catch(() => undefined);
+      persistBibleReaderState({ bookmarks: next });
       return next;
     });
     setActiveBookmarkNoteId("");
@@ -4393,6 +4454,7 @@ export default function Home() {
         .map((bookmark) => bookmark.id === bookmarkId ? { ...bookmark, note: undefined } : bookmark)
         .filter((bookmark) => bookmark.bookmarked !== false);
       saveStoredBibleBookmarks(next).catch(() => undefined);
+      persistBibleReaderState({ bookmarks: next });
       return next;
     });
     setActiveBookmarkNoteId("");
@@ -4469,6 +4531,23 @@ export default function Home() {
   function persistUiPreference(key: UiPreferenceKey, value: boolean) {
     if (!activeProfileId) return;
     saveUiPreference({ profileId: activeProfileId, key, value }).catch(() => undefined);
+  }
+
+  function persistBibleReaderState(overrides: Partial<SyncedBibleReaderState> = {}) {
+    if (!activeProfileId || !isAuthenticated || !profileMatchesActiveState) return;
+    const state = normalizeSyncedBibleReaderState({
+      translation: bibleTranslation,
+      position: { book: readerBook, chapter: readerChapter },
+      history: bibleReaderHistory,
+      readChapters: readBibleChapters,
+      bookmarks: bibleBookmarks,
+      ...overrides
+    });
+    if (!state) return;
+
+    const signature = JSON.stringify(state);
+    appliedBibleReaderStateSignatureRef.current = signature;
+    saveBibleReaderState({ profileId: activeProfileId, state }).catch(() => undefined);
   }
 
   function toggleMemoryMilestoneGoal(goalId: MemoryMilestoneGoalId) {
@@ -5473,6 +5552,7 @@ export default function Home() {
               onSelectTranslation={(nextTranslationId: string) => {
                 setBibleTranslation(nextTranslationId as BibleTranslationId);
                 saveStoredBibleTranslation(nextTranslationId as BibleTranslationId).catch(() => undefined);
+                persistBibleReaderState({ translation: nextTranslationId as BibleTranslationId });
               }}
               onBookSearchChange={setReaderBookSearch}
               onToggleHistoryCollapsed={() => toggleRememberedPanel(setReaderHistoryCollapsed, "bibleReaderHistoryCollapsed")}
@@ -9728,6 +9808,84 @@ function shortBibleTranslationName(name?: string) {
   if (normalized.includes("world english")) return "WEB";
   if (normalized.includes("king james")) return "KJV";
   return name || "";
+}
+
+function normalizeSyncedBibleReaderState(value: unknown): SyncedBibleReaderState | null {
+  if (!value || typeof value !== "object") return null;
+  const source = value as Record<string, any>;
+  const translation = source.translation === "web" || source.translation === "kjv" || source.translation === "bsb"
+    ? source.translation as BibleTranslationId
+    : undefined;
+  const position = source.position && typeof source.position === "object" && bibleBooks.includes(source.position.book)
+    ? {
+        book: source.position.book,
+        chapter: Math.min(Math.max(Math.round(Number(source.position.chapter) || 1), 1), BIBLE_CHAPTER_COUNTS[source.position.book] || 1)
+      }
+    : undefined;
+  const history = Array.isArray(source.history)
+    ? source.history
+        .map((item: any): StoredBibleReaderHistoryItem | null => {
+          const itemTranslation = item?.translation === "web" || item?.translation === "kjv" || item?.translation === "bsb" ? item.translation : undefined;
+          if (!item || typeof item.book !== "string" || !bibleBooks.includes(item.book) || !itemTranslation) return null;
+          const chapterCount = BIBLE_CHAPTER_COUNTS[item.book] || 1;
+          return {
+            book: item.book,
+            chapter: Math.min(Math.max(Math.round(Number(item.chapter) || 1), 1), chapterCount),
+            reference: String(item.reference || `${item.book} ${item.chapter || 1}`).slice(0, 120),
+            translation: itemTranslation,
+            updatedAt: String(item.updatedAt || new Date().toISOString()).slice(0, 40)
+          };
+        })
+        .filter((item): item is StoredBibleReaderHistoryItem => !!item)
+        .slice(0, 12)
+    : undefined;
+  const readChapters = source.readChapters && typeof source.readChapters === "object" && !Array.isArray(source.readChapters)
+    ? Object.entries(source.readChapters).reduce<StoredBibleReadChapters>((map, [book, chapters]) => {
+        if (!bibleBooks.includes(book) || !Array.isArray(chapters)) return map;
+        const chapterCount = BIBLE_CHAPTER_COUNTS[book] || 1;
+        const normalized = Array.from(new Set(chapters.map((chapter) => Math.round(Number(chapter) || 0)).filter((chapter) => chapter >= 1 && chapter <= chapterCount))).sort((a, b) => a - b);
+        if (normalized.length) map[book] = normalized;
+        return map;
+      }, {})
+    : undefined;
+  const bookmarks = Array.isArray(source.bookmarks)
+    ? source.bookmarks
+        .map((bookmark: any): StoredBibleBookmark | null => {
+          if (!bookmark || typeof bookmark.book !== "string" || !bibleBooks.includes(bookmark.book) || typeof bookmark.reference !== "string") return null;
+          const chapterCount = BIBLE_CHAPTER_COUNTS[bookmark.book] || 1;
+          const chapter = Math.min(Math.max(Math.round(Number(bookmark.chapter) || 1), 1), chapterCount);
+          return {
+            id: String(bookmark.id || `${bookmark.book}-${chapter}-${bookmark.startVerse || "chapter"}`).slice(0, 160),
+            book: bookmark.book,
+            chapter,
+            ...(Number.isFinite(Number(bookmark.startVerse)) ? { startVerse: Math.max(1, Math.round(Number(bookmark.startVerse))) } : {}),
+            ...(Number.isFinite(Number(bookmark.endVerse)) ? { endVerse: Math.max(1, Math.round(Number(bookmark.endVerse))) } : {}),
+            reference: bookmark.reference.slice(0, 120),
+            bookmarked: bookmark.bookmarked === false ? false : undefined,
+            ...(typeof bookmark.note === "string" && bookmark.note.trim() ? { note: bookmark.note.trim().slice(0, 1200) } : {}),
+            createdAt: String(bookmark.createdAt || new Date().toISOString()).slice(0, 40)
+          };
+        })
+        .filter((bookmark): bookmark is StoredBibleBookmark => !!bookmark)
+        .filter((bookmark) => bookmark.bookmarked !== false || !!bookmark.note?.trim())
+        .slice(0, 30)
+    : undefined;
+
+  const state: SyncedBibleReaderState = {};
+  if (translation) state.translation = translation;
+  if (position) state.position = position;
+  if (history) state.history = history;
+  if (readChapters) state.readChapters = readChapters;
+  if (bookmarks) state.bookmarks = bookmarks;
+  return Object.keys(state).length ? state : null;
+}
+
+function hasLocalBibleReaderState(state: Pick<SyncedBibleReaderState, "history" | "readChapters" | "bookmarks">) {
+  return !!(
+    state.history?.length ||
+    Object.values(state.readChapters || {}).some((chapters) => chapters.length > 0) ||
+    state.bookmarks?.length
+  );
 }
 
 function isReaderVerseBookmarked(verse: number, bookmarks: StoredBibleBookmark[], book: string, chapter: number) {

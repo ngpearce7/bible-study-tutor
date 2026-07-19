@@ -216,7 +216,28 @@ export const saveBibleReaderState = mutation({
       position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
       history: v.optional(v.array(bibleReaderHistoryItem)),
       readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
-      bookmarks: v.optional(v.array(bibleBookmark))
+      bookmarks: v.optional(v.array(bibleBookmark)),
+      readingPlanProgress: v.optional(v.object({
+        activePlanId: v.string(),
+        completedDays: v.array(v.string()),
+        customPlans: v.array(v.object({
+          id: v.string(),
+          title: v.string(),
+          description: v.string(),
+          source: v.literal("custom"),
+          category: v.optional(v.string()),
+          days: v.array(v.object({
+            day: v.number(),
+            title: v.string(),
+            reference: v.string(),
+            readerBook: v.string(),
+            readerChapter: v.number(),
+            studyReference: v.string()
+          }))
+        })),
+        startDates: v.optional(v.record(v.string(), v.string())),
+        updatedAt: v.optional(v.number())
+      }))
     })
   },
   handler: async (ctx, args) => {
@@ -531,6 +552,27 @@ function cleanBibleReaderState(state: {
     note?: string;
     createdAt: string;
   }>;
+  readingPlanProgress?: {
+    activePlanId: string;
+    completedDays: string[];
+    customPlans: Array<{
+      id: string;
+      title: string;
+      description: string;
+      source: "custom";
+      category?: string;
+      days: Array<{
+        day: number;
+        title: string;
+        reference: string;
+        readerBook: string;
+        readerChapter: number;
+        studyReference: string;
+      }>;
+    }>;
+    startDates?: Record<string, string>;
+    updatedAt?: number;
+  };
 }) {
   const readChapters = Object.entries(state.readChapters || {}).reduce<Record<string, number[]>>((map, [book, chapters]) => {
     const cleanedBook = clampText(book, 80);
@@ -541,6 +583,8 @@ function cleanBibleReaderState(state: {
     if (normalized.length) map[cleanedBook] = normalized;
     return map;
   }, {});
+
+  const readingPlanProgress = cleanBibleReadingPlanProgress(state.readingPlanProgress);
 
   return {
     translation: state.translation,
@@ -568,7 +612,56 @@ function cleanBibleReaderState(state: {
       bookmarked: bookmark.bookmarked,
       note: clampOptionalText(bookmark.note, 1200),
       createdAt: clampText(bookmark.createdAt, 40)
-    }))
+    })),
+    readingPlanProgress
+  };
+}
+
+function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleReaderState>[0]["readingPlanProgress"]) {
+  if (!progress) return undefined;
+  const customPlans = (progress.customPlans || [])
+    .slice(0, 30)
+    .map((plan) => {
+      const days = (plan.days || [])
+        .slice(0, 400)
+        .map((day) => ({
+          day: Math.max(1, Math.min(400, Math.round(day.day))),
+          title: clampText(day.title, 80),
+          reference: clampText(day.reference, 120),
+          readerBook: clampText(day.readerBook, 80),
+          readerChapter: Math.max(1, Math.min(200, Math.round(day.readerChapter))),
+          studyReference: clampText(day.studyReference, 120)
+        }))
+        .filter((day) => day.reference && day.readerBook);
+      if (!days.length) return null;
+      return {
+        id: clampText(plan.id, 80),
+        title: clampText(plan.title, 80),
+        description: clampText(plan.description, 240),
+        source: "custom" as const,
+        category: clampOptionalText(plan.category, 40) || "Custom",
+        days
+      };
+    })
+    .filter((plan): plan is NonNullable<typeof plan> => !!plan);
+  const customPlanIds = new Set(customPlans.map((plan) => plan.id));
+  const activePlanId = clampText(progress.activePlanId, 80);
+  const completedDays = Array.from(new Set((progress.completedDays || []).map((key) => clampText(key, 100)).filter(Boolean))).slice(0, 5000);
+  const startDates = Object.entries(progress.startDates || {})
+    .slice(0, 60)
+    .reduce<Record<string, string>>((map, [planId, date]) => {
+      const cleanPlanId = clampText(planId, 80);
+      const cleanDate = clampText(date, 10);
+      if (cleanPlanId && /^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) map[cleanPlanId] = cleanDate;
+      return map;
+    }, {});
+
+  return {
+    activePlanId: activePlanId && (activePlanId.startsWith("custom-") ? customPlanIds.has(activePlanId) : true) ? activePlanId : "",
+    completedDays,
+    customPlans,
+    startDates,
+    updatedAt: Number.isFinite(Number(progress.updatedAt)) ? Math.max(0, Number(progress.updatedAt)) : Date.now()
   };
 }
 

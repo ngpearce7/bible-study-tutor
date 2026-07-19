@@ -39,12 +39,36 @@ const bibleBookmark = v.object({
   note: v.optional(v.string()),
   createdAt: v.string()
 });
+const bibleReadingPlanDay = v.object({
+  day: v.number(),
+  title: v.string(),
+  reference: v.string(),
+  readerBook: v.string(),
+  readerChapter: v.number(),
+  studyReference: v.string()
+});
+const customBibleReadingPlan = v.object({
+  id: v.string(),
+  title: v.string(),
+  description: v.string(),
+  source: v.literal("custom"),
+  category: v.optional(v.string()),
+  days: v.array(bibleReadingPlanDay)
+});
+const bibleReadingPlanProgress = v.object({
+  activePlanId: v.string(),
+  completedDays: v.array(v.string()),
+  customPlans: v.array(customBibleReadingPlan),
+  startDates: v.optional(v.record(v.string(), v.string())),
+  updatedAt: v.optional(v.number())
+});
 const bibleReaderState = v.object({
   translation: v.optional(v.union(v.literal("bsb"), v.literal("web"), v.literal("kjv"))),
   position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
   history: v.optional(v.array(bibleReaderHistoryItem)),
   readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
-  bookmarks: v.optional(v.array(bibleBookmark))
+  bookmarks: v.optional(v.array(bibleBookmark)),
+  readingPlanProgress: v.optional(bibleReadingPlanProgress)
 });
 
 export default defineSchema({

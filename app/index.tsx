@@ -6,7 +6,7 @@ import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBo
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredBibleReadingPlanProgress, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -157,6 +157,7 @@ type SyncedBibleReaderState = {
   history?: StoredBibleReaderHistoryItem[];
   readChapters?: StoredBibleReadChapters;
   bookmarks?: StoredBibleBookmark[];
+  readingPlanProgress?: StoredBibleReadingPlanProgress;
 };
 
 const SCRIPTURE_INSERT_SETTINGS_KEY = "bible-study-tutor-scripture-insert-settings";
@@ -813,14 +814,13 @@ export default function Home() {
         .catch(() => undefined);
       getStoredBibleReadingPlanProgress()
         .then((progress) => {
-          const storedPlans = Array.isArray(progress.customPlans) ? progress.customPlans : [];
+          const normalizedProgress = normalizeBibleReadingPlanProgress(progress);
+          if (!normalizedProgress) return;
+          const storedPlans = normalizedProgress.customPlans;
           const availablePlans = [...bibleReadingPlans, ...storedPlans];
-          const normalizedActivePlanId = normalizeBibleReadingPlanId(progress.activePlanId);
-          const normalizedCompletedDays = normalizeBibleReadingPlanProgressKeys(progress.completedDays);
-          const storedStartDates = progress.startDates || {};
-          const normalizedStartDates = progress.activePlanId === "bible-1-year" && storedStartDates["bible-1-year"] && !storedStartDates["bible-365"]
-            ? { ...storedStartDates, "bible-365": storedStartDates["bible-1-year"] }
-            : storedStartDates;
+          const normalizedActivePlanId = normalizedProgress.activePlanId;
+          const normalizedCompletedDays = normalizedProgress.completedDays;
+          const normalizedStartDates = normalizedProgress.startDates || {};
           setCustomBibleReadingPlans(storedPlans);
           setBibleReadingPlanStartDates(normalizedStartDates);
           if (availablePlans.some((plan) => plan.id === normalizedActivePlanId)) {
@@ -831,16 +831,18 @@ export default function Home() {
                 activePlanId: normalizedActivePlanId,
                 completedDays: normalizedCompletedDays,
                 customPlans: storedPlans,
-                startDates: backfilledStartDates
+                startDates: backfilledStartDates,
+                updatedAt: Date.now()
               }).catch(() => undefined);
             }
             setActiveBibleReadingPlanId(normalizedActivePlanId);
-            if (normalizedActivePlanId !== progress.activePlanId || normalizedCompletedDays.length !== progress.completedDays.length || normalizedCompletedDays.some((key, index) => key !== progress.completedDays[index])) {
+            if (JSON.stringify(normalizedProgress) !== JSON.stringify(progress)) {
               saveStoredBibleReadingPlanProgress({
                 activePlanId: normalizedActivePlanId,
                 completedDays: normalizedCompletedDays,
                 customPlans: storedPlans,
-                startDates: normalizedStartDates
+                startDates: normalizedStartDates,
+                updatedAt: normalizedProgress.updatedAt || Date.now()
               }).catch(() => undefined);
             }
           }
@@ -1660,7 +1662,7 @@ export default function Home() {
     const syncedReaderState = normalizeSyncedBibleReaderState((profile as any).bibleReaderState);
     if (!syncedReaderState) {
       const profileKey = String(activeProfileId || "");
-      if (appliedBibleReaderProfileIdRef.current !== profileKey && hasLocalBibleReaderState({ history: bibleReaderHistory, readChapters: readBibleChapters, bookmarks: bibleBookmarks })) {
+      if (appliedBibleReaderProfileIdRef.current !== profileKey && hasLocalBibleReaderState({ history: bibleReaderHistory, readChapters: readBibleChapters, bookmarks: bibleBookmarks, readingPlanProgress: currentBibleReadingPlanProgress() })) {
         appliedBibleReaderProfileIdRef.current = profileKey;
         persistBibleReaderState();
       }
@@ -1698,6 +1700,19 @@ export default function Home() {
     if (syncedReaderState.bookmarks) {
       setBibleBookmarks(syncedReaderState.bookmarks);
       saveStoredBibleBookmarks(syncedReaderState.bookmarks).catch(() => undefined);
+    }
+    if (syncedReaderState.readingPlanProgress) {
+      const progress = syncedReaderState.readingPlanProgress;
+      setActiveBibleReadingPlanId(progress.activePlanId);
+      setCompletedBibleReadingPlanDays(progress.completedDays);
+      setCustomBibleReadingPlans(progress.customPlans);
+      setBibleReadingPlanStartDates(progress.startDates || {});
+      saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
+    } else {
+      const localProgress = currentBibleReadingPlanProgress();
+      if (hasBibleReadingPlanProgress(localProgress)) {
+        persistBibleReaderState({ readingPlanProgress: localProgress });
+      }
     }
   }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState]);
 
@@ -4413,7 +4428,9 @@ export default function Home() {
   }
 
   function persistBibleReadingPlanProgress(activePlanId: string, completedDays: string[], customPlans = customBibleReadingPlans, startDates = bibleReadingPlanStartDates) {
-    saveStoredBibleReadingPlanProgress({ activePlanId, completedDays, customPlans, startDates }).catch(() => undefined);
+    const progress = currentBibleReadingPlanProgress(activePlanId, completedDays, customPlans, startDates);
+    saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
+    persistBibleReaderState({ readingPlanProgress: progress });
   }
 
   function selectBibleReadingPlan(planId: string) {
@@ -4878,6 +4895,16 @@ export default function Home() {
     saveUiPreference({ profileId: activeProfileId, key, value }).catch(() => undefined);
   }
 
+  function currentBibleReadingPlanProgress(activePlanId = activeBibleReadingPlanId, completedDays = completedBibleReadingPlanDays, customPlans = customBibleReadingPlans, startDates = bibleReadingPlanStartDates): StoredBibleReadingPlanProgress {
+    return normalizeBibleReadingPlanProgress({
+      activePlanId,
+      completedDays,
+      customPlans,
+      startDates,
+      updatedAt: Date.now()
+    }) || { activePlanId: "", completedDays: [], customPlans: [], startDates: {}, updatedAt: Date.now() };
+  }
+
   function persistBibleReaderState(overrides: Partial<SyncedBibleReaderState> = {}) {
     if (!activeProfileId || !isAuthenticated || !profileMatchesActiveState) return;
     const state = normalizeSyncedBibleReaderState({
@@ -4886,6 +4913,7 @@ export default function Home() {
       history: bibleReaderHistory,
       readChapters: readBibleChapters,
       bookmarks: bibleBookmarks,
+      readingPlanProgress: currentBibleReadingPlanProgress(),
       ...overrides
     });
     if (!state) return;
@@ -9150,6 +9178,69 @@ function normalizeBibleReadingPlanProgressKeys(keys: string[]) {
   return keys.map((key) => key.startsWith("bible-1-year:") ? key.replace("bible-1-year:", "bible-365:") : key);
 }
 
+function normalizeSyncedCustomBibleReadingPlan(plan: any): BibleReadingPlan | null {
+  if (!plan || typeof plan.id !== "string" || typeof plan.title !== "string" || !Array.isArray(plan.days)) return null;
+  const days = plan.days
+    .slice(0, 400)
+    .map((day: any): BibleReadingPlanDay | null => {
+      if (!day || typeof day.reference !== "string" || typeof day.readerBook !== "string") return null;
+      const readerBook = readerBookFromReferenceBook(String(day.readerBook).slice(0, 80));
+      const chapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 200;
+      return {
+        day: Math.max(1, Math.min(400, Math.round(Number(day.day) || 1))),
+        title: String(day.title || `Day ${day.day || 1}`).slice(0, 80),
+        reference: String(day.reference).slice(0, 120),
+        readerBook,
+        readerChapter: Math.max(1, Math.min(chapterCount, Math.round(Number(day.readerChapter) || 1))),
+        studyReference: String(day.studyReference || day.reference).slice(0, 120)
+      };
+    })
+    .filter((day: BibleReadingPlanDay | null): day is BibleReadingPlanDay => !!day);
+  if (!days.length) return null;
+  return {
+    id: plan.id.slice(0, 80),
+    title: plan.title.slice(0, 80),
+    description: typeof plan.description === "string" ? plan.description.slice(0, 240) : "",
+    source: "custom",
+    category: typeof plan.category === "string" ? plan.category.slice(0, 40) : "Custom",
+    days
+  };
+}
+
+function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleReadingPlanProgress | null {
+  if (!value || typeof value !== "object") return null;
+  const source = value as Record<string, any>;
+  const customPlans = Array.isArray(source.customPlans)
+    ? source.customPlans
+        .map(normalizeSyncedCustomBibleReadingPlan)
+        .filter((plan): plan is BibleReadingPlan => !!plan)
+        .slice(0, 30)
+    : [];
+  const validPlanIds = new Set([...bibleReadingPlans.map((plan) => plan.id), ...customPlans.map((plan) => plan.id)]);
+  const activePlanId = normalizeBibleReadingPlanId(typeof source.activePlanId === "string" ? source.activePlanId : "");
+  const completedDays = normalizeBibleReadingPlanProgressKeys(
+    Array.isArray(source.completedDays)
+      ? source.completedDays.map((key) => String(key).slice(0, 100)).filter(Boolean)
+      : []
+  ).slice(0, 5000);
+  const startDates = source.startDates && typeof source.startDates === "object" && !Array.isArray(source.startDates)
+    ? Object.entries(source.startDates).slice(0, 60).reduce<Record<string, string>>((map, [planId, date]) => {
+        const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
+        const dateKey = String(date).slice(0, 10);
+        if (normalizedPlanId && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
+        return map;
+      }, {})
+    : {};
+  const normalized: StoredBibleReadingPlanProgress = {
+    activePlanId: activePlanId && validPlanIds.has(activePlanId) ? activePlanId : "",
+    completedDays: Array.from(new Set(completedDays)),
+    customPlans,
+    startDates,
+    updatedAt: Number.isFinite(Number(source.updatedAt)) ? Number(source.updatedAt) : Date.now()
+  };
+  return normalized.activePlanId || normalized.completedDays.length || normalized.customPlans.length || Object.keys(normalized.startDates || {}).length ? normalized : null;
+}
+
 function verseMarkupKey(verse: BibleVerse) {
   return `${verse.book_name}:${verse.chapter}:${verse.verse}`;
 }
@@ -10564,6 +10655,7 @@ function normalizeSyncedBibleReaderState(value: unknown): SyncedBibleReaderState
         .filter((bookmark) => bookmark.bookmarked !== false || !!bookmark.note?.trim())
         .slice(0, 30)
     : undefined;
+  const readingPlanProgress = normalizeBibleReadingPlanProgress(source.readingPlanProgress);
 
   const state: SyncedBibleReaderState = {};
   if (translation) state.translation = translation;
@@ -10571,14 +10663,25 @@ function normalizeSyncedBibleReaderState(value: unknown): SyncedBibleReaderState
   if (history) state.history = history;
   if (readChapters) state.readChapters = readChapters;
   if (bookmarks) state.bookmarks = bookmarks;
+  if (readingPlanProgress) state.readingPlanProgress = readingPlanProgress;
   return Object.keys(state).length ? state : null;
 }
 
-function hasLocalBibleReaderState(state: Pick<SyncedBibleReaderState, "history" | "readChapters" | "bookmarks">) {
+function hasBibleReadingPlanProgress(progress?: StoredBibleReadingPlanProgress | null) {
+  return !!(
+    progress?.activePlanId ||
+    progress?.completedDays.length ||
+    progress?.customPlans.length ||
+    Object.keys(progress?.startDates || {}).length
+  );
+}
+
+function hasLocalBibleReaderState(state: Pick<SyncedBibleReaderState, "history" | "readChapters" | "bookmarks" | "readingPlanProgress">) {
   return !!(
     state.history?.length ||
     Object.values(state.readChapters || {}).some((chapters) => chapters.length > 0) ||
-    state.bookmarks?.length
+    state.bookmarks?.length ||
+    hasBibleReadingPlanProgress(state.readingPlanProgress)
   );
 }
 

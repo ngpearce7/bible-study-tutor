@@ -12,6 +12,7 @@ export type StoredBibleReadingPlanProgress = {
   completedDays: string[];
   customPlans: BibleReadingPlan[];
   startDates?: Record<string, string>;
+  updatedAt?: number;
 };
 export type StoredBibleBookmark = {
   id: string;
@@ -167,7 +168,8 @@ export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleRe
             .map(normalizeStoredBibleReadingPlan)
             .filter((plan: BibleReadingPlan | null): plan is BibleReadingPlan => !!plan)
             .slice(0, 30)
-        : []
+        : [],
+      updatedAt: Number.isFinite(Number(parsed?.updatedAt)) ? Number(parsed.updatedAt) : undefined
     };
   } catch {
     return { activePlanId: "", completedDays: [], customPlans: [], startDates: {} };
@@ -179,7 +181,8 @@ export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleRe
     activePlanId: progress.activePlanId,
     completedDays: Array.from(new Set(progress.completedDays)),
     customPlans: progress.customPlans.slice(0, 30),
-    startDates: progress.startDates || {}
+    startDates: progress.startDates || {},
+    updatedAt: progress.updatedAt || Date.now()
   }));
 }
 

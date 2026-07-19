@@ -6071,6 +6071,7 @@ export default function Home() {
             <Eyebrow>Reading paths</Eyebrow>
             <Text style={[styles.title, plansDarkMode && styles.accountDarkTitle]}>Bible reading plans</Text>
             <Text style={[styles.titleSupport, plansDarkMode && styles.accountDarkMutedText]}>Choose, continue, create, and manage reading plans. The Bible reader shows the active plan for today.</Text>
+            <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Active plans</Text>
             {activeBibleReadingPlan && activeBibleReadingPlanToday ? (
               <View style={[styles.currentPlanWideBox, styles.currentBibleReadingPlanBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
                 <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
@@ -6214,6 +6215,7 @@ export default function Home() {
               </View>
             )}
 
+            <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Custom plans</Text>
             <View style={[styles.currentPlanWideBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
               <Pressable
                 accessibilityRole="button"
@@ -6250,9 +6252,7 @@ export default function Home() {
             </View>
 
             <View style={styles.planBrowseIntro}>
-              <Eyebrow>Browse plans</Eyebrow>
-              <Text style={[styles.planBrowseIntroTitle, plansDarkMode && styles.accountDarkTitle]}>Choose from your plans or built-in paths</Text>
-              <Text style={[styles.planBrowseIntroText, plansDarkMode && styles.accountDarkMutedText]}>Custom plans stay separate from the built-in library, so it is easier to scan what you created and what the app provides.</Text>
+              <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Browse plans</Text>
             </View>
             <View style={styles.planBrowseSectionStack}>
               {unfollowedBibleReadingPlanGroups.map((group) => {
@@ -15515,20 +15515,19 @@ const styles = StyleSheet.create({
   planBrowseSectionStack: {
     gap: 12
   },
+  planSectionHeading: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0,
+    marginTop: 6,
+    textTransform: "uppercase"
+  },
+  planSectionHeadingDark: {
+    color: "#e9b76a"
+  },
   planBrowseIntro: {
-    gap: 4,
     marginTop: 4
-  },
-  planBrowseIntroTitle: {
-    color: colors.ink,
-    fontSize: 17,
-    fontWeight: "900"
-  },
-  planBrowseIntroText: {
-    color: colors.muted,
-    fontSize: 13,
-    lineHeight: 19,
-    maxWidth: 760
   },
   planBrowseSection: {
     backgroundColor: "#fffaf2",

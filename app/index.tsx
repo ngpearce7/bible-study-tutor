@@ -6204,37 +6204,27 @@ export default function Home() {
                           </Text>
                         )}
                       </View>
-                      <View style={styles.planPageHeaderActions}>
-                        {planStarted && <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>}
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityLabel={expanded ? `Hide details for ${plan.title}` : `Show more details for ${plan.title}`}
-                          accessibilityState={{ expanded }}
-                          onPress={() => {
-                            setExpandedBiblePlanId(expanded ? "" : plan.id);
-                            if (!expanded) {
-                              setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 0 }));
-                            }
-                          }}
-                          style={[styles.planExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
-                        >
-                          <Text style={[styles.planExpandButtonText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide details" : "More details"}</Text>
-                          <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        </Pressable>
-                      </View>
+                      {planStarted && (
+                        <View style={styles.planPageHeaderActions}>
+                          <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
+                        </View>
+                      )}
                     </View>
                     {planStarted && (
                       <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
                         <View style={[styles.planProgressFill, { width: `${Math.min(100, progressPercent)}%` }]} />
                       </View>
                     )}
-                    <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
-                      <AppButton
-                        label="Follow plan"
+                    <View style={styles.planCardActionRow}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Follow ${plan.title}`}
                         onPress={() => selectBibleReadingPlan(plan.id)}
-                        style={phoneLayout && styles.phonePlanPrimaryButton}
-                        labelStyle={phoneLayout && styles.phonePlanButtonLabel}
-                      />
+                        style={[styles.planCardActionChip, styles.planCardPrimaryChip]}
+                      >
+                        <Ionicons name="calendar-outline" size={13} color="white" />
+                        <Text style={[styles.planCardActionText, styles.planCardPrimaryText]}>Follow</Text>
+                      </Pressable>
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={expanded ? `Hide details for ${plan.title}` : `Show more details for ${plan.title}`}
@@ -6243,12 +6233,22 @@ export default function Home() {
                           setExpandedBiblePlanId(expanded ? "" : plan.id);
                           if (!expanded) setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 0 }));
                         }}
-                        style={[styles.planExpandButton, styles.planDetailsButton, plansDarkMode && styles.homeDarkResumeButton]}
+                        style={[styles.planCardActionChip, styles.planCardSecondaryChip, plansDarkMode && styles.planCardSecondaryChipDark]}
                       >
-                        <Text style={[styles.planExpandButtonText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide details" : "More details"}</Text>
-                        <Ionicons name={expanded ? "chevron-up-outline" : "information-circle-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Ionicons name={expanded ? "chevron-up-outline" : "information-circle-outline"} size={13} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.planCardActionText, styles.planCardSecondaryText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide" : "Details"}</Text>
                       </Pressable>
-                      {plan.source === "custom" && <ResumeButton label={pendingBiblePlanDeleteId === plan.id ? "Confirm delete" : "Delete"} icon="trash-outline" onPress={() => deleteCustomBibleReadingPlan(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
+                      {plan.source === "custom" && (
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={pendingBiblePlanDeleteId === plan.id ? `Confirm delete ${plan.title}` : `Delete ${plan.title}`}
+                          onPress={() => deleteCustomBibleReadingPlan(plan.id)}
+                          style={[styles.planCardActionChip, styles.planCardDangerChip, plansDarkMode && styles.planCardDangerChipDark]}
+                        >
+                          <Ionicons name="trash-outline" size={13} color={plansDarkMode ? "#f2a088" : colors.coral} />
+                          <Text style={[styles.planCardActionText, styles.planCardDangerText, plansDarkMode && styles.planCardDangerTextDark]}>{pendingBiblePlanDeleteId === plan.id ? "Confirm" : "Delete"}</Text>
+                        </Pressable>
+                      )}
                     </View>
                     {expanded && (
                       <>
@@ -15376,6 +15376,59 @@ const styles = StyleSheet.create({
   planPageHeaderActions: {
     alignItems: "flex-end",
     gap: 8
+  },
+  planCardActionRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7,
+    marginTop: 1
+  },
+  planCardActionChip: {
+    alignItems: "center",
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 4,
+    minHeight: 32,
+    paddingHorizontal: 10,
+    paddingVertical: 6
+  },
+  planCardPrimaryChip: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  planCardSecondaryChip: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line
+  },
+  planCardSecondaryChipDark: {
+    backgroundColor: "#181510",
+    borderColor: "#4f4636"
+  },
+  planCardDangerChip: {
+    backgroundColor: "#fff6eb",
+    borderColor: "#f0c4b7"
+  },
+  planCardDangerChipDark: {
+    backgroundColor: "#251817",
+    borderColor: "rgba(242, 160, 136, 0.3)"
+  },
+  planCardActionText: {
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  planCardPrimaryText: {
+    color: "white"
+  },
+  planCardSecondaryText: {
+    color: colors.oliveDark
+  },
+  planCardDangerText: {
+    color: colors.coral
+  },
+  planCardDangerTextDark: {
+    color: "#f2a088"
   },
   planExpandButton: {
     alignItems: "center",

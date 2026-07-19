@@ -6220,10 +6220,10 @@ export default function Home() {
                         accessibilityRole="button"
                         accessibilityLabel={`Follow ${plan.title}`}
                         onPress={() => selectBibleReadingPlan(plan.id)}
-                        style={[styles.planCardActionChip, styles.planCardPrimaryChip]}
+                        style={[styles.planCardActionChip, styles.planCardPrimaryChip, plansDarkMode && styles.planCardPrimaryChipDark]}
                       >
-                        <Ionicons name="calendar-outline" size={13} color="white" />
-                        <Text style={[styles.planCardActionText, styles.planCardPrimaryText]}>Follow</Text>
+                        <Ionicons name="calendar-outline" size={13} color={plansDarkMode ? "#dce7c8" : colors.oliveDark} />
+                        <Text style={[styles.planCardActionText, styles.planCardPrimaryText, plansDarkMode && styles.planCardPrimaryTextDark]}>Follow</Text>
                       </Pressable>
                       <Pressable
                         accessibilityRole="button"
@@ -15401,8 +15401,12 @@ const styles = StyleSheet.create({
     paddingVertical: 6
   },
   planCardPrimaryChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: "#eef3e7",
+    borderColor: "#b8c8a7"
+  },
+  planCardPrimaryChipDark: {
+    backgroundColor: "#263026",
+    borderColor: "rgba(172, 196, 151, 0.45)"
   },
   planCardSecondaryChip: {
     backgroundColor: "#fffaf2",
@@ -15425,7 +15429,10 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   planCardPrimaryText: {
-    color: "white"
+    color: colors.oliveDark
+  },
+  planCardPrimaryTextDark: {
+    color: "#dce7c8"
   },
   planCardSecondaryText: {
     color: colors.oliveDark

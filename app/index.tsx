@@ -55,6 +55,7 @@ type MemoryBookCollectionDraft = {
 type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
+type BiblePlanDayView = "upcoming" | "completed" | "all";
 type UiPreferenceKey =
   | "studyInstructionsCollapsed"
   | "studyCoachingVisible"
@@ -567,6 +568,9 @@ export default function Home() {
   const [customBiblePlanStatus, setCustomBiblePlanStatus] = useState("");
   const [customBiblePlanFormOpen, setCustomBiblePlanFormOpen] = useState(false);
   const [expandedBiblePlanId, setExpandedBiblePlanId] = useState("");
+  const [activeBiblePlanDayView, setActiveBiblePlanDayView] = useState<BiblePlanDayView>("upcoming");
+  const [activeBiblePlanVisibleRows, setActiveBiblePlanVisibleRows] = useState(7);
+  const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
@@ -1200,6 +1204,21 @@ export default function Home() {
     ? activeBibleReadingPlan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))) || activeBibleReadingPlan.days[0]
     : null;
   const activeBibleReadingPlanComplete = !!activeBibleReadingPlan && activeBibleReadingPlanCompletedCount === activeBibleReadingPlan.days.length;
+  const activeBibleReadingPlanIsLarge = !!activeBibleReadingPlan && activeBibleReadingPlan.days.length > 7;
+  const activeBibleReadingPlanTodayIndex =
+    activeBibleReadingPlan && activeBibleReadingPlanToday
+      ? Math.max(0, activeBibleReadingPlan.days.findIndex((day) => day.day === activeBibleReadingPlanToday.day))
+      : 0;
+  const activeBibleReadingPlanFilteredDays = activeBibleReadingPlan
+    ? activeBibleReadingPlanIsLarge && activeBiblePlanDayView === "upcoming"
+      ? activeBibleReadingPlan.days.slice(Math.max(0, activeBibleReadingPlanTodayIndex - 1))
+      : activeBibleReadingPlanIsLarge && activeBiblePlanDayView === "completed"
+        ? activeBibleReadingPlan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day)))
+        : activeBibleReadingPlan.days
+    : [];
+  const activeBibleReadingPlanVisibleDays = activeBibleReadingPlanIsLarge
+    ? activeBibleReadingPlanFilteredDays.slice(0, activeBiblePlanVisibleRows)
+    : activeBibleReadingPlanFilteredDays;
   const readerActiveBibleReadingPlanDay = activeBibleReadingPlan
     ? activeBibleReadingPlan.days.find((day) => day.readerBook === readerBook && day.readerChapter === readerChapter) || null
     : null;
@@ -4326,6 +4345,8 @@ export default function Home() {
     if (!nextPlanId) return;
     setActiveBibleReadingPlanId(nextPlanId);
     setExpandedBiblePlanId(nextPlanId);
+    setActiveBiblePlanDayView("upcoming");
+    setActiveBiblePlanVisibleRows(7);
     persistBibleReadingPlanProgress(nextPlanId, completedBibleReadingPlanDays);
     trackUsage("bible_reading_plan_selected", { reference: nextPlanId, tab: "bible" });
   }
@@ -4410,6 +4431,8 @@ export default function Home() {
     setCustomBiblePlanStatus(`${plan.title} created.`);
     setActiveBibleReadingPlanId(id);
     setExpandedBiblePlanId(id);
+    setActiveBiblePlanDayView("upcoming");
+    setActiveBiblePlanVisibleRows(7);
     persistBibleReadingPlanProgress(id, completedBibleReadingPlanDays, nextPlans);
     trackUsage("bible_reading_plan_created", { reference: title, tab: "plans" });
     dismissMobileInputFocus();
@@ -5900,13 +5923,88 @@ export default function Home() {
                 <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
                   <View style={[styles.planProgressFill, { width: `${(activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100}%` }]} />
                 </View>
-                <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
-                  {!activeBibleReadingPlanComplete && <AppButton label="Continue in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[phoneLayout && styles.phonePlanPrimaryButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
-                  {!activeBibleReadingPlanComplete && <AppButton label="Study today" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
-                  {!activeBibleReadingPlanComplete && <AppButton label="Mark read" variant="secondary" onPress={() => markBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+                <View style={[styles.currentPlanNextBox, plansDarkMode && styles.accountDarkInsetBox]}>
+                  <View style={styles.planDayCopy}>
+                    <Text style={[styles.readerBookSectionTitle, plansDarkMode && styles.studyDarkAccentText]}>
+                      {activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`}
+                    </Text>
+                    <Text style={[styles.readerReadChapterBookTitle, plansDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlanToday.reference}</Text>
+                  </View>
+                  {!activeBibleReadingPlanComplete && (
+                    <View style={styles.planDayActions}>
+                      <Pressable accessibilityRole="button" accessibilityLabel={`Open ${activeBibleReadingPlanToday.reference} in Bible`} onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                        <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </Pressable>
+                      <Pressable accessibilityRole="button" accessibilityLabel={`Study ${activeBibleReadingPlanToday.reference}`} onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                        <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </Pressable>
+                      <Pressable accessibilityRole="button" accessibilityLabel={`Mark ${activeBibleReadingPlanToday.reference} complete`} onPress={() => markBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={[styles.planDayIconAction, styles.readerPlanCompleteButton]}>
+                        <Ionicons name="checkmark-circle-outline" size={15} color="white" />
+                      </Pressable>
+                    </View>
+                  )}
                 </View>
+                <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
+                  {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[phoneLayout && styles.phonePlanPrimaryButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                  {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+                  {!activeBibleReadingPlanComplete && <AppButton label="Mark complete" variant="secondary" onPress={() => markBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+                </View>
+                {activeBibleReadingPlanIsLarge && (
+                  <>
+                    <View style={styles.planProgressMap}>
+                      {activeBibleReadingPlan.days.map((planDay) => {
+                        const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day));
+                        const current = activeBibleReadingPlanToday.day === planDay.day;
+                        return (
+                          <Pressable
+                            key={planDay.day}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Open day ${planDay.day}, ${planDay.reference}`}
+                            onPress={() => { openBibleReadingPlanDay(planDay); setTab("bible"); }}
+                            style={[styles.planProgressDot, plansDarkMode && styles.planProgressDotDark, done && styles.planProgressDotDone, current && styles.planProgressDotCurrent]}
+                          />
+                        );
+                      })}
+                    </View>
+                    <View style={[styles.planSegmentedControl, plansDarkMode && styles.readerQuickListToggle]}>
+                      {(["upcoming", "completed", "all"] as BiblePlanDayView[]).map((view) => (
+                        <Pressable
+                          key={view}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Show ${view} readings`}
+                          onPress={() => { setActiveBiblePlanDayView(view); setActiveBiblePlanVisibleRows(view === "upcoming" ? 7 : 10); }}
+                          style={[styles.planSegmentButton, activeBiblePlanDayView === view && styles.activeReaderBookChip]}
+                        >
+                          <Text style={[styles.planSegmentText, plansDarkMode && styles.accountDarkMutedText, activeBiblePlanDayView === view && styles.activeReaderBookText]}>{view.charAt(0).toUpperCase() + view.slice(1)}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={activeBiblePlanDayView === "all" ? "Hide full reading list" : "Show all readings in the current plan"}
+                      onPress={() => {
+                        if (activeBiblePlanDayView === "all") {
+                          setActiveBiblePlanDayView("upcoming");
+                          setActiveBiblePlanVisibleRows(7);
+                        } else {
+                          setActiveBiblePlanDayView("all");
+                          setActiveBiblePlanVisibleRows(10);
+                        }
+                      }}
+                      style={[styles.readerBookmarkExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
+                    >
+                      <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>{activeBiblePlanDayView === "all" ? "Hide readings" : "Show all readings"}</Text>
+                      <Ionicons name={activeBiblePlanDayView === "all" ? "chevron-up-outline" : "list-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    </Pressable>
+                  </>
+                )}
                 <View style={styles.currentPlanDayList}>
-                  {activeBibleReadingPlan.days.map((planDay) => {
+                  {activeBibleReadingPlanIsLarge && !activeBibleReadingPlanVisibleDays.length && (
+                    <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>
+                      No readings in this view yet.
+                    </Text>
+                  )}
+                  {activeBibleReadingPlanVisibleDays.map((planDay) => {
                     const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day));
                     return (
                       <Pressable
@@ -5935,6 +6033,28 @@ export default function Home() {
                       </Pressable>
                     );
                   })}
+                  {activeBibleReadingPlanIsLarge && activeBibleReadingPlanFilteredDays.length > activeBibleReadingPlanVisibleDays.length && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Show more readings in the current plan"
+                      onPress={() => setActiveBiblePlanVisibleRows((count) => count + 10)}
+                      style={[styles.readerBookmarkExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
+                    >
+                      <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>Show 10 more</Text>
+                      <Ionicons name="chevron-down-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    </Pressable>
+                  )}
+                  {activeBibleReadingPlanIsLarge && activeBiblePlanDayView === "all" && activeBiblePlanVisibleRows >= activeBibleReadingPlan.days.length && (
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel="Hide full reading list"
+                      onPress={() => { setActiveBiblePlanDayView("upcoming"); setActiveBiblePlanVisibleRows(7); }}
+                      style={[styles.readerBookmarkExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
+                    >
+                      <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>Hide readings</Text>
+                      <Ionicons name="chevron-up-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    </Pressable>
+                  )}
                 </View>
               </View>
             ) : (
@@ -5987,6 +6107,8 @@ export default function Home() {
                 const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
                 const expanded = expandedBiblePlanId === plan.id;
                 const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
+                const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 10;
+                const visiblePlanDays = plan.days.length > 7 ? plan.days.slice(0, visibleRows) : plan.days;
                 return (
                   <Card key={plan.id} style={[styles.planPageCard, expanded && styles.expandedBrowsePlanCard, phoneLayout && styles.phonePlanPageCard, plansDarkMode && styles.accountDarkMainCard]}>
                     <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
@@ -6004,7 +6126,12 @@ export default function Home() {
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={expanded ? `Collapse ${plan.title} reading plan` : `Expand ${plan.title} reading plan`}
-                          onPress={() => setExpandedBiblePlanId(expanded ? "" : plan.id)}
+                          onPress={() => {
+                            setExpandedBiblePlanId(expanded ? "" : plan.id);
+                            if (!expanded) {
+                              setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 10 }));
+                            }
+                          }}
                           style={[styles.planExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
                         >
                           <Text style={[styles.planExpandButtonText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide" : "Show"}</Text>
@@ -6023,7 +6150,7 @@ export default function Home() {
                           {!complete && <ResumeButton label="Study" icon="book-outline" onPress={() => { selectBibleReadingPlan(plan.id); studyBibleReadingPlanDay(nextDay); }} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
                           {plan.source === "custom" && <ResumeButton label={pendingBiblePlanDeleteId === plan.id ? "Confirm delete" : "Delete"} icon="trash-outline" onPress={() => deleteCustomBibleReadingPlan(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
                         </View>
-                        {plan.days.map((planDay) => {
+                        {visiblePlanDays.map((planDay) => {
                           const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, planDay.day));
                           return (
                             <Pressable key={planDay.day} onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay); setTab("bible"); }} style={[styles.planPageDay, styles.compactPlanPageDay, phoneLayout && styles.phonePlanPageDay, phoneLayout && styles.phoneCompactPlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
@@ -6046,6 +6173,17 @@ export default function Home() {
                             </Pressable>
                           );
                         })}
+                        {plan.days.length > visiblePlanDays.length && (
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Show more readings for ${plan.title}`}
+                            onPress={() => setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: (current[plan.id] || 10) + 10 }))}
+                            style={[styles.readerBookmarkExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
+                          >
+                            <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>Show 10 more</Text>
+                            <Ionicons name="chevron-down-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          </Pressable>
+                        )}
                       </>
                     )}
                   </Card>
@@ -15141,6 +15279,67 @@ const styles = StyleSheet.create({
   },
   currentPlanDayList: {
     gap: 6
+  },
+  currentPlanNextBox: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    padding: 10
+  },
+  planSegmentedControl: {
+    alignItems: "center",
+    backgroundColor: "#f8efe4",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 4,
+    padding: 4
+  },
+  planSegmentButton: {
+    alignItems: "center",
+    borderRadius: 8,
+    flex: 1,
+    minHeight: 30,
+    justifyContent: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 6
+  },
+  planSegmentText: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  planProgressMap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 4
+  },
+  planProgressDot: {
+    backgroundColor: "#f8efe4",
+    borderColor: colors.line,
+    borderRadius: 3,
+    borderWidth: 1,
+    height: 10,
+    width: 10
+  },
+  planProgressDotDone: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  planProgressDotCurrent: {
+    backgroundColor: colors.coral,
+    borderColor: colors.coral,
+    transform: [{ scale: 1.2 }]
+  },
+  planProgressDotDark: {
+    backgroundColor: "#2b241d",
+    borderColor: "#4b4035"
   },
   compactPlanDayBadge: {
     minWidth: 30,

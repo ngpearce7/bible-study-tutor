@@ -16,6 +16,7 @@ type BibleReaderPassageProps = {
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
   activeReadingPlanDay?: { reference: string } | null;
+  activeReadingPlanDayCompleted?: boolean;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
   selectedVersesAlreadyInMemory: boolean;
@@ -53,6 +54,7 @@ export function BibleReaderPassage({
   memoryVerseKeys,
   matchesActiveReadingPlanDay,
   activeReadingPlanDay,
+  activeReadingPlanDayCompleted,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedVersesAlreadyInMemory,
@@ -169,18 +171,27 @@ export function BibleReaderPassage({
         {matchesActiveReadingPlanDay && activeReadingPlanDay && (
           <View style={[styles.readerPlanCompletionBox, darkMode && styles.accountDarkSection]}>
             <View style={styles.readerPlanCompletionCopy}>
-              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Today's plan reading</Text>
-              <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reference}</Text>
+              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Reading plan</Text>
+              <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
+                {activeReadingPlanDayCompleted ? `${activeReadingPlanDay.reference} is complete.` : activeReadingPlanDay.reference}
+              </Text>
             </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
-              onPress={onMarkActiveReadingPlanDayComplete}
-              style={[styles.inlineReaderBookmarkButton, styles.readerPlanCompleteButton]}
-            >
-              <Ionicons name="checkmark-circle-outline" size={15} color="white" />
-              <Text style={styles.activeReaderReadButtonText}>Mark today complete</Text>
-            </Pressable>
+            {activeReadingPlanDayCompleted ? (
+              <View style={[styles.inlineReaderBookmarkButton, styles.activeReaderReadButton]}>
+                <Ionicons name="checkmark-circle" size={15} color="white" />
+                <Text style={styles.activeReaderReadButtonText}>Complete</Text>
+              </View>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
+                onPress={onMarkActiveReadingPlanDayComplete}
+                style={[styles.inlineReaderBookmarkButton, styles.readerPlanCompleteButton]}
+              >
+                <Ionicons name="checkmark-circle-outline" size={15} color="white" />
+                <Text style={styles.activeReaderReadButtonText}>Mark today complete</Text>
+              </Pressable>
+            )}
           </View>
         )}
 

@@ -106,17 +106,11 @@ export function BibleReaderNavigator({
   readerBook,
   readerChapter,
   readerBookSections,
-  bibleReadingPlans,
-  activeBibleReadingPlanId,
   activeBibleReadingPlan,
   activeBibleReadingPlanToday,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   onToggleCollapsed,
-  onSelectBibleReadingPlan,
-  onOpenBibleReadingPlanDay,
-  onMarkBibleReadingPlanDayComplete,
-  onStudyBibleReadingPlanDay,
   onOpenPlansTab,
   onSelectTranslation,
   onBookSearchChange,
@@ -163,25 +157,6 @@ export function BibleReaderNavigator({
         title: section.title,
         books: section.books
       }));
-  const visibleReadingPlans = bibleReadingPlans.slice(0, phoneLayout ? 4 : 6);
-  const readingPlanChooser = (
-    <View style={[styles.bibleReadingPlanChooser, phoneLayout && styles.phoneBibleReadingPlanChooser]}>
-      {visibleReadingPlans.map((plan: any) => (
-        <Pressable
-          key={plan.id}
-          accessibilityRole="button"
-          accessibilityLabel={`Choose ${plan.title} reading plan`}
-          onPress={() => onSelectBibleReadingPlan(plan.id)}
-          style={[styles.bibleReadingPlanChip, darkMode && styles.printDarkOptionChip, activeBibleReadingPlanId === plan.id && styles.activeReaderBookChip]}
-        >
-          <Text numberOfLines={1} style={[styles.bibleReadingPlanChipText, darkMode && styles.accountDarkMutedText, activeBibleReadingPlanId === plan.id && styles.activeReaderBookText]}>
-            {plan.title}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-
   return (
     <Card
       style={[
@@ -516,17 +491,15 @@ export function BibleReaderNavigator({
                 </Text>
               </View>
 
-              {readingPlanChooser}
-
               {activeBibleReadingPlanToday ? (
                 <>
                   <View style={styles.planProgressTrack}>
                     <View style={[styles.planProgressFill, { width: `${Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100)}%` }]} />
                   </View>
 
-                  <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
-                    <View style={styles.bibleReadingPlanTodayHeader}>
-                      <View style={styles.bibleReadingPlanTodayTitleBlock}>
+                    <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
+                      <View style={styles.bibleReadingPlanTodayHeader}>
+                        <View style={styles.bibleReadingPlanTodayTitleBlock}>
                         <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
                           {activeBibleReadingPlanComplete ? "Plan complete" : `Today: Day ${activeBibleReadingPlanToday.day}`}
                         </Text>
@@ -535,16 +508,10 @@ export function BibleReaderNavigator({
                         </Text>
                       </View>
                       <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
-                    </View>
-                    <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>{activeBibleReadingPlan.description}</Text>
-                    {!activeBibleReadingPlanComplete && (
-                      <View style={[styles.bibleReadingPlanActions, phoneLayout && styles.phoneBibleReadingPlanActions]}>
-                        <AppButton label="Open passage" variant="secondary" onPress={() => onOpenBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
-                        <AppButton label="Mark read" onPress={() => onMarkBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                        <AppButton label="Study passage" variant="secondary" onPress={() => onStudyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
-                        <AppButton label="Change plan" variant="secondary" onPress={onOpenPlansTab} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
                       </View>
-                    )}
+                    <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
+                      {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}
+                    </Text>
                   </View>
                 </>
               ) : (
@@ -552,10 +519,9 @@ export function BibleReaderNavigator({
               )}
             </View>
           ) : (
-            <View style={styles.bibleReadingPlanStarter}>
+            <View style={[styles.bibleReadingPlanStarter, darkMode && styles.accountDarkSection]}>
               <Eyebrow>Reading Plans</Eyebrow>
-              <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>Choose or create a reading plan</Text>
-              {readingPlanChooser}
+              <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>Choose a reading plan from the Plans tab.</Text>
               <AppButton label="Browse plans" variant="secondary" onPress={onOpenPlansTab} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
             </View>
           )}

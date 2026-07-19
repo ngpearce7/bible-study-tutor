@@ -115,6 +115,7 @@ export function BibleTab({
   activeReaderActionVerse,
   readerMemoryVerseKeys,
   activeReadingPlanDay,
+  activeReadingPlanDayCompleted,
   onMarkActiveReadingPlanDayComplete,
   currentSelectionBookmarked,
   currentSelectionBookmark,
@@ -262,6 +263,7 @@ export function BibleTab({
           memoryVerseKeys={readerMemoryVerseKeys}
           matchesActiveReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
           activeReadingPlanDay={activeReadingPlanDay}
+          activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
           currentSelectionBookmarked={currentSelectionBookmarked}
           currentSelectionBookmark={currentSelectionBookmark}
           selectedVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}

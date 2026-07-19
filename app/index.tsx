@@ -11283,6 +11283,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 7
   },
+  bibleReadingPlanStarter: {
+    gap: 8,
+    marginBottom: 14
+  },
   phoneBibleReadingPlanChooser: {
     flexWrap: "wrap"
   },
@@ -11897,14 +11901,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 14
   },
-  readerActivePlanPassageBox: {
-    backgroundColor: "#fff3df",
-    borderColor: "rgba(201, 103, 80, 0.28)"
-  },
-  readerDarkActivePlanPassageBox: {
-    backgroundColor: "rgba(233, 183, 106, 0.1)",
-    borderColor: "rgba(233, 183, 106, 0.28)"
-  },
   phoneReaderPassageBox: {
     paddingHorizontal: 8,
     paddingVertical: 10
@@ -11949,13 +11945,23 @@ const styles = StyleSheet.create({
   },
   readerVerseRow: {
     alignItems: "flex-start",
+    borderColor: "transparent",
     borderRadius: 10,
+    borderWidth: 1,
     flexDirection: "row",
     gap: 9,
     maxWidth: "100%",
     minWidth: 0,
     paddingHorizontal: 8,
     paddingVertical: 4
+  },
+  readerActivePlanVerseRow: {
+    backgroundColor: "#fff3df",
+    borderColor: "rgba(201, 103, 80, 0.2)"
+  },
+  readerDarkActivePlanVerseRow: {
+    backgroundColor: "rgba(233, 183, 106, 0.1)",
+    borderColor: "rgba(233, 183, 106, 0.2)"
   },
   phoneReaderVerseRow: {
     gap: 5,

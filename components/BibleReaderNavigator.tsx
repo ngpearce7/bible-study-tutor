@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { PanResponder, Pressable, Text, TextInput, View } from "react-native";
 
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "@/data/bibleLibrary";
-import { Card, Eyebrow, colors } from "@/components/ui";
+import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 
 type ReaderMobileMenu = "old" | "new" | null;
 type ReaderQuickListView = "recent" | "read";
@@ -45,7 +45,17 @@ type BibleReaderNavigatorProps = {
   readerBook: string;
   readerChapter: number;
   readerBookSections: ReaderBookSection[];
+  bibleReadingPlans: any[];
+  activeBibleReadingPlanId: string;
+  activeBibleReadingPlan?: any;
+  activeBibleReadingPlanToday?: any;
+  activeBibleReadingPlanCompletedCount: number;
+  activeBibleReadingPlanComplete: boolean;
   onToggleCollapsed: () => void;
+  onSelectBibleReadingPlan: (planId: string) => void;
+  onOpenBibleReadingPlanDay: (planDay: any) => void;
+  onMarkBibleReadingPlanDayComplete: (planDay: any) => void;
+  onStudyBibleReadingPlanDay: (planDay: any) => void;
   onSelectTranslation: (translationId: string) => void;
   onBookSearchChange: (value: string) => void;
   onToggleHistoryCollapsed: () => void;
@@ -64,7 +74,6 @@ type BibleReaderNavigatorProps = {
   onToggleBookmarksExpanded: () => void;
   onToggleMobileMenu: (menu: ReaderMobileMenu) => void;
   onSelectMobileBook: (book: string) => void;
-  onSelectBook: (book: string) => void;
   onSelectChapter: (chapter: number, book: string) => void;
   onClearReadBook: (book: string) => void;
 };
@@ -96,7 +105,17 @@ export function BibleReaderNavigator({
   readerBook,
   readerChapter,
   readerBookSections,
+  bibleReadingPlans,
+  activeBibleReadingPlanId,
+  activeBibleReadingPlan,
+  activeBibleReadingPlanToday,
+  activeBibleReadingPlanCompletedCount,
+  activeBibleReadingPlanComplete,
   onToggleCollapsed,
+  onSelectBibleReadingPlan,
+  onOpenBibleReadingPlanDay,
+  onMarkBibleReadingPlanDayComplete,
+  onStudyBibleReadingPlanDay,
   onSelectTranslation,
   onBookSearchChange,
   onToggleHistoryCollapsed,
@@ -115,7 +134,6 @@ export function BibleReaderNavigator({
   onToggleBookmarksExpanded,
   onToggleMobileMenu,
   onSelectMobileBook,
-  onSelectBook,
   onSelectChapter,
   onClearReadBook
 }: BibleReaderNavigatorProps) {
@@ -133,6 +151,33 @@ export function BibleReaderNavigator({
     }))
     .filter((section) => section.chapters.length > 0);
   const quickListCount = quickListView === "read" ? readChapterCount : Math.max(0, history.length - 1);
+  const bookPickerSections = phoneLayout
+    ? [
+        { id: "old" as ReaderMobileMenu, title: "Old Testament", books: OLD_TESTAMENT_BOOKS },
+        { id: "new" as ReaderMobileMenu, title: "New Testament", books: NEW_TESTAMENT_BOOKS }
+      ]
+    : readerBookSections.map((section) => ({
+        id: section.title === "Old Testament" ? "old" as ReaderMobileMenu : "new" as ReaderMobileMenu,
+        title: section.title,
+        books: section.books
+      }));
+  const readingPlanChooser = (
+    <View style={[styles.bibleReadingPlanChooser, phoneLayout && styles.phoneBibleReadingPlanChooser]}>
+      {bibleReadingPlans.map((plan: any) => (
+        <Pressable
+          key={plan.id}
+          accessibilityRole="button"
+          accessibilityLabel={`Choose ${plan.title} reading plan`}
+          onPress={() => onSelectBibleReadingPlan(plan.id)}
+          style={[styles.bibleReadingPlanChip, darkMode && styles.printDarkOptionChip, activeBibleReadingPlanId === plan.id && styles.activeReaderBookChip]}
+        >
+          <Text numberOfLines={1} style={[styles.bibleReadingPlanChipText, darkMode && styles.accountDarkMutedText, activeBibleReadingPlanId === plan.id && styles.activeReaderBookText]}>
+            {plan.title}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
 
   return (
     <Card
@@ -385,98 +430,33 @@ export function BibleReaderNavigator({
             </View>
           )}
 
-          {phoneLayout ? (
-            <View style={styles.mobileReaderPicker}>
-              {[
-                { id: "old" as ReaderMobileMenu, title: "Old Testament", books: OLD_TESTAMENT_BOOKS },
-                { id: "new" as ReaderMobileMenu, title: "New Testament", books: NEW_TESTAMENT_BOOKS }
-              ].map((section) => (
-                <View key={section.id || section.title} style={styles.mobileReaderDropdown}>
-                  <Pressable
-                    onPress={() => onToggleMobileMenu(mobileMenu === section.id ? null : section.id)}
-                    style={[styles.mobileReaderDropdownButton, darkMode && styles.accountDarkInsetBox]}
-                  >
-                    <Text style={[styles.mobileReaderDropdownText, darkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                    <Ionicons name={mobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#c8bda9" : colors.muted} />
-                  </Pressable>
-                  {mobileMenu === section.id && (
-                    <View style={styles.mobileReaderBookList}>
-                      {section.books.map((book) => (
-                        <View key={book} style={[styles.mobileReaderBookBlock, expandedBook === book && styles.expandedMobileReaderBookBlock]}>
-                          <Pressable
-                            onPress={() => onSelectMobileBook(book)}
-                            style={[styles.mobileReaderBookOption, darkMode && styles.printDarkOptionChip, readerBook === book && styles.activeMobileReaderBookOption]}
-                          >
-                            <Text style={[styles.mobileReaderBookText, darkMode && styles.accountDarkMutedText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
-                          </Pressable>
-                          {expandedBook === book && (
-                            <View style={[styles.mobileReaderChapterPanel, darkMode && styles.accountDarkSection]}>
-                              <View style={styles.readerChapterPanelHeader}>
-                                <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
-                                <Text style={[styles.readerChapterReadCountText, darkMode && styles.accountDarkMutedText]}>{getReadProgressLabel(book)}</Text>
-                              </View>
-                              <View style={styles.mobileReaderChapterGrid}>
-                                {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => {
-                                  const chapterRead = getReadChapterSet(book).has(chapter);
-                                  const chapterActive = readerBook === book && readerChapter === chapter;
-                                  return (
-                                    <Pressable
-                                      key={chapter}
-                                      accessibilityRole="button"
-                                      accessibilityLabel={`${book} chapter ${chapter}${chapterRead ? ", read" : ""}`}
-                                      onPress={() => onSelectChapter(chapter, book)}
-                                      style={[
-                                        styles.mobileReaderChapterSquare,
-                                        darkMode && styles.printDarkOptionChip,
-                                        chapterRead && styles.readMobileReaderChapterSquare,
-                                        darkMode && chapterRead && styles.darkReadMobileReaderChapterSquare,
-                                        chapterActive && styles.activeMobileReaderChapterSquare
-                                      ]}
-                                    >
-                                      <Text style={[
-                                        styles.mobileReaderChapterText,
-                                        darkMode && styles.accountDarkMutedText,
-                                        chapterRead && styles.readMobileReaderChapterText,
-                                        darkMode && chapterRead && styles.darkReadMobileReaderChapterText,
-                                        chapterActive && styles.activeMobileReaderChapterText
-                                      ]}>{chapter}</Text>
-                                      {chapterRead && (
-                                        <Ionicons name="checkmark" size={10} color={chapterActive ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
-                                      )}
-                                    </Pressable>
-                                  );
-                                })}
-                              </View>
-                            </View>
-                          )}
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </View>
-              ))}
-            </View>
-          ) : (
-            <View style={styles.readerBookSections}>
-              {readerBookSections.map((section) => (
-                <View key={section.title} style={styles.readerBookSection}>
-                  <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{section.title}</Text>
-                  <View style={styles.desktopReaderBookList}>
+          <View style={styles.mobileReaderPicker}>
+            {bookPickerSections.map((section) => (
+              <View key={section.id || section.title} style={styles.mobileReaderDropdown}>
+                <Pressable
+                  onPress={() => onToggleMobileMenu(mobileMenu === section.id ? null : section.id)}
+                  style={[styles.mobileReaderDropdownButton, darkMode && styles.accountDarkInsetBox]}
+                >
+                  <Text style={[styles.mobileReaderDropdownText, darkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                  <Ionicons name={mobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#c8bda9" : colors.muted} />
+                </Pressable>
+                {mobileMenu === section.id && (
+                  <View style={styles.mobileReaderBookList}>
                     {section.books.map((book) => (
-                      <View key={book} style={[styles.desktopReaderBookBlock, expandedBook === book && styles.expandedDesktopReaderBookBlock]}>
+                      <View key={book} style={[styles.mobileReaderBookBlock, expandedBook === book && styles.expandedMobileReaderBookBlock]}>
                         <Pressable
-                          onPress={() => onSelectBook(book)}
-                          style={[styles.readerBookChip, darkMode && styles.printDarkOptionChip, readerBook === book && styles.activeReaderBookChip]}
+                          onPress={() => onSelectMobileBook(book)}
+                          style={[styles.mobileReaderBookOption, darkMode && styles.printDarkOptionChip, readerBook === book && styles.activeMobileReaderBookOption]}
                         >
-                          <Text style={[styles.readerBookText, darkMode && styles.accountDarkMutedText, readerBook === book && styles.activeReaderBookText]}>{book}</Text>
+                          <Text style={[styles.mobileReaderBookText, darkMode && styles.accountDarkMutedText, readerBook === book && styles.activeMobileReaderBookText]}>{book}</Text>
                         </Pressable>
                         {expandedBook === book && (
-                          <View style={[styles.desktopReaderChapterPanel, darkMode && styles.accountDarkSection]}>
-                            <View style={styles.desktopReaderChapterHeader}>
+                          <View style={[styles.mobileReaderChapterPanel, darkMode && styles.accountDarkSection]}>
+                            <View style={styles.readerChapterPanelHeader}>
                               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{book}</Text>
-                              <Text style={[styles.readerChapterCountText, darkMode && styles.accountDarkMutedText]}>{getReadProgressLabel(book)}</Text>
+                              <Text style={[styles.readerChapterReadCountText, darkMode && styles.accountDarkMutedText]}>{getReadProgressLabel(book)}</Text>
                             </View>
-                            <View style={styles.desktopReaderChapterGrid}>
+                            <View style={styles.mobileReaderChapterGrid}>
                               {Array.from({ length: BIBLE_CHAPTER_COUNTS[book] || 1 }, (_, index) => index + 1).map((chapter) => {
                                 const chapterRead = getReadChapterSet(book).has(chapter);
                                 const chapterActive = readerBook === book && readerChapter === chapter;
@@ -513,9 +493,64 @@ export function BibleReaderNavigator({
                       </View>
                     ))}
                   </View>
+                )}
+              </View>
+            ))}
+            {!bookPickerSections.length && <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>No matching books found.</Text>}
+          </View>
+
+          {activeBibleReadingPlan ? (
+            <View style={[styles.bibleReadingPlanPanel, darkMode && styles.accountDarkSection]}>
+              <View style={styles.bibleReadingPlanHeader}>
+                <View style={styles.bibleReadingPlanTitleBlock}>
+                  <Eyebrow>Reading Plans</Eyebrow>
+                  <Text style={[styles.cardTitle, darkMode && styles.accountDarkTitle]}>
+                    {activeBibleReadingPlan.title}
+                  </Text>
                 </View>
-              ))}
-              {!readerBookSections.length && <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>No matching books found.</Text>}
+                <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>
+                  {activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}
+                </Text>
+              </View>
+
+              {readingPlanChooser}
+
+              {activeBibleReadingPlanToday ? (
+                <>
+                  <View style={styles.planProgressTrack}>
+                    <View style={[styles.planProgressFill, { width: `${Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100)}%` }]} />
+                  </View>
+
+                  <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
+                    <View style={styles.bibleReadingPlanTodayHeader}>
+                      <View style={styles.bibleReadingPlanTodayTitleBlock}>
+                        <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
+                          {activeBibleReadingPlanComplete ? "Plan complete" : `Today: Day ${activeBibleReadingPlanToday.day}`}
+                        </Text>
+                        <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>
+                          {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
+                        </Text>
+                      </View>
+                      <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
+                    </View>
+                    <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>{activeBibleReadingPlan.description}</Text>
+                    {!activeBibleReadingPlanComplete && (
+                      <View style={[styles.bibleReadingPlanActions, phoneLayout && styles.phoneBibleReadingPlanActions]}>
+                        <AppButton label="Open passage" variant="secondary" onPress={() => onOpenBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
+                        <AppButton label="Mark complete" onPress={() => onMarkBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
+                        <AppButton label="Study passage" variant="secondary" onPress={() => onStudyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
+                      </View>
+                    )}
+                  </View>
+                </>
+              ) : (
+                <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>
+              )}
+            </View>
+          ) : (
+            <View style={styles.bibleReadingPlanStarter}>
+              <Eyebrow>Reading Plans</Eyebrow>
+              {readingPlanChooser}
             </View>
           )}
         </>

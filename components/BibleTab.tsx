@@ -1,7 +1,6 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, Text, View } from "react-native";
+import { View } from "react-native";
 
-import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { BibleReaderControls } from "@/components/BibleReaderControls";
 import { BibleReaderNavigator } from "@/components/BibleReaderNavigator";
 import { BibleReaderPassage } from "@/components/BibleReaderPassage";
@@ -156,6 +155,16 @@ export function BibleTab({
         readerBook={readerBook}
         readerChapter={readerChapter}
         readerBookSections={readerBookSections}
+        bibleReadingPlans={bibleReadingPlans}
+        activeBibleReadingPlanId={activeBibleReadingPlanId}
+        activeBibleReadingPlan={activeBibleReadingPlan}
+        activeBibleReadingPlanToday={activeBibleReadingPlanToday}
+        activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
+        activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
+        onSelectBibleReadingPlan={onSelectBibleReadingPlan}
+        onOpenBibleReadingPlanDay={onOpenBibleReadingPlanDay}
+        onMarkBibleReadingPlanDayComplete={onMarkBibleReadingPlanDayComplete}
+        onStudyBibleReadingPlanDay={onStudyBibleReadingPlanDay}
         onToggleCollapsed={onToggleReaderNavCollapsed}
         onSelectTranslation={onSelectTranslation}
         onBookSearchChange={onBookSearchChange}
@@ -175,78 +184,11 @@ export function BibleTab({
         onToggleBookmarksExpanded={onToggleBookmarksExpanded}
         onToggleMobileMenu={onToggleMobileMenu}
         onSelectMobileBook={onSelectMobileBook}
-        onSelectBook={onSelectBook}
         onSelectChapter={onSelectChapter}
         onClearReadBook={onClearReadBook}
       />
 
       <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
-        <View style={[styles.bibleReadingPlanPanel, bibleDarkMode && styles.accountDarkSection]}>
-          <View style={styles.bibleReadingPlanHeader}>
-            <View style={styles.bibleReadingPlanTitleBlock}>
-              <Eyebrow>Reading Plans</Eyebrow>
-              <Text style={[styles.cardTitle, bibleDarkMode && styles.accountDarkTitle]}>
-                {activeBibleReadingPlan ? activeBibleReadingPlan.title : "Choose a Bible reading plan"}
-              </Text>
-            </View>
-            {activeBibleReadingPlan && (
-              <Text style={[styles.draftPill, bibleDarkMode && styles.plansDarkDraftPill]}>
-                {activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}
-              </Text>
-            )}
-          </View>
-
-          <View style={[styles.bibleReadingPlanChooser, phoneLayout && styles.phoneBibleReadingPlanChooser]}>
-            {bibleReadingPlans.map((plan: any) => (
-              <Pressable
-                key={plan.id}
-                accessibilityRole="button"
-                accessibilityLabel={`Choose ${plan.title} reading plan`}
-                onPress={() => onSelectBibleReadingPlan(plan.id)}
-                style={[styles.bibleReadingPlanChip, bibleDarkMode && styles.printDarkOptionChip, activeBibleReadingPlanId === plan.id && styles.activeReaderBookChip]}
-              >
-                <Text numberOfLines={1} style={[styles.bibleReadingPlanChipText, bibleDarkMode && styles.accountDarkMutedText, activeBibleReadingPlanId === plan.id && styles.activeReaderBookText]}>
-                  {plan.title}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-
-          {activeBibleReadingPlan && activeBibleReadingPlanToday ? (
-            <>
-              <View style={styles.planProgressTrack}>
-                <View style={[styles.planProgressFill, { width: `${Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100)}%` }]} />
-              </View>
-
-              <View style={[styles.bibleReadingPlanToday, bibleDarkMode && styles.accountDarkInsetBox]}>
-                <View style={styles.bibleReadingPlanTodayHeader}>
-                  <View style={styles.bibleReadingPlanTodayTitleBlock}>
-                    <Text style={[styles.readerBookSectionTitle, bibleDarkMode && styles.studyDarkAccentText]}>
-                      {activeBibleReadingPlanComplete ? "Plan complete" : `Today: Day ${activeBibleReadingPlanToday.day}`}
-                    </Text>
-                    <Text style={[styles.readerReadChapterBookTitle, bibleDarkMode && styles.accountDarkTitle]}>
-                      {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
-                    </Text>
-                  </View>
-                  <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={bibleDarkMode ? "#e9b76a" : colors.coral} />
-                </View>
-                <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>{activeBibleReadingPlan.description}</Text>
-                {!activeBibleReadingPlanComplete && (
-                  <View style={[styles.bibleReadingPlanActions, phoneLayout && styles.phoneBibleReadingPlanActions]}>
-                    <AppButton label="Open passage" variant="secondary" onPress={() => onOpenBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, bibleDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, bibleDarkMode && styles.homeDarkResumeButtonText]} />
-                    <AppButton label="Mark complete" onPress={() => onMarkBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                    <AppButton label="Study passage" variant="secondary" onPress={() => onStudyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, bibleDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, bibleDarkMode && styles.homeDarkResumeButtonText]} />
-                  </View>
-                )}
-              </View>
-            </>
-          ) : (
-            <Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>
-              Select a plan when you want a guided reading path. Nothing starts until you choose one.
-            </Text>
-          )}
-        </View>
-
         <BibleSearchPanel
           styles={styles}
           darkMode={bibleDarkMode}

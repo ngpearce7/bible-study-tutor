@@ -87,9 +87,7 @@ export function BibleReaderPassage({
           styles.readerPassageBox,
           phoneLayout && styles.phoneReaderPassageBox,
           phoneLayout && selectedVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock,
-          darkMode && styles.accountDarkInsetBox,
-          matchesActiveReadingPlanDay && styles.readerActivePlanPassageBox,
-          darkMode && matchesActiveReadingPlanDay && styles.readerDarkActivePlanPassageBox
+          darkMode && styles.accountDarkInsetBox
         ]}
       >
         {passage.verses.map((verse) => {
@@ -105,6 +103,8 @@ export function BibleReaderPassage({
                   styles.readerVerseRow,
                   phoneLayout && styles.phoneReaderVerseRow,
                   darkMode && styles.bibleDarkVerseRow,
+                  matchesActiveReadingPlanDay && styles.readerActivePlanVerseRow,
+                  darkMode && matchesActiveReadingPlanDay && styles.readerDarkActivePlanVerseRow,
                   selected && styles.selectedReaderVerseRow,
                   phoneLayout && selected && styles.phoneSelectedReaderVerseRow
                 ]}

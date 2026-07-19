@@ -15,6 +15,7 @@ type BibleReaderPassageProps = {
   readerReference: string;
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
+  activeReadingPlanDay?: { reference: string } | null;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
   selectedVersesAlreadyInMemory: boolean;
@@ -30,6 +31,7 @@ type BibleReaderPassageProps = {
   onClearSelection: () => void;
   onMoveChapter: (direction: -1 | 1) => void;
   onToggleChapterRead: () => void;
+  onMarkActiveReadingPlanDayComplete: () => void;
   isVerseBookmarked: (verseNumber: number) => boolean;
   isVerseNoted: (verseNumber: number) => boolean;
 };
@@ -50,6 +52,7 @@ export function BibleReaderPassage({
   readerReference,
   memoryVerseKeys,
   matchesActiveReadingPlanDay,
+  activeReadingPlanDay,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedVersesAlreadyInMemory,
@@ -65,6 +68,7 @@ export function BibleReaderPassage({
   onClearSelection,
   onMoveChapter,
   onToggleChapterRead,
+  onMarkActiveReadingPlanDayComplete,
   isVerseBookmarked,
   isVerseNoted
 }: BibleReaderPassageProps) {
@@ -161,6 +165,24 @@ export function BibleReaderPassage({
             </View>
           );
         })}
+
+        {matchesActiveReadingPlanDay && activeReadingPlanDay && (
+          <View style={[styles.readerPlanCompletionBox, darkMode && styles.accountDarkSection]}>
+            <View style={styles.readerPlanCompletionCopy}>
+              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Today's plan reading</Text>
+              <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reference}</Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
+              onPress={onMarkActiveReadingPlanDayComplete}
+              style={[styles.inlineReaderBookmarkButton, styles.readerPlanCompleteButton]}
+            >
+              <Ionicons name="checkmark-circle-outline" size={15} color="white" />
+              <Text style={styles.activeReaderReadButtonText}>Mark today complete</Text>
+            </Pressable>
+          </View>
+        )}
 
         <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
           <Pressable onPress={() => onMoveChapter(-1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>

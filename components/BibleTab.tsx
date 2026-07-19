@@ -45,6 +45,7 @@ export function BibleTab({
   onOpenBibleReadingPlanDay,
   onMarkBibleReadingPlanDayComplete,
   onStudyBibleReadingPlanDay,
+  onOpenPlansTab,
   onToggleReaderNavCollapsed,
   onSelectTranslation,
   onBookSearchChange,
@@ -113,6 +114,8 @@ export function BibleTab({
   readerMemoryStatus,
   activeReaderActionVerse,
   readerMemoryVerseKeys,
+  activeReadingPlanDay,
+  onMarkActiveReadingPlanDayComplete,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedReaderVersesAlreadyInMemory,
@@ -165,6 +168,7 @@ export function BibleTab({
         onOpenBibleReadingPlanDay={onOpenBibleReadingPlanDay}
         onMarkBibleReadingPlanDayComplete={onMarkBibleReadingPlanDayComplete}
         onStudyBibleReadingPlanDay={onStudyBibleReadingPlanDay}
+        onOpenPlansTab={onOpenPlansTab}
         onToggleCollapsed={onToggleReaderNavCollapsed}
         onSelectTranslation={onSelectTranslation}
         onBookSearchChange={onBookSearchChange}
@@ -257,6 +261,7 @@ export function BibleTab({
           readerReference={readerStudyReference}
           memoryVerseKeys={readerMemoryVerseKeys}
           matchesActiveReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
+          activeReadingPlanDay={activeReadingPlanDay}
           currentSelectionBookmarked={currentSelectionBookmarked}
           currentSelectionBookmark={currentSelectionBookmark}
           selectedVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
@@ -272,6 +277,7 @@ export function BibleTab({
           onClearSelection={onClearReaderSelection}
           onMoveChapter={onMoveReaderChapter}
           onToggleChapterRead={onToggleChapterRead}
+          onMarkActiveReadingPlanDayComplete={onMarkActiveReadingPlanDayComplete}
           isVerseBookmarked={isVerseBookmarked}
           isVerseNoted={isVerseNoted}
         />

@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+import type { BibleReadingPlan } from "@/data/bibleReadingPlans";
 
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
 export type StoredAppearanceMode = "light" | "dark";
@@ -9,6 +10,7 @@ export type StoredBibleReadChapters = Record<string, number[]>;
 export type StoredBibleReadingPlanProgress = {
   activePlanId: string;
   completedDays: string[];
+  customPlans: BibleReadingPlan[];
 };
 export type StoredBibleBookmark = {
   id: string;
@@ -144,24 +146,55 @@ export async function saveStoredBibleReadChapters(readChapters: StoredBibleReadC
 
 export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleReadingPlanProgress> {
   const stored = await getStoredValue(bibleReadingPlanProgressKey);
-  if (!stored) return { activePlanId: "", completedDays: [] };
+  if (!stored) return { activePlanId: "", completedDays: [], customPlans: [] };
 
   try {
     const parsed = JSON.parse(stored);
     return {
       activePlanId: typeof parsed?.activePlanId === "string" ? parsed.activePlanId : "",
-      completedDays: Array.isArray(parsed?.completedDays) ? parsed.completedDays.filter((item: unknown): item is string => typeof item === "string") : []
+      completedDays: Array.isArray(parsed?.completedDays) ? parsed.completedDays.filter((item: unknown): item is string => typeof item === "string") : [],
+      customPlans: Array.isArray(parsed?.customPlans)
+        ? parsed.customPlans
+            .map(normalizeStoredBibleReadingPlan)
+            .filter((plan: BibleReadingPlan | null): plan is BibleReadingPlan => !!plan)
+            .slice(0, 30)
+        : []
     };
   } catch {
-    return { activePlanId: "", completedDays: [] };
+    return { activePlanId: "", completedDays: [], customPlans: [] };
   }
 }
 
 export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleReadingPlanProgress) {
   await setStoredValue(bibleReadingPlanProgressKey, JSON.stringify({
     activePlanId: progress.activePlanId,
-    completedDays: Array.from(new Set(progress.completedDays))
+    completedDays: Array.from(new Set(progress.completedDays)),
+    customPlans: progress.customPlans.slice(0, 30)
   }));
+}
+
+function normalizeStoredBibleReadingPlan(plan: any): BibleReadingPlan | null {
+  if (!plan || typeof plan.id !== "string" || typeof plan.title !== "string" || !Array.isArray(plan.days)) return null;
+  const days = plan.days
+    .map((day: any) => ({
+      day: Number.isFinite(Number(day?.day)) ? Math.max(1, Math.round(Number(day.day))) : 0,
+      title: typeof day?.title === "string" ? day.title.slice(0, 80) : "",
+      reference: typeof day?.reference === "string" ? day.reference.slice(0, 120) : "",
+      readerBook: typeof day?.readerBook === "string" ? day.readerBook.slice(0, 40) : "",
+      readerChapter: Number.isFinite(Number(day?.readerChapter)) ? Math.max(1, Math.round(Number(day.readerChapter))) : 1,
+      studyReference: typeof day?.studyReference === "string" ? day.studyReference.slice(0, 120) : ""
+    }))
+    .filter((day: any) => day.day > 0 && day.reference && day.readerBook);
+  if (!days.length) return null;
+
+  return {
+    id: plan.id.slice(0, 80),
+    title: plan.title.slice(0, 80),
+    description: typeof plan.description === "string" ? plan.description.slice(0, 240) : "",
+    source: "custom",
+    category: typeof plan.category === "string" ? plan.category.slice(0, 40) : "Custom",
+    days
+  };
 }
 
 export async function getStoredBibleBookmarks(): Promise<StoredBibleBookmark[]> {

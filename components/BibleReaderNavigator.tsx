@@ -56,6 +56,7 @@ type BibleReaderNavigatorProps = {
   onOpenBibleReadingPlanDay: (planDay: any) => void;
   onMarkBibleReadingPlanDayComplete: (planDay: any) => void;
   onStudyBibleReadingPlanDay: (planDay: any) => void;
+  onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
   onBookSearchChange: (value: string) => void;
   onToggleHistoryCollapsed: () => void;
@@ -116,6 +117,7 @@ export function BibleReaderNavigator({
   onOpenBibleReadingPlanDay,
   onMarkBibleReadingPlanDayComplete,
   onStudyBibleReadingPlanDay,
+  onOpenPlansTab,
   onSelectTranslation,
   onBookSearchChange,
   onToggleHistoryCollapsed,
@@ -161,9 +163,10 @@ export function BibleReaderNavigator({
         title: section.title,
         books: section.books
       }));
+  const visibleReadingPlans = bibleReadingPlans.slice(0, phoneLayout ? 4 : 6);
   const readingPlanChooser = (
     <View style={[styles.bibleReadingPlanChooser, phoneLayout && styles.phoneBibleReadingPlanChooser]}>
-      {bibleReadingPlans.map((plan: any) => (
+      {visibleReadingPlans.map((plan: any) => (
         <Pressable
           key={plan.id}
           accessibilityRole="button"
@@ -503,7 +506,7 @@ export function BibleReaderNavigator({
             <View style={[styles.bibleReadingPlanPanel, darkMode && styles.accountDarkSection]}>
               <View style={styles.bibleReadingPlanHeader}>
                 <View style={styles.bibleReadingPlanTitleBlock}>
-                  <Eyebrow>Reading Plans</Eyebrow>
+                  <Eyebrow>Reading Plan</Eyebrow>
                   <Text style={[styles.cardTitle, darkMode && styles.accountDarkTitle]}>
                     {activeBibleReadingPlan.title}
                   </Text>
@@ -537,8 +540,9 @@ export function BibleReaderNavigator({
                     {!activeBibleReadingPlanComplete && (
                       <View style={[styles.bibleReadingPlanActions, phoneLayout && styles.phoneBibleReadingPlanActions]}>
                         <AppButton label="Open passage" variant="secondary" onPress={() => onOpenBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
-                        <AppButton label="Mark complete" onPress={() => onMarkBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
+                        <AppButton label="Mark read" onPress={() => onMarkBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
                         <AppButton label="Study passage" variant="secondary" onPress={() => onStudyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
+                        <AppButton label="Change plan" variant="secondary" onPress={onOpenPlansTab} style={[phoneLayout && styles.phonePlanSecondaryButton, darkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, darkMode && styles.homeDarkResumeButtonText]} />
                       </View>
                     )}
                   </View>
@@ -550,7 +554,9 @@ export function BibleReaderNavigator({
           ) : (
             <View style={styles.bibleReadingPlanStarter}>
               <Eyebrow>Reading Plans</Eyebrow>
+              <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>Choose or create a reading plan</Text>
               {readingPlanChooser}
+              <AppButton label="Browse plans" variant="secondary" onPress={onOpenPlansTab} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
             </View>
           )}
         </>

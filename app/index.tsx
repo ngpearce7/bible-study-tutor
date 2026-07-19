@@ -15913,8 +15913,8 @@ const styles = StyleSheet.create({
     borderColor: "#4b4035"
   },
   completedPlanDayTile: {
-    backgroundColor: "#fff",
-    borderColor: colors.sage,
+    backgroundColor: colors.sage,
+    borderColor: colors.olive,
     borderStyle: "solid",
     borderWidth: 1
   },

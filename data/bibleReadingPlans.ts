@@ -275,8 +275,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   oneChapterPerDayPlan("romans-16", "Romans in 16 Days", "Move slowly through Paul's letter one chapter at a time.", "Romans", 16),
   buildChapterPlan("psalms-prayer", "Psalms for Prayer", "Twenty-one Psalms chosen to shape prayer, trust, confession, and worship.", ["Psalms"], 21, "Prayer"),
   buildChapterPlan("new-testament-90", "New Testament in 90 Days", "Read through the New Testament in steady daily portions.", NEW_TESTAMENT_BOOKS, 90, "New Testament"),
-  buildChapterPlan("bible-365", "Bible in 365 Days", "A simple chapter-by-chapter path through the whole Bible.", wholeBibleBooks, 365),
-  buildChapterPlan("bible-1-year", "Bible in 1 Year", "A balanced year-long path through every book of the Bible.", wholeBibleBooks, 365),
+  buildChapterPlan("bible-365", "Bible in 1 Year", "A simple chapter-by-chapter path through every book of the Bible.", wholeBibleBooks, 365),
   {
     ...buildChapterPlan("bible-1-year-chronological", "Bible in 1 Year Chronological", "Read the Bible in a broad historical flow over one year.", chronologicalBibleBooks, 365),
     purpose: "To help you follow the Bible story in a roughly historical order from creation, the patriarchs, Israel, exile, Jesus, the church, and new creation.",
@@ -287,7 +286,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     rhythm: "Read the daily portion, notice where it fits in the story, pray, then mark the day complete."
   },
   {
-    ...buildOldNewTogetherPlan("bible-1-year-old-new", "Bible in 1 Year: Old and New Testament together", "Read Old and New Testament portions together across the year.", 365),
+    ...buildOldNewTogetherPlan("bible-1-year-old-new", "Old and New Testament Daily Pairing", "A one-year plan that pairs Old Testament and New Testament readings each day.", 365),
     purpose: "To keep the whole Bible moving while regularly returning to the teaching of Jesus, the apostles, and the early church.",
     bestFor: "Readers who like variety and want Old Testament and New Testament readings side by side.",
     pace: "Gentle long-term rhythm",

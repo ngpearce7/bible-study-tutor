@@ -13879,7 +13879,9 @@ const styles = StyleSheet.create({
     padding: 10
   },
   completedPlanDayRow: {
-    backgroundColor: colors.sage
+    backgroundColor: "#fff",
+    borderColor: colors.sage,
+    borderWidth: 1
   },
   planDayBadge: {
     backgroundColor: colors.coral,
@@ -15911,8 +15913,8 @@ const styles = StyleSheet.create({
     borderColor: "#4b4035"
   },
   completedPlanDayTile: {
-    backgroundColor: colors.sage,
-    borderColor: colors.oliveDark
+    backgroundColor: "#fff",
+    borderColor: colors.sage
   },
   completedPlanDayTileDark: {
     backgroundColor: "#34422f",

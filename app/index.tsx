@@ -1247,24 +1247,32 @@ export default function Home() {
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
   const allBibleReadingPlans = [...bibleReadingPlans, ...customBibleReadingPlans];
   const unfollowedBibleReadingPlans = allBibleReadingPlans.filter((plan) => plan.id !== activeBibleReadingPlanId);
+  const unfollowedCustomBibleReadingPlans = unfollowedBibleReadingPlans.filter((plan) => plan.source === "custom");
+  const unfollowedBuiltInBibleReadingPlans = unfollowedBibleReadingPlans.filter((plan) => plan.source !== "custom");
   const unfollowedBibleReadingPlanGroups = [
+    {
+      id: "custom",
+      title: "Your custom plans",
+      description: "Plans you created for your own reading rhythm.",
+      plans: unfollowedCustomBibleReadingPlans
+    },
     {
       id: "short",
       title: "Short plans",
       description: "Quick starts and focused 1-14 day paths.",
-      plans: unfollowedBibleReadingPlans.filter((plan) => plan.days.length <= 14)
+      plans: unfollowedBuiltInBibleReadingPlans.filter((plan) => plan.days.length <= 14)
     },
     {
       id: "medium",
       title: "Medium plans",
       description: "Steady 15-60 day plans for books, themes, and overviews.",
-      plans: unfollowedBibleReadingPlans.filter((plan) => plan.days.length > 14 && plan.days.length <= 60)
+      plans: unfollowedBuiltInBibleReadingPlans.filter((plan) => plan.days.length > 14 && plan.days.length <= 60)
     },
     {
       id: "long",
       title: "Long plans",
       description: "Longer rhythms for New Testament, whole Bible, and yearly reading.",
-      plans: unfollowedBibleReadingPlans.filter((plan) => plan.days.length > 60)
+      plans: unfollowedBuiltInBibleReadingPlans.filter((plan) => plan.days.length > 60)
     }
   ].filter((group) => group.plans.length > 0);
   const activeBibleReadingPlan = allBibleReadingPlans.find((plan) => plan.id === activeBibleReadingPlanId);
@@ -6114,11 +6122,12 @@ export default function Home() {
                           scheduledToday && styles.currentPlanDayTile,
                           missed && styles.missedPlanDayTile,
                           selected && styles.selectedPlanDayTile,
+                          plansDarkMode && done && styles.completedPlanDayTileDark,
                           plansDarkMode && selected && styles.selectedPlanDayTileDark
                         ]}
                       >
-                        <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle]}>{done ? "✓" : planDay.day}</Text>
-                        <Text numberOfLines={1} style={[styles.planDayTileDate, plansDarkMode && styles.accountDarkMutedText]}>{dateLabel || `Day ${planDay.day}`}</Text>
+                        <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
+                        <Text numberOfLines={1} style={[styles.planDayTileDate, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && done && styles.completedPlanDayTileText]}>{dateLabel || `Day ${planDay.day}`}</Text>
                         {scheduledToday && <Text style={styles.planDayTileFlag}>Now</Text>}
                         {missed && <Text style={styles.planDayTileFlag}>Due</Text>}
                       </Pressable>
@@ -6134,11 +6143,11 @@ export default function Home() {
                   >
                     <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, activeBibleReadingPlanSelectedDone && styles.completedPlanDayBadge, plansDarkMode && !activeBibleReadingPlanSelectedDone && styles.plansDarkDayBadge]}>{activeBibleReadingPlanSelectedDone ? "✓" : activeBibleReadingPlanSelectedDay.day}</Text>
                     <View style={styles.planDayCopy}>
-                      <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle]}>
+                      <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayTextDark]}>
                         {`Day ${activeBibleReadingPlanSelectedDay.day}${activeBibleReadingPlanSelectedDateKey ? ` · ${formatPlanDayDate(activeBibleReadingPlanSelectedDateKey)}` : ""}`}
                       </Text>
-                      <Text style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{activeBibleReadingPlanSelectedDay.reference}</Text>
-                      <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{activeBibleReadingPlanSelectedDay.title}</Text>
+                      <Text style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.reference}</Text>
+                      <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.title}</Text>
                     </View>
                     {activeBibleReadingPlanSelectedDone && (
                       <Pressable
@@ -6240,10 +6249,14 @@ export default function Home() {
               {!!customBiblePlanStatus && <Text style={styles.saveStatus}>{customBiblePlanStatus}</Text>}
             </View>
 
-            <Eyebrow>Choose another plan</Eyebrow>
+            <View style={styles.planBrowseIntro}>
+              <Eyebrow>Browse plans</Eyebrow>
+              <Text style={[styles.planBrowseIntroTitle, plansDarkMode && styles.accountDarkTitle]}>Choose from your plans or built-in paths</Text>
+              <Text style={[styles.planBrowseIntroText, plansDarkMode && styles.accountDarkMutedText]}>Custom plans stay separate from the built-in library, so it is easier to scan what you created and what the app provides.</Text>
+            </View>
             <View style={styles.planBrowseSectionStack}>
               {unfollowedBibleReadingPlanGroups.map((group) => {
-                const sectionOpen = openBiblePlanSections[group.id] ?? group.id === "short";
+                const sectionOpen = openBiblePlanSections[group.id] ?? (group.id === "custom" || group.id === "short");
                 return (
                   <View key={group.id} style={[styles.planBrowseSection, plansDarkMode && styles.planBrowseSectionDark]}>
                     <Pressable
@@ -6382,8 +6395,8 @@ export default function Home() {
                             <Pressable key={planDay.day} onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay); setTab("bible"); }} style={[styles.planPageDay, styles.compactPlanPageDay, phoneLayout && styles.phonePlanPageDay, phoneLayout && styles.phoneCompactPlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
                               <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, done && styles.completedPlanDayBadge, plansDarkMode && !done && styles.plansDarkDayBadge]}>{done ? "✓" : planDay.day}</Text>
                               <View style={styles.planDayCopy}>
-                                <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle]}>{planDay.title}</Text>
-                                <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{planDay.reference}</Text>
+                                <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTextDark]}>{planDay.title}</Text>
+                                <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && done && styles.completedPlanDayMutedTextDark]}>{planDay.reference}</Text>
                               </View>
                               <View style={styles.planDayActions}>
                                 <Pressable accessibilityRole="button" accessibilityLabel={`Open ${planDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
@@ -15502,6 +15515,21 @@ const styles = StyleSheet.create({
   planBrowseSectionStack: {
     gap: 12
   },
+  planBrowseIntro: {
+    gap: 4,
+    marginTop: 4
+  },
+  planBrowseIntroTitle: {
+    color: colors.ink,
+    fontSize: 17,
+    fontWeight: "900"
+  },
+  planBrowseIntroText: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 19,
+    maxWidth: 760
+  },
   planBrowseSection: {
     backgroundColor: "#fffaf2",
     borderColor: colors.line,
@@ -15819,6 +15847,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.sage,
     borderColor: colors.oliveDark
   },
+  completedPlanDayTileDark: {
+    backgroundColor: "#34422f",
+    borderColor: "rgba(233, 183, 106, 0.45)"
+  },
+  completedPlanDayTileText: {
+    color: "#f7eddc"
+  },
   currentPlanDayTile: {
     borderColor: colors.coral,
     borderWidth: 2
@@ -16097,8 +16132,14 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   plansDarkCompletedDayRow: {
-    backgroundColor: "#2d352d",
-    borderColor: "rgba(233, 183, 106, 0.22)"
+    backgroundColor: "#34422f",
+    borderColor: "rgba(233, 183, 106, 0.45)"
+  },
+  completedPlanDayTextDark: {
+    color: "#f7eddc"
+  },
+  completedPlanDayMutedTextDark: {
+    color: "#d8ceb8"
   },
   plansDarkDayBadge: {
     backgroundColor: "#8f6a35"

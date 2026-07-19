@@ -14,6 +14,7 @@ type BibleReaderPassageProps = {
   activeActionVerse: number;
   readerReference: string;
   memoryVerseKeys: Set<string>;
+  matchesActiveReadingPlanDay: boolean;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
   selectedVersesAlreadyInMemory: boolean;
@@ -48,6 +49,7 @@ export function BibleReaderPassage({
   activeActionVerse,
   readerReference,
   memoryVerseKeys,
+  matchesActiveReadingPlanDay,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedVersesAlreadyInMemory,
@@ -85,7 +87,9 @@ export function BibleReaderPassage({
           styles.readerPassageBox,
           phoneLayout && styles.phoneReaderPassageBox,
           phoneLayout && selectedVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock,
-          darkMode && styles.accountDarkInsetBox
+          darkMode && styles.accountDarkInsetBox,
+          matchesActiveReadingPlanDay && styles.readerActivePlanPassageBox,
+          darkMode && matchesActiveReadingPlanDay && styles.readerDarkActivePlanPassageBox
         ]}
       >
         {passage.verses.map((verse) => {

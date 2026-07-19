@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { fetchBibleApiPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
-import { bibleReadingPlans, defaultBibleReadingPlanId, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
+import { bibleReadingPlans, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
@@ -558,7 +558,7 @@ export default function Home() {
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(false);
-  const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState(defaultBibleReadingPlanId);
+  const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState("");
   const [completedBibleReadingPlanDays, setCompletedBibleReadingPlanDays] = useState<string[]>([]);
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
@@ -777,8 +777,9 @@ export default function Home() {
         .catch(() => undefined);
       getStoredBibleReadingPlanProgress()
         .then((progress) => {
-          const validPlanId = bibleReadingPlans.some((plan) => plan.id === progress.activePlanId) ? progress.activePlanId : defaultBibleReadingPlanId;
-          setActiveBibleReadingPlanId(validPlanId);
+          if (bibleReadingPlans.some((plan) => plan.id === progress.activePlanId)) {
+            setActiveBibleReadingPlanId(progress.activePlanId);
+          }
           setCompletedBibleReadingPlanDays(progress.completedDays);
         })
         .catch(() => undefined);
@@ -1178,11 +1179,19 @@ export default function Home() {
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
-  const activeBibleReadingPlan = bibleReadingPlans.find((plan) => plan.id === activeBibleReadingPlanId) || bibleReadingPlans[0];
+  const activeBibleReadingPlan = bibleReadingPlans.find((plan) => plan.id === activeBibleReadingPlanId);
   const completedBibleReadingPlanDaySet = new Set(completedBibleReadingPlanDays);
-  const activeBibleReadingPlanCompletedCount = activeBibleReadingPlan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))).length;
-  const activeBibleReadingPlanToday = activeBibleReadingPlan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))) || activeBibleReadingPlan.days[0];
-  const activeBibleReadingPlanComplete = activeBibleReadingPlanCompletedCount === activeBibleReadingPlan.days.length;
+  const activeBibleReadingPlanCompletedCount = activeBibleReadingPlan
+    ? activeBibleReadingPlan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))).length
+    : 0;
+  const activeBibleReadingPlanToday = activeBibleReadingPlan
+    ? activeBibleReadingPlan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))) || activeBibleReadingPlan.days[0]
+    : null;
+  const activeBibleReadingPlanComplete = !!activeBibleReadingPlan && activeBibleReadingPlanCompletedCount === activeBibleReadingPlan.days.length;
+  const readerMatchesActiveBibleReadingPlanDay =
+    !!activeBibleReadingPlanToday &&
+    activeBibleReadingPlanToday.readerBook === readerBook &&
+    activeBibleReadingPlanToday.readerChapter === readerChapter;
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -4296,7 +4305,8 @@ export default function Home() {
   }
 
   function selectBibleReadingPlan(planId: string) {
-    const nextPlanId = bibleReadingPlans.some((plan) => plan.id === planId) ? planId : defaultBibleReadingPlanId;
+    const nextPlanId = bibleReadingPlans.some((plan) => plan.id === planId) ? planId : "";
+    if (!nextPlanId) return;
     setActiveBibleReadingPlanId(nextPlanId);
     persistBibleReadingPlanProgress(nextPlanId, completedBibleReadingPlanDays);
     trackUsage("bible_reading_plan_selected", { reference: nextPlanId, tab: "bible" });
@@ -4313,6 +4323,7 @@ export default function Home() {
   }
 
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay) {
+    if (!activeBibleReadingPlan) return;
     const key = bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day);
     setCompletedBibleReadingPlanDays((current) => {
       const next = current.includes(key) ? current : [...current, key];
@@ -5644,7 +5655,7 @@ export default function Home() {
               readerChapter={readerChapter}
               readerBookSections={readerBookSections}
               bibleReadingPlans={bibleReadingPlans}
-              activeBibleReadingPlanId={activeBibleReadingPlan.id}
+              activeBibleReadingPlanId={activeBibleReadingPlan?.id || ""}
               activeBibleReadingPlan={activeBibleReadingPlan}
               activeBibleReadingPlanToday={activeBibleReadingPlanToday}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
@@ -5746,6 +5757,7 @@ export default function Home() {
               readerMemoryStatus={readerMemoryStatus}
               activeReaderActionVerse={activeReaderActionVerse}
               readerMemoryVerseKeys={readerMemoryVerseKeys}
+              readerMatchesActiveBibleReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
               currentSelectionBookmarked={currentSelectionBookmarked}
               currentSelectionBookmark={currentSelectionBookmark}
               selectedReaderVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
@@ -11884,6 +11896,14 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0,
     padding: 14
+  },
+  readerActivePlanPassageBox: {
+    backgroundColor: "#fff3df",
+    borderColor: "rgba(201, 103, 80, 0.28)"
+  },
+  readerDarkActivePlanPassageBox: {
+    backgroundColor: "rgba(233, 183, 106, 0.1)",
+    borderColor: "rgba(233, 183, 106, 0.28)"
   },
   phoneReaderPassageBox: {
     paddingHorizontal: 8,

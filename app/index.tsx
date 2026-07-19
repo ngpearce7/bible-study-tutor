@@ -6203,41 +6203,41 @@ export default function Home() {
                       <Text style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.reference}</Text>
                       <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.title}</Text>
                     </View>
-                    {activeBibleReadingPlanSelectedDone && (
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`Mark ${activeBibleReadingPlanSelectedDay.reference} incomplete`}
-                        onPress={(event: any) => {
-                          event.stopPropagation?.();
-                          unmarkBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
-                        }}
-                        style={[styles.planDayTextAction, plansDarkMode && styles.planDayTextActionDark]}
-                      >
-                        <Text style={[styles.planDayTextActionLabel, plansDarkMode && styles.studyDarkAccentText]}>Mark incomplete</Text>
-                      </Pressable>
-                    )}
-                    <View style={styles.planDayActions}>
-                      <Pressable accessibilityRole="button" accessibilityLabel={`Open ${activeBibleReadingPlanSelectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
-                        <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-                      </Pressable>
-                      <Pressable accessibilityRole="button" accessibilityLabel={`Study ${activeBibleReadingPlanSelectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
-                        <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-                      </Pressable>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={activeBibleReadingPlanSelectedDone ? `Mark ${activeBibleReadingPlanSelectedDay.reference} incomplete` : `Mark ${activeBibleReadingPlanSelectedDay.reference} complete`}
-                        onPress={(event: any) => {
-                          event.stopPropagation?.();
-                          if (activeBibleReadingPlanSelectedDone) {
+                    <View style={styles.planDayActionStack}>
+                      <View style={styles.planDayActions}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Open ${activeBibleReadingPlanSelectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                          <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Study ${activeBibleReadingPlanSelectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                          <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={activeBibleReadingPlanSelectedDone ? `${activeBibleReadingPlanSelectedDay.reference} completed` : `Mark ${activeBibleReadingPlanSelectedDay.reference} complete`}
+                          onPress={(event: any) => {
+                            event.stopPropagation?.();
+                            if (!activeBibleReadingPlanSelectedDone) {
+                              markBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
+                            }
+                          }}
+                          style={[styles.planDayIconAction, activeBibleReadingPlanSelectedDone && styles.activeReaderReadButton, !activeBibleReadingPlanSelectedDone && styles.readerPlanCompleteButton]}
+                        >
+                          <Ionicons name={activeBibleReadingPlanSelectedDone ? "checkmark-circle-outline" : "checkmark-circle-outline"} size={15} color="white" />
+                        </Pressable>
+                      </View>
+                      {activeBibleReadingPlanSelectedDone && (
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={`Mark ${activeBibleReadingPlanSelectedDay.reference} incomplete`}
+                          onPress={(event: any) => {
+                            event.stopPropagation?.();
                             unmarkBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
-                          } else {
-                            markBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
-                          }
-                        }}
-                        style={[styles.planDayIconAction, activeBibleReadingPlanSelectedDone && styles.activeReaderReadButton, !activeBibleReadingPlanSelectedDone && styles.readerPlanCompleteButton]}
-                      >
-                        <Ionicons name={activeBibleReadingPlanSelectedDone ? "refresh-outline" : "checkmark-circle-outline"} size={15} color="white" />
-                      </Pressable>
+                          }}
+                          style={[styles.planDayTextAction, plansDarkMode && styles.planDayTextActionDark]}
+                        >
+                          <Text style={[styles.planDayTextActionLabel, plansDarkMode && styles.studyDarkAccentText]}>Mark incomplete</Text>
+                        </Pressable>
+                      )}
                     </View>
                   </Pressable>
                 )}
@@ -15987,6 +15987,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexShrink: 0,
     gap: 5
+  },
+  planDayActionStack: {
+    alignItems: "flex-end",
+    flexShrink: 0,
+    gap: 6
   },
   planDayTextAction: {
     backgroundColor: "#fff6eb",

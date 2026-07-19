@@ -815,23 +815,36 @@ export default function Home() {
         .then((progress) => {
           const storedPlans = Array.isArray(progress.customPlans) ? progress.customPlans : [];
           const availablePlans = [...bibleReadingPlans, ...storedPlans];
+          const normalizedActivePlanId = normalizeBibleReadingPlanId(progress.activePlanId);
+          const normalizedCompletedDays = normalizeBibleReadingPlanProgressKeys(progress.completedDays);
           const storedStartDates = progress.startDates || {};
+          const normalizedStartDates = progress.activePlanId === "bible-1-year" && storedStartDates["bible-1-year"] && !storedStartDates["bible-365"]
+            ? { ...storedStartDates, "bible-365": storedStartDates["bible-1-year"] }
+            : storedStartDates;
           setCustomBibleReadingPlans(storedPlans);
-          setBibleReadingPlanStartDates(storedStartDates);
-          if (availablePlans.some((plan) => plan.id === progress.activePlanId)) {
-            if (progress.activePlanId && !storedStartDates[progress.activePlanId]) {
-              const backfilledStartDates = { ...storedStartDates, [progress.activePlanId]: localDateKey() };
+          setBibleReadingPlanStartDates(normalizedStartDates);
+          if (availablePlans.some((plan) => plan.id === normalizedActivePlanId)) {
+            if (normalizedActivePlanId && !normalizedStartDates[normalizedActivePlanId]) {
+              const backfilledStartDates = { ...normalizedStartDates, [normalizedActivePlanId]: localDateKey() };
               setBibleReadingPlanStartDates(backfilledStartDates);
               saveStoredBibleReadingPlanProgress({
-                activePlanId: progress.activePlanId,
-                completedDays: progress.completedDays,
+                activePlanId: normalizedActivePlanId,
+                completedDays: normalizedCompletedDays,
                 customPlans: storedPlans,
                 startDates: backfilledStartDates
               }).catch(() => undefined);
             }
-            setActiveBibleReadingPlanId(progress.activePlanId);
+            setActiveBibleReadingPlanId(normalizedActivePlanId);
+            if (normalizedActivePlanId !== progress.activePlanId || normalizedCompletedDays.length !== progress.completedDays.length || normalizedCompletedDays.some((key, index) => key !== progress.completedDays[index])) {
+              saveStoredBibleReadingPlanProgress({
+                activePlanId: normalizedActivePlanId,
+                completedDays: normalizedCompletedDays,
+                customPlans: storedPlans,
+                startDates: normalizedStartDates
+              }).catch(() => undefined);
+            }
           }
-          setCompletedBibleReadingPlanDays(progress.completedDays);
+          setCompletedBibleReadingPlanDays(normalizedCompletedDays);
         })
         .catch(() => undefined);
       getStoredBibleBookmarks()
@@ -9126,6 +9139,15 @@ function planDayKey(planId: string, day: number) {
 
 function bibleReadingPlanDayKey(planId: string, day: number) {
   return `${planId}:${day}`;
+}
+
+function normalizeBibleReadingPlanId(planId: string) {
+  if (planId === "bible-1-year") return "bible-365";
+  return planId;
+}
+
+function normalizeBibleReadingPlanProgressKeys(keys: string[]) {
+  return keys.map((key) => key.startsWith("bible-1-year:") ? key.replace("bible-1-year:", "bible-365:") : key);
 }
 
 function verseMarkupKey(verse: BibleVerse) {

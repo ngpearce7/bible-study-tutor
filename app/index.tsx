@@ -594,6 +594,7 @@ export default function Home() {
   const [activeBiblePlanSelectedDay, setActiveBiblePlanSelectedDay] = useState(0);
   const [activeBiblePlanSelectedPlanId, setActiveBiblePlanSelectedPlanId] = useState("");
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
+  const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>({ short: true, medium: false, long: false });
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
@@ -1230,6 +1231,27 @@ export default function Home() {
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
   const allBibleReadingPlans = [...bibleReadingPlans, ...customBibleReadingPlans];
+  const unfollowedBibleReadingPlans = allBibleReadingPlans.filter((plan) => plan.id !== activeBibleReadingPlanId);
+  const unfollowedBibleReadingPlanGroups = [
+    {
+      id: "short",
+      title: "Short plans",
+      description: "Quick starts and focused 1-14 day paths.",
+      plans: unfollowedBibleReadingPlans.filter((plan) => plan.days.length <= 14)
+    },
+    {
+      id: "medium",
+      title: "Medium plans",
+      description: "Steady 15-60 day plans for books, themes, and overviews.",
+      plans: unfollowedBibleReadingPlans.filter((plan) => plan.days.length > 14 && plan.days.length <= 60)
+    },
+    {
+      id: "long",
+      title: "Long plans",
+      description: "Longer rhythms for New Testament, whole Bible, and yearly reading.",
+      plans: unfollowedBibleReadingPlans.filter((plan) => plan.days.length > 60)
+    }
+  ].filter((group) => group.plans.length > 0);
   const activeBibleReadingPlan = allBibleReadingPlans.find((plan) => plan.id === activeBibleReadingPlanId);
   const completedBibleReadingPlanDaySet = new Set(completedBibleReadingPlanDays);
   const activeBibleReadingPlanCompletedCount = activeBibleReadingPlan
@@ -6178,8 +6200,30 @@ export default function Home() {
             </View>
 
             <Eyebrow>Choose another plan</Eyebrow>
-            <View style={[styles.planPageGrid, phoneLayout && styles.phonePlanPageGrid]}>
-              {allBibleReadingPlans.filter((plan) => plan.id !== activeBibleReadingPlanId).map((plan) => {
+            <View style={styles.planBrowseSectionStack}>
+              {unfollowedBibleReadingPlanGroups.map((group) => {
+                const sectionOpen = openBiblePlanSections[group.id] ?? group.id === "short";
+                return (
+                  <View key={group.id} style={[styles.planBrowseSection, plansDarkMode && styles.planBrowseSectionDark]}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`${sectionOpen ? "Collapse" : "Expand"} ${group.title}`}
+                      accessibilityState={{ expanded: sectionOpen }}
+                      onPress={() => setOpenBiblePlanSections((current) => ({ ...current, [group.id]: !sectionOpen }))}
+                      style={styles.planBrowseSectionHeader}
+                    >
+                      <View style={styles.planBrowseSectionTitleBlock}>
+                        <View style={styles.planBrowseSectionTitleRow}>
+                          <Text style={[styles.planBrowseSectionTitle, plansDarkMode && styles.accountDarkTitle]}>{group.title}</Text>
+                          <Text style={[styles.draftPill, styles.planBrowseCountPill, plansDarkMode && styles.plansDarkDraftPill]}>{group.plans.length}</Text>
+                        </View>
+                        <Text style={[styles.planBrowseSectionDescription, plansDarkMode && styles.accountDarkMutedText]}>{group.description}</Text>
+                      </View>
+                      <Ionicons name={sectionOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    </Pressable>
+                    {sectionOpen && (
+                      <View style={[styles.planPageGrid, phoneLayout && styles.phonePlanPageGrid]}>
+                        {group.plans.map((plan) => {
                 const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
                 const expanded = expandedBiblePlanId === plan.id;
                 const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
@@ -6328,6 +6372,11 @@ export default function Home() {
                       </>
                     )}
                   </Card>
+                );
+                        })}
+                      </View>
+                    )}
+                  </View>
                 );
               })}
             </View>
@@ -15324,6 +15373,52 @@ const styles = StyleSheet.create({
   studyStepButtonLabel: {
     fontSize: 12,
     textAlign: "center"
+  },
+  planBrowseSectionStack: {
+    gap: 12
+  },
+  planBrowseSection: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 12,
+    padding: 12
+  },
+  planBrowseSectionDark: {
+    backgroundColor: "#181510",
+    borderColor: "#3a3329"
+  },
+  planBrowseSectionHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between"
+  },
+  planBrowseSectionTitleBlock: {
+    flex: 1,
+    gap: 4,
+    minWidth: 0
+  },
+  planBrowseSectionTitleRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  planBrowseSectionTitle: {
+    color: colors.ink,
+    fontSize: 15,
+    fontWeight: "900"
+  },
+  planBrowseSectionDescription: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17
+  },
+  planBrowseCountPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3
   },
   planPageGrid: {
     flexDirection: "row",

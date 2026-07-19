@@ -123,6 +123,44 @@ function buildChapterPlan(id: string, title: string, description: string, books:
   return enrichPlanMetadata({ id, title, description, source: "built-in", category, days });
 }
 
+function buildChapterPlanWithReflectionDays(id: string, title: string, description: string, books: string[], dayCount: number, category = "Book study"): BibleReadingPlan {
+  const chapters = chaptersForBooks(books);
+  const days: BibleReadingPlanDay[] = [];
+
+  for (let day = 1; day <= dayCount; day += 1) {
+    const chapter = chapters[Math.min(day - 1, chapters.length - 1)] || chapters[0];
+    const reference = chapterReference(chapter.book, chapter.chapter);
+    const isReflectionDay = day > chapters.length;
+    days.push(buildDay(day, reference, chapter.book, chapter.chapter, isReflectionDay ? `Reflect on ${reference}` : reference, reference));
+  }
+
+  return enrichPlanMetadata({ id, title, description, source: "built-in", category, days });
+}
+
+function buildOldNewTogetherPlan(id: string, title: string, description: string, dayCount: number): BibleReadingPlan {
+  const oldTestamentChapters = chaptersForBooks(OLD_TESTAMENT_BOOKS);
+  const newTestamentChapters = chaptersForBooks(NEW_TESTAMENT_BOOKS);
+  const days: BibleReadingPlanDay[] = [];
+  let oldCursor = 0;
+  let newCursor = 0;
+
+  for (let day = 1; day <= dayCount; day += 1) {
+    const remainingDays = dayCount - day + 1;
+    const oldTake = Math.max(1, Math.ceil((oldTestamentChapters.length - oldCursor) / remainingDays));
+    const newTake = Math.max(1, Math.ceil((newTestamentChapters.length - newCursor) / remainingDays));
+    const group = [
+      ...oldTestamentChapters.slice(oldCursor, oldCursor + oldTake),
+      ...newTestamentChapters.slice(newCursor, newCursor + newTake)
+    ];
+    const first = group[0] || oldTestamentChapters[oldTestamentChapters.length - 1];
+    oldCursor += oldTake;
+    newCursor += newTake;
+    days.push(buildDay(day, compactReference(group), first.book, first.chapter));
+  }
+
+  return enrichPlanMetadata({ id, title, description, source: "built-in", category: "Whole Bible", days });
+}
+
 function oneChapterPerDayPlan(id: string, title: string, description: string, book: string, days: number, category = "Book study"): BibleReadingPlan {
   return enrichPlanMetadata({
     id,
@@ -221,6 +259,16 @@ export function getBibleReadingPlanDetails(plan: BibleReadingPlan) {
 
 const gospelBooks = ["Matthew", "Mark", "Luke", "John"];
 const wholeBibleBooks = [...OLD_TESTAMENT_BOOKS, ...NEW_TESTAMENT_BOOKS];
+const chronologicalBibleBooks = [
+  "Genesis", "Job", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",
+  "1 Samuel", "2 Samuel", "1 Chronicles", "Psalms", "1 Kings", "2 Chronicles", "Proverbs", "Ecclesiastes",
+  "Song of Solomon", "2 Kings", "Obadiah", "Joel", "Jonah", "Amos", "Hosea", "Isaiah", "Micah", "Nahum",
+  "Zephaniah", "Habakkuk", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Ezra", "Haggai", "Zechariah",
+  "Esther", "Nehemiah", "Malachi", ...NEW_TESTAMENT_BOOKS
+];
+const paulineBooks = ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon"];
+const pentateuchBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
+const majorProphetBooks = ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel"];
 
 export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   oneChapterPerDayPlan("john-21", "21 Days in John", "Read one chapter a day through John's Gospel.", "John", 21),
@@ -228,12 +276,260 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   buildChapterPlan("psalms-prayer", "Psalms for Prayer", "Twenty-one Psalms chosen to shape prayer, trust, confession, and worship.", ["Psalms"], 21, "Prayer"),
   buildChapterPlan("new-testament-90", "New Testament in 90 Days", "Read through the New Testament in steady daily portions.", NEW_TESTAMENT_BOOKS, 90, "New Testament"),
   buildChapterPlan("bible-365", "Bible in 365 Days", "A simple chapter-by-chapter path through the whole Bible.", wholeBibleBooks, 365),
+  buildChapterPlan("bible-1-year", "Bible in 1 Year", "A balanced year-long path through every book of the Bible.", wholeBibleBooks, 365),
+  {
+    ...buildChapterPlan("bible-1-year-chronological", "Bible in 1 Year Chronological", "Read the Bible in a broad historical flow over one year.", chronologicalBibleBooks, 365),
+    purpose: "To help you follow the Bible story in a roughly historical order from creation, the patriarchs, Israel, exile, Jesus, the church, and new creation.",
+    bestFor: "Readers who want the storyline of Scripture to feel connected across the whole year.",
+    pace: "Gentle long-term rhythm",
+    estimatedTime: "15-30 minutes",
+    coverage: "A whole-Bible journey arranged in a broad chronological-style sequence.",
+    rhythm: "Read the daily portion, notice where it fits in the story, pray, then mark the day complete."
+  },
+  {
+    ...buildOldNewTogetherPlan("bible-1-year-old-new", "Bible in 1 Year: Old and New Testament together", "Read Old and New Testament portions together across the year.", 365),
+    purpose: "To keep the whole Bible moving while regularly returning to the teaching of Jesus, the apostles, and the early church.",
+    bestFor: "Readers who like variety and want Old Testament and New Testament readings side by side.",
+    pace: "Gentle long-term rhythm",
+    estimatedTime: "15-30 minutes",
+    coverage: "Daily portions pair Old Testament and New Testament readings through the year.",
+    rhythm: "Read both portions, notice one connection, pray briefly, then mark the day complete."
+  },
+  {
+    ...buildChapterPlan("bible-6-months", "Bible in 6 Months", "A brisk six-month journey through the whole Bible.", wholeBibleBooks, 180),
+    pace: "Brisk daily readings",
+    estimatedTime: "25-40 minutes",
+    bestFor: "Readers who want a focused season of stronger whole-Bible momentum."
+  },
+  {
+    ...buildChapterPlanWithReflectionDays("new-testament-1-year", "New Testament in 1 Year", "A gentle year-long path through the New Testament with reflection days.", NEW_TESTAMENT_BOOKS, 365, "New Testament"),
+    purpose: "To let the New Testament settle slowly through repeated reading and reflection.",
+    pace: "Gentle long-term rhythm",
+    estimatedTime: "5-10 minutes",
+    coverage: "Every New Testament chapter with later reflection readings to help the message sink in."
+  },
+  {
+    ...buildChapterPlanWithReflectionDays("psalms-proverbs-1-year", "Psalms and Proverbs in 1 Year", "A slow yearly rhythm through prayer, worship, and wisdom.", ["Psalms", "Proverbs"], 365, "Wisdom"),
+    purpose: "To shape prayer and daily wisdom through repeated exposure to Psalms and Proverbs.",
+    pace: "Gentle long-term rhythm",
+    estimatedTime: "5-10 minutes",
+    coverage: "Psalms and Proverbs with reflection readings across the year."
+  },
   buildChapterPlan("bible-30", "Bible in 30 Days", "A fast overview pace through the whole Bible.", wholeBibleBooks, 30),
   buildChapterPlan("bible-90", "Bible in 90 Days", "A strong three-month path through the whole Bible.", wholeBibleBooks, 90),
+  buildChapterPlan("bible-overview-60", "Bible Overview in 60 Days", "A two-month overview of the Bible's major movements.", wholeBibleBooks, 60, "Overview"),
   buildChapterPlan("new-testament-30", "New Testament in 30 Days", "Read the New Testament in one month.", NEW_TESTAMENT_BOOKS, 30, "New Testament"),
   buildChapterPlan("psalms-30", "Psalms in 30 Days", "Pray and reflect through the Psalms in a month.", ["Psalms"], 30, "Prayer"),
   oneChapterPerDayPlan("proverbs-31", "Proverbs in 31 Days", "Read one chapter of Proverbs each day.", "Proverbs", 31, "Wisdom"),
   buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels"),
+  buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study"),
+  buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"),
+  buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament"),
+  buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament"),
+  planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [
+    ["1 Samuel 16", "1 Samuel", 16, "David anointed"],
+    ["1 Samuel 17", "1 Samuel", 17, "David and Goliath"],
+    ["1 Samuel 18", "1 Samuel", 18, "David and Saul"],
+    ["1 Samuel 24", "1 Samuel", 24, "Mercy in the cave"],
+    ["2 Samuel 5", "2 Samuel", 5, "David becomes king"],
+    ["2 Samuel 6", "2 Samuel", 6, "Worship and the ark"],
+    ["2 Samuel 7", "2 Samuel", 7, "God's promise"],
+    ["2 Samuel 11", "2 Samuel", 11, "David's sin"],
+    ["2 Samuel 12", "2 Samuel", 12, "Nathan confronts David"],
+    ["Psalm 51", "Psalms", 51, "Repentance"],
+    ["Psalm 23", "Psalms", 23, "The shepherd king"],
+    ["1 Kings 2", "1 Kings", 2, "David's final charge"]
+  ], "Character study"),
+  planFromReferences("life-of-moses", "Life of Moses", "Follow Moses from deliverance to leadership, wilderness testing, and covenant faithfulness.", [
+    ["Exodus 2", "Exodus", 2, "Moses preserved"],
+    ["Exodus 3", "Exodus", 3, "The burning bush"],
+    ["Exodus 12", "Exodus", 12, "Passover"],
+    ["Exodus 14", "Exodus", 14, "Through the sea"],
+    ["Exodus 16", "Exodus", 16, "Manna"],
+    ["Exodus 19", "Exodus", 19, "At Sinai"],
+    ["Exodus 20", "Exodus", 20, "The commandments"],
+    ["Exodus 32", "Exodus", 32, "The golden calf"],
+    ["Exodus 33", "Exodus", 33, "God's presence"],
+    ["Numbers 13", "Numbers", 13, "Spies in the land"],
+    ["Numbers 20", "Numbers", 20, "Water from the rock"],
+    ["Deuteronomy 34", "Deuteronomy", 34, "Moses' final view"]
+  ], "Character study"),
+  planFromReferences("seven-days-prayer", "7 Days of Prayer", "A one-week path for turning Scripture into prayer.", [
+    ["Matthew 6", "Matthew", 6],
+    ["Luke 11", "Luke", 11],
+    ["Psalm 23", "Psalms", 23],
+    ["Psalm 46", "Psalms", 46],
+    ["Philippians 4", "Philippians", 4],
+    ["James 5", "James", 5],
+    ["1 John 5", "1 John", 5]
+  ], "Prayer"),
+  planFromReferences("seven-days-peace", "7 Days of Peace", "A short plan for anxiety, rest, and the peace of God.", [
+    ["Psalm 4", "Psalms", 4],
+    ["Psalm 23", "Psalms", 23],
+    ["Isaiah 26", "Isaiah", 26],
+    ["Matthew 6", "Matthew", 6],
+    ["John 14", "John", 14],
+    ["Philippians 4", "Philippians", 4],
+    ["Colossians 3", "Colossians", 3]
+  ], "Care"),
+  planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding grace, faith, prayer, and new life.", [
+    ["John 3", "John", 3],
+    ["Ephesians 2", "Ephesians", 2],
+    ["Romans 8", "Romans", 8],
+    ["Matthew 6", "Matthew", 6],
+    ["Galatians 5", "Galatians", 5],
+    ["1 John 1", "1 John", 1],
+    ["Colossians 3", "Colossians", 3]
+  ], "Beginner"),
+  planFromReferences("ten-days-psalms", "10 Days in the Psalms", "Ten Psalms for worship, honesty, trust, and hope.", [
+    ["Psalm 1", "Psalms", 1],
+    ["Psalm 8", "Psalms", 8],
+    ["Psalm 19", "Psalms", 19],
+    ["Psalm 23", "Psalms", 23],
+    ["Psalm 27", "Psalms", 27],
+    ["Psalm 42", "Psalms", 42],
+    ["Psalm 46", "Psalms", 46],
+    ["Psalm 51", "Psalms", 51],
+    ["Psalm 91", "Psalms", 91],
+    ["Psalm 103", "Psalms", 103]
+  ], "Prayer"),
+  planFromReferences("fourteen-days-proverbs", "14 Days in Proverbs", "Two weeks of practical wisdom for daily decisions.", [
+    ["Proverbs 1", "Proverbs", 1],
+    ["Proverbs 2", "Proverbs", 2],
+    ["Proverbs 3", "Proverbs", 3],
+    ["Proverbs 4", "Proverbs", 4],
+    ["Proverbs 8", "Proverbs", 8],
+    ["Proverbs 10", "Proverbs", 10],
+    ["Proverbs 11", "Proverbs", 11],
+    ["Proverbs 12", "Proverbs", 12],
+    ["Proverbs 15", "Proverbs", 15],
+    ["Proverbs 16", "Proverbs", 16],
+    ["Proverbs 18", "Proverbs", 18],
+    ["Proverbs 22", "Proverbs", 22],
+    ["Proverbs 27", "Proverbs", 27],
+    ["Proverbs 31", "Proverbs", 31]
+  ], "Wisdom"),
+  planFromReferences("fourteen-days-life-of-jesus", "14 Days on the Life of Jesus", "A focused two-week path through Jesus' life, teaching, death, and resurrection.", [
+    ["Luke 2", "Luke", 2],
+    ["Matthew 3", "Matthew", 3],
+    ["Matthew 4", "Matthew", 4],
+    ["Matthew 5", "Matthew", 5],
+    ["Mark 2", "Mark", 2],
+    ["Luke 15", "Luke", 15],
+    ["John 6", "John", 6],
+    ["John 10", "John", 10],
+    ["John 11", "John", 11],
+    ["John 13", "John", 13],
+    ["John 17", "John", 17],
+    ["Matthew 26", "Matthew", 26],
+    ["John 19", "John", 19],
+    ["John 20", "John", 20]
+  ], "Gospels"),
+  planFromReferences("fourteen-days-faith", "14 Days on Faith", "Readings about trust, endurance, grace, and living by faith.", [
+    ["Genesis 15", "Genesis", 15],
+    ["Psalm 37", "Psalms", 37],
+    ["Habakkuk 3", "Habakkuk", 3],
+    ["Matthew 8", "Matthew", 8],
+    ["Mark 9", "Mark", 9],
+    ["John 20", "John", 20],
+    ["Romans 4", "Romans", 4],
+    ["Romans 5", "Romans", 5],
+    ["Galatians 2", "Galatians", 2],
+    ["Ephesians 2", "Ephesians", 2],
+    ["Hebrews 10", "Hebrews", 10],
+    ["Hebrews 11", "Hebrews", 11],
+    ["James 2", "James", 2],
+    ["1 Peter 1", "1 Peter", 1]
+  ], "Gospel"),
+  planFromReferences("fourteen-days-wisdom", "14 Days on Wisdom", "Two weeks of readings for wise choices, words, and priorities.", [
+    ["1 Kings 3", "1 Kings", 3],
+    ["Psalm 1", "Psalms", 1],
+    ["Psalm 119", "Psalms", 119],
+    ["Proverbs 1", "Proverbs", 1],
+    ["Proverbs 2", "Proverbs", 2],
+    ["Proverbs 3", "Proverbs", 3],
+    ["Proverbs 4", "Proverbs", 4],
+    ["Proverbs 8", "Proverbs", 8],
+    ["Ecclesiastes 3", "Ecclesiastes", 3],
+    ["Matthew 7", "Matthew", 7],
+    ["James 1", "James", 1],
+    ["James 3", "James", 3],
+    ["Colossians 3", "Colossians", 3],
+    ["2 Timothy 3", "2 Timothy", 3]
+  ], "Wisdom"),
+  planFromReferences("fourteen-days-grief-comfort", "14 Days on Grief and Comfort", "Gentle readings for sorrow, hope, and God's nearness.", [
+    ["Psalm 13", "Psalms", 13],
+    ["Psalm 23", "Psalms", 23],
+    ["Psalm 34", "Psalms", 34],
+    ["Psalm 42", "Psalms", 42],
+    ["Psalm 46", "Psalms", 46],
+    ["Psalm 73", "Psalms", 73],
+    ["Isaiah 40", "Isaiah", 40],
+    ["Isaiah 43", "Isaiah", 43],
+    ["Lamentations 3", "Lamentations", 3],
+    ["Matthew 5", "Matthew", 5],
+    ["John 11", "John", 11],
+    ["Romans 8", "Romans", 8],
+    ["2 Corinthians 1", "2 Corinthians", 1],
+    ["Revelation 21", "Revelation", 21]
+  ], "Care"),
+  planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
+    ["Psalm 23", "Psalms", 23],
+    ["Psalm 27", "Psalms", 27],
+    ["Psalm 46", "Psalms", 46],
+    ["Psalm 91", "Psalms", 91],
+    ["Isaiah 26", "Isaiah", 26],
+    ["Isaiah 41", "Isaiah", 41],
+    ["Matthew 6", "Matthew", 6],
+    ["Matthew 11", "Matthew", 11],
+    ["John 14", "John", 14],
+    ["Romans 8", "Romans", 8],
+    ["Philippians 4", "Philippians", 4],
+    ["Colossians 3", "Colossians", 3],
+    ["1 Peter 5", "1 Peter", 5],
+    ["1 John 4", "1 John", 4]
+  ], "Care"),
+  planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
+    ["Matthew 21", "Matthew", 21, "Palm Sunday"],
+    ["Matthew 22", "Matthew", 22, "Questions and teaching"],
+    ["Matthew 26", "Matthew", 26, "Gethsemane"],
+    ["John 13", "John", 13, "Servant love"],
+    ["John 17", "John", 17, "Jesus prays"],
+    ["John 19", "John", 19, "The cross"],
+    ["John 20", "John", 20, "The resurrection"]
+  ], "Gospels"),
+  planFromReferences("advent-readings", "Advent readings", "Readings that trace promise, hope, and the coming of Christ.", [
+    ["Genesis 3", "Genesis", 3],
+    ["Genesis 12", "Genesis", 12],
+    ["Isaiah 7", "Isaiah", 7],
+    ["Isaiah 9", "Isaiah", 9],
+    ["Isaiah 11", "Isaiah", 11],
+    ["Micah 5", "Micah", 5],
+    ["Luke 1", "Luke", 1],
+    ["Luke 2", "Luke", 2],
+    ["Matthew 1", "Matthew", 1],
+    ["Matthew 2", "Matthew", 2],
+    ["John 1", "John", 1],
+    ["Galatians 4", "Galatians", 4],
+    ["Philippians 2", "Philippians", 2],
+    ["Revelation 22", "Revelation", 22]
+  ], "Gospels"),
+  planFromReferences("easter-resurrection-readings", "Easter / Resurrection readings", "Readings that focus on the resurrection and the hope it brings.", [
+    ["Isaiah 53", "Isaiah", 53],
+    ["Matthew 28", "Matthew", 28],
+    ["Mark 16", "Mark", 16],
+    ["Luke 24", "Luke", 24],
+    ["John 20", "John", 20],
+    ["John 21", "John", 21],
+    ["Acts 2", "Acts", 2],
+    ["Acts 4", "Acts", 4],
+    ["Romans 6", "Romans", 6],
+    ["Romans 8", "Romans", 8],
+    ["1 Corinthians 15", "1 Corinthians", 15],
+    ["1 Peter 1", "1 Peter", 1],
+    ["Revelation 1", "Revelation", 1],
+    ["Revelation 21", "Revelation", 21]
+  ], "Gospels"),
   planFromReferences("life-of-jesus", "Life of Jesus", "Key readings from the birth, ministry, death, and resurrection of Jesus.", [
     ["Luke 2", "Luke", 2, "Birth of Jesus"],
     ["Matthew 3", "Matthew", 3, "Baptism of Jesus"],
@@ -320,7 +616,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8", "Romans", 8],
     ["Revelation 21", "Revelation", 21]
   ], "Overview"),
-  buildChapterPlan("old-testament-overview", "Old Testament Overview", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview"),
+  buildChapterPlan("old-testament-overview", "Old Testament Overview in 60 Days", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview"),
   buildChapterPlan("new-testament-overview", "New Testament Overview", "A broad chapter-by-chapter overview of the New Testament.", NEW_TESTAMENT_BOOKS, 30, "Overview")
 ];
 

@@ -3,9 +3,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { fetchBibleApiPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
+import { bibleReadingPlans, defaultBibleReadingPlanId, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -557,6 +558,8 @@ export default function Home() {
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(false);
+  const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState(defaultBibleReadingPlanId);
+  const [completedBibleReadingPlanDays, setCompletedBibleReadingPlanDays] = useState<string[]>([]);
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
   const [selectedReaderVerses, setSelectedReaderVerses] = useState<number[]>([]);
@@ -771,6 +774,13 @@ export default function Home() {
         .catch(() => undefined);
       getStoredBibleReadChapters()
         .then(setReadBibleChapters)
+        .catch(() => undefined);
+      getStoredBibleReadingPlanProgress()
+        .then((progress) => {
+          const validPlanId = bibleReadingPlans.some((plan) => plan.id === progress.activePlanId) ? progress.activePlanId : defaultBibleReadingPlanId;
+          setActiveBibleReadingPlanId(validPlanId);
+          setCompletedBibleReadingPlanDays(progress.completedDays);
+        })
         .catch(() => undefined);
       getStoredBibleBookmarks()
         .then(setBibleBookmarks)
@@ -1168,6 +1178,11 @@ export default function Home() {
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
+  const activeBibleReadingPlan = bibleReadingPlans.find((plan) => plan.id === activeBibleReadingPlanId) || bibleReadingPlans[0];
+  const completedBibleReadingPlanDaySet = new Set(completedBibleReadingPlanDays);
+  const activeBibleReadingPlanCompletedCount = activeBibleReadingPlan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))).length;
+  const activeBibleReadingPlanToday = activeBibleReadingPlan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))) || activeBibleReadingPlan.days[0];
+  const activeBibleReadingPlanComplete = activeBibleReadingPlanCompletedCount === activeBibleReadingPlan.days.length;
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -4276,6 +4291,51 @@ export default function Home() {
     });
   }
 
+  function persistBibleReadingPlanProgress(activePlanId: string, completedDays: string[]) {
+    saveStoredBibleReadingPlanProgress({ activePlanId, completedDays }).catch(() => undefined);
+  }
+
+  function selectBibleReadingPlan(planId: string) {
+    const nextPlanId = bibleReadingPlans.some((plan) => plan.id === planId) ? planId : defaultBibleReadingPlanId;
+    setActiveBibleReadingPlanId(nextPlanId);
+    persistBibleReadingPlanProgress(nextPlanId, completedBibleReadingPlanDays);
+    trackUsage("bible_reading_plan_selected", { reference: nextPlanId, tab: "bible" });
+  }
+
+  function openBibleReadingPlanDay(planDay: BibleReadingPlanDay) {
+    setReaderBook(planDay.readerBook);
+    setReaderChapter(planDay.readerChapter);
+    setReaderChapterDraft(String(planDay.readerChapter));
+    setSelectedReaderVerses([]);
+    setReaderActionVerse(0);
+    scrollReaderToTop();
+    trackUsage("bible_reading_plan_opened", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+  }
+
+  function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay) {
+    const key = bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day);
+    setCompletedBibleReadingPlanDays((current) => {
+      const next = current.includes(key) ? current : [...current, key];
+      persistBibleReadingPlanProgress(activeBibleReadingPlan.id, next);
+      return next;
+    });
+    trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+  }
+
+  function studyBibleReadingPlanDay(planDay: BibleReadingPlanDay) {
+    setPassage(planDay.studyReference);
+    setPassageQuery(planDay.studyReference);
+    setAnswers({});
+    setShareNote("");
+    resetPassageMarkup();
+    setStepIndex(0);
+    setStudyPhase("study");
+    setLoadedDraftKey("");
+    setSaveStatus(`${planDay.reference} loaded from Bible reading plan`);
+    setTab("study");
+    trackUsage("bible_reading_plan_studied", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+  }
+
   function dismissBibleSearchInput() {
     if (!phoneLayout) return;
     Keyboard.dismiss();
@@ -5583,6 +5643,16 @@ export default function Home() {
               readerBook={readerBook}
               readerChapter={readerChapter}
               readerBookSections={readerBookSections}
+              bibleReadingPlans={bibleReadingPlans}
+              activeBibleReadingPlanId={activeBibleReadingPlan.id}
+              activeBibleReadingPlan={activeBibleReadingPlan}
+              activeBibleReadingPlanToday={activeBibleReadingPlanToday}
+              activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
+              activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
+              onSelectBibleReadingPlan={selectBibleReadingPlan}
+              onOpenBibleReadingPlanDay={openBibleReadingPlanDay}
+              onMarkBibleReadingPlanDayComplete={markBibleReadingPlanDayComplete}
+              onStudyBibleReadingPlanDay={studyBibleReadingPlanDay}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {
                 setBibleTranslation(nextTranslationId as BibleTranslationId);
@@ -8505,6 +8575,10 @@ function planDayKey(planId: string, day: number) {
   return `${planId}:${day}`;
 }
 
+function bibleReadingPlanDayKey(planId: string, day: number) {
+  return `${planId}:${day}`;
+}
+
 function verseMarkupKey(verse: BibleVerse) {
   return `${verse.book_name}:${verse.chapter}:${verse.verse}`;
 }
@@ -11171,6 +11245,78 @@ const styles = StyleSheet.create({
   },
   readerHistoryList: {
     gap: 6
+  },
+  bibleReadingPlanPanel: {
+    backgroundColor: "#fffaf3",
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 14,
+    padding: 12
+  },
+  bibleReadingPlanHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  bibleReadingPlanTitleBlock: {
+    flex: 1,
+    gap: 2,
+    minWidth: 0
+  },
+  bibleReadingPlanChooser: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  phoneBibleReadingPlanChooser: {
+    flexWrap: "wrap"
+  },
+  bibleReadingPlanChip: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 32,
+    maxWidth: 180,
+    paddingHorizontal: 10,
+    paddingVertical: 6
+  },
+  bibleReadingPlanChipText: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  bibleReadingPlanToday: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    padding: 11
+  },
+  bibleReadingPlanTodayHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  bibleReadingPlanTodayTitleBlock: {
+    flex: 1,
+    gap: 3,
+    minWidth: 0
+  },
+  bibleReadingPlanActions: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  phoneBibleReadingPlanActions: {
+    alignItems: "stretch",
+    flexDirection: "column"
   },
   readerQuickListToggle: {
     alignItems: "center",

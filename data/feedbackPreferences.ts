@@ -6,6 +6,10 @@ export type StoredAppearanceMode = "light" | "dark";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
 export type StoredBibleReadChapters = Record<string, number[]>;
+export type StoredBibleReadingPlanProgress = {
+  activePlanId: string;
+  completedDays: string[];
+};
 export type StoredBibleBookmark = {
   id: string;
   book: string;
@@ -34,6 +38,7 @@ const bibleTranslationKey = "bible-study-tutor-bible-translation";
 const bibleReaderPositionKey = "bible-study-tutor-bible-reader-position";
 const bibleReaderHistoryKey = "bible-study-tutor-bible-reader-history";
 const bibleReadChaptersKey = "bible-study-tutor-bible-read-chapters";
+const bibleReadingPlanProgressKey = "bible-study-tutor-bible-reading-plan-progress";
 const bibleBookmarksKey = "bible-study-tutor-bible-bookmarks";
 const studyFocusModeKey = "bible-study-tutor-study-focus-mode";
 const tutorCoachingEnabledKey = "bible-study-tutor-coaching-enabled";
@@ -135,6 +140,28 @@ export async function getStoredBibleReadChapters(): Promise<StoredBibleReadChapt
 
 export async function saveStoredBibleReadChapters(readChapters: StoredBibleReadChapters) {
   await setStoredValue(bibleReadChaptersKey, JSON.stringify(readChapters));
+}
+
+export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleReadingPlanProgress> {
+  const stored = await getStoredValue(bibleReadingPlanProgressKey);
+  if (!stored) return { activePlanId: "", completedDays: [] };
+
+  try {
+    const parsed = JSON.parse(stored);
+    return {
+      activePlanId: typeof parsed?.activePlanId === "string" ? parsed.activePlanId : "",
+      completedDays: Array.isArray(parsed?.completedDays) ? parsed.completedDays.filter((item: unknown): item is string => typeof item === "string") : []
+    };
+  } catch {
+    return { activePlanId: "", completedDays: [] };
+  }
+}
+
+export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleReadingPlanProgress) {
+  await setStoredValue(bibleReadingPlanProgressKey, JSON.stringify({
+    activePlanId: progress.activePlanId,
+    completedDays: Array.from(new Set(progress.completedDays))
+  }));
 }
 
 export async function getStoredBibleBookmarks(): Promise<StoredBibleBookmark[]> {

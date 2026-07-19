@@ -1508,6 +1508,41 @@ export default function Home() {
   );
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
+  const homeContinueItems = [
+    ...(isAuthenticated && activeBibleReadingPlan && activeBibleReadingPlanToday && !activeBibleReadingPlanComplete
+      ? [{
+          key: "reading-plan",
+          title: "Continue reading plan",
+          detail: `${activeBibleReadingPlan.title}: Day ${activeBibleReadingPlanToday.day} · ${activeBibleReadingPlanToday.reference}`,
+          icon: "calendar-outline",
+          onPress: () => {
+            openBibleReadingPlanDay(activeBibleReadingPlanToday);
+            setTab("bible");
+          }
+        }]
+      : []),
+    ...(isAuthenticated && dueMemoryCount > 0
+      ? [{
+          key: "memory-due",
+          title: "Review memory verses",
+          detail: `${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} due today`,
+          icon: "school-outline",
+          onPress: () => startDueMemoryReviewQueue()
+        }]
+      : []),
+    ...(isAuthenticated && dueMemoryCount === 0 && (memoryVerses || []).length > 0
+      ? [{
+          key: "memory-saved",
+          title: "Open saved memory verses",
+          detail: `${(memoryVerses || []).length} verse${(memoryVerses || []).length === 1 ? "" : "s"} saved`,
+          icon: "sparkles-outline",
+          onPress: () => {
+            setMemoryView("browse");
+            setTab("memory");
+          }
+        }]
+      : [])
+  ];
   const memoryHistoryItems = shouldRenderMemoryHistory ? (memoryHistory || []) : [];
   const memoryHistorySummary = useMemo(
     () => shouldRenderMemoryHistory
@@ -5192,6 +5227,31 @@ export default function Home() {
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
+              {homeContinueItems.length > 0 && (
+                <Card style={[styles.homeSideCard, styles.homeContinueCard, homeDarkMode && styles.accountDarkMainCard]}>
+                  <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Continue today</Text>
+                  <View style={styles.homePathList}>
+                    {homeContinueItems.map((item) => (
+                      <Pressable
+                        key={item.key}
+                        accessibilityRole="button"
+                        accessibilityLabel={item.title}
+                        onPress={item.onPress}
+                        style={[styles.homePathItem, styles.homeContinueItem, homeDarkMode && styles.homeDarkPathItem]}
+                      >
+                        <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                          <Ionicons name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </View>
+                        <View style={styles.homePathTextBlock}>
+                          <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
+                          <Text numberOfLines={2} style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{item.detail}</Text>
+                        </View>
+                        <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
+                      </Pressable>
+                    ))}
+                  </View>
+                </Card>
+              )}
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
@@ -11238,6 +11298,10 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0
   },
+  homeContinueCard: {
+    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderWidth: 1.5
+  },
   homeSideTitle: {
     color: colors.oliveDark,
     fontSize: 18,
@@ -11260,6 +11324,9 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0,
     padding: 11
+  },
+  homeContinueItem: {
+    backgroundColor: "#fff6eb"
   },
   homeDarkPathItem: {
     backgroundColor: "#1b211f",
@@ -15520,6 +15587,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "900",
     letterSpacing: 0,
+    marginBottom: 8,
     marginTop: 6,
     textTransform: "uppercase"
   },

@@ -45,7 +45,13 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Selected verses help",
       icon: "checkbox-outline",
       summary: `${context.selectedBibleVerseCount} verse${context.selectedBibleVerseCount === 1 ? " is" : "s are"} selected. Use the floating action bar to decide what to do with the selection.`,
-      tips: ["Tap Study to open the selected verses in Guided Study.", "Tap Memory to save them for review.", "Tap Print to make a worksheet, or Note/Bookmark to keep them in Bible."]
+      tips: [
+        "Tap Study to open the selected verses in Guided Study.",
+        "Tap Memory to save the selection for review.",
+        "Tap Print to make a worksheet for pen-and-paper study.",
+        "Use Note for your own comment, or Bookmark when you simply want to return to the passage.",
+        "Tap Clear or the close icon when you are finished selecting."
+      ]
     };
   }
 
@@ -56,7 +62,13 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       summary: context.bibleSearchResultCount
         ? "Search results are grouped by Testament so you can scan the whole Bible without losing your place."
         : "Use Scripture search for exact words, broad matches, themes, or questions.",
-      tips: ["Use Word for exact whole-word searching.", "Use Any words or Theme when you want broader results.", "Tap Read to open the verse in context, or Study to begin a guided study."]
+      tips: [
+        "Use Word for exact whole-word searching.",
+        "Use Exact phrase when the order of words matters.",
+        "Use Any words or Theme when you want broader results.",
+        "Tap Read to open the verse in context, or Study to begin a guided study.",
+        "Use Clear when you want the passage view back without search results taking space."
+      ]
     };
   }
 
@@ -74,7 +86,13 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Memory practice help",
       icon: "create-outline",
       summary: "Practice uses three steps: read the verse, fill some blanks, then fill the whole verse from memory.",
-      tips: ["Hints reveal more of a word when you need help.", "Correct words turn green after checking.", "When you finish a due verse, the next due verse can open automatically."]
+      tips: [
+        "Step 1 is just reading; Step 2 hides alternating words; Step 3 asks for the whole verse.",
+        "Hints reveal more of a word when you need help.",
+        "A word shows feedback once your answer is long enough to check.",
+        "Press Enter or Return when the Finish Verse button is focused.",
+        "When reviewing due verses, the next due verse can open automatically."
+      ]
     };
   }
 
@@ -166,14 +184,26 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
     bible: {
       title: "Bible help",
       icon: "reader-outline",
-      summary: "Bible lets you read by book and chapter, search Scripture, select verses, add notes, bookmark passages, and launch a study.",
-      tips: ["Use Search Scripture to find exact words, phrases, themes, or questions.", "On mobile, tap Search criteria to choose All, Old Testament, New Testament, match type, or a book.", "Tap Read on a search result to open that chapter with the verse selected."]
+      summary: "Bible lets you read by book and chapter, follow today’s reading plan passage, search Scripture, select verses, add notes, bookmark passages, and launch a study.",
+      tips: [
+        "Choose a book and chapter from the reader panel; it collapses after selection so the passage has room.",
+        "Use Mark Chapter Read for normal chapter tracking.",
+        "If the passage belongs to your active reading plan, use Mark Today’s Plan Reading Complete for plan progress.",
+        "Use Search Scripture to find exact words, phrases, themes, or questions.",
+        "Select verses when you want to Study, Memory, Print, Note, or Bookmark them."
+      ]
     },
     plans: {
       title: "Plans help",
       icon: "calendar-outline",
-      summary: "Plans give you short guided paths. Each day opens a passage and method, then saving the study marks that day complete.",
-      tips: ["Choose a plan that matches your current season.", "Press Continue to open the next unfinished day.", "Reset a plan if you want to start it again."]
+      summary: "Plans is the main place to choose and manage Bible reading plans. The Bible reader only shows the current plan status.",
+      tips: [
+        "Choose Follow on a plan to make it your current reading plan.",
+        "Use the horizontal day tiles to select a day and see its passage.",
+        "Dates are counted from the day you started following the plan.",
+        "Use Catch up dates if you miss days and want the next incomplete reading to become today.",
+        "Stopping a plan removes it as current without deleting previous progress."
+      ]
     },
     methods: {
       title: "Methods help",
@@ -185,7 +215,13 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Memory help",
       icon: "sparkles-outline",
       summary: "Memory helps you keep saved verses through review, meditation, history, and printable verse cards.",
-      tips: ["Save verses from Bible or Study first.", "Use Practice for the three-step review flow, or Meditate to slow down with one verse.", "Use Print cards to download editable memory cards for carrying or sharing."]
+      tips: [
+        "Save verses from Bible or Study first.",
+        "Use Due for Review when you want today’s practice list.",
+        "Use Browse to filter by collection, Testament, book, chapter, status, or review rhythm.",
+        "Use Practice for the three-step review flow, or Meditate to slow down with one verse.",
+        "Use Print cards to download editable cards for carrying, sharing, or placing around the house."
+      ]
     },
     accountability: {
       title: "Community help",
@@ -197,13 +233,25 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Journal help",
       icon: "journal-outline",
       summary: "Journal is where saved studies, drafts, highlights, reflections, encouragements, and reviews come back together.",
-      tips: ["Use the compact Filter panel to narrow entries without cluttering the page.", "Use List for a simple view, Calendar for date review, and Scripture for book/chapter browsing.", "Expand an entry to read, revisit, schedule, edit, or delete it."]
+      tips: [
+        "Use List for quick scanning and expand only the entry you need.",
+        "Use Calendar when you remember the date.",
+        "Use Scripture view when you remember the book or chapter.",
+        "Filter by Study, Meditation, Highlight, Encouragement, Draft, Completed, or Pinned.",
+        "Expand an entry to read, revisit, schedule, edit, pin, or delete it."
+      ]
     },
     account: {
       title: "Account help",
       icon: "person-circle-outline",
       summary: "Account manages your name, sign-in, Bible translation, privacy notes, and future access choices.",
-      tips: ["Add your name so the app can speak more personally.", "Create a free account with either an email address or a unique username.", "Read the privacy and terms sections if you want to understand what is saved."]
+      tips: [
+        "Add your name so the app can speak more personally.",
+        "Create a free account with either an email address or a unique username.",
+        "Signing in helps your saved work follow you across devices.",
+        "Change Bible translation and appearance from Account.",
+        "Read Privacy and Terms to understand what is saved and how deletion requests work."
+      ]
     },
     admin: {
       title: "Admin help",

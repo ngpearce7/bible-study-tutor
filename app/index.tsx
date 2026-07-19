@@ -17957,6 +17957,31 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 10
   },
+  helpCategoryRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
+  helpCategoryChip: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 11,
+    paddingVertical: 7
+  },
+  activeHelpCategoryChip: {
+    backgroundColor: colors.oliveDark,
+    borderColor: colors.oliveDark
+  },
+  helpCategoryText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  activeHelpCategoryText: {
+    color: "white"
+  },
   helpQuickGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -18283,6 +18308,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "900",
     minWidth: 0
+  },
+  helpGuideSummary: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 18
   },
   helpGuideStepList: {
     gap: 7

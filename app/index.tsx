@@ -10672,13 +10672,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff6eb",
     borderBottomColor: "rgba(108, 91, 67, 0.18)",
     borderBottomWidth: 1,
+    elevation: 20,
     flexDirection: "row",
     gap: 10,
     maxWidth: "100%",
     minWidth: 0,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    width: "100%"
+    position: "relative",
+    width: "100%",
+    zIndex: 100
   },
   appDarkMobileMenuBar: {
     backgroundColor: "#1b211f",
@@ -10736,7 +10739,10 @@ const styles = StyleSheet.create({
   },
   mobileMenuDrawer: {
     borderBottomWidth: 1,
-    paddingBottom: 12
+    elevation: 18,
+    paddingBottom: 12,
+    position: "relative",
+    zIndex: 90
   },
   brandRow: {
     alignItems: "center",

@@ -5227,35 +5227,28 @@ export default function Home() {
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
-              {homeContinueItems.length > 0 && (
-                <Card style={[styles.homeSideCard, styles.homeContinueCard, homeDarkMode && styles.accountDarkMainCard]}>
-                  <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Continue today</Text>
-                  <View style={styles.homePathList}>
-                    {homeContinueItems.map((item) => (
-                      <Pressable
-                        key={item.key}
-                        accessibilityRole="button"
-                        accessibilityLabel={item.title}
-                        onPress={item.onPress}
-                        style={[styles.homePathItem, styles.homeContinueItem, homeDarkMode && styles.homeDarkPathItem]}
-                      >
-                        <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
-                          <Ionicons name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
-                        </View>
-                        <View style={styles.homePathTextBlock}>
-                          <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
-                          <Text numberOfLines={2} style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{item.detail}</Text>
-                        </View>
-                        <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
-                      </Pressable>
-                    ))}
-                  </View>
-                </Card>
-              )}
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
                 <View style={styles.homePathList}>
+                  {homeContinueItems.map((item) => (
+                    <Pressable
+                      key={item.key}
+                      accessibilityRole="button"
+                      accessibilityLabel={item.title}
+                      onPress={item.onPress}
+                      style={[styles.homePathItem, styles.homeContinueItem, homeDarkMode && styles.homeDarkContinueItem]}
+                    >
+                      <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                        <Ionicons name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </View>
+                      <View style={styles.homePathTextBlock}>
+                        <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
+                        <Text numberOfLines={2} style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{item.detail}</Text>
+                      </View>
+                      <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
+                    </Pressable>
+                  ))}
                   {[
                     ["Bible reader", "Read, search, select verses, or print a worksheet.", "reader-outline", "bible"],
                     ["Guided study", `Work through ${method.short} with notes and highlights.`, "book-outline", "study"],
@@ -11326,7 +11319,14 @@ const styles = StyleSheet.create({
     padding: 11
   },
   homeContinueItem: {
-    backgroundColor: "#fff6eb"
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(201, 103, 80, 0.52)",
+    borderWidth: 1.5
+  },
+  homeDarkContinueItem: {
+    backgroundColor: "#211d18",
+    borderColor: "rgba(233, 183, 106, 0.38)",
+    borderWidth: 1.5
   },
   homeDarkPathItem: {
     backgroundColor: "#1b211f",

@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
 import { fetchBibleApiPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
-import { bibleReadingPlans, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
+import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
@@ -6181,12 +6181,12 @@ export default function Home() {
             <View style={[styles.planPageGrid, phoneLayout && styles.phonePlanPageGrid]}>
               {allBibleReadingPlans.filter((plan) => plan.id !== activeBibleReadingPlanId).map((plan) => {
                 const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
-                const complete = completedCount === plan.days.length;
-                const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
                 const expanded = expandedBiblePlanId === plan.id;
                 const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
-                const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 10;
-                const visiblePlanDays = plan.days.length > 7 ? plan.days.slice(0, visibleRows) : plan.days;
+                const planDetails = getBibleReadingPlanDetails(plan);
+                const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 0;
+                const visiblePlanDays = visibleRows > 0 ? plan.days.slice(0, visibleRows) : [];
+                const planStarted = completedCount > 0;
                 return (
                   <Card key={plan.id} style={[styles.planPageCard, expanded && styles.expandedBrowsePlanCard, phoneLayout && styles.phonePlanPageCard, plansDarkMode && styles.accountDarkMainCard]}>
                     <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
@@ -6198,35 +6198,98 @@ export default function Home() {
                         <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
                           {(plan.category || (plan.source === "custom" ? "Custom" : "Reading plan"))} · {plan.days.length} days
                         </Text>
+                        {planStarted && (
+                          <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
+                            Progress saved: {completedCount} of {plan.days.length} completed
+                          </Text>
+                        )}
                       </View>
                       <View style={styles.planPageHeaderActions}>
-                        <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
+                        {planStarted && <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>}
                         <Pressable
                           accessibilityRole="button"
-                          accessibilityLabel={expanded ? `Collapse ${plan.title} reading plan` : `Expand ${plan.title} reading plan`}
+                          accessibilityLabel={expanded ? `Hide details for ${plan.title}` : `Show more details for ${plan.title}`}
+                          accessibilityState={{ expanded }}
                           onPress={() => {
                             setExpandedBiblePlanId(expanded ? "" : plan.id);
                             if (!expanded) {
-                              setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 10 }));
+                              setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 0 }));
                             }
                           }}
                           style={[styles.planExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
                         >
-                          <Text style={[styles.planExpandButtonText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide" : "Show"}</Text>
+                          <Text style={[styles.planExpandButtonText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide details" : "More details"}</Text>
                           <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                         </Pressable>
                       </View>
                     </View>
-                    <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
-                      <View style={[styles.planProgressFill, { width: `${Math.min(100, progressPercent)}%` }]} />
+                    {planStarted && (
+                      <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
+                        <View style={[styles.planProgressFill, { width: `${Math.min(100, progressPercent)}%` }]} />
+                      </View>
+                    )}
+                    <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
+                      <AppButton
+                        label="Follow plan"
+                        onPress={() => selectBibleReadingPlan(plan.id)}
+                        style={phoneLayout && styles.phonePlanPrimaryButton}
+                        labelStyle={phoneLayout && styles.phonePlanButtonLabel}
+                      />
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={expanded ? `Hide details for ${plan.title}` : `Show more details for ${plan.title}`}
+                        accessibilityState={{ expanded }}
+                        onPress={() => {
+                          setExpandedBiblePlanId(expanded ? "" : plan.id);
+                          if (!expanded) setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 0 }));
+                        }}
+                        style={[styles.planExpandButton, styles.planDetailsButton, plansDarkMode && styles.homeDarkResumeButton]}
+                      >
+                        <Text style={[styles.planExpandButtonText, plansDarkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Hide details" : "More details"}</Text>
+                        <Ionicons name={expanded ? "chevron-up-outline" : "information-circle-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </Pressable>
+                      {plan.source === "custom" && <ResumeButton label={pendingBiblePlanDeleteId === plan.id ? "Confirm delete" : "Delete"} icon="trash-outline" onPress={() => deleteCustomBibleReadingPlan(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
                     </View>
                     {expanded && (
                       <>
-                        <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
-                          <ResumeButton label="Follow plan" icon="calendar-outline" onPress={() => selectBibleReadingPlan(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />
-                          {!complete && <ResumeButton label="Continue" icon="reader-outline" onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(nextDay); setTab("bible"); }} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
-                          {!complete && <ResumeButton label="Study" icon="book-outline" onPress={() => { selectBibleReadingPlan(plan.id); studyBibleReadingPlanDay(nextDay); }} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
-                          {plan.source === "custom" && <ResumeButton label={pendingBiblePlanDeleteId === plan.id ? "Confirm delete" : "Delete"} icon="trash-outline" onPress={() => deleteCustomBibleReadingPlan(plan.id)} style={[phoneLayout && styles.phonePlanResumeButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} iconColor={plansDarkMode ? "#e9b76a" : undefined} />}
+                        <View style={[styles.planDetailsPanel, plansDarkMode && styles.accountDarkInsetBox]}>
+                          <View style={styles.planDetailsGrid}>
+                            {[
+                              ["Purpose", planDetails.purpose],
+                              ["Best for", planDetails.bestFor],
+                              ["Pace", planDetails.pace],
+                              ["Time", planDetails.estimatedTime],
+                              ["Covers", planDetails.coverage],
+                              ["Rhythm", planDetails.rhythm]
+                            ].map(([label, value]) => (
+                              <View key={label} style={styles.planDetailItem}>
+                                <Text style={[styles.planDetailLabel, plansDarkMode && styles.studyDarkAccentText]}>{label}</Text>
+                                <Text style={[styles.planDetailText, plansDarkMode && styles.accountDarkMutedText]}>{value}</Text>
+                              </View>
+                            ))}
+                          </View>
+                          <View style={styles.planSampleList}>
+                            <Text style={[styles.planDetailLabel, plansDarkMode && styles.studyDarkAccentText]}>Sample readings</Text>
+                            {planDetails.sampleReadings.map((planDay) => (
+                              <View key={planDay.day} style={[styles.planSampleReading, plansDarkMode && styles.plansDarkDayRow]}>
+                                <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, plansDarkMode && styles.plansDarkDayBadge]}>{planDay.day}</Text>
+                                <View style={styles.planDayCopy}>
+                                  <Text style={[styles.planDayTitle, plansDarkMode && styles.accountDarkTitle]}>{planDay.title}</Text>
+                                  <Text style={[styles.planDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{planDay.reference}</Text>
+                                </View>
+                              </View>
+                            ))}
+                          </View>
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={visibleRows > 0 ? `Hide all readings for ${plan.title}` : `View all readings for ${plan.title}`}
+                            accessibilityState={{ expanded: visibleRows > 0 }}
+                            onPress={() => setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: visibleRows > 0 ? 0 : 10 }))}
+                            style={[styles.readerBookmarkExpandButton, styles.planViewAllButton, plansDarkMode && styles.homeDarkResumeButton]}
+                          >
+                            <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>{visibleRows > 0 ? "Hide all readings" : "View all readings"}</Text>
+                            <Ionicons name={visibleRows > 0 ? "chevron-up-outline" : "list-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          </Pressable>
                         </View>
                         {visiblePlanDays.map((planDay) => {
                           const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, planDay.day));
@@ -15330,6 +15393,57 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 11,
     fontWeight: "900"
+  },
+  planDetailsButton: {
+    minHeight: 38,
+    paddingHorizontal: 12
+  },
+  planDetailsPanel: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 12,
+    padding: 12
+  },
+  planDetailsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10
+  },
+  planDetailItem: {
+    flexBasis: 220,
+    flexGrow: 1,
+    gap: 3,
+    minWidth: 0
+  },
+  planDetailLabel: {
+    color: colors.coral,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  planDetailText: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 18
+  },
+  planSampleList: {
+    gap: 7
+  },
+  planSampleReading: {
+    alignItems: "center",
+    backgroundColor: "#fffdf8",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 8
+  },
+  planViewAllButton: {
+    alignSelf: "flex-start"
   },
   currentPlanWideBox: {
     backgroundColor: "#fffaf2",

@@ -17,6 +17,13 @@ export type BibleReadingPlan = {
   description: string;
   source: BibleReadingPlanSource;
   category?: string;
+  purpose?: string;
+  bestFor?: string;
+  pace?: string;
+  estimatedTime?: string;
+  coverage?: string;
+  rhythm?: string;
+  sampleDayNumbers?: number[];
   days: BibleReadingPlanDay[];
 };
 
@@ -86,7 +93,7 @@ function buildDay(day: number, reference: string, readerBook: string, readerChap
 }
 
 function planFromReferences(id: string, title: string, description: string, references: Array<[string, string, number, string?]>, category = "Topical"): BibleReadingPlan {
-  return {
+  return enrichPlanMetadata({
     id,
     title,
     description,
@@ -95,7 +102,7 @@ function planFromReferences(id: string, title: string, description: string, refe
     days: references.map(([reference, book, chapter, dayTitle], index) =>
       buildDay(index + 1, reference, readerBookFromReferenceBook(book), chapter, dayTitle || reference, reference)
     )
-  };
+  });
 }
 
 function buildChapterPlan(id: string, title: string, description: string, books: string[], dayCount: number, category = "Whole Bible"): BibleReadingPlan {
@@ -113,17 +120,102 @@ function buildChapterPlan(id: string, title: string, description: string, books:
     days.push(buildDay(day, compactReference(group), first.book, first.chapter));
   }
 
-  return { id, title, description, source: "built-in", category, days };
+  return enrichPlanMetadata({ id, title, description, source: "built-in", category, days });
 }
 
 function oneChapterPerDayPlan(id: string, title: string, description: string, book: string, days: number, category = "Book study"): BibleReadingPlan {
-  return {
+  return enrichPlanMetadata({
     id,
     title,
     description,
     source: "built-in",
     category,
     days: Array.from({ length: days }, (_, index) => buildDay(index + 1, chapterReference(book, index + 1), book, index + 1, chapterReference(book, index + 1), chapterReference(book, index + 1)))
+  });
+}
+
+function sampleDayNumbersFor(dayCount: number) {
+  if (dayCount <= 3) return Array.from({ length: dayCount }, (_, index) => index + 1);
+  const middle = Math.max(2, Math.ceil(dayCount / 2));
+  return Array.from(new Set([1, middle, dayCount]));
+}
+
+function estimateTimeFor(dayCount: number, referenceCount = dayCount) {
+  if (dayCount <= 10 && referenceCount <= 12) return "5-10 minutes";
+  if (dayCount <= 40) return "10-15 minutes";
+  if (dayCount <= 90) return "15-25 minutes";
+  return "15-30 minutes";
+}
+
+function paceFor(dayCount: number, category = "") {
+  if (dayCount <= 10) return "Short and flexible";
+  if (dayCount <= 31) return category === "Whole Bible" ? "Intensive daily readings" : "Short daily readings";
+  if (dayCount <= 90) return "Steady daily readings";
+  return "Gentle long-term rhythm";
+}
+
+function bestForFor(category = "", dayCount = 0) {
+  const lower = category.toLowerCase();
+  if (lower.includes("beginner")) return "Beginners and anyone wanting a friendly first path";
+  if (lower.includes("prayer")) return "Prayer, devotional reading, and reflection";
+  if (lower.includes("care")) return "Comfort, peace, grief, and pastoral care";
+  if (lower.includes("wisdom")) return "Decision-making, discernment, and daily wisdom";
+  if (lower.includes("overview")) return "Seeing the big picture before deeper study";
+  if (lower.includes("gospel") || lower.includes("gospels")) return "Learning Jesus' life, teaching, death, and resurrection";
+  if (lower.includes("new testament")) return "Understanding Jesus, the early church, and Christian living";
+  if (lower.includes("book")) return "Slow book-by-book reading";
+  if (dayCount >= 300) return "Long-term whole Bible reading";
+  return "Regular Bible reading and steady Scripture engagement";
+}
+
+function coverageFor(plan: Pick<BibleReadingPlan, "title" | "category" | "days">) {
+  const first = plan.days[0]?.reference || "the opening reading";
+  const last = plan.days[plan.days.length - 1]?.reference || "the final reading";
+  if ((plan.category || "").toLowerCase().includes("whole bible")) return `A path from ${first} through ${last}, covering the whole Bible in arranged daily portions.`;
+  if (plan.days.length <= 12) return `A focused set of ${plan.days.length} readings from ${first} to ${last}.`;
+  return `${plan.days.length} readings beginning with ${first} and ending with ${last}.`;
+}
+
+function purposeFor(plan: Pick<BibleReadingPlan, "title" | "description" | "category" | "days">) {
+  const category = (plan.category || "").toLowerCase();
+  if (category.includes("prayer")) return "To help you turn Scripture into prayer, trust, worship, and honest dependence on God.";
+  if (category.includes("care")) return "To give gentle Scripture readings for seasons of worry, grief, comfort, and hope.";
+  if (category.includes("wisdom")) return "To help you read slowly for wisdom, discernment, and faithful decisions.";
+  if (category.includes("overview")) return "To give a manageable overview before choosing where to study more deeply.";
+  if (category.includes("gospel")) return "To keep your attention on Jesus and the good news of grace, faith, and new life.";
+  if (category.includes("new testament")) return "To move steadily through Jesus' life, the early church, and the letters.";
+  if (category.includes("book")) return "To help you stay with one Bible book long enough to notice its flow and message.";
+  return plan.description || "To provide a steady, practical rhythm for reading Scripture.";
+}
+
+function enrichPlanMetadata(plan: BibleReadingPlan): BibleReadingPlan {
+  return {
+    ...plan,
+    purpose: plan.purpose || purposeFor(plan),
+    bestFor: plan.bestFor || bestForFor(plan.category, plan.days.length),
+    pace: plan.pace || paceFor(plan.days.length, plan.category),
+    estimatedTime: plan.estimatedTime || estimateTimeFor(plan.days.length),
+    coverage: plan.coverage || coverageFor(plan),
+    rhythm: plan.rhythm || "Read the passage, notice one thing, pray briefly, then mark the day complete when you finish.",
+    sampleDayNumbers: plan.sampleDayNumbers || sampleDayNumbersFor(plan.days.length)
+  };
+}
+
+export function getBibleReadingPlanDetails(plan: BibleReadingPlan) {
+  const enriched = enrichPlanMetadata(plan);
+  const sampleNumbers = enriched.sampleDayNumbers || sampleDayNumbersFor(enriched.days.length);
+  const sampleReadings = sampleNumbers
+    .map((dayNumber) => enriched.days.find((day) => day.day === dayNumber))
+    .filter((day): day is BibleReadingPlanDay => !!day);
+
+  return {
+    purpose: enriched.purpose || "",
+    bestFor: enriched.bestFor || "",
+    pace: enriched.pace || "",
+    estimatedTime: enriched.estimatedTime || "",
+    coverage: enriched.coverage || "",
+    rhythm: enriched.rhythm || "",
+    sampleReadings
   };
 }
 

@@ -1248,6 +1248,14 @@ export default function Home() {
     activeBibleReadingPlanStartDate && activeBibleReadingPlanSelectedDay
       ? addDaysToDateKey(activeBibleReadingPlanStartDate, activeBibleReadingPlanSelectedDay.day - 1)
       : "";
+  const activeBibleReadingPlanTodayDateKey =
+    activeBibleReadingPlanStartDate && activeBibleReadingPlanToday
+      ? addDaysToDateKey(activeBibleReadingPlanStartDate, activeBibleReadingPlanToday.day - 1)
+      : "";
+  const activeBibleReadingPlanMissedFullDay =
+    !!activeBibleReadingPlanTodayDateKey &&
+    !activeBibleReadingPlanComplete &&
+    activeBibleReadingPlanTodayDateKey < localDateKey();
   const activeBibleReadingPlanSelectedDone =
     !!activeBibleReadingPlan &&
     !!activeBibleReadingPlanSelectedDay &&
@@ -4390,7 +4398,7 @@ export default function Home() {
   }
 
   function catchUpActiveBibleReadingPlanDates() {
-    if (!activeBibleReadingPlan || !activeBibleReadingPlanToday || activeBibleReadingPlanComplete) return;
+    if (!activeBibleReadingPlan || !activeBibleReadingPlanToday || !activeBibleReadingPlanMissedFullDay) return;
     const today = new Date();
     const nextStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     nextStart.setDate(nextStart.getDate() - (activeBibleReadingPlanToday.day - 1));
@@ -4436,6 +4444,19 @@ export default function Home() {
       return next;
     });
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+  }
+
+  function unmarkBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
+    if (!planId) return;
+    const key = bibleReadingPlanDayKey(planId, planDay.day);
+    setCompletedBibleReadingPlanDays((current) => {
+      if (!current.includes(key)) return current;
+      const next = current.filter((item) => item !== key);
+      persistBibleReadingPlanProgress(planId, next);
+      return next;
+    });
+    setBiblePlanStatus(`Day ${planDay.day} is no longer marked complete.`);
+    trackUsage("bible_reading_plan_day_uncompleted", { reference: planDay.reference, tab: "plans", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
 
   function markCurrentBibleReadingPlanDayComplete() {
@@ -6061,14 +6082,26 @@ export default function Home() {
                       <Pressable accessibilityRole="button" accessibilityLabel={`Study ${activeBibleReadingPlanSelectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
                         <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </Pressable>
-                      <Pressable accessibilityRole="button" accessibilityLabel={activeBibleReadingPlanSelectedDone ? `${activeBibleReadingPlanSelectedDay.reference} completed` : `Mark ${activeBibleReadingPlanSelectedDay.reference} complete`} onPress={(event: any) => { event.stopPropagation?.(); if (!activeBibleReadingPlanSelectedDone) markBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id); }} style={[styles.planDayIconAction, activeBibleReadingPlanSelectedDone && styles.activeReaderReadButton, !activeBibleReadingPlanSelectedDone && styles.readerPlanCompleteButton]}>
-                        <Ionicons name={activeBibleReadingPlanSelectedDone ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color="white" />
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={activeBibleReadingPlanSelectedDone ? `Mark ${activeBibleReadingPlanSelectedDay.reference} incomplete` : `Mark ${activeBibleReadingPlanSelectedDay.reference} complete`}
+                        onPress={(event: any) => {
+                          event.stopPropagation?.();
+                          if (activeBibleReadingPlanSelectedDone) {
+                            unmarkBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
+                          } else {
+                            markBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
+                          }
+                        }}
+                        style={[styles.planDayIconAction, activeBibleReadingPlanSelectedDone && styles.activeReaderReadButton, !activeBibleReadingPlanSelectedDone && styles.readerPlanCompleteButton]}
+                      >
+                        <Ionicons name={activeBibleReadingPlanSelectedDone ? "refresh-outline" : "checkmark-circle-outline"} size={15} color="white" />
                       </Pressable>
                     </View>
                   </Pressable>
                 )}
                 <View style={[styles.currentPlanManagementRow, phoneLayout && styles.phoneCurrentPlanManagementRow]}>
-                  {!activeBibleReadingPlanComplete && (
+                  {activeBibleReadingPlanMissedFullDay && (
                     <Pressable accessibilityRole="button" accessibilityLabel="Catch up reading plan dates to today" onPress={catchUpActiveBibleReadingPlanDates} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
                       <Ionicons name="calendar-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                       <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Catch up dates</Text>

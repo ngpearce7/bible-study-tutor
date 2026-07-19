@@ -6179,10 +6179,10 @@ export default function Home() {
                           styles.planDayTile,
                           phoneLayout && styles.phonePlanDayTile,
                           plansDarkMode && styles.planDayTileDark,
-                          done && styles.completedPlanDayTile,
                           scheduledToday && styles.currentPlanDayTile,
                           missed && styles.missedPlanDayTile,
                           selected && styles.selectedPlanDayTile,
+                          !plansDarkMode && done && styles.completedPlanDayTile,
                           plansDarkMode && done && styles.completedPlanDayTileDark,
                           plansDarkMode && selected && styles.selectedPlanDayTileDark
                         ]}
@@ -15914,7 +15914,9 @@ const styles = StyleSheet.create({
   },
   completedPlanDayTile: {
     backgroundColor: "#fff",
-    borderColor: colors.sage
+    borderColor: colors.sage,
+    borderStyle: "solid",
+    borderWidth: 1
   },
   completedPlanDayTileDark: {
     backgroundColor: "#34422f",

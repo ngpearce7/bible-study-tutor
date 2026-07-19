@@ -11,6 +11,7 @@ export type StoredBibleReadingPlanProgress = {
   activePlanId: string;
   completedDays: string[];
   customPlans: BibleReadingPlan[];
+  startDates?: Record<string, string>;
 };
 export type StoredBibleBookmark = {
   id: string;
@@ -146,13 +147,21 @@ export async function saveStoredBibleReadChapters(readChapters: StoredBibleReadC
 
 export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleReadingPlanProgress> {
   const stored = await getStoredValue(bibleReadingPlanProgressKey);
-  if (!stored) return { activePlanId: "", completedDays: [], customPlans: [] };
+  if (!stored) return { activePlanId: "", completedDays: [], customPlans: [], startDates: {} };
 
   try {
     const parsed = JSON.parse(stored);
     return {
       activePlanId: typeof parsed?.activePlanId === "string" ? parsed.activePlanId : "",
       completedDays: Array.isArray(parsed?.completedDays) ? parsed.completedDays.filter((item: unknown): item is string => typeof item === "string") : [],
+      startDates: parsed?.startDates && typeof parsed.startDates === "object"
+        ? Object.entries(parsed.startDates).reduce<Record<string, string>>((map, [planId, date]) => {
+            if (typeof planId === "string" && typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+              map[planId] = date;
+            }
+            return map;
+          }, {})
+        : {},
       customPlans: Array.isArray(parsed?.customPlans)
         ? parsed.customPlans
             .map(normalizeStoredBibleReadingPlan)
@@ -161,7 +170,7 @@ export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleRe
         : []
     };
   } catch {
-    return { activePlanId: "", completedDays: [], customPlans: [] };
+    return { activePlanId: "", completedDays: [], customPlans: [], startDates: {} };
   }
 }
 
@@ -169,7 +178,8 @@ export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleRe
   await setStoredValue(bibleReadingPlanProgressKey, JSON.stringify({
     activePlanId: progress.activePlanId,
     completedDays: Array.from(new Set(progress.completedDays)),
-    customPlans: progress.customPlans.slice(0, 30)
+    customPlans: progress.customPlans.slice(0, 30),
+    startDates: progress.startDates || {}
   }));
 }
 

@@ -35,16 +35,10 @@ export function BibleTab({
   readerChapter,
   readerBookSections,
   readerMatchesActiveBibleReadingPlanDay,
-  bibleReadingPlans,
-  activeBibleReadingPlanId,
   activeBibleReadingPlan,
   activeBibleReadingPlanToday,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
-  onSelectBibleReadingPlan,
-  onOpenBibleReadingPlanDay,
-  onMarkBibleReadingPlanDayComplete,
-  onStudyBibleReadingPlanDay,
   onOpenPlansTab,
   onToggleReaderNavCollapsed,
   onSelectTranslation,
@@ -159,16 +153,10 @@ export function BibleTab({
         readerBook={readerBook}
         readerChapter={readerChapter}
         readerBookSections={readerBookSections}
-        bibleReadingPlans={bibleReadingPlans}
-        activeBibleReadingPlanId={activeBibleReadingPlanId}
         activeBibleReadingPlan={activeBibleReadingPlan}
         activeBibleReadingPlanToday={activeBibleReadingPlanToday}
         activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
         activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
-        onSelectBibleReadingPlan={onSelectBibleReadingPlan}
-        onOpenBibleReadingPlanDay={onOpenBibleReadingPlanDay}
-        onMarkBibleReadingPlanDayComplete={onMarkBibleReadingPlanDayComplete}
-        onStudyBibleReadingPlanDay={onStudyBibleReadingPlanDay}
         onOpenPlansTab={onOpenPlansTab}
         onToggleCollapsed={onToggleReaderNavCollapsed}
         onSelectTranslation={onSelectTranslation}

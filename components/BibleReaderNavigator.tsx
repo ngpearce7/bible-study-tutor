@@ -45,17 +45,11 @@ type BibleReaderNavigatorProps = {
   readerBook: string;
   readerChapter: number;
   readerBookSections: ReaderBookSection[];
-  bibleReadingPlans: any[];
-  activeBibleReadingPlanId: string;
   activeBibleReadingPlan?: any;
   activeBibleReadingPlanToday?: any;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
   onToggleCollapsed: () => void;
-  onSelectBibleReadingPlan: (planId: string) => void;
-  onOpenBibleReadingPlanDay: (planDay: any) => void;
-  onMarkBibleReadingPlanDayComplete: (planDay: any) => void;
-  onStudyBibleReadingPlanDay: (planDay: any) => void;
   onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
   onBookSearchChange: (value: string) => void;

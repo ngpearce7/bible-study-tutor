@@ -5754,16 +5754,10 @@ export default function Home() {
               readerBook={readerBook}
               readerChapter={readerChapter}
               readerBookSections={readerBookSections}
-              bibleReadingPlans={allBibleReadingPlans}
-              activeBibleReadingPlanId={activeBibleReadingPlan?.id || ""}
               activeBibleReadingPlan={activeBibleReadingPlan}
               activeBibleReadingPlanToday={activeBibleReadingPlanToday}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
-              onSelectBibleReadingPlan={selectBibleReadingPlan}
-              onOpenBibleReadingPlanDay={openBibleReadingPlanDay}
-              onMarkBibleReadingPlanDayComplete={markBibleReadingPlanDayComplete}
-              onStudyBibleReadingPlanDay={studyBibleReadingPlanDay}
               onOpenPlansTab={() => setTab("plans")}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {

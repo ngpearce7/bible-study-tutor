@@ -292,6 +292,15 @@ function formatPlanDayDate(dateKey: string) {
   return new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "long" }).format(new Date(year, month - 1, day));
 }
 
+function formatPlanDayRelativeDate(dateKey: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return "";
+  const today = localDateKey();
+  if (dateKey === today) return "Today";
+  if (dateKey === addDaysToDateKey(today, 1)) return "Tomorrow";
+  if (dateKey === addDaysToDateKey(today, -1)) return "Yesterday";
+  return formatPlanDayDate(dateKey);
+}
+
 export default function Home() {
   const { width, height } = useWindowDimensions();
   const ensureProfile = useMutation(api.study.ensureProfile);
@@ -1300,11 +1309,9 @@ export default function Home() {
   const activeBibleReadingPlanTodayLabel = activeBibleReadingPlanComplete
     ? "Plan complete"
     : activeBibleReadingPlanToday
-      ? activeBibleReadingPlanTodayDateKey === localDateKey()
-        ? `Today: Day ${activeBibleReadingPlanToday.day}`
-        : activeBibleReadingPlanTodayDateKey && activeBibleReadingPlanTodayDateKey < localDateKey()
-          ? `Overdue: Day ${activeBibleReadingPlanToday.day}`
-          : `Next reading: Day ${activeBibleReadingPlanToday.day}`
+      ? activeBibleReadingPlanTodayDateKey && activeBibleReadingPlanTodayDateKey < localDateKey()
+        ? `Overdue: Day ${activeBibleReadingPlanToday.day} · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}`
+        : `Next reading: Day ${activeBibleReadingPlanToday.day}${activeBibleReadingPlanTodayDateKey ? ` · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}` : ""}`
       : "";
   const activeBibleReadingPlanMissedFullDay =
     !!activeBibleReadingPlanTodayDateKey &&

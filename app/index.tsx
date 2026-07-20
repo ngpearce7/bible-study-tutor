@@ -1681,6 +1681,11 @@ export default function Home() {
     appScrollRef.current?.scrollTo?.({ y: Math.max(0, appScrollYRef.current + delta), animated: true });
   }
 
+  function scrollMemoryToTop(delay = 120) {
+    if (tab !== "memory") return;
+    setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), delay);
+  }
+
   function ensureMemoryBlankVisible(index: number) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
     setTimeout(() => {
@@ -4097,6 +4102,7 @@ export default function Home() {
     setMemoryHintsVisible(false);
     setMemoryHintLevels({});
     setMemoryStatus("Review set stopped. You can continue any due verse when you are ready.");
+    scrollMemoryToTop();
   }
 
   function startMemoryMeditation(verse: any) {
@@ -4211,6 +4217,7 @@ export default function Home() {
       }
       setMemoryReviewQueueIds([]);
       setMemoryStatus("reviewed-today");
+      scrollMemoryToTop();
       return;
     }
     setMemoryPracticeResult("Great. Now try the full verse from blanks.");

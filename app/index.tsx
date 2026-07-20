@@ -10948,7 +10948,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     position: "relative",
     width: "100%",
-    zIndex: 100
+    zIndex: 1000
   },
   appDarkMobileMenuBar: {
     backgroundColor: "#1b211f",
@@ -11006,10 +11006,10 @@ const styles = StyleSheet.create({
   },
   mobileMenuDrawer: {
     borderBottomWidth: 1,
-    elevation: 18,
+    elevation: 24,
     paddingBottom: 12,
     position: "relative",
-    zIndex: 90
+    zIndex: 990
   },
   brandRow: {
     alignItems: "center",
@@ -11113,6 +11113,8 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: "100%",
     minWidth: 0,
+    position: "relative",
+    zIndex: 1,
     width: "100%"
   },
   appDarkContent: {

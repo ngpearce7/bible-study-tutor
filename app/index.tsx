@@ -635,6 +635,7 @@ export default function Home() {
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
+  const appScrollYRef = useRef(0);
   const accountLegalYRef = useRef(0);
   const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
@@ -1669,10 +1670,34 @@ export default function Home() {
 
     const timeout = setTimeout(() => {
       memoryBlankInputRefs.current[firstMemoryBlankIndex]?.focus();
+      ensureMemoryBlankVisible(firstMemoryBlankIndex);
     }, 120);
 
     return () => clearTimeout(timeout);
   }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel]);
+
+  function scrollMemoryPracticeBy(delta: number) {
+    if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
+    appScrollRef.current?.scrollTo?.({ y: Math.max(0, appScrollYRef.current + delta), animated: true });
+  }
+
+  function ensureMemoryBlankVisible(index: number) {
+    if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
+    setTimeout(() => {
+      const input = memoryBlankInputRefs.current[index] as any;
+      if (!input?.measureInWindow) {
+        scrollMemoryPracticeBy(72);
+        return;
+      }
+      input.measureInWindow((_x: number, y: number, _width: number, inputHeight: number) => {
+        const keyboardSafeBottom = height - Math.min(320, Math.max(210, height * 0.34));
+        const inputBottom = y + inputHeight + 58;
+        if (inputBottom > keyboardSafeBottom) {
+          scrollMemoryPracticeBy(inputBottom - keyboardSafeBottom);
+        }
+      });
+    }, 90);
+  }
 
   useEffect(() => {
     if (!bibleSearchBook) return;
@@ -4107,11 +4132,15 @@ export default function Home() {
       .find((token) => normalizeMemoryAnswer(answers[token.index] || "") !== normalizeMemoryAnswer(token.answer));
 
     if (nextToken) {
-      setTimeout(() => memoryBlankInputRefs.current[nextToken.index]?.focus(), 80);
+      setTimeout(() => {
+        memoryBlankInputRefs.current[nextToken.index]?.focus();
+        ensureMemoryBlankVisible(nextToken.index);
+      }, 80);
       return;
     }
 
     Keyboard.dismiss();
+    setTimeout(() => scrollMemoryPracticeBy(150), 140);
   }
 
   function updateMemoryPracticeAnswer(index: number, value: string) {
@@ -5164,6 +5193,10 @@ export default function Home() {
       <ScrollView
         ref={appScrollRef}
         style={styles.contentScroll}
+        onScroll={(event) => {
+          appScrollYRef.current = event.nativeEvent.contentOffset?.y || 0;
+        }}
+        scrollEventThrottle={16}
         contentContainerStyle={[
           styles.content,
           accountDarkMode && styles.appDarkContent,

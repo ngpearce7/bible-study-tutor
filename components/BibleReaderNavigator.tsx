@@ -50,7 +50,6 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
-  onOpenActiveBibleReadingPlanDay?: () => void;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
@@ -107,7 +106,6 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
-  onOpenActiveBibleReadingPlanDay = () => undefined,
   onToggleCollapsed,
   onOpenPlansTab,
   onSelectTranslation,
@@ -496,12 +494,7 @@ export function BibleReaderNavigator({
                   </View>
 
                     <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={activeBibleReadingPlanComplete ? "Review this completed reading plan" : `Open ${activeBibleReadingPlanToday.reference} in the Bible reader`}
-                        onPress={onOpenActiveBibleReadingPlanDay}
-                        style={styles.bibleReadingPlanTodayHeader}
-                      >
+                      <View style={styles.bibleReadingPlanTodayHeader}>
                         <View style={styles.bibleReadingPlanTodayTitleBlock}>
                         <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
                           {activeBibleReadingPlanTodayLabel || (activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`)}
@@ -511,7 +504,7 @@ export function BibleReaderNavigator({
                         </Text>
                       </View>
                       <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
-                      </Pressable>
+                      </View>
                     <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                       {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}
                     </Text>

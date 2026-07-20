@@ -606,7 +606,6 @@ export default function Home() {
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>({ short: true, medium: false, long: false });
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
-  const [readerPlanHighlightKey, setReaderPlanHighlightKey] = useState("");
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
   const [selectedReaderVerses, setSelectedReaderVerses] = useState<number[]>([]);
@@ -1332,7 +1331,7 @@ export default function Home() {
   const readerMatchesActiveBibleReadingPlanDay =
     !!activeBibleReadingPlan &&
     !!readerActiveBibleReadingPlanDay &&
-    (!readerActiveBibleReadingPlanDayComplete || readerPlanHighlightKey === bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
+    !readerActiveBibleReadingPlanDayComplete;
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -4543,9 +4542,6 @@ export default function Home() {
     setReaderBook(planDay.readerBook);
     setReaderChapter(planDay.readerChapter);
     setReaderChapterDraft(String(planDay.readerChapter));
-    if (activeBibleReadingPlan) {
-      setReaderPlanHighlightKey(bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day));
-    }
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
     scrollReaderToTop();
@@ -4555,7 +4551,6 @@ export default function Home() {
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     if (!planId) return;
     const key = bibleReadingPlanDayKey(planId, planDay.day);
-    setReaderPlanHighlightKey((current) => current === key ? "" : current);
     setCompletedBibleReadingPlanDays((current) => {
       const next = current.includes(key) ? current : [...current, key];
       persistBibleReadingPlanProgress(planId, next);
@@ -6021,9 +6016,6 @@ export default function Home() {
               activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
-              onOpenActiveBibleReadingPlanDay={() => {
-                if (activeBibleReadingPlanToday) openBibleReadingPlanDay(activeBibleReadingPlanToday);
-              }}
               onOpenPlansTab={() => setTab("plans")}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {

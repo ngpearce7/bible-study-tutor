@@ -50,7 +50,6 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
-  onOpenActiveBibleReadingPlanDay?: () => void;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
@@ -107,7 +106,6 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
-  onOpenActiveBibleReadingPlanDay = () => undefined,
   onToggleCollapsed,
   onOpenPlansTab,
   onSelectTranslation,
@@ -505,14 +503,7 @@ export function BibleReaderNavigator({
                           {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
                         </Text>
                       </View>
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={activeBibleReadingPlanComplete ? "Review this completed reading plan" : `Open ${activeBibleReadingPlanToday.reference} in the Bible reader`}
-                        onPress={onOpenActiveBibleReadingPlanDay}
-                        style={[styles.planDayIconAction, darkMode && styles.homeDarkIconBubble]}
-                      >
-                        <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "open-outline"} size={16} color={darkMode ? "#e9b76a" : colors.coral} />
-                      </Pressable>
+                      <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
                       </View>
                     <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                       {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}

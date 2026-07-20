@@ -292,15 +292,6 @@ function formatPlanDayDate(dateKey: string) {
   return new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "long" }).format(new Date(year, month - 1, day));
 }
 
-function formatPlanDayRelativeDate(dateKey: string) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return "";
-  const today = localDateKey();
-  if (dateKey === today) return "Today";
-  if (dateKey === addDaysToDateKey(today, 1)) return "Tomorrow";
-  if (dateKey === addDaysToDateKey(today, -1)) return "Yesterday";
-  return formatPlanDayDate(dateKey);
-}
-
 export default function Home() {
   const { width, height } = useWindowDimensions();
   const ensureProfile = useMutation(api.study.ensureProfile);
@@ -1306,13 +1297,6 @@ export default function Home() {
     activeBibleReadingPlanStartDate && activeBibleReadingPlanToday
       ? addDaysToDateKey(activeBibleReadingPlanStartDate, activeBibleReadingPlanToday.day - 1)
       : "";
-  const activeBibleReadingPlanTodayLabel = activeBibleReadingPlanComplete
-    ? "Plan complete"
-    : activeBibleReadingPlanToday
-      ? activeBibleReadingPlanTodayDateKey && activeBibleReadingPlanTodayDateKey < localDateKey()
-        ? `Overdue: Day ${activeBibleReadingPlanToday.day} · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}`
-        : `Next reading: Day ${activeBibleReadingPlanToday.day}${activeBibleReadingPlanTodayDateKey ? ` · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}` : ""}`
-      : "";
   const activeBibleReadingPlanMissedFullDay =
     !!activeBibleReadingPlanTodayDateKey &&
     !activeBibleReadingPlanComplete &&
@@ -1329,9 +1313,7 @@ export default function Home() {
     !!readerActiveBibleReadingPlanDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
-    !!activeBibleReadingPlan &&
-    !!readerActiveBibleReadingPlanDay &&
-    !readerActiveBibleReadingPlanDayComplete;
+    !!readerActiveBibleReadingPlanDay;
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -6013,7 +5995,6 @@ export default function Home() {
               readerBookSections={readerBookSections}
               activeBibleReadingPlan={activeBibleReadingPlan}
               activeBibleReadingPlanToday={activeBibleReadingPlanToday}
-              activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               onOpenPlansTab={() => setTab("plans")}
@@ -10940,7 +10921,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     position: "relative",
     width: "100%",
-    zIndex: 1000
+    zIndex: 100
   },
   appDarkMobileMenuBar: {
     backgroundColor: "#1b211f",
@@ -10998,10 +10979,10 @@ const styles = StyleSheet.create({
   },
   mobileMenuDrawer: {
     borderBottomWidth: 1,
-    elevation: 24,
+    elevation: 18,
     paddingBottom: 12,
     position: "relative",
-    zIndex: 990
+    zIndex: 90
   },
   brandRow: {
     alignItems: "center",
@@ -11105,8 +11086,6 @@ const styles = StyleSheet.create({
     flex: 1,
     maxWidth: "100%",
     minWidth: 0,
-    position: "relative",
-    zIndex: 1,
     width: "100%"
   },
   appDarkContent: {

@@ -50,7 +50,6 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
-  onOpenActiveBibleReadingPlanDay?: () => void;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
@@ -107,7 +106,6 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
-  onOpenActiveBibleReadingPlanDay = () => undefined,
   onToggleCollapsed,
   onOpenPlansTab,
   onSelectTranslation,
@@ -511,15 +509,6 @@ export function BibleReaderNavigator({
                       {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}
                     </Text>
                   </View>
-                  {!activeBibleReadingPlanComplete && (
-                    <AppButton
-                      label="Open reading"
-                      variant="secondary"
-                      onPress={onOpenActiveBibleReadingPlanDay}
-                      style={darkMode && styles.homeDarkResumeButton}
-                      labelStyle={darkMode && styles.homeDarkResumeButtonText}
-                    />
-                  )}
                 </>
               ) : (
                 <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>

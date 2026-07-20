@@ -47,6 +47,7 @@ type BibleReaderNavigatorProps = {
   readerBookSections: ReaderBookSection[];
   activeBibleReadingPlan?: any;
   activeBibleReadingPlanToday?: any;
+  activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
   onToggleCollapsed: () => void;
@@ -102,6 +103,7 @@ export function BibleReaderNavigator({
   readerBookSections,
   activeBibleReadingPlan,
   activeBibleReadingPlanToday,
+  activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   onToggleCollapsed,
@@ -495,7 +497,7 @@ export function BibleReaderNavigator({
                       <View style={styles.bibleReadingPlanTodayHeader}>
                         <View style={styles.bibleReadingPlanTodayTitleBlock}>
                         <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
-                          {activeBibleReadingPlanComplete ? "Plan complete" : `Today: Day ${activeBibleReadingPlanToday.day}`}
+                          {activeBibleReadingPlanTodayLabel || (activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`)}
                         </Text>
                         <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>
                           {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}

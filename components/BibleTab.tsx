@@ -37,6 +37,7 @@ export function BibleTab({
   readerMatchesActiveBibleReadingPlanDay,
   activeBibleReadingPlan,
   activeBibleReadingPlanToday,
+  activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   onOpenPlansTab,
@@ -155,6 +156,7 @@ export function BibleTab({
         readerBookSections={readerBookSections}
         activeBibleReadingPlan={activeBibleReadingPlan}
         activeBibleReadingPlanToday={activeBibleReadingPlanToday}
+        activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
         activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
         activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
         onOpenPlansTab={onOpenPlansTab}

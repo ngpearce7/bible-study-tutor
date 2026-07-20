@@ -1297,6 +1297,15 @@ export default function Home() {
     activeBibleReadingPlanStartDate && activeBibleReadingPlanToday
       ? addDaysToDateKey(activeBibleReadingPlanStartDate, activeBibleReadingPlanToday.day - 1)
       : "";
+  const activeBibleReadingPlanTodayLabel = activeBibleReadingPlanComplete
+    ? "Plan complete"
+    : activeBibleReadingPlanToday
+      ? activeBibleReadingPlanTodayDateKey === localDateKey()
+        ? `Today: Day ${activeBibleReadingPlanToday.day}`
+        : activeBibleReadingPlanTodayDateKey && activeBibleReadingPlanTodayDateKey < localDateKey()
+          ? `Overdue: Day ${activeBibleReadingPlanToday.day}`
+          : `Next reading: Day ${activeBibleReadingPlanToday.day}`
+      : "";
   const activeBibleReadingPlanMissedFullDay =
     !!activeBibleReadingPlanTodayDateKey &&
     !activeBibleReadingPlanComplete &&
@@ -5995,6 +6004,7 @@ export default function Home() {
               readerBookSections={readerBookSections}
               activeBibleReadingPlan={activeBibleReadingPlan}
               activeBibleReadingPlanToday={activeBibleReadingPlanToday}
+              activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               onOpenPlansTab={() => setTab("plans")}

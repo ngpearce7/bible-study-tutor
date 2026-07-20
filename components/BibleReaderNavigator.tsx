@@ -50,7 +50,6 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
-  onOpenActiveBibleReadingPlanDay?: () => void;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
@@ -107,7 +106,6 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
-  onOpenActiveBibleReadingPlanDay = () => undefined,
   onToggleCollapsed,
   onOpenPlansTab,
   onSelectTranslation,
@@ -495,12 +493,7 @@ export function BibleReaderNavigator({
                     <View style={[styles.planProgressFill, { width: `${Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100)}%` }]} />
                   </View>
 
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={activeBibleReadingPlanComplete ? "Review this completed reading plan" : `Open ${activeBibleReadingPlanToday.reference} in the Bible reader`}
-                      onPress={onOpenActiveBibleReadingPlanDay}
-                      style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}
-                    >
+                    <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.bibleReadingPlanTodayHeader}>
                         <View style={styles.bibleReadingPlanTodayTitleBlock}>
                         <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
@@ -515,7 +508,7 @@ export function BibleReaderNavigator({
                     <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                       {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}
                     </Text>
-                  </Pressable>
+                  </View>
                 </>
               ) : (
                 <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>

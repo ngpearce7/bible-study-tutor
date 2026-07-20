@@ -37,6 +37,7 @@ export function MemoryTab(props: any) {
     focusMemoryBlankAfter,
     friendlyName,
     historyMemoryVerseId,
+    keepMemoryPracticeInputInView,
     memoryBlankInputRefs,
     memoryBlankTokens,
     memoryBookCounts,
@@ -792,6 +793,7 @@ export function MemoryTab(props: any) {
                                       memoryBlankInputRefs.current[token.index] = input;
                                     }}
                                     onChange={(value) => updateMemoryPracticeAnswer(token.index, value)}
+                                    onFocus={keepMemoryPracticeInputInView}
                                     onSubmit={(submittedValue) => {
                                       const nextAnswers = { ...memoryPracticeAnswers, [token.index]: submittedValue || memoryPracticeAnswers[token.index] || "" };
                                       const allAnswersCorrect =

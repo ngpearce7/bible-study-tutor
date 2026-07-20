@@ -497,27 +497,29 @@ export function BibleReaderNavigator({
 
                     <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.bibleReadingPlanTodayHeader}>
-                        <Pressable
-                          accessibilityRole="link"
-                          accessibilityLabel={activeBibleReadingPlanComplete ? "Review this completed reading plan" : `Open ${activeBibleReadingPlanToday.reference} in the Bible reader`}
-                          onPress={onOpenActiveBibleReadingPlanDay}
-                          style={styles.bibleReadingPlanLinkCluster}
-                        >
-                          <View style={styles.bibleReadingPlanTodayTitleBlock}>
-                            <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
-                              {activeBibleReadingPlanTodayLabel || (activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`)}
-                            </Text>
-                            <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>
-                              {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
-                            </Text>
-                          </View>
-                          <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
-                        </Pressable>
+                        <View style={styles.bibleReadingPlanTodayTitleBlock}>
+                          <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
+                            {activeBibleReadingPlanTodayLabel || (activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`)}
+                          </Text>
+                          <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>
+                            {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
+                          </Text>
+                        </View>
+                        <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
                       </View>
                     <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                       {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}
                     </Text>
                   </View>
+                  {!activeBibleReadingPlanComplete && (
+                    <AppButton
+                      label="Open reading"
+                      variant="secondary"
+                      onPress={onOpenActiveBibleReadingPlanDay}
+                      style={darkMode && styles.homeDarkResumeButton}
+                      labelStyle={darkMode && styles.homeDarkResumeButtonText}
+                    />
+                  )}
                 </>
               ) : (
                 <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>

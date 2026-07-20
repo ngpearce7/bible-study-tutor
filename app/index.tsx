@@ -606,6 +606,7 @@ export default function Home() {
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>({ short: true, medium: false, long: false });
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
+  const [readerPlanHighlightKey, setReaderPlanHighlightKey] = useState("");
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
   const [readerHistoryCollapsed, setReaderHistoryCollapsed] = useState(true);
   const [selectedReaderVerses, setSelectedReaderVerses] = useState<number[]>([]);
@@ -1329,7 +1330,9 @@ export default function Home() {
     !!readerActiveBibleReadingPlanDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
-    !!readerActiveBibleReadingPlanDay;
+    !!activeBibleReadingPlan &&
+    !!readerActiveBibleReadingPlanDay &&
+    (!readerActiveBibleReadingPlanDayComplete || readerPlanHighlightKey === bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -4540,6 +4543,9 @@ export default function Home() {
     setReaderBook(planDay.readerBook);
     setReaderChapter(planDay.readerChapter);
     setReaderChapterDraft(String(planDay.readerChapter));
+    if (activeBibleReadingPlan) {
+      setReaderPlanHighlightKey(bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day));
+    }
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
     scrollReaderToTop();
@@ -4549,6 +4555,7 @@ export default function Home() {
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     if (!planId) return;
     const key = bibleReadingPlanDayKey(planId, planDay.day);
+    setReaderPlanHighlightKey((current) => current === key ? "" : current);
     setCompletedBibleReadingPlanDays((current) => {
       const next = current.includes(key) ? current : [...current, key];
       persistBibleReadingPlanProgress(planId, next);
@@ -12087,14 +12094,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     justifyContent: "space-between"
-  },
-  bibleReadingPlanLinkCluster: {
-    alignItems: "flex-start",
-    flex: 1,
-    flexDirection: "row",
-    gap: 10,
-    justifyContent: "space-between",
-    minWidth: 0
   },
   bibleReadingPlanTodayTitleBlock: {
     flex: 1,

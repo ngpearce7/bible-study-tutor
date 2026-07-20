@@ -6014,6 +6014,9 @@ export default function Home() {
               activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
+              onOpenActiveBibleReadingPlanDay={() => {
+                if (activeBibleReadingPlanToday) openBibleReadingPlanDay(activeBibleReadingPlanToday);
+              }}
               onOpenPlansTab={() => setTab("plans")}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {

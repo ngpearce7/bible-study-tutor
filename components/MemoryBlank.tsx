@@ -18,7 +18,6 @@ type MemoryBlankProps = {
   hintLevel: number;
   inputRef?: (input: TextInputType | null) => void;
   onChange: (value: string, plainText?: string) => void;
-  onFocus?: () => void;
   onSubmit?: (value: string) => void;
   onMoreHint: () => void;
   returnKeyType?: "next" | "done";
@@ -34,7 +33,6 @@ function MemoryBlankComponent({
   hintLevel,
   inputRef,
   onChange,
-  onFocus,
   onSubmit,
   onMoreHint,
   returnKeyType = "next",
@@ -58,10 +56,7 @@ function MemoryBlankComponent({
           setAttempted(false);
           onChange(formatMemoryBlankValue(token.answer, nextValue));
         }}
-        onFocus={() => {
-          setAttempted(false);
-          onFocus?.();
-        }}
+        onFocus={() => setAttempted(false)}
         onBlur={() => setAttempted(true)}
         onSubmitEditing={(event) => {
           setAttempted(true);

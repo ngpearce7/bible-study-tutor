@@ -1674,13 +1674,6 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel]);
 
-  function keepMemoryPracticeInputInView() {
-    if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
-    setTimeout(() => {
-      appScrollRef.current?.scrollToEnd?.({ animated: true });
-    }, 120);
-  }
-
   useEffect(() => {
     if (!bibleSearchBook) return;
     const options = buildBibleSearchBookOptions(bibleSearchScope);
@@ -4127,7 +4120,6 @@ export default function Home() {
     const nextAnswers = { ...memoryPracticeAnswers, [index]: correctedValue };
     setMemoryPracticeAnswers((current) => ({ ...current, [index]: correctedValue }));
     setMemoryPracticeResult("");
-    keepMemoryPracticeInputInView();
     if (token && normalizeMemoryAnswer(correctedValue) === normalizeMemoryAnswer(token.answer)) {
       focusMemoryBlankAfter(index, nextAnswers);
     }
@@ -4148,7 +4140,6 @@ export default function Home() {
   function showMoreMemoryHint(index: number) {
     setMemoryHintsVisible(true);
     setMemoryHintLevels((current) => ({ ...current, [index]: Math.min(8, (current[index] || 1) + 1) }));
-    keepMemoryPracticeInputInView();
   }
 
   async function submitMemoryPractice() {
@@ -6731,7 +6722,6 @@ export default function Home() {
               focusMemoryBlankAfter={focusMemoryBlankAfter}
               friendlyName={friendlyName}
               historyMemoryVerseId={historyMemoryVerseId}
-              keepMemoryPracticeInputInView={keepMemoryPracticeInputInView}
               memoryBlankInputRefs={memoryBlankInputRefs}
               memoryBlankTokens={memoryBlankTokens}
               memoryBookCounts={memoryBookCounts}

@@ -6014,6 +6014,9 @@ export default function Home() {
               activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
+              onOpenActiveBibleReadingPlanDay={() => {
+                if (activeBibleReadingPlanToday) openBibleReadingPlanDay(activeBibleReadingPlanToday);
+              }}
               onOpenPlansTab={() => setTab("plans")}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {
@@ -12084,6 +12087,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
     justifyContent: "space-between"
+  },
+  bibleReadingPlanLinkCluster: {
+    alignItems: "flex-start",
+    flex: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    minWidth: 0
   },
   bibleReadingPlanTodayTitleBlock: {
     flex: 1,

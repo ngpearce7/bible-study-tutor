@@ -40,6 +40,7 @@ export function BibleTab({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
+  onOpenActiveBibleReadingPlanDay,
   onOpenPlansTab,
   onToggleReaderNavCollapsed,
   onSelectTranslation,
@@ -159,6 +160,7 @@ export function BibleTab({
         activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
         activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
         activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
+        onOpenActiveBibleReadingPlanDay={onOpenActiveBibleReadingPlanDay}
         onOpenPlansTab={onOpenPlansTab}
         onToggleCollapsed={onToggleReaderNavCollapsed}
         onSelectTranslation={onSelectTranslation}

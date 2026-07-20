@@ -50,7 +50,6 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
-  onOpenActiveBibleReadingPlanDay?: () => void;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onSelectTranslation: (translationId: string) => void;
@@ -107,7 +106,6 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
-  onOpenActiveBibleReadingPlanDay = () => undefined,
   onToggleCollapsed,
   onOpenPlansTab,
   onSelectTranslation,
@@ -476,25 +474,24 @@ export function BibleReaderNavigator({
           </View>
 
           {activeBibleReadingPlan ? (
-            <>
-              <View style={[styles.bibleReadingPlanPanel, darkMode && styles.accountDarkSection]}>
-                <View style={styles.bibleReadingPlanHeader}>
-                  <View style={styles.bibleReadingPlanTitleBlock}>
-                    <Eyebrow>Reading Plan</Eyebrow>
-                    <Text style={[styles.cardTitle, darkMode && styles.accountDarkTitle]}>
-                      {activeBibleReadingPlan.title}
-                    </Text>
-                  </View>
-                  <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>
-                    {activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}
+            <View style={[styles.bibleReadingPlanPanel, darkMode && styles.accountDarkSection]}>
+              <View style={styles.bibleReadingPlanHeader}>
+                <View style={styles.bibleReadingPlanTitleBlock}>
+                  <Eyebrow>Reading Plan</Eyebrow>
+                  <Text style={[styles.cardTitle, darkMode && styles.accountDarkTitle]}>
+                    {activeBibleReadingPlan.title}
                   </Text>
                 </View>
+                <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>
+                  {activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}
+                </Text>
+              </View>
 
-                {activeBibleReadingPlanToday ? (
-                  <>
-                    <View style={styles.planProgressTrack}>
-                      <View style={[styles.planProgressFill, { width: `${Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100)}%` }]} />
-                    </View>
+              {activeBibleReadingPlanToday ? (
+                <>
+                  <View style={styles.planProgressTrack}>
+                    <View style={[styles.planProgressFill, { width: `${Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100)}%` }]} />
+                  </View>
 
                     <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.bibleReadingPlanTodayHeader}>
@@ -512,21 +509,11 @@ export function BibleReaderNavigator({
                       {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : `${activeBibleReadingPlan.days.length - activeBibleReadingPlanCompletedCount} readings remaining.`}
                     </Text>
                   </View>
-                  </>
-                ) : (
-                  <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>
-                )}
-              </View>
-              {activeBibleReadingPlanToday && !activeBibleReadingPlanComplete && (
-                <AppButton
-                  label="Open plan reading"
-                  variant="secondary"
-                  onPress={onOpenActiveBibleReadingPlanDay}
-                  style={darkMode && styles.homeDarkResumeButton}
-                  labelStyle={darkMode && styles.homeDarkResumeButtonText}
-                />
+                </>
+              ) : (
+                <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>
               )}
-            </>
+            </View>
           ) : (
             <View style={[styles.bibleReadingPlanStarter, darkMode && styles.accountDarkSection]}>
               <Eyebrow>Reading Plans</Eyebrow>

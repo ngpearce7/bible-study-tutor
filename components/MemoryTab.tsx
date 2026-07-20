@@ -809,6 +809,7 @@ export function MemoryTab(props: any) {
                                     returnKeyType={blankIndex === memoryBlankTokens.length - 1 ? "done" : "next"}
                                     compact={phoneLayout}
                                     darkMode={memoryDarkMode}
+                                    autoFocus={blankIndex === 0}
                                   />
                                 ) : (
                                   <Text key={token.index} style={[styles.memoryPracticeWord, memoryDarkMode && styles.accountDarkText]}>{token.text}</Text>

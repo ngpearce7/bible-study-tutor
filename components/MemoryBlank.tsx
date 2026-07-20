@@ -23,6 +23,7 @@ type MemoryBlankProps = {
   returnKeyType?: "next" | "done";
   compact?: boolean;
   darkMode?: boolean;
+  autoFocus?: boolean;
 };
 
 function MemoryBlankComponent({
@@ -37,7 +38,8 @@ function MemoryBlankComponent({
   onMoreHint,
   returnKeyType = "next",
   compact = false,
-  darkMode = false
+  darkMode = false,
+  autoFocus = false
 }: MemoryBlankProps) {
   const [attempted, setAttempted] = useState(false);
   const correct = !!value && normalizeMemoryAnswer(value) === normalizeMemoryAnswer(token.answer);
@@ -51,6 +53,7 @@ function MemoryBlankComponent({
       <TextInput
         accessibilityLabel="Memory verse blank"
         ref={inputRef}
+        autoFocus={autoFocus}
         value={value}
         onChangeText={(nextValue) => {
           setAttempted(false);

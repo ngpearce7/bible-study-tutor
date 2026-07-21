@@ -109,8 +109,6 @@ export function BibleReaderPassage({
                   styles.readerVerseRow,
                   phoneLayout && styles.phoneReaderVerseRow,
                   darkMode && styles.bibleDarkVerseRow,
-                  matchesActiveReadingPlanDay && activeReadingPlanDay && styles.readerActivePlanVerseRow,
-                  darkMode && matchesActiveReadingPlanDay && activeReadingPlanDay && styles.readerDarkActivePlanVerseRow,
                   selected && styles.selectedReaderVerseRow,
                   phoneLayout && selected && styles.phoneSelectedReaderVerseRow
                 ]}

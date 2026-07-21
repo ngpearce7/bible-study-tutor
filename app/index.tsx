@@ -12792,6 +12792,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4
   },
+  readerActivePlanVerseRow: {
+    backgroundColor: "#fff3df",
+    borderColor: "rgba(201, 103, 80, 0.2)"
+  },
+  readerDarkActivePlanVerseRow: {
+    backgroundColor: "rgba(233, 183, 106, 0.1)",
+    borderColor: "rgba(233, 183, 106, 0.2)"
+  },
   phoneReaderVerseRow: {
     gap: 5,
     paddingHorizontal: 2,

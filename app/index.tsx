@@ -12794,24 +12794,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10
   },
-  phoneReaderPlanCompletionBox: {
-    alignItems: "stretch",
-    flexDirection: "column"
-  },
   readerPlanCompletionCopy: {
     flex: 1,
     gap: 2,
     minWidth: 0
-  },
-  readerPlanActionRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    justifyContent: "flex-end"
-  },
-  phoneReaderPlanActionRow: {
-    justifyContent: "flex-start"
   },
   readerPlanCompleteButton: {
     backgroundColor: colors.oliveDark,

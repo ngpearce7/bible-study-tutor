@@ -111,6 +111,7 @@ export function BibleTab({
   readerMemoryVerseKeys,
   activeReadingPlanDay,
   activeReadingPlanDayCompleted,
+  readerPlanHighlightVerseRange,
   onMarkActiveReadingPlanDayComplete,
   currentSelectionBookmarked,
   currentSelectionBookmark,
@@ -252,6 +253,7 @@ export function BibleTab({
           readerReference={readerStudyReference}
           memoryVerseKeys={readerMemoryVerseKeys}
           matchesActiveReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
+          planHighlightVerseRange={readerPlanHighlightVerseRange}
           activeReadingPlanDay={activeReadingPlanDay}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
           currentSelectionBookmarked={currentSelectionBookmarked}

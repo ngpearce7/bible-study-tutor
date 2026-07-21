@@ -52,6 +52,14 @@ type MemoryBookCollectionDraft = {
   endChapter: string;
   collectionName: string;
 };
+type ReaderPlanHighlight = {
+  planId: string;
+  day: number;
+  book: string;
+  chapter: number;
+  startVerse?: number;
+  endVerse?: number;
+};
 type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
@@ -588,6 +596,7 @@ export default function Home() {
   const [readerPassage, setReaderPassage] = useState<BiblePassage | null>(null);
   const [readerStatus, setReaderStatus] = useState("Loading chapter...");
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
+  const [readerPlanHighlight, setReaderPlanHighlight] = useState<ReaderPlanHighlight | null>(null);
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(false);
   const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState("");
@@ -1331,6 +1340,21 @@ export default function Home() {
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
     !!readerActiveBibleReadingPlanDay;
+  const readerPlanHighlightVerseRange =
+    !!activeBibleReadingPlan &&
+    !!readerPlanHighlight &&
+    readerPlanHighlight.planId === activeBibleReadingPlan.id &&
+    readerPlanHighlight.book === readerBook &&
+    readerPlanHighlight.chapter === readerChapter &&
+    Number.isFinite(readerPlanHighlight.startVerse)
+      ? {
+          startVerse: Math.max(1, Math.round(readerPlanHighlight.startVerse || 1)),
+          endVerse: Math.max(
+            Math.max(1, Math.round(readerPlanHighlight.startVerse || 1)),
+            Math.round(readerPlanHighlight.endVerse || readerPlanHighlight.startVerse || 1)
+          )
+        }
+      : null;
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -4572,12 +4596,30 @@ export default function Home() {
     trackUsage("bible_reading_plan_stopped", { reference: stoppedPlanId, tab: "plans" });
   }
 
-  function openBibleReadingPlanDay(planDay: BibleReadingPlanDay) {
+  function buildReaderPlanHighlight(planDay: BibleReadingPlanDay, planId: string): ReaderPlanHighlight {
+    const parsed = parseBsbPassageReference(planDay.reference) || parseBsbPassageReference(planDay.studyReference);
+    const parsedMatchesReaderChapter =
+      !!parsed &&
+      parsed.bookName === planDay.readerBook &&
+      parsed.chapter === planDay.readerChapter &&
+      Number.isFinite(parsed.startVerse);
+
+    return {
+      planId,
+      day: planDay.day,
+      book: planDay.readerBook,
+      chapter: planDay.readerChapter,
+      ...(parsedMatchesReaderChapter ? { startVerse: parsed.startVerse, endVerse: parsed.endVerse || parsed.startVerse } : {})
+    };
+  }
+
+  function openBibleReadingPlanDay(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     setReaderBook(planDay.readerBook);
     setReaderChapter(planDay.readerChapter);
     setReaderChapterDraft(String(planDay.readerChapter));
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
+    if (planId) setReaderPlanHighlight(buildReaderPlanHighlight(planDay, planId));
     scrollReaderToTop();
     trackUsage("bible_reading_plan_opened", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
@@ -4590,6 +4632,7 @@ export default function Home() {
       persistBibleReadingPlanProgress(planId, next);
       return next;
     });
+    setReaderPlanHighlight((current) => current?.planId === planId && current.day === planDay.day ? null : current);
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
 
@@ -6150,6 +6193,7 @@ export default function Home() {
               activeReaderActionVerse={activeReaderActionVerse}
               readerMemoryVerseKeys={readerMemoryVerseKeys}
               readerMatchesActiveBibleReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
+              readerPlanHighlightVerseRange={readerPlanHighlightVerseRange}
               activeReadingPlanDay={readerActiveBibleReadingPlanDay}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
               onMarkActiveReadingPlanDayComplete={markCurrentBibleReadingPlanDayComplete}
@@ -6503,14 +6547,14 @@ export default function Home() {
                         {visiblePlanDays.map((planDay) => {
                           const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, planDay.day));
                           return (
-                            <Pressable key={planDay.day} onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay); setTab("bible"); }} style={[styles.planPageDay, styles.compactPlanPageDay, phoneLayout && styles.phonePlanPageDay, phoneLayout && styles.phoneCompactPlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
+                            <Pressable key={planDay.day} onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay, plan.id); setTab("bible"); }} style={[styles.planPageDay, styles.compactPlanPageDay, phoneLayout && styles.phonePlanPageDay, phoneLayout && styles.phoneCompactPlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
                               <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, done && styles.completedPlanDayBadge, plansDarkMode && !done && styles.plansDarkDayBadge]}>{done ? "✓" : planDay.day}</Text>
                               <View style={styles.planDayCopy}>
                                 <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTextDark]}>{planDay.title}</Text>
                                 <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && done && styles.completedPlanDayMutedTextDark]}>{planDay.reference}</Text>
                               </View>
                               <View style={styles.planDayActions}>
-                                <Pressable accessibilityRole="button" accessibilityLabel={`Open ${planDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                                <Pressable accessibilityRole="button" accessibilityLabel={`Open ${planDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay, plan.id); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
                                   <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                                 </Pressable>
                                 <Pressable accessibilityRole="button" accessibilityLabel={`Study ${planDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); studyBibleReadingPlanDay(planDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
@@ -12791,6 +12835,14 @@ const styles = StyleSheet.create({
     minWidth: 0,
     paddingHorizontal: 8,
     paddingVertical: 4
+  },
+  readerPlanVerseHighlight: {
+    backgroundColor: "#fff3df",
+    borderColor: "rgba(201, 103, 80, 0.2)"
+  },
+  readerDarkPlanVerseHighlight: {
+    backgroundColor: "rgba(233, 183, 106, 0.1)",
+    borderColor: "rgba(233, 183, 106, 0.2)"
   },
   phoneReaderVerseRow: {
     gap: 5,

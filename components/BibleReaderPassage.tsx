@@ -15,6 +15,7 @@ type BibleReaderPassageProps = {
   readerReference: string;
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
+  planHighlightVerseRange?: { startVerse: number; endVerse: number } | null;
   activeReadingPlanDay?: { reference: string } | null;
   activeReadingPlanDayCompleted?: boolean;
   currentSelectionBookmarked: boolean;
@@ -53,6 +54,7 @@ export function BibleReaderPassage({
   readerReference,
   memoryVerseKeys,
   matchesActiveReadingPlanDay,
+  planHighlightVerseRange,
   activeReadingPlanDay,
   activeReadingPlanDayCompleted,
   currentSelectionBookmarked,
@@ -98,6 +100,10 @@ export function BibleReaderPassage({
       >
         {passage.verses.map((verse) => {
           const selected = selectedVerses.includes(verse.verse);
+          const highlightedPlanVerse =
+            !!planHighlightVerseRange &&
+            verse.verse >= planHighlightVerseRange.startVerse &&
+            verse.verse <= planHighlightVerseRange.endVerse;
           return (
             <View
               key={`${verse.chapter}-${verse.verse}`}
@@ -109,6 +115,8 @@ export function BibleReaderPassage({
                   styles.readerVerseRow,
                   phoneLayout && styles.phoneReaderVerseRow,
                   darkMode && styles.bibleDarkVerseRow,
+                  highlightedPlanVerse && styles.readerPlanVerseHighlight,
+                  darkMode && highlightedPlanVerse && styles.readerDarkPlanVerseHighlight,
                   selected && styles.selectedReaderVerseRow,
                   phoneLayout && selected && styles.phoneSelectedReaderVerseRow
                 ]}

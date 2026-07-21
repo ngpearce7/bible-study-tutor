@@ -111,8 +111,9 @@ export function BibleTab({
   readerMemoryVerseKeys,
   activeReadingPlanDay,
   activeReadingPlanDayCompleted,
-  readerPlanHighlightVerseRange,
+  planReadingMode,
   onMarkActiveReadingPlanDayComplete,
+  onExitPlanReading,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedReaderVersesAlreadyInMemory,
@@ -126,6 +127,8 @@ export function BibleTab({
   isVerseBookmarked,
   isVerseNoted
 }: any) {
+  const displayedReaderReference = planReadingMode && readerPassage?.reference ? readerPassage.reference : readerStudyReference;
+
   return (
     <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
       <BibleReaderNavigator
@@ -221,7 +224,8 @@ export function BibleTab({
           darkMode={bibleDarkMode}
           phoneLayout={phoneLayout}
           translationId={bibleTranslation}
-          readerReference={readerStudyReference}
+          readerReference={displayedReaderReference}
+          planReadingMode={planReadingMode}
           chapterDraft={readerChapterDraft}
           chapterCount={readerChapterCount}
           selectedVerseCount={selectedReaderVerses.length}
@@ -253,9 +257,9 @@ export function BibleTab({
           readerReference={readerStudyReference}
           memoryVerseKeys={readerMemoryVerseKeys}
           matchesActiveReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
-          planHighlightVerseRange={readerPlanHighlightVerseRange}
           activeReadingPlanDay={activeReadingPlanDay}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
+          planReadingMode={planReadingMode}
           currentSelectionBookmarked={currentSelectionBookmarked}
           currentSelectionBookmark={currentSelectionBookmark}
           selectedVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
@@ -272,6 +276,7 @@ export function BibleTab({
           onMoveChapter={onMoveReaderChapter}
           onToggleChapterRead={onToggleChapterRead}
           onMarkActiveReadingPlanDayComplete={onMarkActiveReadingPlanDayComplete}
+          onExitPlanReading={onExitPlanReading}
           isVerseBookmarked={isVerseBookmarked}
           isVerseNoted={isVerseNoted}
         />

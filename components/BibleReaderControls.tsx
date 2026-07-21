@@ -9,6 +9,7 @@ type BibleReaderControlsProps = {
   phoneLayout: boolean;
   translationId: string;
   readerReference: string;
+  planReadingMode?: boolean;
   chapterDraft: string;
   chapterCount: number;
   selectedVerseCount: number;
@@ -35,6 +36,7 @@ export function BibleReaderControls({
   phoneLayout,
   translationId,
   readerReference,
+  planReadingMode,
   chapterDraft,
   chapterCount,
   selectedVerseCount,
@@ -64,7 +66,7 @@ export function BibleReaderControls({
             {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={colors.coral} />}
           </View>
         </View>
-        <AppButton label={selectedVerseCount ? "Study selected" : "Study this"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
+        <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
       </View>
 
       {selectedVerseCount > 0 && (
@@ -81,6 +83,12 @@ export function BibleReaderControls({
         </View>
       )}
 
+      {planReadingMode ? (
+        <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
+          <Ionicons name="reader-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>Plan reading mode</Text>
+        </View>
+      ) : (
       <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>
         <Pressable
           accessibilityRole="button"
@@ -150,10 +158,11 @@ export function BibleReaderControls({
           <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
       </View>
+      )}
 
       {Platform.OS === "web" && !!tooltip && <Text style={styles.readerIconTooltip}>{tooltip}</Text>}
 
-      <View style={styles.readerProgressRow}>
+      {!planReadingMode && <View style={styles.readerProgressRow}>
         <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>
           {`${readerReference.split(" ").slice(0, -1).join(" ") || readerReference}: ${currentBookReadChapterCount} of ${chapterCount} chapter${chapterCount === 1 ? "" : "s"} marked read`}
         </Text>
@@ -162,7 +171,7 @@ export function BibleReaderControls({
             <Text style={styles.readerProgressClearText}>Clear all</Text>
           </Pressable>
         )}
-      </View>
+      </View>}
     </>
   );
 }

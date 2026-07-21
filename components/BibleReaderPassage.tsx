@@ -15,9 +15,9 @@ type BibleReaderPassageProps = {
   readerReference: string;
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
-  planHighlightVerseRange?: { startVerse: number; endVerse: number } | null;
   activeReadingPlanDay?: { reference: string } | null;
   activeReadingPlanDayCompleted?: boolean;
+  planReadingMode?: boolean;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
   selectedVersesAlreadyInMemory: boolean;
@@ -34,6 +34,7 @@ type BibleReaderPassageProps = {
   onMoveChapter: (direction: -1 | 1) => void;
   onToggleChapterRead: () => void;
   onMarkActiveReadingPlanDayComplete: () => void;
+  onExitPlanReading: () => void;
   isVerseBookmarked: (verseNumber: number) => boolean;
   isVerseNoted: (verseNumber: number) => boolean;
 };
@@ -54,9 +55,9 @@ export function BibleReaderPassage({
   readerReference,
   memoryVerseKeys,
   matchesActiveReadingPlanDay,
-  planHighlightVerseRange,
   activeReadingPlanDay,
   activeReadingPlanDayCompleted,
+  planReadingMode,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedVersesAlreadyInMemory,
@@ -73,6 +74,7 @@ export function BibleReaderPassage({
   onMoveChapter,
   onToggleChapterRead,
   onMarkActiveReadingPlanDayComplete,
+  onExitPlanReading,
   isVerseBookmarked,
   isVerseNoted
 }: BibleReaderPassageProps) {
@@ -87,6 +89,8 @@ export function BibleReaderPassage({
     );
   }
 
+  const multiChapterPlanReading = !!planReadingMode && new Set(passage.verses.map((verse) => `${verse.book_name}:${verse.chapter}`)).size > 1;
+
   return (
     <>
       <View
@@ -98,25 +102,28 @@ export function BibleReaderPassage({
           darkMode && styles.accountDarkInsetBox
         ]}
       >
+        {multiChapterPlanReading && (
+          <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
+            <Ionicons name="information-circle-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>Multi-chapter plan reading. Verse selection is available again when you exit plan reading mode.</Text>
+          </View>
+        )}
         {passage.verses.map((verse) => {
-          const selected = selectedVerses.includes(verse.verse);
-          const highlightedPlanVerse =
-            !!planHighlightVerseRange &&
-            verse.verse >= planHighlightVerseRange.startVerse &&
-            verse.verse <= planHighlightVerseRange.endVerse;
+          const selectionDisabled = multiChapterPlanReading;
+          const selected = !selectionDisabled && selectedVerses.includes(verse.verse);
           return (
             <View
               key={`${verse.chapter}-${verse.verse}`}
               onLayout={(event) => onVerseLayout(verse.verse, event)}
             >
               <Pressable
-                onPress={() => onToggleVerse(verse.verse)}
+                onPress={() => {
+                  if (!selectionDisabled) onToggleVerse(verse.verse);
+                }}
                 style={[
                   styles.readerVerseRow,
                   phoneLayout && styles.phoneReaderVerseRow,
                   darkMode && styles.bibleDarkVerseRow,
-                  highlightedPlanVerse && styles.readerPlanVerseHighlight,
-                  darkMode && highlightedPlanVerse && styles.readerDarkPlanVerseHighlight,
                   selected && styles.selectedReaderVerseRow,
                   phoneLayout && selected && styles.phoneSelectedReaderVerseRow
                 ]}
@@ -180,27 +187,49 @@ export function BibleReaderPassage({
               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Reading plan</Text>
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                 {activeReadingPlanDayCompleted ? `${activeReadingPlanDay.reference} is complete.` : activeReadingPlanDay.reference}
+                {planReadingMode && !activeReadingPlanDayCompleted ? " Only this plan reading is shown." : ""}
               </Text>
             </View>
-            {activeReadingPlanDayCompleted ? (
-              <View style={[styles.inlineReaderBookmarkButton, styles.activeReaderReadButton]}>
-                <Ionicons name="checkmark-circle" size={15} color="white" />
-                <Text style={styles.activeReaderReadButtonText}>Complete</Text>
-              </View>
-            ) : (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
-                onPress={onMarkActiveReadingPlanDayComplete}
-                style={[styles.inlineReaderBookmarkButton, styles.readerPlanCompleteButton]}
-              >
-                <Ionicons name="checkmark-circle-outline" size={15} color="white" />
-                <Text style={styles.activeReaderReadButtonText}>Mark today complete</Text>
-              </Pressable>
-            )}
+            <View style={styles.inlineReaderActions}>
+              {planReadingMode && (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Exit plan reading mode"
+                  onPress={onExitPlanReading}
+                  style={[styles.inlineReaderBookmarkButton, darkMode && styles.homeDarkResumeButton]}
+                >
+                  <Ionicons name="close-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Text style={[styles.inlineReaderBookmarkText, darkMode && styles.homeDarkResumeButtonText]}>Exit</Text>
+                </Pressable>
+              )}
+              {activeReadingPlanDayCompleted ? (
+                <View style={[styles.inlineReaderBookmarkButton, styles.activeReaderReadButton]}>
+                  <Ionicons name="checkmark-circle" size={15} color="white" />
+                  <Text style={styles.activeReaderReadButtonText}>Complete</Text>
+                </View>
+              ) : (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
+                  onPress={onMarkActiveReadingPlanDayComplete}
+                  style={[styles.inlineReaderBookmarkButton, styles.readerPlanCompleteButton]}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={15} color="white" />
+                  <Text style={styles.activeReaderReadButtonText}>{planReadingMode ? "Complete reading" : "Mark today complete"}</Text>
+                </Pressable>
+              )}
+            </View>
           </View>
         )}
 
+        {planReadingMode ? (
+          <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
+            <View style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
+              <Ionicons name="reader-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Plan reading mode</Text>
+            </View>
+          </View>
+        ) : (
         <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
           <Pressable onPress={() => onMoveChapter(-1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
             <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
@@ -222,6 +251,7 @@ export function BibleReaderPassage({
             <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
           </Pressable>
         </View>
+        )}
         <Text style={[styles.translationNote, darkMode && styles.accountDarkMutedText]}>
           {passage.translation_name} · {passage.translation_note || "Public Domain"}
         </Text>

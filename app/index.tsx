@@ -1,7 +1,7 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
-import { fetchBibleApiPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
@@ -52,13 +52,12 @@ type MemoryBookCollectionDraft = {
   endChapter: string;
   collectionName: string;
 };
-type ReaderPlanHighlight = {
+type ReaderPlanReading = {
   planId: string;
   day: number;
+  reference: string;
   book: string;
   chapter: number;
-  startVerse?: number;
-  endVerse?: number;
 };
 type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
@@ -596,7 +595,7 @@ export default function Home() {
   const [readerPassage, setReaderPassage] = useState<BiblePassage | null>(null);
   const [readerStatus, setReaderStatus] = useState("Loading chapter...");
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
-  const [readerPlanHighlight, setReaderPlanHighlight] = useState<ReaderPlanHighlight | null>(null);
+  const [readerPlanReading, setReaderPlanReading] = useState<ReaderPlanReading | null>(null);
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(false);
   const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState("");
@@ -1340,21 +1339,12 @@ export default function Home() {
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
     !!readerActiveBibleReadingPlanDay;
-  const readerPlanHighlightVerseRange =
+  const readerPlanReadingActive =
     !!activeBibleReadingPlan &&
-    !!readerPlanHighlight &&
-    readerPlanHighlight.planId === activeBibleReadingPlan.id &&
-    readerPlanHighlight.book === readerBook &&
-    readerPlanHighlight.chapter === readerChapter &&
-    Number.isFinite(readerPlanHighlight.startVerse)
-      ? {
-          startVerse: Math.max(1, Math.round(readerPlanHighlight.startVerse || 1)),
-          endVerse: Math.max(
-            Math.max(1, Math.round(readerPlanHighlight.startVerse || 1)),
-            Math.round(readerPlanHighlight.endVerse || readerPlanHighlight.startVerse || 1)
-          )
-        }
-      : null;
+    !!readerPlanReading &&
+    readerPlanReading.planId === activeBibleReadingPlan.id &&
+    readerPlanReading.book === readerBook &&
+    readerPlanReading.chapter === readerChapter;
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -1926,21 +1916,23 @@ export default function Home() {
     if (tab !== "bible") return;
 
     const controller = new AbortController();
-    const reference = `${readerBook} ${readerChapter}`;
-    setReaderStatus("Loading chapter...");
+    const reference = readerPlanReadingActive ? readerPlanReading.reference : `${readerBook} ${readerChapter}`;
+    setReaderStatus(readerPlanReadingActive ? "Loading plan reading..." : "Loading chapter...");
     setReaderPassage(null);
 
     const timeout = setTimeout(async () => {
       try {
         const data =
-          bibleTranslation === "bsb"
+          readerPlanReadingActive
+            ? await fetchBiblePlanReadingPassage(reference, bibleTranslation, controller.signal)
+            : bibleTranslation === "bsb"
             ? await fetchBsbPassage(reference, controller.signal)
             : await fetchBibleApiPassage(reference, bibleTranslation, controller.signal);
         setReaderPassage(data);
         setReaderStatus("");
       } catch {
         if (controller.signal.aborted) return;
-        setReaderStatus("I couldn't load that chapter. Try again or choose another chapter.");
+        setReaderStatus(readerPlanReadingActive ? "I couldn't load that plan reading. Exit plan reading or try again." : "I couldn't load that chapter. Try again or choose another chapter.");
       }
     }, 250);
 
@@ -1948,7 +1940,7 @@ export default function Home() {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [readerBook, readerChapter, bibleTranslation, tab]);
+  }, [readerBook, readerChapter, bibleTranslation, tab, readerPlanReadingActive, readerPlanReading?.reference]);
 
   useEffect(() => {
     setActiveBookmarkNoteId("");
@@ -4414,6 +4406,7 @@ export default function Home() {
   }
 
   function moveReaderChapter(direction: -1 | 1) {
+    setReaderPlanReading(null);
     const currentBookIndex = bibleBooks.indexOf(readerBook);
     const currentChapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 1;
     const nextChapter = readerChapter + direction;
@@ -4471,6 +4464,7 @@ export default function Home() {
   }
 
   function selectReaderChapter(chapter: number, book = readerBook) {
+    setReaderPlanReading(null);
     setReaderBook(book);
     setReaderChapter(chapter);
     scrollReaderToTop();
@@ -4480,6 +4474,7 @@ export default function Home() {
   }
 
   function openBibleReaderHistoryItem(item: StoredBibleReaderHistoryItem) {
+    setReaderPlanReading(null);
     setReaderBook(item.book);
     setReaderChapter(Math.min(Math.max(item.chapter, 1), BIBLE_CHAPTER_COUNTS[item.book] || 1));
     setReaderChapterDraft(String(item.chapter));
@@ -4588,6 +4583,7 @@ export default function Home() {
     const stoppedPlanTitle = activeBibleReadingPlan.title;
     const stoppedPlanId = activeBibleReadingPlan.id;
     setActiveBibleReadingPlanId("");
+    setReaderPlanReading(null);
     setExpandedBiblePlanId("");
     setActiveBiblePlanSelectedDay(0);
     setActiveBiblePlanSelectedPlanId("");
@@ -4596,20 +4592,13 @@ export default function Home() {
     trackUsage("bible_reading_plan_stopped", { reference: stoppedPlanId, tab: "plans" });
   }
 
-  function buildReaderPlanHighlight(planDay: BibleReadingPlanDay, planId: string): ReaderPlanHighlight {
-    const parsed = parseBsbPassageReference(planDay.reference) || parseBsbPassageReference(planDay.studyReference);
-    const parsedMatchesReaderChapter =
-      !!parsed &&
-      parsed.bookName === planDay.readerBook &&
-      parsed.chapter === planDay.readerChapter &&
-      Number.isFinite(parsed.startVerse);
-
+  function buildReaderPlanReading(planDay: BibleReadingPlanDay, planId: string): ReaderPlanReading {
     return {
       planId,
       day: planDay.day,
+      reference: planDay.reference || planDay.studyReference,
       book: planDay.readerBook,
-      chapter: planDay.readerChapter,
-      ...(parsedMatchesReaderChapter ? { startVerse: parsed.startVerse, endVerse: parsed.endVerse || parsed.startVerse } : {})
+      chapter: planDay.readerChapter
     };
   }
 
@@ -4619,9 +4608,16 @@ export default function Home() {
     setReaderChapterDraft(String(planDay.readerChapter));
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
-    if (planId) setReaderPlanHighlight(buildReaderPlanHighlight(planDay, planId));
+    if (planId) setReaderPlanReading(buildReaderPlanReading(planDay, planId));
     scrollReaderToTop();
     trackUsage("bible_reading_plan_opened", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+  }
+
+  function exitBibleReadingPlanMode() {
+    setReaderPlanReading(null);
+    setSelectedReaderVerses([]);
+    setReaderActionVerse(0);
+    scrollReaderToTop();
   }
 
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
@@ -4632,7 +4628,7 @@ export default function Home() {
       persistBibleReadingPlanProgress(planId, next);
       return next;
     });
-    setReaderPlanHighlight((current) => current?.planId === planId && current.day === planDay.day ? null : current);
+    setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
 
@@ -4818,6 +4814,7 @@ export default function Home() {
   }
 
   function openBibleSearchResult(result: BibleSearchResult) {
+    setReaderPlanReading(null);
     setPendingReaderFocusVerse(result.verse);
     setReaderBook(result.book);
     setReaderChapter(result.chapter);
@@ -4901,6 +4898,7 @@ export default function Home() {
   }
 
   function openBibleBookmark(bookmark: StoredBibleBookmark) {
+    setReaderPlanReading(null);
     setReaderBook(bookmark.book);
     setReaderChapter(bookmark.chapter);
     setSelectedReaderVerses(
@@ -4974,12 +4972,16 @@ export default function Home() {
     const chapter = Number(value.trim());
     const nextChapter = Number.isFinite(chapter) ? Math.min(Math.max(Math.round(chapter), 1), readerChapterCount) : readerChapter;
     setReaderChapterDraft(String(nextChapter));
-    if (nextChapter !== readerChapter) setReaderChapter(nextChapter);
+    if (nextChapter !== readerChapter) {
+      setReaderPlanReading(null);
+      setReaderChapter(nextChapter);
+    }
   }
 
   function openReaderChapterInStudy() {
-    setPassage(readerStudyReference);
-    setPassageQuery(readerStudyReference);
+    const studyReference = readerPlanReadingActive && readerPlanReading?.reference ? readerPlanReading.reference : readerStudyReference;
+    setPassage(studyReference);
+    setPassageQuery(studyReference);
     setAnswers({});
     setShareNote("");
     resetPassageMarkup();
@@ -6193,10 +6195,11 @@ export default function Home() {
               activeReaderActionVerse={activeReaderActionVerse}
               readerMemoryVerseKeys={readerMemoryVerseKeys}
               readerMatchesActiveBibleReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
-              readerPlanHighlightVerseRange={readerPlanHighlightVerseRange}
               activeReadingPlanDay={readerActiveBibleReadingPlanDay}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
+              planReadingMode={readerPlanReadingActive}
               onMarkActiveReadingPlanDayComplete={markCurrentBibleReadingPlanDayComplete}
+              onExitPlanReading={exitBibleReadingPlanMode}
               currentSelectionBookmarked={currentSelectionBookmarked}
               currentSelectionBookmark={currentSelectionBookmark}
               selectedReaderVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
@@ -12836,14 +12839,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4
   },
-  readerPlanVerseHighlight: {
-    backgroundColor: "#fff3df",
-    borderColor: "rgba(201, 103, 80, 0.2)"
-  },
-  readerDarkPlanVerseHighlight: {
-    backgroundColor: "rgba(233, 183, 106, 0.1)",
-    borderColor: "rgba(233, 183, 106, 0.2)"
-  },
   phoneReaderVerseRow: {
     gap: 5,
     paddingHorizontal: 2,
@@ -12976,6 +12971,7 @@ const styles = StyleSheet.create({
   },
   readerSelectionText: {
     color: colors.oliveDark,
+    flexShrink: 1,
     fontSize: 13,
     fontWeight: "800"
   },

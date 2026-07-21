@@ -73,6 +73,28 @@ export async function fetchBsbPassage(reference: string, signal: AbortSignal): P
   };
 }
 
+export async function fetchBiblePlanReadingPassage(reference: string, translation: "bsb" | BibleApiTranslationId, signal: AbortSignal): Promise<BiblePassage> {
+  const references = expandPlanReadingReferences(reference);
+  const passages = await Promise.all(
+    references.map((item) =>
+      translation === "bsb"
+        ? fetchBsbPassage(item, signal)
+        : fetchBibleApiPassage(item, translation, signal)
+    )
+  );
+  const first = passages[0];
+  if (!first) throw new Error("Plan reading not found");
+
+  return {
+    reference,
+    text: passages.map((passage) => passage.text).join("\n\n"),
+    verses: passages.flatMap((passage) => passage.verses || []),
+    translation_id: first.translation_id,
+    translation_name: first.translation_name,
+    translation_note: first.translation_note
+  };
+}
+
 export function parsePassageQuery(query: string) {
   const compact = query.trim().replace(/\s+/g, " ");
   if (!compact) return { reference: "" };
@@ -91,6 +113,33 @@ export function parsePassageQuery(query: string) {
   return {
     reference: `${normalizeBibleBookName(resolved.book)}${chapter ? ` ${chapter}` : ""}${verse}`.trim()
   };
+}
+
+function expandPlanReadingReferences(reference: string) {
+  const segments = reference
+    .split(/\s*;\s*/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const expanded = segments.flatMap(expandPlanReadingSegment);
+  return expanded.length ? expanded : [reference];
+}
+
+function expandPlanReadingSegment(segment: string) {
+  const compact = segment.trim().replace(/\s+/g, " ").replace(/\s*-\s*/g, "-");
+  const resolved = resolveBibleBookReference(compact);
+  if (!resolved) return [segment];
+
+  const bookName = normalizeBibleBookName(resolved.book);
+  const chapterRange = resolved.rest.match(/^(\d+)-(\d+)$/);
+  if (!chapterRange) return [segment];
+
+  const start = Number(chapterRange[1]);
+  const end = Number(chapterRange[2]);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return [segment];
+
+  const first = Math.min(start, end);
+  const last = Math.max(start, end);
+  return Array.from({ length: last - first + 1 }, (_, index) => `${bookName} ${first + index}`);
 }
 
 export function parseBsbPassageReference(query: string) {

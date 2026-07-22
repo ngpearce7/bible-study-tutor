@@ -2061,6 +2061,11 @@ export default function Home() {
   }, [readerBook, readerChapter]);
 
   useEffect(() => {
+    if (tab !== "bible" || !phoneLayout || !readerPlanReadingActive || !readerPassage) return;
+    scrollToReaderPassageStart();
+  }, [readerPassage?.reference, readerPlanReadingActive, phoneLayout, tab]);
+
+  useEffect(() => {
     setReaderChapterDraft(String(readerChapter));
   }, [readerBook, readerChapter]);
 
@@ -4537,6 +4542,17 @@ export default function Home() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 50);
   }
 
+  function scrollToReaderPassageStart() {
+    const scroll = () => {
+      appScrollRef.current?.scrollTo?.({
+        y: Math.max(0, readerPassageBoxYRef.current - (phoneLayout ? 82 : 18)),
+        animated: true
+      });
+    };
+    setTimeout(scroll, 80);
+    setTimeout(scroll, 260);
+  }
+
   function openPrivacyPolicyFromAccountIntro() {
     setAccountPrivacyOpen(true);
     setOpenLegalSection("privacy");
@@ -4712,6 +4728,7 @@ export default function Home() {
     setReaderActionVerse(0);
     setReaderPlanReading(nextPlanReading);
     scrollReaderToTop();
+    if (phoneLayout) scrollToReaderPassageStart();
     trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
   }
 

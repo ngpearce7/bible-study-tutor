@@ -6214,6 +6214,10 @@ export default function Home() {
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               onOpenPlansTab={() => setTab("plans")}
+              onOpenActivePlanReading={() => {
+                if (!activeBibleReadingPlanToday) return;
+                openBibleReadingPlanDay(activeBibleReadingPlanToday);
+              }}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {
                 setBibleTranslation(nextTranslationId as BibleTranslationId);

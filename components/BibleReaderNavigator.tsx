@@ -52,6 +52,7 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanComplete: boolean;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
+  onOpenActivePlanReading: () => void;
   onSelectTranslation: (translationId: string) => void;
   onBookSearchChange: (value: string) => void;
   onToggleHistoryCollapsed: () => void;
@@ -108,6 +109,7 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanComplete,
   onToggleCollapsed,
   onOpenPlansTab,
+  onOpenActivePlanReading,
   onSelectTranslation,
   onBookSearchChange,
   onToggleHistoryCollapsed,
@@ -518,8 +520,24 @@ export function BibleReaderNavigator({
                         <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
                       </View>
                     <Text numberOfLines={2} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                      {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : "Open this reading from the Plans tab or mark it complete after reading below."}
+                      {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : "Open this focused reading here, or browse the full plan from Plans."}
                     </Text>
+                    {!activeBibleReadingPlanComplete && (
+                      <View style={[styles.bibleReadingPlanActions, phoneLayout && styles.phoneBibleReadingPlanActions]}>
+                        <AppButton
+                          label="Open reading"
+                          onPress={onOpenActivePlanReading}
+                          style={[phoneLayout && styles.phoneFullWidthButton]}
+                        />
+                        <AppButton
+                          label="View plan"
+                          variant="secondary"
+                          onPress={onOpenPlansTab}
+                          style={[phoneLayout && styles.phoneFullWidthButton, darkMode && styles.homeDarkResumeButton]}
+                          labelStyle={darkMode && styles.homeDarkResumeButtonText}
+                        />
+                      </View>
+                    )}
                   </View>
                 </>
               ) : (

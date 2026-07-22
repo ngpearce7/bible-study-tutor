@@ -11,6 +11,7 @@ import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
+import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -128,13 +129,6 @@ type MemoryBookCollectionDraft = {
   startChapter: string;
   endChapter: string;
   collectionName: string;
-};
-type ReaderPlanReading = {
-  planId: string;
-  day: number;
-  reference: string;
-  book: string;
-  chapter: number;
 };
 type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
@@ -1439,26 +1433,15 @@ export default function Home() {
     !!activeBibleReadingPlan &&
     !!activeBibleReadingPlanSelectedDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay.day));
-  const readerActiveBibleReadingPlanDay = activeBibleReadingPlan
-    ? activeBibleReadingPlan.days.find((day) => day.readerBook === readerBook && day.readerChapter === readerChapter) || null
-    : null;
+  const readerActiveBibleReadingPlanDay = getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter);
   const readerActiveBibleReadingPlanDayComplete =
     !!activeBibleReadingPlan &&
     !!readerActiveBibleReadingPlanDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
     !!readerActiveBibleReadingPlanDay;
-  const readerPlanReadingActive =
-    !!activeBibleReadingPlan &&
-    !!readerPlanReading &&
-    !!readerPlanReading.reference.trim() &&
-    readerPlanReading.planId === activeBibleReadingPlan.id &&
-    readerPlanReading.book === readerBook &&
-    readerPlanReading.chapter === readerChapter;
-  const readerLoadRequest = {
-    mode: readerPlanReadingActive ? "plan" : "chapter",
-    reference: readerPlanReadingActive ? readerPlanReading.reference.trim() : `${readerBook} ${readerChapter}`
-  };
+  const readerPlanReadingActive = isReaderPlanReadingActive(activeBibleReadingPlan, readerPlanReading, readerBook, readerChapter);
+  const readerLoadRequest = buildReaderLoadRequest(readerPlanReadingActive, readerPlanReading, `${readerBook} ${readerChapter}`);
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -4716,20 +4699,6 @@ export default function Home() {
     setBiblePlanStatus(`${stoppedPlanTitle} is no longer your current plan.`);
     persistBibleReadingPlanProgress("", completedBibleReadingPlanDays);
     trackUsage("bible_reading_plan_stopped", { reference: stoppedPlanId, tab: "plans" });
-  }
-
-  function buildReaderPlanReading(planDay: BibleReadingPlanDay, planId: string): ReaderPlanReading | null {
-    const reference = (planDay.reference || planDay.studyReference || "").trim();
-    const chapter = Math.max(1, Math.round(Number(planDay.readerChapter) || 1));
-    if (!planId || !reference || !planDay.readerBook || !Number.isFinite(chapter)) return null;
-
-    return {
-      planId,
-      day: planDay.day,
-      reference,
-      book: planDay.readerBook,
-      chapter
-    };
   }
 
   function openBibleReadingPlanDay(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {

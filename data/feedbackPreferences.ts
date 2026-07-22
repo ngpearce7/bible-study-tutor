@@ -10,6 +10,7 @@ export type StoredBibleReaderHistoryItem = { book: string; chapter: number; refe
 export type StoredBibleReadChapters = Record<string, number[]>;
 export type StoredBibleReadingPlanProgress = {
   activePlanId: string;
+  followedPlanIds?: string[];
   completedDays: string[];
   customPlans: BibleReadingPlan[];
   startDates?: Record<string, string>;
@@ -149,7 +150,7 @@ export async function saveStoredBibleReadChapters(readChapters: StoredBibleReadC
 
 export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleReadingPlanProgress> {
   const stored = await getStoredValue(bibleReadingPlanProgressKey);
-  if (!stored) return { activePlanId: "", completedDays: [], customPlans: [], startDates: {} };
+  if (!stored) return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {} };
 
   try {
     const parsed = JSON.parse(stored);
@@ -161,8 +162,19 @@ export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleRe
       : [];
     const validPlans = [...bibleReadingPlans, ...customPlans];
     const validPlanIds = new Set(validPlans.map((plan) => plan.id));
+    const activePlanId = typeof parsed?.activePlanId === "string" && validPlanIds.has(parsed.activePlanId) ? parsed.activePlanId : "";
+    const followedPlanIds = Array.from(new Set<string>(
+      Array.isArray(parsed?.followedPlanIds)
+        ? parsed.followedPlanIds.filter((item: unknown): item is string => typeof item === "string" && validPlanIds.has(item))
+        : []
+    ));
+    const normalizedFollowedPlanIds = (followedPlanIds.length ? followedPlanIds : activePlanId ? [activePlanId] : []).slice(0, 3);
+    const normalizedActivePlanId = activePlanId || normalizedFollowedPlanIds[0] || "";
     return {
-      activePlanId: typeof parsed?.activePlanId === "string" && validPlanIds.has(parsed.activePlanId) ? parsed.activePlanId : "",
+      activePlanId: normalizedActivePlanId,
+      followedPlanIds: normalizedFollowedPlanIds.includes(normalizedActivePlanId) || !normalizedActivePlanId
+        ? normalizedFollowedPlanIds
+        : [normalizedActivePlanId, ...normalizedFollowedPlanIds].slice(0, 3),
       completedDays: Array.isArray(parsed?.completedDays)
         ? Array.from(new Set<string>(parsed.completedDays.filter((item: unknown): item is string => typeof item === "string"))).filter((key: string) => {
             const [planId, dayValue] = key.split(":");
@@ -184,13 +196,15 @@ export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleRe
       updatedAt: Number.isFinite(Number(parsed?.updatedAt)) ? Number(parsed.updatedAt) : undefined
     };
   } catch {
-    return { activePlanId: "", completedDays: [], customPlans: [], startDates: {} };
+    return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {} };
   }
 }
 
 export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleReadingPlanProgress) {
+  const followedPlanIds = Array.from(new Set(progress.followedPlanIds || (progress.activePlanId ? [progress.activePlanId] : []))).slice(0, 3);
   await setStoredValue(bibleReadingPlanProgressKey, JSON.stringify({
     activePlanId: progress.activePlanId,
+    followedPlanIds,
     completedDays: Array.from(new Set(progress.completedDays)),
     customPlans: progress.customPlans.slice(0, 30),
     startDates: progress.startDates || {},

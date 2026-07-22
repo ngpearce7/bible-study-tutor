@@ -219,6 +219,7 @@ export const saveBibleReaderState = mutation({
       bookmarks: v.optional(v.array(bibleBookmark)),
       readingPlanProgress: v.optional(v.object({
         activePlanId: v.string(),
+        followedPlanIds: v.optional(v.array(v.string())),
         completedDays: v.array(v.string()),
         customPlans: v.array(v.object({
           id: v.string(),
@@ -554,6 +555,7 @@ function cleanBibleReaderState(state: {
   }>;
   readingPlanProgress?: {
     activePlanId: string;
+    followedPlanIds?: string[];
     completedDays: string[];
     customPlans: Array<{
       id: string;
@@ -646,6 +648,11 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
     .filter((plan): plan is NonNullable<typeof plan> => !!plan);
   const customPlanIds = new Set(customPlans.map((plan) => plan.id));
   const activePlanId = clampText(progress.activePlanId, 80);
+  const followedPlanIds = Array.from(new Set((progress.followedPlanIds || []).map((planId) => clampText(planId, 80)).filter(Boolean)))
+    .filter((planId) => (planId.startsWith("custom-") ? customPlanIds.has(planId) : true))
+    .slice(0, 3);
+  const normalizedActivePlanId = activePlanId && (activePlanId.startsWith("custom-") ? customPlanIds.has(activePlanId) : true) ? activePlanId : followedPlanIds[0] || "";
+  const normalizedFollowedPlanIds = Array.from(new Set([normalizedActivePlanId, ...followedPlanIds].filter(Boolean))).slice(0, 3);
   const completedDays = Array.from(new Set((progress.completedDays || []).map((key) => clampText(key, 100)).filter(Boolean))).slice(0, 5000);
   const startDates = Object.entries(progress.startDates || {})
     .slice(0, 60)
@@ -657,7 +664,8 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
     }, {});
 
   return {
-    activePlanId: activePlanId && (activePlanId.startsWith("custom-") ? customPlanIds.has(activePlanId) : true) ? activePlanId : "",
+    activePlanId: normalizedActivePlanId,
+    followedPlanIds: normalizedFollowedPlanIds,
     completedDays,
     customPlans,
     startDates,

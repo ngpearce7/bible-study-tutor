@@ -21,6 +21,7 @@ type BibleReaderPassageProps = {
   planReadingCanMovePrevious?: boolean;
   planReadingCanMoveNext?: boolean;
   planReadingChunkLabel?: string;
+  planReadingFullChapter?: boolean;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
   selectedVersesAlreadyInMemory: boolean;
@@ -64,6 +65,7 @@ export function BibleReaderPassage({
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
   planReadingChunkLabel,
+  planReadingFullChapter,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedVersesAlreadyInMemory,
@@ -94,6 +96,11 @@ export function BibleReaderPassage({
       </>
     );
   }
+
+  const planReadingHasMultipleParts = !!planReadingMode && (!!planReadingCanMovePrevious || !!planReadingCanMoveNext || !!planReadingChunkLabel);
+  const showExitPlanReadingButton = !!planReadingMode && !planReadingFullChapter;
+  const exitPlanReadingLabel = planReadingHasMultipleParts ? "Exit reading" : "Full chapter";
+  const exitPlanReadingAccessibilityLabel = planReadingHasMultipleParts ? "Exit focused plan reading" : "Return to the full Bible chapter";
 
   return (
     <>
@@ -184,19 +191,25 @@ export function BibleReaderPassage({
               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                 {activeReadingPlanDayCompleted ? `${activeReadingPlanDay.reference} is complete.` : activeReadingPlanDay.reference}
-                {planReadingMode && !activeReadingPlanDayCompleted ? " Only this plan passage is shown." : ""}
+                {planReadingMode && !activeReadingPlanDayCompleted
+                  ? planReadingHasMultipleParts
+                    ? " Use Previous and Next to move through this plan reading."
+                    : planReadingFullChapter
+                      ? " This full chapter is today's plan reading."
+                      : " Only this plan passage is shown."
+                  : ""}
               </Text>
             </View>
             <View style={[styles.inlineReaderActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
-              {planReadingMode && (
+              {showExitPlanReadingButton && (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Return to the full Bible chapter"
+                  accessibilityLabel={exitPlanReadingAccessibilityLabel}
                   onPress={onExitPlanReading}
                   style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionExitButton, darkMode && styles.homeDarkResumeButton]}
                 >
                   <Ionicons name="close-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                  <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>{phoneLayout ? "Full chapter" : "Return to chapter"}</Text>
+                  <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>{exitPlanReadingLabel}</Text>
                 </Pressable>
               )}
               {activeReadingPlanDayCompleted ? (

@@ -117,6 +117,7 @@ export function BibleTab({
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
   planReadingChunkLabel,
+  planReadingFullChapter,
   onMarkActiveReadingPlanDayComplete,
   onExitPlanReading,
   currentSelectionBookmarked,
@@ -270,6 +271,7 @@ export function BibleTab({
           planReadingCanMovePrevious={planReadingCanMovePrevious}
           planReadingCanMoveNext={planReadingCanMoveNext}
           planReadingChunkLabel={planReadingChunkLabel}
+          planReadingFullChapter={planReadingFullChapter}
           currentSelectionBookmarked={currentSelectionBookmarked}
           currentSelectionBookmark={currentSelectionBookmark}
           selectedVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}

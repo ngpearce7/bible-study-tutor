@@ -1440,6 +1440,7 @@ export default function Home() {
   const readerPlanChunkLabel = readerPlanReadingChunkCount > 1
     ? `Part ${readerPlanReadingChunkIndex + 1} of ${readerPlanReadingChunkCount}`
     : "";
+  const readerPlanCurrentChunkReference = getReaderPlanReadingChunk(readerPlanReading)?.reference || "";
   const readerActiveBibleReadingPlanDay =
     activeBibleReadingPlan && readerPlanReading?.planId === activeBibleReadingPlan.id
       ? activeBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter)
@@ -1451,6 +1452,14 @@ export default function Home() {
   const readerMatchesActiveBibleReadingPlanDay =
     !!readerActiveBibleReadingPlanDay;
   const readerPlanReadingActive = isReaderPlanReadingActive(activeBibleReadingPlan, readerPlanReading, readerBook, readerChapter);
+  const readerPlanCurrentChunkParsed = readerPlanCurrentChunkReference ? parseBsbPassageReference(readerPlanCurrentChunkReference) : null;
+  const readerPlanChunkIsFullCurrentChapter =
+    !!readerPlanReadingActive &&
+    !!readerPlanCurrentChunkParsed &&
+    readerPlanReadingChunkCount === 1 &&
+    readerPlanCurrentChunkParsed.bookName === normalizeBibleBookName(readerBook) &&
+    readerPlanCurrentChunkParsed.chapter === readerChapter &&
+    !readerPlanCurrentChunkParsed.startVerse;
   const readerLoadRequest = buildReaderLoadRequest(readerPlanReadingActive, readerPlanReading, `${readerBook} ${readerChapter}`);
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
@@ -6354,6 +6363,7 @@ export default function Home() {
               planReadingCanMovePrevious={readerPlanCanMovePrevious}
               planReadingCanMoveNext={readerPlanCanMoveNext}
               planReadingChunkLabel={readerPlanChunkLabel}
+              planReadingFullChapter={readerPlanChunkIsFullCurrentChapter}
               onMarkActiveReadingPlanDayComplete={markCurrentBibleReadingPlanDayComplete}
               onExitPlanReading={exitBibleReadingPlanMode}
               currentSelectionBookmarked={currentSelectionBookmarked}

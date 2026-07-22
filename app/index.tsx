@@ -32,6 +32,15 @@ const LazyHelpTab = lazy(() => import("@/components/HelpTab").then((module) => (
 const LazyJournalTab = lazy(() => import("@/components/JournalTab").then((module) => ({ default: module.JournalTab })));
 const LazyMemoryTab = lazy(() => import("@/components/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 const LazyStudyNoteTiptapEditor = lazy(() => import("@/components/StudyNoteTiptapEditor").then((module) => ({ default: module.StudyNoteTiptapEditor })));
+
+function HydrationSafeIonicon({ ready, name, size, color }: { ready: boolean; name: any; size: number; color: string }) {
+  if (!ready && Platform.OS === "web") {
+    return <View aria-hidden style={{ height: size, width: size }} />;
+  }
+
+  return <Ionicons name={name} size={size} color={color} />;
+}
+
 type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
@@ -391,7 +400,8 @@ export default function Home() {
   const [appInitializationAllowed, setAppInitializationAllowed] = useState(Platform.OS !== "web");
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [, setIconFontReady] = useState(Platform.OS !== "web");
+  const [iconFontReady, setIconFontReady] = useState(Platform.OS !== "web");
+  const [layoutReady, setLayoutReady] = useState(Platform.OS !== "web");
   const [passage, setPassage] = useState("Psalm 23");
   const [methodId, setMethodId] = useState(methods[0].id);
   const [activeMethodInfoId, setActiveMethodInfoId] = useState("");
@@ -678,6 +688,11 @@ export default function Home() {
     }, 250);
 
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    setLayoutReady(true);
   }, []);
 
   useEffect(() => {
@@ -1615,8 +1630,10 @@ export default function Home() {
   const memoryPracticeAllCorrect =
     memoryBlankTokens.length > 0 &&
     memoryBlankTokens.every((token) => normalizeMemoryAnswer(memoryPracticeAnswers[token.index] || "") === normalizeMemoryAnswer(token.answer));
-  const compactLayout = width < 900;
-  const phoneLayout = width < 760;
+  const layoutWidth = Platform.OS === "web" && !layoutReady ? 800 : width;
+  const layoutHeight = Platform.OS === "web" && !layoutReady ? 844 : height;
+  const compactLayout = layoutWidth < 900;
+  const phoneLayout = layoutWidth < 760;
   const friendPanelSummary = !COMMUNITY_CIRCLES_ENABLED
     ? "Coming soon"
     : !isAuthenticated
@@ -1709,7 +1726,7 @@ export default function Home() {
         return;
       }
       input.measureInWindow((_x: number, y: number, _width: number, inputHeight: number) => {
-        const keyboardSafeBottom = height - Math.min(320, Math.max(210, height * 0.34));
+        const keyboardSafeBottom = layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
         const inputBottom = y + inputHeight + 58;
         if (inputBottom > keyboardSafeBottom) {
           scrollMemoryPracticeBy(inputBottom - keyboardSafeBottom);
@@ -5175,7 +5192,7 @@ export default function Home() {
             onPress={() => setMobileMenuOpen((value) => !value)}
             style={[styles.mobileMenuButton, accountDarkMode && styles.appDarkMobileMenuButton]}
           >
-            <Ionicons name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+            <HydrationSafeIonicon ready={iconFontReady} name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
           </Pressable>
           <View style={styles.mobileMenuTitleBlock}>
             <Text style={[styles.mobileMenuTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
@@ -5220,7 +5237,7 @@ export default function Home() {
               }}
               style={[styles.tab, accountDarkMode && styles.appDarkTab, tab === key && styles.activeTab, accountDarkMode && tab === key && styles.appDarkActiveTab]}
             >
-              <Ionicons name={icon as any} size={18} color={tab === key ? (accountDarkMode ? "#e9b76a" : colors.oliveDark) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
+              <HydrationSafeIonicon ready={iconFontReady} name={icon as any} size={18} color={tab === key ? (accountDarkMode ? "#e9b76a" : colors.oliveDark) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
               <Text style={[styles.tabLabel, accountDarkMode && styles.appDarkTabLabel, tab === key && styles.activeTabLabel, accountDarkMode && tab === key && styles.appDarkActiveTabLabel]}>{label}</Text>
             </Pressable>
           ))}
@@ -5286,7 +5303,7 @@ export default function Home() {
               <View style={styles.homeScriptureGrid}>
                 <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
                   <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
-                    <Ionicons name="heart-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
+                    <HydrationSafeIonicon ready={iconFontReady} name="heart-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
                   <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>James 4:8</Text>
                   <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Draw near to God, and he will draw near to you.”</Text>
@@ -5294,7 +5311,7 @@ export default function Home() {
                 </View>
                 <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
                   <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
-                    <Ionicons name="book-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
+                    <HydrationSafeIonicon ready={iconFontReady} name="book-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
                   <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>2 Timothy 3:16</Text>
                   <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness.”</Text>
@@ -5309,19 +5326,19 @@ export default function Home() {
                 </Text>
                 <View style={styles.homePurposePillRow}>
                   <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <Ionicons name="gift-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <HydrationSafeIonicon ready={iconFontReady} name="gift-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Free to use</Text>
                   </View>
                   <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <Ionicons name="phone-portrait-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <HydrationSafeIonicon ready={iconFontReady} name="phone-portrait-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Mobile ready</Text>
                   </View>
                   <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <Ionicons name="desktop-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <HydrationSafeIonicon ready={iconFontReady} name="desktop-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Desktop friendly</Text>
                   </View>
                   <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <Ionicons name="print-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <HydrationSafeIonicon ready={iconFontReady} name="print-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                     <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Printable worksheets</Text>
                   </View>
                 </View>
@@ -5342,13 +5359,13 @@ export default function Home() {
                       style={[styles.homePathItem, styles.homeContinueItem, homeDarkMode && styles.homeDarkContinueItem]}
                     >
                       <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
-                        <Ionicons name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <HydrationSafeIonicon ready={iconFontReady} name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </View>
                       <View style={styles.homePathTextBlock}>
                         <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
                         <Text numberOfLines={2} style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{item.detail}</Text>
                       </View>
-                      <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
+                      <HydrationSafeIonicon ready={iconFontReady} name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                   ))}
                   {[
@@ -5367,13 +5384,13 @@ export default function Home() {
                       style={[styles.homePathItem, homeDarkMode && styles.homeDarkPathItem]}
                     >
                       <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
-                        <Ionicons name={icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <HydrationSafeIonicon ready={iconFontReady} name={icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
                       </View>
                       <View style={styles.homePathTextBlock}>
                         <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{title}</Text>
                         <Text style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{detail}</Text>
                       </View>
-                      <Ionicons name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
+                      <HydrationSafeIonicon ready={iconFontReady} name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
                     </Pressable>
                   ))}
                 </View>
@@ -5387,7 +5404,7 @@ export default function Home() {
                   <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
                 </View>
                 <View style={styles.homeSmallActions}>
-                  <ResumeButton label="Choose method" icon="layers-outline" onPress={() => setTab("methods")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Choose method" icon="layers-outline" iconReady={iconFontReady} onPress={() => setTab("methods")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
                   <ResumeButton
                     label="Open plans"
                     icon="calendar-outline"
@@ -5398,6 +5415,7 @@ export default function Home() {
                     style={homeDarkMode && styles.homeDarkResumeButton}
                     labelStyle={homeDarkMode && styles.homeDarkResumeButtonText}
                     iconColor={homeDarkMode ? "#e9b76a" : undefined}
+                    iconReady={iconFontReady}
                   />
                 </View>
               </Card>
@@ -8020,7 +8038,7 @@ export default function Home() {
               styles.printOptionsCard,
               styles.memoryPrintOptionsCard,
               phoneLayout && styles.phonePrintOptionsCard,
-              phoneLayout && { maxHeight: Math.max(320, height - 96) },
+              phoneLayout && { maxHeight: Math.max(320, layoutHeight - 96) },
               accountDarkMode && styles.accountDarkMainCard
             ]}
           >
@@ -8252,7 +8270,7 @@ export default function Home() {
         onPress={() => setContextHelpOpen(true)}
         style={[styles.contextHelpButton, { bottom: contextHelpBottom }]}
       >
-        <Ionicons name="help-circle-outline" size={22} color="white" />
+        <HydrationSafeIonicon ready={iconFontReady} name="help-circle-outline" size={22} color="white" />
       </Pressable>
       {contextHelpOpen && (
         <View style={styles.contextHelpOverlay}>
@@ -8333,7 +8351,8 @@ function ResumeButton({
   variant = "default",
   style,
   labelStyle,
-  iconColor
+  iconColor,
+  iconReady = true
 }: {
   label: string;
   onPress: () => void;
@@ -8342,6 +8361,7 @@ function ResumeButton({
   style?: any;
   labelStyle?: any;
   iconColor?: string;
+  iconReady?: boolean;
 }) {
   const primary = variant === "primary";
   const keyboardActivationProps: any = Platform.OS === "web"
@@ -8364,7 +8384,7 @@ function ResumeButton({
       onPress={onPress}
       style={({ pressed }) => [styles.resumeButton, primary && styles.primaryResumeButton, pressed && styles.resumeButtonPressed, style]}
     >
-      <Ionicons name={icon as any} size={17} color={iconColor || (primary ? "white" : colors.coral)} />
+      <HydrationSafeIonicon ready={iconReady} name={icon as any} size={17} color={iconColor || (primary ? "white" : colors.coral)} />
       <Text style={[styles.resumeButtonText, primary && styles.primaryResumeButtonText, labelStyle]}>{label}</Text>
     </Pressable>
   );

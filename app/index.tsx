@@ -1439,6 +1439,15 @@ export default function Home() {
     !!activeBibleReadingPlan &&
     !!activeBibleReadingPlanSelectedDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay.day));
+  const readerActiveBibleReadingPlanDay = activeBibleReadingPlan
+    ? activeBibleReadingPlan.days.find((day) => day.readerBook === readerBook && day.readerChapter === readerChapter) || null
+    : null;
+  const readerActiveBibleReadingPlanDayComplete =
+    !!activeBibleReadingPlan &&
+    !!readerActiveBibleReadingPlanDay &&
+    completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
+  const readerMatchesActiveBibleReadingPlanDay =
+    !!readerActiveBibleReadingPlanDay;
   const readerPlanReadingActive =
     !!activeBibleReadingPlan &&
     !!readerPlanReading &&
@@ -1446,15 +1455,6 @@ export default function Home() {
     readerPlanReading.planId === activeBibleReadingPlan.id &&
     readerPlanReading.book === readerBook &&
     readerPlanReading.chapter === readerChapter;
-  const readerActiveBibleReadingPlanDay = activeBibleReadingPlan && readerPlanReadingActive
-    ? activeBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || null
-    : null;
-  const readerActiveBibleReadingPlanDayComplete =
-    !!activeBibleReadingPlan &&
-    !!readerActiveBibleReadingPlanDay &&
-    completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
-  const readerMatchesActiveBibleReadingPlanDay =
-    !!readerActiveBibleReadingPlanDay && readerPlanReadingActive;
   const readerLoadRequest = {
     mode: readerPlanReadingActive ? "plan" : "chapter",
     reference: readerPlanReadingActive ? readerPlanReading.reference.trim() : `${readerBook} ${readerChapter}`

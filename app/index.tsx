@@ -12353,6 +12353,21 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 11
   },
+  bibleReadingPlanMetaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  bibleReadingPlanMetaChip: {
+    backgroundColor: "#fff6eb",
+    borderRadius: 999,
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900",
+    overflow: "hidden",
+    paddingHorizontal: 9,
+    paddingVertical: 5
+  },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",
     flexDirection: "row",

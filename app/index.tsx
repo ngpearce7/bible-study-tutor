@@ -9503,7 +9503,15 @@ function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleReadingPl
     Array.isArray(source.completedDays)
       ? source.completedDays.map((key) => String(key).slice(0, 100)).filter(Boolean)
       : []
-  ).slice(0, 5000);
+  )
+    .filter((key) => {
+      const [planId, dayValue] = key.split(":");
+      if (!validPlanIds.has(planId)) return false;
+      const plan = [...bibleReadingPlans, ...customPlans].find((item) => item.id === planId);
+      const day = Math.round(Number(dayValue) || 0);
+      return !!plan && plan.days.some((item) => item.day === day);
+    })
+    .slice(0, 5000);
   const startDates = source.startDates && typeof source.startDates === "object" && !Array.isArray(source.startDates)
     ? Object.entries(source.startDates).slice(0, 60).reduce<Record<string, string>>((map, [planId, date]) => {
         const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));

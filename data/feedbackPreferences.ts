@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import type { BibleReadingPlan } from "@/data/bibleReadingPlans";
+import { bibleReadingPlans } from "@/data/bibleReadingPlans";
 
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
 export type StoredAppearanceMode = "light" | "dark";
@@ -152,23 +153,34 @@ export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleRe
 
   try {
     const parsed = JSON.parse(stored);
+    const customPlans = Array.isArray(parsed?.customPlans)
+      ? parsed.customPlans
+          .map(normalizeStoredBibleReadingPlan)
+          .filter((plan: BibleReadingPlan | null): plan is BibleReadingPlan => !!plan)
+          .slice(0, 30)
+      : [];
+    const validPlans = [...bibleReadingPlans, ...customPlans];
+    const validPlanIds = new Set(validPlans.map((plan) => plan.id));
     return {
-      activePlanId: typeof parsed?.activePlanId === "string" ? parsed.activePlanId : "",
-      completedDays: Array.isArray(parsed?.completedDays) ? parsed.completedDays.filter((item: unknown): item is string => typeof item === "string") : [],
+      activePlanId: typeof parsed?.activePlanId === "string" && validPlanIds.has(parsed.activePlanId) ? parsed.activePlanId : "",
+      completedDays: Array.isArray(parsed?.completedDays)
+        ? Array.from(new Set<string>(parsed.completedDays.filter((item: unknown): item is string => typeof item === "string"))).filter((key: string) => {
+            const [planId, dayValue] = key.split(":");
+            if (!validPlanIds.has(planId)) return false;
+            const plan = validPlans.find((item) => item.id === planId);
+            const day = Math.round(Number(dayValue) || 0);
+            return !!plan && plan.days.some((planDay: { day: number }) => planDay.day === day);
+          })
+        : [],
       startDates: parsed?.startDates && typeof parsed.startDates === "object"
         ? Object.entries(parsed.startDates).reduce<Record<string, string>>((map, [planId, date]) => {
-            if (typeof planId === "string" && typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            if (typeof planId === "string" && validPlanIds.has(planId) && typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
               map[planId] = date;
             }
             return map;
           }, {})
         : {},
-      customPlans: Array.isArray(parsed?.customPlans)
-        ? parsed.customPlans
-            .map(normalizeStoredBibleReadingPlan)
-            .filter((plan: BibleReadingPlan | null): plan is BibleReadingPlan => !!plan)
-            .slice(0, 30)
-        : [],
+      customPlans,
       updatedAt: Number.isFinite(Number(parsed?.updatedAt)) ? Number(parsed.updatedAt) : undefined
     };
   } catch {

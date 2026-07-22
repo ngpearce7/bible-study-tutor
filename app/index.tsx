@@ -726,6 +726,9 @@ export default function Home() {
   const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
   const readerVerseYRef = useRef<Record<number, number>>({});
+  const studyPassageRequestIdRef = useRef(0);
+  const readerPassageRequestIdRef = useRef(0);
+  const bibleSearchRequestIdRef = useRef(0);
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
@@ -1993,6 +1996,7 @@ export default function Home() {
 
   useEffect(() => {
     if (tab !== "study") return;
+    const requestId = ++studyPassageRequestIdRef.current;
 
     const trimmed = passage.trim();
     if (!trimmed) {
@@ -2010,10 +2014,12 @@ export default function Home() {
             ? await fetchBsbPassage(trimmed, controller.signal)
             : await fetchBibleApiPassage(trimmed, bibleTranslation, controller.signal);
 
+        if (studyPassageRequestIdRef.current !== requestId) return;
         setPassageText(data);
         setPassageStatus("");
       } catch (error) {
         if (controller.signal.aborted) return;
+        if (studyPassageRequestIdRef.current !== requestId) return;
         setPassageText(null);
         setPassageStatus(
           bibleTranslation === "bsb"
@@ -2031,6 +2037,7 @@ export default function Home() {
 
   useEffect(() => {
     if (tab !== "bible") return;
+    const requestId = ++readerPassageRequestIdRef.current;
 
     const controller = new AbortController();
     const { mode, reference } = readerLoadRequest;
@@ -2045,10 +2052,12 @@ export default function Home() {
             : bibleTranslation === "bsb"
             ? await fetchBsbPassage(reference, controller.signal)
             : await fetchBibleApiPassage(reference, bibleTranslation, controller.signal);
+        if (readerPassageRequestIdRef.current !== requestId) return;
         setReaderPassage(data);
         setReaderStatus("");
       } catch {
         if (controller.signal.aborted) return;
+        if (readerPassageRequestIdRef.current !== requestId) return;
         setReaderStatus(mode === "plan" ? "I couldn't load that plan reading. Exit plan reading or try again." : "I couldn't load that chapter. Try again or choose another chapter.");
       }
     }, 250);
@@ -4890,6 +4899,7 @@ export default function Home() {
   async function runBibleSearch() {
     dismissBibleSearchInput();
     const query = bibleSearchQuery.trim();
+    const requestId = ++bibleSearchRequestIdRef.current;
     if (!query) {
       setBibleSearchStatus("Type a word, theme, idea, or question to search.");
       setBibleSearchResults([]);
@@ -4907,6 +4917,7 @@ export default function Home() {
 
     try {
       const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchMode === "word")));
+      if (bibleSearchRequestIdRef.current !== requestId) return;
       const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, bibleSearchMode), query, bibleSearchMode).slice(0, 60);
       setBibleSearchDuration(`Search completed in ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults(combined);
@@ -4920,6 +4931,7 @@ export default function Home() {
       scrollToBibleSearchSummary();
       trackUsage("bible_search", { reference: query, translation, tab: "bible", book: bibleSearchBook || undefined });
     } catch {
+      if (bibleSearchRequestIdRef.current !== requestId) return;
       setBibleSearchStatus("I couldn't complete the search. Check your connection and try again.");
       setBibleSearchDuration(`Search stopped after ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults([]);

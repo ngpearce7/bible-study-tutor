@@ -5347,6 +5347,8 @@ export default function Home() {
           ] as [Tab, string, string][]).map(([key, label, icon]) => (
             <Pressable
               key={key}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${label} tab`}
               onPress={() => {
                 if (key === "study") trackPublicAnalytics({ eventType: "start_study_clicked", source: "main_menu", ctaTarget: "/?tab=study" });
                 if (key === "bible") trackPublicAnalytics({ eventType: "bible_reader_opened", source: "main_menu", ctaTarget: "/?tab=bible" });

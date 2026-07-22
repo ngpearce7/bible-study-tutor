@@ -720,7 +720,6 @@ export default function Home() {
   const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
   const readerVerseYRef = useRef<Record<number, number>>({});
-  const pendingReaderPassageScrollRef = useRef(false);
   const studyPassageRequestIdRef = useRef(0);
   const readerPassageRequestIdRef = useRef(0);
   const bibleSearchRequestIdRef = useRef(0);
@@ -2060,12 +2059,6 @@ export default function Home() {
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
   }, [readerBook, readerChapter]);
-
-  useEffect(() => {
-    if (tab !== "bible" || !phoneLayout || !readerPlanReadingActive || !readerPassage) return;
-    if (!pendingReaderPassageScrollRef.current) return;
-    scrollToReaderPassageStart();
-  }, [readerPassage?.reference, readerPlanReadingActive, phoneLayout, tab]);
 
   useEffect(() => {
     setReaderChapterDraft(String(readerChapter));
@@ -4544,17 +4537,6 @@ export default function Home() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 50);
   }
 
-  function scrollToReaderPassageStart() {
-    const scroll = () => {
-      appScrollRef.current?.scrollTo?.({
-        y: Math.max(0, readerPassageBoxYRef.current - (phoneLayout ? 82 : 18)),
-        animated: true
-      });
-    };
-    setTimeout(scroll, 80);
-    setTimeout(scroll, 260);
-  }
-
   function openPrivacyPolicyFromAccountIntro() {
     setAccountPrivacyOpen(true);
     setOpenLegalSection("privacy");
@@ -4729,9 +4711,12 @@ export default function Home() {
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
     setReaderPlanReading(nextPlanReading);
-    pendingReaderPassageScrollRef.current = phoneLayout;
+    if (phoneLayout) {
+      setRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed", true);
+      setExpandedMobileReaderBook("");
+      setReaderMobileMenu(null);
+    }
     scrollReaderToTop();
-    if (phoneLayout) scrollToReaderPassageStart();
     trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
   }
 
@@ -6343,10 +6328,6 @@ export default function Home() {
               selectedReaderVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
               onPassageLayout={(event: any) => {
                 readerPassageBoxYRef.current = event.nativeEvent.layout.y;
-                if (pendingReaderPassageScrollRef.current && phoneLayout && readerPlanReadingActive) {
-                  pendingReaderPassageScrollRef.current = false;
-                  scrollToReaderPassageStart();
-                }
               }}
               onVerseLayout={(verseNumber: number, event: any) => {
                 readerVerseYRef.current[verseNumber] = event.nativeEvent.layout.y;

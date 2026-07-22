@@ -18,6 +18,9 @@ type BibleReaderPassageProps = {
   activeReadingPlanDay?: { reference: string } | null;
   activeReadingPlanDayCompleted?: boolean;
   planReadingMode?: boolean;
+  planReadingCanMovePrevious?: boolean;
+  planReadingCanMoveNext?: boolean;
+  planReadingChunkLabel?: string;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
   selectedVersesAlreadyInMemory: boolean;
@@ -58,6 +61,9 @@ export function BibleReaderPassage({
   activeReadingPlanDay,
   activeReadingPlanDayCompleted,
   planReadingMode,
+  planReadingCanMovePrevious,
+  planReadingCanMoveNext,
+  planReadingChunkLabel,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedVersesAlreadyInMemory,
@@ -89,8 +95,6 @@ export function BibleReaderPassage({
     );
   }
 
-  const multiChapterPlanReading = !!planReadingMode && new Set(passage.verses.map((verse) => `${verse.book_name}:${verse.chapter}`)).size > 1;
-
   return (
     <>
       <View
@@ -102,15 +106,8 @@ export function BibleReaderPassage({
           darkMode && styles.accountDarkInsetBox
         ]}
       >
-        {multiChapterPlanReading && (
-          <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
-            <Ionicons name="information-circle-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-            <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>Multi-chapter plan reading. Verse selection is available again when you exit plan reading mode.</Text>
-          </View>
-        )}
         {passage.verses.map((verse) => {
-          const selectionDisabled = multiChapterPlanReading;
-          const selected = !selectionDisabled && selectedVerses.includes(verse.verse);
+          const selected = selectedVerses.includes(verse.verse);
           return (
             <View
               key={`${verse.chapter}-${verse.verse}`}
@@ -118,7 +115,7 @@ export function BibleReaderPassage({
             >
               <Pressable
                 onPress={() => {
-                  if (!selectionDisabled) onToggleVerse(verse.verse);
+                  onToggleVerse(verse.verse);
                 }}
                 style={[
                   styles.readerVerseRow,
@@ -224,10 +221,30 @@ export function BibleReaderPassage({
 
         {planReadingMode ? (
           <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Open previous part of this plan reading"
+              disabled={!planReadingCanMovePrevious}
+              onPress={() => onMoveChapter(-1)}
+              style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton, !planReadingCanMovePrevious && styles.inactiveCollapsedReaderIconButton]}
+            >
+              <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
+            </Pressable>
             <View style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
               <Ionicons name="reader-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Focused plan passage</Text>
+              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>{planReadingChunkLabel || "Plan passage"}</Text>
             </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Open next part of this plan reading"
+              disabled={!planReadingCanMoveNext}
+              onPress={() => onMoveChapter(1)}
+              style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton, !planReadingCanMoveNext && styles.inactiveCollapsedReaderIconButton]}
+            >
+              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Next</Text>
+              <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            </Pressable>
           </View>
         ) : (
         <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>

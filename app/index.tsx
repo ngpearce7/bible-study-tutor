@@ -11,7 +11,7 @@ import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
-import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
+import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, getReaderPlanReadingChunk, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
@@ -1433,7 +1433,17 @@ export default function Home() {
     !!activeBibleReadingPlan &&
     !!activeBibleReadingPlanSelectedDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay.day));
-  const readerActiveBibleReadingPlanDay = getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter);
+  const readerPlanReadingChunkCount = readerPlanReading?.chunks?.length || 0;
+  const readerPlanReadingChunkIndex = Math.min(Math.max(readerPlanReading?.currentChunkIndex || 0, 0), Math.max(0, readerPlanReadingChunkCount - 1));
+  const readerPlanCanMovePrevious = !!readerPlanReading && readerPlanReadingChunkIndex > 0;
+  const readerPlanCanMoveNext = !!readerPlanReading && readerPlanReadingChunkIndex < readerPlanReadingChunkCount - 1;
+  const readerPlanChunkLabel = readerPlanReadingChunkCount > 1
+    ? `Part ${readerPlanReadingChunkIndex + 1} of ${readerPlanReadingChunkCount}`
+    : "";
+  const readerActiveBibleReadingPlanDay =
+    activeBibleReadingPlan && readerPlanReading?.planId === activeBibleReadingPlan.id
+      ? activeBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter)
+      : getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter);
   const readerActiveBibleReadingPlanDayComplete =
     !!activeBibleReadingPlan &&
     !!readerActiveBibleReadingPlanDay &&
@@ -4515,6 +4525,26 @@ export default function Home() {
   }
 
   function moveReaderChapter(direction: -1 | 1) {
+    if (readerPlanReadingActive && readerPlanReading?.chunks?.length) {
+      const currentIndex = Math.min(Math.max(readerPlanReading.currentChunkIndex || 0, 0), readerPlanReading.chunks.length - 1);
+      const nextIndex = currentIndex + direction;
+      const nextChunk = readerPlanReading.chunks[nextIndex];
+      if (!nextChunk) return;
+      setReaderPlanReading({
+        ...readerPlanReading,
+        currentChunkIndex: nextIndex,
+        book: nextChunk.book,
+        chapter: nextChunk.chapter
+      });
+      setReaderBook(nextChunk.book);
+      setReaderChapter(nextChunk.chapter);
+      setReaderChapterDraft(String(nextChunk.chapter));
+      setSelectedReaderVerses([]);
+      setReaderActionVerse(0);
+      scrollReaderToTop();
+      return;
+    }
+
     setReaderPlanReading(null);
     const currentBookIndex = bibleBooks.indexOf(readerBook);
     const currentChapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 1;
@@ -6321,6 +6351,9 @@ export default function Home() {
               activeReadingPlanDay={readerActiveBibleReadingPlanDay}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
               planReadingMode={readerPlanReadingActive}
+              planReadingCanMovePrevious={readerPlanCanMovePrevious}
+              planReadingCanMoveNext={readerPlanCanMoveNext}
+              planReadingChunkLabel={readerPlanChunkLabel}
               onMarkActiveReadingPlanDayComplete={markCurrentBibleReadingPlanDayComplete}
               onExitPlanReading={exitBibleReadingPlanMode}
               currentSelectionBookmarked={currentSelectionBookmarked}

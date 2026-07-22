@@ -50,6 +50,7 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
+  activeBibleReadingPlanOpen?: boolean;
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onOpenActivePlanReading: () => void;
@@ -107,6 +108,7 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
+  activeBibleReadingPlanOpen,
   onToggleCollapsed,
   onOpenPlansTab,
   onOpenActivePlanReading,
@@ -525,9 +527,17 @@ export function BibleReaderNavigator({
                         <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
                     </View>
                     <Text numberOfLines={2} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                      {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : "Tap this panel to open the plan passage."}
+                      {activeBibleReadingPlanComplete
+                        ? "Every day in this plan has been completed."
+                        : activeBibleReadingPlanOpen
+                          ? "The plan passage is open below."
+                          : "Tap this panel to open the plan passage."}
                     </Text>
-                    {!activeBibleReadingPlanComplete && <Text style={[styles.bibleReadingPlanOpenHint, darkMode && styles.studyDarkAccentText]}>Tap to read</Text>}
+                    {!activeBibleReadingPlanComplete && (
+                      <Text style={[styles.bibleReadingPlanOpenHint, darkMode && styles.studyDarkAccentText]}>
+                        {activeBibleReadingPlanOpen ? "Reading open" : "Tap to read"}
+                      </Text>
+                    )}
                   </Pressable>
                 </>
               ) : (

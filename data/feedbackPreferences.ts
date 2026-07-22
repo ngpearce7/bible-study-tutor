@@ -373,12 +373,24 @@ export async function saveActiveCheckinPartnerId(id: string) {
 }
 
 async function getStoredValue(key: string) {
-  return Platform.OS === "web" && typeof localStorage !== "undefined" ? localStorage.getItem(key) : await SecureStore.getItemAsync(key);
+  if (Platform.OS === "web" && typeof localStorage !== "undefined") {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  return await SecureStore.getItemAsync(key);
 }
 
 async function setStoredValue(key: string, value: string) {
   if (Platform.OS === "web" && typeof localStorage !== "undefined") {
-    localStorage.setItem(key, value);
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // Ignore storage limits or private-mode restrictions; in-memory state still updates.
+    }
     return;
   }
 

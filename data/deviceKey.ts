@@ -5,10 +5,14 @@ const key = "bible-study-tutor-client-key";
 
 export async function getDeviceKey() {
   if (Platform.OS === "web" && typeof localStorage !== "undefined") {
-    const existing = localStorage.getItem(key);
-    if (existing) return existing;
     const created = createKey();
-    localStorage.setItem(key, created);
+    try {
+      const existing = localStorage.getItem(key);
+      if (existing) return existing;
+      localStorage.setItem(key, created);
+    } catch {
+      return created;
+    }
     return created;
   }
 

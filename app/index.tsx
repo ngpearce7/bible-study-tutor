@@ -19,7 +19,7 @@ import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { Component, Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
 import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
@@ -39,6 +39,38 @@ function HydrationSafeIonicon({ ready, name, size, color }: { ready: boolean; na
   }
 
   return <Ionicons name={name} size={size} color={color} />;
+}
+
+type TabErrorBoundaryProps = {
+  children: ReactNode;
+  fallback: ReactNode;
+  resetKey: string;
+};
+
+type TabErrorBoundaryState = {
+  hasError: boolean;
+};
+
+class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundaryState> {
+  state: TabErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error("Bible Study Tutor section failed to render", error, info.componentStack);
+  }
+
+  componentDidUpdate(previousProps: TabErrorBoundaryProps) {
+    if (previousProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
 }
 
 type StudyPhase = "study" | "review" | "saved";
@@ -6095,8 +6127,12 @@ export default function Home() {
         )}
 
         {tab === "bible" && (
-          <Suspense fallback={<Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>Loading Bible reader...</Text></Card>}>
-            <LazyBibleTab
+          <TabErrorBoundary
+            resetKey={`bible-${bibleTranslation}-${readerBook}-${readerChapter}`}
+            fallback={<Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, bibleDarkMode && styles.accountDarkTitle]}>Bible reader could not load</Text><Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Bible.</Text></Card>}
+          >
+            <Suspense fallback={<Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>Loading Bible reader...</Text></Card>}>
+              <LazyBibleTab
               styles={styles}
               compactLayout={compactLayout}
               phoneLayout={phoneLayout}
@@ -6249,12 +6285,17 @@ export default function Home() {
               onSaveMemory={saveSelectedReaderVersesToMemory}
               isVerseBookmarked={(verseNumber: number) => isReaderVerseBookmarked(verseNumber, bibleBookmarks, readerBook, readerChapter)}
               isVerseNoted={(verseNumber: number) => isReaderVerseBookmarkNoted(verseNumber, bibleBookmarks, readerBook, readerChapter)}
-            />
-          </Suspense>
+              />
+            </Suspense>
+          </TabErrorBoundary>
         )}
 
         {tab === "plans" && (
-          <View style={plansDarkMode && styles.accountDarkLayout}>
+          <TabErrorBoundary
+            resetKey={`plans-${activeBibleReadingPlanId}-${customBibleReadingPlans.length}`}
+            fallback={<Card style={[styles.mainCard, plansDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>Reading plans could not load</Text><Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Plans.</Text></Card>}
+          >
+            <View style={plansDarkMode && styles.accountDarkLayout}>
             <Eyebrow>Reading paths</Eyebrow>
             <Text style={[styles.title, plansDarkMode && styles.accountDarkTitle]}>Bible reading plans</Text>
             <Text style={[styles.titleSupport, plansDarkMode && styles.accountDarkMutedText]}>Choose, continue, create, and manage reading plans. The Bible reader shows the active plan for today.</Text>
@@ -6621,7 +6662,8 @@ export default function Home() {
                 );
               })}
             </View>
-          </View>
+            </View>
+          </TabErrorBoundary>
         )}
         {tab === "methods" && (
           <View style={methodsDarkMode && styles.accountDarkLayout}>
@@ -6809,8 +6851,12 @@ export default function Home() {
         )}
 
         {tab === "memory" && (
-          <Suspense fallback={<Card style={[styles.mainCard, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory...</Text></Card>}>
-            <LazyMemoryTab
+          <TabErrorBoundary
+            resetKey={`memory-${memoryView}-${activeMemoryVerseId || ""}`}
+            fallback={<Card style={[styles.mainCard, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, memoryDarkMode && styles.accountDarkTitle]}>Memory could not load</Text><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Memory.</Text></Card>}
+          >
+            <Suspense fallback={<Card style={[styles.mainCard, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory...</Text></Card>}>
+              <LazyMemoryTab
               activeMemoryCollectionDueCount={activeMemoryCollectionDueCount}
               activeMemoryCollectionName={activeMemoryCollectionName}
               activeMemoryMeditationVerseId={activeMemoryMeditationVerseId}
@@ -6946,13 +6992,18 @@ export default function Home() {
               updateMemoryPracticeAnswer={updateMemoryPracticeAnswer}
               visibleMemoryHistoryItems={visibleMemoryHistoryItems}
               visibleMemorySections={visibleMemorySections}
-            />
-          </Suspense>
+              />
+            </Suspense>
+          </TabErrorBoundary>
         )}
 
         {tab === "accountability" && (
-          <Suspense fallback={<Card style={[styles.mainCard, communityDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, communityDarkMode && styles.accountDarkMutedText]}>Loading community...</Text></Card>}>
-            <LazyCommunityTab
+          <TabErrorBoundary
+            resetKey={`community-${communitySubView}`}
+            fallback={<Card style={[styles.mainCard, communityDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, communityDarkMode && styles.accountDarkTitle]}>Community could not load</Text><Text style={[styles.muted, communityDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Community.</Text></Card>}
+          >
+            <Suspense fallback={<Card style={[styles.mainCard, communityDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, communityDarkMode && styles.accountDarkMutedText]}>Loading community...</Text></Card>}>
+              <LazyCommunityTab
               styles={styles}
               compactLayout={compactLayout}
               phoneLayout={phoneLayout}
@@ -7062,6 +7113,7 @@ export default function Home() {
               deleteRecentCheckin={deleteRecentCheckin}
             />
           </Suspense>
+          </TabErrorBoundary>
         )}
 
         {tab === "account" && (
@@ -7481,8 +7533,12 @@ export default function Home() {
         )}
 
         {tab === "admin" && (
-          <Suspense fallback={<Card style={[styles.mainCard, adminDarkMode && styles.accountDarkMainCard]}><Text style={[styles.body, adminDarkMode && styles.accountDarkText]}>Loading admin insights...</Text></Card>}>
-            <LazyAdminDashboard
+          <TabErrorBoundary
+            resetKey={`admin-${selectedAdminProfileId || ""}`}
+            fallback={<Card style={[styles.mainCard, adminDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, adminDarkMode && styles.accountDarkTitle]}>Admin could not load</Text><Text style={[styles.muted, adminDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Admin.</Text></Card>}
+          >
+            <Suspense fallback={<Card style={[styles.mainCard, adminDarkMode && styles.accountDarkMainCard]}><Text style={[styles.body, adminDarkMode && styles.accountDarkText]}>Loading admin insights...</Text></Card>}>
+              <LazyAdminDashboard
               adminStats={adminStats}
               adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
               adminUserDetail={adminUserDetail}
@@ -7505,13 +7561,18 @@ export default function Home() {
               onSelectRegion={setSelectedAdminRegion}
               onMarkSecurityReviewed={markAdminProfileSecurityReviewed}
               onSetProfileSuspension={setAdminProfileSuspension}
-            />
-          </Suspense>
+              />
+            </Suspense>
+          </TabErrorBoundary>
         )}
 
         {tab === "journal" && (
-          <Suspense fallback={<Card style={[styles.journalCard, journalDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>Loading journal...</Text></Card>}>
-            <LazyJournalTab
+          <TabErrorBoundary
+            resetKey={`journal-${journalView}-${journalFilter}`}
+            fallback={<Card style={[styles.journalCard, journalDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]}>Journal could not load</Text><Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Journal.</Text></Card>}
+          >
+            <Suspense fallback={<Card style={[styles.journalCard, journalDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>Loading journal...</Text></Card>}>
+              <LazyJournalTab
               styles={styles}
               journalDarkMode={journalDarkMode}
               phoneLayout={phoneLayout}
@@ -7615,13 +7676,18 @@ export default function Home() {
               journalSearchTerm={journalSearchTerm}
               friendlyName={friendlyName}
               setTab={setTab}
-            />
-          </Suspense>
+              />
+            </Suspense>
+          </TabErrorBoundary>
         )}
 
         {tab === "help" && (
-          <Suspense fallback={<Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, helpDarkMode && styles.accountDarkMutedText]}>Loading help...</Text></Card>}>
-            <LazyHelpTab
+          <TabErrorBoundary
+            resetKey={`help-${expandedHelpGuideTitle || ""}`}
+            fallback={<Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}><Text style={[styles.cardTitle, helpDarkMode && styles.accountDarkTitle]}>Help could not load</Text><Text style={[styles.muted, helpDarkMode && styles.accountDarkMutedText]}>Try another tab, then return to Help.</Text></Card>}
+          >
+            <Suspense fallback={<Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, helpDarkMode && styles.accountDarkMutedText]}>Loading help...</Text></Card>}>
+              <LazyHelpTab
               styles={styles}
               helpDarkMode={helpDarkMode}
               phoneLayout={phoneLayout}
@@ -7643,8 +7709,9 @@ export default function Home() {
               setFeedbackMessage={setFeedbackMessage}
               submitUserFeedback={submitUserFeedback}
               feedbackStatus={feedbackStatus}
-            />
-          </Suspense>
+              />
+            </Suspense>
+          </TabErrorBoundary>
         )}
       </ScrollView>
       {showMobileReaderSelectionDock && (

@@ -732,12 +732,21 @@ export default function Home() {
   const previousActiveProfileIdRef = useRef("");
   const appliedBibleReaderProfileIdRef = useRef("");
   const appliedBibleReaderStateSignatureRef = useRef("");
+  const pendingBibleReaderStateProfileIdRef = useRef("");
   const pendingBibleReaderStateSignatureRef = useRef("");
   const pendingBibleReaderStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedDraftRevisionRef = useRef(0);
   const isHydratingDraftRef = useRef(false);
   const hasReadInitialUrlRef = useRef(false);
   const skipInitialUrlSyncRef = useRef(true);
+
+  function clearPendingBibleReaderStateSync(signature?: string) {
+    if (signature && pendingBibleReaderStateSignatureRef.current !== signature) return;
+    pendingBibleReaderStateProfileIdRef.current = "";
+    pendingBibleReaderStateSignatureRef.current = "";
+    if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+    pendingBibleReaderStateTimerRef.current = null;
+  }
 
   useEffect(() => {
     if (tab === "journal" && previousTabRef.current !== "journal") {
@@ -1002,7 +1011,7 @@ export default function Home() {
   useEffect(() => {
     return () => {
       if (readerTooltipTimerRef.current) clearTimeout(readerTooltipTimerRef.current);
-      if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+      clearPendingBibleReaderStateSync();
     };
   }, []);
 
@@ -1046,9 +1055,7 @@ export default function Home() {
     previousActiveProfileIdRef.current = nextProfileKey;
     appliedBibleReaderProfileIdRef.current = "";
     appliedBibleReaderStateSignatureRef.current = "";
-    pendingBibleReaderStateSignatureRef.current = "";
-    if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
-    pendingBibleReaderStateTimerRef.current = null;
+    clearPendingBibleReaderStateSync();
     loadedDraftRevisionRef.current = 0;
     setLoadedDraftKey("");
     setAnswers({});
@@ -1879,14 +1886,18 @@ export default function Home() {
     }
 
     const signature = JSON.stringify(syncedReaderState);
-    if (pendingBibleReaderStateSignatureRef.current && pendingBibleReaderStateSignatureRef.current !== signature) return;
-    if (pendingBibleReaderStateSignatureRef.current === signature) {
-      pendingBibleReaderStateSignatureRef.current = "";
-      if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
-      pendingBibleReaderStateTimerRef.current = null;
+    const profileKey = String(activeProfileId || "");
+    const pendingSignature = pendingBibleReaderStateSignatureRef.current;
+    const pendingProfileId = pendingBibleReaderStateProfileIdRef.current;
+    if (pendingSignature && pendingProfileId && pendingProfileId !== profileKey) {
+      clearPendingBibleReaderStateSync();
+    } else if (pendingSignature && pendingSignature !== signature) {
+      return;
+    } else if (pendingSignature === signature) {
+      clearPendingBibleReaderStateSync(signature);
     }
     if (appliedBibleReaderStateSignatureRef.current === signature) return;
-    appliedBibleReaderProfileIdRef.current = String(activeProfileId || "");
+    appliedBibleReaderProfileIdRef.current = profileKey;
     appliedBibleReaderStateSignatureRef.current = signature;
 
     if (syncedReaderState.translation) {
@@ -5172,17 +5183,18 @@ export default function Home() {
     if (!state) return;
 
     const signature = JSON.stringify(state);
+    const profileId = String(activeProfileId);
     appliedBibleReaderStateSignatureRef.current = signature;
+    pendingBibleReaderStateProfileIdRef.current = profileId;
     pendingBibleReaderStateSignatureRef.current = signature;
-    if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
+    clearPendingBibleReaderStateSync();
+    pendingBibleReaderStateProfileIdRef.current = profileId;
+    pendingBibleReaderStateSignatureRef.current = signature;
     pendingBibleReaderStateTimerRef.current = setTimeout(() => {
-      if (pendingBibleReaderStateSignatureRef.current === signature) pendingBibleReaderStateSignatureRef.current = "";
-      pendingBibleReaderStateTimerRef.current = null;
+      if (pendingBibleReaderStateProfileIdRef.current === profileId) clearPendingBibleReaderStateSync(signature);
     }, 5000);
     saveBibleReaderState({ profileId: activeProfileId, state }).catch(() => {
-      if (pendingBibleReaderStateSignatureRef.current === signature) pendingBibleReaderStateSignatureRef.current = "";
-      if (pendingBibleReaderStateTimerRef.current) clearTimeout(pendingBibleReaderStateTimerRef.current);
-      pendingBibleReaderStateTimerRef.current = null;
+      if (pendingBibleReaderStateProfileIdRef.current === profileId) clearPendingBibleReaderStateSync(signature);
     });
   }
 

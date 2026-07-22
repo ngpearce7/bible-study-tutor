@@ -182,7 +182,7 @@ export function BibleReaderPassage({
         })}
 
         {matchesActiveReadingPlanDay && activeReadingPlanDay && (
-          <View style={[styles.readerPlanCompletionBox, darkMode && styles.accountDarkSection]}>
+          <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection]}>
             <View style={styles.readerPlanCompletionCopy}>
               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Reading plan</Text>
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
@@ -190,32 +190,32 @@ export function BibleReaderPassage({
                 {planReadingMode && !activeReadingPlanDayCompleted ? " Only this plan reading is shown." : ""}
               </Text>
             </View>
-            <View style={styles.inlineReaderActions}>
+            <View style={[styles.inlineReaderActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
               {planReadingMode && (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Exit plan reading mode"
                   onPress={onExitPlanReading}
-                  style={[styles.inlineReaderBookmarkButton, darkMode && styles.homeDarkResumeButton]}
+                  style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionExitButton, darkMode && styles.homeDarkResumeButton]}
                 >
                   <Ionicons name="close-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                  <Text style={[styles.inlineReaderBookmarkText, darkMode && styles.homeDarkResumeButtonText]}>Exit</Text>
+                  <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>Exit</Text>
                 </Pressable>
               )}
               {activeReadingPlanDayCompleted ? (
-                <View style={[styles.inlineReaderBookmarkButton, styles.activeReaderReadButton]}>
+                <View style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton, styles.activeReaderReadButton]}>
                   <Ionicons name="checkmark-circle" size={15} color="white" />
-                  <Text style={styles.activeReaderReadButtonText}>Complete</Text>
+                  <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>Complete</Text>
                 </View>
               ) : (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
                   onPress={onMarkActiveReadingPlanDayComplete}
-                  style={[styles.inlineReaderBookmarkButton, styles.readerPlanCompleteButton]}
+                  style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton, styles.readerPlanCompleteButton]}
                 >
                   <Ionicons name="checkmark-circle-outline" size={15} color="white" />
-                  <Text style={styles.activeReaderReadButtonText}>{planReadingMode ? "Complete reading" : "Mark today complete"}</Text>
+                  <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>{planReadingMode ? "Complete reading" : "Mark today complete"}</Text>
                 </Pressable>
               )}
             </View>

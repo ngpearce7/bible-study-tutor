@@ -12992,10 +12992,37 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 10
   },
+  phoneReaderPlanCompletionBox: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 8
+  },
   readerPlanCompletionCopy: {
     flex: 1,
     gap: 2,
     minWidth: 0
+  },
+  phoneReaderPlanCompletionActions: {
+    alignItems: "stretch",
+    alignSelf: "stretch",
+    flexDirection: "row",
+    width: "100%"
+  },
+  phoneReaderPlanCompletionExitButton: {
+    flexGrow: 0,
+    justifyContent: "center",
+    minHeight: 38,
+    minWidth: 78
+  },
+  phoneReaderPlanCompletionPrimaryButton: {
+    flex: 1,
+    justifyContent: "center",
+    minHeight: 38,
+    minWidth: 168
+  },
+  phoneReaderPlanCompletionButtonText: {
+    flexShrink: 0,
+    textAlign: "center"
   },
   readerPlanCompleteButton: {
     backgroundColor: colors.oliveDark,

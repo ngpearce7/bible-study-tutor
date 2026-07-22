@@ -681,13 +681,24 @@ export default function Home() {
 
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
-    const timer = window.setTimeout(() => {
-      Ionicons.loadFont()
-        .then(() => setIconFontReady(true))
-        .catch(() => setIconFontReady(true));
-    }, 250);
+    let cancelled = false;
 
-    return () => window.clearTimeout(timer);
+    Ionicons.loadFont()
+      .then(async () => {
+        const browserFonts = typeof document !== "undefined" ? document.fonts : null;
+        if (browserFonts?.load) {
+          await browserFonts.load("16px ionicons").catch(() => undefined);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIconFontReady(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {

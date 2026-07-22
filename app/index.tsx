@@ -12983,13 +12983,13 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     justifyContent: "center",
     minHeight: 38,
-    minWidth: 78
+    minWidth: 112
   },
   phoneReaderPlanCompletionPrimaryButton: {
     flex: 1,
     justifyContent: "center",
     minHeight: 38,
-    minWidth: 168
+    minWidth: 156
   },
   phoneReaderPlanCompletionButtonText: {
     flexShrink: 0,

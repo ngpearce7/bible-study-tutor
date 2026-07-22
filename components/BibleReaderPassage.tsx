@@ -184,22 +184,22 @@ export function BibleReaderPassage({
         {matchesActiveReadingPlanDay && activeReadingPlanDay && (
           <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection]}>
             <View style={styles.readerPlanCompletionCopy}>
-              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Reading plan</Text>
+              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                 {activeReadingPlanDayCompleted ? `${activeReadingPlanDay.reference} is complete.` : activeReadingPlanDay.reference}
-                {planReadingMode && !activeReadingPlanDayCompleted ? " Only this plan reading is shown." : ""}
+                {planReadingMode && !activeReadingPlanDayCompleted ? " Only this plan passage is shown." : ""}
               </Text>
             </View>
             <View style={[styles.inlineReaderActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
               {planReadingMode && (
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel="Exit plan reading mode"
+                  accessibilityLabel="Return to the full Bible chapter"
                   onPress={onExitPlanReading}
                   style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionExitButton, darkMode && styles.homeDarkResumeButton]}
                 >
                   <Ionicons name="close-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                  <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>Exit</Text>
+                  <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>{phoneLayout ? "Full chapter" : "Return to chapter"}</Text>
                 </Pressable>
               )}
               {activeReadingPlanDayCompleted ? (
@@ -226,7 +226,7 @@ export function BibleReaderPassage({
           <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
             <View style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
               <Ionicons name="reader-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Plan reading mode</Text>
+              <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Focused plan passage</Text>
             </View>
           </View>
         ) : (

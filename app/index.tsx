@@ -1400,9 +1400,14 @@ export default function Home() {
   const readerPlanReadingActive =
     !!activeBibleReadingPlan &&
     !!readerPlanReading &&
+    !!readerPlanReading.reference.trim() &&
     readerPlanReading.planId === activeBibleReadingPlan.id &&
     readerPlanReading.book === readerBook &&
     readerPlanReading.chapter === readerChapter;
+  const readerLoadRequest = {
+    mode: readerPlanReadingActive ? "plan" : "chapter",
+    reference: readerPlanReadingActive ? readerPlanReading.reference.trim() : `${readerBook} ${readerChapter}`
+  };
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -1976,14 +1981,14 @@ export default function Home() {
     if (tab !== "bible") return;
 
     const controller = new AbortController();
-    const reference = readerPlanReadingActive ? readerPlanReading.reference : `${readerBook} ${readerChapter}`;
-    setReaderStatus(readerPlanReadingActive ? "Loading plan reading..." : "Loading chapter...");
+    const { mode, reference } = readerLoadRequest;
+    setReaderStatus(mode === "plan" ? "Loading plan reading..." : "Loading chapter...");
     setReaderPassage(null);
 
     const timeout = setTimeout(async () => {
       try {
         const data =
-          readerPlanReadingActive
+          mode === "plan"
             ? await fetchBiblePlanReadingPassage(reference, bibleTranslation, controller.signal)
             : bibleTranslation === "bsb"
             ? await fetchBsbPassage(reference, controller.signal)
@@ -1992,7 +1997,7 @@ export default function Home() {
         setReaderStatus("");
       } catch {
         if (controller.signal.aborted) return;
-        setReaderStatus(readerPlanReadingActive ? "I couldn't load that plan reading. Exit plan reading or try again." : "I couldn't load that chapter. Try again or choose another chapter.");
+        setReaderStatus(mode === "plan" ? "I couldn't load that plan reading. Exit plan reading or try again." : "I couldn't load that chapter. Try again or choose another chapter.");
       }
     }, 250);
 
@@ -2000,7 +2005,7 @@ export default function Home() {
       clearTimeout(timeout);
       controller.abort();
     };
-  }, [readerBook, readerChapter, bibleTranslation, tab, readerPlanReadingActive, readerPlanReading?.reference]);
+  }, [readerLoadRequest.mode, readerLoadRequest.reference, bibleTranslation, tab]);
 
   useEffect(() => {
     setActiveBookmarkNoteId("");
@@ -4652,25 +4657,32 @@ export default function Home() {
     trackUsage("bible_reading_plan_stopped", { reference: stoppedPlanId, tab: "plans" });
   }
 
-  function buildReaderPlanReading(planDay: BibleReadingPlanDay, planId: string): ReaderPlanReading {
+  function buildReaderPlanReading(planDay: BibleReadingPlanDay, planId: string): ReaderPlanReading | null {
+    const reference = (planDay.reference || planDay.studyReference || "").trim();
+    const chapter = Math.max(1, Math.round(Number(planDay.readerChapter) || 1));
+    if (!planId || !reference || !planDay.readerBook || !Number.isFinite(chapter)) return null;
+
     return {
       planId,
       day: planDay.day,
-      reference: planDay.reference || planDay.studyReference,
+      reference,
       book: planDay.readerBook,
-      chapter: planDay.readerChapter
+      chapter
     };
   }
 
   function openBibleReadingPlanDay(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
-    setReaderBook(planDay.readerBook);
-    setReaderChapter(planDay.readerChapter);
-    setReaderChapterDraft(String(planDay.readerChapter));
+    const nextPlanReading = planId ? buildReaderPlanReading(planDay, planId) : null;
+    const nextBook = nextPlanReading?.book || planDay.readerBook;
+    const nextChapter = nextPlanReading?.chapter || Math.max(1, Math.round(Number(planDay.readerChapter) || 1));
+    setReaderBook(nextBook);
+    setReaderChapter(nextChapter);
+    setReaderChapterDraft(String(nextChapter));
     setSelectedReaderVerses([]);
     setReaderActionVerse(0);
-    if (planId) setReaderPlanReading(buildReaderPlanReading(planDay, planId));
+    setReaderPlanReading(nextPlanReading);
     scrollReaderToTop();
-    trackUsage("bible_reading_plan_opened", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+    trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
   }
 
   function exitBibleReadingPlanMode() {

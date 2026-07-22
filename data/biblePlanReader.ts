@@ -1,5 +1,4 @@
 import type { BibleReadingPlan, BibleReadingPlanDay } from "@/data/bibleReadingPlans";
-import { readerBookFromReferenceBook } from "@/data/bibleReadingPlans";
 import { expandPlanReadingReferences } from "@/data/biblePassage";
 
 export type ReaderPlanReading = {
@@ -17,6 +16,10 @@ export type ReaderPlanReadingChunk = {
   book: string;
   chapter: number;
 };
+
+function readerBookFromReferenceBook(book: string) {
+  return book === "Psalm" ? "Psalms" : book;
+}
 
 export type ReaderLoadRequest = {
   mode: "chapter" | "plan";

@@ -148,7 +148,7 @@ export function expandPlanReadingReferences(reference: string) {
     .map((segment) => segment.trim())
     .filter(Boolean);
   const expanded = segments.flatMap(expandPlanReadingSegment);
-  return expanded.length ? expanded : [{ reference, book: "", chapter: 1 }];
+  return expanded;
 }
 
 function expandPlanReadingSegment(segment: string): BiblePlanReadingChunk[] {

@@ -507,7 +507,12 @@ export function BibleReaderNavigator({
                     </Text>
                   </View>
 
-                    <View style={[styles.bibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}>
+                    <Pressable
+                      accessibilityRole={activeBibleReadingPlanComplete ? undefined : "button"}
+                      accessibilityLabel={activeBibleReadingPlanComplete ? undefined : `Open reading ${activeBibleReadingPlanToday.reference}`}
+                      onPress={activeBibleReadingPlanComplete ? undefined : onOpenActivePlanReading}
+                      style={[styles.bibleReadingPlanToday, !activeBibleReadingPlanComplete && styles.clickableBibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}
+                    >
                       <View style={styles.bibleReadingPlanTodayHeader}>
                         <View style={styles.bibleReadingPlanTodayTitleBlock}>
                           <Text numberOfLines={2} style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
@@ -518,27 +523,12 @@ export function BibleReaderNavigator({
                           </Text>
                         </View>
                         <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
-                      </View>
+                    </View>
                     <Text numberOfLines={2} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                      {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : "Open this focused reading here, or browse the full plan from Plans."}
+                      {activeBibleReadingPlanComplete ? "Every day in this plan has been completed." : "Tap this panel to open the focused reading."}
                     </Text>
-                    {!activeBibleReadingPlanComplete && (
-                      <View style={[styles.bibleReadingPlanActions, phoneLayout && styles.phoneBibleReadingPlanActions]}>
-                        <AppButton
-                          label="Open reading"
-                          onPress={onOpenActivePlanReading}
-                          style={[phoneLayout && styles.phoneFullWidthButton]}
-                        />
-                        <AppButton
-                          label="View plan"
-                          variant="secondary"
-                          onPress={onOpenPlansTab}
-                          style={[phoneLayout && styles.phoneFullWidthButton, darkMode && styles.homeDarkResumeButton]}
-                          labelStyle={darkMode && styles.homeDarkResumeButtonText}
-                        />
-                      </View>
-                    )}
-                  </View>
+                    {!activeBibleReadingPlanComplete && <Text style={[styles.bibleReadingPlanOpenHint, darkMode && styles.studyDarkAccentText]}>Open reading</Text>}
+                  </Pressable>
                 </>
               ) : (
                 <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>

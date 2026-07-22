@@ -12328,6 +12328,15 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 11
   },
+  clickableBibleReadingPlanToday: {
+    borderColor: "rgba(185, 91, 72, 0.34)"
+  },
+  bibleReadingPlanOpenHint: {
+    color: colors.coral,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
   bibleReadingPlanMetaRow: {
     flexDirection: "row",
     flexWrap: "wrap",

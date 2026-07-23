@@ -6500,7 +6500,7 @@ export default function Home() {
                       <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlan.title}</Text>
                       <Text style={[styles.followingPlanBadge, plansDarkMode && styles.plansDarkDraftPill]}>Current plan</Text>
                     </View>
-                    <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{activeBibleReadingPlanComplete ? "Completed. Choose another plan or review previous readings." : `Next: Day ${activeBibleReadingPlanToday.day} · ${activeBibleReadingPlanToday.reference}`}</Text>
+                    <Text style={[styles.muted, styles.currentPlanHeaderSpacer, plansDarkMode && styles.accountDarkMutedText]}>{" "}</Text>
                   </View>
                   <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}</Text>
                 </View>
@@ -6567,7 +6567,6 @@ export default function Home() {
                       <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayTextDark]}>
                         {`Day ${activeBibleReadingPlanSelectedDay.day}${activeBibleReadingPlanSelectedDateKey ? ` · ${formatPlanDayDate(activeBibleReadingPlanSelectedDateKey)}` : ""}`}
                       </Text>
-                      <Text style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.reference}</Text>
                       <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.title}</Text>
                     </View>
                     <View style={styles.planDayActionStack}>
@@ -6608,22 +6607,19 @@ export default function Home() {
                     </View>
                   </Pressable>
                 )}
-                <View style={[styles.currentPlanManagementRow, phoneLayout && styles.phoneCurrentPlanManagementRow]}>
-                  {activeBibleReadingPlanMissedFullDay && (
+                {activeBibleReadingPlanMissedFullDay && (
+                  <View style={[styles.currentPlanManagementRow, phoneLayout && styles.phoneCurrentPlanManagementRow]}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Catch up reading plan dates to today" onPress={catchUpActiveBibleReadingPlanDates} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
                       <Ionicons name="calendar-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                       <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Catch up dates</Text>
                     </Pressable>
-                  )}
-                  <Pressable accessibilityRole="button" accessibilityLabel={`Stop following ${activeBibleReadingPlan.title}`} onPress={() => stopFollowingBibleReadingPlan()} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
-                    <Ionicons name="close-circle-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Stop following</Text>
-                  </Pressable>
-                </View>
+                  </View>
+                )}
                 {!!biblePlanStatus && <Text style={styles.saveStatus}>{biblePlanStatus}</Text>}
                 <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
                   {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
                   {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+                  <AppButton label="Stop" variant="secondary" onPress={() => stopFollowingBibleReadingPlan()} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
                 </View>
               </View>
             ) : (
@@ -14343,6 +14339,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "800"
   },
+  currentPlanHeaderSpacer: {
+    minHeight: 18
+  },
   currentPlanText: {
     color: colors.oliveDark,
     fontSize: 13,
@@ -14354,11 +14353,14 @@ const styles = StyleSheet.create({
     gap: 8
   },
   currentPlanBottomActions: {
-    marginTop: 2
+    alignSelf: "flex-end",
+    justifyContent: "flex-end",
+    marginTop: 2,
+    width: "50%"
   },
   currentPlanActionButton: {
     flex: 1,
-    minWidth: 150
+    minWidth: 0
   },
   currentPlanManagementRow: {
     alignItems: "center",
@@ -14393,7 +14395,8 @@ const styles = StyleSheet.create({
   },
   phonePlanActionRow: {
     flexWrap: "nowrap",
-    gap: 6
+    gap: 6,
+    width: "100%"
   },
   phonePlanPrimaryButton: {
     flex: 1.35,

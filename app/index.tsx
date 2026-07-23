@@ -13156,6 +13156,23 @@ const styles = StyleSheet.create({
     borderColor: colors.oliveDark,
     flexShrink: 0
   },
+  readerPlanCompletedStatus: {
+    backgroundColor: "#eef5e5",
+    borderColor: "rgba(102, 114, 78, 0.28)",
+    flexShrink: 0
+  },
+  readerPlanCompletedStatusDark: {
+    backgroundColor: "rgba(184, 217, 146, 0.12)",
+    borderColor: "rgba(184, 217, 146, 0.32)"
+  },
+  readerPlanCompletedStatusText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  readerPlanCompletedStatusTextDark: {
+    color: "#dcebc8"
+  },
   readerBottomNavButton: {
     alignItems: "center",
     backgroundColor: "#fff6eb",

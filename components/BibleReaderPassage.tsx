@@ -98,9 +98,9 @@ export function BibleReaderPassage({
   }
 
   const planReadingHasMultipleParts = !!planReadingMode && (!!planReadingCanMovePrevious || !!planReadingCanMoveNext || !!planReadingChunkLabel);
-  const showExitPlanReadingButton = !!planReadingMode && !planReadingFullChapter;
-  const exitPlanReadingLabel = planReadingHasMultipleParts ? "Exit reading" : "Full chapter";
-  const exitPlanReadingAccessibilityLabel = planReadingHasMultipleParts ? "Exit focused plan reading" : "Return to the full Bible chapter";
+  const showExitPlanReadingButton = !!planReadingMode;
+  const exitPlanReadingLabel = "Cancel reading";
+  const exitPlanReadingAccessibilityLabel = "Cancel focused plan reading";
 
   return (
     <>
@@ -213,9 +213,17 @@ export function BibleReaderPassage({
                 </Pressable>
               )}
               {activeReadingPlanDayCompleted ? (
-                <View style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton, styles.activeReaderReadButton]}>
-                  <Ionicons name="checkmark-circle" size={15} color="white" />
-                  <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>Complete</Text>
+                <View
+                  accessibilityRole="text"
+                  style={[
+                    styles.inlineReaderBookmarkButton,
+                    phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton,
+                    styles.readerPlanCompletedStatus,
+                    darkMode && styles.readerPlanCompletedStatusDark
+                  ]}
+                >
+                  <Ionicons name="checkmark-circle" size={15} color={darkMode ? "#b8d992" : colors.oliveDark} />
+                  <Text style={[styles.readerPlanCompletedStatusText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.readerPlanCompletedStatusTextDark]}>Reading complete</Text>
                 </View>
               ) : (
                 <Pressable

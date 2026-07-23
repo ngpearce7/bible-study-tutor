@@ -532,11 +532,11 @@ export function BibleReaderNavigator({
                         ? "Every day in this plan has been completed."
                         : activeBibleReadingPlanOpen
                           ? "The plan passage is open below."
-                          : "Tap this panel to open the plan passage."}
+                          : "Open this plan reading in the passage below."}
                     </Text>
                     {!activeBibleReadingPlanComplete && (
                       <Text style={[styles.bibleReadingPlanOpenHint, darkMode && styles.studyDarkAccentText]}>
-                        {activeBibleReadingPlanOpen ? "Reading open" : "Tap to read"}
+                        {activeBibleReadingPlanOpen ? "Reading open" : "Open reading"}
                       </Text>
                     )}
                   </Pressable>

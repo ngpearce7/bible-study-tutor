@@ -1468,7 +1468,8 @@ export default function Home() {
   const readerPlanChunkLabel = readerPlanReadingChunkCount > 1
     ? `Part ${readerPlanReadingChunkIndex + 1} of ${readerPlanReadingChunkCount}`
     : "";
-  const readerPlanCurrentChunkReference = getReaderPlanReadingChunk(readerPlanReading)?.reference || "";
+  const readerPlanCurrentChunk = getReaderPlanReadingChunk(readerPlanReading);
+  const readerPlanCurrentChunkReference = readerPlanCurrentChunk?.reference || "";
   const readerActiveBibleReadingPlanDay =
     activeBibleReadingPlan && readerPlanReading?.planId === activeBibleReadingPlan.id
       ? activeBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter)
@@ -1483,11 +1484,25 @@ export default function Home() {
   const readerPlanCurrentChunkParsed = readerPlanCurrentChunkReference ? parseBsbPassageReference(readerPlanCurrentChunkReference) : null;
   const readerPlanChunkIsFullCurrentChapter =
     !!readerPlanReadingActive &&
-    !!readerPlanCurrentChunkParsed &&
+    !!readerPlanCurrentChunk &&
     readerPlanReadingChunkCount === 1 &&
-    readerPlanCurrentChunkParsed.bookName === normalizeBibleBookName(readerBook) &&
-    readerPlanCurrentChunkParsed.chapter === readerChapter &&
-    !readerPlanCurrentChunkParsed.startVerse;
+    readerPlanCurrentChunk.book === readerBook &&
+    readerPlanCurrentChunk.chapter === readerChapter &&
+    !readerPlanCurrentChunk.startVerse &&
+    !readerPlanCurrentChunk.endVerse;
+  const readerPlanChunkNote = readerPlanReadingActive && readerPlanCurrentChunk
+    ? readerPlanReadingChunkCount > 1
+      ? `Part ${readerPlanReadingChunkIndex + 1} of ${readerPlanReadingChunkCount}: ${readerPlanCurrentChunk.reference}.`
+      : readerPlanChunkIsFullCurrentChapter
+        ? "This chapter is the plan reading."
+        : readerPlanCurrentChunk.startVerse && readerPlanCurrentChunk.endVerse && readerPlanCurrentChunk.startVerse === readerPlanCurrentChunk.endVerse
+          ? `Only verse ${readerPlanCurrentChunk.startVerse} is shown.`
+          : readerPlanCurrentChunk.startVerse && readerPlanCurrentChunk.endVerse
+            ? `Only verses ${readerPlanCurrentChunk.startVerse}-${readerPlanCurrentChunk.endVerse} are shown.`
+            : readerPlanCurrentChunk.startVerse
+              ? `This plan reading starts at verse ${readerPlanCurrentChunk.startVerse}.`
+              : "Only this plan passage is shown."
+    : "";
   const readerLoadRequest = buildReaderLoadRequest(readerPlanReadingActive, readerPlanReading, `${readerBook} ${readerChapter}`);
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
@@ -6422,6 +6437,7 @@ export default function Home() {
               planReadingCanMovePrevious={readerPlanCanMovePrevious}
               planReadingCanMoveNext={readerPlanCanMoveNext}
               planReadingChunkLabel={readerPlanChunkLabel}
+              planReadingNote={readerPlanChunkNote}
               planReadingFullChapter={readerPlanChunkIsFullCurrentChapter}
               onMarkActiveReadingPlanDayComplete={markCurrentBibleReadingPlanDayComplete}
               onExitPlanReading={exitBibleReadingPlanMode}

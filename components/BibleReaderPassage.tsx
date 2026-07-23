@@ -21,6 +21,7 @@ type BibleReaderPassageProps = {
   planReadingCanMovePrevious?: boolean;
   planReadingCanMoveNext?: boolean;
   planReadingChunkLabel?: string;
+  planReadingNote?: string;
   planReadingFullChapter?: boolean;
   currentSelectionBookmarked: boolean;
   currentSelectionBookmark?: { note?: string } | null;
@@ -65,6 +66,7 @@ export function BibleReaderPassage({
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
   planReadingChunkLabel,
+  planReadingNote,
   planReadingFullChapter,
   currentSelectionBookmarked,
   currentSelectionBookmark,
@@ -192,11 +194,11 @@ export function BibleReaderPassage({
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
                 {activeReadingPlanDayCompleted ? `${activeReadingPlanDay.reference} is complete.` : activeReadingPlanDay.reference}
                 {planReadingMode && !activeReadingPlanDayCompleted
-                  ? planReadingHasMultipleParts
-                    ? " Use Previous and Next to move through this plan reading."
+                  ? ` ${planReadingNote || (planReadingHasMultipleParts
+                    ? "Use Previous and Next to move through this plan reading."
                     : planReadingFullChapter
-                      ? " This full chapter is today's plan reading."
-                      : " Only this plan passage is shown."
+                      ? "This chapter is the plan reading."
+                      : "Only this plan passage is shown.")}`
                   : ""}
               </Text>
             </View>
@@ -240,7 +242,7 @@ export function BibleReaderPassage({
           </View>
         )}
 
-        {planReadingMode ? (
+        {planReadingMode && planReadingHasMultipleParts ? (
           <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
             <Pressable
               accessibilityRole="button"
@@ -267,7 +269,7 @@ export function BibleReaderPassage({
               <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
             </Pressable>
           </View>
-        ) : (
+        ) : !planReadingMode ? (
         <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
           <Pressable onPress={() => onMoveChapter(-1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
             <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
@@ -289,7 +291,7 @@ export function BibleReaderPassage({
             <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
           </Pressable>
         </View>
-        )}
+        ) : null}
         <Text style={[styles.translationNote, darkMode && styles.accountDarkMutedText]}>
           {passage.translation_name} · {passage.translation_note || "Public Domain"}
         </Text>

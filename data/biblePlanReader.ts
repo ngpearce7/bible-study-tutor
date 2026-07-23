@@ -15,6 +15,8 @@ export type ReaderPlanReadingChunk = {
   reference: string;
   book: string;
   chapter: number;
+  startVerse?: number;
+  endVerse?: number;
 };
 
 function readerBookFromReferenceBook(book: string) {
@@ -33,7 +35,9 @@ export function buildReaderPlanReading(planDay: BibleReadingPlanDay, planId: str
     .map((chunk) => ({
       reference: chunk.reference,
       book: readerBookFromReferenceBook(chunk.book),
-      chapter: Math.max(1, Math.round(Number(chunk.chapter) || 1))
+      chapter: Math.max(1, Math.round(Number(chunk.chapter) || 1)),
+      startVerse: chunk.startVerse,
+      endVerse: chunk.endVerse
     }));
   const fallbackChapter = Math.max(1, Math.round(Number(planDay.readerChapter) || 1));
   const chunks = parsedChunks.length

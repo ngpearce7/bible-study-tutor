@@ -25,6 +25,8 @@ type FollowedReadingPlanSummary = {
   label: string;
   completedCount: number;
   dayCount: number;
+  remainingCount: number;
+  progressPercent: number;
   complete: boolean;
 };
 
@@ -61,6 +63,7 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
   activeBibleReadingPlanOpen?: boolean;
+  biblePlanStatus?: string;
   otherActiveBibleReadingPlans?: FollowedReadingPlanSummary[];
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
@@ -121,6 +124,7 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   activeBibleReadingPlanOpen,
+  biblePlanStatus,
   otherActiveBibleReadingPlans = [],
   onToggleCollapsed,
   onOpenPlansTab,
@@ -554,6 +558,9 @@ export function BibleReaderNavigator({
                       </Text>
                     )}
                   </Pressable>
+                  {!!biblePlanStatus && (
+                    <Text style={[styles.bibleReadingPlanStatusText, darkMode && styles.studyDarkAccentText]}>{biblePlanStatus}</Text>
+                  )}
                   {otherActiveBibleReadingPlans.length > 0 && (
                     <View style={[styles.otherBibleReadingPlans, darkMode && styles.bibleDarkDividerSection]}>
                       <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>Other active plans</Text>
@@ -562,7 +569,13 @@ export function BibleReaderNavigator({
                           <View style={styles.otherBibleReadingPlanCopy}>
                             <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>{plan.title}</Text>
                             <Text numberOfLines={1} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                              {plan.complete ? "Complete" : `${plan.label} · ${plan.reference}`}
+                              {plan.complete ? "Complete" : `Next: ${plan.label} · ${plan.reference}`}
+                            </Text>
+                            <View style={styles.otherBibleReadingPlanProgressTrack}>
+                              <View style={[styles.otherBibleReadingPlanProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
+                            </View>
+                            <Text numberOfLines={1} style={[styles.otherBibleReadingPlanMetaText, darkMode && styles.accountDarkMutedText]}>
+                              {plan.complete ? `${plan.dayCount} readings complete` : `${plan.remainingCount} remaining · ${plan.progressPercent}% complete`}
                             </Text>
                           </View>
                           <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{plan.completedCount}/{plan.dayCount}</Text>

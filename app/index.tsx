@@ -1443,6 +1443,8 @@ export default function Home() {
   const otherFollowedBibleReadingPlanSummaries = otherFollowedBibleReadingPlans.map((plan) => {
     const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
     const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
+    const remainingCount = Math.max(0, plan.days.length - completedCount);
+    const progressPercent = plan.days.length ? Math.round((completedCount / plan.days.length) * 100) : 0;
     return {
       id: plan.id,
       title: plan.title,
@@ -1450,6 +1452,8 @@ export default function Home() {
       label: nextDay ? `Day ${nextDay.day}` : "Plan",
       completedCount,
       dayCount: plan.days.length,
+      remainingCount,
+      progressPercent,
       complete: plan.days.length > 0 && completedCount >= plan.days.length
     };
   });
@@ -4834,12 +4838,23 @@ export default function Home() {
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     if (!planId) return;
     const key = bibleReadingPlanDayKey(planId, planDay.day);
+    const plan = allBibleReadingPlans.find((item) => item.id === planId);
+    const nextCompletedDays = completedBibleReadingPlanDays.includes(key) ? completedBibleReadingPlanDays : [...completedBibleReadingPlanDays, key];
+    const nextCompletedDaySet = new Set(nextCompletedDays);
+    const nextIncomplete = plan?.days.find((day) => !nextCompletedDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
     setCompletedBibleReadingPlanDays((current) => {
       const next = current.includes(key) ? current : [...current, key];
       persistBibleReadingPlanProgress(planId, next);
       return next;
     });
+    setBiblePlanStatus(
+      nextIncomplete
+        ? `${planDay.reference} completed. Next reading: ${nextIncomplete.reference}.`
+        : `${plan?.title || "Reading plan"} complete.`
+    );
+    const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
     setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
+    if (completedFocusedReading) scrollReaderToTop();
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
 
@@ -6330,6 +6345,7 @@ export default function Home() {
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               activeBibleReadingPlanOpen={readerPlanReadingActive}
+              biblePlanStatus={biblePlanStatus}
               otherActiveBibleReadingPlans={otherFollowedBibleReadingPlanSummaries}
               onOpenPlansTab={() => setTab("plans")}
               onOpenActivePlanReading={() => {
@@ -12523,6 +12539,12 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     textTransform: "uppercase"
   },
+  bibleReadingPlanStatusText: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "800",
+    lineHeight: 17
+  },
   bibleReadingPlanMetaRow: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -12576,6 +12598,24 @@ const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontSize: 11,
     fontWeight: "900"
+  },
+  otherBibleReadingPlanProgressTrack: {
+    backgroundColor: "rgba(102, 114, 78, 0.14)",
+    borderRadius: 999,
+    height: 4,
+    marginTop: 3,
+    overflow: "hidden",
+    width: "100%"
+  },
+  otherBibleReadingPlanProgressFill: {
+    backgroundColor: colors.oliveDark,
+    borderRadius: 999,
+    height: "100%"
+  },
+  otherBibleReadingPlanMetaText: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "800"
   },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",

@@ -218,8 +218,6 @@ export function BibleReaderPassage({
                 <View
                   accessibilityRole="text"
                   style={[
-                    styles.inlineReaderBookmarkButton,
-                    phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton,
                     styles.readerPlanCompletedStatus,
                     darkMode && styles.readerPlanCompletedStatusDark
                   ]}

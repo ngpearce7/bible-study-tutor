@@ -13228,13 +13228,16 @@ const styles = StyleSheet.create({
     flexShrink: 0
   },
   readerPlanCompletedStatus: {
-    backgroundColor: "#eef5e5",
-    borderColor: "rgba(102, 114, 78, 0.28)",
-    flexShrink: 0
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 5,
+    justifyContent: "center",
+    minHeight: 38,
+    paddingHorizontal: 4
   },
   readerPlanCompletedStatusDark: {
-    backgroundColor: "rgba(184, 217, 146, 0.12)",
-    borderColor: "rgba(184, 217, 146, 0.32)"
+    backgroundColor: "transparent"
   },
   readerPlanCompletedStatusText: {
     color: colors.oliveDark,

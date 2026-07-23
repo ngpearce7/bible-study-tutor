@@ -1440,6 +1440,19 @@ export default function Home() {
         ? `Overdue: Day ${activeBibleReadingPlanToday.day} · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}`
         : `Next reading: Day ${activeBibleReadingPlanToday.day}${activeBibleReadingPlanTodayDateKey ? ` · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}` : ""}`
       : "";
+  const otherFollowedBibleReadingPlanSummaries = otherFollowedBibleReadingPlans.map((plan) => {
+    const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
+    const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
+    return {
+      id: plan.id,
+      title: plan.title,
+      reference: nextDay?.reference || "",
+      label: nextDay ? `Day ${nextDay.day}` : "Plan",
+      completedCount,
+      dayCount: plan.days.length,
+      complete: plan.days.length > 0 && completedCount >= plan.days.length
+    };
+  });
   const activeBibleReadingPlanMissedFullDay =
     !!activeBibleReadingPlanTodayDateKey &&
     !activeBibleReadingPlanComplete &&
@@ -4784,6 +4797,18 @@ export default function Home() {
     trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
   }
 
+  function openFollowedBibleReadingPlan(planId: string) {
+    const plan = followedBibleReadingPlans.find((item) => item.id === planId);
+    if (!plan) return;
+    const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
+    if (!nextDay) return;
+    setActiveBibleReadingPlanId(plan.id);
+    setActiveBiblePlanSelectedPlanId(plan.id);
+    setActiveBiblePlanSelectedDay(nextDay.day);
+    persistBibleReadingPlanProgress(plan.id, completedBibleReadingPlanDays);
+    openBibleReadingPlanDay(nextDay, plan.id);
+  }
+
   function exitBibleReadingPlanMode() {
     setReaderPlanReading(null);
     setSelectedReaderVerses([]);
@@ -6290,11 +6315,13 @@ export default function Home() {
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               activeBibleReadingPlanOpen={readerPlanReadingActive}
+              otherActiveBibleReadingPlans={otherFollowedBibleReadingPlanSummaries}
               onOpenPlansTab={() => setTab("plans")}
               onOpenActivePlanReading={() => {
                 if (!activeBibleReadingPlanToday) return;
                 openBibleReadingPlanDay(activeBibleReadingPlanToday);
               }}
+              onOpenFollowedPlanReading={openFollowedBibleReadingPlan}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {
                 setBibleTranslation(nextTranslationId as BibleTranslationId);
@@ -12495,6 +12522,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 5
   },
+  otherBibleReadingPlans: {
+    borderTopColor: colors.line,
+    borderTopWidth: 1,
+    gap: 8,
+    marginTop: 10,
+    paddingTop: 10
+  },
+  otherBibleReadingPlanRow: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 246, 235, 0.72)",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    padding: 8
+  },
+  otherBibleReadingPlanCopy: {
+    flex: 1,
+    gap: 1,
+    minWidth: 0
+  },
+  otherBibleReadingPlanButton: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 4,
+    paddingHorizontal: 9,
+    paddingVertical: 7
+  },
+  otherBibleReadingPlanButtonText: {
+    color: colors.oliveDark,
+    fontSize: 11,
+    fontWeight: "900"
+  },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
@@ -13133,22 +13199,25 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     alignSelf: "stretch",
     flexDirection: "row",
+    flexWrap: "nowrap",
     width: "100%"
   },
   phoneReaderPlanCompletionExitButton: {
-    flexGrow: 0,
+    flex: 1,
     justifyContent: "center",
     minHeight: 38,
-    minWidth: 112
+    minWidth: 0,
+    paddingHorizontal: 8
   },
   phoneReaderPlanCompletionPrimaryButton: {
     flex: 1,
     justifyContent: "center",
     minHeight: 38,
-    minWidth: 156
+    minWidth: 0,
+    paddingHorizontal: 8
   },
   phoneReaderPlanCompletionButtonText: {
-    flexShrink: 0,
+    flexShrink: 1,
     textAlign: "center"
   },
   readerPlanCompleteButton: {

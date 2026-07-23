@@ -99,7 +99,7 @@ export function BibleReaderPassage({
 
   const planReadingHasMultipleParts = !!planReadingMode && (!!planReadingCanMovePrevious || !!planReadingCanMoveNext || !!planReadingChunkLabel);
   const showExitPlanReadingButton = !!planReadingMode;
-  const exitPlanReadingLabel = "Cancel reading";
+  const exitPlanReadingLabel = phoneLayout ? "Cancel" : "Cancel reading";
   const exitPlanReadingAccessibilityLabel = "Cancel focused plan reading";
 
   return (
@@ -223,7 +223,7 @@ export function BibleReaderPassage({
                   ]}
                 >
                   <Ionicons name="checkmark-circle" size={15} color={darkMode ? "#b8d992" : colors.oliveDark} />
-                  <Text style={[styles.readerPlanCompletedStatusText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.readerPlanCompletedStatusTextDark]}>Reading complete</Text>
+                  <Text style={[styles.readerPlanCompletedStatusText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.readerPlanCompletedStatusTextDark]}>{phoneLayout ? "Complete" : "Reading complete"}</Text>
                 </View>
               ) : (
                 <Pressable
@@ -233,7 +233,7 @@ export function BibleReaderPassage({
                   style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton, styles.readerPlanCompleteButton]}
                 >
                   <Ionicons name="checkmark-circle-outline" size={15} color="white" />
-                  <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>{planReadingMode ? "Complete reading" : "Mark today complete"}</Text>
+                  <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>{phoneLayout ? "Complete" : (planReadingMode ? "Complete reading" : "Mark today complete")}</Text>
                 </Pressable>
               )}
             </View>

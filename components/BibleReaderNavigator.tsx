@@ -18,6 +18,16 @@ type ReaderBookSection = {
   books: string[];
 };
 
+type FollowedReadingPlanSummary = {
+  id: string;
+  title: string;
+  reference: string;
+  label: string;
+  completedCount: number;
+  dayCount: number;
+  complete: boolean;
+};
+
 type BibleReaderNavigatorProps = {
   styles: any;
   darkMode: boolean;
@@ -51,9 +61,11 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
   activeBibleReadingPlanOpen?: boolean;
+  otherActiveBibleReadingPlans?: FollowedReadingPlanSummary[];
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onOpenActivePlanReading: () => void;
+  onOpenFollowedPlanReading: (planId: string) => void;
   onSelectTranslation: (translationId: string) => void;
   onBookSearchChange: (value: string) => void;
   onToggleHistoryCollapsed: () => void;
@@ -109,9 +121,11 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   activeBibleReadingPlanOpen,
+  otherActiveBibleReadingPlans = [],
   onToggleCollapsed,
   onOpenPlansTab,
   onOpenActivePlanReading,
+  onOpenFollowedPlanReading,
   onSelectTranslation,
   onBookSearchChange,
   onToggleHistoryCollapsed,
@@ -540,6 +554,33 @@ export function BibleReaderNavigator({
                       </Text>
                     )}
                   </Pressable>
+                  {otherActiveBibleReadingPlans.length > 0 && (
+                    <View style={[styles.otherBibleReadingPlans, darkMode && styles.bibleDarkDividerSection]}>
+                      <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>Other active plans</Text>
+                      {otherActiveBibleReadingPlans.map((plan) => (
+                        <View key={plan.id} style={[styles.otherBibleReadingPlanRow, darkMode && styles.accountDarkInsetBox]}>
+                          <View style={styles.otherBibleReadingPlanCopy}>
+                            <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>{plan.title}</Text>
+                            <Text numberOfLines={1} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
+                              {plan.complete ? "Complete" : `${plan.label} · ${plan.reference}`}
+                            </Text>
+                          </View>
+                          <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{plan.completedCount}/{plan.dayCount}</Text>
+                          {!plan.complete && (
+                            <Pressable
+                              accessibilityRole="button"
+                              accessibilityLabel={`Open ${plan.title} reading ${plan.reference}`}
+                              onPress={() => onOpenFollowedPlanReading(plan.id)}
+                              style={[styles.otherBibleReadingPlanButton, darkMode && styles.homeDarkResumeButton]}
+                            >
+                              <Ionicons name="reader-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                              <Text style={[styles.otherBibleReadingPlanButtonText, darkMode && styles.homeDarkResumeButtonText]}>Open</Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      ))}
+                    </View>
+                  )}
                   </>
                 ) : (
                   <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>

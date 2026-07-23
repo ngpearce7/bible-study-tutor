@@ -12480,8 +12480,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     gap: 8,
-    marginBottom: 14,
     padding: 10
+  },
+  bibleReadingPlanStack: {
+    gap: 8,
+    marginBottom: 14
   },
   bibleReadingPlanHeader: {
     alignItems: "flex-start",
@@ -12559,59 +12562,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 5
-  },
-  otherBibleReadingPlans: {
-    gap: 6
-  },
-  otherBibleReadingPlanRow: {
-    alignItems: "center",
-    backgroundColor: "#fff6eb",
-    borderColor: colors.line,
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 7,
-    padding: 7
-  },
-  otherBibleReadingPlanCopy: {
-    flex: 1,
-    gap: 1,
-    minWidth: 0
-  },
-  otherBibleReadingPlanButton: {
-    alignItems: "center",
-    backgroundColor: "#fff6eb",
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: "row",
-    flexShrink: 0,
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 6
-  },
-  otherBibleReadingPlanButtonText: {
-    color: colors.oliveDark,
-    fontSize: 11,
-    fontWeight: "900"
-  },
-  otherBibleReadingPlanProgressTrack: {
-    backgroundColor: "rgba(102, 114, 78, 0.14)",
-    borderRadius: 999,
-    height: 4,
-    marginTop: 3,
-    overflow: "hidden",
-    width: "100%"
-  },
-  otherBibleReadingPlanProgressFill: {
-    backgroundColor: colors.oliveDark,
-    borderRadius: 999,
-    height: "100%"
-  },
-  otherBibleReadingPlanMetaText: {
-    color: colors.muted,
-    fontSize: 10,
-    fontWeight: "800"
   },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",

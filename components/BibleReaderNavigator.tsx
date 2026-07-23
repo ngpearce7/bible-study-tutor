@@ -500,7 +500,7 @@ export function BibleReaderNavigator({
           </View>
 
           {activeBibleReadingPlan ? (
-            <>
+            <View style={styles.bibleReadingPlanStack}>
               <View style={[styles.bibleReadingPlanPanel, darkMode && styles.accountDarkSection]}>
                 <View style={styles.bibleReadingPlanHeader}>
                   <View style={styles.bibleReadingPlanTitleBlock}>
@@ -549,44 +549,56 @@ export function BibleReaderNavigator({
                   {!!biblePlanStatus && (
                     <Text style={[styles.bibleReadingPlanStatusText, darkMode && styles.studyDarkAccentText]}>{biblePlanStatus}</Text>
                   )}
-                  {otherActiveBibleReadingPlans.length > 0 && (
-                    <View style={styles.otherBibleReadingPlans}>
-                      {otherActiveBibleReadingPlans.map((plan) => (
-                        <View key={plan.id} style={[styles.otherBibleReadingPlanRow, darkMode && styles.accountDarkInsetBox]}>
-                          <View style={styles.otherBibleReadingPlanCopy}>
-                            <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>{plan.title}</Text>
-                            <Text numberOfLines={1} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                              {plan.complete ? "Complete" : `Next: ${plan.label} · ${plan.reference}`}
-                            </Text>
-                            <View style={styles.otherBibleReadingPlanProgressTrack}>
-                              <View style={[styles.otherBibleReadingPlanProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
-                            </View>
-                            <Text numberOfLines={1} style={[styles.otherBibleReadingPlanMetaText, darkMode && styles.accountDarkMutedText]}>
-                              {plan.complete ? `${plan.dayCount} readings complete` : `${plan.remainingCount} remaining · ${plan.progressPercent}% complete`}
-                            </Text>
-                          </View>
-                          <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{plan.completedCount}/{plan.dayCount}</Text>
-                          {!plan.complete && (
-                            <Pressable
-                              accessibilityRole="button"
-                              accessibilityLabel={`Open ${plan.title} reading ${plan.reference}`}
-                              onPress={() => onOpenFollowedPlanReading(plan.id)}
-                              style={[styles.otherBibleReadingPlanButton, darkMode && styles.homeDarkResumeButton]}
-                            >
-                              <Ionicons name="reader-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                              <Text style={[styles.otherBibleReadingPlanButtonText, darkMode && styles.homeDarkResumeButtonText]}>Open</Text>
-                            </Pressable>
-                          )}
-                        </View>
-                      ))}
-                    </View>
-                  )}
                   </>
                 ) : (
                   <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>
                 )}
               </View>
-            </>
+              {otherActiveBibleReadingPlans.map((plan) => (
+                <View key={plan.id} style={[styles.bibleReadingPlanPanel, darkMode && styles.accountDarkSection]}>
+                  <View style={styles.bibleReadingPlanHeader}>
+                    <View style={styles.bibleReadingPlanTitleBlock}>
+                      <Eyebrow>Reading Plan</Eyebrow>
+                      <Text numberOfLines={2} style={[styles.cardTitle, darkMode && styles.accountDarkTitle]}>
+                        {plan.title}
+                      </Text>
+                    </View>
+                    <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>
+                      {plan.completedCount}/{plan.dayCount}
+                    </Text>
+                  </View>
+                  <View style={styles.planProgressTrack}>
+                    <View style={[styles.planProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
+                  </View>
+                  <View style={styles.bibleReadingPlanMetaRow}>
+                    <Text style={[styles.bibleReadingPlanMetaChip, darkMode && styles.plansDarkDraftPill]}>
+                      {plan.complete ? "Completed" : `${plan.remainingCount} remaining`}
+                    </Text>
+                    <Text style={[styles.bibleReadingPlanMetaChip, darkMode && styles.plansDarkDraftPill]}>
+                      {plan.dayCount} day{plan.dayCount === 1 ? "" : "s"}
+                    </Text>
+                  </View>
+                  <Pressable
+                    accessibilityRole={plan.complete ? undefined : "button"}
+                    accessibilityLabel={plan.complete ? undefined : `Open ${plan.title} reading ${plan.reference}`}
+                    onPress={plan.complete ? undefined : () => onOpenFollowedPlanReading(plan.id)}
+                    style={[styles.bibleReadingPlanToday, !plan.complete && styles.clickableBibleReadingPlanToday, darkMode && styles.accountDarkInsetBox]}
+                  >
+                    <View style={styles.bibleReadingPlanTodayHeader}>
+                      <View style={styles.bibleReadingPlanTodayTitleBlock}>
+                        <Text numberOfLines={2} style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
+                          {plan.complete ? "Plan complete" : `Next reading: ${plan.label}`}
+                        </Text>
+                        <Text numberOfLines={2} style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>
+                          {plan.complete ? "Choose a new plan or keep reviewing." : plan.reference}
+                        </Text>
+                      </View>
+                      <Ionicons name={plan.complete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
+                    </View>
+                  </Pressable>
+                </View>
+              ))}
+            </View>
           ) : (
             <View style={[styles.bibleReadingPlanStarter, darkMode && styles.accountDarkSection]}>
               <Eyebrow>Reading Plans</Eyebrow>

@@ -12540,6 +12540,12 @@ const styles = StyleSheet.create({
   bibleReadingPlanMiniProgress: {
     height: 5
   },
+  bibleReadingPlanMiniOpenButton: {
+    alignSelf: "flex-start",
+    marginTop: 0,
+    paddingHorizontal: 9,
+    paddingVertical: 5
+  },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",
     flexDirection: "row",

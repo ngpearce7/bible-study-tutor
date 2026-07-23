@@ -567,11 +567,8 @@ export function BibleReaderNavigator({
                   {otherActiveBibleReadingPlans.map((plan) => {
                     const progressPercent = plan.dayCount ? Math.min(100, (plan.completedCount / plan.dayCount) * 100) : 0;
                     return (
-                      <Pressable
+                      <View
                         key={plan.id}
-                        accessibilityRole="button"
-                        accessibilityLabel={plan.complete ? `${plan.title}, completed` : `Open ${plan.title}, next reading ${plan.nextDay?.reference || ""}`}
-                        onPress={() => onOpenFollowedPlanReading(plan.id)}
                         style={[styles.bibleReadingPlanMiniCard, darkMode && styles.accountDarkInsetBox]}
                       >
                         <View style={styles.bibleReadingPlanMiniHeader}>
@@ -586,7 +583,18 @@ export function BibleReaderNavigator({
                         <View style={[styles.planProgressTrack, styles.bibleReadingPlanMiniProgress]}>
                           <View style={[styles.planProgressFill, { width: `${progressPercent}%` }]} />
                         </View>
-                      </Pressable>
+                        {!plan.complete && (
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Open ${plan.title}, next reading ${plan.nextDay?.reference || ""}`}
+                            onPress={() => onOpenFollowedPlanReading(plan.id)}
+                            style={[styles.readerBookmarkExpandButton, styles.bibleReadingPlanMiniOpenButton, darkMode && styles.homeDarkResumeButton]}
+                          >
+                            <Text style={[styles.readerBookmarkExpandText, darkMode && styles.homeDarkResumeButtonText]}>Open reading</Text>
+                            <Ionicons name="arrow-forward-outline" size={13} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                          </Pressable>
+                        )}
+                      </View>
                     );
                   })}
                 </View>

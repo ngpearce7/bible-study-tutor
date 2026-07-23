@@ -18,18 +18,6 @@ type ReaderBookSection = {
   books: string[];
 };
 
-type FollowedReadingPlanSummary = {
-  id: string;
-  title: string;
-  dayCount: number;
-  completedCount: number;
-  complete: boolean;
-  nextDay?: {
-    day: number;
-    reference: string;
-  } | null;
-};
-
 type BibleReaderNavigatorProps = {
   styles: any;
   darkMode: boolean;
@@ -63,11 +51,9 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
   activeBibleReadingPlanOpen?: boolean;
-  otherActiveBibleReadingPlans?: FollowedReadingPlanSummary[];
   onToggleCollapsed: () => void;
   onOpenPlansTab: () => void;
   onOpenActivePlanReading: () => void;
-  onOpenFollowedPlanReading: (planId: string) => void;
   onSelectTranslation: (translationId: string) => void;
   onBookSearchChange: (value: string) => void;
   onToggleHistoryCollapsed: () => void;
@@ -123,11 +109,9 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   activeBibleReadingPlanOpen,
-  otherActiveBibleReadingPlans = [],
   onToggleCollapsed,
   onOpenPlansTab,
   onOpenActivePlanReading,
-  onOpenFollowedPlanReading,
   onSelectTranslation,
   onBookSearchChange,
   onToggleHistoryCollapsed,
@@ -561,44 +545,6 @@ export function BibleReaderNavigator({
                   <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Choose another plan or keep reviewing completed passages.</Text>
                 )}
               </View>
-              {otherActiveBibleReadingPlans.length > 0 && (
-                <View style={styles.bibleReadingPlanMiniStack}>
-                  <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Other active plans</Text>
-                  {otherActiveBibleReadingPlans.map((plan) => {
-                    const progressPercent = plan.dayCount ? Math.min(100, (plan.completedCount / plan.dayCount) * 100) : 0;
-                    return (
-                      <View
-                        key={plan.id}
-                        style={[styles.bibleReadingPlanMiniCard, darkMode && styles.accountDarkInsetBox]}
-                      >
-                        <View style={styles.bibleReadingPlanMiniHeader}>
-                          <View style={styles.bibleReadingPlanTodayTitleBlock}>
-                            <Text numberOfLines={1} style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>{plan.title}</Text>
-                            <Text numberOfLines={1} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                              {plan.complete ? "Complete" : `Next: Day ${plan.nextDay?.day || 1} · ${plan.nextDay?.reference || ""}`}
-                            </Text>
-                          </View>
-                          <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{plan.completedCount}/{plan.dayCount}</Text>
-                        </View>
-                        <View style={[styles.planProgressTrack, styles.bibleReadingPlanMiniProgress]}>
-                          <View style={[styles.planProgressFill, { width: `${progressPercent}%` }]} />
-                        </View>
-                        {!plan.complete && (
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel={`Open ${plan.title}, next reading ${plan.nextDay?.reference || ""}`}
-                            onPress={() => onOpenFollowedPlanReading(plan.id)}
-                            style={[styles.readerBookmarkExpandButton, styles.bibleReadingPlanMiniOpenButton, darkMode && styles.homeDarkResumeButton]}
-                          >
-                            <Text style={[styles.readerBookmarkExpandText, darkMode && styles.homeDarkResumeButtonText]}>Open reading</Text>
-                            <Ionicons name="arrow-forward-outline" size={13} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                          </Pressable>
-                        )}
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
             </>
           ) : (
             <View style={[styles.bibleReadingPlanStarter, darkMode && styles.accountDarkSection]}>

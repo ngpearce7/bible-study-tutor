@@ -1444,6 +1444,18 @@ export default function Home() {
     !!activeBibleReadingPlanTodayDateKey &&
     !activeBibleReadingPlanComplete &&
     activeBibleReadingPlanTodayDateKey < localDateKey();
+  const otherFollowedBibleReadingPlanSummaries = otherFollowedBibleReadingPlans.map((plan) => {
+    const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
+    const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
+    return {
+      id: plan.id,
+      title: plan.title,
+      dayCount: plan.days.length,
+      completedCount,
+      complete: completedCount >= plan.days.length,
+      nextDay
+    };
+  });
   const activeBibleReadingPlanSelectedDone =
     !!activeBibleReadingPlan &&
     !!activeBibleReadingPlanSelectedDay &&
@@ -4784,6 +4796,15 @@ export default function Home() {
     trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
   }
 
+  function openFollowedBibleReadingPlan(planId: string) {
+    const plan = followedBibleReadingPlans.find((item) => item.id === planId) || allBibleReadingPlans.find((item) => item.id === planId);
+    if (!plan) return;
+    const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
+    if (!nextDay) return;
+    selectBibleReadingPlan(plan.id);
+    openBibleReadingPlanDay(nextDay, plan.id);
+  }
+
   function exitBibleReadingPlanMode() {
     setReaderPlanReading(null);
     setSelectedReaderVerses([]);
@@ -6290,11 +6311,13 @@ export default function Home() {
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               activeBibleReadingPlanOpen={readerPlanReadingActive}
+              otherActiveBibleReadingPlans={otherFollowedBibleReadingPlanSummaries}
               onOpenPlansTab={() => setTab("plans")}
               onOpenActivePlanReading={() => {
                 if (!activeBibleReadingPlanToday) return;
                 openBibleReadingPlanDay(activeBibleReadingPlanToday);
               }}
+              onOpenFollowedPlanReading={openFollowedBibleReadingPlan}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {
                 setBibleTranslation(nextTranslationId as BibleTranslationId);
@@ -12494,6 +12517,28 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 5
+  },
+  bibleReadingPlanMiniStack: {
+    gap: 7,
+    marginBottom: 14,
+    marginTop: -4
+  },
+  bibleReadingPlanMiniCard: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 7,
+    padding: 9
+  },
+  bibleReadingPlanMiniHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  bibleReadingPlanMiniProgress: {
+    height: 5
   },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",

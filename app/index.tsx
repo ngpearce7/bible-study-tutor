@@ -21,7 +21,7 @@ import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Component, Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
-import { Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Alert, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
@@ -4804,6 +4804,29 @@ export default function Home() {
     trackUsage("bible_reading_plan_stopped", { reference: stoppedPlan.id, tab: "plans" });
   }
 
+  function requestStopFollowingBibleReadingPlan(planId = activeBibleReadingPlan?.id || "") {
+    const plan = allBibleReadingPlans.find((item) => item.id === planId);
+    if (!plan) return;
+    const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
+    if (completedCount <= 0) {
+      stopFollowingBibleReadingPlan(plan.id);
+      return;
+    }
+
+    const message = `You have completed ${completedCount} ${completedCount === 1 ? "day" : "days"} in ${plan.title}. Your progress will stay saved, but this plan will be removed from Active plans.`;
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      if (window.confirm(`${message}\n\nStop following this plan?`)) {
+        stopFollowingBibleReadingPlan(plan.id);
+      }
+      return;
+    }
+
+    Alert.alert("Stop following plan?", message, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Stop following", style: "destructive", onPress: () => stopFollowingBibleReadingPlan(plan.id) }
+    ]);
+  }
+
   function openBibleReadingPlanDay(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     const nextPlanReading = planId ? buildReaderPlanReading(planDay, planId) : null;
     const nextBook = nextPlanReading?.book || planDay.readerBook;
@@ -5552,7 +5575,7 @@ export default function Home() {
         <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
           {!complete && !!today && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(today, plan.id); setTab("bible"); }} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
           {!complete && !!today && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(today)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
-          <AppButton label="Stop" variant="secondary" onPress={() => stopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
+          <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
         </View>
       </View>
     );
@@ -6774,7 +6797,7 @@ export default function Home() {
                 <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
                   {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
                   {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
-                  <AppButton label="Stop" variant="secondary" onPress={() => stopFollowingBibleReadingPlan()} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
+                  <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan()} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
                 </View>
               </View>
             ) : (

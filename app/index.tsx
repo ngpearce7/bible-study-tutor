@@ -12479,9 +12479,9 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
-    gap: 10,
+    gap: 8,
     marginBottom: 14,
-    padding: 12
+    padding: 10
   },
   bibleReadingPlanHeader: {
     alignItems: "flex-start",
@@ -12527,8 +12527,8 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
-    gap: 8,
-    padding: 11
+    gap: 6,
+    padding: 9
   },
   clickableBibleReadingPlanToday: {
     borderColor: "rgba(185, 91, 72, 0.34)"
@@ -12561,21 +12561,17 @@ const styles = StyleSheet.create({
     paddingVertical: 5
   },
   otherBibleReadingPlans: {
-    borderTopColor: colors.line,
-    borderTopWidth: 1,
-    gap: 8,
-    marginTop: 10,
-    paddingTop: 10
+    gap: 6
   },
   otherBibleReadingPlanRow: {
     alignItems: "center",
-    backgroundColor: "rgba(255, 246, 235, 0.72)",
+    backgroundColor: "#fff6eb",
     borderColor: colors.line,
-    borderRadius: 10,
+    borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
-    gap: 8,
-    padding: 8
+    gap: 7,
+    padding: 7
   },
   otherBibleReadingPlanCopy: {
     flex: 1,
@@ -12591,8 +12587,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexShrink: 0,
     gap: 4,
-    paddingHorizontal: 9,
-    paddingVertical: 7
+    paddingHorizontal: 8,
+    paddingVertical: 6
   },
   otherBibleReadingPlanButtonText: {
     color: colors.oliveDark,

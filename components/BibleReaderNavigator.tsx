@@ -545,25 +545,12 @@ export function BibleReaderNavigator({
                         </View>
                         <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
                     </View>
-                    <Text numberOfLines={2} style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                      {activeBibleReadingPlanComplete
-                        ? "Every day in this plan has been completed."
-                        : activeBibleReadingPlanOpen
-                          ? "The plan passage is open below."
-                          : "Open this plan reading in the passage below."}
-                    </Text>
-                    {!activeBibleReadingPlanComplete && (
-                      <Text style={[styles.bibleReadingPlanOpenHint, darkMode && styles.studyDarkAccentText]}>
-                        {activeBibleReadingPlanOpen ? "Reading open" : "Open reading"}
-                      </Text>
-                    )}
                   </Pressable>
                   {!!biblePlanStatus && (
                     <Text style={[styles.bibleReadingPlanStatusText, darkMode && styles.studyDarkAccentText]}>{biblePlanStatus}</Text>
                   )}
                   {otherActiveBibleReadingPlans.length > 0 && (
-                    <View style={[styles.otherBibleReadingPlans, darkMode && styles.bibleDarkDividerSection]}>
-                      <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>Other active plans</Text>
+                    <View style={styles.otherBibleReadingPlans}>
                       {otherActiveBibleReadingPlans.map((plan) => (
                         <View key={plan.id} style={[styles.otherBibleReadingPlanRow, darkMode && styles.accountDarkInsetBox]}>
                           <View style={styles.otherBibleReadingPlanCopy}>

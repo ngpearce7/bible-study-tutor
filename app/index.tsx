@@ -6622,9 +6622,8 @@ export default function Home() {
                 </View>
                 {!!biblePlanStatus && <Text style={styles.saveStatus}>{biblePlanStatus}</Text>}
                 <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
-                  {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[phoneLayout && styles.phonePlanPrimaryButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
-                  {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
-                  {!activeBibleReadingPlanComplete && <AppButton label="Mark complete" variant="secondary" onPress={() => markBibleReadingPlanDayComplete(activeBibleReadingPlanToday)} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+                  {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                  {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
                 </View>
               </View>
             ) : (
@@ -14357,6 +14356,10 @@ const styles = StyleSheet.create({
   currentPlanBottomActions: {
     marginTop: 2
   },
+  currentPlanActionButton: {
+    flex: 1,
+    minWidth: 150
+  },
   currentPlanManagementRow: {
     alignItems: "center",
     flexDirection: "row",
@@ -14400,6 +14403,12 @@ const styles = StyleSheet.create({
   phonePlanSecondaryButton: {
     flex: 1,
     minHeight: 42,
+    paddingHorizontal: 8
+  },
+  phonePlanActionButton: {
+    flex: 1,
+    minHeight: 42,
+    minWidth: 0,
     paddingHorizontal: 8
   },
   phonePlanResumeButton: {

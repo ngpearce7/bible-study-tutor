@@ -1849,11 +1849,11 @@ export default function Home() {
 
     const timeout = setTimeout(() => {
       memoryBlankInputRefs.current[firstMemoryBlankIndex]?.focus();
-      ensureMemoryBlankVisible(firstMemoryBlankIndex);
+      if (!phoneLayout) ensureMemoryBlankVisible(firstMemoryBlankIndex);
     }, 120);
 
     return () => clearTimeout(timeout);
-  }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel]);
+  }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout]);
 
   function scrollMemoryPracticeBy(delta: number) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
@@ -1874,7 +1874,14 @@ export default function Home() {
         return;
       }
       input.measureInWindow((_x: number, y: number, _width: number, inputHeight: number) => {
-        const keyboardSafeBottom = layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
+        const visualViewportHeight =
+          Platform.OS === "web" && typeof window !== "undefined" && (window as any).visualViewport?.height
+            ? Number((window as any).visualViewport.height)
+            : 0;
+        const keyboardSafeBottom =
+          visualViewportHeight > 0 && visualViewportHeight < layoutHeight - 80
+            ? visualViewportHeight - 82
+            : layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
         const inputBottom = y + inputHeight + 58;
         if (inputBottom > keyboardSafeBottom) {
           scrollMemoryPracticeBy(inputBottom - keyboardSafeBottom);
@@ -4332,8 +4339,11 @@ export default function Home() {
     if (nextToken) {
       setTimeout(() => {
         memoryBlankInputRefs.current[nextToken.index]?.focus();
-        ensureMemoryBlankVisible(nextToken.index);
-      }, 80);
+        const nextBlankOrdinal = memoryBlankTokens.findIndex((token) => token.index === nextToken.index);
+        if (!phoneLayout || nextBlankOrdinal >= 7) {
+          ensureMemoryBlankVisible(nextToken.index);
+        }
+      }, phoneLayout ? 130 : 80);
       return;
     }
 

@@ -5,6 +5,7 @@ import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, pa
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
+import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
@@ -1371,67 +1372,32 @@ export default function Home() {
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
-  const allBibleReadingPlans = [...bibleReadingPlans, ...customBibleReadingPlans];
-  const followedBibleReadingPlans = followedBibleReadingPlanIds
-    .map((planId) => allBibleReadingPlans.find((plan) => plan.id === planId))
-    .filter((plan): plan is BibleReadingPlan => !!plan)
-    .slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
-  const followedBibleReadingPlanIdSet = new Set(followedBibleReadingPlans.map((plan) => plan.id));
-  const selectedBibleReadingPlanId = activeBibleReadingPlanId && followedBibleReadingPlanIdSet.has(activeBibleReadingPlanId)
-    ? activeBibleReadingPlanId
-    : followedBibleReadingPlans[0]?.id || "";
-  const otherFollowedBibleReadingPlans = followedBibleReadingPlans.filter((plan) => plan.id !== selectedBibleReadingPlanId);
-  const unfollowedBibleReadingPlans = allBibleReadingPlans.filter((plan) => !followedBibleReadingPlanIdSet.has(plan.id));
-  const unfollowedCustomBibleReadingPlans = unfollowedBibleReadingPlans.filter((plan) => plan.source === "custom");
-  const unfollowedBuiltInBibleReadingPlans = unfollowedBibleReadingPlans.filter((plan) => plan.source !== "custom");
-  const unfollowedBibleReadingPlanGroups = [
-    {
-      id: "custom",
-      title: "Your custom plans",
-      description: "Plans you created for your own reading rhythm.",
-      plans: unfollowedCustomBibleReadingPlans
-    },
-    {
-      id: "short",
-      title: "Short plans",
-      description: "Quick starts and focused 1-14 day paths.",
-      plans: unfollowedBuiltInBibleReadingPlans.filter((plan) => plan.days.length <= 14)
-    },
-    {
-      id: "medium",
-      title: "Medium plans",
-      description: "Steady 15-60 day plans for books, themes, and overviews.",
-      plans: unfollowedBuiltInBibleReadingPlans.filter((plan) => plan.days.length > 14 && plan.days.length <= 60)
-    },
-    {
-      id: "long",
-      title: "Long plans",
-      description: "Longer rhythms for New Testament, whole Bible, and yearly reading.",
-      plans: unfollowedBuiltInBibleReadingPlans.filter((plan) => plan.days.length > 60)
-    }
-  ].filter((group) => group.plans.length > 0);
-  const activeBibleReadingPlan = allBibleReadingPlans.find((plan) => plan.id === selectedBibleReadingPlanId);
-  const completedBibleReadingPlanDaySet = new Set(completedBibleReadingPlanDays);
-  const activeBibleReadingPlanCompletedCount = activeBibleReadingPlan
-    ? activeBibleReadingPlan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))).length
-    : 0;
-  const activeBibleReadingPlanToday = activeBibleReadingPlan
-    ? activeBibleReadingPlan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, day.day))) || activeBibleReadingPlan.days[0]
-    : null;
-  const activeBibleReadingPlanComplete = !!activeBibleReadingPlan && activeBibleReadingPlanCompletedCount === activeBibleReadingPlan.days.length;
-  const activeBibleReadingPlanStartDate = activeBibleReadingPlan ? bibleReadingPlanStartDates[activeBibleReadingPlan.id] || "" : "";
-  const activeBibleReadingPlanSelectedDay =
-    activeBibleReadingPlan && activeBiblePlanSelectedPlanId === activeBibleReadingPlan.id && activeBiblePlanSelectedDay
-      ? activeBibleReadingPlan.days.find((day) => day.day === activeBiblePlanSelectedDay) || activeBibleReadingPlanToday || activeBibleReadingPlan.days[0]
-      : activeBibleReadingPlanToday || activeBibleReadingPlan?.days[0] || null;
-  const activeBibleReadingPlanSelectedDateKey =
-    activeBibleReadingPlanStartDate && activeBibleReadingPlanSelectedDay
-      ? addDaysToDateKey(activeBibleReadingPlanStartDate, activeBibleReadingPlanSelectedDay.day - 1)
-      : "";
-  const activeBibleReadingPlanTodayDateKey =
-    activeBibleReadingPlanStartDate && activeBibleReadingPlanToday
-      ? addDaysToDateKey(activeBibleReadingPlanStartDate, activeBibleReadingPlanToday.day - 1)
-      : "";
+  const bibleReadingPlanView = buildBibleReadingPlanView({
+    customPlans: customBibleReadingPlans,
+    followedPlanIds: followedBibleReadingPlanIds,
+    activePlanId: activeBibleReadingPlanId,
+    completedDayKeys: completedBibleReadingPlanDays,
+    startDates: bibleReadingPlanStartDates,
+    selectedPlanId: activeBiblePlanSelectedPlanId,
+    selectedDay: activeBiblePlanSelectedDay,
+    todayDateKey: localDateKey(),
+    addDaysToDateKey
+  });
+  const allBibleReadingPlans = bibleReadingPlanView.allPlans;
+  const followedBibleReadingPlans = bibleReadingPlanView.followedPlans;
+  const followedBibleReadingPlanIdSet = bibleReadingPlanView.followedPlanIdSet;
+  const selectedBibleReadingPlanId = bibleReadingPlanView.selectedActivePlanId;
+  const otherFollowedBibleReadingPlans = bibleReadingPlanView.otherFollowedPlans;
+  const unfollowedBibleReadingPlanGroups = bibleReadingPlanView.groups;
+  const activeBibleReadingPlan = bibleReadingPlanView.activePlan;
+  const completedBibleReadingPlanDaySet = bibleReadingPlanView.completedDaySet;
+  const activeBibleReadingPlanCompletedCount = bibleReadingPlanView.activeCompletedCount;
+  const activeBibleReadingPlanToday = bibleReadingPlanView.activeToday;
+  const activeBibleReadingPlanComplete = bibleReadingPlanView.activeComplete;
+  const activeBibleReadingPlanStartDate = bibleReadingPlanView.activeStartDate;
+  const activeBibleReadingPlanSelectedDay = bibleReadingPlanView.activeSelectedDay;
+  const activeBibleReadingPlanSelectedDateKey = bibleReadingPlanView.activeSelectedDateKey;
+  const activeBibleReadingPlanTodayDateKey = bibleReadingPlanView.activeTodayDateKey;
   const activeBibleReadingPlanTodayLabel = activeBibleReadingPlanComplete
     ? "Plan complete"
     : activeBibleReadingPlanToday
@@ -1439,31 +1405,9 @@ export default function Home() {
         ? `Overdue: Day ${activeBibleReadingPlanToday.day} · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}`
         : `Next reading: Day ${activeBibleReadingPlanToday.day}${activeBibleReadingPlanTodayDateKey ? ` · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}` : ""}`
       : "";
-  const otherFollowedBibleReadingPlanSummaries = otherFollowedBibleReadingPlans.map((plan) => {
-    const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
-    const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
-    const remainingCount = Math.max(0, plan.days.length - completedCount);
-    const progressPercent = plan.days.length ? Math.round((completedCount / plan.days.length) * 100) : 0;
-    return {
-      id: plan.id,
-      title: plan.title,
-      reference: nextDay?.reference || "",
-      label: nextDay ? `Day ${nextDay.day}` : "Plan",
-      completedCount,
-      dayCount: plan.days.length,
-      remainingCount,
-      progressPercent,
-      complete: plan.days.length > 0 && completedCount >= plan.days.length
-    };
-  });
-  const activeBibleReadingPlanMissedFullDay =
-    !!activeBibleReadingPlanTodayDateKey &&
-    !activeBibleReadingPlanComplete &&
-    activeBibleReadingPlanTodayDateKey < localDateKey();
-  const activeBibleReadingPlanSelectedDone =
-    !!activeBibleReadingPlan &&
-    !!activeBibleReadingPlanSelectedDay &&
-    completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay.day));
+  const otherFollowedBibleReadingPlanSummaries = bibleReadingPlanView.otherSummaries;
+  const activeBibleReadingPlanMissedFullDay = bibleReadingPlanView.activeMissedFullDay;
+  const activeBibleReadingPlanSelectedDone = bibleReadingPlanView.activeSelectedDone;
   const readerPlanReadingChunkCount = readerPlanReading?.chunks?.length || 0;
   const readerPlanReadingChunkIndex = Math.min(Math.max(readerPlanReading?.currentChunkIndex || 0, 0), Math.max(0, readerPlanReadingChunkCount - 1));
   const readerPlanCanMovePrevious = !!readerPlanReading && readerPlanReadingChunkIndex > 0;

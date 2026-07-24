@@ -1855,9 +1855,9 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout]);
 
-  function scrollMemoryPracticeBy(delta: number) {
+  function scrollMemoryPracticeBy(delta: number, animated = true) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
-    appScrollRef.current?.scrollTo?.({ y: Math.max(0, appScrollYRef.current + delta), animated: true });
+    appScrollRef.current?.scrollTo?.({ y: Math.max(0, appScrollYRef.current + delta), animated });
   }
 
   function scrollMemoryToTop(delay = 120) {
@@ -1870,7 +1870,6 @@ export default function Home() {
     setTimeout(() => {
       const input = memoryBlankInputRefs.current[index] as any;
       if (!input?.measureInWindow) {
-        scrollMemoryPracticeBy(72);
         return;
       }
       input.measureInWindow((_x: number, y: number, _width: number, inputHeight: number) => {
@@ -1883,11 +1882,12 @@ export default function Home() {
             ? visualViewportHeight - 82
             : layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
         const inputBottom = y + inputHeight + 58;
-        if (inputBottom > keyboardSafeBottom) {
-          scrollMemoryPracticeBy(inputBottom - keyboardSafeBottom);
+        const hiddenAmount = inputBottom - keyboardSafeBottom;
+        if (hiddenAmount > 42) {
+          scrollMemoryPracticeBy(hiddenAmount - 20, false);
         }
       });
-    }, 90);
+    }, 160);
   }
 
   useEffect(() => {
@@ -4340,10 +4340,10 @@ export default function Home() {
       setTimeout(() => {
         memoryBlankInputRefs.current[nextToken.index]?.focus();
         const nextBlankOrdinal = memoryBlankTokens.findIndex((token) => token.index === nextToken.index);
-        if (!phoneLayout || nextBlankOrdinal >= 7) {
+        if (!phoneLayout || nextBlankOrdinal >= 12) {
           ensureMemoryBlankVisible(nextToken.index);
         }
-      }, phoneLayout ? 130 : 80);
+      }, phoneLayout ? 150 : 80);
       return;
     }
 

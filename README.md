@@ -63,6 +63,16 @@ A free Bible study app for desktop and mobile. Bible Study Tutor helps people an
    npm run desktop
    ```
 
+## Cloudflare Pages
+
+Cloudflare Pages should build with:
+
+```bash
+npm run web:export
+```
+
+The published output directory is `dist`. This is also recorded in `wrangler.toml` so Cloudflare uploads the generated Expo JavaScript assets under `dist/_expo/static/js/web/`.
+
 ## Notes
 
 Convex generates `convex/_generated/*` after `npx convex dev`. Until then, the app code that imports `api` will not typecheck locally.

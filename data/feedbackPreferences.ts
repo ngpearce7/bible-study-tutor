@@ -1,21 +1,18 @@
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import type { BibleReadingPlan } from "@/data/bibleReadingPlans";
-import { bibleReadingPlans } from "@/data/bibleReadingPlans";
+import {
+  MAX_CUSTOM_BIBLE_READING_PLANS,
+  MAX_FOLLOWED_BIBLE_READING_PLANS,
+  emptyBibleReadingPlanProgress,
+  normalizeBibleReadingPlanProgress,
+  type StoredBibleReadingPlanProgress
+} from "@/data/bibleReadingPlanProgress";
 
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
 export type StoredAppearanceMode = "light" | "dark";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
 export type StoredBibleReadChapters = Record<string, number[]>;
-export type StoredBibleReadingPlanProgress = {
-  activePlanId: string;
-  followedPlanIds?: string[];
-  completedDays: string[];
-  customPlans: BibleReadingPlan[];
-  startDates?: Record<string, string>;
-  updatedAt?: number;
-};
 export type StoredBibleBookmark = {
   id: string;
   book: string;
@@ -150,90 +147,26 @@ export async function saveStoredBibleReadChapters(readChapters: StoredBibleReadC
 
 export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleReadingPlanProgress> {
   const stored = await getStoredValue(bibleReadingPlanProgressKey);
-  if (!stored) return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {} };
+  if (!stored) return emptyBibleReadingPlanProgress();
 
   try {
     const parsed = JSON.parse(stored);
-    const customPlans = Array.isArray(parsed?.customPlans)
-      ? parsed.customPlans
-          .map(normalizeStoredBibleReadingPlan)
-          .filter((plan: BibleReadingPlan | null): plan is BibleReadingPlan => !!plan)
-          .slice(0, 30)
-      : [];
-    const validPlans = [...bibleReadingPlans, ...customPlans];
-    const validPlanIds = new Set(validPlans.map((plan) => plan.id));
-    const activePlanId = typeof parsed?.activePlanId === "string" && validPlanIds.has(parsed.activePlanId) ? parsed.activePlanId : "";
-    const followedPlanIds = Array.from(new Set<string>(
-      Array.isArray(parsed?.followedPlanIds)
-        ? parsed.followedPlanIds.filter((item: unknown): item is string => typeof item === "string" && validPlanIds.has(item))
-        : []
-    ));
-    const normalizedFollowedPlanIds = (followedPlanIds.length ? followedPlanIds : activePlanId ? [activePlanId] : []).slice(0, 3);
-    const normalizedActivePlanId = activePlanId || normalizedFollowedPlanIds[0] || "";
-    return {
-      activePlanId: normalizedActivePlanId,
-      followedPlanIds: normalizedFollowedPlanIds.includes(normalizedActivePlanId) || !normalizedActivePlanId
-        ? normalizedFollowedPlanIds
-        : [normalizedActivePlanId, ...normalizedFollowedPlanIds].slice(0, 3),
-      completedDays: Array.isArray(parsed?.completedDays)
-        ? Array.from(new Set<string>(parsed.completedDays.filter((item: unknown): item is string => typeof item === "string"))).filter((key: string) => {
-            const [planId, dayValue] = key.split(":");
-            if (!validPlanIds.has(planId)) return false;
-            const plan = validPlans.find((item) => item.id === planId);
-            const day = Math.round(Number(dayValue) || 0);
-            return !!plan && plan.days.some((planDay: { day: number }) => planDay.day === day);
-          })
-        : [],
-      startDates: parsed?.startDates && typeof parsed.startDates === "object"
-        ? Object.entries(parsed.startDates).reduce<Record<string, string>>((map, [planId, date]) => {
-            if (typeof planId === "string" && validPlanIds.has(planId) && typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-              map[planId] = date;
-            }
-            return map;
-          }, {})
-        : {},
-      customPlans,
-      updatedAt: Number.isFinite(Number(parsed?.updatedAt)) ? Number(parsed.updatedAt) : undefined
-    };
+    return normalizeBibleReadingPlanProgress(parsed) || emptyBibleReadingPlanProgress();
   } catch {
-    return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {} };
+    return emptyBibleReadingPlanProgress();
   }
 }
 
 export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleReadingPlanProgress) {
-  const followedPlanIds = Array.from(new Set(progress.followedPlanIds || (progress.activePlanId ? [progress.activePlanId] : []))).slice(0, 3);
+  const followedPlanIds = Array.from(new Set(progress.followedPlanIds || (progress.activePlanId ? [progress.activePlanId] : []))).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
   await setStoredValue(bibleReadingPlanProgressKey, JSON.stringify({
     activePlanId: progress.activePlanId,
     followedPlanIds,
     completedDays: Array.from(new Set(progress.completedDays)),
-    customPlans: progress.customPlans.slice(0, 30),
+    customPlans: progress.customPlans.slice(0, MAX_CUSTOM_BIBLE_READING_PLANS),
     startDates: progress.startDates || {},
     updatedAt: progress.updatedAt || Date.now()
   }));
-}
-
-function normalizeStoredBibleReadingPlan(plan: any): BibleReadingPlan | null {
-  if (!plan || typeof plan.id !== "string" || typeof plan.title !== "string" || !Array.isArray(plan.days)) return null;
-  const days = plan.days
-    .map((day: any) => ({
-      day: Number.isFinite(Number(day?.day)) ? Math.max(1, Math.round(Number(day.day))) : 0,
-      title: typeof day?.title === "string" ? day.title.slice(0, 80) : "",
-      reference: typeof day?.reference === "string" ? day.reference.slice(0, 120) : "",
-      readerBook: typeof day?.readerBook === "string" ? day.readerBook.slice(0, 40) : "",
-      readerChapter: Number.isFinite(Number(day?.readerChapter)) ? Math.max(1, Math.round(Number(day.readerChapter))) : 1,
-      studyReference: typeof day?.studyReference === "string" ? day.studyReference.slice(0, 120) : ""
-    }))
-    .filter((day: any) => day.day > 0 && day.reference && day.readerBook);
-  if (!days.length) return null;
-
-  return {
-    id: plan.id.slice(0, 80),
-    title: plan.title.slice(0, 80),
-    description: typeof plan.description === "string" ? plan.description.slice(0, 240) : "",
-    source: "custom",
-    category: typeof plan.category === "string" ? plan.category.slice(0, 40) : "Custom",
-    days
-  };
 }
 
 export async function getStoredBibleBookmarks(): Promise<StoredBibleBookmark[]> {

@@ -4,9 +4,10 @@ import { api } from "@/convex/_generated/api";
 import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
+import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredBibleReadingPlanProgress, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -284,8 +285,6 @@ const STUDY_PANEL_UI_PREFERENCE_KEYS: Record<StudySidePanelKey, UiPreferenceKey>
   feedback: "studyPanelFeedbackCollapsed",
   helps: "studyPanelHelpsCollapsed"
 };
-const MAX_FOLLOWED_BIBLE_READING_PLANS = 3;
-
 const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string }[] = [
   { id: "bsb", label: "BSB", name: "Berean Standard Bible" },
   { id: "web", label: "WEB", name: "World English Bible" },
@@ -4961,7 +4960,7 @@ export default function Home() {
       category: "Custom",
       days
     };
-    const nextPlans = [plan, ...customBibleReadingPlans].slice(0, 30);
+    const nextPlans = [plan, ...customBibleReadingPlans].slice(0, MAX_CUSTOM_BIBLE_READING_PLANS);
     const nextStartDates = { ...bibleReadingPlanStartDates, [id]: localDateKey() };
     const canFollowNewPlan = followedBibleReadingPlans.length < MAX_FOLLOWED_BIBLE_READING_PLANS;
     const nextFollowedPlanIds = canFollowNewPlan ? Array.from(new Set([id, ...followedBibleReadingPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS) : followedBibleReadingPlanIds;
@@ -5318,7 +5317,7 @@ export default function Home() {
       customPlans,
       startDates,
       updatedAt: Date.now()
-    }) || { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {}, updatedAt: Date.now() };
+    }) || { ...emptyBibleReadingPlanProgress(), updatedAt: Date.now() };
   }
 
   function persistBibleReaderState(overrides: Partial<SyncedBibleReaderState> = {}) {
@@ -9814,103 +9813,6 @@ function planDayKey(planId: string, day: number) {
   return `${planId}:${day}`;
 }
 
-function bibleReadingPlanDayKey(planId: string, day: number) {
-  return `${planId}:${day}`;
-}
-
-function normalizeBibleReadingPlanId(planId: string) {
-  if (planId === "bible-1-year") return "bible-365";
-  return planId;
-}
-
-function normalizeBibleReadingPlanProgressKeys(keys: string[]) {
-  return keys.map((key) => key.startsWith("bible-1-year:") ? key.replace("bible-1-year:", "bible-365:") : key);
-}
-
-function normalizeSyncedCustomBibleReadingPlan(plan: any): BibleReadingPlan | null {
-  if (!plan || typeof plan.id !== "string" || typeof plan.title !== "string" || !Array.isArray(plan.days)) return null;
-  const days = plan.days
-    .slice(0, 400)
-    .map((day: any): BibleReadingPlanDay | null => {
-      if (!day || typeof day.reference !== "string" || typeof day.readerBook !== "string") return null;
-      const readerBook = readerBookFromReferenceBook(String(day.readerBook).slice(0, 80));
-      const chapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 200;
-      return {
-        day: Math.max(1, Math.min(400, Math.round(Number(day.day) || 1))),
-        title: String(day.title || `Day ${day.day || 1}`).slice(0, 80),
-        reference: String(day.reference).slice(0, 120),
-        readerBook,
-        readerChapter: Math.max(1, Math.min(chapterCount, Math.round(Number(day.readerChapter) || 1))),
-        studyReference: String(day.studyReference || day.reference).slice(0, 120)
-      };
-    })
-    .filter((day: BibleReadingPlanDay | null): day is BibleReadingPlanDay => !!day);
-  if (!days.length) return null;
-  return {
-    id: plan.id.slice(0, 80),
-    title: plan.title.slice(0, 80),
-    description: typeof plan.description === "string" ? plan.description.slice(0, 240) : "",
-    source: "custom",
-    category: typeof plan.category === "string" ? plan.category.slice(0, 40) : "Custom",
-    days
-  };
-}
-
-function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleReadingPlanProgress | null {
-  if (!value || typeof value !== "object") return null;
-  const source = value as Record<string, any>;
-  const customPlans = Array.isArray(source.customPlans)
-    ? source.customPlans
-        .map(normalizeSyncedCustomBibleReadingPlan)
-        .filter((plan): plan is BibleReadingPlan => !!plan)
-        .slice(0, 30)
-    : [];
-  const validPlanIds = new Set([...bibleReadingPlans.map((plan) => plan.id), ...customPlans.map((plan) => plan.id)]);
-  const activePlanId = normalizeBibleReadingPlanId(typeof source.activePlanId === "string" ? source.activePlanId : "");
-  const followedPlanIds = Array.from(new Set(
-    Array.isArray(source.followedPlanIds)
-      ? source.followedPlanIds
-          .map((planId) => normalizeBibleReadingPlanId(String(planId).slice(0, 80)))
-          .filter((planId) => planId && validPlanIds.has(planId))
-      : []
-  ));
-  const normalizedActivePlanId = activePlanId && validPlanIds.has(activePlanId) ? activePlanId : followedPlanIds[0] || "";
-  const normalizedFollowedPlanIds = Array.from(new Set([
-    normalizedActivePlanId,
-    ...(followedPlanIds.length ? followedPlanIds : normalizedActivePlanId ? [normalizedActivePlanId] : [])
-  ].filter(Boolean))).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
-  const completedDays = normalizeBibleReadingPlanProgressKeys(
-    Array.isArray(source.completedDays)
-      ? source.completedDays.map((key) => String(key).slice(0, 100)).filter(Boolean)
-      : []
-  )
-    .filter((key) => {
-      const [planId, dayValue] = key.split(":");
-      if (!validPlanIds.has(planId)) return false;
-      const plan = [...bibleReadingPlans, ...customPlans].find((item) => item.id === planId);
-      const day = Math.round(Number(dayValue) || 0);
-      return !!plan && plan.days.some((item) => item.day === day);
-    })
-    .slice(0, 5000);
-  const startDates = source.startDates && typeof source.startDates === "object" && !Array.isArray(source.startDates)
-    ? Object.entries(source.startDates).slice(0, 60).reduce<Record<string, string>>((map, [planId, date]) => {
-        const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
-        const dateKey = String(date).slice(0, 10);
-        if (normalizedPlanId && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
-        return map;
-      }, {})
-    : {};
-  const normalized: StoredBibleReadingPlanProgress = {
-    activePlanId: normalizedActivePlanId,
-    followedPlanIds: normalizedFollowedPlanIds,
-    completedDays: Array.from(new Set(completedDays)),
-    customPlans,
-    startDates,
-    updatedAt: Number.isFinite(Number(source.updatedAt)) ? Number(source.updatedAt) : Date.now()
-  };
-  return normalized.activePlanId || (normalized.followedPlanIds || []).length || normalized.completedDays.length || normalized.customPlans.length || Object.keys(normalized.startDates || {}).length ? normalized : null;
-}
-
 function verseMarkupKey(verse: BibleVerse) {
   return `${verse.book_name}:${verse.chapter}:${verse.verse}`;
 }
@@ -11335,16 +11237,6 @@ function normalizeSyncedBibleReaderState(value: unknown): SyncedBibleReaderState
   if (bookmarks) state.bookmarks = bookmarks;
   if (readingPlanProgress) state.readingPlanProgress = readingPlanProgress;
   return Object.keys(state).length ? state : null;
-}
-
-function hasBibleReadingPlanProgress(progress?: StoredBibleReadingPlanProgress | null) {
-  return !!(
-    progress?.activePlanId ||
-    (progress?.followedPlanIds || []).length ||
-    progress?.completedDays.length ||
-    progress?.customPlans.length ||
-    Object.keys(progress?.startDates || {}).length
-  );
 }
 
 function hasLocalBibleReaderState(state: Pick<SyncedBibleReaderState, "history" | "readChapters" | "bookmarks" | "readingPlanProgress">) {

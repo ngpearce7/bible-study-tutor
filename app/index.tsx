@@ -4828,11 +4828,12 @@ export default function Home() {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
     const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
     if (!nextState) return;
-    setCompletedBibleReadingPlanDays(nextState.completedDays);
-    persistBibleReadingPlanProgress(planId, nextState.completedDays);
-    setActiveBibleReadingPlanId(planId);
-    setActiveBiblePlanSelectedPlanId(planId);
-    setActiveBiblePlanSelectedDay(nextState.nextIncomplete?.day || 0);
+    setCompletedBibleReadingPlanDays((current) => {
+      const currentState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: current });
+      const next = currentState?.completedDays || current;
+      persistBibleReadingPlanProgress(planId, next);
+      return next;
+    });
     setBiblePlanStatus(
       nextState.nextIncomplete
         ? `${planDay.reference} completed. Next reading: ${nextState.nextIncomplete.reference}.`

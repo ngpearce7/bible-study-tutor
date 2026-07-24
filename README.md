@@ -88,14 +88,17 @@ For search engines, set the public site URL in the hosting environment:
 ```bash
 EXPO_PUBLIC_SITE_URL=https://biblestudytutor.org
 SITE_URL=https://biblestudytutor.org
+EXPO_PUBLIC_CONVEX_URL=https://fabulous-ladybug-435.convex.cloud
+EXPO_PUBLIC_CONVEX_SITE_URL=https://fabulous-ladybug-435.convex.site
 ```
 
 For privacy-friendly public analytics, the app can record broad, non-content events to Convex. Keep this disabled locally, then enable it in production only when the Convex backend has been deployed:
 
 ```bash
 EXPO_PUBLIC_ANALYTICS_ENABLED=true
-EXPO_PUBLIC_CONVEX_SITE_URL=https://your-production-deployment.convex.site
 ```
+
+Cloudflare Pages builds fail intentionally if these public production variables are missing. This prevents the live app from silently connecting to the wrong Convex backend and appearing to lose saved verses, account status, or rhythm data.
 
 These public analytics events do not store journal text, study answers, notes, email addresses, names, Scripture search text, or community/encouragement content.
 

@@ -49,7 +49,11 @@ const structuredData = {
 };
 
 function resolveConvexUrl() {
-  const configuredUrl = process.env.EXPO_PUBLIC_CONVEX_URL || "https://example.convex.cloud";
+  const configuredUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
+
+  if (!configuredUrl) {
+    throw new Error("Missing EXPO_PUBLIC_CONVEX_URL. Set it in the hosting environment before building the app.");
+  }
 
   if (Platform.OS !== "web" || typeof window === "undefined") return configuredUrl;
 

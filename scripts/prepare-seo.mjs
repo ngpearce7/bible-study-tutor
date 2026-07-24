@@ -9,6 +9,22 @@ const siteUrl = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(normalizedS
 const analyticsEnabled = process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === "true";
 const rawConvexSiteUrl = process.env.EXPO_PUBLIC_CONVEX_SITE_URL || "";
 const rawConvexUrl = process.env.EXPO_PUBLIC_CONVEX_URL || "";
+const isCloudflareBuild = process.env.CF_PAGES === "1" || process.env.CF_PAGES === "true";
+
+if (isCloudflareBuild) {
+  const missingProductionVars = [
+    ["EXPO_PUBLIC_SITE_URL", rawSiteUrl],
+    ["EXPO_PUBLIC_CONVEX_URL", rawConvexUrl],
+    ["EXPO_PUBLIC_CONVEX_SITE_URL", rawConvexSiteUrl]
+  ]
+    .filter(([, value]) => !value)
+    .map(([name]) => name);
+
+  if (missingProductionVars.length > 0) {
+    throw new Error(`Cloudflare Pages build is missing required environment variable(s): ${missingProductionVars.join(", ")}`);
+  }
+}
+
 const analyticsSiteUrl = (rawConvexSiteUrl || (rawConvexUrl.endsWith(".convex.cloud") ? rawConvexUrl.replace(".convex.cloud", ".convex.site") : "")).replace(/\/$/, "");
 const seoPages = [
   {

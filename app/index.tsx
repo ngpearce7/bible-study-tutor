@@ -1,6 +1,7 @@
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
+import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, createCustomBibleReadingPlanState, deleteCustomBibleReadingPlanState, followBibleReadingPlanState, stopFollowingBibleReadingPlanState, uncompleteBibleReadingPlanDayState } from "@/data/bibleReadingPlanActions";
 import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
@@ -4697,64 +4698,69 @@ export default function Home() {
   }
 
   function selectBibleReadingPlan(planId: string) {
-    const nextPlanId = allBibleReadingPlans.some((plan) => plan.id === planId) ? planId : "";
-    if (!nextPlanId) return;
-    const alreadyFollowed = followedBibleReadingPlanIdSet.has(nextPlanId);
-    if (!alreadyFollowed && followedBibleReadingPlans.length >= MAX_FOLLOWED_BIBLE_READING_PLANS) {
+    const nextState = followBibleReadingPlanState({
+      planId,
+      allPlans: allBibleReadingPlans,
+      followedPlanIds: followedBibleReadingPlanIds,
+      activePlanId: activeBibleReadingPlanId,
+      startDates: bibleReadingPlanStartDates,
+      todayKey: localDateKey()
+    });
+    if (!nextState) return;
+    if (nextState.blocked) {
       setBiblePlanStatus(`You can follow up to ${MAX_FOLLOWED_BIBLE_READING_PLANS} reading plans at once. Stop one before adding another.`);
       return;
     }
-    const nextFollowedPlanIds = Array.from(new Set([nextPlanId, ...followedBibleReadingPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
-    const nextStartDates = bibleReadingPlanStartDates[nextPlanId]
-      ? bibleReadingPlanStartDates
-      : { ...bibleReadingPlanStartDates, [nextPlanId]: localDateKey() };
-    setActiveBibleReadingPlanId(nextPlanId);
-    setFollowedBibleReadingPlanIds(nextFollowedPlanIds);
-    setExpandedBiblePlanId(nextPlanId);
+    setActiveBibleReadingPlanId(nextState.activePlanId);
+    setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
+    setExpandedBiblePlanId(nextState.activePlanId);
     setActiveBiblePlanSelectedDay(0);
-    setActiveBiblePlanSelectedPlanId(nextPlanId);
-    setBibleReadingPlanStartDates(nextStartDates);
+    setActiveBiblePlanSelectedPlanId(nextState.activePlanId);
+    setBibleReadingPlanStartDates(nextState.startDates);
     setBiblePlanStatus("");
-    persistBibleReadingPlanProgress(nextPlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextStartDates, nextFollowedPlanIds);
-    trackUsage("bible_reading_plan_selected", { reference: nextPlanId, tab: "bible" });
+    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextState.startDates, nextState.followedPlanIds);
+    trackUsage("bible_reading_plan_selected", { reference: nextState.activePlanId, tab: "bible" });
   }
 
   function catchUpActiveBibleReadingPlanDates(planId = activeBibleReadingPlan?.id || "") {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
-    if (!plan) return;
-    const completedSet = new Set(completedBibleReadingPlanDays);
-    const nextDay = plan.days.find((day) => !completedSet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
-    const completedCount = plan.days.filter((day) => completedSet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
-    const startDate = bibleReadingPlanStartDates[plan.id] || "";
-    const nextDayDateKey = startDate && nextDay ? addDaysToDateKey(startDate, nextDay.day - 1) : "";
-    if (!nextDay || completedCount >= plan.days.length || !nextDayDateKey || nextDayDateKey >= localDateKey()) return;
-    const today = new Date();
-    const nextStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    nextStart.setDate(nextStart.getDate() - (nextDay.day - 1));
-    const nextStartDates = {
-      ...bibleReadingPlanStartDates,
-      [plan.id]: localDateKey(nextStart)
-    };
-    setBibleReadingPlanStartDates(nextStartDates);
+    const nextState = catchUpBibleReadingPlanDatesState({
+      plan,
+      completedDayKeys: completedBibleReadingPlanDays,
+      startDates: bibleReadingPlanStartDates,
+      todayKey: localDateKey(),
+      addDaysToDateKey,
+      startDateForDay: (day) => {
+        const today = new Date();
+        const nextStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        nextStart.setDate(nextStart.getDate() - (day - 1));
+        return localDateKey(nextStart);
+      }
+    });
+    if (!plan || !nextState) return;
+    setBibleReadingPlanStartDates(nextState.startDates);
     setBiblePlanStatus(`${plan.title} now continues from today.`);
-    persistBibleReadingPlanProgress(plan.id, completedBibleReadingPlanDays, customBibleReadingPlans, nextStartDates);
+    persistBibleReadingPlanProgress(plan.id, completedBibleReadingPlanDays, customBibleReadingPlans, nextState.startDates);
     trackUsage("bible_reading_plan_caught_up", { reference: plan.id, tab: "plans" });
   }
 
   function stopFollowingBibleReadingPlan(planId = activeBibleReadingPlan?.id || "") {
-    const stoppedPlan = allBibleReadingPlans.find((plan) => plan.id === planId);
-    if (!stoppedPlan) return;
-    const nextFollowedPlanIds = followedBibleReadingPlanIds.filter((id) => id !== stoppedPlan.id);
-    const nextActivePlanId = activeBibleReadingPlanId === stoppedPlan.id ? nextFollowedPlanIds[0] || "" : activeBibleReadingPlanId;
-    setFollowedBibleReadingPlanIds(nextFollowedPlanIds);
-    setActiveBibleReadingPlanId(nextActivePlanId);
-    if (readerPlanReading?.planId === stoppedPlan.id) setReaderPlanReading(null);
-    setExpandedBiblePlanId(nextActivePlanId);
+    const nextState = stopFollowingBibleReadingPlanState({
+      planId,
+      allPlans: allBibleReadingPlans,
+      followedPlanIds: followedBibleReadingPlanIds,
+      activePlanId: activeBibleReadingPlanId
+    });
+    if (!nextState) return;
+    setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
+    setActiveBibleReadingPlanId(nextState.activePlanId);
+    if (readerPlanReading?.planId === nextState.stoppedPlan.id) setReaderPlanReading(null);
+    setExpandedBiblePlanId(nextState.activePlanId);
     setActiveBiblePlanSelectedDay(0);
-    setActiveBiblePlanSelectedPlanId(nextActivePlanId);
-    setBiblePlanStatus(`${stoppedPlan.title} is no longer followed.`);
-    persistBibleReadingPlanProgress(nextActivePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, bibleReadingPlanStartDates, nextFollowedPlanIds);
-    trackUsage("bible_reading_plan_stopped", { reference: stoppedPlan.id, tab: "plans" });
+    setActiveBiblePlanSelectedPlanId(nextState.activePlanId);
+    setBiblePlanStatus(`${nextState.stoppedPlan.title} is no longer followed.`);
+    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, bibleReadingPlanStartDates, nextState.followedPlanIds);
+    trackUsage("bible_reading_plan_stopped", { reference: nextState.stoppedPlan.id, tab: "plans" });
   }
 
   function requestStopFollowingBibleReadingPlan(planId = activeBibleReadingPlan?.id || "") {
@@ -4819,20 +4825,18 @@ export default function Home() {
   }
 
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
-    if (!planId) return;
-    const key = bibleReadingPlanDayKey(planId, planDay.day);
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
-    const nextCompletedDays = completedBibleReadingPlanDays.includes(key) ? completedBibleReadingPlanDays : [...completedBibleReadingPlanDays, key];
-    const nextCompletedDaySet = new Set(nextCompletedDays);
-    const nextIncomplete = plan?.days.find((day) => !nextCompletedDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
+    const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
+    if (!nextState) return;
     setCompletedBibleReadingPlanDays((current) => {
-      const next = current.includes(key) ? current : [...current, key];
+      const currentState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: current });
+      const next = currentState?.completedDays || current;
       persistBibleReadingPlanProgress(planId, next);
       return next;
     });
     setBiblePlanStatus(
-      nextIncomplete
-        ? `${planDay.reference} completed. Next reading: ${nextIncomplete.reference}.`
+      nextState.nextIncomplete
+        ? `${planDay.reference} completed. Next reading: ${nextState.nextIncomplete.reference}.`
         : `${plan?.title || "Reading plan"} complete.`
     );
     const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
@@ -4842,11 +4846,10 @@ export default function Home() {
   }
 
   function unmarkBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
-    if (!planId) return;
-    const key = bibleReadingPlanDayKey(planId, planDay.day);
     setCompletedBibleReadingPlanDays((current) => {
-      if (!current.includes(key)) return current;
-      const next = current.filter((item) => item !== key);
+      const nextState = uncompleteBibleReadingPlanDayState({ planDay, planId, completedDayKeys: current });
+      if (!nextState) return current;
+      const next = nextState.completedDays;
       persistBibleReadingPlanProgress(planId, next);
       return next;
     });
@@ -4904,24 +4907,27 @@ export default function Home() {
       category: "Custom",
       days
     };
-    const nextPlans = [plan, ...customBibleReadingPlans].slice(0, MAX_CUSTOM_BIBLE_READING_PLANS);
-    const nextStartDates = { ...bibleReadingPlanStartDates, [id]: localDateKey() };
-    const canFollowNewPlan = followedBibleReadingPlans.length < MAX_FOLLOWED_BIBLE_READING_PLANS;
-    const nextFollowedPlanIds = canFollowNewPlan ? Array.from(new Set([id, ...followedBibleReadingPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS) : followedBibleReadingPlanIds;
-    const nextActivePlanId = canFollowNewPlan ? id : activeBibleReadingPlanId;
-    setCustomBibleReadingPlans(nextPlans);
+    const nextState = createCustomBibleReadingPlanState({
+      plan,
+      customPlans: customBibleReadingPlans,
+      followedPlanIds: followedBibleReadingPlanIds,
+      activePlanId: activeBibleReadingPlanId,
+      startDates: bibleReadingPlanStartDates,
+      todayKey: localDateKey()
+    });
+    setCustomBibleReadingPlans(nextState.customPlans);
     setCustomBiblePlanTitle("");
     setCustomBiblePlanDescription("");
     setCustomBiblePlanDaysText("");
     setCustomBiblePlanFormOpen(false);
-    setCustomBiblePlanStatus(canFollowNewPlan ? `${plan.title} created.` : `${plan.title} created. Stop one plan before following it.`);
-    setActiveBibleReadingPlanId(nextActivePlanId);
-    setFollowedBibleReadingPlanIds(nextFollowedPlanIds);
-    setExpandedBiblePlanId(canFollowNewPlan ? id : "");
+    setCustomBiblePlanStatus(nextState.canFollow ? `${plan.title} created.` : `${plan.title} created. Stop one plan before following it.`);
+    setActiveBibleReadingPlanId(nextState.activePlanId);
+    setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
+    setExpandedBiblePlanId(nextState.canFollow ? id : "");
     setActiveBiblePlanSelectedDay(0);
-    setActiveBiblePlanSelectedPlanId(canFollowNewPlan ? id : "");
-    setBibleReadingPlanStartDates(nextStartDates);
-    persistBibleReadingPlanProgress(nextActivePlanId, completedBibleReadingPlanDays, nextPlans, nextStartDates, nextFollowedPlanIds);
+    setActiveBiblePlanSelectedPlanId(nextState.canFollow ? id : "");
+    setBibleReadingPlanStartDates(nextState.startDates);
+    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, nextState.customPlans, nextState.startDates, nextState.followedPlanIds);
     trackUsage("bible_reading_plan_created", { reference: title, tab: "plans" });
     dismissMobileInputFocus();
   }
@@ -4933,20 +4939,22 @@ export default function Home() {
       return;
     }
 
-    const nextPlans = customBibleReadingPlans.filter((plan) => plan.id !== planId);
-    const nextCompleted = completedBibleReadingPlanDays.filter((key) => !key.startsWith(`${planId}:`));
-    const nextFollowedPlanIds = followedBibleReadingPlanIds.filter((id) => id !== planId);
-    const nextActive = activeBibleReadingPlanId === planId ? nextFollowedPlanIds[0] || "" : activeBibleReadingPlanId;
-    const nextStartDates = { ...bibleReadingPlanStartDates };
-    delete nextStartDates[planId];
-    setCustomBibleReadingPlans(nextPlans);
-    setCompletedBibleReadingPlanDays(nextCompleted);
-    setFollowedBibleReadingPlanIds(nextFollowedPlanIds);
-    setActiveBibleReadingPlanId(nextActive);
-    setBibleReadingPlanStartDates(nextStartDates);
+    const nextState = deleteCustomBibleReadingPlanState({
+      planId,
+      customPlans: customBibleReadingPlans,
+      completedDayKeys: completedBibleReadingPlanDays,
+      followedPlanIds: followedBibleReadingPlanIds,
+      activePlanId: activeBibleReadingPlanId,
+      startDates: bibleReadingPlanStartDates
+    });
+    setCustomBibleReadingPlans(nextState.customPlans);
+    setCompletedBibleReadingPlanDays(nextState.completedDays);
+    setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
+    setActiveBibleReadingPlanId(nextState.activePlanId);
+    setBibleReadingPlanStartDates(nextState.startDates);
     setPendingBiblePlanDeleteId("");
     setCustomBiblePlanStatus("Custom plan deleted.");
-    persistBibleReadingPlanProgress(nextActive, nextCompleted, nextPlans, nextStartDates, nextFollowedPlanIds);
+    persistBibleReadingPlanProgress(nextState.activePlanId, nextState.completedDays, nextState.customPlans, nextState.startDates, nextState.followedPlanIds);
   }
 
   function studyBibleReadingPlanDay(planDay: BibleReadingPlanDay) {

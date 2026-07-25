@@ -1388,6 +1388,7 @@ export default function Home() {
   });
   const allBibleReadingPlans = bibleReadingPlanView.allPlans;
   const followedBibleReadingPlans = bibleReadingPlanView.followedPlans;
+  const completedFollowedBibleReadingPlans = bibleReadingPlanView.completedFollowedPlans;
   const followedBibleReadingPlanIdSet = bibleReadingPlanView.followedPlanIdSet;
   const selectedBibleReadingPlanId = bibleReadingPlanView.selectedActivePlanId;
   const otherFollowedBibleReadingPlans = bibleReadingPlanView.otherFollowedPlans;
@@ -4768,26 +4769,65 @@ export default function Home() {
     trackUsage("bible_reading_plan_stopped", { reference: nextState.stoppedPlan.id, tab: "plans" });
   }
 
+  function restartBibleReadingPlan(planId: string) {
+    const plan = allBibleReadingPlans.find((item) => item.id === planId);
+    if (!plan) return;
+    const nextStartDates = { ...bibleReadingPlanStartDates, [plan.id]: localDateKey() };
+    const nextCompletedDays = completedBibleReadingPlanDays.filter((key) => !key.startsWith(`${plan.id}:`));
+    const nextFollowedPlanIds = Array.from(new Set([plan.id, ...followedBibleReadingPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+    setCompletedBibleReadingPlanDays(nextCompletedDays);
+    setBibleReadingPlanStartDates(nextStartDates);
+    setFollowedBibleReadingPlanIds(nextFollowedPlanIds);
+    setActiveBibleReadingPlanId(plan.id);
+    setExpandedBiblePlanId(plan.id);
+    setActiveBiblePlanSelectedPlanId(plan.id);
+    setActiveBiblePlanSelectedDay(1);
+    if (readerPlanReading?.planId === plan.id) setReaderPlanReading(null);
+    setBiblePlanStatus(`${plan.title} restarted from Day 1.`);
+    persistBibleReadingPlanProgress(plan.id, nextCompletedDays, customBibleReadingPlans, nextStartDates, nextFollowedPlanIds);
+    trackUsage("bible_reading_plan_restarted", { reference: plan.id, tab: "plans" });
+  }
+
+  function requestRestartBibleReadingPlan(planId: string) {
+    const plan = allBibleReadingPlans.find((item) => item.id === planId);
+    if (!plan) return;
+    const message = `${plan.title} will start again from Day 1 today. Your previous completed-day ticks for this plan will be cleared.`;
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      if (window.confirm(`${message}\n\nRestart this plan?`)) {
+        restartBibleReadingPlan(plan.id);
+      }
+      return;
+    }
+
+    Alert.alert("Restart reading plan?", message, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Restart", onPress: () => restartBibleReadingPlan(plan.id) }
+    ]);
+  }
+
   function requestStopFollowingBibleReadingPlan(planId = activeBibleReadingPlan?.id || "") {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
     if (!plan) return;
     const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
+    const planComplete = plan.days.length > 0 && completedCount >= plan.days.length;
     if (completedCount <= 0) {
       stopFollowingBibleReadingPlan(plan.id);
       return;
     }
 
-    const message = `You have completed ${completedCount} ${completedCount === 1 ? "day" : "days"} in ${plan.title}. Your progress will stay saved, but this plan will be removed from Active plans.`;
+    const message = planComplete
+      ? `${plan.title} is complete. Your progress will stay saved, but this plan will be removed from Completed plans.`
+      : `You have completed ${completedCount} ${completedCount === 1 ? "day" : "days"} in ${plan.title}. Your progress will stay saved, but this plan will be removed from Active plans.`;
     if (Platform.OS === "web" && typeof window !== "undefined") {
-      if (window.confirm(`${message}\n\nStop following this plan?`)) {
+      if (window.confirm(`${message}\n\n${planComplete ? "Remove this completed plan?" : "Stop following this plan?"}`)) {
         stopFollowingBibleReadingPlan(plan.id);
       }
       return;
     }
 
-    Alert.alert("Stop following plan?", message, [
+    Alert.alert(planComplete ? "Remove completed plan?" : "Stop following plan?", message, [
       { text: "Cancel", style: "cancel" },
-      { text: "Stop following", style: "destructive", onPress: () => stopFollowingBibleReadingPlan(plan.id) }
+      { text: planComplete ? "Remove" : "Stop following", style: "destructive", onPress: () => stopFollowingBibleReadingPlan(plan.id) }
     ]);
   }
 
@@ -5635,6 +5675,50 @@ export default function Home() {
           {!complete && !!openPlanDay && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(openPlanDay, plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
           {!complete && !!openPlanDay && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(openPlanDay)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
           <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
+        </View>
+      </View>
+    );
+  };
+
+  const renderCompletedBibleReadingPlanCard = (plan: BibleReadingPlan) => {
+    const firstDay = plan.days[0];
+    const lastDay = plan.days[plan.days.length - 1];
+    const startDate = bibleReadingPlanStartDates[plan.id] || "";
+    const finalDateKey = startDate && lastDay ? addDaysToDateKey(startDate, lastDay.day - 1) : "";
+    const finalDateLabel = finalDateKey ? formatPlanDayDate(finalDateKey) : "";
+
+    return (
+      <View key={plan.id} style={[styles.completedReadingPlanCard, phoneLayout && styles.phoneCompletedReadingPlanCard, plansDarkMode && styles.accountDarkSection]}>
+        <View style={styles.completedReadingPlanHeader}>
+          <View style={styles.journalTitleBlock}>
+            <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{plan.title}</Text>
+            <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>
+              {`${plan.days.length} ${plan.days.length === 1 ? "reading" : "readings"} complete${finalDateLabel ? ` · scheduled through ${finalDateLabel}` : ""}`}
+            </Text>
+          </View>
+          <View style={styles.completedReadingPlanStatus}>
+            <Ionicons name="checkmark-circle" size={18} color={plansDarkMode ? "#8faa7b" : colors.oliveDark} />
+            <Text style={[styles.completedReadingPlanStatusText, plansDarkMode && styles.completedReadingPlanStatusTextDark]}>Complete</Text>
+          </View>
+        </View>
+        <Text style={[styles.currentPlanText, plansDarkMode && styles.accountDarkMutedText]}>
+          Progress stays saved. Review the first reading, restart the path, or remove it from this list.
+        </Text>
+        <View style={[styles.completedReadingPlanActions, phoneLayout && styles.phoneCompletedReadingPlanActions]}>
+          {!!firstDay && (
+            <Pressable accessibilityRole="button" accessibilityLabel={`Review ${plan.title} from the first reading`} onPress={() => openBibleReadingPlanDayInBible(firstDay, plan.id, { skipOverdueGuard: true })} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
+              <Ionicons name="reader-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Review</Text>
+            </Pressable>
+          )}
+          <Pressable accessibilityRole="button" accessibilityLabel={`Restart ${plan.title}`} onPress={() => requestRestartBibleReadingPlan(plan.id)} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
+            <Ionicons name="refresh-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+            <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Restart</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${plan.title} from completed plans`} onPress={() => requestStopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanManagementButton, styles.completedReadingPlanRemoveButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
+            <Ionicons name="close-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+            <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Remove</Text>
+          </Pressable>
         </View>
       </View>
     );
@@ -6870,6 +6954,14 @@ export default function Home() {
               <View style={styles.otherFollowedPlanGrid}>
                 {otherFollowedBibleReadingPlans.map(renderFollowedBibleReadingPlanPanel)}
               </View>
+            )}
+            {completedFollowedBibleReadingPlans.length > 0 && (
+              <>
+                <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Completed plans</Text>
+                <View style={styles.completedReadingPlanGrid}>
+                  {completedFollowedBibleReadingPlans.map(renderCompletedBibleReadingPlanCard)}
+                </View>
+              </>
             )}
 
             <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Custom plans</Text>
@@ -16336,6 +16428,55 @@ const styles = StyleSheet.create({
   otherFollowedPlanGrid: {
     marginBottom: 14,
     marginTop: 10
+  },
+  completedReadingPlanGrid: {
+    gap: 10,
+    marginBottom: 14
+  },
+  completedReadingPlanCard: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 10,
+    padding: 14
+  },
+  phoneCompletedReadingPlanCard: {
+    borderRadius: 12,
+    padding: 12
+  },
+  completedReadingPlanHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  completedReadingPlanStatus: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 5,
+    paddingTop: 2
+  },
+  completedReadingPlanStatusText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  completedReadingPlanStatusTextDark: {
+    color: "#b8d39b"
+  },
+  completedReadingPlanActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "flex-end"
+  },
+  phoneCompletedReadingPlanActions: {
+    justifyContent: "flex-start"
+  },
+  completedReadingPlanRemoveButton: {
+    backgroundColor: "#fffdf8"
   },
   planPageCard: {
     gap: 10,

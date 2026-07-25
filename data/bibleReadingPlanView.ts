@@ -47,11 +47,18 @@ export function buildBibleReadingPlanView({
     .map((planId) => allPlans.find((plan) => plan.id === planId))
     .filter((plan): plan is BibleReadingPlan => !!plan)
     .slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+  const completedDaySet = new Set(completedDayKeys);
+  const planIsComplete = (plan: BibleReadingPlan) =>
+    plan.days.length > 0 &&
+    plan.days.every((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
+  const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan));
+  const completedFollowedPlans = followedPlans.filter(planIsComplete);
   const followedPlanIdSet = new Set(followedPlans.map((plan) => plan.id));
-  const selectedActivePlanId = activePlanId && followedPlanIdSet.has(activePlanId)
+  const activeFollowedPlanIdSet = new Set(activeFollowedPlans.map((plan) => plan.id));
+  const selectedActivePlanId = activePlanId && activeFollowedPlanIdSet.has(activePlanId)
     ? activePlanId
-    : followedPlans[0]?.id || "";
-  const otherFollowedPlans = followedPlans.filter((plan) => plan.id !== selectedActivePlanId);
+    : activeFollowedPlans[0]?.id || "";
+  const otherFollowedPlans = activeFollowedPlans.filter((plan) => plan.id !== selectedActivePlanId);
   const unfollowedPlans = allPlans.filter((plan) => !followedPlanIdSet.has(plan.id));
   const unfollowedCustomPlans = unfollowedPlans.filter((plan) => plan.source === "custom");
   const unfollowedBuiltInPlans = unfollowedPlans.filter((plan) => plan.source !== "custom");
@@ -82,7 +89,6 @@ export function buildBibleReadingPlanView({
     }
   ];
   const groups = candidateGroups.filter((group) => group.plans.length > 0);
-  const completedDaySet = new Set(completedDayKeys);
   const activePlan = allPlans.find((plan) => plan.id === selectedActivePlanId);
   const activeCompletedCount = activePlan
     ? activePlan.days.filter((day) => completedDaySet.has(bibleReadingPlanDayKey(activePlan.id, day.day))).length
@@ -133,6 +139,8 @@ export function buildBibleReadingPlanView({
   return {
     allPlans,
     followedPlans,
+    activeFollowedPlans,
+    completedFollowedPlans,
     followedPlanIdSet,
     selectedActivePlanId,
     otherFollowedPlans,

@@ -510,7 +510,7 @@ export function BibleReaderNavigator({
                       {activeBibleReadingPlan.title}
                     </Text>
                   </View>
-                  <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>
+                  <Text style={[styles.draftPill, styles.readingPlanCountPill, darkMode && styles.plansDarkDraftPill]}>
                     {activePlanCompletedCount}/{activePlanDayCount}
                   </Text>
                 </View>
@@ -518,7 +518,7 @@ export function BibleReaderNavigator({
                 {activeBibleReadingPlanToday ? (
                   <>
                     <View style={styles.planProgressTrack}>
-                      <View style={[styles.planProgressFill, { width: `${activePlanProgressPercent}%` }]} />
+                      <View style={[styles.planProgressFill, activeBibleReadingPlanComplete && styles.completedPlanProgressFill, { width: `${activePlanProgressPercent}%` }]} />
                     </View>
                     <View style={styles.bibleReadingPlanMetaRow}>
                       <Text style={[styles.bibleReadingPlanMetaChip, darkMode && styles.plansDarkDraftPill]}>
@@ -544,7 +544,7 @@ export function BibleReaderNavigator({
                             {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
                           </Text>
                         </View>
-                        <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
+                        <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : activeBibleReadingPlanComplete ? colors.oliveDark : colors.coral} />
                     </View>
                   </Pressable>
                   {!!biblePlanStatus && (
@@ -564,12 +564,12 @@ export function BibleReaderNavigator({
                         {plan.title}
                       </Text>
                     </View>
-                    <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>
+                    <Text style={[styles.draftPill, styles.readingPlanCountPill, darkMode && styles.plansDarkDraftPill]}>
                       {plan.completedCount}/{plan.dayCount}
                     </Text>
                   </View>
                   <View style={styles.planProgressTrack}>
-                    <View style={[styles.planProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
+                    <View style={[styles.planProgressFill, plan.complete && styles.completedPlanProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
                   </View>
                   <View style={styles.bibleReadingPlanMetaRow}>
                     <Text style={[styles.bibleReadingPlanMetaChip, darkMode && styles.plansDarkDraftPill]}>
@@ -594,7 +594,7 @@ export function BibleReaderNavigator({
                           {plan.complete ? "Choose a new plan or keep reviewing." : plan.reference}
                         </Text>
                       </View>
-                      <Ionicons name={plan.complete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : colors.coral} />
+                      <Ionicons name={plan.complete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : plan.complete ? colors.oliveDark : colors.coral} />
                     </View>
                   </Pressable>
                 </View>

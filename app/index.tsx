@@ -5515,10 +5515,10 @@ export default function Home() {
             </View>
             <Text style={[styles.muted, styles.currentPlanHeaderSpacer, plansDarkMode && styles.accountDarkMutedText]}>{" "}</Text>
           </View>
-          <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
+          <Text style={[styles.draftPill, styles.readingPlanCountPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
         </View>
         <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
-          <View style={[styles.planProgressFill, { width: `${Math.min(100, progressPercent)}%` }]} />
+          <View style={[styles.planProgressFill, complete && styles.completedPlanProgressFill, { width: `${Math.min(100, progressPercent)}%` }]} />
         </View>
         {!!today && (
           <View style={[styles.currentPlanNextBox, plansDarkMode && styles.accountDarkInsetBox]}>
@@ -6739,10 +6739,10 @@ export default function Home() {
                     </View>
                     <Text style={[styles.muted, styles.currentPlanHeaderSpacer, plansDarkMode && styles.accountDarkMutedText]}>{" "}</Text>
                   </View>
-                  <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}</Text>
+                  <Text style={[styles.draftPill, styles.readingPlanCountPill, plansDarkMode && styles.plansDarkDraftPill]}>{activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlan.days.length}</Text>
                 </View>
                 <View style={[styles.planProgressTrack, plansDarkMode && styles.plansDarkProgressTrack]}>
-                  <View style={[styles.planProgressFill, { width: `${(activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100}%` }]} />
+                  <View style={[styles.planProgressFill, activeBibleReadingPlanComplete && styles.completedPlanProgressFill, { width: `${(activeBibleReadingPlanCompletedCount / activeBibleReadingPlan.days.length) * 100}%` }]} />
                 </View>
                 <View style={[styles.currentPlanNextBox, plansDarkMode && styles.accountDarkInsetBox]}>
                   <View style={styles.planDayCopy}>
@@ -6961,7 +6961,7 @@ export default function Home() {
                       </View>
                       {planStarted && (
                         <View style={styles.planPageHeaderActions}>
-                          <Text style={[styles.draftPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
+                          <Text style={[styles.draftPill, styles.readingPlanCountPill, plansDarkMode && styles.plansDarkDraftPill]}>{completedCount}/{plan.days.length}</Text>
                         </View>
                       )}
                     </View>
@@ -16525,8 +16525,8 @@ const styles = StyleSheet.create({
     padding: 16
   },
   currentBibleReadingPlanBox: {
-    borderColor: colors.coral,
-    borderWidth: 1.5
+    borderColor: colors.line,
+    borderWidth: 1
   },
   phoneCurrentPlanWideBox: {
     borderRadius: 12,
@@ -16546,6 +16546,9 @@ const styles = StyleSheet.create({
   planProgressFill: {
     backgroundColor: colors.coral,
     height: "100%"
+  },
+  completedPlanProgressFill: {
+    backgroundColor: colors.oliveDark
   },
   planPageDay: {
     alignItems: "center",
@@ -20988,6 +20991,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingHorizontal: 10,
     paddingVertical: 6
+  },
+  readingPlanCountPill: {
+    backgroundColor: "#f5eadb",
+    color: "#7d6744"
   },
   pinnedJournalPill: {
     backgroundColor: colors.oliveDark,

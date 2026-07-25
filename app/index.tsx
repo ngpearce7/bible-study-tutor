@@ -1647,8 +1647,7 @@ export default function Home() {
           detail: `${activeBibleReadingPlan.title}: Day ${activeBibleReadingPlanToday.day} · ${activeBibleReadingPlanToday.reference}`,
           icon: "calendar-outline",
           onPress: () => {
-            openBibleReadingPlanDay(activeBibleReadingPlanToday);
-            setTab("bible");
+            openBibleReadingPlanDayInBible(activeBibleReadingPlanToday);
           }
         }]
       : []),
@@ -4796,17 +4795,22 @@ export default function Home() {
     return null;
   }
 
+  function openBibleReadingPlanDayInBible(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
+    if (openBibleReadingPlanDay(planDay, planId)) setTab("bible");
+  }
+
   function openBibleReadingPlanDay(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
     const overdueBlock = getOverduePlanReadingBlock(plan, planDay);
     if (plan && overdueBlock) {
       const message = `${plan.title} is behind. Day ${overdueBlock.firstIncompleteDay.day} was due ${formatPlanDayRelativeDate(overdueBlock.firstIncompleteDateKey)}.`;
+      setActiveBibleReadingPlanId(plan.id);
+      setActiveBiblePlanSelectedPlanId(plan.id);
+      setActiveBiblePlanSelectedDay(overdueBlock.firstIncompleteDay.day);
+      setBiblePlanStatus(`You're behind on ${plan.title}. Start with Day ${overdueBlock.firstIncompleteDay.day}, or use Catch me up to move this plan forward.`);
       if (Platform.OS === "web" && typeof window !== "undefined") {
         if (!window.confirm(`${message}\n\nCatch me up and open ${planDay.reference}?`)) {
-          setActiveBiblePlanSelectedPlanId(plan.id);
-          setActiveBiblePlanSelectedDay(overdueBlock.firstIncompleteDay.day);
-          setBiblePlanStatus(`Start with Day ${overdueBlock.firstIncompleteDay.day}, or use Catch me up to move this plan forward.`);
-          return;
+          return false;
         }
         catchUpActiveBibleReadingPlanDates(plan.id);
       } else {
@@ -4828,7 +4832,7 @@ export default function Home() {
             }
           }
         ]);
-        return;
+        return false;
       }
     }
     const nextPlanReading = planId ? buildReaderPlanReading(planDay, planId) : null;
@@ -4847,6 +4851,7 @@ export default function Home() {
     }
     scrollReaderToTop();
     trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
+    return true;
   }
 
   function openFollowedBibleReadingPlan(planId: string) {
@@ -5541,7 +5546,7 @@ export default function Home() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Selected reading day ${selectedDay.day}, ${selectedDay.reference}`}
-            onPress={() => { openBibleReadingPlanDay(selectedDay, plan.id); setTab("bible"); }}
+            onPress={() => openBibleReadingPlanDayInBible(selectedDay, plan.id)}
             style={[styles.planPageDay, styles.selectedPlanDayDetail, phoneLayout && styles.phonePlanPageDay, plansDarkMode && styles.plansDarkDayRow, selectedDone && styles.completedPlanDayRow, plansDarkMode && selectedDone && styles.plansDarkCompletedDayRow]}
           >
             <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, selectedDone && styles.completedPlanDayBadge, plansDarkMode && !selectedDone && styles.plansDarkDayBadge]}>{selectedDone ? "✓" : selectedDay.day}</Text>
@@ -5553,7 +5558,7 @@ export default function Home() {
             </View>
             <View style={styles.planDayActionStack}>
               <View style={styles.planDayActions}>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Open ${selectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDay(selectedDay, plan.id); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Open ${selectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDayInBible(selectedDay, plan.id); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
                   <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                 </Pressable>
                 <Pressable accessibilityRole="button" accessibilityLabel={`Study ${selectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(selectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
@@ -5599,7 +5604,7 @@ export default function Home() {
         )}
         {!!biblePlanStatus && activeBibleReadingPlanId === plan.id && <Text style={styles.saveStatus}>{biblePlanStatus}</Text>}
         <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
-          {!complete && !!today && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(today, plan.id); setTab("bible"); }} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+          {!complete && !!today && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(today, plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
           {!complete && !!today && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(today)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
           <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
         </View>
@@ -6763,7 +6768,7 @@ export default function Home() {
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={`Selected reading day ${activeBibleReadingPlanSelectedDay.day}, ${activeBibleReadingPlanSelectedDay.reference}`}
-                    onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); setTab("bible"); }}
+                    onPress={() => openBibleReadingPlanDayInBible(activeBibleReadingPlanSelectedDay)}
                     style={[styles.planPageDay, styles.selectedPlanDayDetail, phoneLayout && styles.phonePlanPageDay, plansDarkMode && styles.plansDarkDayRow, activeBibleReadingPlanSelectedDone && styles.completedPlanDayRow, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.plansDarkCompletedDayRow]}
                   >
                     <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, activeBibleReadingPlanSelectedDone && styles.completedPlanDayBadge, plansDarkMode && !activeBibleReadingPlanSelectedDone && styles.plansDarkDayBadge]}>{activeBibleReadingPlanSelectedDone ? "✓" : activeBibleReadingPlanSelectedDay.day}</Text>
@@ -6775,7 +6780,7 @@ export default function Home() {
                     </View>
                     <View style={styles.planDayActionStack}>
                       <View style={styles.planDayActions}>
-                        <Pressable accessibilityRole="button" accessibilityLabel={`Open ${activeBibleReadingPlanSelectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Open ${activeBibleReadingPlanSelectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDayInBible(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
                           <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                         </Pressable>
                         <Pressable accessibilityRole="button" accessibilityLabel={`Study ${activeBibleReadingPlanSelectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
@@ -6821,7 +6826,7 @@ export default function Home() {
                 )}
                 {!!biblePlanStatus && <Text style={styles.saveStatus}>{biblePlanStatus}</Text>}
                 <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
-                  {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => { openBibleReadingPlanDay(activeBibleReadingPlanToday); setTab("bible"); }} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                  {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
                   {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
                   <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan()} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
                 </View>
@@ -7016,14 +7021,14 @@ export default function Home() {
                         {visiblePlanDays.map((planDay) => {
                           const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, planDay.day));
                           return (
-                            <Pressable key={planDay.day} onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay, plan.id); setTab("bible"); }} style={[styles.planPageDay, styles.compactPlanPageDay, phoneLayout && styles.phonePlanPageDay, phoneLayout && styles.phoneCompactPlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
+                            <Pressable key={planDay.day} onPress={() => { selectBibleReadingPlan(plan.id); openBibleReadingPlanDayInBible(planDay, plan.id); }} style={[styles.planPageDay, styles.compactPlanPageDay, phoneLayout && styles.phonePlanPageDay, phoneLayout && styles.phoneCompactPlanPageDay, plansDarkMode && styles.plansDarkDayRow, done && styles.completedPlanDayRow, plansDarkMode && done && styles.plansDarkCompletedDayRow]}>
                               <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, done && styles.completedPlanDayBadge, plansDarkMode && !done && styles.plansDarkDayBadge]}>{done ? "✓" : planDay.day}</Text>
                               <View style={styles.planDayCopy}>
                                 <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTextDark]}>{planDay.title}</Text>
                                 <Text numberOfLines={1} style={[styles.planDayPassage, phoneLayout && styles.phonePlanDayPassage, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && done && styles.completedPlanDayMutedTextDark]}>{planDay.reference}</Text>
                               </View>
                               <View style={styles.planDayActions}>
-                                <Pressable accessibilityRole="button" accessibilityLabel={`Open ${planDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); openBibleReadingPlanDay(planDay, plan.id); setTab("bible"); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
+                                <Pressable accessibilityRole="button" accessibilityLabel={`Open ${planDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); openBibleReadingPlanDayInBible(planDay, plan.id); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
                                   <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                                 </Pressable>
                                 <Pressable accessibilityRole="button" accessibilityLabel={`Study ${planDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); selectBibleReadingPlan(plan.id); studyBibleReadingPlanDay(planDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>

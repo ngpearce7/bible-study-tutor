@@ -5540,6 +5540,7 @@ export default function Home() {
       : "";
     const selectedDone = !!selectedDay && completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, selectedDay.day));
     const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
+    const openPlanDay = selectedDay || today;
 
     return (
       <View key={plan.id} style={[styles.currentPlanWideBox, styles.currentBibleReadingPlanBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
@@ -5668,8 +5669,8 @@ export default function Home() {
         )}
         {!!biblePlanStatus && activeBibleReadingPlanId === plan.id && <Text style={styles.saveStatus}>{biblePlanStatus}</Text>}
         <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
-          {!complete && !!today && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(today, plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
-          {!complete && !!today && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(today)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+          {!complete && !!openPlanDay && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(openPlanDay, plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+          {!complete && !!openPlanDay && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(openPlanDay)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
           <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
         </View>
       </View>
@@ -6891,8 +6892,8 @@ export default function Home() {
                 )}
                 {!!biblePlanStatus && <Text style={styles.saveStatus}>{biblePlanStatus}</Text>}
                 <View style={[styles.planActionRow, styles.currentPlanBottomActions, phoneLayout && styles.phonePlanActionRow]}>
-                  {!activeBibleReadingPlanComplete && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
-                  {!activeBibleReadingPlanComplete && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanToday)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
+                  {!activeBibleReadingPlanComplete && activeBibleReadingPlanSelectedDay && <AppButton label="Open in Bible" onPress={() => openBibleReadingPlanDayInBible(activeBibleReadingPlanSelectedDay)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton]} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />}
+                  {!activeBibleReadingPlanComplete && activeBibleReadingPlanSelectedDay && <AppButton label="Study" variant="secondary" onPress={() => studyBibleReadingPlanDay(activeBibleReadingPlanSelectedDay)} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />}
                   <AppButton label="Stop" variant="secondary" onPress={() => requestStopFollowingBibleReadingPlan()} style={[styles.currentPlanActionButton, phoneLayout && styles.phonePlanActionButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
                 </View>
               </View>
@@ -8808,6 +8809,46 @@ export default function Home() {
           </View>
         </View>
       )}
+      {pendingBiblePlanReadAhead && (() => {
+        const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanReadAhead.planId);
+        if (!plan) return null;
+        return (
+          <View style={styles.printOptionsOverlay}>
+            <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanReadAhead(null)} />
+            <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+              <View style={styles.printOptionsHeader}>
+                <View style={styles.printOptionsTitleBlock}>
+                  <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>You have missed a reading</Text>
+                  <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                    {plan.title}
+                  </Text>
+                </View>
+                <Pressable accessibilityRole="button" accessibilityLabel="Close reading plan reminder" onPress={() => setPendingBiblePlanReadAhead(null)} style={styles.markupCloseButton}>
+                  <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+                </Pressable>
+              </View>
+              <View style={[styles.currentPlanNextBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                <Text style={[styles.readerBookSectionTitle, accountDarkMode && styles.studyDarkAccentText]}>
+                  Start with Day {pendingBiblePlanReadAhead.missedDay}
+                </Text>
+                <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>
+                  Day {pendingBiblePlanReadAhead.missedDay} was due {formatPlanDayRelativeDate(pendingBiblePlanReadAhead.missedDateKey)}. You tried to open {pendingBiblePlanReadAhead.requestedReference}.
+                </Text>
+              </View>
+              <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                To keep this plan in order, open the missed reading first. Or use Catch me up if you want the plan dates moved forward.
+              </Text>
+              <View style={styles.printOptionsActions}>
+                <Pressable onPress={() => setPendingBiblePlanReadAhead(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                  <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+                </Pressable>
+                <ResumeButton label={`Open Day ${pendingBiblePlanReadAhead.missedDay}`} icon="return-down-forward-outline" onPress={() => openPendingMissedBiblePlanDay(pendingBiblePlanReadAhead)} style={[phoneLayout && styles.phonePrintOpenButton, accountDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePrintOpenButtonText, accountDarkMode && styles.homeDarkResumeButtonText]} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
+                <ResumeButton label="Catch me up" icon="calendar-outline" onPress={() => catchUpAndOpenPendingBiblePlanDay(pendingBiblePlanReadAhead)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              </View>
+            </View>
+          </View>
+        );
+      })()}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Help for ${activeContextHelp.title}`}

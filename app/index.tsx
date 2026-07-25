@@ -4910,17 +4910,21 @@ export default function Home() {
     }
     const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
     if (!nextState) return;
+    setPendingBiblePlanReadAhead((current) =>
+      current?.planId === planId && (current.missedDay === planDay.day || current.requestedDay === planDay.day)
+        ? null
+        : current
+    );
     setCompletedBibleReadingPlanDays((current) => {
       const currentState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: current });
       const next = currentState?.completedDays || current;
       persistBibleReadingPlanProgress(planId, next);
       return next;
     });
-    setBiblePlanStatus(
-      nextState.nextIncomplete
-        ? `${planDay.reference} completed. Next reading: ${nextState.nextIncomplete.reference}.`
-        : `${plan?.title || "Reading plan"} complete.`
-    );
+    const nextStatus = nextState.nextIncomplete
+      ? `${planDay.reference} completed. Next reading: ${nextState.nextIncomplete.reference}.`
+      : `${plan?.title || "Reading plan"} complete.`;
+    setBiblePlanStatus(nextStatus);
     const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
     setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
     if (completedFocusedReading) scrollReaderToTop();
@@ -5474,6 +5478,18 @@ export default function Home() {
     adminProfileSelected: !!selectedAdminProfileId
   });
   const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
+
+  useEffect(() => {
+    if (!pendingBiblePlanReadAhead) return;
+    const missedDayKey = bibleReadingPlanDayKey(pendingBiblePlanReadAhead.planId, pendingBiblePlanReadAhead.missedDay);
+    if (!completedBibleReadingPlanDaySet.has(missedDayKey)) return;
+    setPendingBiblePlanReadAhead(null);
+    setBiblePlanStatus((current) =>
+      current.includes(`Start with Day ${pendingBiblePlanReadAhead.missedDay}`)
+        ? ""
+        : current
+    );
+  }, [completedBibleReadingPlanDaySet, pendingBiblePlanReadAhead]);
 
   const renderBiblePlanReadAheadReminder = (plan: BibleReadingPlan) => {
     const prompt = pendingBiblePlanReadAhead?.planId === plan.id ? pendingBiblePlanReadAhead : null;

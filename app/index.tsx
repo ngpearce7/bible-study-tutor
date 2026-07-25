@@ -5406,6 +5406,11 @@ export default function Home() {
     const selectedDateKey = startDate && selectedDay ? addDaysToDateKey(startDate, selectedDay.day - 1) : "";
     const todayDateKey = startDate && today ? addDaysToDateKey(startDate, today.day - 1) : "";
     const missedFullDay = !!todayDateKey && !complete && todayDateKey < localDateKey();
+    const nextReadingLabel = today
+      ? missedFullDay
+        ? `Overdue: Day ${today.day}${todayDateKey ? ` · ${formatPlanDayRelativeDate(todayDateKey)}` : ""}`
+        : `Next reading: Day ${today.day}${todayDateKey ? ` · ${formatPlanDayRelativeDate(todayDateKey)}` : ""}`
+      : "";
     const selectedDone = !!selectedDay && completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, selectedDay.day));
     const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
 
@@ -5427,7 +5432,7 @@ export default function Home() {
           <View style={[styles.currentPlanNextBox, plansDarkMode && styles.accountDarkInsetBox]}>
             <View style={styles.planDayCopy}>
               <Text style={[styles.readerBookSectionTitle, plansDarkMode && styles.studyDarkAccentText]}>
-                {complete ? "Plan complete" : `Next reading: Day ${today.day}`}
+                {complete ? "Plan complete" : nextReadingLabel}
               </Text>
               <Text style={[styles.readerReadChapterBookTitle, plansDarkMode && styles.accountDarkTitle]}>{today.reference}</Text>
             </View>
@@ -6650,7 +6655,7 @@ export default function Home() {
                 <View style={[styles.currentPlanNextBox, plansDarkMode && styles.accountDarkInsetBox]}>
                   <View style={styles.planDayCopy}>
                     <Text style={[styles.readerBookSectionTitle, plansDarkMode && styles.studyDarkAccentText]}>
-                      {activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`}
+                      {activeBibleReadingPlanTodayLabel || (activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`)}
                     </Text>
                     <Text style={[styles.readerReadChapterBookTitle, plansDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlanToday.reference}</Text>
                   </View>

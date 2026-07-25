@@ -1373,7 +1373,8 @@ export default function Home() {
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
-  const bibleReadingPlanView = buildBibleReadingPlanView({
+  const todayDateKey = localDateKey();
+  const bibleReadingPlanView = useMemo(() => buildBibleReadingPlanView({
     customPlans: customBibleReadingPlans,
     followedPlanIds: followedBibleReadingPlanIds,
     activePlanId: activeBibleReadingPlanId,
@@ -1381,9 +1382,18 @@ export default function Home() {
     startDates: bibleReadingPlanStartDates,
     selectedPlanId: activeBiblePlanSelectedPlanId,
     selectedDay: activeBiblePlanSelectedDay,
-    todayDateKey: localDateKey(),
+    todayDateKey,
     addDaysToDateKey
-  });
+  }), [
+    activeBiblePlanSelectedDay,
+    activeBiblePlanSelectedPlanId,
+    activeBibleReadingPlanId,
+    bibleReadingPlanStartDates,
+    completedBibleReadingPlanDays,
+    customBibleReadingPlans,
+    followedBibleReadingPlanIds,
+    todayDateKey
+  ]);
   const allBibleReadingPlans = bibleReadingPlanView.allPlans;
   const followedBibleReadingPlans = bibleReadingPlanView.followedPlans;
   const followedBibleReadingPlanIdSet = bibleReadingPlanView.followedPlanIdSet;
@@ -1402,7 +1412,7 @@ export default function Home() {
   const activeBibleReadingPlanTodayLabel = activeBibleReadingPlanComplete
     ? "Plan complete"
     : activeBibleReadingPlanToday
-      ? activeBibleReadingPlanTodayDateKey && activeBibleReadingPlanTodayDateKey < localDateKey()
+      ? activeBibleReadingPlanTodayDateKey && activeBibleReadingPlanTodayDateKey < todayDateKey
         ? `Overdue: Day ${activeBibleReadingPlanToday.day} · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}`
         : `Next reading: Day ${activeBibleReadingPlanToday.day}${activeBibleReadingPlanTodayDateKey ? ` · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}` : ""}`
       : "";

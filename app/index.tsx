@@ -1420,17 +1420,20 @@ export default function Home() {
     : "";
   const readerPlanCurrentChunk = getReaderPlanReadingChunk(readerPlanReading);
   const readerPlanCurrentChunkReference = readerPlanCurrentChunk?.reference || "";
+  const readerBibleReadingPlan = readerPlanReading?.planId
+    ? allBibleReadingPlans.find((plan) => plan.id === readerPlanReading.planId) || activeBibleReadingPlan
+    : activeBibleReadingPlan;
   const readerActiveBibleReadingPlanDay =
-    activeBibleReadingPlan && readerPlanReading?.planId === activeBibleReadingPlan.id
-      ? activeBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter)
-      : getReaderPlanDayForChapter(activeBibleReadingPlan, readerBook, readerChapter);
+    readerBibleReadingPlan && readerPlanReading?.planId === readerBibleReadingPlan.id
+      ? readerBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || getReaderPlanDayForChapter(readerBibleReadingPlan, readerBook, readerChapter)
+      : getReaderPlanDayForChapter(readerBibleReadingPlan, readerBook, readerChapter);
   const readerActiveBibleReadingPlanDayComplete =
-    !!activeBibleReadingPlan &&
+    !!readerBibleReadingPlan &&
     !!readerActiveBibleReadingPlanDay &&
-    completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
+    completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(readerBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
     !!readerActiveBibleReadingPlanDay;
-  const readerPlanReadingActive = isReaderPlanReadingActive(activeBibleReadingPlan, readerPlanReading, readerBook, readerChapter);
+  const readerPlanReadingActive = isReaderPlanReadingActive(readerBibleReadingPlan, readerPlanReading, readerBook, readerChapter);
   const readerPlanCurrentChunkParsed = readerPlanCurrentChunkReference ? parseBsbPassageReference(readerPlanCurrentChunkReference) : null;
   const readerPlanChunkIsFullCurrentChapter =
     !!readerPlanReadingActive &&
@@ -4815,7 +4818,7 @@ export default function Home() {
     if (plan && overdueBlock) {
       setActiveBibleReadingPlanId(plan.id);
       setActiveBiblePlanSelectedPlanId(plan.id);
-      setActiveBiblePlanSelectedDay(overdueBlock.firstIncompleteDay.day);
+      setActiveBiblePlanSelectedDay(planDay.day);
       setPendingBiblePlanReadAhead({
         planId: plan.id,
         requestedDay: planDay.day,
@@ -4938,7 +4941,7 @@ export default function Home() {
 
   function markCurrentBibleReadingPlanDayComplete() {
     if (!readerMatchesActiveBibleReadingPlanDay || !readerActiveBibleReadingPlanDay || readerActiveBibleReadingPlanDayComplete) return;
-    markBibleReadingPlanDayComplete(readerActiveBibleReadingPlanDay);
+    markBibleReadingPlanDayComplete(readerActiveBibleReadingPlanDay, readerBibleReadingPlan?.id || activeBibleReadingPlan?.id || "");
   }
 
   function createCustomBibleReadingPlan() {

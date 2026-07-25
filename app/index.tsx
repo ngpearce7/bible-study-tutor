@@ -4949,6 +4949,9 @@ export default function Home() {
     }
     const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
     if (!nextState) return;
+    if (activeBiblePlanSelectedPlanId === planId) {
+      setActiveBiblePlanSelectedDay(nextState.nextIncomplete?.day || 0);
+    }
     setPendingBiblePlanReadAhead((current) =>
       current?.planId === planId && (current.missedDay === planDay.day || current.requestedDay === planDay.day)
         ? null

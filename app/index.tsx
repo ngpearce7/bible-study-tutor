@@ -4779,7 +4779,58 @@ export default function Home() {
     ]);
   }
 
+  function getOverduePlanReadingBlock(plan: BibleReadingPlan | undefined, requestedDay: BibleReadingPlanDay) {
+    if (!plan) return null;
+    const firstIncompleteDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
+    const firstIncompleteDateKey = firstIncompleteDay && bibleReadingPlanStartDates[plan.id]
+      ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], firstIncompleteDay.day - 1)
+      : "";
+    if (
+      firstIncompleteDay &&
+      firstIncompleteDay.day !== requestedDay.day &&
+      firstIncompleteDateKey &&
+      firstIncompleteDateKey < localDateKey()
+    ) {
+      return { firstIncompleteDay, firstIncompleteDateKey };
+    }
+    return null;
+  }
+
   function openBibleReadingPlanDay(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
+    const plan = allBibleReadingPlans.find((item) => item.id === planId);
+    const overdueBlock = getOverduePlanReadingBlock(plan, planDay);
+    if (plan && overdueBlock) {
+      const message = `${plan.title} is behind. Day ${overdueBlock.firstIncompleteDay.day} was due ${formatPlanDayRelativeDate(overdueBlock.firstIncompleteDateKey)}.`;
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        if (!window.confirm(`${message}\n\nCatch me up and open ${planDay.reference}?`)) {
+          setActiveBiblePlanSelectedPlanId(plan.id);
+          setActiveBiblePlanSelectedDay(overdueBlock.firstIncompleteDay.day);
+          setBiblePlanStatus(`Start with Day ${overdueBlock.firstIncompleteDay.day}, or use Catch me up to move this plan forward.`);
+          return;
+        }
+        catchUpActiveBibleReadingPlanDates(plan.id);
+      } else {
+        Alert.alert("You have missed a reading", message, [
+          {
+            text: "Open missed day",
+            onPress: () => {
+              setActiveBiblePlanSelectedPlanId(plan.id);
+              setActiveBiblePlanSelectedDay(overdueBlock.firstIncompleteDay.day);
+              openBibleReadingPlanDay(overdueBlock.firstIncompleteDay, plan.id);
+            }
+          },
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Catch me up",
+            onPress: () => {
+              catchUpActiveBibleReadingPlanDates(plan.id);
+              openBibleReadingPlanDay(planDay, plan.id);
+            }
+          }
+        ]);
+        return;
+      }
+    }
     const nextPlanReading = planId ? buildReaderPlanReading(planDay, planId) : null;
     const nextBook = nextPlanReading?.book || planDay.readerBook;
     const nextChapter = nextPlanReading?.chapter || Math.max(1, Math.round(Number(planDay.readerChapter) || 1));
@@ -5470,14 +5521,12 @@ export default function Home() {
                   styles.planDayTile,
                   phoneLayout && styles.phonePlanDayTile,
                   plansDarkMode && styles.planDayTileDark,
-                  scheduledToday && styles.currentPlanDayTile,
+                  scheduledToday && !missed && styles.currentPlanDayTile,
+                  selected && !missed && styles.selectedPlanDayTile,
                   missed && styles.missedPlanDayTile,
-                  selected && styles.selectedPlanDayTile,
-                  missed && selected && styles.selectedMissedPlanDayTile,
                   !plansDarkMode && done && styles.completedPlanDayTile,
                   plansDarkMode && done && styles.completedPlanDayTileDark,
-                  plansDarkMode && selected && styles.selectedPlanDayTileDark,
-                  plansDarkMode && missed && selected && styles.selectedMissedPlanDayTileDark
+                  plansDarkMode && selected && !missed && styles.selectedPlanDayTileDark
                 ]}
               >
                 <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
@@ -6694,14 +6743,12 @@ export default function Home() {
                           styles.planDayTile,
                           phoneLayout && styles.phonePlanDayTile,
                           plansDarkMode && styles.planDayTileDark,
-                          scheduledToday && styles.currentPlanDayTile,
+                          scheduledToday && !missed && styles.currentPlanDayTile,
+                          selected && !missed && styles.selectedPlanDayTile,
                           missed && styles.missedPlanDayTile,
-                          selected && styles.selectedPlanDayTile,
-                          missed && selected && styles.selectedMissedPlanDayTile,
                           !plansDarkMode && done && styles.completedPlanDayTile,
                           plansDarkMode && done && styles.completedPlanDayTileDark,
-                          plansDarkMode && selected && styles.selectedPlanDayTileDark,
-                          plansDarkMode && missed && selected && styles.selectedMissedPlanDayTileDark
+                          plansDarkMode && selected && !missed && styles.selectedPlanDayTileDark
                         ]}
                       >
                         <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
@@ -16508,18 +16555,6 @@ const styles = StyleSheet.create({
   missedPlanDayTile: {
     borderColor: colors.coral,
     borderStyle: "dashed"
-  },
-  selectedMissedPlanDayTile: {
-    backgroundColor: "#fff6eb",
-    borderColor: colors.coral,
-    borderStyle: "solid",
-    borderWidth: 2
-  },
-  selectedMissedPlanDayTileDark: {
-    backgroundColor: "#2b241d",
-    borderColor: "#e9b76a",
-    borderStyle: "solid",
-    borderWidth: 2
   },
   planDayTileNumber: {
     color: colors.ink,

@@ -710,6 +710,7 @@ const robots = [
 ].filter(Boolean).join("\n") + "\n";
 
 writeFileIfChanged(join(publicDir, "robots.txt"), robots);
+writeFileIfChanged(join(publicDir, "404.html"), buildNotFoundPage(siteUrl));
 
 seoPages.forEach((page) => {
   writeFileIfChanged(join(publicDir, page.file), buildSeoPage(page, siteUrl));
@@ -882,6 +883,33 @@ function buildSeoPage(page, baseUrl) {
       </div>
     </footer>
   </body>
+</html>
+`;
+}
+
+function buildNotFoundPage(baseUrl) {
+  const canonical = baseUrl ? `${baseUrl}/` : "/";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Page not found | Bible Study Tutor</title>
+  <link rel="canonical" href="${canonical}">
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f1e8;color:#231f1a;display:grid;min-height:100vh;place-items:center;padding:24px}
+    main{max-width:560px}
+    a{color:#9f3d1e;font-weight:700}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Page not found</h1>
+    <p>The page or file you requested could not be found.</p>
+    <p><a href="/">Open Bible Study Tutor</a></p>
+  </main>
+</body>
 </html>
 `;
 }

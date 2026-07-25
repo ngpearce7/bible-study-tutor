@@ -1374,7 +1374,7 @@ export default function Home() {
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
   const todayDateKey = localDateKey();
-  const bibleReadingPlanView = useMemo(() => buildBibleReadingPlanView({
+  const bibleReadingPlanView = buildBibleReadingPlanView({
     customPlans: customBibleReadingPlans,
     followedPlanIds: followedBibleReadingPlanIds,
     activePlanId: activeBibleReadingPlanId,
@@ -1384,16 +1384,7 @@ export default function Home() {
     selectedDay: activeBiblePlanSelectedDay,
     todayDateKey,
     addDaysToDateKey
-  }), [
-    activeBiblePlanSelectedDay,
-    activeBiblePlanSelectedPlanId,
-    activeBibleReadingPlanId,
-    bibleReadingPlanStartDates,
-    completedBibleReadingPlanDays,
-    customBibleReadingPlans,
-    followedBibleReadingPlanIds,
-    todayDateKey
-  ]);
+  });
   const allBibleReadingPlans = bibleReadingPlanView.allPlans;
   const followedBibleReadingPlans = bibleReadingPlanView.followedPlans;
   const followedBibleReadingPlanIdSet = bibleReadingPlanView.followedPlanIdSet;

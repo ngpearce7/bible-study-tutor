@@ -5525,6 +5525,40 @@ export default function Home() {
     setPendingBiblePlanReadAhead(null);
   }, [completedBibleReadingPlanDaySet, pendingBiblePlanReadAhead]);
 
+  useEffect(() => {
+    const followedPlanIds = new Set(followedBibleReadingPlans.map((plan) => plan.id));
+    const activePlanIds = new Set([
+      activeBibleReadingPlan?.id || "",
+      ...otherFollowedBibleReadingPlans.map((plan) => plan.id)
+    ].filter(Boolean));
+
+    if (activeBibleReadingPlanId && activeBibleReadingPlanId !== selectedBibleReadingPlanId) {
+      setActiveBibleReadingPlanId(selectedBibleReadingPlanId);
+    }
+
+    if (activeBiblePlanSelectedPlanId && !activePlanIds.has(activeBiblePlanSelectedPlanId)) {
+      setActiveBiblePlanSelectedPlanId(selectedBibleReadingPlanId);
+      setActiveBiblePlanSelectedDay(0);
+    }
+
+    if (pendingBiblePlanReadAhead?.planId && !followedPlanIds.has(pendingBiblePlanReadAhead.planId)) {
+      setPendingBiblePlanReadAhead(null);
+    }
+
+    if (readerPlanReading?.planId && !followedPlanIds.has(readerPlanReading.planId)) {
+      setReaderPlanReading(null);
+    }
+  }, [
+    activeBiblePlanSelectedPlanId,
+    activeBibleReadingPlan?.id,
+    activeBibleReadingPlanId,
+    followedBibleReadingPlans,
+    otherFollowedBibleReadingPlans,
+    pendingBiblePlanReadAhead?.planId,
+    readerPlanReading?.planId,
+    selectedBibleReadingPlanId
+  ]);
+
   const renderFollowedBibleReadingPlanPanel = (plan: BibleReadingPlan) => {
     const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
     const today = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];

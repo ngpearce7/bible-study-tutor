@@ -949,29 +949,21 @@ export default function Home() {
           const normalizedCompletedDays = normalizedProgress.completedDays;
           const normalizedStartDates = normalizedProgress.startDates || {};
           setCustomBibleReadingPlans(storedPlans);
-          setBibleReadingPlanStartDates(normalizedStartDates);
           setFollowedBibleReadingPlanIds(normalizedFollowedPlanIds);
           if (availablePlans.some((plan) => plan.id === normalizedActivePlanId)) {
-            if (normalizedActivePlanId && !normalizedStartDates[normalizedActivePlanId]) {
-              const backfilledStartDates = { ...normalizedStartDates, [normalizedActivePlanId]: localDateKey() };
-              setBibleReadingPlanStartDates(backfilledStartDates);
+            const backfilledStartDates = normalizedFollowedPlanIds.reduce<Record<string, string>>((dates, planId) => {
+              if (!dates[planId]) dates[planId] = localDateKey();
+              return dates;
+            }, { ...normalizedStartDates });
+            setBibleReadingPlanStartDates(backfilledStartDates);
+            setActiveBibleReadingPlanId(normalizedActivePlanId);
+            if (JSON.stringify({ ...normalizedProgress, startDates: backfilledStartDates }) !== JSON.stringify(progress)) {
               saveStoredBibleReadingPlanProgress({
                 activePlanId: normalizedActivePlanId,
                 followedPlanIds: normalizedFollowedPlanIds,
                 completedDays: normalizedCompletedDays,
                 customPlans: storedPlans,
                 startDates: backfilledStartDates,
-                updatedAt: Date.now()
-              }).catch(() => undefined);
-            }
-            setActiveBibleReadingPlanId(normalizedActivePlanId);
-            if (JSON.stringify(normalizedProgress) !== JSON.stringify(progress)) {
-              saveStoredBibleReadingPlanProgress({
-                activePlanId: normalizedActivePlanId,
-                followedPlanIds: normalizedFollowedPlanIds,
-                completedDays: normalizedCompletedDays,
-                customPlans: storedPlans,
-                startDates: normalizedStartDates,
                 updatedAt: normalizedProgress.updatedAt || Date.now()
               }).catch(() => undefined);
             }

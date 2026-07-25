@@ -13,6 +13,7 @@ export type OtherFollowedBibleReadingPlanSummary = {
   title: string;
   reference: string;
   label: string;
+  overdue: boolean;
   completedCount: number;
   dayCount: number;
   remainingCount: number;
@@ -108,16 +109,24 @@ export function buildBibleReadingPlanView({
     const nextDay = plan.days.find((day) => !completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
     const remainingCount = Math.max(0, plan.days.length - completedCount);
     const progressPercent = plan.days.length ? Math.round((completedCount / plan.days.length) * 100) : 0;
+    const complete = plan.days.length > 0 && completedCount >= plan.days.length;
+    const nextDateKey = startDates[plan.id] && nextDay ? addDaysToDateKey(startDates[plan.id], nextDay.day - 1) : "";
+    const overdue = !!nextDateKey && !complete && nextDateKey < todayDateKey;
+    const relativeDate = formatPlanDayRelativeDate(nextDateKey, todayDateKey, addDaysToDateKey);
+    const dayLabel = nextDay
+      ? `${overdue ? "Overdue: " : ""}Day ${nextDay.day}${relativeDate ? ` · ${relativeDate}` : ""}`
+      : "Plan";
     return {
       id: plan.id,
       title: plan.title,
       reference: nextDay?.reference || "",
-      label: nextDay ? `Day ${nextDay.day}` : "Plan",
+      label: dayLabel,
+      overdue,
       completedCount,
       dayCount: plan.days.length,
       remainingCount,
       progressPercent,
-      complete: plan.days.length > 0 && completedCount >= plan.days.length
+      complete
     };
   });
 
@@ -144,4 +153,18 @@ export function buildBibleReadingPlanView({
     activeSelectedDone: !!activePlan && !!activeSelectedDay && completedDaySet.has(bibleReadingPlanDayKey(activePlan.id, activeSelectedDay.day)),
     otherSummaries
   };
+}
+
+function formatPlanDayRelativeDate(
+  dateKey: string,
+  todayDateKey: string,
+  addDaysToDateKey: (dateKey: string, days: number) => string
+) {
+  if (!dateKey || !todayDateKey) return "";
+  if (dateKey === todayDateKey) return "Today";
+  if (dateKey === addDaysToDateKey(todayDateKey, 1)) return "Tomorrow";
+  if (dateKey === addDaysToDateKey(todayDateKey, -1)) return "Yesterday";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return "";
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "long" }).format(new Date(year, month - 1, day));
 }

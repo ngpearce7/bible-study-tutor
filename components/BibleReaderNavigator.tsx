@@ -23,6 +23,7 @@ type FollowedReadingPlanSummary = {
   title: string;
   reference: string;
   label: string;
+  overdue?: boolean;
   completedCount: number;
   dayCount: number;
   remainingCount: number;
@@ -587,7 +588,7 @@ export function BibleReaderNavigator({
                     <View style={styles.bibleReadingPlanTodayHeader}>
                       <View style={styles.bibleReadingPlanTodayTitleBlock}>
                         <Text numberOfLines={2} style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>
-                          {plan.complete ? "Plan complete" : `Next reading: ${plan.label}`}
+                          {plan.complete ? "Plan complete" : plan.overdue ? plan.label : `Next reading: ${plan.label}`}
                         </Text>
                         <Text numberOfLines={2} style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkTitle]}>
                           {plan.complete ? "Choose a new plan or keep reviewing." : plan.reference}

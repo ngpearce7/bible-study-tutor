@@ -4819,6 +4819,22 @@ export default function Home() {
 
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
+    const firstIncompleteDay = plan?.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
+    const firstIncompleteDateKey = plan && firstIncompleteDay && bibleReadingPlanStartDates[plan.id]
+      ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], firstIncompleteDay.day - 1)
+      : "";
+    if (
+      plan &&
+      firstIncompleteDay &&
+      firstIncompleteDay.day !== planDay.day &&
+      firstIncompleteDateKey &&
+      firstIncompleteDateKey < localDateKey()
+    ) {
+      setBiblePlanStatus(
+        `${plan.title} is behind. Complete Day ${firstIncompleteDay.day} first, or use Catch me up to move the plan forward.`
+      );
+      return;
+    }
     const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
     if (!nextState) return;
     setCompletedBibleReadingPlanDays((current) => {
@@ -5457,9 +5473,11 @@ export default function Home() {
                   scheduledToday && styles.currentPlanDayTile,
                   missed && styles.missedPlanDayTile,
                   selected && styles.selectedPlanDayTile,
+                  missed && selected && styles.selectedMissedPlanDayTile,
                   !plansDarkMode && done && styles.completedPlanDayTile,
                   plansDarkMode && done && styles.completedPlanDayTileDark,
-                  plansDarkMode && selected && styles.selectedPlanDayTileDark
+                  plansDarkMode && selected && styles.selectedPlanDayTileDark,
+                  plansDarkMode && missed && selected && styles.selectedMissedPlanDayTileDark
                 ]}
               >
                 <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
@@ -5526,7 +5544,7 @@ export default function Home() {
           <View style={[styles.currentPlanManagementRow, phoneLayout && styles.phoneCurrentPlanManagementRow]}>
             <Pressable accessibilityRole="button" accessibilityLabel={`Catch up ${plan.title} dates to today`} onPress={() => catchUpActiveBibleReadingPlanDates(plan.id)} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
               <Ionicons name="calendar-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-              <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Catch up dates</Text>
+              <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Catch me up</Text>
             </Pressable>
           </View>
         )}
@@ -6679,9 +6697,11 @@ export default function Home() {
                           scheduledToday && styles.currentPlanDayTile,
                           missed && styles.missedPlanDayTile,
                           selected && styles.selectedPlanDayTile,
+                          missed && selected && styles.selectedMissedPlanDayTile,
                           !plansDarkMode && done && styles.completedPlanDayTile,
                           plansDarkMode && done && styles.completedPlanDayTileDark,
-                          plansDarkMode && selected && styles.selectedPlanDayTileDark
+                          plansDarkMode && selected && styles.selectedPlanDayTileDark,
+                          plansDarkMode && missed && selected && styles.selectedMissedPlanDayTileDark
                         ]}
                       >
                         <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
@@ -6748,7 +6768,7 @@ export default function Home() {
                   <View style={[styles.currentPlanManagementRow, phoneLayout && styles.phoneCurrentPlanManagementRow]}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Catch up reading plan dates to today" onPress={() => catchUpActiveBibleReadingPlanDates()} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
                       <Ionicons name="calendar-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-                      <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Catch up dates</Text>
+                      <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Catch me up</Text>
                     </Pressable>
                   </View>
                 )}
@@ -16488,6 +16508,18 @@ const styles = StyleSheet.create({
   missedPlanDayTile: {
     borderColor: colors.coral,
     borderStyle: "dashed"
+  },
+  selectedMissedPlanDayTile: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.coral,
+    borderStyle: "solid",
+    borderWidth: 2
+  },
+  selectedMissedPlanDayTileDark: {
+    backgroundColor: "#2b241d",
+    borderColor: "#e9b76a",
+    borderStyle: "solid",
+    borderWidth: 2
   },
   planDayTileNumber: {
     color: colors.ink,

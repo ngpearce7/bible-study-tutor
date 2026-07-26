@@ -1408,6 +1408,8 @@ export default function Home() {
   const activeBibleReadingPlanSelectedDay = bibleReadingPlanView.activeSelectedDay;
   const activeBibleReadingPlanSelectedDateKey = bibleReadingPlanView.activeSelectedDateKey;
   const activeBibleReadingPlanTodayDateKey = bibleReadingPlanView.activeTodayDateKey;
+  const activeBibleReadingPlanDoneToday = bibleReadingPlanView.activeDoneToday;
+  const activeBibleReadingPlanDoneTodayLabel = bibleReadingPlanView.activeDoneTodayLabel;
   const activeBibleReadingPlanTodayLabel = activeBibleReadingPlanComplete
     ? "Plan complete"
     : activeBibleReadingPlanToday
@@ -6737,6 +6739,8 @@ export default function Home() {
               activeBibleReadingPlan={activeBibleReadingPlan}
               activeBibleReadingPlanToday={activeBibleReadingPlanToday}
               activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
+              activeBibleReadingPlanDoneToday={activeBibleReadingPlanDoneToday}
+              activeBibleReadingPlanDoneTodayLabel={activeBibleReadingPlanDoneTodayLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               activeBibleReadingPlanOpen={readerPlanReadingActive}
@@ -12792,6 +12796,10 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 10
   },
+  compactBibleReadingPlanPanel: {
+    gap: 7,
+    paddingVertical: 9
+  },
   bibleReadingPlanStack: {
     gap: 8,
     marginBottom: 14
@@ -12872,6 +12880,31 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 5
+  },
+  bibleReadingPlanDoneRow: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 9,
+    padding: 9
+  },
+  bibleReadingPlanDoneIcon: {
+    alignItems: "center",
+    backgroundColor: "#edf3e4",
+    borderColor: "rgba(102, 114, 78, 0.28)",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 26,
+    justifyContent: "center",
+    width: 26
+  },
+  bibleReadingPlanDoneTextBlock: {
+    flex: 1,
+    gap: 2,
+    minWidth: 0
   },
   bibleReadingPlanTodayHeader: {
     alignItems: "flex-start",

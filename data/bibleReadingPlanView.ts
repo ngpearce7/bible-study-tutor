@@ -13,6 +13,9 @@ export type OtherFollowedBibleReadingPlanSummary = {
   title: string;
   reference: string;
   label: string;
+  doneToday: boolean;
+  doneTodayReference: string;
+  doneTodayLabel: string;
   overdue: boolean;
   completedCount: number;
   dayCount: number;
@@ -119,6 +122,15 @@ export function buildBibleReadingPlanView({
     activeStartDate && activeToday
       ? addDaysToDateKey(activeStartDate, activeToday.day - 1)
       : "";
+  const getPlanDayDateKey = (plan: BibleReadingPlan, day: BibleReadingPlan["days"][number]) =>
+    startDates[plan.id] ? addDaysToDateKey(startDates[plan.id], day.day - 1) : "";
+  const getScheduledDayForToday = (plan: BibleReadingPlan) =>
+    plan.days.find((day) => getPlanDayDateKey(plan, day) === todayDateKey) || null;
+  const activeScheduledToday = activePlan ? getScheduledDayForToday(activePlan) : null;
+  const activeDoneToday =
+    !!activePlan &&
+    !!activeScheduledToday &&
+    completedDaySet.has(bibleReadingPlanDayKey(activePlan.id, activeScheduledToday.day));
   const otherSummaries: OtherFollowedBibleReadingPlanSummary[] = otherFollowedPlans.map((plan) => {
     const completedCount = plan.days.filter((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
     const nextDay = plan.days.find((day) => !completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
@@ -126,6 +138,10 @@ export function buildBibleReadingPlanView({
     const progressPercent = plan.days.length ? Math.round((completedCount / plan.days.length) * 100) : 0;
     const complete = plan.days.length > 0 && completedCount >= plan.days.length;
     const nextDateKey = startDates[plan.id] && nextDay ? addDaysToDateKey(startDates[plan.id], nextDay.day - 1) : "";
+    const scheduledToday = getScheduledDayForToday(plan);
+    const doneToday =
+      !!scheduledToday &&
+      completedDaySet.has(bibleReadingPlanDayKey(plan.id, scheduledToday.day));
     const overdue = !!nextDateKey && !complete && nextDateKey < todayDateKey;
     const relativeDate = formatPlanDayRelativeDate(nextDateKey, todayDateKey, addDaysToDateKey);
     const dayLabel = nextDay
@@ -136,6 +152,9 @@ export function buildBibleReadingPlanView({
       title: plan.title,
       reference: nextDay?.reference || "",
       label: dayLabel,
+      doneToday,
+      doneTodayReference: scheduledToday?.reference || "",
+      doneTodayLabel: scheduledToday ? `Day ${scheduledToday.day} complete today` : "",
       overdue,
       completedCount,
       dayCount: plan.days.length,
@@ -166,6 +185,9 @@ export function buildBibleReadingPlanView({
     activeSelectedDay,
     activeSelectedDateKey,
     activeTodayDateKey,
+    activeScheduledToday,
+    activeDoneToday,
+    activeDoneTodayLabel: activeScheduledToday ? `Day ${activeScheduledToday.day} complete today` : "",
     activeMissedFullDay: !!activeTodayDateKey && !activeComplete && activeTodayDateKey < todayDateKey,
     activeSelectedDone: !!activePlan && !!activeSelectedDay && completedDaySet.has(bibleReadingPlanDayKey(activePlan.id, activeSelectedDay.day)),
     otherSummaries

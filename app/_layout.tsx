@@ -8,7 +8,7 @@ import { Platform } from "react-native";
 
 const SITE_TITLE = "Bible Study Tutor | Free Bible Study App and Printable Worksheets";
 const SITE_DESCRIPTION =
-  "A free Bible study app for desktop and mobile with Scripture reading, guided Bible study methods, printable worksheets, journaling, memory verses, highlights, and simple church encouragements.";
+  "A free, privacy-aware Bible study app for desktop and mobile with Scripture reading, guided methods, reading plans, printable worksheets, journaling, memory verses, highlights, and simple church encouragements.";
 const siteUrl = (process.env.EXPO_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 const siteImage = siteUrl ? `${siteUrl}/social-preview.png` : undefined;
 const siteIcon = siteUrl ? `${siteUrl}/apple-touch-icon.png` : undefined;
@@ -22,6 +22,15 @@ const structuredDataItems = [
     description: SITE_DESCRIPTION,
     url: siteUrl || undefined,
     image: siteImage,
+    featureList: [
+      "Bible reader",
+      "Bible reading plans",
+      "Guided Bible study methods",
+      "Printable Bible study worksheets",
+      "Scripture memorization",
+      "Bible study journal",
+      "Private encouragement circles"
+    ],
     offers: {
       "@type": "Offer",
       price: "0",

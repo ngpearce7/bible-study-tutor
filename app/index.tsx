@@ -5905,7 +5905,7 @@ export default function Home() {
                   <Text style={[styles.homeHeroTitleAccent, homeDarkMode && styles.homeDarkHeroTitleAccent]}>Be shaped by Scripture.</Text>
                 </Text>
                 <Text style={[styles.homeHeroText, homeDarkMode && styles.homeDarkHeroText]}>
-                  Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, and review in one simple place.
+                  Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, review, and print worksheets in one free, privacy-aware place.
                 </Text>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a guided study" onPress={() => openStudyFromPublicSource("home_hero")} style={phoneLayout && styles.homePhoneActionButton} />

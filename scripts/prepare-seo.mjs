@@ -40,7 +40,78 @@ const seoPages = [
       ["For personal and church use", "Read the Bible, follow study methods, save journal entries, memorize verses, and share private encouragements with trusted friends or circles."]
     ],
     cta: "Open Bible Study Tutor",
-    related: ["/free-bible-study-app", "/features", "/bible-study-app-for-churches"]
+    related: ["/how-it-works", "/free-bible-study-app", "/pricing", "/features", "/bible-study-app-for-churches"]
+  },
+  {
+    path: "/how-it-works",
+    file: "how-it-works.html",
+    title: "How Bible Study Tutor Works | Read, Study, Remember and Print",
+    description: "See how Bible Study Tutor helps you read Scripture, follow Bible reading plans, study passages, save notes, memorize verses, and print worksheets.",
+    heading: "How Bible Study Tutor works",
+    intro: "Bible Study Tutor is built around a simple Scripture-first rhythm: read the Bible, slow down with a guided method, save what matters, remember Scripture, and use printable worksheets when paper helps.",
+    sections: [
+      ["Open Scripture", "Start in the Bible reader, choose a passage, search for a word or theme, or continue a Bible reading plan from where you left off."],
+      ["Study with a method", "Send a passage into Study and choose a guided method such as SOAP, OIA, Inductive Study, Lectio Divina, READ, verse mapping, or word study."],
+      ["Save and return", "Keep notes, highlights, bookmarks, meditations, memory verses, and journal entries together so your study can grow over time."],
+      ["Print when helpful", "Print Bible study worksheets or memory cards for small groups, church classes, youth groups, or personal pen-and-paper study."]
+    ],
+    cta: "Start a guided study",
+    related: ["/features", "/bible-study-methods", "/printable-bible-study-worksheets", "/faq"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Open the Bible reader and choose a passage.",
+      "Send the passage into a guided study method.",
+      "Write observations, application, prayer, or reflection.",
+      "Save the study to your journal or print a worksheet.",
+      "Return later for review, memory practice, or continued reading."
+    ]
+  },
+  {
+    path: "/pricing",
+    file: "pricing.html",
+    title: "Bible Study Tutor Pricing | Free Bible Study App",
+    description: "Bible Study Tutor is free to use for Bible reading, guided study, journaling, memory verses, printable worksheets, and church or small group use.",
+    heading: "Bible Study Tutor is free to use",
+    intro: "Bible Study Tutor is intentionally free and accessible for individuals, small groups, churches, youth groups, and anyone who wants practical Scripture study tools without a paywall.",
+    sections: [
+      ["Free core study tools", "Bible reading, guided study methods, notes, highlights, bookmarks, memory verses, reading plans, journal entries, and printable worksheets are available without a paid subscription."],
+      ["Built for churches and groups", "The app is designed so a church can recommend it freely, and a group can use digital tools or printed worksheets without asking members to pay."],
+      ["Why some translations are limited", "Some modern Bible translations require commercial licensing. Bible Study Tutor uses free and legally available public-domain or openly accessible texts to keep the app free and responsible."],
+      ["No paid social feed", "Private friends and circles are for trusted encouragement, not a public timeline or paid community platform."]
+    ],
+    cta: "Start studying free",
+    related: ["/free-bible-study-app", "/about", "/faq", "/bible-study-app-for-churches"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Is Bible Study Tutor free?", "Yes. The core Bible study tools are free to use on desktop and mobile."],
+      ["Do I need to pay to print worksheets?", "No. Printable Bible study worksheets and memory cards are part of the free app experience."],
+      ["Why does Bible Study Tutor not include every modern Bible translation?", "Many modern translations require separate publisher permission or paid licensing. The app stays free by using legally available texts."],
+      ["Can churches use Bible Study Tutor?", "Yes. The app is designed to be useful for churches, small groups, youth groups, and personal discipleship."]
+    ]
+  },
+  {
+    path: "/faq",
+    file: "faq.html",
+    title: "Bible Study Tutor FAQ | Free Bible Study App Questions",
+    description: "Answers to common questions about Bible Study Tutor, including how to study Scripture, use reading plans, print worksheets, save notes, and create a free account.",
+    heading: "Bible Study Tutor FAQ",
+    intro: "Here are practical answers for new visitors and church leaders who want to understand how Bible Study Tutor works before using or sharing it.",
+    sections: [
+      ["Getting started", "You can use Bible Study Tutor without signing in, but creating a free account helps save progress across desktop and mobile devices."],
+      ["Reading plans and guided study", "Bible reading plans help you keep reading through Scripture, while guided study methods help you slow down over a selected passage."],
+      ["Notes, highlights, and journal", "Highlights, bookmarks, notes, studies, meditations, and encouragements can be saved so you can return to them later."],
+      ["Worksheets and memory cards", "Selected passages can become printable study worksheets, and saved memory verses can become printable cards for review."]
+    ],
+    cta: "Open Bible Study Tutor",
+    related: ["/how-it-works", "/pricing", "/features", "/printable-bible-study-worksheets"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Can I use Bible Study Tutor without signing in?", "Yes. You can explore the app without an account. A free account helps save your study data across devices."],
+      ["What is the difference between a reading plan and a guided study?", "A reading plan helps you keep moving through Scripture over days or weeks. A guided study helps you examine one passage with a method such as SOAP, OIA, or Inductive Study."],
+      ["Can I print from my phone?", "Yes. Use the print worksheet or print memory cards options, then use your phone browser’s share or print controls to save or print the page."],
+      ["Where do my notes go?", "Saved studies, meditations, highlights, bookmarks, and reflections are kept in the Journal so you can revisit them by date, Scripture, or type."],
+      ["Is Bible Study Tutor private?", "Bible Study Tutor avoids public timelines. Friends and circles are designed for trusted encouragement, and the app does not track private journal text or study answers for public analytics."]
+    ]
   },
   {
     path: "/printable-bible-study-worksheets",
@@ -755,6 +826,14 @@ function buildSeoPage(page, baseUrl) {
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
     .join("\n");
+  const faqBlock = page.faq?.length
+    ? `<section class="faq-section" aria-labelledby="faq-heading">
+        <h2 id="faq-heading">Common questions</h2>
+        <div class="faq-list">
+          ${page.faq.map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("\n          ")}
+        </div>
+      </section>`
+    : "";
   const breadcrumbLinks = breadcrumbs
     .map((crumb, index) => {
       const isLast = index === breadcrumbs.length - 1;
@@ -771,19 +850,7 @@ function buildSeoPage(page, baseUrl) {
         </div>
       </aside>`
     : "";
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: page.title,
-    description: page.description,
-    url: canonical,
-    isPartOf: {
-      "@type": "WebSite",
-      name: "Bible Study Tutor",
-      url: appUrl
-    },
-    about: ["Bible study", "Scripture", "Printable Bible study worksheets", "Bible study methods"]
-  };
+  const jsonLd = buildSeoStructuredData(page, canonical, appUrl);
 
   return `<!doctype html>
 <html lang="en-AU">
@@ -837,6 +904,11 @@ function buildSeoPage(page, baseUrl) {
       .related-grid a { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); display: grid; gap: 6px; padding: 16px; text-decoration: none; }
       .related-grid strong { color: var(--olive); font-size: 16px; }
       .related-grid span { color: var(--muted); font-size: 14px; line-height: 1.45; }
+      .faq-section { margin-top: 28px; }
+      .faq-list { display: grid; gap: 10px; margin-top: 14px; }
+      details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+      summary { color: var(--olive); cursor: pointer; font-weight: 900; }
+      details p { margin-top: 10px; }
       .cta-section { background: var(--olive); border-radius: 18px; color: white; margin-top: 30px; padding: 24px; }
       .cta-section h2 { color: white; }
       .cta-section p { color: rgba(255, 255, 255, .84); margin-bottom: 16px; max-width: 680px; }
@@ -855,6 +927,9 @@ function buildSeoPage(page, baseUrl) {
           <a href="/about">About</a>
           <a href="/printable-bible-study-worksheets">Worksheets</a>
           <a href="/bible-study-methods">Methods</a>
+          <a href="/how-it-works">How it works</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/faq">FAQ</a>
           <a href="/features">Features</a>
         </nav>
       </div>
@@ -869,6 +944,7 @@ function buildSeoPage(page, baseUrl) {
         <p class="intro">${escapeHtml(page.intro)}</p>
       </section>
       <div class="grid">${sections}</div>
+      ${faqBlock}
       ${relatedLinks}
       <section class="cta-section" aria-labelledby="cta-heading">
         <h2 id="cta-heading">Continue in Bible Study Tutor</h2>
@@ -912,6 +988,71 @@ function buildNotFoundPage(baseUrl) {
 </body>
 </html>
 `;
+}
+
+function buildSeoStructuredData(page, canonical, appUrl) {
+  const webPage = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: page.title,
+    description: page.description,
+    url: canonical,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Bible Study Tutor",
+      url: appUrl
+    },
+    about: ["Bible study", "Scripture", "Printable Bible study worksheets", "Bible study methods"]
+  };
+
+  if (page.schemaType === "FAQPage" && page.faq?.length) {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        stripContext(webPage),
+        {
+          "@type": "FAQPage",
+          name: page.heading,
+          url: canonical,
+          mainEntity: page.faq.map(([question, answer]) => ({
+            "@type": "Question",
+            name: question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: answer
+            }
+          }))
+        }
+      ]
+    };
+  }
+
+  if (page.schemaType === "HowTo" && page.howToSteps?.length) {
+    return {
+      "@context": "https://schema.org",
+      "@graph": [
+        stripContext(webPage),
+        {
+          "@type": "HowTo",
+          name: page.heading,
+          description: page.description,
+          url: canonical,
+          step: page.howToSteps.map((step, index) => ({
+            "@type": "HowToStep",
+            position: index + 1,
+            text: step
+          }))
+        }
+      ]
+    };
+  }
+
+  return webPage;
+}
+
+function stripContext(item) {
+  const { ["@context"]: _context, ...rest } = item;
+  return rest;
 }
 
 function buildAnalyticsSnippet(page, ctaHref) {

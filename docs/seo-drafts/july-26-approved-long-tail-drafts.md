@@ -1,6 +1,6 @@
 # July 26 Long-Tail SEO Page Drafts
 
-Status: draft only. Do not add these pages to `scripts/prepare-seo.mjs`, `_redirects`, or `sitemap.xml` until they have been reviewed and approved for publishing.
+Status: the July 26 approved pages have been promoted into `scripts/prepare-seo.mjs` for static generation. Keep this file as the original content-review note and theological review checklist.
 
 ## /free-bible-study-app-for-small-groups
 
@@ -106,3 +106,25 @@ CTA: Start studying free
 Internal links: `/free-bible-study-app`, `/features`, `/how-it-works`, `/pricing`
 
 Theological review: Low. Check broad “Bible study tools” positioning.
+
+## /how-to-start-a-bible-reading-plan
+
+Title: How to Start a Bible Reading Plan | Simple Scripture Reading Rhythm
+
+Meta description: Learn how to start a Bible reading plan with a realistic pace, daily reading rhythm, progress tracking, catch-up options, and guided study when needed.
+
+H1: How to start a Bible reading plan
+
+Intro: A Bible reading plan works best when it is simple enough to return to and flexible enough for real life. Bible Study Tutor helps users choose a plan, open the next reading, and keep progress clear.
+
+Sections:
+- Choose a realistic plan: Start with a plan that fits your season. A short plan can build rhythm, while a longer plan can help you move through larger parts of Scripture.
+- Read the next passage: Open the current reading in the Bible reader, read the selected passage, and mark the plan day complete when you finish.
+- Slow down when needed: If a passage raises questions or needs more reflection, send it to Study and use SOAP, OIA, Inductive Study, or another guided method.
+- Catch up without confusion: If you miss a day, Bible Study Tutor can help you return to the missed reading or shift the plan forward so the rhythm stays clear.
+
+CTA: Open reading plans
+
+Internal links: `/bible-reading-plan-app`, `/how-it-works`, `/bible-study-methods/soap`, `/bible-study-journal`
+
+Theological review: Low. Check wording around rhythm, catch-up, and “real life” encouragement.

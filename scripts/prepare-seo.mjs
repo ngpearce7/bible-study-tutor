@@ -116,17 +116,25 @@ const seoPages = [
   {
     path: "/printable-bible-study-worksheets",
     file: "printable-bible-study-worksheets.html",
-    title: "Printable Bible Study Worksheets | Free Bible Study Tutor",
-    description: "Create free printable Bible study worksheets from selected Scripture passages using guided methods like SOAP, OIA, Inductive Study, Lectio Divina, READ, and more.",
+    title: "Printable Bible Study Worksheets | Free Worksheets for Scripture Study",
+    description: "Print free Bible study worksheets for personal study, small groups, youth groups, sermon notes, and church classes using guided methods like SOAP, OIA, and Inductive Study.",
     heading: "Printable Bible study worksheets",
-    intro: "Bible Study Tutor can turn selected verses into clean printable worksheets for personal study, church groups, youth groups, Bible classes, or anyone who prefers pen and paper.",
+    intro: "Bible Study Tutor can turn selected verses into clean printable worksheets for personal study, church groups, youth groups, Bible classes, sermon follow-up, or anyone who prefers pen and paper.",
     sections: [
-      ["Choose any passage", "Select verses in the Bible reader or open a passage in Study, then print a worksheet for the selected Scripture."],
-      ["Pick a study method", "Worksheets can use guided methods such as SOAP, OIA, Inductive Study, Lectio Divina, READ, and other Scripture study patterns."],
-      ["Room to write", "Choose standard or extra writing space, and include optional memory verse and shareable insight sections."]
+      ["Choose any passage", "Select verses in the Bible reader or open a passage in Study, then print a worksheet for the selected Scripture. For example, select Romans 8:1-4, choose SOAP, and print a one-page reflection sheet."],
+      ["Pick a study method", "Worksheets can use guided methods such as SOAP, OIA, Inductive Study, Lectio Divina, READ, and other Scripture study patterns, so the questions match the way you want to study."],
+      ["Use it in real settings", "Print worksheets for personal quiet time, youth group discussion, church small groups, family devotions, sermon notes, or a Bible class handout."],
+      ["Print from desktop or mobile", "Open the worksheet preview, then use your browser print or save-as-PDF controls. On a phone, use the browser share or print option to send it to a printer or save it."]
     ],
     cta: "Start with the Bible reader",
-    related: ["/bible-study-methods", "/bible-study-for-small-groups", "/bible-study-for-beginners"]
+    related: ["/bible-study-app-with-printable-worksheets", "/printable-soap-bible-study-worksheet", "/printable-inductive-bible-study-worksheet", "/bible-study-for-small-groups"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Are the Bible study worksheets free?", "Yes. Bible Study Tutor includes printable worksheets as part of the free app experience."],
+      ["Can I use these worksheets for a small group?", "Yes. You can print selected passages and guided questions for small groups, youth groups, church classes, or personal study."],
+      ["Can I print worksheets from a phone?", "Yes. Open the printable worksheet and use your phone browser’s share, print, or save-to-PDF option."],
+      ["Which Bible study methods work with worksheets?", "You can use methods such as SOAP, OIA, Inductive Study, Lectio Divina, READ, and other guided Scripture study patterns."]
+    ]
   },
   {
     path: "/bible-study-methods",
@@ -176,17 +184,26 @@ const seoPages = [
   {
     path: "/bible-study-methods/soap",
     file: "bible-study-methods/soap.html",
-    title: "SOAP Bible Study Method | Scripture, Observation, Application and Prayer",
-    description: "Use the SOAP Bible study method to read Scripture, write observations, apply the passage, and pray through what God is teaching you.",
+    title: "SOAP Bible Study Method | Scripture, Observation, Application, Prayer",
+    description: "Learn the SOAP Bible study method with a simple example, when to use it, printable worksheet options, and guided Scripture study in Bible Study Tutor.",
     heading: "SOAP Bible study method",
-    intro: "SOAP is a simple Bible study method for turning Scripture reading into thoughtful reflection, prayer, and everyday obedience.",
+    intro: "SOAP is a simple Bible study method for turning Scripture reading into thoughtful reflection, prayer, and everyday obedience. It works especially well when you want a clear path for a short passage.",
     sections: [
-      ["Scripture", "Choose a passage and write down the verse or section that stands out. This keeps the study anchored in the biblical text."],
-      ["Observation and application", "Notice what the passage says, then ask how it speaks to your beliefs, actions, relationships, and trust in God."],
-      ["Prayer", "Finish by praying honestly through what you have seen, asking God for help to receive and obey His Word."]
+      ["Scripture", "Choose a passage and write down the verse or section that stands out. This keeps the study anchored in the biblical text before reflection begins."],
+      ["Observation", "Notice what the passage says. Look for repeated words, commands, promises, people, contrasts, and what the passage reveals about God."],
+      ["Application", "Ask how the passage speaks to your beliefs, actions, relationships, worship, and trust in God. Keep the response specific rather than vague."],
+      ["Prayer", "Finish by praying honestly through what you have seen, asking God for help to receive and obey His Word."],
+      ["Simple SOAP example", "For Romans 8:1, Scripture records the verse, Observation notices the promise of no condemnation in Christ, Application responds with trust rather than fear, and Prayer asks God to help that truth settle into daily life."]
     ],
     cta: "Practise SOAP",
-    related: ["/bible-study-methods", "/bible-study-methods/oia", "/printable-bible-study-worksheet-for-small-groups"]
+    related: ["/printable-soap-bible-study-worksheet", "/bible-study-methods/oia", "/how-to-study-a-bible-passage", "/bible-study-app-with-printable-worksheets"],
+    schemaType: "FAQPage",
+    faq: [
+      ["What does SOAP stand for?", "SOAP stands for Scripture, Observation, Application, and Prayer."],
+      ["When is SOAP a good Bible study method?", "SOAP is useful for beginners, daily devotions, small groups, and short passages where you want a simple structure."],
+      ["Can I print a SOAP worksheet?", "Yes. Bible Study Tutor can create printable worksheets for selected Scripture passages using the SOAP method."],
+      ["Is SOAP the same as inductive Bible study?", "SOAP is simpler and more devotional. Inductive study usually spends more time on detailed observation, interpretation, and cross references."]
+    ]
   },
   {
     path: "/bible-study-methods/inductive",
@@ -562,6 +579,120 @@ const seoPages = [
     ],
     cta: "Open Bible Study Tutor",
     related: ["/free-bible-study-app", "/bible-study-for-small-groups", "/about"]
+  },
+  {
+    path: "/free-bible-study-app-for-small-groups",
+    file: "free-bible-study-app-for-small-groups.html",
+    title: "Free Bible Study App for Small Groups | Bible Study Tutor",
+    description: "Use Bible Study Tutor as a free Bible study app for small groups with Scripture reading, guided methods, printable worksheets, private encouragements, and memory verses.",
+    heading: "Free Bible study app for small groups",
+    intro: "Bible Study Tutor helps small groups study Scripture together without needing a paid subscription, public social feed, or complicated setup.",
+    sections: [
+      ["Prepare around one passage", "Leaders can select a Scripture passage, choose a study method, and print worksheets for group discussion before or during a meeting."],
+      ["Support different study styles", "Group members can use the app digitally or bring a printed worksheet if handwriting helps them slow down, think, and pray."],
+      ["Keep encouragement private", "Friends and circles are designed for trusted encouragement, not public posting or social media-style feeds."],
+      ["Continue after the group meets", "Members can save notes, memory verses, reading plan progress, and journal reflections so the group study carries into the week."]
+    ],
+    cta: "Prepare a group study",
+    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheet-for-small-groups", "/bible-study-methods/soap", "/pricing"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Can small groups use Bible Study Tutor for free?", "Yes. Bible Study Tutor is designed to be free and accessible for small groups, churches, and personal Scripture study."],
+      ["Can a leader print worksheets for a group?", "Yes. A leader can select a passage and print worksheets using guided methods such as SOAP, OIA, or Inductive Study."],
+      ["Does Bible Study Tutor have a public social feed?", "No. Friends and circles are intended for private, trusted encouragement rather than public posting."]
+    ]
+  },
+  {
+    path: "/bible-reading-plan-app",
+    file: "bible-reading-plan-app.html",
+    title: "Bible Reading Plan App | Follow Scripture Reading Plans",
+    description: "Follow Bible reading plans in Bible Study Tutor, track progress, mark readings complete, continue across devices, and study selected passages.",
+    heading: "Bible reading plan app",
+    intro: "Bible Study Tutor includes Bible reading plans to help users keep a steady rhythm of reading Scripture, then slow down into deeper study when a passage needs attention.",
+    sections: [
+      ["Follow a plan", "Choose a short, medium, or long reading plan and continue from the next reading. Plans can help with John, Romans, Psalms, the Gospels, the New Testament, or the whole Bible."],
+      ["Keep reading and study connected", "Open a plan reading in the Bible reader, then send the passage to Study when you want guided prompts, notes, prayer, or a printable worksheet."],
+      ["Track progress without pressure", "Mark readings complete, catch up when needed, and keep ordinary chapter reading separate from plan completion."],
+      ["Use plans on desktop and mobile", "Signed-in users can keep reading plan progress available across devices while still using the app in a simple, privacy-aware way."]
+    ],
+    cta: "Open reading plans",
+    related: ["/how-to-start-a-bible-reading-plan", "/how-it-works", "/features", "/how-to-study-the-bible", "/faq"],
+    schemaType: "FAQPage",
+    faq: [
+      ["What is a Bible reading plan?", "A Bible reading plan gives you a sequence of passages to read over a set number of days."],
+      ["Can I study a reading plan passage?", "Yes. You can open a plan reading in the Bible reader and send it into a guided study method."],
+      ["Can I follow more than one reading plan?", "Bible Study Tutor supports multiple active reading plans while keeping the Bible reader focused on the next readings."]
+    ]
+  },
+  {
+    path: "/how-to-start-a-bible-reading-plan",
+    file: "how-to-start-a-bible-reading-plan.html",
+    title: "How to Start a Bible Reading Plan | Simple Scripture Reading Rhythm",
+    description: "Learn how to start a Bible reading plan with a realistic pace, daily reading rhythm, progress tracking, catch-up options, and guided study when needed.",
+    heading: "How to start a Bible reading plan",
+    intro: "A Bible reading plan works best when it is simple enough to return to and flexible enough for real life. Bible Study Tutor helps you choose a plan, open the next reading, and keep progress clear.",
+    sections: [
+      ["Choose a realistic plan", "Start with a plan that fits your season. A short plan can build rhythm, while a longer plan can help you move through larger parts of Scripture."],
+      ["Read the next passage", "Open the current reading in the Bible reader, read the selected passage, and mark the plan day complete when you finish."],
+      ["Slow down when needed", "If a passage raises questions or needs more reflection, send it to Study and use SOAP, OIA, Inductive Study, or another guided method."],
+      ["Catch up without confusion", "If you miss a day, Bible Study Tutor can help you return to the missed reading or shift the plan forward so the rhythm stays clear."]
+    ],
+    cta: "Open reading plans",
+    related: ["/bible-reading-plan-app", "/how-it-works", "/bible-study-methods/soap", "/bible-study-journal"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a Bible reading plan with a pace you can realistically keep.",
+      "Open the next reading in the Bible reader.",
+      "Read the passage and mark the plan day complete.",
+      "Send difficult or meaningful passages into guided study.",
+      "Return the next day or use catch-up tools if you fall behind."
+    ]
+  },
+  {
+    path: "/bible-study-app-with-printable-worksheets",
+    file: "bible-study-app-with-printable-worksheets.html",
+    title: "Bible Study App with Printable Worksheets | Digital and Paper Study",
+    description: "Use Bible Study Tutor as a Bible study app with printable worksheets for personal study, small groups, youth groups, church groups, and pen-and-paper reflection.",
+    heading: "Bible study app with printable worksheets",
+    intro: "Bible Study Tutor works for digital study and pen-and-paper study, helping users move from Scripture reading to guided notes, prayer, memory, and printable worksheets.",
+    sections: [
+      ["Select Scripture first", "Start with the passage so the worksheet is anchored in the Bible text rather than in a vague topic or disconnected question."],
+      ["Choose a method", "Use SOAP, OIA, Inductive Study, Lectio Divina, READ, or another guided rhythm to shape the worksheet prompts."],
+      ["Print for real-life settings", "Worksheets can support personal devotion, family study, youth groups, Bible classes, sermon follow-up, and church small groups."],
+      ["Keep digital and paper together", "A user can study in the app, print a worksheet when paper helps, and save notes or memory verses for later review."]
+    ],
+    cta: "Print a worksheet",
+    related: ["/printable-bible-study-worksheets", "/printable-soap-bible-study-worksheet", "/printable-inductive-bible-study-worksheet", "/bible-study-worksheet-for-church-groups"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Can Bible Study Tutor be used without printing?", "Yes. The app supports digital Bible reading, guided study, notes, journaling, memory verses, and reading plans."],
+      ["Why include printable worksheets?", "Some people think, pray, and discuss more easily with pen and paper, especially in small groups or church classes."],
+      ["Can I choose the study method for a worksheet?", "Yes. Worksheets can be created from guided methods such as SOAP, OIA, Inductive Study, Lectio Divina, and READ."]
+    ]
+  },
+  {
+    path: "/how-to-memorize-bible-verses",
+    file: "how-to-memorize-bible-verses.html",
+    title: "How to Memorize Bible Verses | Scripture Memory with Review",
+    description: "Learn how to memorize Bible verses with reading, blanks, hints, review rhythms, meditation prompts, collections, and printable memory cards.",
+    heading: "How to memorize Bible verses",
+    intro: "Memorizing Scripture is helped by repetition, reflection, prayer, and review. Bible Study Tutor gives users a simple way to save, practise, meditate on, and print memory verses.",
+    sections: [
+      ["Read before recall", "Begin by reading the verse carefully and noticing the words, theme, and context before hiding words or testing memory."],
+      ["Practise with blanks", "Hide parts of the verse, type the missing words, and use hints when needed so review stays active rather than passive."],
+      ["Review over time", "Set review rhythms, group related verses into collections, and return to verses that need more attention."],
+      ["Use meditation and memory cards", "Pause over a saved verse with simple prompts, or print memory cards to place Scripture where you will see it through the day."]
+    ],
+    cta: "Open memory verses",
+    related: ["/bible-memory-verses", "/scripture-memorization-app", "/printable-bible-memory-cards", "/bible-study-journal"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a verse or passage to save to memory.",
+      "Read the verse carefully in context.",
+      "Practise missing words with hints when needed.",
+      "Review the verse again on future days.",
+      "Group related verses or print memory cards for regular review."
+    ]
   },
   {
     path: "/how-to-study-romans",
@@ -1086,6 +1217,7 @@ function buildAnalyticsSnippet(page, ctaHref) {
 function publicCtaEventType(page) {
   if (page.path.startsWith("/bible-study-methods/")) return "method_page_cta_clicked";
   if (page.path.includes("worksheet") || page.path.includes("printable")) return "worksheet_cta_clicked";
+  if (page.path.includes("reading-plan")) return "plans_opened";
   return "seo_cta_clicked";
 }
 
@@ -1132,6 +1264,7 @@ function getAppEntryQuery(page) {
   }
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
   if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "tab=home";
+  if (value.includes("reading plan")) return "tab=plans";
   if (value.includes("memor") || value.includes("memory")) return "tab=memory";
   if (value.includes("worksheet") || value.includes("printable") || value.includes("reader") || value.includes("highlight")) return "tab=bible";
   if (value.includes("method")) return "tab=methods";
@@ -1142,6 +1275,7 @@ function getAppEntryQuery(page) {
 function getStandardCtaLabel(page) {
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
   if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "Start a guided study";
+  if (value.includes("reading plan")) return "Open reading plans";
   if (page.path === "/bible-study-methods" || value.includes("method")) return "Choose a study method";
   if (page.path.includes("memory-card")) return "Print memory cards";
   if (value.includes("memor") || value.includes("memory")) return "Open memory verses";

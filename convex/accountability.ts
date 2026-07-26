@@ -237,6 +237,7 @@ export const saveBibleReaderState = mutation({
           }))
         })),
         startDates: v.optional(v.record(v.string(), v.string())),
+        completedPlanDates: v.optional(v.record(v.string(), v.string())),
         updatedAt: v.optional(v.number())
       }))
     })
@@ -573,6 +574,7 @@ function cleanBibleReaderState(state: {
       }>;
     }>;
     startDates?: Record<string, string>;
+    completedPlanDates?: Record<string, string>;
     updatedAt?: number;
   };
 }) {
@@ -662,6 +664,14 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
       if (cleanPlanId && /^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) map[cleanPlanId] = cleanDate;
       return map;
     }, {});
+  const completedPlanDates = Object.entries(progress.completedPlanDates || {})
+    .slice(0, 60)
+    .reduce<Record<string, string>>((map, [planId, date]) => {
+      const cleanPlanId = clampText(planId, 80);
+      const cleanDate = clampText(date, 10);
+      if (cleanPlanId && /^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) map[cleanPlanId] = cleanDate;
+      return map;
+    }, {});
 
   return {
     activePlanId: normalizedActivePlanId,
@@ -669,6 +679,7 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
     completedDays,
     customPlans,
     startDates,
+    completedPlanDates,
     updatedAt: Number.isFinite(Number(progress.updatedAt)) ? Math.max(0, Number(progress.updatedAt)) : Date.now()
   };
 }

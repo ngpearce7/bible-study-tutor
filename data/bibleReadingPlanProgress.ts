@@ -12,6 +12,7 @@ export type StoredBibleReadingPlanProgress = {
   completedDays: string[];
   customPlans: BibleReadingPlan[];
   startDates?: Record<string, string>;
+  completedPlanDates?: Record<string, string>;
   updatedAt?: number;
 };
 
@@ -20,7 +21,7 @@ export function bibleReadingPlanDayKey(planId: string, day: number) {
 }
 
 export function emptyBibleReadingPlanProgress(): StoredBibleReadingPlanProgress {
-  return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {} };
+  return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {}, completedPlanDates: {} };
 }
 
 export function normalizeBibleReadingPlanId(planId: string) {
@@ -77,12 +78,21 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
         return map;
       }, {})
     : {};
+  const completedPlanDates = source.completedPlanDates && typeof source.completedPlanDates === "object" && !Array.isArray(source.completedPlanDates)
+    ? Object.entries(source.completedPlanDates).slice(0, 60).reduce<Record<string, string>>((map, [planId, date]) => {
+        const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
+        const dateKey = String(date).slice(0, 10);
+        if (normalizedPlanId && validPlanIds.has(normalizedPlanId) && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
+        return map;
+      }, {})
+    : {};
   const normalized: StoredBibleReadingPlanProgress = {
     activePlanId: normalizedActivePlanId,
     followedPlanIds: normalizedFollowedPlanIds,
     completedDays: Array.from(new Set(completedDays)),
     customPlans,
     startDates,
+    completedPlanDates,
     updatedAt: Number.isFinite(Number(source.updatedAt)) ? Number(source.updatedAt) : Date.now()
   };
   return hasBibleReadingPlanProgress(normalized) ? normalized : null;
@@ -94,7 +104,8 @@ export function hasBibleReadingPlanProgress(progress?: StoredBibleReadingPlanPro
     progress?.followedPlanIds?.length ||
     progress?.completedDays.length ||
     progress?.customPlans.length ||
-    Object.keys(progress?.startDates || {}).length
+    Object.keys(progress?.startDates || {}).length ||
+    Object.keys(progress?.completedPlanDates || {}).length
   );
 }
 

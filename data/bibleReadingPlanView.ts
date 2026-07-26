@@ -27,6 +27,7 @@ export function buildBibleReadingPlanView({
   activePlanId,
   completedDayKeys,
   startDates,
+  completedPlanDates,
   selectedPlanId,
   selectedDay,
   todayDateKey,
@@ -37,6 +38,7 @@ export function buildBibleReadingPlanView({
   activePlanId: string;
   completedDayKeys: string[];
   startDates: Record<string, string>;
+  completedPlanDates?: Record<string, string>;
   selectedPlanId: string;
   selectedDay: number;
   todayDateKey: string;
@@ -52,7 +54,14 @@ export function buildBibleReadingPlanView({
     plan.days.length > 0 &&
     plan.days.every((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
   const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan));
-  const completedFollowedPlans = followedPlans.filter(planIsComplete);
+  const completedFollowedPlans = followedPlans
+    .filter(planIsComplete)
+    .sort((a, b) => {
+      const aDate = completedPlanDates?.[a.id] || "";
+      const bDate = completedPlanDates?.[b.id] || "";
+      if (aDate !== bDate) return bDate.localeCompare(aDate);
+      return a.title.localeCompare(b.title);
+    });
   const followedPlanIdSet = new Set(followedPlans.map((plan) => plan.id));
   const activeFollowedPlanIdSet = new Set(activeFollowedPlans.map((plan) => plan.id));
   const selectedActivePlanId = activePlanId && activeFollowedPlanIdSet.has(activePlanId)

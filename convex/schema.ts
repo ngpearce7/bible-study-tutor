@@ -61,6 +61,7 @@ const bibleReadingPlanProgress = v.object({
   completedDays: v.array(v.string()),
   customPlans: v.array(customBibleReadingPlan),
   startDates: v.optional(v.record(v.string(), v.string())),
+  completedPlanDates: v.optional(v.record(v.string(), v.string())),
   updatedAt: v.optional(v.number())
 });
 const bibleReaderState = v.object({

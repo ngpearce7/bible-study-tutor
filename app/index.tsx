@@ -7123,6 +7123,8 @@ export default function Home() {
                 const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 0;
                 const visiblePlanDays = visibleRows > 0 ? plan.days.slice(0, visibleRows) : [];
                 const planStarted = completedCount > 0;
+                const lastCompletedDateKey = bibleReadingPlanCompletionDates[plan.id] || "";
+                const lastCompletedDateLabel = lastCompletedDateKey ? formatPlanDayDate(lastCompletedDateKey) : "";
                 return (
                   <Card key={plan.id} style={[styles.planPageCard, expanded && styles.expandedBrowsePlanCard, phoneLayout && styles.phonePlanPageCard, plansDarkMode && styles.accountDarkMainCard]}>
                     <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
@@ -7137,6 +7139,11 @@ export default function Home() {
                         {planStarted && (
                           <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
                             Progress saved: {completedCount} of {plan.days.length} completed
+                          </Text>
+                        )}
+                        {!!lastCompletedDateLabel && (
+                          <Text style={[styles.planPageMetaText, styles.planLastCompletedText, plansDarkMode && styles.accountDarkMutedText]}>
+                            Last completed: {lastCompletedDateLabel}
                           </Text>
                         )}
                       </View>
@@ -16623,6 +16630,9 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 11,
     fontWeight: "800"
+  },
+  planLastCompletedText: {
+    color: colors.oliveDark
   },
   planPageHeaderActions: {
     alignItems: "flex-end",

@@ -7918,7 +7918,7 @@ export default function Home() {
                       <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Why these translations?</Text>
                     </View>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-                      Bible Study Tutor is intentionally free and built for churches, groups, and personal study. These translations let the app support reading, study notes, memory verses, journaling, and printable worksheets without putting commercial Bible licensing costs onto users.
+                      Bible Study Tutor uses free and legally available Bible texts so the app can remain accessible without charging users or breaching publisher licences. Some modern translations require separate permission or paid licensing.
                     </Text>
                   </View>
                 </View>

@@ -69,22 +69,22 @@ Theological review: Low. Check references to devotion/family/church settings.
 
 Title: How to Memorize Bible Verses | Scripture Memory with Review
 
-Meta description: Learn how to memorize Bible verses with reading, blanks, hints, review rhythms, meditation prompts, collections, and printable memory cards.
+Meta description: Learn how to memorize Bible verses with reading, blanks, hints, review rhythms, Scripture-centred reflection prompts, collections, and printable memory cards.
 
 H1: How to memorize Bible verses
 
-Intro: Memorizing Scripture is helped by repetition, reflection, prayer, and review. Bible Study Tutor gives users a simple way to save, practise, meditate on, and print memory verses.
+Intro: Memorizing Scripture is helped by repetition, reflection, prayer, and review. Bible Study Tutor gives users a simple way to save, practise, pray through, and print memory verses.
 
 Sections:
 - Read before recall: Begin by reading the verse carefully and noticing the words, theme, and context.
 - Practise with blanks: Hide parts of the verse, type the missing words, and use hints when needed.
-- Review over time: Set review rhythms, group related verses into collections, and print cards to carry Scripture through the day.
+- Review over time: Set review rhythms, group related verses into collections, and print cards to keep Scripture close through the day.
 
 CTA: Open memory verses
 
 Internal links: `/bible-memory-verses`, `/scripture-memorization-app`, `/printable-bible-memory-cards`, `/bible-study-journal`
 
-Theological review: Medium. Check wording around “carry Scripture through the day” and meditation.
+Theological review: Medium. Check wording around Scripture-centred reflection, prayer, and memory language.
 
 ## /free-online-bible-study-tools
 

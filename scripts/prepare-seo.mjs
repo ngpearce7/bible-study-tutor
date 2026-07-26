@@ -76,7 +76,7 @@ const seoPages = [
     sections: [
       ["Free core study tools", "Bible reading, guided study methods, notes, highlights, bookmarks, memory verses, reading plans, journal entries, and printable worksheets are available without a paid subscription."],
       ["Built for churches and groups", "The app is designed so a church can recommend it freely, and a group can use digital tools or printed worksheets without asking members to pay."],
-      ["Why some translations are limited", "Some modern Bible translations require commercial licensing. Bible Study Tutor uses free and legally available public-domain or openly accessible texts to keep the app free and responsible."],
+      ["Why some translations are limited", "Bible Study Tutor uses free and legally available Bible texts so the app can remain accessible without charging users or breaching publisher licences. Some modern translations require separate permission or paid licensing."],
       ["No paid social feed", "Private friends and circles are for trusted encouragement, not a public timeline or paid community platform."]
     ],
     cta: "Start studying free",
@@ -85,7 +85,7 @@ const seoPages = [
     faq: [
       ["Is Bible Study Tutor free?", "Yes. The core Bible study tools are free to use on desktop and mobile."],
       ["Do I need to pay to print worksheets?", "No. Printable Bible study worksheets and memory cards are part of the free app experience."],
-      ["Why does Bible Study Tutor not include every modern Bible translation?", "Many modern translations require separate publisher permission or paid licensing. The app stays free by using legally available texts."],
+      ["Why does Bible Study Tutor not include every modern Bible translation?", "Many modern translations require separate publisher permission or paid licensing. The app stays free by using Bible texts that can be used legally and responsibly."],
       ["Can churches use Bible Study Tutor?", "Yes. The app is designed to be useful for churches, small groups, youth groups, and personal discipleship."]
     ]
   },
@@ -485,7 +485,7 @@ const seoPages = [
     sections: [
       ["Save more than notes", "Bible Study Tutor can keep guided studies, meditations, highlights, bookmarks, drafts, and prayerful reflections together."],
       ["Find your way back", "Filter journal entries by Scripture, date, type, status, or pinned favourites when you want to revisit a passage."],
-      ["Build a record of growth", "Your journal becomes a quiet history of what God has been teaching you through Scripture."]
+      ["Build a record of growth", "Your journal becomes a quiet history of what you have noticed, prayed, and returned to in Scripture."]
     ],
     cta: "Open the journal",
     related: ["/online-bible-study-journal", "/how-to-study-a-bible-passage", "/bible-highlighting-and-notes"]
@@ -494,13 +494,13 @@ const seoPages = [
     path: "/bible-memory-verses",
     file: "bible-memory-verses.html",
     title: "Bible Memory Verses | Save, Review and Memorize Scripture",
-    description: "Save Bible memory verses, review them in three steps, use hints, group verses into collections, and print memory cards to carry Scripture with you.",
+    description: "Save Bible memory verses, review them in three steps, use hints, group verses into collections, and print memory cards to keep Scripture close through the day.",
     heading: "Bible memory verses with review and reflection",
-    intro: "Bible Study Tutor helps users save favourite verses, review them over time, practise fill-in-the-blank recall, meditate on Scripture, and carry printed memory cards.",
+    intro: "Bible Study Tutor helps users save favourite verses, review them over time, practise fill-in-the-blank recall, reflect prayerfully on Scripture, and print memory cards.",
     sections: [
       ["Three-step review", "Read the verse, practise with some words hidden, then recall the verse with all words blanked out."],
       ["Review at your pace", "Set review dates from daily to annual rhythms, sort due and reviewed verses, and group passages into collections."],
-      ["Carry Scripture with you", "Print memory cards for selected saved verses so Scripture can be placed around the home, kept in a Bible, or shared with a group."]
+      ["Keep Scripture close", "Print memory cards for selected saved verses so Scripture can be placed around the home, kept in a Bible, or shared with a group."]
     ],
     cta: "Open memory verses",
     related: ["/scripture-memorization-app", "/printable-bible-memory-cards", "/features"]
@@ -509,9 +509,9 @@ const seoPages = [
     path: "/scripture-memorization-app",
     file: "scripture-memorization-app.html",
     title: "Scripture Memorization App | Practice Verses with Blanks and Hints",
-    description: "Use a Scripture memorization app with fill-in-the-blank practice, hints, review schedules, collections, meditation mode, and memory history.",
+    description: "Use a Scripture memorization app with fill-in-the-blank practice, hints, review schedules, collections, Scripture reflection, and memory history.",
     heading: "Scripture memorization with blanks, hints, and review",
-    intro: "Bible Study Tutor makes memorization practical by combining saved verses, typed recall, gentle hints, review scheduling, meditation prompts, and memory history.",
+    intro: "Bible Study Tutor makes memorization practical by combining saved verses, typed recall, gentle hints, review scheduling, Scripture-centred reflection prompts, and memory history.",
     sections: [
       ["Practise actively", "Instead of only rereading, users type missing words and receive clear feedback as they remember each verse."],
       ["Use helpful hints", "Hints can reveal more of a difficult word when needed, while still encouraging users to recall the verse for themselves."],
@@ -674,14 +674,14 @@ const seoPages = [
     path: "/how-to-memorize-bible-verses",
     file: "how-to-memorize-bible-verses.html",
     title: "How to Memorize Bible Verses | Scripture Memory with Review",
-    description: "Learn how to memorize Bible verses with reading, blanks, hints, review rhythms, meditation prompts, collections, and printable memory cards.",
+    description: "Learn how to memorize Bible verses with reading, blanks, hints, review rhythms, Scripture-centred reflection prompts, collections, and printable memory cards.",
     heading: "How to memorize Bible verses",
-    intro: "Memorizing Scripture is helped by repetition, reflection, prayer, and review. Bible Study Tutor gives users a simple way to save, practise, meditate on, and print memory verses.",
+    intro: "Memorizing Scripture is helped by repetition, reflection, prayer, and review. Bible Study Tutor gives users a simple way to save, practise, pray through, and print memory verses.",
     sections: [
       ["Read before recall", "Begin by reading the verse carefully and noticing the words, theme, and context before hiding words or testing memory."],
       ["Practise with blanks", "Hide parts of the verse, type the missing words, and use hints when needed so review stays active rather than passive."],
       ["Review over time", "Set review rhythms, group related verses into collections, and return to verses that need more attention."],
-      ["Use meditation and memory cards", "Pause over a saved verse with simple prompts, or print memory cards to place Scripture where you will see it through the day."]
+      ["Use Scripture-centred reflection and memory cards", "Pause over a saved verse by thinking about its meaning in context, praying through it, and considering a faithful response. You can also print memory cards to keep Scripture close through the day."]
     ],
     cta: "Open memory verses",
     related: ["/bible-memory-verses", "/scripture-memorization-app", "/printable-bible-memory-cards", "/bible-study-journal"],

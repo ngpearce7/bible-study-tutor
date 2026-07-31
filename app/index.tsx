@@ -5723,11 +5723,13 @@ export default function Home() {
                   phoneLayout && styles.phonePlanDayTile,
                   plansDarkMode && styles.planDayTileDark,
                   scheduledToday && !missed && styles.currentPlanDayTile,
-                  selected && !missed && styles.selectedPlanDayTile,
                   missed && styles.missedPlanDayTile,
+                  selected && styles.selectedPlanDayTile,
+                  selected && missed && styles.selectedMissedPlanDayTile,
                   !plansDarkMode && done && styles.completedPlanDayTile,
                   plansDarkMode && done && styles.completedPlanDayTileDark,
-                  plansDarkMode && selected && !missed && styles.selectedPlanDayTileDark
+                  plansDarkMode && selected && styles.selectedPlanDayTileDark,
+                  plansDarkMode && selected && missed && styles.selectedMissedPlanDayTileDark
                 ]}
               >
                 <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
@@ -6997,11 +6999,13 @@ export default function Home() {
                           phoneLayout && styles.phonePlanDayTile,
                           plansDarkMode && styles.planDayTileDark,
                           scheduledToday && !missed && styles.currentPlanDayTile,
-                          selected && !missed && styles.selectedPlanDayTile,
                           missed && styles.missedPlanDayTile,
+                          selected && styles.selectedPlanDayTile,
+                          selected && missed && styles.selectedMissedPlanDayTile,
                           !plansDarkMode && done && styles.completedPlanDayTile,
                           plansDarkMode && done && styles.completedPlanDayTileDark,
-                          plansDarkMode && selected && !missed && styles.selectedPlanDayTileDark
+                          plansDarkMode && selected && styles.selectedPlanDayTileDark,
+                          plansDarkMode && selected && missed && styles.selectedMissedPlanDayTileDark
                         ]}
                       >
                         <Text style={[styles.planDayTileNumber, plansDarkMode && styles.accountDarkTitle, plansDarkMode && done && styles.completedPlanDayTileText]}>{done ? "✓" : planDay.day}</Text>
@@ -16974,6 +16978,20 @@ const styles = StyleSheet.create({
   missedPlanDayTile: {
     borderColor: colors.coral,
     borderStyle: "dashed"
+  },
+  selectedMissedPlanDayTile: {
+    backgroundColor: "#fff",
+    borderStyle: "solid",
+    shadowColor: colors.coral,
+    shadowOpacity: 0.16,
+    shadowRadius: 6
+  },
+  selectedMissedPlanDayTileDark: {
+    backgroundColor: "#2b241d",
+    borderStyle: "solid",
+    shadowColor: "#e9b76a",
+    shadowOpacity: 0.18,
+    shadowRadius: 6
   },
   planDayTileNumber: {
     color: colors.ink,

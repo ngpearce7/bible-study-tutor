@@ -5060,10 +5060,9 @@ export default function Home() {
     setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
     if (completedFocusedReading) scrollReaderToTop();
     if (options.promptForNextDueReading && plan && nextState.nextIncomplete) {
-      const completedDateKey = bibleReadingPlanStartDates[plan.id] ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], planDay.day - 1) : "";
       const nextDateKey = bibleReadingPlanStartDates[plan.id] ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], nextState.nextIncomplete.day - 1) : "";
       const todayKey = localDateKey();
-      if (completedDateKey && completedDateKey < todayKey && nextDateKey && nextDateKey <= todayKey) {
+      if (nextDateKey && nextDateKey <= todayKey) {
         promptToContinueDueBibleReadingPlan(plan, nextState.nextIncomplete, nextDateKey);
       }
     }

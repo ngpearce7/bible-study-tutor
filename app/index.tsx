@@ -730,6 +730,7 @@ export default function Home() {
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
+  const biblePlanDayPickerRefs = useRef<Record<string, any>>({});
   const accountLegalYRef = useRef(0);
   const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
@@ -1420,6 +1421,34 @@ export default function Home() {
   const otherFollowedBibleReadingPlanSummaries = bibleReadingPlanView.otherSummaries;
   const activeBibleReadingPlanMissedFullDay = bibleReadingPlanView.activeMissedFullDay;
   const activeBibleReadingPlanSelectedDone = bibleReadingPlanView.activeSelectedDone;
+
+  useEffect(() => {
+    if (tab !== "plans") return;
+    if (activeBibleReadingPlan?.id) {
+      scrollBiblePlanDayPickerIntoView(
+        activeBibleReadingPlan.id,
+        activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1,
+        true,
+        140
+      );
+    }
+    otherFollowedBibleReadingPlans.forEach((plan) => {
+      const selectedDay =
+        activeBiblePlanSelectedPlanId === plan.id && activeBiblePlanSelectedDay
+          ? activeBiblePlanSelectedDay
+          : plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)))?.day || 1;
+      scrollBiblePlanDayPickerIntoView(plan.id, selectedDay, true, 160);
+    });
+  }, [
+    activeBiblePlanSelectedDay,
+    activeBiblePlanSelectedPlanId,
+    activeBibleReadingPlan?.id,
+    activeBibleReadingPlanSelectedDay?.day,
+    activeBibleReadingPlanToday?.day,
+    completedBibleReadingPlanDays,
+    otherFollowedBibleReadingPlans,
+    tab
+  ]);
   const readerPlanReadingChunkCount = readerPlanReading?.chunks?.length || 0;
   const readerPlanReadingChunkIndex = Math.min(Math.max(readerPlanReading?.currentChunkIndex || 0, 0), Math.max(0, readerPlanReadingChunkCount - 1));
   const readerPlanCanMovePrevious = !!readerPlanReading && readerPlanReadingChunkIndex > 0;
@@ -1820,6 +1849,23 @@ export default function Home() {
   function scrollMemoryToTop(delay = 120) {
     if (tab !== "memory") return;
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), delay);
+  }
+
+  function scrollBiblePlanDayPickerIntoView(planId: string, day = 1, animated = true, delay = 80) {
+    if (tab !== "plans" || !planId || day < 1) return;
+    setTimeout(() => {
+      const picker = biblePlanDayPickerRefs.current[planId];
+      if (!picker?.scrollTo) return;
+      const tileWidth = phoneLayout ? 74 : 72;
+      const gap = 8;
+      const estimatedVisibleWidth = Math.max(
+        phoneLayout ? 260 : 360,
+        Math.min(phoneLayout ? layoutWidth - 48 : layoutWidth - 420, phoneLayout ? 520 : 760)
+      );
+      const tileStart = (day - 1) * (tileWidth + gap);
+      const x = Math.max(0, tileStart - estimatedVisibleWidth * 0.42);
+      picker.scrollTo({ x, y: 0, animated });
+    }, delay);
   }
 
   function ensureMemoryBlankVisible(index: number) {
@@ -5644,7 +5690,15 @@ export default function Home() {
             </View>
           </View>
         )}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.planDayPickerScroll}>
+        <ScrollView
+          ref={(scrollView) => {
+            biblePlanDayPickerRefs.current[plan.id] = scrollView;
+          }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.planDayPickerScroll}
+          onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(plan.id, selectedDay?.day || today?.day || 1, false, 20)}
+        >
           {plan.days.map((planDay) => {
             const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, planDay.day));
             const selected = selectedDay?.day === planDay.day;
@@ -6910,7 +6964,15 @@ export default function Home() {
                     <Text style={[styles.readerReadChapterBookTitle, plansDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlanToday.reference}</Text>
                   </View>
                 </View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.planDayPickerScroll}>
+                <ScrollView
+                  ref={(scrollView) => {
+                    biblePlanDayPickerRefs.current[activeBibleReadingPlan.id] = scrollView;
+                  }}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.planDayPickerScroll}
+                  onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1, false, 20)}
+                >
                   {activeBibleReadingPlan.days.map((planDay) => {
                     const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day));
                     const selected = activeBibleReadingPlanSelectedDay?.day === planDay.day;

@@ -4993,7 +4993,7 @@ export default function Home() {
 
   function promptToContinueDueBibleReadingPlan(plan: BibleReadingPlan, nextDay: BibleReadingPlanDay, nextDateKey: string) {
     const relativeDate = formatPlanDayRelativeDate(nextDateKey);
-    const title = nextDateKey === localDateKey() ? "Continue to today’s reading?" : "Continue to the next missed reading?";
+    const title = nextDateKey === localDateKey() ? "Continue to today’s reading?" : "Continue catching up?";
     const message = `Next reading: Day ${nextDay.day}${relativeDate ? ` · ${relativeDate}` : ""}\n${nextDay.reference}`;
     setTimeout(() => {
       Alert.alert(title, message, [
@@ -5795,7 +5795,7 @@ export default function Home() {
                   onPress={(event: any) => {
                     event.stopPropagation?.();
                     if (!selectedDone) {
-                      markBibleReadingPlanDayComplete(selectedDay, plan.id);
+                      markBibleReadingPlanDayComplete(selectedDay, plan.id, { promptForNextDueReading: true });
                     }
                   }}
                   style={[styles.planDayIconAction, selectedDone && styles.activeReaderReadButton, !selectedDone && styles.readerPlanCompleteButton]}
@@ -7071,7 +7071,7 @@ export default function Home() {
                           onPress={(event: any) => {
                             event.stopPropagation?.();
                             if (!activeBibleReadingPlanSelectedDone) {
-                              markBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id);
+                              markBibleReadingPlanDayComplete(activeBibleReadingPlanSelectedDay, activeBibleReadingPlan.id, { promptForNextDueReading: true });
                             }
                           }}
                           style={[styles.planDayIconAction, activeBibleReadingPlanSelectedDone && styles.activeReaderReadButton, !activeBibleReadingPlanSelectedDone && styles.readerPlanCompleteButton]}

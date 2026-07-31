@@ -4991,7 +4991,27 @@ export default function Home() {
     scrollReaderToTop();
   }
 
-  function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "") {
+  function promptToContinueDueBibleReadingPlan(plan: BibleReadingPlan, nextDay: BibleReadingPlanDay, nextDateKey: string) {
+    const relativeDate = formatPlanDayRelativeDate(nextDateKey);
+    const title = nextDateKey === localDateKey() ? "Continue to today’s reading?" : "Continue to the next missed reading?";
+    const message = `Next reading: Day ${nextDay.day}${relativeDate ? ` · ${relativeDate}` : ""}\n${nextDay.reference}`;
+    setTimeout(() => {
+      Alert.alert(title, message, [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Continue",
+          onPress: () => {
+            setActiveBibleReadingPlanId(plan.id);
+            setActiveBiblePlanSelectedPlanId(plan.id);
+            setActiveBiblePlanSelectedDay(nextDay.day);
+            openBibleReadingPlanDayInBible(nextDay, plan.id, { skipOverdueGuard: true });
+          }
+        }
+      ]);
+    }, 260);
+  }
+
+  function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "", options: { promptForNextDueReading?: boolean } = {}) {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
     const firstIncompleteDay = plan?.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
     const firstIncompleteDateKey = plan && firstIncompleteDay && bibleReadingPlanStartDates[plan.id]
@@ -5039,6 +5059,14 @@ export default function Home() {
     const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
     setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
     if (completedFocusedReading) scrollReaderToTop();
+    if (options.promptForNextDueReading && plan && nextState.nextIncomplete) {
+      const completedDateKey = bibleReadingPlanStartDates[plan.id] ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], planDay.day - 1) : "";
+      const nextDateKey = bibleReadingPlanStartDates[plan.id] ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], nextState.nextIncomplete.day - 1) : "";
+      const todayKey = localDateKey();
+      if (completedDateKey && completedDateKey < todayKey && nextDateKey && nextDateKey <= todayKey) {
+        promptToContinueDueBibleReadingPlan(plan, nextState.nextIncomplete, nextDateKey);
+      }
+    }
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
 
@@ -5059,7 +5087,7 @@ export default function Home() {
 
   function markCurrentBibleReadingPlanDayComplete() {
     if (!readerMatchesActiveBibleReadingPlanDay || !readerActiveBibleReadingPlanDay || readerActiveBibleReadingPlanDayComplete) return;
-    markBibleReadingPlanDayComplete(readerActiveBibleReadingPlanDay, readerBibleReadingPlan?.id || activeBibleReadingPlan?.id || "");
+    markBibleReadingPlanDayComplete(readerActiveBibleReadingPlanDay, readerBibleReadingPlan?.id || activeBibleReadingPlan?.id || "", { promptForNextDueReading: true });
   }
 
   function createCustomBibleReadingPlan() {

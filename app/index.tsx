@@ -1840,11 +1840,11 @@ export default function Home() {
             : layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
         const inputBottom = y + inputHeight + 58;
         const hiddenAmount = inputBottom - keyboardSafeBottom;
-        if (hiddenAmount > 42) {
-          scrollMemoryPracticeBy(hiddenAmount - 20, false);
+        if (hiddenAmount > 72) {
+          scrollMemoryPracticeBy(Math.min(96, hiddenAmount - 36), true);
         }
       });
-    }, 160);
+    }, phoneLayout ? 260 : 160);
   }
 
   useEffect(() => {
@@ -4297,10 +4297,7 @@ export default function Home() {
     if (nextToken) {
       setTimeout(() => {
         memoryBlankInputRefs.current[nextToken.index]?.focus();
-        const nextBlankOrdinal = memoryBlankTokens.findIndex((token) => token.index === nextToken.index);
-        if (!phoneLayout || nextBlankOrdinal >= 12) {
-          ensureMemoryBlankVisible(nextToken.index);
-        }
+        ensureMemoryBlankVisible(nextToken.index);
       }, phoneLayout ? 150 : 80);
       return;
     }

@@ -63,6 +63,20 @@ type PendingBiblePlanReadAhead = {
   requestedReference: string;
 };
 
+type PendingBiblePlanContinueCheck = {
+  planId: string;
+  completedDay: number;
+  completedReference: string;
+  requestId: number;
+};
+
+type PendingBiblePlanContinuePrompt = {
+  planId: string;
+  nextDay: number;
+  nextDateKey: string;
+  completedReference: string;
+};
+
 class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundaryState> {
   state: TabErrorBoundaryState = { hasError: false };
 
@@ -692,6 +706,8 @@ export default function Home() {
   const [customBiblePlanStatus, setCustomBiblePlanStatus] = useState("");
   const [biblePlanStatus, setBiblePlanStatus] = useState("");
   const [pendingBiblePlanReadAhead, setPendingBiblePlanReadAhead] = useState<PendingBiblePlanReadAhead | null>(null);
+  const [pendingBiblePlanContinueCheck, setPendingBiblePlanContinueCheck] = useState<PendingBiblePlanContinueCheck | null>(null);
+  const [pendingBiblePlanContinuePrompt, setPendingBiblePlanContinuePrompt] = useState<PendingBiblePlanContinuePrompt | null>(null);
   const [customBiblePlanFormOpen, setCustomBiblePlanFormOpen] = useState(false);
   const [expandedBiblePlanId, setExpandedBiblePlanId] = useState("");
   const [activeBiblePlanSelectedDay, setActiveBiblePlanSelectedDay] = useState(0);
@@ -4991,24 +5007,24 @@ export default function Home() {
     scrollReaderToTop();
   }
 
-  function promptToContinueDueBibleReadingPlan(plan: BibleReadingPlan, nextDay: BibleReadingPlanDay, nextDateKey: string) {
-    const relativeDate = formatPlanDayRelativeDate(nextDateKey);
-    const title = nextDateKey === localDateKey() ? "Continue to today’s reading?" : "Continue catching up?";
-    const message = `Next reading: Day ${nextDay.day}${relativeDate ? ` · ${relativeDate}` : ""}\n${nextDay.reference}`;
-    setTimeout(() => {
-      Alert.alert(title, message, [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Continue",
-          onPress: () => {
-            setActiveBibleReadingPlanId(plan.id);
-            setActiveBiblePlanSelectedPlanId(plan.id);
-            setActiveBiblePlanSelectedDay(nextDay.day);
-            openBibleReadingPlanDayInBible(nextDay, plan.id, { skipOverdueGuard: true });
-          }
-        }
-      ]);
-    }, 260);
+  function queueBiblePlanContinueCheck(plan: BibleReadingPlan, completedDay: BibleReadingPlanDay) {
+    setPendingBiblePlanContinueCheck({
+      planId: plan.id,
+      completedDay: completedDay.day,
+      completedReference: completedDay.reference,
+      requestId: Date.now()
+    });
+  }
+
+  function openPendingContinueBiblePlanDay(prompt: PendingBiblePlanContinuePrompt) {
+    const plan = allBibleReadingPlans.find((item) => item.id === prompt.planId);
+    const nextDay = plan?.days.find((day) => day.day === prompt.nextDay);
+    if (!plan || !nextDay) return;
+    setPendingBiblePlanContinuePrompt(null);
+    setActiveBibleReadingPlanId(plan.id);
+    setActiveBiblePlanSelectedPlanId(plan.id);
+    setActiveBiblePlanSelectedDay(nextDay.day);
+    openBibleReadingPlanDayInBible(nextDay, plan.id, { skipOverdueGuard: true });
   }
 
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "", options: { promptForNextDueReading?: boolean } = {}) {
@@ -5059,12 +5075,8 @@ export default function Home() {
     const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
     setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
     if (completedFocusedReading) scrollReaderToTop();
-    if (options.promptForNextDueReading && plan && nextState.nextIncomplete) {
-      const nextDateKey = bibleReadingPlanStartDates[plan.id] ? addDaysToDateKey(bibleReadingPlanStartDates[plan.id], nextState.nextIncomplete.day - 1) : "";
-      const todayKey = localDateKey();
-      if (nextDateKey && nextDateKey <= todayKey) {
-        promptToContinueDueBibleReadingPlan(plan, nextState.nextIncomplete, nextDateKey);
-      }
+    if (options.promptForNextDueReading && plan) {
+      queueBiblePlanContinueCheck(plan, planDay);
     }
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
@@ -5639,6 +5651,31 @@ export default function Home() {
   }, [completedBibleReadingPlanDaySet, pendingBiblePlanReadAhead]);
 
   useEffect(() => {
+    if (!pendingBiblePlanContinueCheck) return;
+    const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanContinueCheck.planId);
+    if (!plan) {
+      setPendingBiblePlanContinueCheck(null);
+      return;
+    }
+    const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
+    const startDate = bibleReadingPlanStartDates[plan.id] || "";
+    const nextDateKey = startDate && nextDay ? addDaysToDateKey(startDate, nextDay.day - 1) : "";
+    setPendingBiblePlanContinueCheck(null);
+    if (!nextDay || !nextDateKey || nextDateKey > localDateKey()) return;
+    setPendingBiblePlanContinuePrompt({
+      planId: plan.id,
+      nextDay: nextDay.day,
+      nextDateKey,
+      completedReference: pendingBiblePlanContinueCheck.completedReference
+    });
+  }, [
+    allBibleReadingPlans,
+    bibleReadingPlanStartDates,
+    completedBibleReadingPlanDaySet,
+    pendingBiblePlanContinueCheck
+  ]);
+
+  useEffect(() => {
     const followedPlanIds = new Set(followedBibleReadingPlans.map((plan) => plan.id));
     const activePlanIds = new Set([
       activeBibleReadingPlan?.id || "",
@@ -5658,6 +5695,10 @@ export default function Home() {
       setPendingBiblePlanReadAhead(null);
     }
 
+    if (pendingBiblePlanContinuePrompt?.planId && !followedPlanIds.has(pendingBiblePlanContinuePrompt.planId)) {
+      setPendingBiblePlanContinuePrompt(null);
+    }
+
     if (readerPlanReading?.planId && !followedPlanIds.has(readerPlanReading.planId)) {
       setReaderPlanReading(null);
     }
@@ -5667,6 +5708,7 @@ export default function Home() {
     activeBibleReadingPlanId,
     followedBibleReadingPlans,
     otherFollowedBibleReadingPlans,
+    pendingBiblePlanContinuePrompt?.planId,
     pendingBiblePlanReadAhead?.planId,
     readerPlanReading?.planId,
     selectedBibleReadingPlanId
@@ -9088,6 +9130,48 @@ export default function Home() {
                 </Pressable>
                 <ResumeButton label={`Open Day ${pendingBiblePlanReadAhead.missedDay}`} icon="return-down-forward-outline" onPress={() => openPendingMissedBiblePlanDay(pendingBiblePlanReadAhead)} style={[phoneLayout && styles.phonePrintOpenButton, accountDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePrintOpenButtonText, accountDarkMode && styles.homeDarkResumeButtonText]} iconColor={accountDarkMode ? "#e9b76a" : undefined} />
                 <ResumeButton label="Catch me up" icon="calendar-outline" onPress={() => catchUpAndOpenPendingBiblePlanDay(pendingBiblePlanReadAhead)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              </View>
+            </View>
+          </View>
+        );
+      })()}
+      {pendingBiblePlanContinuePrompt && (() => {
+        const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanContinuePrompt.planId);
+        const nextDay = plan?.days.find((day) => day.day === pendingBiblePlanContinuePrompt.nextDay);
+        if (!plan || !nextDay) return null;
+        const relativeDate = formatPlanDayRelativeDate(pendingBiblePlanContinuePrompt.nextDateKey);
+        const title = pendingBiblePlanContinuePrompt.nextDateKey === localDateKey() ? "Continue with today’s reading?" : "Continue catching up?";
+        return (
+          <View style={styles.printOptionsOverlay}>
+            <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanContinuePrompt(null)} />
+            <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+              <View style={styles.printOptionsHeader}>
+                <View style={styles.printOptionsTitleBlock}>
+                  <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>{title}</Text>
+                  <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                    {plan.title}
+                  </Text>
+                </View>
+                <Pressable accessibilityRole="button" accessibilityLabel="Close continue reading prompt" onPress={() => setPendingBiblePlanContinuePrompt(null)} style={styles.markupCloseButton}>
+                  <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+                </Pressable>
+              </View>
+              <View style={[styles.currentPlanNextBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                <Text style={[styles.readerBookSectionTitle, accountDarkMode && styles.studyDarkAccentText]}>
+                  Next reading: Day {nextDay.day}{relativeDate ? ` · ${relativeDate}` : ""}
+                </Text>
+                <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>
+                  {nextDay.reference}
+                </Text>
+              </View>
+              <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                You finished {pendingBiblePlanContinuePrompt.completedReference}. Would you like to keep going with the next due reading now?
+              </Text>
+              <View style={styles.printOptionsActions}>
+                <Pressable onPress={() => setPendingBiblePlanContinuePrompt(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                  <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
+                </Pressable>
+                <ResumeButton label={`Open Day ${nextDay.day}`} icon="return-down-forward-outline" onPress={() => openPendingContinueBiblePlanDay(pendingBiblePlanContinuePrompt)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
               </View>
             </View>
           </View>

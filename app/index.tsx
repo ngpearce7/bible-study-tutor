@@ -7328,6 +7328,7 @@ export default function Home() {
                 const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 0;
                 const visiblePlanDays = visibleRows > 0 ? plan.days.slice(0, visibleRows) : [];
                 const planStarted = completedCount > 0;
+                const planComplete = plan.days.length > 0 && completedCount >= plan.days.length;
                 const lastCompletedDateKey = bibleReadingPlanCompletionDates[plan.id] || "";
                 const lastCompletedDateLabel = lastCompletedDateKey ? formatPlanDayDate(lastCompletedDateKey) : "";
                 return (
@@ -7341,16 +7342,15 @@ export default function Home() {
                         <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
                           {(plan.category || (plan.source === "custom" ? "Custom" : "Reading plan"))} · {plan.days.length} days
                         </Text>
-                        {planStarted && (
+                        {planComplete ? (
+                          <Text style={[styles.planPageMetaText, styles.planLastCompletedText, plansDarkMode && styles.accountDarkMutedText]}>
+                            Last completed: {lastCompletedDateLabel || "date not recorded"}
+                          </Text>
+                        ) : planStarted ? (
                           <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
                             Progress saved: {completedCount} of {plan.days.length} completed
                           </Text>
-                        )}
-                        {!!lastCompletedDateLabel && (
-                          <Text style={[styles.planPageMetaText, styles.planLastCompletedText, plansDarkMode && styles.accountDarkMutedText]}>
-                            Last completed: {lastCompletedDateLabel}
-                          </Text>
-                        )}
+                        ) : null}
                       </View>
                       {planStarted && (
                         <View style={styles.planPageHeaderActions}>

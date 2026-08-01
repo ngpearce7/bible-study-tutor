@@ -5708,25 +5708,25 @@ export default function Home() {
       Animated.sequence([
         Animated.timing(planCelebrationPulse, {
           toValue: 1,
-          duration: 720,
+          duration: 900,
           easing: Easing.out(Easing.quad),
           useNativeDriver: true
         }),
         Animated.timing(planCelebrationPulse, {
           toValue: 0,
-          duration: 720,
+          duration: 900,
           easing: Easing.in(Easing.quad),
           useNativeDriver: true
         })
       ]),
-      { iterations: 2 }
+      { iterations: 3 }
     );
     const particleAnimation = Animated.stagger(
-      42,
+      90,
       planCelebrationParticles.map((particle) =>
         Animated.timing(particle, {
           toValue: 1,
-          duration: 980,
+          duration: 1800,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true
         })

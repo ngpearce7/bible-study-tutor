@@ -24,7 +24,7 @@ import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Component, Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
-import { Alert, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Alert, Animated, Easing, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
@@ -75,6 +75,12 @@ type PendingBiblePlanContinuePrompt = {
   nextDay: number;
   nextDateKey: string;
   completedReference: string;
+};
+
+type PendingBiblePlanCompletionCelebration = {
+  planId: string;
+  planTitle: string;
+  completedDays: number;
 };
 
 class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundaryState> {
@@ -708,6 +714,7 @@ export default function Home() {
   const [pendingBiblePlanReadAhead, setPendingBiblePlanReadAhead] = useState<PendingBiblePlanReadAhead | null>(null);
   const [pendingBiblePlanContinueCheck, setPendingBiblePlanContinueCheck] = useState<PendingBiblePlanContinueCheck | null>(null);
   const [pendingBiblePlanContinuePrompt, setPendingBiblePlanContinuePrompt] = useState<PendingBiblePlanContinuePrompt | null>(null);
+  const [pendingBiblePlanCompletionCelebration, setPendingBiblePlanCompletionCelebration] = useState<PendingBiblePlanCompletionCelebration | null>(null);
   const [customBiblePlanFormOpen, setCustomBiblePlanFormOpen] = useState(false);
   const [expandedBiblePlanId, setExpandedBiblePlanId] = useState("");
   const [activeBiblePlanSelectedDay, setActiveBiblePlanSelectedDay] = useState(0);
@@ -747,6 +754,8 @@ export default function Home() {
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
   const biblePlanDayPickerRefs = useRef<Record<string, any>>({});
+  const planCelebrationPulse = useRef(new Animated.Value(0)).current;
+  const planCelebrationParticles = useRef(Array.from({ length: 12 }, () => new Animated.Value(0))).current;
   const accountLegalYRef = useRef(0);
   const bibleSearchSummaryYRef = useRef(0);
   const readerPassageBoxYRef = useRef(0);
@@ -5027,6 +5036,13 @@ export default function Home() {
     openBibleReadingPlanDayInBible(nextDay, plan.id, { skipOverdueGuard: true });
   }
 
+  function chooseAnotherBibleReadingPlanAfterCelebration() {
+    setPendingBiblePlanCompletionCelebration(null);
+    setTab("plans");
+    setCompletedBiblePlansOpen(false);
+    setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 80);
+  }
+
   function markBibleReadingPlanDayComplete(planDay: BibleReadingPlanDay, planId = activeBibleReadingPlan?.id || "", options: { promptForNextDueReading?: boolean } = {}) {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
     const firstIncompleteDay = plan?.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
@@ -5077,6 +5093,14 @@ export default function Home() {
     if (completedFocusedReading) scrollReaderToTop();
     if (options.promptForNextDueReading && plan) {
       queueBiblePlanContinueCheck(plan, planDay);
+    }
+    if (plan && !nextState.nextIncomplete) {
+      setPendingBiblePlanContinuePrompt(null);
+      setPendingBiblePlanCompletionCelebration({
+        planId: plan.id,
+        planTitle: plan.title,
+        completedDays: plan.days.length
+      });
     }
     trackUsage("bible_reading_plan_day_completed", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
   }
@@ -5673,6 +5697,51 @@ export default function Home() {
     bibleReadingPlanStartDates,
     completedBibleReadingPlanDaySet,
     pendingBiblePlanContinueCheck
+  ]);
+
+  useEffect(() => {
+    if (!pendingBiblePlanCompletionCelebration) return;
+    planCelebrationPulse.setValue(0);
+    planCelebrationParticles.forEach((particle) => particle.setValue(0));
+
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(planCelebrationPulse, {
+          toValue: 1,
+          duration: 720,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true
+        }),
+        Animated.timing(planCelebrationPulse, {
+          toValue: 0,
+          duration: 720,
+          easing: Easing.in(Easing.quad),
+          useNativeDriver: true
+        })
+      ]),
+      { iterations: 2 }
+    );
+    const particleAnimation = Animated.stagger(
+      42,
+      planCelebrationParticles.map((particle) =>
+        Animated.timing(particle, {
+          toValue: 1,
+          duration: 980,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true
+        })
+      )
+    );
+
+    Animated.parallel([pulseAnimation, particleAnimation]).start();
+    return () => {
+      pulseAnimation.stop();
+      particleAnimation.stop();
+    };
+  }, [
+    pendingBiblePlanCompletionCelebration,
+    planCelebrationParticles,
+    planCelebrationPulse
   ]);
 
   useEffect(() => {
@@ -9172,6 +9241,70 @@ export default function Home() {
                   <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
                 </Pressable>
                 <ResumeButton label={`Open Day ${nextDay.day}`} icon="return-down-forward-outline" onPress={() => openPendingContinueBiblePlanDay(pendingBiblePlanContinuePrompt)} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              </View>
+            </View>
+          </View>
+        );
+      })()}
+      {pendingBiblePlanCompletionCelebration && (() => {
+        const particlePositions = [
+          [18, 24], [32, 10], [48, 30], [63, 12], [78, 26], [88, 46],
+          [24, 58], [40, 72], [56, 56], [71, 74], [84, 64], [12, 45]
+        ];
+        const pulseScale = planCelebrationPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+        const pulseOpacity = planCelebrationPulse.interpolate({ inputRange: [0, 1], outputRange: [0.78, 1] });
+        return (
+          <View style={styles.printOptionsOverlay}>
+            <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanCompletionCelebration(null)} />
+            <View style={[styles.printOptionsCard, styles.planCelebrationCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+              <View style={styles.planCelebrationArt} pointerEvents="none">
+                {planCelebrationParticles.map((particle, index) => {
+                  const [left, top] = particlePositions[index] || [50, 50];
+                  const translateY = particle.interpolate({ inputRange: [0, 1], outputRange: [16, -26 - (index % 4) * 5] });
+                  const scale = particle.interpolate({ inputRange: [0, 0.35, 1], outputRange: [0.35, 1, 0.7] });
+                  const opacity = particle.interpolate({ inputRange: [0, 0.18, 0.82, 1], outputRange: [0, 1, 1, 0] });
+                  return (
+                    <Animated.View
+                      key={`plan-celebration-${index}`}
+                      style={[
+                        styles.planCelebrationParticle,
+                        {
+                          left: `${left}%`,
+                          opacity,
+                          top,
+                          transform: [{ translateY }, { scale }]
+                        },
+                        index % 3 === 1 && styles.planCelebrationParticleGold,
+                        index % 3 === 2 && styles.planCelebrationParticleGreen
+                      ]}
+                    />
+                  );
+                })}
+                <Animated.View style={[styles.planCelebrationIcon, accountDarkMode && styles.planCelebrationIconDark, { opacity: pulseOpacity, transform: [{ scale: pulseScale }] }]}>
+                  <Ionicons name="checkmark-circle-outline" size={42} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+                </Animated.View>
+              </View>
+              <View style={styles.printOptionsHeader}>
+                <View style={styles.printOptionsTitleBlock}>
+                  <Text style={[styles.printOptionsTitle, styles.planCelebrationTitle, accountDarkMode && styles.accountDarkTitle]}>
+                    Congratulations{firstName ? `, ${firstName}` : ""}
+                  </Text>
+                  <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                    You completed {pendingBiblePlanCompletionCelebration.planTitle}.
+                  </Text>
+                </View>
+                <Pressable accessibilityRole="button" accessibilityLabel="Close plan completion celebration" onPress={() => setPendingBiblePlanCompletionCelebration(null)} style={styles.markupCloseButton}>
+                  <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+                </Pressable>
+              </View>
+              <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                Well done for completing {pendingBiblePlanCompletionCelebration.completedDays} days of reading. Would you like to choose another Bible reading plan?
+              </Text>
+              <View style={styles.printOptionsActions}>
+                <Pressable onPress={() => setPendingBiblePlanCompletionCelebration(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                  <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
+                </Pressable>
+                <ResumeButton label="Choose another plan" icon="calendar-outline" onPress={chooseAnotherBibleReadingPlanAfterCelebration} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
               </View>
             </View>
           </View>
@@ -20901,6 +21034,49 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.16,
     shadowRadius: 24,
     width: "88%"
+  },
+  planCelebrationCard: {
+    gap: 16,
+    overflow: "hidden",
+    paddingTop: 18
+  },
+  planCelebrationArt: {
+    alignItems: "center",
+    height: 96,
+    justifyContent: "center",
+    marginBottom: -2,
+    overflow: "hidden"
+  },
+  planCelebrationIcon: {
+    alignItems: "center",
+    backgroundColor: "#eef3e5",
+    borderColor: "#cbd8bd",
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 70,
+    justifyContent: "center",
+    width: 70,
+    zIndex: 2
+  },
+  planCelebrationIconDark: {
+    backgroundColor: "#2f3025",
+    borderColor: "#5b6348"
+  },
+  planCelebrationParticle: {
+    backgroundColor: colors.coral,
+    borderRadius: 999,
+    height: 7,
+    position: "absolute",
+    width: 7
+  },
+  planCelebrationParticleGold: {
+    backgroundColor: "#d49a3a"
+  },
+  planCelebrationParticleGreen: {
+    backgroundColor: colors.oliveDark
+  },
+  planCelebrationTitle: {
+    fontSize: 24
   },
   memoryPrintOptionsCard: {
     overflow: "hidden"

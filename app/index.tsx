@@ -83,6 +83,12 @@ type PendingBiblePlanCompletionCelebration = {
   completedDays: number;
 };
 
+type PendingRhythmGracePrompt = {
+  missedDate: string;
+  latestActivityDate: string;
+  storageKey: string;
+};
+
 class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundaryState> {
   state: TabErrorBoundaryState = { hasError: false };
 
@@ -136,6 +142,15 @@ function safeRemoveLocalStorageValue(key: string) {
   if (Platform.OS !== "web" || typeof localStorage === "undefined") return;
   try {
     localStorage.removeItem(key);
+  } catch {
+    // Ignore private-mode/storage restrictions.
+  }
+}
+
+function safeSetLocalStorageValue(key: string, value: string) {
+  if (Platform.OS !== "web" || typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(key, value);
   } catch {
     // Ignore private-mode/storage restrictions.
   }
@@ -641,6 +656,7 @@ export default function Home() {
   const [memoryPrintSafeMode, setMemoryPrintSafeMode] = useState(true);
   const [memoryPrintCollectionFilter, setMemoryPrintCollectionFilter] = useState("all");
   const [memoryPrintSelectedVerseIds, setMemoryPrintSelectedVerseIds] = useState<string[]>([]);
+  const [pendingRhythmGracePrompt, setPendingRhythmGracePrompt] = useState<PendingRhythmGracePrompt | null>(null);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
@@ -1163,6 +1179,7 @@ export default function Home() {
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
   const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId, timezoneOffsetMinutes } : "skip");
+  const rhythmGrace = (stats as any)?.rhythmGrace;
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,
@@ -1170,6 +1187,25 @@ export default function Home() {
   );
   const drafts = useQuery(api.study.recentDrafts, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, limit: 10 } : "skip");
+
+  useEffect(() => {
+    const missedDate = typeof rhythmGrace?.missedDate === "string" ? rhythmGrace.missedDate : "";
+    if (!profileMatchesActiveState || !activeProfileId || !missedDate) return;
+    const storageKey = `bible-study-tutor-rhythm-grace-${activeProfileId}-${missedDate}`;
+    if (pendingRhythmGracePrompt?.storageKey === storageKey) return;
+    if (safeGetLocalStorageValue(storageKey) === "handled") return;
+    setPendingRhythmGracePrompt({
+      missedDate,
+      latestActivityDate: typeof rhythmGrace?.latestActivityDate === "string" ? rhythmGrace.latestActivityDate : "",
+      storageKey
+    });
+  }, [
+    activeProfileId,
+    pendingRhythmGracePrompt?.storageKey,
+    profileMatchesActiveState,
+    rhythmGrace?.latestActivityDate,
+    rhythmGrace?.missedDate
+  ]);
   const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery((api as any).community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery((api as any).community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
@@ -2744,6 +2780,21 @@ export default function Home() {
   function trackUsage(eventType: string, details: { reference?: string; methodId?: string; methodName?: string; translation?: string; tab?: string; book?: string; chapter?: number } = {}) {
     if (!activeProfileId) return;
     recordUsage({ profileId: activeProfileId, eventType, ...details }).catch(() => undefined);
+  }
+
+  function dismissRhythmGracePrompt() {
+    if (pendingRhythmGracePrompt?.storageKey) {
+      safeSetLocalStorageValue(pendingRhythmGracePrompt.storageKey, "handled");
+    }
+    setPendingRhythmGracePrompt(null);
+  }
+
+  function restoreDailyRhythmFromGracePrompt() {
+    if (!pendingRhythmGracePrompt) return;
+    safeSetLocalStorageValue(pendingRhythmGracePrompt.storageKey, "handled");
+    trackUsage("rhythm_restored", { reference: pendingRhythmGracePrompt.missedDate, tab: "home" });
+    setPendingRhythmGracePrompt(null);
+    setTab("home");
   }
 
   function openStudyFromPublicSource(source: string) {
@@ -9204,6 +9255,41 @@ export default function Home() {
           </View>
         );
       })()}
+      {pendingRhythmGracePrompt && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={dismissRhythmGracePrompt} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Restore your daily rhythm?</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                  {firstName ? `${firstName}, y` : "Y"}ou missed {formatPlanDayRelativeDate(pendingRhythmGracePrompt.missedDate)}.
+                </Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close daily rhythm grace prompt" onPress={dismissRhythmGracePrompt} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+            <View style={[styles.currentPlanNextBox, accountDarkMode && styles.accountDarkInsetBox]}>
+              <Text style={[styles.readerBookSectionTitle, accountDarkMode && styles.studyDarkAccentText]}>
+                Grace day available
+              </Text>
+              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>
+                Life gets full. You can use a grace day to keep your Scripture rhythm going and continue from today.
+              </Text>
+            </View>
+            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+              Restoring records today as a gentle rhythm check-in. It will not change your notes, reading plans, or memory verses.
+            </Text>
+            <View style={styles.printOptionsActions}>
+              <Pressable onPress={dismissRhythmGracePrompt} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
+              </Pressable>
+              <ResumeButton label="Restore rhythm" icon="refresh-outline" onPress={restoreDailyRhythmFromGracePrompt} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+            </View>
+          </View>
+        </View>
+      )}
       {pendingBiblePlanContinuePrompt && (() => {
         const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanContinuePrompt.planId);
         const nextDay = plan?.days.find((day) => day.day === pendingBiblePlanContinuePrompt.nextDay);

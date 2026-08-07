@@ -479,11 +479,19 @@ export const stats = query({
 
     const dates = Array.from(new Set(activityTimestamps.map((timestamp) => dayKey(timestamp, timezoneOffsetMinutes)))).sort();
 
+    const rhythm = currentStreak(dates, timezoneOffsetMinutes);
+
     return {
       sessionCount: sessions.length,
       minutes: sessions.reduce((total, session) => total + session.minutes, 0),
-      currentStreak: currentStreak(dates, timezoneOffsetMinutes),
-      bestStreak: bestStreak(dates)
+      currentStreak: rhythm.current,
+      bestStreak: Math.max(bestStreak(dates), rhythm.current),
+      rhythmGrace: rhythm.graceUsed
+        ? {
+            missedDate: rhythm.missedDate,
+            latestActivityDate: rhythm.latestActivityDate
+          }
+        : null
     };
   }
 });
@@ -616,21 +624,58 @@ function customReviewTimestamp(daysFromNow: number) {
 }
 
 function currentStreak(dates: string[], timezoneOffsetMinutes = 0) {
-  let count = 0;
   const today = dayKey(Date.now(), timezoneOffsetMinutes);
-  const cursor = new Date(today);
+  const activeDays = new Set(dates);
+  const latestActiveDay = [...activeDays].reverse().find((date) => date <= today);
+  if (!latestActiveDay) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: "" };
 
-  if (!dates.includes(today)) {
-    cursor.setDate(cursor.getDate() - 1);
-    if (!dates.includes(dayKey(cursor.getTime(), timezoneOffsetMinutes))) return 0;
-  }
+  const daysSinceLatestActivity = daysBetweenDateKeys(latestActiveDay, today);
+  if (daysSinceLatestActivity > 2) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: latestActiveDay };
 
-  while (dates.includes(dayKey(cursor.getTime(), timezoneOffsetMinutes))) {
+  let count = 0;
+  let graceDaysUsed = Math.max(0, daysSinceLatestActivity - 1);
+  const initialGraceUsed = graceDaysUsed > 0;
+  let missedDate = initialGraceUsed ? addDaysToDateKey(latestActiveDay, 1) : "";
+  let cursor = latestActiveDay;
+
+  while (activeDays.has(cursor)) {
     count += 1;
-    cursor.setDate(cursor.getDate() - 1);
+    const previousDay = addDaysToDateKey(cursor, -1);
+    if (activeDays.has(previousDay)) {
+      cursor = previousDay;
+      continue;
+    }
+
+    const dayBeforePrevious = addDaysToDateKey(previousDay, -1);
+    if (graceDaysUsed < 1 && activeDays.has(dayBeforePrevious)) {
+      graceDaysUsed += 1;
+      missedDate = previousDay;
+      cursor = dayBeforePrevious;
+      continue;
+    }
+
+    break;
   }
 
-  return count;
+  return {
+    current: count,
+    graceUsed: graceDaysUsed > 0,
+    missedDate,
+    latestActivityDate: latestActiveDay
+  };
+}
+
+function addDaysToDateKey(dateKeyValue: string, days: number) {
+  const date = new Date(`${dateKeyValue}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+function daysBetweenDateKeys(startDateKey: string, endDateKey: string) {
+  const start = Date.parse(`${startDateKey}T00:00:00.000Z`);
+  const end = Date.parse(`${endDateKey}T00:00:00.000Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end)) return Number.POSITIVE_INFINITY;
+  return Math.round((end - start) / 86400000);
 }
 
 function bestStreak(dates: string[]) {
@@ -660,6 +705,7 @@ function countsTowardScriptureRhythm(eventType: string) {
     "chapter_read",
     "checkin_saved",
     "memory_saved",
+    "rhythm_restored",
     "study_completed",
     "worksheet_printed"
   ].includes(eventType);

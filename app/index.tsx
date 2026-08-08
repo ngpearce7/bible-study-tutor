@@ -7221,7 +7221,7 @@ export default function Home() {
                 ))}
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
-                title="Current plan"
+                title="Guided study path"
                 icon="calendar-outline"
                 collapsed={collapsedStudyPanels.plan}
                 onToggle={() => toggleStudyPanel("plan")}
@@ -7229,11 +7229,14 @@ export default function Home() {
                 darkMode={studyDarkMode}
               >
                 <Text style={[styles.communityTitle, studyDarkMode && styles.accountDarkTitle]}>{selectedPlan.title}</Text>
-                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>{selectedPlanComplete ? "Plan complete. Start another path when you are ready." : `Next: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
+                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>
+                  Optional Study tab path. This is separate from the Bible reading plans you follow.
+                </Text>
+                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>{selectedPlanComplete ? "Path complete. Start another when you are ready." : `Next study: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
                 <Text style={[styles.planProgressText, studyDarkMode && styles.studyDarkAccentText]}>{selectedPlanCompletedCount} of {selectedPlan.days.length} complete</Text>
                 <View style={styles.planActionRow}>
-                  <ResumeButton label={selectedPlanComplete ? "Open plans" : "Continue"} icon={selectedPlanComplete ? "calendar-outline" : "play-outline"} onPress={() => selectedPlanComplete ? setTab("plans") : startPlanDay(selectedPlanNextDay)} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
-                  <ResumeButton label="All plans" icon="list-outline" onPress={() => setTab("plans")} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label={selectedPlanComplete ? "Open plans" : "Continue path"} icon={selectedPlanComplete ? "calendar-outline" : "play-outline"} onPress={() => selectedPlanComplete ? setTab("plans") : startPlanDay(selectedPlanNextDay)} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
+                  <ResumeButton label="Reading plans" icon="list-outline" onPress={() => setTab("plans")} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
                 </View>
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel

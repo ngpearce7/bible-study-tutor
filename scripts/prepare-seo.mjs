@@ -209,31 +209,138 @@ const seoPages = [
     path: "/bible-study-methods/inductive",
     file: "bible-study-methods/inductive.html",
     title: "Inductive Bible Study Method | Observation, Interpretation and Application",
-    description: "Learn the inductive Bible study method with observation, interpretation, and application steps for deeper Scripture study.",
+    description: "Learn the inductive Bible study method with step-by-step observation, interpretation, application, a worked example, safeguards, and printable worksheet options.",
     heading: "Inductive Bible study method",
-    intro: "Inductive Bible study helps you move from careful observation to faithful interpretation and practical application without skipping over the text.",
+    intro: "Inductive Bible study helps you move from careful observation to faithful interpretation and practical application without skipping over the text. It is especially useful when you want to understand what a passage says before deciding how it speaks into life.",
     sections: [
-      ["Observation", "Mark repeated words, commands, contrasts, people, places, timing, and structure. Ask what the passage actually says."],
-      ["Interpretation", "Use context to understand the author’s meaning. Ask how the passage fits the chapter, the book, and the message of Scripture."],
-      ["Application", "Respond with specific obedience, repentance, trust, worship, or prayer rather than vague good intentions."]
+      ["Observation", "Mark repeated words, commands, contrasts, people, places, timing, and structure. Ask what the passage actually says before explaining what it means."],
+      ["Interpretation", "Use context to understand the author’s meaning. Ask how the passage fits the chapter, the book, the original audience, and the message of Scripture."],
+      ["Application", "Respond with specific obedience, repentance, trust, worship, or prayer rather than vague good intentions. The application should flow from the meaning of the passage."],
+      ["Why the order matters", "Observation protects you from rushing. Interpretation protects you from guessing. Application protects the study from staying only in your notebook."]
     ],
     cta: "Try inductive study",
-    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/oia", "/how-to-study-romans"]
+    related: ["/printable-inductive-bible-study-worksheet", "/how-to-study-a-bible-passage", "/bible-study-methods/oia", "/how-to-study-romans"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and surrounding context carefully.",
+      "Write observations from the text before explaining meaning.",
+      "Interpret the passage using context, author, audience, and related Scripture.",
+      "Summarize the main point in one or two sentences.",
+      "Write one faithful application and prayer response."
+    ],
+    faq: [
+      ["What does inductive Bible study mean?", "Inductive Bible study moves from observation to interpretation to application, letting the passage guide the conclusions."],
+      ["Is inductive study good for beginners?", "Yes, but it is more detailed than SOAP. Beginners can start with shorter passages and simple observation questions."],
+      ["How long should an inductive study passage be?", "A paragraph or short section is usually best, especially when learning the method."],
+      ["Can I print an inductive worksheet?", "Yes. Bible Study Tutor includes printable worksheet options for inductive Bible study."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Romans 8:1",
+        intro: "A short inductive study can begin with Romans 8:1: “Therefore, there is now no condemnation for those who are in Christ Jesus.”",
+        items: [
+          ["Observation", "The verse begins with “Therefore,” so it points back to Paul’s argument. The promise is stated strongly: “no condemnation.” The promise is located “in Christ Jesus.”"],
+          ["Interpretation", "In context, Paul is explaining the freedom and life given in Christ after describing the struggle with sin. The verse does not promise that believers never struggle; it declares that condemnation has been removed in Christ."],
+          ["Application", "A faithful response might be to confess where guilt or fear has been ruling the heart and to rest again in Christ rather than self-justification."],
+          ["Prayer", "Lord, help me trust what You have declared in Christ. Teach me to live from grace rather than fear."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Inductive study checklist",
+        intro: "Use this checklist to keep the study anchored in the passage.",
+        items: [
+          "Have I read the whole paragraph or section?",
+          "Have I separated observations from interpretation?",
+          "Have I noticed repeated words, commands, contrasts, and structure?",
+          "Have I considered the book and chapter context?",
+          "Can I state the main point of the passage?",
+          "Does my application come from the passage rather than from a loose idea?"
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Common inductive study mistakes",
+        intro: "These are the easiest ways to weaken an inductive Bible study.",
+        items: [
+          "Skipping observation because the passage feels familiar.",
+          "Using cross references before understanding the immediate context.",
+          "Turning application into general advice instead of a text-shaped response.",
+          "Studying too large a passage too quickly.",
+          "Treating personal impressions as equal to the meaning of the text."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print an inductive study worksheet",
+        intro: "Select a passage in Bible Study Tutor and print a worksheet with space for observation, interpretation, application, prayer, and questions.",
+        href: "/?tab=bible",
+        label: "Print an inductive worksheet"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/oia",
     file: "bible-study-methods/oia.html",
     title: "OIA Bible Study Method | Observation, Interpretation and Application",
-    description: "Use the OIA Bible study method to observe the passage, interpret the meaning, and apply Scripture to daily life.",
+    description: "Use the OIA Bible study method to observe, interpret, and apply Scripture with clear steps, an example, safeguards, checklist, and worksheet options.",
     heading: "OIA Bible study method",
-    intro: "OIA is a clear and memorable way to study Scripture: observe what the passage says, interpret what it means, and apply it faithfully.",
+    intro: "OIA is a clear and memorable way to study Scripture: observe what the passage says, interpret what it means, and apply it faithfully. It gives structure without making the study complicated.",
     sections: [
-      ["Observation", "Slow down and list what you see in the passage before explaining it. Look for words, themes, logic, emotion, and movement."],
-      ["Interpretation", "Ask what the passage meant in context, what it reveals about God, and how it connects with the surrounding Scripture."],
-      ["Application", "Write one honest response. That might be something to believe, confess, obey, pray, remember, or share."]
+      ["Observation", "Slow down and list what you see in the passage before explaining it. Look for words, themes, logic, emotion, movement, commands, promises, and contrasts."],
+      ["Interpretation", "Ask what the passage meant in context, what it reveals about God, and how it connects with the surrounding Scripture. The goal is the author’s meaning, not a detached idea."],
+      ["Application", "Write one honest response. That might be something to believe, confess, obey, pray, remember, or share."],
+      ["Why OIA works well", "OIA is simple enough for beginners and strong enough for repeated use, because it slows the reader down before moving toward response."]
     ],
     cta: "Practise OIA",
-    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/inductive", "/bible-study-methods/soap"]
+    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/inductive", "/bible-study-methods/soap", "/printable-bible-study-worksheets"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a short passage and read it slowly.",
+      "Write observations from the words and structure of the passage.",
+      "Interpret the passage in context.",
+      "Write one specific application.",
+      "Save the study or print a worksheet for review."
+    ],
+    faq: [
+      ["What does OIA stand for?", "OIA stands for Observation, Interpretation, and Application."],
+      ["How is OIA different from SOAP?", "OIA focuses on observe, interpret, and apply. SOAP adds a dedicated Scripture and Prayer structure, which can feel more devotional."],
+      ["Is OIA good for group Bible study?", "Yes. OIA gives a group a shared order: first observe together, then interpret, then discuss application."],
+      ["Can I use OIA with a printable worksheet?", "Yes. Bible Study Tutor can help you print worksheets for selected Scripture passages and guided study methods."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked OIA example: Mark 1:35",
+        intro: "Mark 1:35 is a short verse that works well for learning OIA: Jesus rises early, goes to a solitary place, and prays.",
+        items: [
+          ["Observation", "The verse includes time, place, action, and purpose. Jesus gets up early, leaves for a quiet place, and prays."],
+          ["Interpretation", "In the flow of Mark 1, Jesus has been serving many people. The verse shows His communion with the Father in the middle of demanding ministry."],
+          ["Application", "A simple application could be to make space for prayer before activity, especially when life is crowded or demanding."],
+          ["Prayer", "Father, teach me to seek You before rushing into the day. Shape my service from dependence on You."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "OIA checklist",
+        intro: "Use this checklist to keep each step distinct.",
+        items: [
+          "Observation: What do I see in the passage?",
+          "Interpretation: What did this mean in context?",
+          "Application: How should I faithfully respond?",
+          "Have I avoided applying the passage before interpreting it?",
+          "Can I explain my answer from the text itself?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Try OIA in Bible Study Tutor",
+        intro: "Open a passage, choose OIA, and let the app guide you through observation, interpretation, and application.",
+        href: "/?tab=study&method=oia",
+        label: "Start an OIA study"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/lectio-divina",
@@ -413,16 +520,75 @@ const seoPages = [
     path: "/bible-study-for-beginners",
     file: "bible-study-for-beginners.html",
     title: "Bible Study for Beginners | Simple Guided Scripture Study",
-    description: "Start Bible study with simple guided steps, clear prompts, Scripture reading, notes, journaling, and printable worksheets for beginners.",
+    description: "Start Bible study as a beginner with simple steps, recommended passages, guided methods, examples, printable worksheets, and clear next actions.",
     heading: "Bible study for beginners",
-    intro: "Bible Study Tutor helps new Bible readers slow down and understand a passage one step at a time, without needing to know where to begin.",
+    intro: "Bible Study Tutor helps new Bible readers slow down and understand a passage one step at a time, without needing to know where to begin. Start small, stay close to the text, and let Scripture shape prayer and response.",
     sections: [
-      ["Start with a passage", "Open a chapter, select a few verses, and send them into Study so the app can guide you through the passage."],
+      ["Start with a short passage", "Open a chapter, select a few verses, and send them into Study so the app can guide you through the passage. A paragraph is usually better than a whole book when you are learning."],
       ["Use clear prompts", "Methods such as SOAP, OIA, and READ ask simple questions about what you notice, what the passage means, and how to respond."],
+      ["Ask simple questions", "Begin with questions like: What does this say about God? What is happening here? Is there a command, promise, warning, or comfort? How should I pray in response?"],
       ["Keep a record", "Save studies to your journal so your understanding, prayers, and next steps are easy to revisit later."]
     ],
     cta: "Open guided study",
-    related: ["/how-to-study-the-bible", "/how-to-study-a-bible-passage", "/bible-study-methods/soap"]
+    related: ["/how-to-study-the-bible", "/how-to-study-a-bible-passage", "/bible-study-methods/soap", "/printable-soap-bible-study-worksheet"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a short passage from a Gospel, Psalm, or New Testament letter.",
+      "Read the passage slowly and notice repeated words or main ideas.",
+      "Use SOAP or OIA to write observations, meaning, application, and prayer.",
+      "Save the study to your journal or print a worksheet.",
+      "Return later to review what you learned or memorize one verse."
+    ],
+    faq: [
+      ["Where should a beginner start reading the Bible?", "Many beginners start with the Gospel of John, Mark, a Psalm, or a short New Testament passage."],
+      ["What Bible study method is best for beginners?", "SOAP is often a good first method because it is simple: Scripture, Observation, Application, and Prayer."],
+      ["Do I need a Bible study account to begin?", "No. You can explore Bible Study Tutor first. A free account helps save progress across devices."],
+      ["Should beginners study alone or with others?", "Both can be helpful. Personal study builds rhythm, while a church, mentor, or small group can help with questions and encouragement."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Good starter passages",
+        intro: "These passages are short enough to study carefully and rich enough to begin meaningful reflection.",
+        items: [
+          "John 1:1-5 for seeing Jesus as the Word and light.",
+          "Psalm 23 for learning to pray trust in God’s care.",
+          "Mark 1:14-20 for seeing Jesus call people to follow Him.",
+          "Romans 8:1-4 for understanding grace and life in Christ.",
+          "James 1:2-8 for wisdom, trials, and prayer."
+        ]
+      },
+      {
+        type: "example",
+        title: "Beginner example: John 15:5",
+        intro: "A beginner study does not need to be long. John 15:5 can be studied with a few careful questions.",
+        items: [
+          ["Notice", "Jesus says He is the vine and His disciples are branches. The picture shows dependence and connection."],
+          ["Understand", "The verse teaches that fruitful life comes from abiding in Christ, not from spiritual self-effort."],
+          ["Respond", "A beginner application might be to pray before work, study, parenting, or ministry, acknowledging dependence on Jesus."],
+          ["Remember", "This verse can also become a memory verse because it is short and central to daily trust."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Beginner Bible study checklist",
+        intro: "Use this simple pattern when you are not sure what to do next.",
+        items: [
+          "Read a short passage slowly.",
+          "Write one thing you notice.",
+          "Ask what the passage shows about God, people, sin, grace, or faith.",
+          "Write one honest response.",
+          "Pray using words shaped by the passage."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start your first guided study",
+        intro: "Open Bible Study Tutor, choose a short passage, and let the guided prompts help you take the next step.",
+        href: "/?tab=study&method=soap",
+        label: "Start a beginner study"
+      }
+    ]
   },
   {
     path: "/printable-bible-study-worksheet-for-small-groups",
@@ -532,16 +698,63 @@ const seoPages = [
     path: "/printable-inductive-bible-study-worksheet",
     file: "printable-inductive-bible-study-worksheet.html",
     title: "Printable Inductive Bible Study Worksheet | Observation, Interpretation, Application",
-    description: "Create a printable inductive Bible study worksheet with observation, interpretation, and application space for deeper Scripture study.",
+    description: "Create a printable inductive Bible study worksheet with step-by-step guidance, observation prompts, interpretation safeguards, examples, FAQs, and worksheet CTA.",
     heading: "Printable inductive Bible study worksheet",
-    intro: "An inductive worksheet helps readers slow down, mark observations, interpret the passage in context, and write a specific response.",
+    intro: "An inductive worksheet helps readers slow down, mark observations, interpret the passage in context, and write a specific response. It works well for deeper personal study, small groups, Bible classes, and sermon follow-up.",
     sections: [
-      ["Observation space", "Record repeated words, structure, commands, contrasts, people, places, and questions directly from the passage."],
-      ["Interpretation prompts", "Use context, surrounding verses, and related Scripture to ask what the passage means before applying it."],
-      ["Application response", "Write one clear next step, prayer, or truth to remember after studying the passage."]
+      ["Observation space", "Record repeated words, structure, commands, contrasts, people, places, and questions directly from the passage. This section should be filled from the text, not from assumptions."],
+      ["Interpretation prompts", "Use context, surrounding verses, author, audience, and related Scripture to ask what the passage means before applying it."],
+      ["Application response", "Write one clear next step, prayer, or truth to remember after studying the passage. The application should be specific and tied to the passage."],
+      ["Questions to revisit", "A good worksheet leaves room for honest questions. Some passages need further study, discussion, or help from a trusted teacher."]
     ],
     cta: "Print an inductive worksheet",
-    related: ["/bible-study-methods/inductive", "/how-to-study-a-bible-passage", "/printable-bible-study-worksheets"]
+    related: ["/bible-study-methods/inductive", "/how-to-study-a-bible-passage", "/printable-bible-study-worksheets", "/bible-study-worksheet-for-church-groups"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a passage and print it with space for notes.",
+      "Write observations from the passage before interpreting it.",
+      "Use context and related Scripture to understand the meaning.",
+      "Summarize the main point of the passage.",
+      "Write a specific application and prayer response."
+    ],
+    faq: [
+      ["What is an inductive Bible study worksheet?", "It is a worksheet that guides readers through observation, interpretation, and application."],
+      ["How is it different from a SOAP worksheet?", "SOAP is simpler and more devotional. Inductive study gives more space to careful observation and interpretation."],
+      ["Can this be used in a Bible class?", "Yes. It works well when a teacher wants people to observe the passage before discussion."],
+      ["Can I print one from my phone?", "Yes. Open the worksheet preview, then use the browser share, print, or save-as-PDF controls."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example worksheet flow: Ephesians 2:8-10",
+        intro: "Ephesians 2:8-10 is a helpful short passage for inductive study because it includes grace, faith, works, and purpose.",
+        items: [
+          ["Observation", "Notice repeated ideas: grace, faith, gift, works, created, and walk. The passage contrasts salvation by grace with boasting in works."],
+          ["Interpretation", "In context, Paul is explaining what God has done in Christ. Good works do not earn salvation; they are prepared by God as the fruit of His saving grace."],
+          ["Application", "A faithful response might include humility before God, gratitude for grace, and a willingness to walk in the good works God gives."],
+          ["Prayer", "Lord, keep me from boasting in myself. Help me receive grace with humility and walk faithfully in what You prepare."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Worksheet checklist",
+        intro: "A useful inductive worksheet should help readers keep each step clear.",
+        items: [
+          "Is there enough room for observations from the passage?",
+          "Does the worksheet ask context questions before application?",
+          "Is there space to summarize the main point?",
+          "Does the application section ask for a specific response?",
+          "Is there room for prayer and unresolved questions?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print an inductive worksheet",
+        intro: "Select a passage in Bible Study Tutor and print a worksheet with guided space for observation, interpretation, application, and prayer.",
+        href: "/?tab=bible",
+        label: "Print an inductive worksheet"
+      }
+    ]
   },
   {
     path: "/printable-bible-study-journal",
@@ -682,16 +895,69 @@ const seoPages = [
     path: "/bible-study-for-small-groups",
     file: "bible-study-for-small-groups.html",
     title: "Bible Study for Small Groups | Worksheets, Methods and Private Encouragement",
-    description: "Use Bible Study Tutor for small groups with printable worksheets, guided study methods, private circles, encouragements, memory verses, and shared Scripture reflection.",
+    description: "Use Bible Study Tutor for small groups with practical study workflows, printable worksheets, guided methods, private encouragement, memory verses, and FAQs.",
     heading: "Bible study tools for small groups",
-    intro: "Bible Study Tutor can support small groups with printable worksheets, shared study rhythms, private encouragement, memory verses, and simple Scripture-centred structure.",
+    intro: "Bible Study Tutor can support small groups with printable worksheets, shared study rhythms, private encouragement, memory verses, and simple Scripture-centred structure. It is designed to help a group gather around the Bible without becoming another public social platform.",
     sections: [
-      ["Prepare group worksheets", "Print selected passages with guided questions so people can study with pen and paper before or during a group meeting."],
-      ["Keep sharing private", "Friends and circles are designed for trusted encouragement rather than public social media feeds."],
-      ["Use shared methods", "Group members can use the same study method, passage, or memory collection while keeping their own notes and journal."]
+      ["Prepare group worksheets", "Print selected passages with guided questions so people can study with pen and paper before or during a group meeting. This helps quieter members prepare thoughts before discussion."],
+      ["Use shared methods", "Group members can use the same study method, passage, or memory collection while keeping their own notes and journal."],
+      ["Keep sharing private", "Friends and circles are designed for trusted encouragement rather than public social media feeds. The focus is encouragement between people who already know one another."],
+      ["Continue after the meeting", "Members can save studies, memory verses, notes, and reflections so the group’s Scripture focus can continue during the week."]
     ],
     cta: "Prepare a group study",
-    related: ["/printable-bible-study-worksheets", "/bible-study-app-for-churches", "/bible-study-methods"]
+    related: ["/printable-bible-study-worksheets", "/printable-bible-study-worksheet-for-small-groups", "/bible-study-app-for-churches", "/bible-study-methods"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Can a small group use Bible Study Tutor for free?", "Yes. Bible Study Tutor is designed to be free for personal Bible study, small groups, churches, and youth groups."],
+      ["Can leaders print worksheets before a group meeting?", "Yes. Leaders can select a passage and print worksheets for SOAP, OIA, Inductive Study, or other guided methods."],
+      ["Does Bible Study Tutor have a public group feed?", "No. Friends and circles are intended for private encouragement, not public social media posting."],
+      ["Can each person keep their own notes?", "Yes. Group members can study the same passage while keeping their own notes, highlights, memory verses, and journal entries."],
+      ["What is a simple plan for a small group study?", "Choose one passage, pick one method, let people observe the text, discuss meaning together, and finish with prayer shaped by the passage."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "A simple small group workflow",
+        intro: "This rhythm keeps a group focused without making the meeting complicated.",
+        items: [
+          "Choose the passage before the meeting.",
+          "Print or share a worksheet using SOAP, OIA, or Inductive Study.",
+          "Ask everyone to write observations before discussing application.",
+          "Use discussion to clarify the passage, not replace it.",
+          "Finish with prayer and one practical response for the week."
+        ]
+      },
+      {
+        type: "example",
+        title: "Example group study: Philippians 2:1-11",
+        intro: "Philippians 2:1-11 can work well for a small group because it moves from unity and humility to the example of Christ.",
+        items: [
+          ["Before the meeting", "Ask each person to read the passage and write observations about humility, unity, and Christ’s example."],
+          ["During discussion", "Start with what the group noticed in the passage before asking how humility should shape relationships."],
+          ["Prayer response", "Pray for Christlike humility, unity, and obedience in the actual relationships represented in the group."],
+          ["During the week", "Invite members to memorize Philippians 2:3-4 or journal one concrete act of humble service."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Small group leader checklist",
+        intro: "A few simple decisions can make group Bible study clearer.",
+        items: [
+          "Is the passage short enough for careful discussion?",
+          "Have I chosen one main method or set of questions?",
+          "Will people have time to observe before application?",
+          "Is there a clear prayer response?",
+          "Is there a simple way to continue during the week?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Prepare your next group study",
+        intro: "Open the Bible reader, choose a passage, and print a worksheet or start a guided study for your next small group.",
+        href: "/?tab=bible",
+        label: "Prepare a group study"
+      }
+    ]
   },
   {
     path: "/bible-study-app-for-churches",

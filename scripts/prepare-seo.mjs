@@ -395,6 +395,19 @@ const seoPages = [
         ]
       },
       {
+        type: "journalExample",
+        title: "Example journal entry: Psalm 23:1",
+        intro: "A saved study can keep the Scripture visible above the notes, with simple markings that show what the reader noticed.",
+        reference: "Psalm 23:1",
+        translation: "KJV",
+        scriptureHtml: "The <mark>Lord</mark> is my <span class=\"scripture-underline\">shepherd</span>; I shall not want.",
+        notes: [
+          ["Observation", "The verse names the Lord personally and describes Him as shepherd. The marked words keep attention on who God is and what He does."],
+          ["Interpretation", "Shepherd language points to provision, guidance, protection, and personal care rather than distant religious theory."],
+          ["Application", "A faithful response is to name one area of anxiety and bring it under the Lord’s care in prayer."]
+        ]
+      },
+      {
         type: "checklist",
         title: "Bible study checklist",
         intro: "Use this simple checklist whenever you feel unsure what to do next.",
@@ -459,6 +472,19 @@ const seoPages = [
         ]
       },
       {
+        type: "journalExample",
+        title: "Example journal entry: Romans 8:1",
+        intro: "The journal-style view helps readers see how highlighted words become observations before moving to meaning and application.",
+        reference: "Romans 8:1",
+        translation: "KJV",
+        scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
+        notes: [
+          ["Observation", "The word therefore shows this verse is connected to the argument before it. The highlighted phrase carries the central promise."],
+          ["Interpretation", "Paul is not saying believers never struggle. He is declaring that condemnation has been removed for those who are in Christ."],
+          ["Application", "This calls me to answer guilt and fear with the finished work of Christ rather than self-justification."]
+        ]
+      },
+      {
         type: "checklist",
         title: "Passage study safeguards",
         intro: "These safeguards keep a Bible passage study from becoming rushed or disconnected.",
@@ -512,6 +538,20 @@ const seoPages = [
           ["Observation", "The verse describes the Lord personally as shepherd and connects His care with provision and contentment."],
           ["Application", "A faithful response could be to name one area where anxiety is replacing trust in the Lord’s care."],
           ["Prayer", "Lord, shepherd me today. Help me trust Your provision and follow Your care with a quiet heart."]
+        ]
+      },
+      {
+        type: "journalExample",
+        title: "SOAP journal example: Psalm 23:1",
+        intro: "A SOAP journal entry can keep the selected Scripture above the user's notes so the prayer and application stay anchored in the verse.",
+        reference: "Psalm 23:1",
+        translation: "KJV",
+        scriptureHtml: "The Lord is my <mark>shepherd</mark>; I shall <span class=\"scripture-underline\">not want</span>.",
+        notes: [
+          ["Scripture", "The selected verse is short enough to carry through the whole SOAP reflection."],
+          ["Observation", "The shepherd image describes personal care, direction, and provision."],
+          ["Application", "I can respond by trusting God with a specific area where I feel lack or pressure."],
+          ["Prayer", "Lord, teach me to receive Your shepherding care today."]
         ]
       },
       {
@@ -3274,6 +3314,15 @@ function buildSeoPage(page, baseUrl) {
       .example-grid, .preview-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 14px; }
       .example-card, .preview-card { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
       .example-card h3, .preview-card h3 { color: var(--coral); font-size: 14px; letter-spacing: .04em; margin: 0 0 8px; text-transform: uppercase; }
+      .journal-example { display: grid; gap: 14px; }
+      .journal-scripture { background: #fffaf2; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+      .journal-reference { color: var(--coral); font-size: 13px; font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; text-transform: uppercase; }
+      .scripture-text { color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 22px; line-height: 1.65; }
+      .scripture-text mark { background: #f4dfb6; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 1px 4px; }
+      .scripture-underline { border-bottom: 3px solid rgba(201, 103, 80, .42); padding-bottom: 1px; }
+      .journal-notes { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+      .journal-note { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
+      .journal-note h3 { color: var(--olive); font-size: 15px; margin: 0 0 7px; }
       .extra-cta { align-items: flex-start; display: grid; gap: 14px; }
       details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
       summary { color: var(--olive); cursor: pointer; font-weight: 900; }
@@ -3361,6 +3410,23 @@ function buildExtraSeoBlock(block) {
         <ul>
           ${items}
         </ul>
+      </section>`;
+  }
+
+  if (block.type === "journalExample") {
+    const notes = (block.notes || [])
+      .map(([title, body]) => `<article class="journal-note"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`)
+      .join("\n          ");
+    return `<section class="extra-block journal-example" aria-labelledby="${slugifyForId(block.title)}">
+        <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
+        ${intro}
+        <div class="journal-scripture">
+          <div class="journal-reference">${escapeHtml(block.reference || "Example passage")}${block.translation ? ` · ${escapeHtml(block.translation)}` : ""}</div>
+          <p class="scripture-text">${block.scriptureHtml || ""}</p>
+        </div>
+        <div class="journal-notes">
+          ${notes}
+        </div>
       </section>`;
   }
 

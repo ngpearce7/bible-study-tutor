@@ -443,16 +443,90 @@ const seoPages = [
     path: "/printable-soap-bible-study-worksheet",
     file: "printable-soap-bible-study-worksheet.html",
     title: "Printable SOAP Bible Study Worksheet | Free Scripture Study Sheet",
-    description: "Create a printable SOAP Bible study worksheet with Scripture, observation, application, and prayer sections for personal study or groups.",
+    description: "Learn how to use a printable SOAP Bible study worksheet with step-by-step guidance, a worked example, common mistakes, FAQs, and a free worksheet CTA.",
     heading: "Printable SOAP Bible study worksheet",
-    intro: "A printable SOAP worksheet gives readers a simple way to slow down with Scripture, write observations, apply the passage, and respond in prayer.",
+    intro: "A printable SOAP worksheet gives readers a simple way to slow down with Scripture, write observations, apply the passage, and respond in prayer. It is useful for personal devotions, small groups, youth groups, sermon reflection, and anyone who studies best with pen and paper.",
     sections: [
-      ["Scripture section", "Choose the passage and print the selected verses so the study begins with the Bible text, not only a blank form."],
-      ["Observation and application space", "Use guided space to write what the passage says and how it calls for trust, obedience, repentance, or encouragement."],
-      ["Prayer response", "Finish the worksheet with a prayer shaped by the passage, making the study personal without losing the text."]
+      ["What SOAP stands for", "SOAP stands for Scripture, Observation, Application, and Prayer. The method keeps the Bible text first, then helps you notice what the passage says, respond personally, and pray from Scripture."],
+      ["Scripture section", "Choose the passage and print the selected verses so the study begins with the Bible text, not only a blank form. A short passage usually works best: one verse, a paragraph, or a small section."],
+      ["Observation section", "Write what you can see in the passage before jumping to application. Look for repeated words, commands, promises, contrasts, people, questions, reasons, and what the passage reveals about God."],
+      ["Application section", "Ask how the passage calls for trust, obedience, repentance, worship, comfort, patience, or encouragement. Keep the response specific enough to practise today."],
+      ["Prayer section", "Finish with a prayer shaped by the passage. This helps the study become a response to God rather than only a written exercise."]
     ],
     cta: "Print a SOAP worksheet",
-    related: ["/bible-study-methods/soap", "/printable-bible-study-worksheets", "/printable-bible-study-worksheet-for-small-groups"]
+    related: ["/bible-study-methods/soap", "/printable-bible-study-worksheets", "/printable-bible-study-worksheet-for-small-groups", "/bible-study-app-with-printable-worksheets"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a short Bible passage and read it slowly in context.",
+      "Write the Scripture reference and selected text in the worksheet.",
+      "Record observations from the passage before deciding how it applies.",
+      "Write one specific application shaped by the passage.",
+      "Pray in response to what Scripture has shown you."
+    ],
+    faq: [
+      ["What does SOAP stand for?", "SOAP stands for Scripture, Observation, Application, and Prayer."],
+      ["Is SOAP good for beginners?", "Yes. SOAP is simple enough for beginners while still encouraging careful attention to the Bible text."],
+      ["How long should the passage be?", "A short passage usually works best. Start with one verse, one paragraph, or a small section rather than a whole chapter."],
+      ["Can SOAP worksheets be used in groups?", "Yes. A group can study the same passage, write individually, then discuss observations, applications, and prayer responses together."],
+      ["Can I print a SOAP worksheet from Bible Study Tutor?", "Yes. Open the Bible reader, select a passage, choose the worksheet option, and print or save the SOAP worksheet."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked SOAP example: Psalm 23:1",
+        intro: "Here is a simple example using Psalm 23:1: “The LORD is my shepherd; I shall not want.”",
+        items: [
+          ["Scripture", "Psalm 23:1 says that the LORD is the shepherd of His people. The verse is short, but it gives a strong picture of God’s care, guidance, and provision."],
+          ["Observation", "David describes the LORD personally as “my shepherd.” The result is contentment and trust: “I shall not want.” The verse points to dependence on God rather than self-sufficiency."],
+          ["Application", "Today I can bring my needs and anxieties to God instead of carrying them alone. I can ask whether I am trusting Him as shepherd or trying to shepherd myself."],
+          ["Prayer", "Lord, teach me to trust You as my shepherd. Help me receive Your care, follow Your leading, and rest in Your provision today."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "SOAP worksheet checklist",
+        intro: "Before finishing your worksheet, check that each section is doing its job.",
+        items: [
+          "Did I read the passage in context?",
+          "Did I write the Scripture reference clearly?",
+          "Did my observations come from the passage rather than my first impression only?",
+          "Did I keep application specific and realistic?",
+          "Did my prayer respond to what the passage actually says?",
+          "Did I note any question worth studying later?"
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Common SOAP mistakes to avoid",
+        intro: "SOAP is simple, but these mistakes can make it shallow or disconnected from Scripture.",
+        items: [
+          "Do not skip observation and move straight to personal application.",
+          "Do not make the application so broad that it cannot be practised.",
+          "Do not treat the prayer section as unrelated to the passage.",
+          "Do not choose too much Scripture if the worksheet is for careful reflection.",
+          "Do not use SOAP as a replacement for deeper study when a passage needs more context."
+        ]
+      },
+      {
+        type: "list",
+        title: "Ways to use a printable SOAP worksheet",
+        intro: "A printed SOAP worksheet can help in several settings where writing by hand slows the study down.",
+        items: [
+          "Personal quiet time: print one passage and keep the completed sheet in a journal or Bible.",
+          "Small groups: give everyone the same passage, then discuss observations before applications.",
+          "Youth groups: use one short passage and invite students to write one honest prayer response.",
+          "Sermon follow-up: print the Sunday passage and use SOAP during the week.",
+          "Family devotions: study one verse together and let each person write or share a short response."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print a SOAP worksheet in Bible Study Tutor",
+        intro: "Open the Bible reader, select a passage, choose the worksheet option, and print or save a SOAP worksheet for desktop, mobile, or paper study.",
+        href: "/?tab=bible",
+        label: "Print a SOAP worksheet"
+      }
+    ]
   },
   {
     path: "/printable-inductive-bible-study-worksheet",

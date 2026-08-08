@@ -863,6 +863,7 @@ export default function Home() {
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
   const biblePlanDayPickerRefs = useRef<Record<string, any>>({});
+  const memoryBlankVisibilityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const planCelebrationPulse = useRef(new Animated.Value(0)).current;
   const planCelebrationParticles = useRef(Array.from({ length: 12 }, () => new Animated.Value(0))).current;
   const accountLegalYRef = useRef(0);
@@ -2060,9 +2061,10 @@ export default function Home() {
     }, delay);
   }
 
-  function ensureMemoryBlankVisible(index: number) {
+  function ensureMemoryBlankVisible(index: number, delay = 520) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
-    setTimeout(() => {
+    if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
+    memoryBlankVisibilityTimerRef.current = setTimeout(() => {
       const input = memoryBlankInputRefs.current[index] as any;
       if (!input?.measureInWindow) {
         return;
@@ -2076,13 +2078,13 @@ export default function Home() {
           visualViewportHeight > 0 && visualViewportHeight < layoutHeight - 80
             ? visualViewportHeight - 82
             : layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
-        const inputBottom = y + inputHeight + 58;
+        const inputBottom = y + inputHeight + 72;
         const hiddenAmount = inputBottom - keyboardSafeBottom;
-        if (hiddenAmount > 72) {
-          scrollMemoryPracticeBy(Math.min(96, hiddenAmount - 36), true);
+        if (hiddenAmount > 120) {
+          scrollMemoryPracticeBy(Math.min(90, hiddenAmount - 76), false);
         }
       });
-    }, phoneLayout ? 260 : 160);
+    }, delay);
   }
 
   useEffect(() => {
@@ -4646,8 +4648,8 @@ export default function Home() {
     if (nextToken) {
       setTimeout(() => {
         memoryBlankInputRefs.current[nextToken.index]?.focus();
-        ensureMemoryBlankVisible(nextToken.index);
-      }, phoneLayout ? 150 : 80);
+        ensureMemoryBlankVisible(nextToken.index, phoneLayout ? 620 : 180);
+      }, phoneLayout ? 120 : 80);
       return;
     }
 

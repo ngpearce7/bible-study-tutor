@@ -13,16 +13,10 @@ export function buildStudyHelpLinks(reference: string, translation: BibleTransla
       url: buildBibleHubPassageUrl(parsedReference, translation)
     },
     {
-      title: "Matthew Henry Concise",
-      description: "Public-domain devotional commentary source.",
+      title: "Enduring Word commentary",
+      description: "Modern, free chapter commentary with pastoral explanation and application.",
       icon: "book-outline",
-      url: "https://crosswire.org/sword/modules/ModInfo.jsp?modName=MHCC"
-    },
-    {
-      title: "Treasury cross references",
-      description: "Find related passages before application.",
-      icon: "git-branch-outline",
-      url: `https://www.openbible.info/labs/cross-references/?q=${encoded}`
+      url: buildEnduringWordCommentaryUrl(parsedReference)
     },
     {
       title: "Bible Hub commentaries",
@@ -31,10 +25,10 @@ export function buildStudyHelpLinks(reference: string, translation: BibleTransla
       url: buildBibleHubCommentaryUrl(parsedReference)
     },
     {
-      title: "CCEL Matthew Henry",
-      description: "Public-domain full commentary library.",
+      title: "BibleProject book guide",
+      description: "See the book's structure, themes, and place in the Bible story.",
       icon: "library-outline",
-      url: "https://www.ccel.org/ccel/henry/mhc"
+      url: buildBibleProjectBookGuideUrl(parsedReference)
     },
     {
       title: "STEP Bible",
@@ -46,26 +40,40 @@ export function buildStudyHelpLinks(reference: string, translation: BibleTransla
 }
 
 function buildBibleHubCommentaryUrl(reference: string) {
-  const parsed = parseStudyHelpReference(reference).match(/^(.+?)\s+(\d+)(?::(\d+))?/);
+  const parsed = getStudyHelpReferenceParts(reference);
   if (!parsed) return "https://biblehub.com/commentaries/";
 
-  const book = bibleHubBookSlug(parsed[1]);
-  const chapter = parsed[2];
-  const verse = parsed[3] || "1";
+  const book = bibleHubBookSlug(parsed.book);
+  const chapter = String(parsed.chapter);
+  const verse = parsed.verse ? String(parsed.verse) : "1";
   return `https://biblehub.com/commentaries/${book}/${chapter}-${verse}.htm`;
 }
 
 function buildBibleHubPassageUrl(reference: string, translation: BibleTranslationId) {
   const parsedReference = parseStudyHelpReference(reference || "Psalm 23");
-  const parsed = parsedReference.match(/^(.+?)\s+(\d+)(?::(\d+))?/);
+  const parsed = getStudyHelpReferenceParts(parsedReference);
   if (!parsed) return `https://biblehub.com/${translation}/`;
 
-  const book = bibleHubBookSlug(parsed[1]);
-  const chapter = parsed[2];
-  const verse = parsed[3];
+  const book = bibleHubBookSlug(parsed.book);
+  const chapter = String(parsed.chapter);
+  const verse = parsed.verse ? String(parsed.verse) : "";
   if (!verse) return `https://biblehub.com/p/${translation}/${translation}/${book}/${chapter}.shtml`;
 
   return `https://biblehub.com/${book}/${chapter}-${verse}.htm`;
+}
+
+function buildEnduringWordCommentaryUrl(reference: string) {
+  const parsed = getStudyHelpReferenceParts(reference);
+  if (!parsed) return "https://enduringword.com/commentary/";
+
+  return `https://enduringword.com/bible-commentary/${enduringWordBookSlug(parsed.book)}-${parsed.chapter}/`;
+}
+
+function buildBibleProjectBookGuideUrl(reference: string) {
+  const parsed = getStudyHelpReferenceParts(reference);
+  if (!parsed) return "https://bibleproject.com/guides/";
+
+  return `https://bibleproject.com/guides/book-of-${bibleProjectBookSlug(parsed.book)}/`;
 }
 
 function parseStudyHelpReference(reference: string) {
@@ -78,7 +86,31 @@ function parseStudyHelpReference(reference: string) {
     .replace(/^Psalms\b/i, "Psalm");
 }
 
+function getStudyHelpReferenceParts(reference: string) {
+  const parsed = parseStudyHelpReference(reference).match(/^(.+?)\s+(\d+)(?::(\d+))?/);
+  if (!parsed) return null;
+
+  return {
+    book: parsed[1],
+    chapter: Number(parsed[2]),
+    verse: parsed[3] ? Number(parsed[3]) : 0
+  };
+}
+
 function bibleHubBookSlug(book: string) {
   const normalized = book.trim().replace(/^Psalm$/i, "Psalms");
   return normalized.toLowerCase().replace(/\s+/g, "_");
+}
+
+function enduringWordBookSlug(book: string) {
+  const normalized = book.trim().replace(/^Psalms$/i, "Psalm");
+  return normalized.toLowerCase().replace(/\s+/g, "-");
+}
+
+function bibleProjectBookSlug(book: string) {
+  const normalized = book.trim().replace(/^Psalm$/i, "Psalms");
+  const overrides: Record<string, string> = {
+    "Song of Solomon": "song-of-songs"
+  };
+  return (overrides[normalized] || normalized).toLowerCase().replace(/\s+/g, "-");
 }

@@ -594,16 +594,68 @@ const seoPages = [
     path: "/printable-bible-study-worksheet-for-small-groups",
     file: "printable-bible-study-worksheet-for-small-groups.html",
     title: "Printable Bible Study Worksheet for Small Groups | Free Group Study Sheet",
-    description: "Create printable Bible study worksheets for small groups with selected Scripture, guided questions, writing space, and study methods.",
+    description: "Create printable Bible study worksheets for small groups with selected Scripture, guided questions, leader workflow, example passages, discussion prompts, and prayer space.",
     heading: "Printable Bible study worksheet for small groups",
-    intro: "Bible Study Tutor can help small group leaders prepare simple Scripture worksheets that work well around a table, in a class, or in a church group.",
+    intro: "Bible Study Tutor can help small group leaders prepare simple Scripture worksheets that work well around a table, in a class, or in a church group. A good worksheet gives people room to observe the passage before the discussion starts.",
     sections: [
-      ["Choose the passage", "Select the verses your group will study and print the Scripture with enough room for people to write their own observations."],
+      ["Choose the passage", "Select the verses your group will study and print the Scripture with enough room for people to write their own observations. A short passage usually creates better discussion than a large section rushed through quickly."],
       ["Use a shared method", "SOAP, OIA, Inductive Study, and Lectio Divina can give the group a common rhythm without making the handout complicated."],
-      ["Encourage discussion", "Printed worksheets help people arrive prepared, record prayer points, and keep a useful record after the meeting."]
+      ["Encourage discussion", "Printed worksheets help people arrive prepared, record prayer points, and keep a useful record after the meeting."],
+      ["Leave space for prayer", "A group worksheet should end with prayer, response, or encouragement so the discussion moves from information to faithful living."]
     ],
     cta: "Print a worksheet",
-    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheets", "/bible-study-methods/soap"]
+    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheets", "/bible-study-methods/soap", "/bible-study-methods/oia"],
+    schemaType: "FAQPage",
+    faq: [
+      ["What should a small group Bible study worksheet include?", "It should include the Scripture passage, observation prompts, discussion questions, application space, and prayer response."],
+      ["How long should the passage be?", "A paragraph or short section usually works best for a group discussion."],
+      ["Can the worksheet be used before the meeting?", "Yes. Leaders can send or print the worksheet ahead of time so people arrive ready to discuss."],
+      ["Which method works best for small groups?", "SOAP works well for simple reflection, while OIA and Inductive Study are helpful when a group wants deeper observation and interpretation."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Small group worksheet flow",
+        intro: "A clear worksheet can support the whole meeting without taking it over.",
+        items: [
+          "Read the passage aloud together.",
+          "Give people quiet time to write observations.",
+          "Discuss what the passage means in context.",
+          "Invite specific applications rather than vague answers.",
+          "Close with prayer shaped by the passage."
+        ]
+      },
+      {
+        type: "example",
+        title: "Example passage: Colossians 3:12-17",
+        intro: "Colossians 3:12-17 works well for a group because it includes identity, character, relationships, worship, and gratitude.",
+        items: [
+          ["Observation", "Ask the group to list the commands and character qualities in the passage."],
+          ["Interpretation", "Discuss how the commands flow from being chosen, holy, and beloved."],
+          ["Application", "Invite each person to choose one relationship where patience, forgiveness, or gratitude needs to be practised."],
+          ["Prayer", "Pray for the group to be shaped by Christ’s peace, word, and love."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Leader preparation checklist",
+        intro: "Before printing the worksheet, check that it will serve the discussion well.",
+        items: [
+          "Is the passage short enough to study carefully?",
+          "Are the questions tied to the text?",
+          "Is there space for quiet written reflection?",
+          "Is there a prayer or application section?",
+          "Can people keep the worksheet as a useful record?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print a small group worksheet",
+        intro: "Open the Bible reader, select your group passage, and print a worksheet using SOAP, OIA, Inductive Study, or another guided method.",
+        href: "/?tab=bible",
+        label: "Print a group worksheet"
+      }
+    ]
   },
   {
     path: "/printable-soap-bible-study-worksheet",
@@ -760,46 +812,166 @@ const seoPages = [
     path: "/printable-bible-study-journal",
     file: "printable-bible-study-journal.html",
     title: "Printable Bible Study Journal | Free Scripture Reflection Pages",
-    description: "Use printable Bible study journal pages to record Scripture notes, prayers, observations, applications, memory verses, and reflections.",
+    description: "Use printable Bible study journal pages with Scripture notes, prayer, reflection prompts, examples, journaling rhythms, and paper study workflows.",
     heading: "Printable Bible study journal",
-    intro: "Printable Bible study journal pages give people room to write by hand while still following a clear Scripture-centred rhythm.",
+    intro: "Printable Bible study journal pages give people room to write by hand while still following a clear Scripture-centred rhythm. They are helpful for quiet time, sermon reflection, guided study, memory verses, and prayer.",
     sections: [
       ["Write Scripture notes", "Use journal space for observations, questions, key words, cross references, and what the passage reveals about God."],
       ["Record prayer and response", "Turn study into prayer, application, repentance, gratitude, or encouragement for someone else."],
+      ["Keep a study record", "A paper journal can help you see what you have been reading, praying, wrestling with, and returning to over time."],
       ["Use alongside the app", "Bible Study Tutor supports both digital journaling and printable worksheets so people can study in the format that helps them most."]
     ],
     cta: "Open journal tools",
-    related: ["/bible-study-journal", "/online-bible-study-journal", "/bible-study-methods/verse-mapping"]
+    related: ["/bible-study-journal", "/online-bible-study-journal", "/bible-study-methods/verse-mapping", "/printable-bible-study-worksheets"],
+    schemaType: "FAQPage",
+    faq: [
+      ["What should I write in a Bible study journal?", "You can write observations, questions, prayers, applications, memory verses, cross references, and reflections from the passage."],
+      ["Is a printable journal different from a worksheet?", "A worksheet usually guides one study session. A journal helps you keep a longer record of study, prayer, and reflection."],
+      ["Can I use paper and the app together?", "Yes. You can print pages for handwriting and still use the app for Bible reading, memory verses, and saved notes."],
+      ["How often should I journal?", "Start small. Journaling once or twice a week after a Bible reading or guided study can build a steady rhythm."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Simple journal rhythm",
+        intro: "A printable journal works best when the prompts are repeatable.",
+        items: [
+          "Write the date and Scripture reference.",
+          "Record one observation from the passage.",
+          "Write one question or word to study further.",
+          "Note one response of faith, obedience, repentance, or prayer.",
+          "Choose one verse to remember or revisit."
+        ]
+      },
+      {
+        type: "example",
+        title: "Example journal entry: Psalm 46:1",
+        intro: "A journal entry can be short and still useful.",
+        items: [
+          ["Scripture", "Psalm 46:1 says God is refuge, strength, and a present help in trouble."],
+          ["Observation", "The verse does not deny trouble. It describes God’s nearness and strength within trouble."],
+          ["Response", "I can bring fear to God honestly instead of pretending I am strong by myself."],
+          ["Prayer", "Lord, be my refuge today. Help me trust Your nearness when I feel weak."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print a journal-style worksheet",
+        intro: "Choose a passage in Bible Study Tutor and print a worksheet you can keep as part of a paper Bible study journal.",
+        href: "/?tab=bible",
+        label: "Print a journal page"
+      }
+    ]
   },
   {
     path: "/bible-study-worksheet-for-youth-groups",
     file: "bible-study-worksheet-for-youth-groups.html",
     title: "Bible Study Worksheet for Youth Groups | Printable Scripture Study",
-    description: "Create printable Bible study worksheets for youth groups with selected Scripture, simple prompts, writing space, and guided study methods.",
+    description: "Create printable Bible study worksheets for youth groups with Scripture, simple prompts, discussion flow, example passages, leader tips, and prayer response.",
     heading: "Bible study worksheet for youth groups",
-    intro: "Youth group Bible study worksheets should be clear, Scripture-centred, and practical enough to help students read, think, discuss, and respond.",
+    intro: "Youth group Bible study worksheets should be clear, Scripture-centred, and practical enough to help students read, think, discuss, and respond. A good worksheet gives students time to notice the Bible text before answering out loud.",
     sections: [
       ["Keep the passage visible", "Print the selected Scripture so students can mark, reread, and discuss the passage without needing to switch apps or screens."],
       ["Use simple guided prompts", "SOAP, OIA, and READ-style questions help students notice what the passage says and how to respond."],
-      ["Support discussion", "Worksheets can give quieter students time to think and write before sharing in a youth group setting."]
+      ["Support discussion", "Worksheets can give quieter students time to think and write before sharing in a youth group setting."],
+      ["End with prayer", "A youth worksheet should help students turn the passage into honest prayer, not only correct answers."]
     ],
     cta: "Prepare a youth worksheet",
-    related: ["/printable-bible-study-worksheets", "/bible-study-methods/soap", "/bible-study-methods/oia"]
+    related: ["/printable-bible-study-worksheets", "/bible-study-methods/soap", "/bible-study-methods/oia", "/bible-study-for-beginners"],
+    schemaType: "FAQPage",
+    faq: [
+      ["What makes a good youth Bible study worksheet?", "It should keep the passage visible, use clear prompts, allow quiet thinking time, and end with practical prayer or response."],
+      ["How long should a youth group passage be?", "A short passage or paragraph is usually best, especially when discussion time is limited."],
+      ["Can students use SOAP?", "Yes. SOAP is simple enough for students because it gives four clear steps: Scripture, Observation, Application, and Prayer."],
+      ["Should youth worksheets include answers?", "They can include prompts, but it is often better to help students observe the passage themselves before giving summary answers."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example youth study: Matthew 5:14-16",
+        intro: "Matthew 5:14-16 is short, visual, and practical, which makes it useful for youth discussion.",
+        items: [
+          ["Read", "Read the passage aloud and ask students to underline words about light, visibility, and good works."],
+          ["Notice", "Ask what Jesus says His followers are and what their lives should point toward."],
+          ["Discuss", "Talk about ordinary places where students are tempted to hide their faith or seek attention for themselves."],
+          ["Pray", "Pray for courage to live visibly for God’s glory, not personal praise."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Youth leader checklist",
+        intro: "Keep the worksheet focused and student-friendly.",
+        items: [
+          "Is the passage short and readable?",
+          "Are the questions clear enough for different reading levels?",
+          "Is there room for students to write quietly?",
+          "Does the discussion return to the passage?",
+          "Is there a prayer or action step?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Prepare a youth group worksheet",
+        intro: "Open the Bible reader, choose a short passage, and print a worksheet with simple guided prompts.",
+        href: "/?tab=bible",
+        label: "Prepare a youth worksheet"
+      }
+    ]
   },
   {
     path: "/bible-study-worksheet-for-church-groups",
     file: "bible-study-worksheet-for-church-groups.html",
     title: "Bible Study Worksheet for Church Groups | Printable Group Study Pages",
-    description: "Create printable Bible study worksheets for church groups with Scripture passages, guided questions, prayer space, and group discussion prompts.",
+    description: "Create printable Bible study worksheets for church groups with Scripture passages, guided questions, discussion flow, leader use cases, privacy notes, and prayer space.",
     heading: "Bible study worksheet for church groups",
-    intro: "Church group worksheets help people study the same passage together while leaving space for personal notes, prayer, and discussion.",
+    intro: "Church group worksheets help people study the same passage together while leaving space for personal notes, prayer, and discussion. They can support small groups, classes, sermon follow-up, youth ministry, and discipleship pathways.",
     sections: [
       ["Use one shared passage", "Print the selected Scripture and method prompts so everyone can follow the same study path during the group."],
       ["Make room for prayer", "Include space for reflection, prayer points, application, and encouragement after the discussion."],
-      ["Serve different learning styles", "Printable worksheets help people who prefer handwriting, need structure, or want to keep a paper record."]
+      ["Serve different learning styles", "Printable worksheets help people who prefer handwriting, need structure, or want to keep a paper record."],
+      ["Keep technology optional", "A church can recommend the app while still serving people who would rather use printed pages."]
     ],
     cta: "Prepare a church worksheet",
-    related: ["/bible-study-app-for-churches", "/printable-bible-study-worksheet-for-small-groups", "/bible-study-methods/inductive"]
+    related: ["/bible-study-app-for-churches", "/printable-bible-study-worksheet-for-small-groups", "/bible-study-methods/inductive", "/bible-study-for-small-groups"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Can churches print worksheets for free?", "Yes. Bible Study Tutor is designed so churches can print worksheets without asking members to pay for basic Bible study tools."],
+      ["What church settings work well for worksheets?", "Small groups, Bible classes, youth groups, sermon follow-up, pastoral care, and new believer studies can all use printed worksheets."],
+      ["Do worksheets replace group teaching?", "No. They support Scripture reading, preparation, discussion, and prayer. They should serve the local church’s teaching and discipleship."],
+      ["Can people keep notes private?", "Yes. Printed notes stay with the person, and the app is designed without a public timeline."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Church use cases",
+        intro: "A printable worksheet can serve several ordinary ministry moments.",
+        items: [
+          "Sermon follow-up: print the Sunday passage with observation and application prompts.",
+          "Bible class: give learners space to mark structure and write questions.",
+          "Pastoral care: provide a short comfort passage with prayer space.",
+          "New believer study: use a simple method with foundational passages.",
+          "Youth or family ministry: choose a short passage and simple discussion prompts."
+        ]
+      },
+      {
+        type: "example",
+        title: "Example church worksheet: Acts 2:42-47",
+        intro: "Acts 2:42-47 can help a church group reflect on Scripture, fellowship, prayer, generosity, and witness.",
+        items: [
+          ["Observation", "List the practices of the early believers and notice what is repeated or emphasized."],
+          ["Interpretation", "Discuss how the passage describes the life of the early church without treating every detail as a program to copy mechanically."],
+          ["Application", "Ask how your group can grow in devotion to Scripture, prayer, generosity, and hospitality."],
+          ["Prayer", "Pray for a church life shaped by the apostles’ teaching, fellowship, breaking of bread, and prayers."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Prepare a church group worksheet",
+        intro: "Choose a passage in Bible Study Tutor and print a worksheet for a class, group, or sermon follow-up.",
+        href: "/?tab=bible",
+        label: "Prepare a church worksheet"
+      }
+    ]
   },
   {
     path: "/online-bible-study-journal",
@@ -865,16 +1037,69 @@ const seoPages = [
     path: "/printable-bible-memory-cards",
     file: "printable-bible-memory-cards.html",
     title: "Printable Bible Memory Cards | Free Scripture Memory Cards",
-    description: "Create printable Bible memory cards from saved verses, choose selected verses or collections, and print copies for home, church, groups, or personal review.",
+    description: "Create printable Bible memory cards from saved verses with practical review ideas, collections, examples, group uses, printing tips, and Scripture memory FAQs.",
     heading: "Printable Bible memory cards",
-    intro: "Bible Study Tutor can turn saved memory verses into printable cards so Scripture can move beyond the screen and stay close through the day.",
+    intro: "Bible Study Tutor can turn saved memory verses into printable cards so Scripture can move beyond the screen and stay close through the day. Cards can be used for personal review, family rhythms, church groups, youth groups, and encouragement.",
     sections: [
       ["Choose saved verses", "Print due verses, reviewed verses, a current filtered list, a collection, or a custom selection of saved memory verses."],
       ["Print more than one copy", "Choose how many copies to print when preparing cards for personal use, family, a Bible study group, or a church class."],
+      ["Group by theme", "Collections can help you print verses around themes such as identity in Christ, prayer, comfort, wisdom, faith, or evangelism."],
       ["Keep cards simple", "Cards focus on the Scripture reference and verse text, with a clean footer and room for practical use."]
     ],
     cta: "Print memory cards",
-    related: ["/bible-memory-verses", "/scripture-memorization-app", "/printable-bible-study-worksheets"]
+    related: ["/bible-memory-verses", "/scripture-memorization-app", "/printable-bible-study-worksheets", "/how-to-memorize-bible-verses"],
+    schemaType: "FAQPage",
+    faq: [
+      ["How do printable Bible memory cards work?", "Save verses in Bible Study Tutor, choose which verses or collection to print, then open the card preview and print or save as PDF."],
+      ["Can I print more than one copy?", "Yes. The print dialog lets you choose multiple copies for personal use, families, groups, or church classes."],
+      ["Can I print cards by collection?", "Yes. Collections are useful for printing themed sets such as prayer, comfort, wisdom, or identity in Christ."],
+      ["Are memory cards useful for children or youth?", "Yes. Short cards can be placed somewhere visible and reviewed aloud during the week."],
+      ["Can I use memory cards without staying on a screen?", "Yes. That is one of the main benefits: Scripture can stay visible in everyday places."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Ways to use memory cards",
+        intro: "Printed cards help Scripture become part of ordinary daily rhythms.",
+        items: [
+          "Place one card near a desk, mirror, fridge, or bedside table.",
+          "Carry one card in a Bible, notebook, wallet, or bag.",
+          "Print a themed set for a small group or youth group.",
+          "Review one card during breakfast, commuting, or evening prayer.",
+          "Use cards for short family Scripture memory moments."
+        ]
+      },
+      {
+        type: "example",
+        title: "Example memory card set: anxiety and peace",
+        intro: "A themed set can help someone return to related passages over several days.",
+        items: [
+          ["Philippians 4:6-7", "A card for prayer, thanksgiving, and the peace of God."],
+          ["John 14:27", "A card for remembering the peace Jesus gives."],
+          ["Psalm 46:1", "A card for seeking refuge and strength in God."],
+          ["1 Peter 5:7", "A card for casting anxieties on the Lord because He cares."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Memory card printing checklist",
+        intro: "Before printing, make sure the cards will be useful in real life.",
+        items: [
+          "Have I selected verses that are short enough to review easily?",
+          "Would a collection help keep the cards themed?",
+          "Do I need more than one copy?",
+          "Will the card be placed somewhere visible?",
+          "Can I pair the card with a simple daily review rhythm?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print Bible memory cards",
+        intro: "Open Memory in Bible Study Tutor, choose saved verses or a collection, and print clean cards for review through the week.",
+        href: "/?tab=memory",
+        label: "Print memory cards"
+      }
+    ]
   },
   {
     path: "/bible-highlighting-and-notes",

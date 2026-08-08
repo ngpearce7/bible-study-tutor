@@ -37,10 +37,41 @@ const seoPages = [
     sections: [
       ["Built around Scripture", "The app is shaped by James 4:8 and 2 Timothy 3:16: draw near to God, and let Scripture teach, correct, train, and form daily life."],
       ["Digital or pen and paper", "Use guided study tools inside the app, or print Bible study worksheets for people who prefer handwriting, group handouts, or quiet study away from a screen."],
-      ["For personal and church use", "Read the Bible, follow study methods, save journal entries, memorize verses, and share private encouragements with trusted friends or circles."]
+      ["For personal and church use", "Read the Bible, follow study methods, save journal entries, memorize verses, and share private encouragements with trusted friends or circles."],
+      ["Privacy-aware and practical", "Bible Study Tutor avoids a public timeline and focuses on private study, trusted encouragement, and simple tools that help people keep returning to Scripture."],
+      ["Why it stays focused", "The app is not trying to replace church, pastoral care, or in-person discipleship. It is a companion for reading, studying, remembering, praying, and preparing practical study resources."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["Who is Bible Study Tutor for?", "Bible Study Tutor is for individuals, churches, small groups, youth groups, and anyone who wants practical help reading and studying Scripture."],
+      ["Is Bible Study Tutor free?", "Yes. The core Bible study tools are designed to remain free and accessible."],
+      ["Does Bible Study Tutor replace church community?", "No. It is a tool to support Scripture engagement, journaling, memory, and private encouragement. It should serve real discipleship rather than replace it."],
+      ["Why does Bible Study Tutor include printable tools?", "Some people study better with pen and paper, and printable worksheets can help groups, classes, and families study without depending on screens."]
     ],
     cta: "Open Bible Study Tutor",
-    related: ["/how-it-works", "/free-bible-study-app", "/pricing", "/features", "/bible-study-app-for-churches"]
+    related: ["/how-it-works", "/free-bible-study-app", "/pricing", "/features", "/bible-study-app-for-churches"],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "What Bible Study Tutor helps with",
+        intro: "The app keeps the main Scripture study rhythms in one calm place.",
+        items: [
+          "Reading Scripture by book and chapter.",
+          "Following Bible reading plans without confusing them with guided study plans.",
+          "Studying a selected passage with methods such as SOAP, OIA, Inductive Study, and word study.",
+          "Saving notes, highlights, bookmarks, meditations, and journal entries.",
+          "Reviewing memory verses and printing worksheets or memory cards.",
+          "Sharing private encouragements with trusted friends or circles."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open Bible Study Tutor",
+        intro: "Start with Scripture, choose a guided method, or print a worksheet for your next study.",
+        href: "/?tab=home",
+        label: "Open the app"
+      }
+    ]
   },
   {
     path: "/how-it-works",
@@ -53,7 +84,8 @@ const seoPages = [
       ["Open Scripture", "Start in the Bible reader, choose a passage, search for a word or theme, or continue a Bible reading plan from where you left off."],
       ["Study with a method", "Send a passage into Study and choose a guided method such as SOAP, OIA, Inductive Study, Lectio Divina, READ, verse mapping, or word study."],
       ["Save and return", "Keep notes, highlights, bookmarks, meditations, memory verses, and journal entries together so your study can grow over time."],
-      ["Print when helpful", "Print Bible study worksheets or memory cards for small groups, church classes, youth groups, or personal pen-and-paper study."]
+      ["Print when helpful", "Print Bible study worksheets or memory cards for small groups, church classes, youth groups, or personal pen-and-paper study."],
+      ["Continue across devices", "A free account helps save reading progress, memory review, journal entries, and preferences across desktop and mobile."]
     ],
     cta: "Start a guided study",
     related: ["/features", "/bible-study-methods", "/printable-bible-study-worksheets", "/faq"],
@@ -64,6 +96,32 @@ const seoPages = [
       "Write observations, application, prayer, or reflection.",
       "Save the study to your journal or print a worksheet.",
       "Return later for review, memory practice, or continued reading."
+    ],
+    faq: [
+      ["What should I do first in Bible Study Tutor?", "Start in the Bible reader if you want to read Scripture, or open Study if you already know the passage you want to examine."],
+      ["What is the difference between Bible and Study?", "The Bible tab is for reading, searching, selecting, and following reading plans. The Study tab is for slowing down with a guided method over a selected passage."],
+      ["Where do saved notes go?", "Saved studies, notes, meditations, highlights, bookmarks, and reflections can be found in the Journal."],
+      ["Can I print instead of using the app digitally?", "Yes. You can print Bible study worksheets and memory cards when paper is the better fit."]
+    ],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "A simple first-time path",
+        intro: "If you are new, use one of these starting points.",
+        items: [
+          ["Read", "Open the Bible reader and choose a book and chapter."],
+          ["Study", "Select a passage and use SOAP or OIA for simple guided prompts."],
+          ["Remember", "Save one verse to Memory and practise it later."],
+          ["Print", "Create a worksheet if you prefer writing by hand."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start your next Bible study",
+        intro: "Open the app and choose the path that fits your next step: read, study, remember, journal, or print.",
+        href: "/?tab=home",
+        label: "Open Bible Study Tutor"
+      }
     ]
   },
   {
@@ -87,6 +145,39 @@ const seoPages = [
       ["Do I need to pay to print worksheets?", "No. Printable Bible study worksheets and memory cards are part of the free app experience."],
       ["Why does Bible Study Tutor not include every modern Bible translation?", "Many modern translations require separate publisher permission or paid licensing. The app stays free by using Bible texts that can be used legally and responsibly."],
       ["Can churches use Bible Study Tutor?", "Yes. The app is designed to be useful for churches, small groups, youth groups, and personal discipleship."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "What free means here",
+        intro: "The free core experience is intended to cover the ordinary Bible study needs people return to each week.",
+        items: [
+          "Bible reading, search, bookmarks, and notes.",
+          "Guided study methods and saved journal entries.",
+          "Bible reading plans and chapter reading progress.",
+          "Memory verses, review schedules, collections, and printable memory cards.",
+          "Printable Bible study worksheets for personal, group, and church use.",
+          "Private encouragement with trusted friends or circles."
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Why translation access is handled carefully",
+        intro: "Bible Study Tutor only uses Bible text that can be used legally and responsibly.",
+        items: [
+          "Many modern Bible translations are protected by publisher licences.",
+          "Some licences restrict caching, display, printing, or app integration.",
+          "The app avoids promising access to translations it does not have permission to use.",
+          "This helps keep the app free and legally responsible."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying free",
+        intro: "Open Bible Study Tutor and begin with the Bible reader, guided study, memory verses, or printable worksheets.",
+        href: "/?tab=home",
+        label: "Start studying free"
+      }
     ]
   },
   {
@@ -110,7 +201,31 @@ const seoPages = [
       ["What is the difference between a reading plan and a guided study?", "A reading plan helps you keep moving through Scripture over days or weeks. A guided study helps you examine one passage with a method such as SOAP, OIA, or Inductive Study."],
       ["Can I print from my phone?", "Yes. Use the print worksheet or print memory cards options, then use your phone browser’s share or print controls to save or print the page."],
       ["Where do my notes go?", "Saved studies, meditations, highlights, bookmarks, and reflections are kept in the Journal so you can revisit them by date, Scripture, or type."],
-      ["Is Bible Study Tutor private?", "Bible Study Tutor avoids public timelines. Friends and circles are designed for trusted encouragement, and the app does not track private journal text or study answers for public analytics."]
+      ["Is Bible Study Tutor private?", "Bible Study Tutor avoids public timelines. Friends and circles are designed for trusted encouragement, and the app does not track private journal text or study answers for public analytics."],
+      ["How do I follow a Bible reading plan?", "Open the Plans tab, choose a plan, then use the Bible reader to open and complete each reading."],
+      ["What is Mark Chapter Read?", "Mark Chapter Read tracks ordinary Bible chapter reading. Mark Today’s Plan Reading Complete tracks progress through a chosen reading plan."],
+      ["What should I do if the app feels crowded on mobile?", "Use collapsed sections, the main menu, and focused views such as Study focus mode, memory review, or reading plan panels to keep one task in view."]
+    ],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "Common first questions",
+        intro: "These quick answers help new users choose the right part of the app.",
+        items: [
+          ["I want to read", "Open the Bible reader or choose a reading plan."],
+          ["I want to understand a passage", "Open Study and choose SOAP, OIA, or Inductive Study."],
+          ["I want to remember Scripture", "Open Memory, save a verse, and practise it with blanks and hints."],
+          ["I want paper", "Open the Bible reader or Study tab and print a worksheet."],
+          ["I want to revisit notes", "Open the Journal and filter by Scripture, type, date, or pinned entries."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open the app",
+        intro: "Start with the Bible reader, Study, Memory, or Journal depending on what you need today.",
+        href: "/?tab=home",
+        label: "Open Bible Study Tutor"
+      }
     ]
   },
   {
@@ -1419,10 +1534,41 @@ const seoPages = [
     sections: [
       ["Save studies and drafts", "Guided studies can be saved as completed entries or kept as drafts while you continue working through a passage."],
       ["Find entries later", "Filter journal entries by status, date, Scripture book and chapter, pinned entries, meditations, highlights, and study notes."],
-      ["Connect study with prayer", "Use the journal to record what you noticed, how Scripture corrected or encouraged you, and how you want to respond."]
+      ["Connect study with prayer", "Use the journal to record what you noticed, how Scripture corrected or encouraged you, and how you want to respond."],
+      ["Use pinned entries carefully", "Pin entries you want to revisit, such as a repeated question, an important memory verse, a completed meditation, or a passage you are still praying through."],
+      ["Keep private reflections private", "The journal is designed for personal Scripture notes and reflection, not a public social feed."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["What can I save in the online Bible study journal?", "You can save guided studies, drafts, meditations, highlights, bookmarks, notes, prayers, and reflections."],
+      ["Can I find old journal entries?", "Yes. Filters help you return to entries by Scripture, type, date, status, or pinned favourites."],
+      ["Is the journal public?", "No. The journal is for private study and reflection."],
+      ["Can I use the journal across devices?", "A free signed-in account helps keep saved study material available across devices."]
     ],
     cta: "Open the journal",
-    related: ["/bible-study-methods", "/bible-highlighting-and-notes", "/bible-memory-verses"]
+    related: ["/bible-study-methods", "/bible-highlighting-and-notes", "/bible-memory-verses", "/bible-study-journal"],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Helpful journal entry types",
+        intro: "A useful journal can include more than long written reflections.",
+        items: [
+          "A short observation from a passage.",
+          "A question to revisit later.",
+          "A prayer shaped by Scripture.",
+          "A highlighted or bookmarked passage.",
+          "A completed meditation with notice, reflect, pray, and carry prompts.",
+          "A memory verse you want to keep reviewing."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open your online Bible journal",
+        intro: "Use the Journal tab to revisit saved studies, notes, meditations, highlights, and Scripture reflections.",
+        href: "/?tab=journal",
+        label: "Open the journal"
+      }
+    ]
   },
   {
     path: "/bible-study-journal",
@@ -1490,10 +1636,51 @@ const seoPages = [
     sections: [
       ["Three-step review", "Read the verse, practise with some words hidden, then recall the verse with all words blanked out."],
       ["Review at your pace", "Set review dates from daily to annual rhythms, sort due and reviewed verses, and group passages into collections."],
-      ["Keep Scripture close", "Print memory cards for selected saved verses so Scripture can be placed around the home, kept in a Bible, or shared with a group."]
+      ["Keep Scripture close", "Print memory cards for selected saved verses so Scripture can be placed around the home, kept in a Bible, or shared with a group."],
+      ["Reflect before reviewing", "Meditation prompts help users slow down and think about what the verse reveals, how to pray, and how to carry the passage into the day."],
+      ["Group verses by theme", "Collections can gather verses around themes such as identity in Christ, prayer, comfort, wisdom, faith, or a book of the Bible."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["How does Bible Study Tutor help with memory verses?", "It lets users save verses, practise with blanks and hints, set review rhythms, group verses into collections, and print memory cards."],
+      ["Can I memorize more than one verse?", "Yes. You can save individual verses, passages, or themed collections and review them over time."],
+      ["What are memory verse collections?", "Collections let you group saved verses by theme, book, topic, or study purpose."],
+      ["Can I print memory verses?", "Yes. Saved verses can be printed as memory cards."]
     ],
     cta: "Open memory verses",
-    related: ["/scripture-memorization-app", "/printable-bible-memory-cards", "/features"]
+    related: ["/scripture-memorization-app", "/printable-bible-memory-cards", "/features", "/how-to-memorize-bible-verses"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example memory collection: identity in Christ",
+        intro: "A collection can help users review related passages together instead of treating every verse as isolated.",
+        items: [
+          ["Romans 8:1", "A verse for remembering there is no condemnation in Christ."],
+          ["2 Corinthians 5:17", "A verse for remembering new creation in Christ."],
+          ["Ephesians 2:8-10", "A passage for remembering grace, faith, and prepared good works."],
+          ["Galatians 2:20", "A verse for remembering life by faith in the Son of God."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Memory verse review checklist",
+        intro: "Memorization is more useful when it stays connected to meaning and prayer.",
+        items: [
+          "Have I read the verse in context?",
+          "Can I explain the verse in my own words?",
+          "Have I prayed through the verse?",
+          "Do I need to group this verse with a related theme?",
+          "Would a printed card help me review it during the week?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open memory verses",
+        intro: "Save a verse, practise recall, reflect prayerfully, or print memory cards.",
+        href: "/?tab=memory",
+        label: "Open memory verses"
+      }
+    ]
   },
   {
     path: "/scripture-memorization-app",
@@ -1505,10 +1692,40 @@ const seoPages = [
     sections: [
       ["Practise actively", "Instead of only rereading, users type missing words and receive clear feedback as they remember each verse."],
       ["Use helpful hints", "Hints can reveal more of a difficult word when needed, while still encouraging users to recall the verse for themselves."],
-      ["Track progress", "Memory history and milestones show recent reviews, rhythms, added verses, and verses worth revisiting."]
+      ["Track progress", "Memory history and milestones show recent reviews, rhythms, added verses, and verses worth revisiting."],
+      ["Meditate on the verse", "Scripture meditation mode helps users notice, reflect, pray, and carry a verse rather than only testing recall."],
+      ["Print and review offline", "Memory cards can be printed so Scripture can be reviewed away from the screen."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["What makes Scripture memorization more effective?", "Active recall, repeated review, prayerful reflection, and reviewing verses in context all help Scripture memory become more meaningful."],
+      ["Does the app only test exact typing?", "The review flow is designed to help users practise recall with blanks, hints, and feedback, while still encouraging careful memory of the verse."],
+      ["Can I review verses by theme?", "Yes. Collections can group memory verses by topic, book, or personal study focus."],
+      ["Can I use memorization without staying on my phone?", "Yes. Printable memory cards let users review Scripture away from the screen."]
     ],
     cta: "Try memory practice",
-    related: ["/bible-memory-verses", "/printable-bible-memory-cards", "/bible-study-for-beginners"]
+    related: ["/bible-memory-verses", "/printable-bible-memory-cards", "/bible-study-for-beginners", "/how-to-memorize-bible-verses"],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "A practical memorization rhythm",
+        intro: "A simple rhythm can make memorization more steady and less frustrating.",
+        items: [
+          "Read the verse aloud in context.",
+          "Hide a few words and practise active recall.",
+          "Use hints when needed rather than giving up.",
+          "Pray through the verse before marking it reviewed.",
+          "Return to the verse on a future review date."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Try Scripture memory practice",
+        intro: "Open Memory in Bible Study Tutor and practise saved verses with blanks, hints, reflection, and review dates.",
+        href: "/?tab=memory",
+        label: "Try memory practice"
+      }
+    ]
   },
   {
     path: "/printable-bible-memory-cards",
@@ -1588,10 +1805,40 @@ const seoPages = [
     sections: [
       ["Highlight selected verses", "Select one or more verses and mark them with colour categories that help you notice truth, questions, application, and key ideas."],
       ["Bookmark and note passages", "Save passages you want to revisit and add notes directly from the Bible reader without losing your place."],
-      ["Send verses into study", "Selected passages can become a guided study, a printable worksheet, or a saved memory verse."]
+      ["Send verses into study", "Selected passages can become a guided study, a printable worksheet, or a saved memory verse."],
+      ["Keep notes connected", "Highlights, bookmarks, and notes can be revisited from the Journal so important passages are not lost after reading."],
+      ["Use marks with purpose", "Highlighting is most helpful when colours point to real categories such as truth, prayer, warning, comfort, or application."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["What is the difference between a highlight and a bookmark?", "A highlight marks selected Scripture visually, while a bookmark saves a passage you want to revisit."],
+      ["Can I add notes to Bible passages?", "Yes. Notes can be saved with passages and revisited later in the Journal."],
+      ["Can highlighted verses become memory verses?", "Selected verses can be saved to Memory, sent into Study, or used for printable worksheets."],
+      ["Are Bible notes public?", "No. Notes and journal reflections are private study content."]
     ],
     cta: "Open the Bible reader",
-    related: ["/online-bible-study-journal", "/features", "/bible-study-methods"]
+    related: ["/online-bible-study-journal", "/features", "/bible-study-methods", "/bible-study-journal"],
+    extraBlocks: [
+      {
+        type: "checklist",
+        title: "Helpful highlighting habits",
+        intro: "These habits keep highlighting useful rather than decorative.",
+        items: [
+          "Highlight phrases that help you understand the passage.",
+          "Use notes for questions you want to revisit.",
+          "Bookmark passages you want to find quickly later.",
+          "Send important verses to Study or Memory when you want to go deeper.",
+          "Review journal entries so highlights become part of ongoing study."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open the Bible reader",
+        intro: "Select a passage, highlight it, add a note, bookmark it, or send it into Study.",
+        href: "/?tab=bible",
+        label: "Open the Bible reader"
+      }
+    ]
   },
   {
     path: "/bible-study-for-small-groups",
@@ -1771,6 +2018,38 @@ const seoPages = [
       ["What is a Bible reading plan?", "A Bible reading plan gives you a sequence of passages to read over a set number of days."],
       ["Can I study a reading plan passage?", "Yes. You can open a plan reading in the Bible reader and send it into a guided study method."],
       ["Can I follow more than one reading plan?", "Bible Study Tutor supports multiple active reading plans while keeping the Bible reader focused on the next readings."]
+    ],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "Types of reading plans",
+        intro: "Different reading plans serve different seasons and goals.",
+        items: [
+          ["Short plans", "Useful for prayer, peace, grief, new believers, or a focused 7-14 day rhythm."],
+          ["Medium plans", "Useful for Gospels, New Testament sections, overviews, or book-based reading."],
+          ["Long plans", "Useful for reading the whole Bible, the New Testament, or Psalms and Proverbs over a longer period."],
+          ["Custom plans", "Useful when a church, group, or individual wants to create a specific reading pathway."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Reading plan safeguards",
+        intro: "A plan should help Scripture reading, not become a burden.",
+        items: [
+          "Choose a pace that fits your actual life.",
+          "Use catch-up tools when dates need adjusting.",
+          "Do not confuse chapter read status with plan-day completion.",
+          "Send important readings into Study when you need to slow down.",
+          "Let the plan serve prayerful reading rather than pressure."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open Bible reading plans",
+        intro: "Choose a plan, open the next reading, and keep your Bible reading rhythm clear.",
+        href: "/?tab=plans",
+        label: "Open reading plans"
+      }
     ]
   },
   {
@@ -1795,6 +2074,33 @@ const seoPages = [
       "Read the passage and mark the plan day complete.",
       "Send difficult or meaningful passages into guided study.",
       "Return the next day or use catch-up tools if you fall behind."
+    ],
+    faq: [
+      ["What is the easiest Bible reading plan to start with?", "A short plan is often best because it helps build rhythm without overwhelming the reader."],
+      ["What if I miss a day?", "You can return to the missed reading or use catch-up tools to shift the plan forward."],
+      ["Can I read ahead?", "Yes, but the app helps keep missed readings clear so the plan does not become confusing."],
+      ["Should I study every reading deeply?", "Not always. Some days may be simple reading, while other passages are worth sending into guided study."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example first week rhythm",
+        intro: "A realistic reading plan leaves room for attention, prayer, and ordinary life.",
+        items: [
+          ["Day 1", "Open the first reading and mark it complete after reading."],
+          ["Day 2", "Read the next passage and write one short journal note."],
+          ["Day 3", "Send a meaningful passage into SOAP or OIA."],
+          ["Day 4", "Save one verse to Memory if it should stay with you."],
+          ["Day 5", "Catch up if needed, or continue with the next reading."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start a Bible reading plan",
+        intro: "Open the Plans tab, choose a plan, and continue from the next reading in the Bible reader.",
+        href: "/?tab=plans",
+        label: "Open reading plans"
+      }
     ]
   },
   {
@@ -1841,6 +2147,45 @@ const seoPages = [
       "Practise missing words with hints when needed.",
       "Review the verse again on future days.",
       "Group related verses or print memory cards for regular review."
+    ],
+    faq: [
+      ["What is the best way to memorize a Bible verse?", "Read it in context, repeat it aloud, practise active recall, pray through it, and review it again over time."],
+      ["Should I memorize single verses or longer passages?", "Both can be helpful. Beginners may start with single verses, while longer passages can be split into manageable collections."],
+      ["How often should I review memory verses?", "Review more often when a verse is new, then use longer review intervals as it becomes familiar."],
+      ["Can printed cards help memorization?", "Yes. Cards keep Scripture visible during ordinary moments away from the screen."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example: memorizing Philippians 4:6-7",
+        intro: "This passage can be memorized slowly by connecting each phrase to prayer.",
+        items: [
+          ["Read", "Read Philippians 4:4-9 so the command about anxiety is heard in context."],
+          ["Notice", "Mark anxiety, prayer, supplication, thanksgiving, peace, hearts, and minds."],
+          ["Practise", "Hide a few words at a time and say the sentence aloud before typing it."],
+          ["Pray", "Turn one worry into prayer with thanksgiving."],
+          ["Review", "Return to the passage later in the week and print a card if it would help."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Scripture memory checklist",
+        intro: "Use this checklist before marking a verse reviewed.",
+        items: [
+          "Have I read the surrounding passage?",
+          "Do I understand the verse well enough to explain it simply?",
+          "Can I recall the verse without only recognizing it?",
+          "Have I prayed through it?",
+          "Should this verse be part of a collection?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start memorizing Scripture",
+        intro: "Open Memory in Bible Study Tutor, save a verse, and practise it with blanks, hints, and review reminders.",
+        href: "/?tab=memory",
+        label: "Open memory verses"
+      }
     ]
   },
   {

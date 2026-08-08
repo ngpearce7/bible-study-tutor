@@ -9,7 +9,7 @@ import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, bible
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getCompletedPlanDays, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, saveCompletedPlanDays, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -19,7 +19,6 @@ import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWo
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
 import { buildStudyContextReference, getStudyCrossReferences, isVerseWithinReference, loadStudyCrossReferences, type StudyCrossReference } from "@/data/studyContext";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
-import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
@@ -601,9 +600,6 @@ export default function Home() {
   const [methodRecommendationId, setMethodRecommendationId] = useState<MethodRecommendationId>("quick");
   const [methodFilterOpen, setMethodFilterOpen] = useState(false);
   const [methodChooserOpen, setMethodChooserOpen] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState(studyPlans[0].id);
-  const [activePlanDayKey, setActivePlanDayKey] = useState("");
-  const [completedPlanDayKeys, setCompletedPlanDayKeys] = useState<string[]>([]);
   const [stepIndex, setStepIndex] = useState(0);
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("study");
   const [instructionsCollapsed, setInstructionsCollapsed] = useState(false);
@@ -964,7 +960,6 @@ export default function Home() {
         setSavedStudySummary(null);
         setAnswers({});
         setSelectedVerseKeys([]);
-        setActivePlanDayKey("");
       }
     }
     if (sharedSource) setIncomingShareSource(sharedSource.slice(0, 40));
@@ -1080,9 +1075,6 @@ export default function Home() {
     return runWhenBrowserIdle(() => {
       getPinnedJournalEntries()
         .then(setPinnedJournalEntryIds)
-        .catch(() => undefined);
-      getCompletedPlanDays()
-        .then(setCompletedPlanDayKeys)
         .catch(() => undefined);
       getStoredCheckinPartners()
         .then(setCheckinPartners)
@@ -1460,11 +1452,6 @@ export default function Home() {
         : "Save and continue";
   const parsedPassage = parsePassageQuery(passageQuery);
   const latestCheckin = checkins?.[0];
-  const selectedPlan = studyPlans.find((item) => item.id === selectedPlanId) || studyPlans[0];
-  const completedPlanDaySet = new Set(completedPlanDayKeys);
-  const selectedPlanCompletedCount = selectedPlan.days.filter((day) => completedPlanDaySet.has(planDayKey(selectedPlan.id, day.day))).length;
-  const selectedPlanNextDay = selectedPlan.days.find((day) => !completedPlanDaySet.has(planDayKey(selectedPlan.id, day.day))) || selectedPlan.days[0];
-  const selectedPlanComplete = selectedPlanCompletedCount === selectedPlan.days.length;
   const backendReady = profileMatchesActiveState;
   const backendStatusLabel = backendReady ? "Saving connected" : "Saving unavailable";
   const backendStatusDetail = backendReady
@@ -1597,6 +1584,12 @@ export default function Home() {
         ? `Overdue: Day ${activeBibleReadingPlanToday.day} · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}`
         : `Next reading: Day ${activeBibleReadingPlanToday.day}${activeBibleReadingPlanTodayDateKey ? ` · ${formatPlanDayRelativeDate(activeBibleReadingPlanTodayDateKey)}` : ""}`
       : "";
+  const activeBibleReadingPlanDayCount = activeBibleReadingPlan?.days.length || 0;
+  const activeBibleReadingPlanRemainingCount = Math.max(0, activeBibleReadingPlanDayCount - activeBibleReadingPlanCompletedCount);
+  const activeBibleReadingPlanProgressPercent = activeBibleReadingPlanDayCount
+    ? Math.min(100, (activeBibleReadingPlanCompletedCount / activeBibleReadingPlanDayCount) * 100)
+    : 0;
+  const activeBibleReadingPlanQuiet = !!activeBibleReadingPlanDoneToday && !activeBibleReadingPlanComplete;
   const otherFollowedBibleReadingPlanSummaries = bibleReadingPlanView.otherSummaries;
   const activeBibleReadingPlanMissedFullDay = bibleReadingPlanView.activeMissedFullDay;
   const activeBibleReadingPlanSelectedDone = bibleReadingPlanView.activeSelectedDone;
@@ -2536,8 +2529,7 @@ export default function Home() {
       passage: passageText?.reference || passage,
       methodName: method.name,
       highlightCount: passageMarkupRecords.length,
-      shareNote: finalShareNote,
-      completedPlanDay: activePlanDayKey ? selectedPlan.days.find((day) => planDayKey(selectedPlan.id, day.day) === activePlanDayKey)?.title : undefined
+      shareNote: finalShareNote
     });
     setAnswers((current) => {
       const nextAnswers = { ...current };
@@ -2555,15 +2547,6 @@ export default function Home() {
     trackUsage("study_completed", { reference: passageText?.reference || passage, methodId: method.id, methodName: method.name, translation: passageText?.translation_name, tab: "study" });
     trackPublicAnalytics({ eventType: "study_completed", source: "study", ctaTarget: "/?tab=study", methodId: method.id });
     setCheckinNote(finalShareNote);
-    if (activePlanDayKey) {
-      setCompletedPlanDayKeys((current) => {
-        if (current.includes(activePlanDayKey)) return current;
-        const next = [activePlanDayKey, ...current];
-        saveCompletedPlanDays(next).catch(() => undefined);
-        return next;
-      });
-      setActivePlanDayKey("");
-    }
   }
 
   function resumeDraft(draft: any) {
@@ -2641,7 +2624,6 @@ export default function Home() {
     setPassageMarkups(markupRecordsToMap(nextPassageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(nextPassageMarkups || []));
     setSelectedVerseKeys([]);
-    setActivePlanDayKey("");
     setLoadedDraftKey(studyKey(nextPassage, nextMethodId));
     setSaveStatus(status);
     setShareNote(buildShareNote(methods.find((item) => item.id === nextMethodId) || methods[0], restoredAnswers, nextPassage));
@@ -4880,23 +4862,6 @@ export default function Home() {
     return expandedJournalEntryIds.includes(entryId);
   }
 
-  function startPlanDay(planDay: (typeof studyPlans)[number]["days"][number], planId = selectedPlan.id) {
-    setSelectedPlanId(planId);
-    const nextMethod = methods.find((item) => item.id === planDay.methodId) || method;
-    setPassage(planDay.passage);
-    setPassageQuery(planDay.passage);
-    setMethodId(nextMethod.id);
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setStepIndex(0);
-    setStudyPhase("study");
-    setLoadedDraftKey("");
-    setActivePlanDayKey(planDayKey(planId, planDay.day));
-    setSaveStatus("Plan day " + planDay.day + " loaded");
-    setTab("study");
-  }
-
   function moveReaderChapter(direction: -1 | 1) {
     if (readerPlanReadingActive && readerPlanReading?.chunks?.length) {
       const currentIndex = Math.min(Math.max(readerPlanReading.currentChunkIndex || 0, 0), readerPlanReading.chunks.length - 1);
@@ -5781,14 +5746,6 @@ export default function Home() {
         ? current.filter((verse) => verse !== verseNumber)
         : Array.from(new Set([...current, ...buildVerseRange(anchorVerse, verseNumber)])).sort((a, b) => a - b);
       setReaderActionVerse(next.includes(verseNumber) ? verseNumber : next[next.length - 1] || 0);
-      return next;
-    });
-  }
-
-  function resetSelectedPlanProgress(planId = selectedPlan.id) {
-    setCompletedPlanDayKeys((current) => {
-      const next = current.filter((key) => !key.startsWith(`${planId}:`));
-      saveCompletedPlanDays(next).catch(() => undefined);
       return next;
     });
   }
@@ -7221,23 +7178,129 @@ export default function Home() {
                 ))}
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
-                title="Guided study path"
+                title="Reading plans"
                 icon="calendar-outline"
                 collapsed={collapsedStudyPanels.plan}
                 onToggle={() => toggleStudyPanel("plan")}
                 style={styles.studyPlansBox}
                 darkMode={studyDarkMode}
               >
-                <Text style={[styles.communityTitle, studyDarkMode && styles.accountDarkTitle]}>{selectedPlan.title}</Text>
-                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>
-                  Optional Study tab path. This is separate from the Bible reading plans you follow.
-                </Text>
-                <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>{selectedPlanComplete ? "Path complete. Start another when you are ready." : `Next study: Day ${selectedPlanNextDay.day} · ${selectedPlanNextDay.passage}`}</Text>
-                <Text style={[styles.planProgressText, studyDarkMode && styles.studyDarkAccentText]}>{selectedPlanCompletedCount} of {selectedPlan.days.length} complete</Text>
-                <View style={styles.planActionRow}>
-                  <ResumeButton label={selectedPlanComplete ? "Open plans" : "Continue path"} icon={selectedPlanComplete ? "calendar-outline" : "play-outline"} onPress={() => selectedPlanComplete ? setTab("plans") : startPlanDay(selectedPlanNextDay)} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
-                  <ResumeButton label="Reading plans" icon="list-outline" onPress={() => setTab("plans")} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
-                </View>
+                {activeBibleReadingPlan && activeBibleReadingPlanToday ? (
+                  <View style={styles.bibleReadingPlanStack}>
+                    <View style={[styles.bibleReadingPlanPanel, activeBibleReadingPlanQuiet && styles.compactBibleReadingPlanPanel, studyDarkMode && styles.accountDarkSection]}>
+                      <View style={styles.bibleReadingPlanHeader}>
+                        <View style={styles.bibleReadingPlanTitleBlock}>
+                          <Eyebrow>Current plan</Eyebrow>
+                          <Text numberOfLines={2} style={[styles.cardTitle, studyDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlan.title}</Text>
+                        </View>
+                        <Text style={[styles.draftPill, styles.readingPlanCountPill, studyDarkMode && styles.plansDarkDraftPill]}>
+                          {activeBibleReadingPlanCompletedCount}/{activeBibleReadingPlanDayCount}
+                        </Text>
+                      </View>
+                      <View style={styles.planProgressTrack}>
+                        <View style={[styles.planProgressFill, activeBibleReadingPlanComplete && styles.completedPlanProgressFill, { width: `${activeBibleReadingPlanProgressPercent}%` }]} />
+                      </View>
+                      {activeBibleReadingPlanQuiet ? (
+                        <View style={[styles.bibleReadingPlanDoneRow, studyDarkMode && styles.accountDarkInsetBox]}>
+                          <View style={[styles.bibleReadingPlanDoneIcon, studyDarkMode && styles.homeDarkIconBubble]}>
+                            <Ionicons name="checkmark" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          </View>
+                          <View style={styles.bibleReadingPlanDoneTextBlock}>
+                            <Text numberOfLines={1} style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlanDoneTodayLabel || "Done today"}</Text>
+                            <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkMutedText]}>Next: {activeBibleReadingPlanToday.reference}</Text>
+                          </View>
+                        </View>
+                      ) : (
+                        <>
+                          <View style={styles.bibleReadingPlanMetaRow}>
+                            <Text style={[styles.bibleReadingPlanMetaChip, studyDarkMode && styles.plansDarkDraftPill]}>
+                              {activeBibleReadingPlanComplete ? "Completed" : `${activeBibleReadingPlanRemainingCount} remaining`}
+                            </Text>
+                            <Text style={[styles.bibleReadingPlanMetaChip, studyDarkMode && styles.plansDarkDraftPill]}>
+                              {activeBibleReadingPlanDayCount} day{activeBibleReadingPlanDayCount === 1 ? "" : "s"}
+                            </Text>
+                          </View>
+                          <Pressable
+                            accessibilityRole={activeBibleReadingPlanComplete ? undefined : "button"}
+                            accessibilityLabel={activeBibleReadingPlanComplete ? undefined : `Open reading ${activeBibleReadingPlanToday.reference}`}
+                            onPress={activeBibleReadingPlanComplete ? undefined : () => openBibleReadingPlanDayInBible(activeBibleReadingPlanToday)}
+                            style={[styles.bibleReadingPlanToday, !activeBibleReadingPlanComplete && styles.clickableBibleReadingPlanToday, studyDarkMode && styles.accountDarkInsetBox]}
+                          >
+                            <View style={styles.bibleReadingPlanTodayHeader}>
+                              <View style={styles.bibleReadingPlanTodayTitleBlock}>
+                                <Text numberOfLines={2} style={[styles.readerBookSectionTitle, studyDarkMode && styles.studyDarkAccentText]}>
+                                  {activeBibleReadingPlanTodayLabel || (activeBibleReadingPlanComplete ? "Plan complete" : `Next reading: Day ${activeBibleReadingPlanToday.day}`)}
+                                </Text>
+                                <Text numberOfLines={2} style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkTitle]}>
+                                  {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
+                                </Text>
+                              </View>
+                              <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={studyDarkMode ? "#e9b76a" : activeBibleReadingPlanComplete ? colors.oliveDark : colors.coral} />
+                            </View>
+                          </Pressable>
+                        </>
+                      )}
+                    </View>
+                    {otherFollowedBibleReadingPlanSummaries.map((plan) => {
+                      const planQuiet = !!plan.doneToday && !plan.complete;
+                      return (
+                        <View key={plan.id} style={[styles.bibleReadingPlanPanel, planQuiet && styles.compactBibleReadingPlanPanel, studyDarkMode && styles.accountDarkSection]}>
+                          <View style={styles.bibleReadingPlanHeader}>
+                            <View style={styles.bibleReadingPlanTitleBlock}>
+                              <Eyebrow>Reading Plan</Eyebrow>
+                              <Text numberOfLines={2} style={[styles.cardTitle, studyDarkMode && styles.accountDarkTitle]}>{plan.title}</Text>
+                            </View>
+                            <Text style={[styles.draftPill, styles.readingPlanCountPill, studyDarkMode && styles.plansDarkDraftPill]}>{plan.completedCount}/{plan.dayCount}</Text>
+                          </View>
+                          <View style={styles.planProgressTrack}>
+                            <View style={[styles.planProgressFill, plan.complete && styles.completedPlanProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
+                          </View>
+                          {planQuiet ? (
+                            <View style={[styles.bibleReadingPlanDoneRow, studyDarkMode && styles.accountDarkInsetBox]}>
+                              <View style={[styles.bibleReadingPlanDoneIcon, studyDarkMode && styles.homeDarkIconBubble]}>
+                                <Ionicons name="checkmark" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              </View>
+                              <View style={styles.bibleReadingPlanDoneTextBlock}>
+                                <Text numberOfLines={1} style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>{plan.doneTodayLabel || "Done today"}</Text>
+                                <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkMutedText]}>Next: {plan.reference}</Text>
+                              </View>
+                            </View>
+                          ) : (
+                            <Pressable
+                              accessibilityRole={plan.complete ? undefined : "button"}
+                              accessibilityLabel={plan.complete ? undefined : `Open ${plan.title} reading ${plan.reference}`}
+                              onPress={plan.complete ? undefined : () => {
+                                openFollowedBibleReadingPlan(plan.id);
+                                setTab("bible");
+                              }}
+                              style={[styles.bibleReadingPlanToday, !plan.complete && styles.clickableBibleReadingPlanToday, studyDarkMode && styles.accountDarkInsetBox]}
+                            >
+                              <View style={styles.bibleReadingPlanTodayHeader}>
+                                <View style={styles.bibleReadingPlanTodayTitleBlock}>
+                                  <Text numberOfLines={2} style={[styles.readerBookSectionTitle, studyDarkMode && styles.studyDarkAccentText]}>
+                                    {plan.complete ? "Plan complete" : plan.overdue ? plan.label : `Next reading: ${plan.label}`}
+                                  </Text>
+                                  <Text numberOfLines={2} style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkTitle]}>
+                                    {plan.complete ? "Choose a new plan or keep reviewing." : plan.reference}
+                                  </Text>
+                                </View>
+                                <Ionicons name={plan.complete ? "checkmark-circle" : "calendar-outline"} size={20} color={studyDarkMode ? "#e9b76a" : plan.complete ? colors.oliveDark : colors.coral} />
+                              </View>
+                            </Pressable>
+                          )}
+                        </View>
+                      );
+                    })}
+                    <ResumeButton label="Manage plans" icon="list-outline" onPress={() => setTab("plans")} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
+                  </View>
+                ) : (
+                  <View style={[styles.bibleReadingPlanStarter, studyDarkMode && styles.accountDarkSection]}>
+                    <Eyebrow>Reading Plans</Eyebrow>
+                    <Text style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>Choose a Bible reading plan from the Plans tab.</Text>
+                    <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Your followed plans will appear here while you study.</Text>
+                    <ResumeButton label="Browse plans" icon="calendar-outline" onPress={() => setTab("plans")} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} iconColor={studyDarkMode ? "#e9b76a" : undefined} />
+                  </View>
+                )}
               </CollapsibleStudyPanel>
               <CollapsibleStudyPanel
                 title="Coaching"
@@ -10814,10 +10877,6 @@ function CollapsibleStudyPanel({
       {!collapsed && children}
     </View>
   );
-}
-
-function planDayKey(planId: string, day: number) {
-  return `${planId}:${day}`;
 }
 
 function verseMarkupKey(verse: BibleVerse) {

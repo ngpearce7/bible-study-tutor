@@ -3164,6 +3164,417 @@ const seoPages = [
   }
 ];
 
+const generatedJournalExamplesByPath = {
+  "/printable-bible-study-worksheets": journalExample({
+    title: "Example worksheet notes: Romans 8:1",
+    intro: "A worksheet can show the selected Scripture first, then leave room for notes that grow out of marked words and phrases.",
+    reference: "Romans 8:1",
+    scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
+    notes: [
+      ["Observation", "Therefore links the verse to Paul's earlier argument. No condemnation is the central promise."],
+      ["Interpretation", "The promise belongs to those who are in Christ Jesus, not to people trying to justify themselves."],
+      ["Application", "A worksheet response could name one fear or accusation and answer it with this promise."]
+    ]
+  }),
+  "/bible-study-methods": journalExample({
+    title: "Method example: John 15:5",
+    intro: "Different methods can study the same verse from different angles while keeping the Scripture visible.",
+    reference: "John 15:5",
+    scriptureHtml: "I am the <mark>vine</mark>, ye are the branches: He that <span class=\"scripture-underline\">abideth in me</span>, and I in him, the same bringeth forth much fruit.",
+    notes: [
+      ["Observation", "The image links Jesus, branches, abiding, and fruitfulness."],
+      ["Method choice", "SOAP could turn this into prayer; OIA could trace the image; word study could examine abide."],
+      ["Application", "The response should grow from dependence on Christ rather than self-produced effort."]
+    ]
+  }),
+  "/bible-study-methods/inductive": journalExample({
+    title: "Inductive journal example: Romans 8:1",
+    intro: "Inductive study benefits from visible markings because observations need to be separated from conclusions.",
+    reference: "Romans 8:1",
+    scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
+    notes: [
+      ["Observation", "Therefore points backward. No condemnation is stated as a present reality."],
+      ["Interpretation", "Paul's conclusion rests on Christ's work, not on a believer's emotional confidence."],
+      ["Application", "The passage invites trust in Christ when guilt or fear is loud."]
+    ]
+  }),
+  "/bible-study-methods/oia": journalExample({
+    title: "OIA journal example: Philippians 4:6",
+    intro: "OIA moves from what is seen in the text to what it means, then to one faithful response.",
+    reference: "Philippians 4:6",
+    scriptureHtml: "Be careful for nothing; but in every thing by <mark>prayer</mark> and supplication with <span class=\"scripture-underline\">thanksgiving</span> let your requests be made known unto God.",
+    notes: [
+      ["Observation", "The verse contrasts anxiety with prayer, supplication, thanksgiving, and requests."],
+      ["Interpretation", "The passage calls believers to bring needs to God rather than carrying anxiety alone."],
+      ["Application", "A response could be to turn one specific worry into prayer with thanksgiving today."]
+    ]
+  }),
+  "/bible-study-methods/lectio-divina": journalExample({
+    title: "Lectio journal example: Psalm 46:10",
+    intro: "A Lectio-style journal entry often marks one phrase and turns attention slowly toward prayer.",
+    reference: "Psalm 46:10",
+    scriptureHtml: "<mark>Be still</mark>, and know that <span class=\"scripture-underline\">I am God</span>.",
+    notes: [
+      ["Notice", "The phrase be still draws attention because it is direct and simple."],
+      ["Reflect", "The command is connected to knowing God, not merely becoming quiet for quietness' sake."],
+      ["Pray", "Lord, quiet my striving and teach me to know You as God today."]
+    ]
+  }),
+  "/bible-study-methods/verse-mapping": journalExample({
+    title: "Verse mapping example: Ephesians 2:8",
+    intro: "Verse mapping can mark repeated ideas, connecting words, and theological anchors in one verse.",
+    reference: "Ephesians 2:8",
+    scriptureHtml: "For by <mark>grace</mark> are ye saved through faith; and that not of yourselves: it is the <span class=\"scripture-underline\">gift of God</span>.",
+    notes: [
+      ["Key words", "Grace, saved, faith, yourselves, and gift carry the main meaning."],
+      ["Connection", "The verse explains salvation as God's gift rather than human achievement."],
+      ["Response", "The application should lead to humility, gratitude, and trust."]
+    ]
+  }),
+  "/bible-study-methods/word-study": journalExample({
+    title: "Word study example: abide",
+    intro: "A word study should mark the word in context before moving to broader themes.",
+    reference: "John 15:4",
+    scriptureHtml: "<mark>Abide</mark> in me, and I in you. As the branch cannot bear fruit of itself, except it <span class=\"scripture-underline\">abide</span> in the vine.",
+    notes: [
+      ["Word in context", "Abide is used with the vine and branch image, so the word is about dependent connection."],
+      ["Safeguard", "The meaning should come from John 15 before jumping to other passages."],
+      ["Application", "The response is to remain dependent on Christ rather than trying to bear fruit alone."]
+    ]
+  }),
+  "/bible-study-methods/topical-study": journalExample({
+    title: "Topical study example: wisdom",
+    intro: "A topical study can begin with one anchor passage before comparing other verses.",
+    reference: "James 1:5",
+    scriptureHtml: "If any of you lack <mark>wisdom</mark>, let him ask of God, that giveth to all men liberally.",
+    notes: [
+      ["Anchor text", "Wisdom is connected to asking God, especially in the context of trials."],
+      ["Theme", "The topic should stay tied to the passage rather than becoming a loose list of ideas."],
+      ["Application", "A faithful response is to ask God for wisdom in one named situation."]
+    ]
+  }),
+  "/bible-study-methods/character-study": journalExample({
+    title: "Character study example: Mary",
+    intro: "A character study should notice a person's words and actions before drawing lessons.",
+    reference: "Luke 1:38",
+    scriptureHtml: "And Mary said, Behold the <mark>handmaid of the Lord</mark>; be it unto me according to thy word.",
+    notes: [
+      ["Observation", "Mary identifies herself in relation to the Lord and receives the word spoken to her."],
+      ["Meaning", "Her response shows humble trust, but the passage remains centered on God's promise."],
+      ["Application", "The response is not to imitate circumstances but to receive God's word with humble faith."]
+    ]
+  }),
+  "/bible-study-methods/cross-reference-study": journalExample({
+    title: "Cross-reference example: Genesis 15:6",
+    intro: "Cross references are most useful when the first passage is understood before related passages are compared.",
+    reference: "Genesis 15:6",
+    scriptureHtml: "And he <mark>believed in the Lord</mark>; and he counted it to him for <span class=\"scripture-underline\">righteousness</span>.",
+    notes: [
+      ["Anchor passage", "The verse connects believing the Lord with righteousness."],
+      ["Related passages", "Romans 4 and Galatians 3 later reflect on this verse, but Genesis 15 should be read first."],
+      ["Application", "Cross references should deepen confidence in God's promise, not replace the original context."]
+    ]
+  }),
+  "/free-bible-study-app": journalExample({
+    title: "Free study example: Matthew 6:33",
+    intro: "The free app experience supports ordinary Scripture study: read, mark, observe, apply, and save.",
+    reference: "Matthew 6:33",
+    scriptureHtml: "But seek ye first the <mark>kingdom of God</mark>, and his righteousness; and all these things shall be added unto you.",
+    notes: [
+      ["Observation", "The command is to seek God's kingdom and righteousness first."],
+      ["Interpretation", "The verse sits in Jesus' teaching about worry, needs, and trust in the Father."],
+      ["Application", "A saved note could name one anxious priority that needs to be reordered."]
+    ]
+  }),
+  "/bible-study-for-beginners": journalExample({
+    title: "Beginner journal example: Mark 1:15",
+    intro: "Beginners do not need complicated notes. A short passage can become a clear observation and response.",
+    reference: "Mark 1:15",
+    scriptureHtml: "The time is fulfilled, and the <mark>kingdom of God</mark> is at hand: repent ye, and believe the gospel.",
+    notes: [
+      ["Observation", "Jesus announces the kingdom of God and calls for repentance and belief."],
+      ["Meaning", "The passage presents good news as something to receive and respond to."],
+      ["Application", "A beginner can ask where the gospel calls for trust and change today."]
+    ]
+  }),
+  "/printable-bible-study-worksheet-for-small-groups": journalExample({
+    title: "Small group worksheet example: Colossians 3:12",
+    intro: "A group worksheet can mark words that shape discussion before people answer questions.",
+    reference: "Colossians 3:12",
+    scriptureHtml: "Put on therefore, as the elect of God, holy and beloved, <mark>bowels of mercies</mark>, kindness, humbleness of mind, meekness, longsuffering.",
+    notes: [
+      ["Observation", "The command to put on is grounded in identity: elect, holy, and beloved."],
+      ["Discussion", "The group can list the qualities and ask where each is needed in community."],
+      ["Prayer", "The worksheet can end by praying for Christlike patience and mercy."]
+    ]
+  }),
+  "/printable-soap-bible-study-worksheet": journalExample({
+    title: "Printable SOAP example: Psalm 121:2",
+    intro: "A printable SOAP worksheet can keep Scripture and prayer together on one page.",
+    reference: "Psalm 121:2",
+    scriptureHtml: "My help cometh from the <mark>Lord</mark>, which made heaven and earth.",
+    notes: [
+      ["Scripture", "The verse identifies the Lord as the source of help."],
+      ["Observation", "The Lord is not only near but also Creator of heaven and earth."],
+      ["Application", "The response is to seek help from God before grasping for control."],
+      ["Prayer", "Lord, teach me to look to You for help today."]
+    ]
+  }),
+  "/printable-inductive-bible-study-worksheet": journalExample({
+    title: "Printable inductive example: Ephesians 2:10",
+    intro: "An inductive worksheet can keep observations visible before summary and application.",
+    reference: "Ephesians 2:10",
+    scriptureHtml: "For we are his <mark>workmanship</mark>, created in Christ Jesus unto good works.",
+    notes: [
+      ["Observation", "The verse names believers as God's workmanship and connects new creation with good works."],
+      ["Interpretation", "Good works flow from God's saving work rather than earning salvation."],
+      ["Application", "The worksheet can ask what prepared good work might be walked in today."]
+    ]
+  }),
+  "/printable-bible-study-journal": journalExample({
+    title: "Printable journal example: Psalm 119:105",
+    intro: "A printable journal page can show the verse, marked words, and a few structured reflections.",
+    reference: "Psalm 119:105",
+    scriptureHtml: "Thy word is a <mark>lamp</mark> unto my feet, and a <span class=\"scripture-underline\">light</span> unto my path.",
+    notes: [
+      ["Observation", "The verse uses lamp and light imagery for God's word."],
+      ["Reflection", "The image suggests guidance for the next step, not merely abstract information."],
+      ["Prayer", "Lord, guide my next step through Your word."]
+    ]
+  }),
+  "/bible-study-worksheet-for-youth-groups": journalExample({
+    title: "Youth worksheet example: 1 Timothy 4:12",
+    intro: "A youth worksheet can highlight the direct call and then ask for practical examples.",
+    reference: "1 Timothy 4:12",
+    scriptureHtml: "Let no man despise thy youth; but be thou an <mark>example</mark> of the believers.",
+    notes: [
+      ["Observation", "The verse connects youth with being an example in visible ways."],
+      ["Discussion", "Students can list what example looks like in speech, conduct, love, faith, and purity."],
+      ["Application", "Each person can choose one setting where faith should become visible this week."]
+    ]
+  }),
+  "/bible-study-worksheet-for-church-groups": journalExample({
+    title: "Church group worksheet example: Acts 2:42",
+    intro: "A church group worksheet can mark the shared practices of the early believers.",
+    reference: "Acts 2:42",
+    scriptureHtml: "And they continued stedfastly in the apostles' doctrine and <mark>fellowship</mark>, and in breaking of bread, and in prayers.",
+    notes: [
+      ["Observation", "The verse lists teaching, fellowship, breaking bread, and prayers."],
+      ["Meaning", "The early church's life was shared, steady, and shaped by doctrine and prayer."],
+      ["Application", "A group can ask which shared practice needs renewed attention."]
+    ]
+  }),
+  "/online-bible-study-journal": journalExample({
+    title: "Online journal example: John 15:4",
+    intro: "An online journal can preserve marked Scripture alongside the user's own reflection.",
+    reference: "John 15:4",
+    scriptureHtml: "<mark>Abide</mark> in me, and I in you.",
+    notes: [
+      ["Observation", "The command is relational and repeated in the wider passage."],
+      ["Reflection", "The verse calls for remaining with Christ, not simply working harder for Him."],
+      ["Prayer", "Lord Jesus, teach me to abide in You today."]
+    ]
+  }),
+  "/bible-study-journal": journalExample({
+    title: "Bible study journal example: Psalm 27:1",
+    intro: "A Bible study journal becomes more useful when the verse, markings, and response stay together.",
+    reference: "Psalm 27:1",
+    scriptureHtml: "The Lord is my <mark>light</mark> and my salvation; whom shall I fear?",
+    notes: [
+      ["Observation", "The verse names the Lord as light and salvation before asking about fear."],
+      ["Meaning", "Confidence comes from who the Lord is, not from the absence of danger."],
+      ["Application", "A journal response could name one fear in light of God's saving care."]
+    ]
+  }),
+  "/bible-highlighting-and-notes": journalExample({
+    title: "Highlighting example: Hebrews 4:12",
+    intro: "Highlights are most helpful when they lead to a written observation rather than decoration only.",
+    reference: "Hebrews 4:12",
+    scriptureHtml: "For the word of God is <mark>quick, and powerful</mark>, and sharper than any twoedged sword.",
+    notes: [
+      ["Observation", "The highlighted words describe God's word as living and active."],
+      ["Meaning", "The verse presents Scripture as something that searches and exposes, not merely informs."],
+      ["Response", "A note can ask where God's word is calling for honesty and trust."]
+    ]
+  }),
+  "/bible-study-for-small-groups": journalExample({
+    title: "Small group study example: Ephesians 4:32",
+    intro: "Small group notes should keep the passage central before discussion moves to personal stories.",
+    reference: "Ephesians 4:32",
+    scriptureHtml: "And be ye <mark>kind one to another</mark>, tenderhearted, forgiving one another, even as God for Christ's sake hath forgiven you.",
+    notes: [
+      ["Observation", "The command includes kindness, tenderheartedness, and forgiveness."],
+      ["Meaning", "The reason for forgiving one another is God's forgiveness in Christ."],
+      ["Application", "A group can name one relationship where gospel-shaped forgiveness is needed."]
+    ]
+  }),
+  "/bible-study-app-for-churches": journalExample({
+    title: "Church use example: 2 Timothy 3:16",
+    intro: "A church can use the app to help people observe what Scripture says before discussing application.",
+    reference: "2 Timothy 3:16",
+    scriptureHtml: "All scripture is given by inspiration of God, and is <mark>profitable</mark> for doctrine, for reproof, for correction, for instruction in righteousness.",
+    notes: [
+      ["Observation", "The verse lists several ways Scripture is profitable."],
+      ["Meaning", "Scripture forms belief and life because it is God-given."],
+      ["Application", "A church group can ask which use of Scripture is most needed in the current series."]
+    ]
+  }),
+  "/free-bible-study-app-for-small-groups": journalExample({
+    title: "Free small group example: Galatians 5:13",
+    intro: "A free group tool should still keep discussion close to the words of the passage.",
+    reference: "Galatians 5:13",
+    scriptureHtml: "By love <mark>serve one another</mark>.",
+    notes: [
+      ["Observation", "Freedom is connected to serving one another by love."],
+      ["Meaning", "Christian liberty should not become selfishness but loving service."],
+      ["Application", "A small group can choose one practical way to serve someone this week."]
+    ]
+  }),
+  "/bible-study-app-with-printable-worksheets": journalExample({
+    title: "Digital-to-print example: Micah 6:8",
+    intro: "The same marked passage can become a saved digital note or a printed worksheet.",
+    reference: "Micah 6:8",
+    scriptureHtml: "What doth the Lord require of thee, but to do <mark>justly</mark>, and to love mercy, and to walk humbly with thy God?",
+    notes: [
+      ["Observation", "The verse names justice, mercy, and humble walking with God."],
+      ["Worksheet prompt", "Ask where each phrase touches ordinary relationships and choices."],
+      ["Application", "Choose one concrete act of justice, mercy, or humility."]
+    ]
+  }),
+  "/how-to-study-romans": journalExample({
+    title: "Romans journal example: Romans 8:1",
+    intro: "Romans rewards careful attention to connecting words and theological claims.",
+    reference: "Romans 8:1",
+    scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
+    notes: [
+      ["Observation", "Therefore links the verse to Paul's previous argument."],
+      ["Meaning", "No condemnation is grounded in Christ, not human performance."],
+      ["Application", "Romans should lead to confidence in Christ and humble obedience."]
+    ]
+  }),
+  "/how-to-study-the-gospel-of-john": journalExample({
+    title: "John journal example: John 20:31",
+    intro: "John often states his purpose clearly, which helps guide a book study.",
+    reference: "John 20:31",
+    scriptureHtml: "But these are written, that ye might <mark>believe</mark> that Jesus is the Christ, the Son of God.",
+    notes: [
+      ["Observation", "John states that the signs and testimony are written for belief."],
+      ["Meaning", "The Gospel aims to reveal Jesus as the Christ, the Son of God."],
+      ["Application", "A study of John should ask how each passage calls for faith in Jesus."]
+    ]
+  }),
+  "/how-to-study-genesis": journalExample({
+    title: "Genesis journal example: Genesis 1:1",
+    intro: "Genesis begins with God as Creator, which shapes the rest of the book.",
+    reference: "Genesis 1:1",
+    scriptureHtml: "In the beginning <mark>God created</mark> the heaven and the earth.",
+    notes: [
+      ["Observation", "God is the subject of the opening sentence."],
+      ["Meaning", "Creation begins with God's action, authority, and purpose."],
+      ["Application", "A Genesis study should begin with worship and creaturely humility."]
+    ]
+  }),
+  "/how-to-study-psalms": journalExample({
+    title: "Psalms journal example: Psalm 1:2",
+    intro: "Psalms often invite slow meditation rather than quick extraction of a lesson.",
+    reference: "Psalm 1:2",
+    scriptureHtml: "But his delight is in the <mark>law of the Lord</mark>; and in his law doth he meditate day and night.",
+    notes: [
+      ["Observation", "Delight and meditation are connected to the Lord's instruction."],
+      ["Meaning", "The blessed life is shaped by sustained attention to God's word."],
+      ["Application", "A Psalm can become prayer and meditation through the day."]
+    ]
+  }),
+  "/how-to-study-proverbs": journalExample({
+    title: "Proverbs journal example: Proverbs 3:5",
+    intro: "Proverbs should be studied as wisdom that shapes trust and daily choices.",
+    reference: "Proverbs 3:5",
+    scriptureHtml: "Trust in the Lord with <mark>all thine heart</mark>; and lean not unto thine own understanding.",
+    notes: [
+      ["Observation", "Trust in the Lord is contrasted with leaning on one's own understanding."],
+      ["Meaning", "Wisdom begins with dependence on the Lord, not self-reliance."],
+      ["Application", "Name one decision where trust must replace self-protection."]
+    ]
+  }),
+  "/how-to-study-matthew": journalExample({
+    title: "Matthew journal example: Matthew 5:16",
+    intro: "Matthew often connects discipleship with visible obedience and the glory of the Father.",
+    reference: "Matthew 5:16",
+    scriptureHtml: "Let your <mark>light</mark> so shine before men, that they may see your good works, and glorify your Father which is in heaven.",
+    notes: [
+      ["Observation", "Good works are visible, but the goal is the Father's glory."],
+      ["Meaning", "Discipleship is public without becoming self-promoting."],
+      ["Application", "Choose one quiet act that points beyond self to the Father."]
+    ]
+  }),
+  "/how-to-study-mark": journalExample({
+    title: "Mark journal example: Mark 10:45",
+    intro: "Mark moves quickly, but key verses reveal Jesus' mission.",
+    reference: "Mark 10:45",
+    scriptureHtml: "For even the Son of man came not to be ministered unto, but to <mark>minister</mark>, and to give his life a ransom for many.",
+    notes: [
+      ["Observation", "Jesus contrasts being served with serving and giving His life."],
+      ["Meaning", "The verse summarizes the servant mission of Jesus."],
+      ["Application", "A study of Mark should lead to worship and servant-hearted discipleship."]
+    ]
+  }),
+  "/how-to-study-luke": journalExample({
+    title: "Luke journal example: Luke 19:10",
+    intro: "Luke often highlights Jesus' compassion for the lost and overlooked.",
+    reference: "Luke 19:10",
+    scriptureHtml: "For the Son of man is come to <mark>seek and to save</mark> that which was lost.",
+    notes: [
+      ["Observation", "Jesus describes His mission as seeking and saving the lost."],
+      ["Meaning", "The passage reveals purposeful mercy, not accidental kindness."],
+      ["Application", "A Luke study can ask who Jesus sees that others overlook."]
+    ]
+  }),
+  "/how-to-study-acts": journalExample({
+    title: "Acts journal example: Acts 1:8",
+    intro: "Acts should be studied with attention to the Spirit, witness, and movement of the gospel.",
+    reference: "Acts 1:8",
+    scriptureHtml: "But ye shall receive <mark>power</mark>, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me.",
+    notes: [
+      ["Observation", "Power is connected to the Holy Spirit and witness."],
+      ["Meaning", "Acts begins with mission empowered by God rather than human strategy alone."],
+      ["Application", "Ask where faithful witness depends on the Spirit's help."]
+    ]
+  }),
+  "/how-to-study-ephesians": journalExample({
+    title: "Ephesians journal example: Ephesians 2:10",
+    intro: "Ephesians connects identity in Christ with a transformed walk.",
+    reference: "Ephesians 2:10",
+    scriptureHtml: "For we are his <mark>workmanship</mark>, created in Christ Jesus unto good works.",
+    notes: [
+      ["Observation", "Believers are described as God's workmanship."],
+      ["Meaning", "Good works flow from being created in Christ Jesus."],
+      ["Application", "Ask what walking in grace-shaped good works looks like today."]
+    ]
+  }),
+  "/how-to-study-philippians": journalExample({
+    title: "Philippians journal example: Philippians 1:21",
+    intro: "Philippians studies joy, suffering, humility, and Christ-centered life.",
+    reference: "Philippians 1:21",
+    scriptureHtml: "For to me to live is <mark>Christ</mark>, and to die is gain.",
+    notes: [
+      ["Observation", "Paul frames both life and death around Christ."],
+      ["Meaning", "Christ is not one part of Paul's life but the defining center."],
+      ["Application", "Ask what would change if Christ were consciously central today."]
+    ]
+  }),
+  "/how-to-study-james": journalExample({
+    title: "James journal example: James 1:22",
+    intro: "James calls readers to let the word become visible in practice.",
+    reference: "James 1:22",
+    scriptureHtml: "But be ye <mark>doers of the word</mark>, and not hearers only, deceiving your own selves.",
+    notes: [
+      ["Observation", "James contrasts doing the word with hearing only."],
+      ["Meaning", "Receiving God's word should produce obedient action."],
+      ["Application", "Choose one concrete act of obedience before the day ends."]
+    ]
+  })
+};
+
 mkdirSync(publicDir, { recursive: true });
 copyFileSync(join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "Ionicons.ttf"), join(publicDir, "ionicons.ttf"));
 copyFileSync(join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "MaterialCommunityIcons.ttf"), join(publicDir, "material-community-icons.ttf"));
@@ -3222,10 +3633,11 @@ function buildSeoPage(page, baseUrl) {
   const relatedPages = (page.related || [])
     .map((path) => seoPages.find((candidate) => candidate.path === path))
     .filter(Boolean);
+  const pageExtraBlocks = withGeneratedJournalExample(page);
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
     .join("\n");
-  const extraBlocks = (page.extraBlocks || [])
+  const extraBlocks = pageExtraBlocks
     .map((block) => buildExtraSeoBlock(block))
     .join("\n");
   const faqBlock = page.faq?.length
@@ -3443,6 +3855,33 @@ function buildExtraSeoBlock(block) {
   }
 
   return "";
+}
+
+function withGeneratedJournalExample(page) {
+  const blocks = [...(page.extraBlocks || [])];
+  const hasJournalExample = blocks.some((block) => block.type === "journalExample");
+  const generatedExample = hasJournalExample ? null : generatedJournalExamplesByPath[page.path];
+  if (!generatedExample) return blocks;
+
+  const ctaIndex = blocks.findIndex((block) => block.type === "cta");
+  if (ctaIndex >= 0) {
+    blocks.splice(ctaIndex, 0, generatedExample);
+  } else {
+    blocks.push(generatedExample);
+  }
+  return blocks;
+}
+
+function journalExample({ title, intro, reference, translation = "KJV", scriptureHtml, notes }) {
+  return {
+    type: "journalExample",
+    title,
+    intro,
+    reference,
+    translation,
+    scriptureHtml,
+    notes
+  };
 }
 
 function buildNotFoundPage(baseUrl) {

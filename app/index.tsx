@@ -9460,7 +9460,7 @@ export default function Home() {
       {printWorksheetRequest && (
         <View style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPrintWorksheetRequest(null)} />
-          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+          <View style={[styles.printOptionsCard, styles.rhythmGraceCard, phoneLayout && styles.phonePrintOptionsCard, phoneLayout && styles.phoneRhythmGraceCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
                 <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Print worksheet</Text>
@@ -9592,22 +9592,27 @@ export default function Home() {
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
-            <View style={[styles.currentPlanNextBox, accountDarkMode && styles.accountDarkInsetBox]}>
-              <Text style={[styles.readerBookSectionTitle, accountDarkMode && styles.studyDarkAccentText]}>
-                Grace day available
-              </Text>
-              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>
-                Life gets full. You can use a grace day to keep your Scripture rhythm going and continue from today.
-              </Text>
+            <View style={[styles.rhythmGraceInfoBox, accountDarkMode && styles.accountDarkInsetBox]}>
+              <View style={[styles.rhythmGraceIconBubble, accountDarkMode && styles.homeDarkIconBubble]}>
+                <Ionicons name="refresh-outline" size={17} color={accountDarkMode ? "#e9b76a" : colors.coral} />
+              </View>
+              <View style={styles.rhythmGraceInfoCopy}>
+                <Text style={[styles.rhythmGraceInfoLabel, accountDarkMode && styles.studyDarkAccentText]}>
+                  Grace day available
+                </Text>
+                <Text style={[styles.rhythmGraceInfoText, accountDarkMode && styles.accountDarkMutedText]}>
+                  Use one grace day to keep your Scripture rhythm going from today.
+                </Text>
+              </View>
             </View>
-            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
-              Restoring records today as a gentle rhythm check-in. It will not change your notes, reading plans, or memory verses.
+            <Text style={[styles.rhythmGraceBodyText, accountDarkMode && styles.accountDarkMutedText]}>
+              This simply records today as a rhythm check-in. Your notes, reading plans, and memory verses stay unchanged.
             </Text>
-            <View style={styles.printOptionsActions}>
-              <Pressable onPress={dismissRhythmGracePrompt} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+            <View style={[styles.printOptionsActions, styles.rhythmGraceActions, phoneLayout && styles.phoneRhythmGraceActions]}>
+              <ResumeButton label="Restore rhythm" icon="refresh-outline" onPress={restoreDailyRhythmFromGracePrompt} variant="primary" style={[styles.rhythmGracePrimaryButton, phoneLayout && styles.phonePrintOpenButton]} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              <Pressable onPress={dismissRhythmGracePrompt} style={[styles.rhythmGraceSecondaryButton, accountDarkMode && styles.printDarkCancelButton]}>
                 <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
               </Pressable>
-              <ResumeButton label="Restore rhythm" icon="refresh-outline" onPress={restoreDailyRhythmFromGracePrompt} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
           </View>
         </View>
@@ -21831,6 +21836,14 @@ const styles = StyleSheet.create({
     marginTop: 68,
     width: "92%"
   },
+  rhythmGraceCard: {
+    gap: 13
+  },
+  phoneRhythmGraceCard: {
+    marginTop: 62,
+    padding: 14,
+    width: "91%"
+  },
   printOptionsHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
@@ -21987,6 +22000,45 @@ const styles = StyleSheet.create({
     backgroundColor: "#1b211f",
     borderColor: "rgba(233, 183, 106, 0.14)"
   },
+  rhythmGraceInfoBox: {
+    alignItems: "flex-start",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    padding: 11
+  },
+  rhythmGraceIconBubble: {
+    alignItems: "center",
+    backgroundColor: "#fff0df",
+    borderRadius: 999,
+    height: 34,
+    justifyContent: "center",
+    width: 34
+  },
+  rhythmGraceInfoCopy: {
+    flex: 1,
+    gap: 3,
+    minWidth: 0
+  },
+  rhythmGraceInfoLabel: {
+    color: colors.coral,
+    fontSize: 11,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  rhythmGraceInfoText: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 19
+  },
+  rhythmGraceBodyText: {
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 20
+  },
   printOptionsActions: {
     alignItems: "center",
     flexDirection: "row",
@@ -21994,6 +22046,23 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     gap: 10,
     justifyContent: "flex-end"
+  },
+  rhythmGraceActions: {
+    justifyContent: "space-between"
+  },
+  phoneRhythmGraceActions: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    gap: 8
+  },
+  rhythmGracePrimaryButton: {
+    minWidth: 190
+  },
+  rhythmGraceSecondaryButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 40,
+    paddingHorizontal: 14
   },
   printOptionsCancelButton: {
     alignItems: "center",

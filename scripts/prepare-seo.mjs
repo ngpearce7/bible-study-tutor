@@ -346,31 +346,126 @@ const seoPages = [
     path: "/bible-study-methods/lectio-divina",
     file: "bible-study-methods/lectio-divina.html",
     title: "Lectio Divina Bible Study Method | Prayerful Scripture Reflection",
-    description: "Practise Lectio Divina with Scripture reading, meditation, prayer, and quiet response while keeping the Bible passage central.",
+    description: "Practise Lectio Divina with Scripture reading, meditation, prayer, quiet response, a worked example, safeguards, checklist, and guided study CTA.",
     heading: "Lectio Divina Bible study method",
-    intro: "Lectio Divina is a prayerful way to read Scripture slowly, listen attentively, and respond to God with reflection and prayer.",
+    intro: "Lectio Divina is a prayerful way to read Scripture slowly, listen attentively, and respond to God with reflection and prayer. It should keep the Bible passage central rather than replacing Scripture with vague impressions.",
     sections: [
-      ["Read", "Read the passage slowly and notice a word, phrase, or image that draws your attention."],
-      ["Reflect and pray", "Meditate on the passage in context, then pray honestly about what it reveals and how it speaks into your life."],
+      ["Read", "Read the passage slowly and notice a word, phrase, or image that draws your attention. Keep the whole passage in view."],
+      ["Reflect", "Meditate on the passage in context. Ask what the text reveals about God, faith, repentance, comfort, or obedience."],
+      ["Pray", "Pray honestly in response to what Scripture says. Let the words of the passage shape the prayer."],
       ["Carry", "Choose a short phrase or truth from the passage to carry with you through the day."]
     ],
     cta: "Try Lectio Divina",
-    related: ["/bible-study-methods", "/bible-study-journal", "/bible-memory-verses"]
+    related: ["/bible-study-methods", "/bible-study-journal", "/bible-memory-verses", "/how-to-memorize-bible-verses"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a short Scripture passage.",
+      "Read the passage slowly more than once.",
+      "Reflect on a word, phrase, or truth in context.",
+      "Pray in response to the passage.",
+      "Carry one phrase or truth into the day."
+    ],
+    faq: [
+      ["What does Lectio Divina mean?", "Lectio Divina is often described as prayerful Scripture reading, usually moving through reading, reflection, prayer, and quiet response."],
+      ["Is Lectio Divina the same as Bible study?", "It is more prayerful and reflective than analytical, but it should still stay anchored in the meaning of the passage."],
+      ["What passage length works best?", "A short passage, paragraph, Psalm section, or Gospel scene usually works best."],
+      ["Can I save a Lectio Divina reflection?", "Yes. Bible Study Tutor can save meditations and reflections to the journal."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Psalm 131:1-2",
+        intro: "Psalm 131 is short, prayerful, and well suited to slow reflection.",
+        items: [
+          ["Read", "Read the psalm slowly and notice the picture of a quieted soul."],
+          ["Reflect", "The passage contrasts pride and restless striving with humble trust before the Lord."],
+          ["Pray", "Ask God to quiet restless ambition and teach childlike trust."],
+          ["Carry", "Carry the phrase “quieted my soul” as a reminder to return to trust during the day."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Lectio Divina safeguards",
+        intro: "These safeguards keep prayerful reflection connected to Scripture.",
+        items: [
+          "Read the whole passage before focusing on one phrase.",
+          "Do not detach a phrase from its context.",
+          "Let prayer respond to the text rather than ignore it.",
+          "Avoid treating every feeling as the meaning of the passage.",
+          "Return to Scripture if reflection becomes vague or self-focused."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Try prayerful Scripture reflection",
+        intro: "Open a short passage in Bible Study Tutor and use Lectio Divina to read, reflect, pray, and carry Scripture into the day.",
+        href: "/?tab=study&method=lectio",
+        label: "Try Lectio Divina"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/verse-mapping",
     file: "bible-study-methods/verse-mapping.html",
     title: "Verse Mapping Bible Study Method | Explore Scripture Word by Word",
-    description: "Use the verse mapping Bible study method to examine key words, context, cross references, themes, and personal response in a single Scripture passage.",
+    description: "Use the verse mapping Bible study method with key words, context, cross references, themes, a worked example, checklist, safeguards, and worksheet CTA.",
     heading: "Verse mapping Bible study method",
-    intro: "Verse mapping helps you slow down over one verse or short passage, tracing words, context, themes, and connections so the Scripture becomes clearer.",
+    intro: "Verse mapping helps you slow down over one verse or short passage, tracing words, context, themes, and connections so the Scripture becomes clearer. It is best used to understand the verse in its passage, not as a decorative note page only.",
     sections: [
       ["Choose a focused passage", "Start with one verse or a short section, then write the reference, surrounding context, and any words that need closer attention."],
       ["Trace words and connections", "Look up repeated words, related passages, themes, people, places, and how the verse fits the wider chapter."],
+      ["Summarize the verse", "Write the main point of the verse in your own words while staying faithful to the passage."],
       ["Respond with clarity", "Summarize what the verse teaches, write a prayer, and note one way to remember or apply the passage."]
     ],
     cta: "Try verse mapping",
-    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/printable-bible-study-journal"]
+    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/printable-bible-study-journal", "/bible-study-methods/inductive"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose one verse or a short passage.",
+      "Write the reference and surrounding context.",
+      "Identify key words, repeated ideas, and related passages.",
+      "Summarize the verse in context.",
+      "Write a prayer, memory note, or application."
+    ],
+    faq: [
+      ["What is verse mapping?", "Verse mapping is a way to slow down over one verse by tracing context, key words, related passages, and response."],
+      ["Is verse mapping only creative journaling?", "It can be visually creative, but the main goal should be understanding the Scripture in context."],
+      ["How many verses should I map at once?", "One verse or a short passage is usually best."],
+      ["Can verse mapping help with memorization?", "Yes. Mapping a verse can help you notice structure and meaning, which can support memory practice."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Micah 6:8",
+        intro: "Micah 6:8 is often memorized, but verse mapping helps keep it connected to its context.",
+        items: [
+          ["Context", "Micah 6 includes the Lord’s case against His people. The verse summarizes a faithful response rather than empty religious performance."],
+          ["Key words", "Justice, mercy, and humble walking each describe covenant faithfulness lived before God."],
+          ["Connections", "Related themes appear throughout Scripture, but the immediate passage should guide the meaning first."],
+          ["Response", "A faithful response could include one concrete act of mercy, one step of humility, and prayer for a just heart."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Verse mapping checklist",
+        intro: "Use this checklist so the verse stays connected to Scripture.",
+        items: [
+          "Have I read the surrounding paragraph or chapter?",
+          "Have I written the verse reference clearly?",
+          "Have I identified key words and repeated ideas?",
+          "Have I checked related passages without ignoring the main context?",
+          "Can I summarize the verse faithfully?",
+          "Have I written a prayer or response?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start a verse map",
+        intro: "Choose one verse in Bible Study Tutor, study it carefully, and save or print notes for review.",
+        href: "/?tab=study&method=verse-mapping",
+        label: "Start verse mapping"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/word-study",
@@ -445,46 +540,187 @@ const seoPages = [
     path: "/bible-study-methods/topical-study",
     file: "bible-study-methods/topical-study.html",
     title: "Topical Bible Study Method | Study Scripture by Theme",
-    description: "Use a topical Bible study method to trace a theme across Scripture while reading each passage carefully in its own context.",
+    description: "Use a topical Bible study method to trace a theme across Scripture with context, sample passages, safeguards, a worked example, checklist, and study CTA.",
     heading: "Topical Bible study method",
-    intro: "Topical study helps you follow a biblical theme across multiple passages while still reading each verse in context.",
+    intro: "Topical study helps you follow a biblical theme across multiple passages while still reading each verse in context. It is useful for themes like prayer, wisdom, identity in Christ, forgiveness, comfort, or the fear of the Lord.",
     sections: [
       ["Define the topic carefully", "Begin with a clear question or theme, such as prayer, wisdom, identity in Christ, forgiveness, or the fear of the Lord."],
       ["Gather passages thoughtfully", "Read several passages that speak to the topic, noting their setting, audience, and main point before comparing them."],
+      ["Compare without flattening", "Let each passage speak in its own context before drawing together themes. Avoid treating every verse as if it says the same thing in the same way."],
       ["Summarize what Scripture teaches", "Look for patterns, tensions, commands, promises, and a faithful response shaped by the whole counsel of Scripture."]
     ],
     cta: "Try topical study",
-    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study"]
+    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study", "/printable-bible-study-worksheets"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a clear topic or question.",
+      "Gather several relevant passages.",
+      "Read each passage in context before comparing them.",
+      "Identify patterns, tensions, commands, promises, and warnings.",
+      "Summarize what Scripture teaches and write a faithful response."
+    ],
+    faq: [
+      ["What is topical Bible study?", "Topical Bible study traces a theme or question across several passages while reading each passage in context."],
+      ["What topics are good to study?", "Prayer, wisdom, forgiveness, identity in Christ, suffering, comfort, generosity, and the fear of the Lord are common starting points."],
+      ["What is the danger of topical study?", "The danger is proof-texting: collecting verses without respecting their original context."],
+      ["Can I use topical study with a worksheet?", "Yes. A worksheet can help you record passages, context, patterns, and a faithful summary."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: prayer",
+        intro: "A topical study on prayer might compare several passages while letting each one keep its own voice.",
+        items: [
+          ["Matthew 6:9-13", "Jesus teaches prayer shaped by the Father’s name, kingdom, provision, forgiveness, and deliverance."],
+          ["Philippians 4:6-7", "Paul connects prayer with thanksgiving and the peace of God in anxious circumstances."],
+          ["James 1:5", "James encourages asking God for wisdom with trust."],
+          ["Summary", "Prayer is not only asking for help. It is worship, dependence, confession, thanksgiving, trust, and seeking wisdom from God."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Topical study safeguards",
+        intro: "Use these safeguards to avoid shallow proof-texting.",
+        items: [
+          "Have I read each passage in context?",
+          "Am I collecting passages from different genres carefully?",
+          "Have I noticed differences as well as similarities?",
+          "Have I avoided forcing one passage to answer every question?",
+          "Can I summarize the theme with humility and clarity?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start a topical study",
+        intro: "Choose a theme, gather passages, and use Bible Study Tutor to save notes or print a worksheet for careful comparison.",
+        href: "/?tab=study&method=topical-study",
+        label: "Start topical study"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/character-study",
     file: "bible-study-methods/character-study.html",
     title: "Bible Character Study Method | Learn from People in Scripture",
-    description: "Use a Bible character study method to examine a person in Scripture, their context, choices, faith, failures, and what their story reveals about God.",
+    description: "Use a Bible character study method to examine people in Scripture with context, faith, failure, God’s character, a worked example, safeguards, and checklist.",
     heading: "Bible character study method",
-    intro: "Character study helps you learn from the people in Scripture while keeping the focus on God’s character, promises, warnings, and grace.",
+    intro: "Character study helps you learn from the people in Scripture while keeping the focus on God’s character, promises, warnings, and grace. The goal is not merely to copy heroes or avoid villains, but to see God at work in real lives.",
     sections: [
       ["Follow the person in context", "Read the passages where the person appears, noting setting, relationships, choices, conflicts, and turning points."],
       ["Notice faith and failure", "Ask what the person believed, feared, obeyed, resisted, learned, or misunderstood as the story unfolds."],
-      ["Look beyond the example", "A character study is not just moral advice. Ask what the account reveals about God and how it points to faithful trust and obedience."]
+      ["Look beyond the example", "A character study is not just moral advice. Ask what the account reveals about God and how it points to faithful trust and obedience."],
+      ["Respond carefully", "Apply the passage in a way that honours the story’s context, not by flattening every person into a simple lesson."]
     ],
     cta: "Start a character study",
-    related: ["/bible-study-methods/topical-study", "/bible-study-methods/inductive", "/bible-study-methods/verse-mapping"]
+    related: ["/bible-study-methods/topical-study", "/bible-study-methods/inductive", "/bible-study-methods/verse-mapping", "/bible-study-methods/cross-reference-study"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a person in Scripture and gather the key passages where they appear.",
+      "Read each passage in context.",
+      "Notice setting, choices, relationships, faith, failure, and turning points.",
+      "Ask what the account reveals about God.",
+      "Write a careful response shaped by the passage."
+    ],
+    faq: [
+      ["What is a Bible character study?", "It is a study of a person in Scripture, their context, choices, faith, failure, and what their story reveals about God."],
+      ["What is a good character to study first?", "Ruth, David, Peter, Mary, Joseph, Moses, Esther, and Paul are common starting points."],
+      ["What mistake should I avoid?", "Avoid reducing the passage to moral advice without asking what God is revealing through the account."],
+      ["Can character study be used in groups?", "Yes. It works well when the group reads the actual passages rather than only summarizing the person’s life."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Peter",
+        intro: "Peter’s story includes bold confession, fear, failure, restoration, and Spirit-empowered witness.",
+        items: [
+          ["Context", "Read passages such as Matthew 16:13-20, Luke 22:54-62, John 21:15-19, and Acts 2."],
+          ["Faith and failure", "Peter confesses Jesus as the Christ, denies Him under pressure, and is later restored by Jesus."],
+          ["God’s grace", "The story highlights Christ’s patience, forgiveness, restoration, and commissioning grace."],
+          ["Response", "A careful application could be repentance after failure and renewed trust in Christ’s restoring grace."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Character study checklist",
+        intro: "Use this checklist to keep the study faithful to Scripture.",
+        items: [
+          "Have I read the main passages rather than only a summary?",
+          "Have I noted setting, conflict, choices, and turning points?",
+          "Have I noticed both faith and failure where present?",
+          "Have I asked what the passage reveals about God?",
+          "Have I avoided turning the person into a flat moral example?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start a character study",
+        intro: "Choose a person in Scripture, gather the passages, and use Bible Study Tutor to save notes or print a study worksheet.",
+        href: "/?tab=study&method=character-study",
+        label: "Start a character study"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/cross-reference-study",
     file: "bible-study-methods/cross-reference-study.html",
     title: "Cross Reference Bible Study Method | Let Scripture Interpret Scripture",
-    description: "Use a cross reference Bible study method to compare related passages, clarify meaning, trace themes, and understand Scripture with Scripture.",
+    description: "Use a cross reference Bible study method to compare related passages, clarify meaning, trace themes, avoid proof-texting, and study Scripture carefully.",
     heading: "Cross reference Bible study method",
-    intro: "Cross-reference study helps you compare related passages so Scripture sheds light on Scripture without losing the main passage you started with.",
+    intro: "Cross-reference study helps you compare related passages so Scripture sheds light on Scripture without losing the main passage you started with. It is helpful for tracing quotations, themes, promises, background, and fulfilment.",
     sections: [
       ["Begin with one main text", "Choose a passage and identify the words, themes, quotations, or ideas that need to be compared with other Scriptures."],
-      ["Compare related passages", "Read cross references carefully, noting similarities, differences, fulfillment, background, and how each passage contributes."],
+      ["Compare related passages", "Read cross references carefully, noting similarities, differences, fulfilment, background, and how each passage contributes."],
+      ["Avoid proof-texting", "Do not use related passages to override the original context. Cross references should clarify, not distract."],
       ["Return to the original passage", "Use the related passages to clarify meaning, then write a short summary of what the original passage teaches."]
     ],
     cta: "Study cross references",
-    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/topical-study", "/how-to-study-a-bible-passage"]
+    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/topical-study", "/how-to-study-a-bible-passage", "/bible-study-methods/word-study"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose one main passage.",
+      "Identify words, themes, quotations, or background that need comparison.",
+      "Read related passages in their own contexts.",
+      "Note similarities, differences, background, and fulfilment.",
+      "Return to the main passage and summarize what became clearer."
+    ],
+    faq: [
+      ["What is cross-reference Bible study?", "It is the practice of comparing related Scripture passages to clarify meaning, trace themes, and understand Scripture with Scripture."],
+      ["What is the danger of cross references?", "The danger is leaving the main passage behind or using unrelated verses to force a preferred meaning."],
+      ["Where should I start?", "Begin with one main passage, then compare references that clearly share words, quotations, themes, or background."],
+      ["Is cross-reference study good for beginners?", "It can be, but beginners should keep the main passage short and avoid collecting too many references at once."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Matthew 4:1-11",
+        intro: "Matthew 4 shows Jesus answering temptation with Scripture from Deuteronomy.",
+        items: [
+          ["Main text", "Read Matthew 4:1-11 and note each time Jesus says, “It is written.”"],
+          ["Cross references", "Compare Deuteronomy 8:3, 6:16, and 6:13 in their original setting."],
+          ["Clarification", "The references show Jesus trusting and obeying where Israel had failed in the wilderness."],
+          ["Return", "The cross references deepen Matthew’s account, but the main passage remains Jesus’ faithful obedience under temptation."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Cross-reference checklist",
+        intro: "Use this checklist before drawing conclusions.",
+        items: [
+          "Have I understood the main passage first?",
+          "Are the cross references genuinely related?",
+          "Have I read each related passage in context?",
+          "Have I noticed differences as well as similarities?",
+          "Can I explain how the cross reference clarifies the main passage?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Study cross references carefully",
+        intro: "Open a passage in Bible Study Tutor and use cross references to clarify meaning while keeping the main passage central.",
+        href: "/?tab=study&method=cross-reference-study",
+        label: "Start cross-reference study"
+      }
+    ]
   },
   {
     path: "/features",

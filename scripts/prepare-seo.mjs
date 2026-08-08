@@ -249,6 +249,50 @@ const seoPages = [
       ["Can I use these worksheets for a small group?", "Yes. You can print selected passages and guided questions for small groups, youth groups, church classes, or personal study."],
       ["Can I print worksheets from a phone?", "Yes. Open the printable worksheet and use your phone browser’s share, print, or save-to-PDF option."],
       ["Which Bible study methods work with worksheets?", "You can use methods such as SOAP, OIA, Inductive Study, Lectio Divina, READ, and other guided Scripture study patterns."]
+    ],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "Worksheet options",
+        intro: "Printable worksheets can support different kinds of Scripture study without forcing everyone into the same format.",
+        items: [
+          ["SOAP worksheet", "Best for daily reflection, prayer, and a clear response to a short passage."],
+          ["OIA worksheet", "Best for observing, interpreting, and applying a passage in a simple structure."],
+          ["Inductive worksheet", "Best for slower study of a paragraph, repeated words, context, and main idea."],
+          ["Journal-style worksheet", "Best for prayerful reflection, sermon follow-up, or keeping a paper record."],
+          ["Group worksheet", "Best for small groups, youth groups, Bible classes, and church discussion."]
+        ]
+      },
+      {
+        type: "example",
+        title: "Example worksheet: Romans 8:1-4",
+        intro: "A selected passage can become a one-page study sheet with Scripture, guided prompts, and writing space.",
+        items: [
+          ["Before printing", "Select Romans 8:1-4 in the Bible reader or open it in Study."],
+          ["Method", "Choose SOAP for simple reflection or Inductive Study for deeper observation and interpretation."],
+          ["Use", "Print the worksheet for personal study, a small group, sermon follow-up, or a Bible class."],
+          ["Afterward", "Save notes in the app or keep the printed page in a paper journal."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Before you print",
+        intro: "A few quick choices make a worksheet more useful.",
+        items: [
+          "Is the passage short enough for careful study?",
+          "Which method fits the setting: personal, group, youth, or sermon follow-up?",
+          "Does the worksheet need more space for observation, application, or prayer?",
+          "Will people use it digitally, on paper, or both?",
+          "Should the passage also be saved to Memory or Journal?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print a Bible study worksheet",
+        intro: "Open the Bible reader, choose a passage, and print a guided worksheet for study on paper.",
+        href: "/?tab=bible",
+        label: "Print a worksheet"
+      }
     ]
   },
   {
@@ -457,6 +501,50 @@ const seoPages = [
       ["When is SOAP a good Bible study method?", "SOAP is useful for beginners, daily devotions, small groups, and short passages where you want a simple structure."],
       ["Can I print a SOAP worksheet?", "Yes. Bible Study Tutor can create printable worksheets for selected Scripture passages using the SOAP method."],
       ["Is SOAP the same as inductive Bible study?", "SOAP is simpler and more devotional. Inductive study usually spends more time on detailed observation, interpretation, and cross references."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked SOAP example: Psalm 23:1",
+        intro: "SOAP works well with a short verse because it helps you slow down without making the study complicated.",
+        items: [
+          ["Scripture", "Psalm 23:1 says, “The Lord is my shepherd; I shall not want.”"],
+          ["Observation", "The verse describes the Lord personally as shepherd and connects His care with provision and contentment."],
+          ["Application", "A faithful response could be to name one area where anxiety is replacing trust in the Lord’s care."],
+          ["Prayer", "Lord, shepherd me today. Help me trust Your provision and follow Your care with a quiet heart."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "SOAP study safeguards",
+        intro: "SOAP is simple, but it still needs careful reading.",
+        items: [
+          "Start with the actual Scripture, not only a thought about the Scripture.",
+          "Write observations before personal application.",
+          "Keep application specific enough to act on.",
+          "Let prayer respond to the passage rather than becoming disconnected.",
+          "Read the surrounding verses when a passage feels unclear."
+        ]
+      },
+      {
+        type: "list",
+        title: "When SOAP is especially helpful",
+        intro: "SOAP is a good fit when you need a repeatable rhythm for ordinary Bible reading.",
+        items: [
+          "Morning or evening devotional study.",
+          "A short passage for a small group or youth group.",
+          "Sermon follow-up during the week.",
+          "A passage you want to turn into prayer.",
+          "A printed worksheet for people new to Bible study."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Practise SOAP",
+        intro: "Open the Study tab and use SOAP to move from Scripture to observation, application, and prayer.",
+        href: "/?tab=study&method=soap",
+        label: "Practise SOAP"
+      }
     ]
   },
   {
@@ -1996,6 +2084,50 @@ const seoPages = [
       ["Can small groups use Bible Study Tutor for free?", "Yes. Bible Study Tutor is designed to be free and accessible for small groups, churches, and personal Scripture study."],
       ["Can a leader print worksheets for a group?", "Yes. A leader can select a passage and print worksheets using guided methods such as SOAP, OIA, or Inductive Study."],
       ["Does Bible Study Tutor have a public social feed?", "No. Friends and circles are intended for private, trusted encouragement rather than public posting."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "How a small group can use it",
+        intro: "Bible Study Tutor can support a group without turning Bible study into a complicated platform.",
+        items: [
+          "Choose one passage for the week.",
+          "Ask members to read it in the Bible reader before meeting.",
+          "Print SOAP or OIA worksheets for people who prefer paper.",
+          "Use the same method in discussion so everyone follows the same structure.",
+          "Encourage members to save one note, prayer, or memory verse after the meeting."
+        ]
+      },
+      {
+        type: "example",
+        title: "Example small group flow: John 15:1-8",
+        intro: "John 15:1-8 gives a group a concrete passage for discussing abiding in Christ and fruitfulness.",
+        items: [
+          ["Prepare", "Ask everyone to read the passage and write two observations before the meeting."],
+          ["Discuss", "Talk about the repeated words abide, fruit, branch, and vine before moving to application."],
+          ["Respond", "Invite each person to write one prayer about abiding in Christ during the week."],
+          ["Continue", "Save John 15:5 as a memory verse or print a worksheet for follow-up."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Small group setup checklist",
+        intro: "These choices help a group use the app simply.",
+        items: [
+          "Is the selected passage short enough to discuss well?",
+          "Will the group use the app, a printed worksheet, or both?",
+          "Which method will keep the conversation grounded in Scripture?",
+          "Is there a clear prayer response?",
+          "Would one memory verse help the passage stay with the group?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Prepare a free group study",
+        intro: "Open the Bible reader, choose a passage, and prepare a worksheet or guided study for your small group.",
+        href: "/?tab=bible",
+        label: "Prepare a group study"
+      }
     ]
   },
   {
@@ -2123,6 +2255,49 @@ const seoPages = [
       ["Can Bible Study Tutor be used without printing?", "Yes. The app supports digital Bible reading, guided study, notes, journaling, memory verses, and reading plans."],
       ["Why include printable worksheets?", "Some people think, pray, and discuss more easily with pen and paper, especially in small groups or church classes."],
       ["Can I choose the study method for a worksheet?", "Yes. Worksheets can be created from guided methods such as SOAP, OIA, Inductive Study, Lectio Divina, and READ."]
+    ],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "Digital and paper workflows",
+        intro: "The same passage can move between app-based study and printed study depending on what helps the user most.",
+        items: [
+          ["Read digitally", "Open the Bible reader, choose a passage, and select verses."],
+          ["Study with prompts", "Send the passage to Study and choose a method such as SOAP, OIA, or Inductive Study."],
+          ["Print for handwriting", "Open a worksheet preview and print or save it as a PDF."],
+          ["Save for later", "Keep notes, highlights, memory verses, and journal entries in the app."]
+        ]
+      },
+      {
+        type: "example",
+        title: "Example: sermon follow-up worksheet",
+        intro: "A church member or leader can turn Sunday’s passage into a practical study sheet for the week.",
+        items: [
+          ["Passage", "Select the sermon passage in the Bible reader."],
+          ["Method", "Choose OIA to help people observe, interpret, and apply the passage."],
+          ["Print", "Print one copy for personal reflection or several copies for a group."],
+          ["Continue", "Save one application note or memory verse in Bible Study Tutor."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "When printable worksheets help",
+        intro: "Printable study sheets are not only for people without devices.",
+        items: [
+          "When handwriting helps someone slow down.",
+          "When a group needs one shared page in front of them.",
+          "When a youth group or class needs a simple handout.",
+          "When a user wants to study away from screens.",
+          "When sermon follow-up needs space for notes and prayer."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print a worksheet",
+        intro: "Open the Bible reader and create a printable study sheet from any selected passage.",
+        href: "/?tab=bible",
+        label: "Print a worksheet"
+      }
     ]
   },
   {

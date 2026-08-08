@@ -1933,16 +1933,61 @@ const seoPages = [
     title: "How to Study Matthew | Jesus the King and Fulfilled Promise",
     description: "Learn how to study Matthew by tracing Jesus as King, fulfilled prophecy, discipleship, parables, kingdom teaching, and the Great Commission.",
     heading: "How to study Matthew",
-    intro: "Matthew presents Jesus as the promised King and Messiah who fulfills Scripture and calls His disciples to kingdom life.",
+    intro: "Matthew presents Jesus as the promised King who fulfills Scripture and calls His disciples to live under His gracious rule.",
     sections: [
-      ["Why Matthew matters", "Matthew connects Jesus with Israel’s story, highlights fulfilled Scripture, and teaches what discipleship under the King looks like."],
-      ["How to approach it", "Notice Old Testament quotations, kingdom language, teaching blocks, parables, conflict, and Jesus’ authority."],
-      ["Recommended study method", "Use cross-reference study for fulfilled prophecy and inductive study for major teaching sections like the Sermon on the Mount."],
+      ["Why Matthew matters", "Matthew connects Jesus with Israel's story, highlights fulfilled Scripture, and teaches what discipleship under the King looks like."],
+      ["How to approach it", "Trace repeated words such as kingdom, fulfill, righteousness, disciple, and authority. Watch how Jesus teaches, heals, confronts hypocrisy, and forms His people."],
+      ["Recommended study method", "Use cross-reference study for Old Testament quotations and inductive study for teaching sections such as the Sermon on the Mount."],
       ["Suggested starter passages", "Begin with Matthew 5-7, Matthew 13, Matthew 16:13-28, Matthew 26-28, and Matthew 28:16-20."],
       ["Links to Bible study methods", "Matthew works well with cross-reference study, inductive study, and character study."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and note what Jesus reveals about the kingdom of heaven.",
+      "Look up Old Testament quotations or echoes when Matthew points to fulfillment.",
+      "Observe the response Jesus calls for from disciples, crowds, and opponents.",
+      "Summarize the passage in one sentence before applying it.",
+      "Write one practical act of obedience shaped by Jesus' teaching."
+    ],
+    faq: [
+      ["What is the best way to start studying Matthew?", "Start with Matthew 5-7 to hear Jesus' kingdom teaching, then study Matthew 26-28 to see how His death and resurrection complete the story."],
+      ["Why does Matthew quote the Old Testament so often?", "Matthew shows that Jesus is not disconnected from Israel's Scriptures. The quotations help readers see promise, fulfillment, and continuity in God's plan."],
+      ["Which study method suits Matthew best?", "Cross-reference study is especially useful for fulfillment passages, while inductive study helps with longer teaching sections and narrative scenes."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/how-to-study-the-gospel-of-john"]
+    related: ["/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/how-to-study-the-gospel-of-john"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Matthew 28:16-20",
+        intro: "The Great Commission is a helpful place to see Matthew's themes come together: Jesus' authority, discipleship, obedience, and His continuing presence.",
+        items: [
+          ["Observation", "Jesus speaks with all authority and sends His followers to make disciples of all nations."],
+          ["Interpretation", "The passage is not only about travel or mission programs. It is about the risen King's authority and the church's ongoing call to teach obedience to Him."],
+          ["Application", "A faithful response could be to name one person you can encourage toward Jesus and one command of Jesus you need to obey more fully."],
+          ["Prayer", "Lord Jesus, help me trust Your authority and take my part in making disciples with humility and courage."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Matthew study checklist",
+        intro: "Use this checklist to keep Matthew grounded in the text rather than turning it into disconnected moral lessons.",
+        items: [
+          "Notice how Matthew presents Jesus as King and Messiah.",
+          "Follow repeated kingdom language.",
+          "Check Old Testament references in context.",
+          "Ask what Jesus teaches disciples to believe and do.",
+          "Let the cross and resurrection shape your application."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Matthew",
+        intro: "Open Matthew in Bible Study Tutor and use guided study prompts to observe, interpret, apply, and pray through the passage.",
+        href: "/?tab=study&method=cross-reference-study",
+        label: "Start a Matthew study"
+      }
+    ]
   },
   {
     path: "/how-to-study-mark",
@@ -1953,13 +1998,58 @@ const seoPages = [
     intro: "Mark moves quickly and focuses sharply on Jesus’ authority, His suffering, and the call to follow Him on the way of the cross.",
     sections: [
       ["Why Mark matters", "Mark shows Jesus as the powerful Son of God who serves, suffers, and calls disciples to costly faith."],
-      ["How to approach it", "Watch the pace of the narrative, repeated misunderstandings, miracle stories, conflict, and the turning point around Peter’s confession."],
+      ["How to approach it", "Watch the pace of the narrative, repeated misunderstandings, miracle stories, conflict, and the turning point around Peter's confession."],
       ["Recommended study method", "Use OIA to keep the story moving from observation to meaning and application without overcomplicating short narrative scenes."],
       ["Suggested starter passages", "Begin with Mark 1:1-15, Mark 2:1-12, Mark 4:35-41, Mark 8:27-38, Mark 10:35-45, and Mark 15-16."],
       ["Links to Bible study methods", "Mark pairs well with OIA, character study, and inductive study."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the scene and identify what Jesus says or does.",
+      "Notice how people respond to Jesus with faith, fear, confusion, or opposition.",
+      "Ask how the passage points toward Jesus' suffering and the cross.",
+      "Summarize what the passage reveals about discipleship.",
+      "Apply the passage by naming one way to follow Jesus with trust and humility."
+    ],
+    faq: [
+      ["Why does Mark feel so fast-paced?", "Mark often moves quickly from one scene to the next, helping readers feel the urgency of Jesus' ministry and the growing question of who He is."],
+      ["What passage should beginners study first in Mark?", "Mark 10:35-45 is a strong starting point because it clearly shows Jesus' servant-hearted mission and the shape of discipleship."],
+      ["Which method works best for Mark?", "OIA works well because Mark's short scenes invite careful observation, simple interpretation, and direct application."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/oia", "/bible-study-methods/character-study", "/how-to-study-a-bible-passage"]
+    related: ["/bible-study-methods/oia", "/bible-study-methods/character-study", "/how-to-study-a-bible-passage"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Mark 10:45",
+        intro: "Mark 10:45 is a concise summary of Jesus' mission and a helpful anchor for studying the whole Gospel.",
+        items: [
+          ["Observation", "Jesus contrasts being served with serving and connects His mission with giving His life."],
+          ["Interpretation", "The verse shows that Jesus' greatness is expressed through sacrificial service, not status-seeking power."],
+          ["Application", "A faithful response could be to identify one place where you are seeking status and ask how Christ's servant way reshapes your posture."],
+          ["Prayer", "Lord Jesus, teach me to follow You in humble service and gratitude for Your saving work."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Mark study cautions",
+        intro: "These reminders help readers study Mark as gospel narrative, not merely a series of inspiring episodes.",
+        items: [
+          "Keep each miracle or teaching in the flow of the whole story.",
+          "Notice when the disciples misunderstand Jesus.",
+          "Do not skip the suffering and cross when applying Mark.",
+          "Ask what the passage reveals about Jesus before asking what it means for you.",
+          "Let the pace of Mark lead to active trust, not rushed reading."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Mark",
+        intro: "Open Mark in Bible Study Tutor and use OIA prompts to move carefully from the text to faithful response.",
+        href: "/?tab=study&method=oia",
+        label: "Start a Mark study"
+      }
+    ]
   },
   {
     path: "/how-to-study-luke",
@@ -1975,8 +2065,53 @@ const seoPages = [
       ["Suggested starter passages", "Begin with Luke 4:16-30, Luke 10:25-37, Luke 15, Luke 18:9-14, Luke 19:1-10, and Luke 24."],
       ["Links to Bible study methods", "Luke works well with character study, topical study, and Lectio Divina."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and identify who meets Jesus or listens to Him.",
+      "Notice reversals, mercy, prayer, and references to salvation.",
+      "Ask what the passage reveals about Jesus' mission.",
+      "Compare your first reaction with the response Jesus commends.",
+      "Write a prayer that responds to Jesus' mercy and call."
+    ],
+    faq: [
+      ["What themes should I look for in Luke?", "Look for mercy, prayer, the Holy Spirit, salvation, table fellowship, reversals, outsiders, and Jesus' journey toward Jerusalem."],
+      ["Is Luke good for beginners?", "Yes. Luke is clear, narrative-rich, and full of encounters that help new readers see Jesus' compassion and authority."],
+      ["How can I study Luke without missing the bigger story?", "Keep asking how each scene contributes to Jesus' mission and how Luke prepares for the ongoing witness described in Acts."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/character-study", "/bible-study-methods/topical-study", "/bible-study-methods/lectio-divina"]
+    related: ["/bible-study-methods/character-study", "/bible-study-methods/topical-study", "/bible-study-methods/lectio-divina"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Luke 19:1-10",
+        intro: "Zacchaeus' encounter with Jesus helps readers see mercy, repentance, restoration, and Jesus' mission to seek and save the lost.",
+        items: [
+          ["Observation", "Zacchaeus seeks to see Jesus, Jesus calls him by name, and the crowd grumbles at Jesus' mercy."],
+          ["Interpretation", "The passage shows salvation reaching a despised person and producing visible repentance."],
+          ["Application", "A faithful response could be to welcome Jesus' mercy personally and consider where repentance should become concrete."],
+          ["Prayer", "Lord Jesus, thank You for seeking the lost. Help me receive Your mercy and walk in changed obedience."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Luke study checklist",
+        intro: "Use this checklist to follow Luke's emphasis without flattening the narrative.",
+        items: [
+          "Notice who is welcomed, restored, challenged, or corrected.",
+          "Pay attention to prayer and the work of the Spirit.",
+          "Look for reversals of pride and humility.",
+          "Read parables in their immediate setting.",
+          "Ask how the passage points to Jesus' saving mission."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Luke",
+        intro: "Open Luke in Bible Study Tutor and use character study or topical study prompts to trace mercy, mission, and discipleship.",
+        href: "/?tab=study&method=character-study",
+        label: "Start a Luke study"
+      }
+    ]
   },
   {
     path: "/how-to-study-acts",
@@ -1992,8 +2127,53 @@ const seoPages = [
       ["Suggested starter passages", "Begin with Acts 1:1-11, Acts 2, Acts 4:23-31, Acts 8, Acts 10, Acts 13, and Acts 17:16-34."],
       ["Links to Bible study methods", "Acts pairs well with inductive study, cross-reference study, and character study."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Track where the gospel is spreading and who is involved.",
+      "Observe the role of prayer, the Spirit, witness, opposition, and courage.",
+      "Read speeches carefully because they often explain the meaning of events.",
+      "Ask what is descriptive history and what gives enduring instruction.",
+      "Apply the passage by considering faithful witness, prayer, and dependence on God."
+    ],
+    faq: [
+      ["How should I read Acts responsibly?", "Read Acts as inspired history that describes the early church and teaches through repeated patterns, speeches, and Spirit-led mission."],
+      ["What is a good starter passage in Acts?", "Acts 1:8 is a helpful anchor because it frames the spread of witness from Jerusalem outward."],
+      ["Does Acts give a model for church life?", "Acts gives important patterns of prayer, teaching, fellowship, generosity, courage, and mission, but each passage should still be read in context."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/inductive", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study"]
+    related: ["/bible-study-methods/inductive", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Acts 1:8",
+        intro: "Acts 1:8 introduces the mission pattern that shapes the rest of the book.",
+        items: [
+          ["Observation", "Jesus promises power by the Holy Spirit and describes witness moving from Jerusalem to the ends of the earth."],
+          ["Interpretation", "The verse frames Acts as the continuing mission of the risen Jesus through Spirit-empowered witnesses."],
+          ["Application", "A faithful response could be to pray for courage and identify one concrete opportunity to bear witness to Christ."],
+          ["Prayer", "Lord, make me dependent on Your Spirit and faithful in the witness You place before me."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Acts study cautions",
+        intro: "Acts is rich and exciting, so these cautions help keep interpretation careful.",
+        items: [
+          "Distinguish repeated patterns from one-time events.",
+          "Read speeches as theological explanations, not interruptions.",
+          "Notice both growth and opposition.",
+          "Avoid turning every narrative detail into a command.",
+          "Let prayer and dependence on the Spirit shape application."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Acts",
+        intro: "Open Acts in Bible Study Tutor and use inductive prompts to follow the spread of the gospel with clarity.",
+        href: "/?tab=study&method=inductive",
+        label: "Start an Acts study"
+      }
+    ]
   },
   {
     path: "/how-to-study-ephesians",
@@ -2009,8 +2189,53 @@ const seoPages = [
       ["Suggested starter passages", "Begin with Ephesians 1:3-14, Ephesians 2:1-10, Ephesians 3:14-21, Ephesians 4:1-16, and Ephesians 6:10-20."],
       ["Links to Bible study methods", "Ephesians works well with word study, OIA, and topical study."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and identify whether Paul is emphasizing gospel truth, prayer, or practical walking.",
+      "Mark repeated phrases such as in Christ, grace, walk, body, and love.",
+      "Connect commands in chapters 4-6 back to grace in chapters 1-3.",
+      "Summarize what God has done before naming what believers are called to do.",
+      "Apply the passage in church life, relationships, speech, work, or prayer."
+    ],
+    faq: [
+      ["Why is Ephesians helpful for identity in Christ?", "Ephesians repeatedly grounds believers in what God has done in Christ before calling them to live in a worthy manner."],
+      ["Where should I start in Ephesians?", "Ephesians 1:3-14 and 2:1-10 are strong starting passages because they highlight grace, salvation, and identity in Christ."],
+      ["Which study method suits Ephesians?", "Word study is useful for repeated phrases, and OIA helps connect doctrine with practical application."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/word-study", "/bible-study-methods/oia", "/bible-study-methods/topical-study"]
+    related: ["/bible-study-methods/word-study", "/bible-study-methods/oia", "/bible-study-methods/topical-study"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Ephesians 4:1-6",
+        intro: "Ephesians 4:1-6 is a clear example of how Paul moves from gospel calling to practical unity.",
+        items: [
+          ["Observation", "Paul urges believers to walk worthy of their calling with humility, gentleness, patience, love, and unity."],
+          ["Interpretation", "The command to preserve unity is grounded in shared gospel realities: one body, one Spirit, one hope, one Lord, one faith, one baptism, and one God."],
+          ["Application", "A faithful response could be to choose one relationship where humility and patience need to become visible."],
+          ["Prayer", "Father, help me live in a way that reflects Your grace and preserves unity in love."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Ephesians study checklist",
+        intro: "These prompts help keep Ephesians connected from doctrine to daily life.",
+        items: [
+          "Notice what God has done before focusing on what you should do.",
+          "Trace repeated phrases such as in Christ and walk.",
+          "Connect personal application with church unity.",
+          "Do not separate spiritual growth from prayer.",
+          "Let grace shape obedience rather than guilt."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Ephesians",
+        intro: "Open Ephesians in Bible Study Tutor and use word study prompts to trace identity, grace, and gospel-shaped living.",
+        href: "/?tab=study&method=word-study",
+        label: "Start an Ephesians study"
+      }
+    ]
   },
   {
     path: "/how-to-study-philippians",
@@ -2026,8 +2251,53 @@ const seoPages = [
       ["Suggested starter passages", "Begin with Philippians 1:3-11, Philippians 1:21-30, Philippians 2:1-11, Philippians 3:7-14, and Philippians 4:4-13."],
       ["Links to Bible study methods", "Philippians pairs well with SOAP, word study, and Lectio Divina."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and mark repeated words such as joy, rejoice, gospel, mind, and Christ.",
+      "Notice Paul's circumstances and how they shape the passage.",
+      "Ask how the passage points to Christ as the source, pattern, and goal of life.",
+      "Write one sentence about the attitude or practice Paul commends.",
+      "Respond with prayer, thanksgiving, or a concrete act of humble service."
+    ],
+    faq: [
+      ["Why is Philippians called a letter of joy?", "Philippians repeatedly speaks of joy and rejoicing, but that joy is rooted in Christ and gospel partnership rather than easy circumstances."],
+      ["What is a good passage for anxiety and prayer?", "Philippians 4:4-9 is a strong passage to study prayer, thanksgiving, peace, and disciplined thought."],
+      ["Which method should I use for Philippians?", "SOAP works well for devotional reflection, and word study helps trace repeated themes across the letter."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/soap", "/bible-study-methods/word-study", "/bible-study-methods/lectio-divina"]
+    related: ["/bible-study-methods/soap", "/bible-study-methods/word-study", "/bible-study-methods/lectio-divina"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Philippians 4:4-9",
+        intro: "Philippians 4:4-9 is often used for anxiety, but it should be studied as a call to rejoicing, prayer, thanksgiving, and disciplined attention to what is good.",
+        items: [
+          ["Observation", "Paul commands rejoicing, gentleness, prayer with thanksgiving, and attention to what is true, honorable, just, pure, lovely, and commendable."],
+          ["Interpretation", "The passage does not pretend believers never feel anxiety. It calls anxious hearts toward prayerful dependence and the peace of God."],
+          ["Application", "A faithful response could be to turn a specific worry into prayer and name one true thing to meditate on today."],
+          ["Prayer", "Lord, teach me to bring my anxieties to You with thanksgiving and to set my mind on what is pleasing to You."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Philippians study checklist",
+        intro: "Use these questions to keep joy connected to Christ and the gospel.",
+        items: [
+          "Notice how joy appears alongside suffering or difficulty.",
+          "Trace references to the gospel and partnership.",
+          "Look for commands about thinking, humility, and contentment.",
+          "Ask how Christ is the pattern and source of obedience.",
+          "Apply the passage with prayer rather than pressure."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Philippians",
+        intro: "Open Philippians in Bible Study Tutor and use SOAP prompts for prayerful, practical reflection.",
+        href: "/?tab=study&method=soap",
+        label: "Start a Philippians study"
+      }
+    ]
   },
   {
     path: "/how-to-study-james",
@@ -2043,8 +2313,53 @@ const seoPages = [
       ["Suggested starter passages", "Begin with James 1:2-8, James 1:19-27, James 2:14-26, James 3:1-12, James 4:1-10, and James 5:13-20."],
       ["Links to Bible study methods", "James works well with topical study, OIA, SOAP, and word study."]
     ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and underline direct commands or contrasts.",
+      "Identify the practical issue James addresses: trials, speech, partiality, wisdom, prayer, or works.",
+      "Ask how the passage exposes divided loyalty or calls for whole-hearted faith.",
+      "Summarize the passage as wisdom for faithful living.",
+      "Choose one concrete practice that puts the passage into action."
+    ],
+    faq: [
+      ["How should I understand faith and works in James?", "James emphasizes that genuine faith becomes visible in action. It should be read alongside the whole Bible's teaching on grace, faith, and obedience."],
+      ["Is James practical for new believers?", "Yes. James is direct and memorable, but it is best studied slowly so application grows from the text rather than from guilt."],
+      ["What study method works best for James?", "Topical study is useful for themes like speech and wisdom, while OIA keeps each passage connected to faithful application."]
+    ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/topical-study", "/bible-study-methods/oia", "/bible-study-methods/soap"]
+    related: ["/bible-study-methods/topical-study", "/bible-study-methods/oia", "/bible-study-methods/soap"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: James 1:2-8",
+        intro: "James 1:2-8 helps readers study trials, steadfastness, wisdom, and prayer without turning hardship into a shallow slogan.",
+        items: [
+          ["Observation", "James speaks to trials, testing, steadfastness, maturity, wisdom, prayer, faith, and double-mindedness."],
+          ["Interpretation", "The passage teaches that God can use trials to produce steadfastness and that believers should ask Him for wisdom in the middle of them."],
+          ["Application", "A faithful response could be to name one trial honestly and ask God for wisdom rather than only asking for the situation to end."],
+          ["Prayer", "Father, give me wisdom, steadfastness, and undivided trust as I walk through difficulty."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "James study cautions",
+        intro: "James is practical and direct, but careful study keeps it from becoming mere moralism.",
+        items: [
+          "Read commands in light of God's grace and wisdom.",
+          "Notice contrasts such as hearing and doing, wisdom and selfish ambition, humility and pride.",
+          "Avoid using James to create shame without hope.",
+          "Apply the passage concretely, especially in speech and relationships.",
+          "Let prayer remain central to obedience."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying James",
+        intro: "Open James in Bible Study Tutor and use OIA or topical study prompts to turn careful reading into practical obedience.",
+        href: "/?tab=study&method=oia",
+        label: "Start a James study"
+      }
+    ]
   }
 ];
 

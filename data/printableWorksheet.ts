@@ -55,6 +55,7 @@ export function buildPrintableStudyWorksheetHtml({
   const verseCount = verses.length;
   const passageClass = verseCount === 1 ? "single-passage" : verseCount > 10 ? "long-passage" : "";
   const stepLineCount = getPrintableStepLineCount(verseCount, printableSteps.length, writingSpace);
+  const scriptureBadge = method.short.toUpperCase() === "SOAP" ? '<span class="badge scripture-badge">S</span>' : "";
   const smallBoxHtml = [
     includeMemory ? '<div class="small-box"><h3>Memory Verse</h3><div class="line"></div><div class="line"></div></div>' : "",
     includeInsight ? '<div class="small-box"><h3>Shareable Insight</h3><div class="line"></div><div class="line"></div></div>' : ""
@@ -64,7 +65,7 @@ export function buildPrintableStudyWorksheetHtml({
     .join(" ");
   const promptHtml = printableSteps
     .map((step, index) => {
-      const badge = method.short.charAt(index) || String(index + 1);
+      const badge = getPrintableStepBadge(method, step, index);
       const lines = Array.from({ length: stepLineCount }, () => '<div class="line"></div>').join("");
       return `
         <div class="prompt">
@@ -102,7 +103,7 @@ export function buildPrintableStudyWorksheetHtml({
       .meta { color: var(--muted); display: flex; flex-direction: column; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 13px; font-weight: 700; justify-content: space-between; line-height: 1.6; text-align: right; }
       .meta-method { color: var(--olive); display: block; font-size: 17px; font-weight: 900; line-height: 1.2; }
       .scripture { border-bottom: 1px solid var(--line); padding: 12px 0 12px; }
-      .scripture h2 { color: var(--olive); font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 17px; margin: 0 0 8px; }
+      .scripture h2 { align-items: center; color: var(--olive); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 17px; gap: 8px; margin: 0 0 8px; }
       .passage { columns: 2; column-gap: 34px; font-size: 15.5px; line-height: 1.62; }
       .passage p { margin: 0; }
       .single-passage { columns: 1; font-size: 18px; line-height: 1.65; max-width: 720px; }
@@ -113,6 +114,7 @@ export function buildPrintableStudyWorksheetHtml({
       .prompt { border: 1px solid var(--line); border-radius: 10px; break-inside: avoid; break-inside: avoid-page; margin-bottom: 10px; overflow: hidden; page-break-inside: avoid; -webkit-column-break-inside: avoid; }
       .prompt-title { align-items: center; background: #fff6eb; border-bottom: 1px solid var(--line); display: flex; font-family: Inter, ui-sans-serif, system-ui, sans-serif; gap: 10px; padding: 8px 10px; }
       .badge { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-size: 12px; font-weight: 900; height: 26px; justify-content: center; min-width: 26px; }
+      .scripture-badge { background: var(--coral); }
       .prompt-title strong { color: var(--ink); }
       .prompt-title span:not(.badge) { color: var(--muted); display: block; font-size: 12px; margin-top: 2px; }
       .lines { padding: 10px; }
@@ -142,7 +144,7 @@ export function buildPrintableStudyWorksheetHtml({
         <div class="meta"><span class="meta-method">${escapeHtml(methodLabel)}</span><span>Date: ____________________</span></div>
       </header>
       <section class="scripture">
-        <h2>Selected Scripture</h2>
+        <h2>${scriptureBadge}Selected Scripture</h2>
         <div class="passage ${passageClass}"><p>${passageHtml}</p></div>
       </section>
       <section class="section">${promptHtml}</section>
@@ -286,6 +288,14 @@ function getPrintableStepLineCount(verseCount: number, stepCount: number, writin
   if (verseCount <= 6) return 6;
   if (verseCount <= 12) return Math.max(6, Math.round(18 / Math.max(stepCount, 1)));
   return Math.max(7, Math.round(24 / Math.max(stepCount, 1)));
+}
+
+function getPrintableStepBadge(method: PrintableWorksheetMethod, step: PrintableWorksheetMethodStep, index: number) {
+  if (method.short.toUpperCase() === "SOAP") {
+    const firstLetter = step.title.trim().charAt(0).toUpperCase();
+    if (["O", "A", "P"].includes(firstLetter)) return firstLetter;
+  }
+  return method.short.charAt(index) || step.title.trim().charAt(0) || String(index + 1);
 }
 
 function escapeHtml(value: string | number | undefined | null) {

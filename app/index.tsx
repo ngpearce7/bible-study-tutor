@@ -17,7 +17,7 @@ import { methods } from "@/data/methods";
 import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, getReaderPlanReadingChunk, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
-import { buildStudyContextReference, getStudyCrossReferences, isVerseWithinReference, type StudyCrossReference } from "@/data/studyContext";
+import { buildStudyContextReference, getStudyCrossReferences, isVerseWithinReference, loadStudyCrossReferences, type StudyCrossReference } from "@/data/studyContext";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -857,6 +857,8 @@ export default function Home() {
   const [selectedStudyCrossReference, setSelectedStudyCrossReference] = useState<StudyCrossReference | null>(null);
   const [studyCrossReferencePassage, setStudyCrossReferencePassage] = useState<BiblePassage | null>(null);
   const [studyCrossReferenceStatus, setStudyCrossReferenceStatus] = useState("");
+  const [studyCrossReferences, setStudyCrossReferences] = useState<StudyCrossReference[]>([]);
+  const [studyCrossReferenceListStatus, setStudyCrossReferenceListStatus] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
@@ -869,6 +871,7 @@ export default function Home() {
   const readerVerseYRef = useRef<Record<number, number>>({});
   const studyPassageRequestIdRef = useRef(0);
   const studyContextRequestIdRef = useRef(0);
+  const studyCrossReferenceListRequestIdRef = useRef(0);
   const studyCrossReferenceRequestIdRef = useRef(0);
   const readerPassageRequestIdRef = useRef(0);
   const bibleSearchRequestIdRef = useRef(0);
@@ -1447,7 +1450,6 @@ export default function Home() {
   const hasStudyWork = sessionAnswers.some((item) => item.answer.trim());
   const studyPassageReference = passageText?.reference || passage;
   const studyContextReference = useMemo(() => buildStudyContextReference(studyPassageReference), [studyPassageReference]);
-  const studyCrossReferences = useMemo(() => getStudyCrossReferences(studyPassageReference), [studyPassageReference]);
   const studyHelps = useMemo(() => buildStudyHelpLinks(passageText?.reference || passage, bibleTranslation), [bibleTranslation, passage, passageText?.reference]);
   const continueLabel =
     step.responseType === "none"
@@ -2294,6 +2296,29 @@ export default function Home() {
     setStudyCrossReferencePassage(null);
     setStudyCrossReferenceStatus("");
   }, [studyPassageReference]);
+
+  useEffect(() => {
+    if (tab !== "study") return;
+    const requestId = ++studyCrossReferenceListRequestIdRef.current;
+    const initialReferences = getStudyCrossReferences(studyPassageReference);
+
+    setStudyCrossReferences(initialReferences);
+    setStudyCrossReferenceListStatus("Loading cross references...");
+
+    loadStudyCrossReferences(studyPassageReference).then((references) => {
+      if (studyCrossReferenceListRequestIdRef.current !== requestId) return;
+      setStudyCrossReferences(references);
+      setStudyCrossReferenceListStatus(
+        references.some((item) => item.source === "crossreferences.org")
+          ? "Cross references adapted from CrossReferences.org."
+          : ""
+      );
+    }).catch(() => {
+      if (studyCrossReferenceListRequestIdRef.current !== requestId) return;
+      setStudyCrossReferences(initialReferences);
+      setStudyCrossReferenceListStatus(initialReferences.length ? "" : "No cross references found for this passage yet.");
+    });
+  }, [studyPassageReference, tab]);
 
   useEffect(() => {
     if (tab !== "study" || !studyContextOpen || !studyContextReference?.reference) return;
@@ -6839,6 +6864,7 @@ export default function Home() {
                         {studyCrossReferences.length > 0 && (
                           <View style={styles.studyCrossReferenceArea}>
                             <Text style={[styles.studyContextPreviewLabel, studyDarkMode && styles.studyDarkAccentText]}>Cross references</Text>
+                            {!!studyCrossReferenceListStatus && <Text style={[styles.studyCrossReferenceReason, studyDarkMode && styles.accountDarkMutedText]}>{studyCrossReferenceListStatus}</Text>}
                             <View style={styles.studyCrossReferenceRow}>
                               {studyCrossReferences.map((item) => {
                                 const selected = selectedStudyCrossReference?.reference === item.reference;
@@ -6861,6 +6887,7 @@ export default function Home() {
                                 <View style={styles.studyCrossReferencePreviewHeader}>
                                   <View style={styles.studyCrossReferencePreviewTitleBlock}>
                                     <Text style={[styles.studyContextPreviewLabel, studyDarkMode && styles.studyDarkAccentText]}>{selectedStudyCrossReference.title}</Text>
+                                    <Text style={[styles.helpTitle, studyDarkMode && styles.accountDarkTitle]}>{selectedStudyCrossReference.reference} · {bibleTranslation.toUpperCase()}</Text>
                                     <Text style={[styles.studyCrossReferenceReason, studyDarkMode && styles.accountDarkMutedText]}>{selectedStudyCrossReference.reason}</Text>
                                   </View>
                                   <Pressable

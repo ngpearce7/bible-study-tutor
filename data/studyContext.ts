@@ -9,6 +9,7 @@ export type StudyCrossReference = {
   reference: string;
   title: string;
   reason: string;
+  source?: "curated" | "crossreferences.org";
 };
 
 const CONTEXT_VERSES_BEFORE = 2;
@@ -100,7 +101,45 @@ export function getStudyCrossReferences(reference: string): StudyCrossReference[
   if (!parsed) return [];
 
   const matches = CROSS_REFERENCE_SETS.find((set) => passageIncludesAnchor(parsed, set.anchor));
-  return matches?.references || [];
+  return matches?.references.map((item) => ({ ...item, source: "curated" as const })) || [];
+}
+
+export async function loadStudyCrossReferences(reference: string): Promise<StudyCrossReference[]> {
+  const parsed = parseBsbPassageReference(reference);
+  if (!parsed) return getStudyCrossReferences(reference);
+
+  try {
+    const response = await fetch(`/cross-references/bsb/${assetBookName(parsed.bookName)}.json`);
+    if (!response.ok) return getStudyCrossReferences(reference);
+
+    const data = await response.json();
+    const sourceKeys = parsed.startVerse
+      ? verseKeysForRange(parsed.chapter, parsed.startVerse, parsed.endVerse || parsed.startVerse)
+      : Object.keys(data?.references || {}).filter((key) => key.startsWith(`${parsed.chapter}:`));
+    const seen = new Set<string>();
+    const references: StudyCrossReference[] = [];
+
+    for (const key of sourceKeys) {
+      const entries = Array.isArray(data?.references?.[key]) ? data.references[key] : [];
+      for (const entry of entries) {
+        const target = typeof entry?.r === "string" ? entry.r : "";
+        if (!target || seen.has(target)) continue;
+        seen.add(target);
+        references.push({
+          reference: target,
+          title: "Related passage",
+          reason: typeof entry?.a === "string" && entry.a.trim()
+            ? `Connected through “${entry.a.trim()}”.`
+            : "A related passage from the Treasury of Scripture Knowledge tradition.",
+          source: "crossreferences.org"
+        });
+      }
+    }
+
+    return mergeCrossReferences(getStudyCrossReferences(reference), references).slice(0, 12);
+  } catch (error) {
+    return getStudyCrossReferences(reference);
+  }
 }
 
 export function isVerseWithinReference(verse: BibleVerse, reference: string) {
@@ -124,4 +163,25 @@ function passageIncludesAnchor(current: NonNullable<ReturnType<typeof parseBsbPa
   const anchorStart = parsedAnchor.startVerse;
   const anchorEnd = parsedAnchor.endVerse || parsedAnchor.startVerse;
   return anchorStart <= currentEnd && anchorEnd >= current.startVerse;
+}
+
+function verseKeysForRange(chapter: number, startVerse: number, endVerse: number) {
+  const first = Math.min(startVerse, endVerse);
+  const last = Math.max(startVerse, endVerse);
+  return Array.from({ length: last - first + 1 }, (_, index) => `${chapter}:${first + index}`);
+}
+
+function assetBookName(bookName: string) {
+  return (bookName === "Psalm" ? "Psalms" : bookName).replace(/\s+/g, "-");
+}
+
+function mergeCrossReferences(primary: StudyCrossReference[], secondary: StudyCrossReference[]) {
+  const seen = new Set<string>();
+  const merged: StudyCrossReference[] = [];
+  [...primary, ...secondary].forEach((item) => {
+    if (seen.has(item.reference)) return;
+    seen.add(item.reference);
+    merged.push(item);
+  });
+  return merged;
 }

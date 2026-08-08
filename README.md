@@ -103,3 +103,13 @@ Cloudflare Pages builds fail intentionally if these public production variables 
 These public analytics events do not store journal text, study answers, notes, email addresses, names, Scripture search text, or community/encouragement content.
 
 Study coaching is generated locally in the app using built-in prompts. It does not require an AI provider account or paid API credits.
+
+## Cross-Reference Data
+
+Study cross references are generated from the CrossReferences.org BSB dataset, licensed under CC BY 4.0 and derived from the Treasury of Scripture Knowledge tradition. The generated per-book files live in `public/cross-references/bsb/` so the app can lazy-load only the book currently being studied.
+
+To regenerate the bundled cross-reference files:
+
+```bash
+node scripts/build-cross-references.mjs
+```

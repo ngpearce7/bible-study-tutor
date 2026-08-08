@@ -103,7 +103,7 @@ export const TERMS_OF_SERVICE_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Bible translations and third-party content",
-    body: "The app currently uses free public-domain or permission-friendly Bible text options such as BSB, WEB, and KJV so the core study, memory, journal, and worksheet features can remain free and accessible."
+    body: "The app currently uses free public-domain or permission-friendly Bible text options such as BSB, WEB, and KJV so the core study, memory, journal, and worksheet features can remain free and accessible. Cross-reference data is adapted from CrossReferences.org Bible cross-reference data, licensed under CC BY 4.0 and derived from the Treasury of Scripture Knowledge tradition."
   },
   {
     title: "Free access and future changes",

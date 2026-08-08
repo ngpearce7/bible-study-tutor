@@ -1606,37 +1606,143 @@ const seoPages = [
     path: "/how-to-study-romans",
     file: "how-to-study-romans.html",
     title: "How to Study Romans | A Practical Guide to Paul’s Letter",
-    description: "Learn how to study Romans by tracing Paul’s argument, noting key themes, reading in context, journaling observations, and applying the gospel carefully.",
+    description: "Learn how to study Romans with themes, structure, starter passages, cautions, a worked example, recommended methods, and guided study CTA.",
     heading: "How to study Romans",
-    intro: "Romans is rich, structured, and deeply theological. Bible Study Tutor can help you move through it slowly by passage, theme, question, and response.",
+    intro: "Romans is rich, structured, and deeply theological. Bible Study Tutor can help you move through it slowly by passage, theme, question, and response without rushing past Paul’s argument.",
     sections: [
       ["Trace the argument", "Romans builds carefully. Watch for connecting words, repeated ideas, and the movement from sin and grace to new life and practical obedience."],
       ["Keep gospel themes in view", "Notice righteousness, faith, grace, law, sin, union with Christ, the Spirit, mercy, and transformed living."],
-      ["Study in manageable sections", "Romans rewards slow study. Use guided notes, memory collections, and journal entries rather than trying to master the whole letter at once."]
+      ["Study in manageable sections", "Romans rewards slow study. Use guided notes, memory collections, and journal entries rather than trying to master the whole letter at once."],
+      ["Recommended method", "Use inductive study for whole paragraphs, word study for repeated theological words, and cross-reference study where Paul quotes the Old Testament."]
     ],
     cta: "Study Romans",
-    related: ["/bible-study-methods/inductive", "/how-to-study-a-bible-passage", "/bible-study-journal"]
+    related: ["/bible-study-methods/inductive", "/bible-study-methods/word-study", "/how-to-study-a-bible-passage", "/bible-study-journal"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read Romans in manageable paragraphs.",
+      "Trace Paul’s argument and connecting words.",
+      "Note repeated themes such as righteousness, faith, grace, law, sin, Spirit, and mercy.",
+      "Use context before drawing doctrinal conclusions.",
+      "Write a gospel-shaped response of faith, worship, obedience, or prayer."
+    ],
+    faq: [
+      ["Where should I start in Romans?", "Romans 1:16-17, Romans 3:21-26, Romans 5:1-11, Romans 8:1-17, and Romans 12:1-2 are useful starter passages."],
+      ["Is Romans difficult to study?", "Romans is deep, but it becomes clearer when studied slowly in paragraphs rather than isolated verses only."],
+      ["What method works best for Romans?", "Inductive study is a strong starting point, with word study and cross-reference study used carefully where needed."],
+      ["Should Romans be used for memory verses?", "Yes. Romans includes many passages worth memorizing, but memory should stay connected to context."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Starter passages in Romans",
+        intro: "These passages give a useful path into Paul’s letter.",
+        items: [
+          "Romans 1:16-17 for the gospel and righteousness of God.",
+          "Romans 3:21-26 for grace, faith, redemption, and Christ’s saving work.",
+          "Romans 5:1-11 for peace with God and hope through Christ.",
+          "Romans 8:1-17 for no condemnation, life in the Spirit, and adoption.",
+          "Romans 12:1-2 for transformed living in response to God’s mercy."
+        ]
+      },
+      {
+        type: "example",
+        title: "Worked example: Romans 12:1-2",
+        intro: "Romans 12:1-2 is best read after Paul’s long explanation of God’s mercy.",
+        items: [
+          ["Observation", "Paul appeals “by the mercies of God” and calls believers to present their bodies as living sacrifices."],
+          ["Interpretation", "The practical commands of Romans 12 flow from the gospel mercy explained earlier in the letter."],
+          ["Application", "A faithful response might ask where worship needs to become embodied obedience rather than only words."],
+          ["Prayer", "Lord, renew my mind and teach me to live in response to Your mercy."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Romans study cautions",
+        intro: "Romans is often quoted in fragments, so context matters.",
+        items: [
+          "Do not isolate a verse from Paul’s argument.",
+          "Watch for “therefore,” “for,” “but now,” and other connecting words.",
+          "Let Romans 1-11 shape Romans 12-16.",
+          "Read Old Testament quotations carefully.",
+          "Move from doctrine to worship and obedience."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Romans",
+        intro: "Open a passage from Romans in Bible Study Tutor and use inductive study or word study to move slowly through the text.",
+        href: "/?tab=study&method=inductive",
+        label: "Start a Romans study"
+      }
+    ]
   },
   {
     path: "/how-to-study-the-gospel-of-john",
     file: "how-to-study-the-gospel-of-john.html",
     title: "How to Study the Gospel of John | Read John’s Gospel with Purpose",
-    description: "Learn how to study the Gospel of John by following signs, conversations, I am sayings, belief, witness, and the purpose of John’s Gospel.",
+    description: "Learn how to study John’s Gospel with signs, I am sayings, belief, witness, starter passages, cautions, a worked example, and guided study CTA.",
     heading: "How to study the Gospel of John",
     intro: "The Gospel of John invites readers to see who Jesus is and believe in Him. Bible Study Tutor helps you slow down and follow John’s purpose passage by passage.",
     sections: [
       ["Look for signs and responses", "Notice Jesus’ signs, the conversations that follow, and how different people respond with belief, confusion, opposition, or worship."],
       ["Trace John’s themes", "Watch for light, life, belief, witness, glory, love, truth, the Father, the Son, and the Spirit."],
-      ["Read toward John’s purpose", "John says his Gospel was written so readers may believe that Jesus is the Christ, the Son of God, and have life in His name."]
+      ["Read toward John’s purpose", "John says his Gospel was written so readers may believe that Jesus is the Christ, the Son of God, and have life in His name."],
+      ["Recommended method", "Use OIA for signs and conversations, Lectio Divina for prayerful reflection, and word study for repeated themes such as life, light, and belief."]
     ],
     cta: "Study John’s Gospel",
-    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/lectio-divina", "/bible-study-for-beginners"]
+    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/oia", "/bible-study-methods/lectio-divina", "/bible-study-for-beginners"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read each passage as part of John’s purpose.",
+      "Notice signs, conversations, I am sayings, witnesses, and responses.",
+      "Ask what the passage reveals about Jesus.",
+      "Trace repeated themes such as life, light, belief, glory, and love.",
+      "Write a response of faith, worship, prayer, or witness."
+    ],
+    faq: [
+      ["Why is John a good Gospel to study?", "John clearly presents who Jesus is and why believing in Him matters."],
+      ["Where should beginners start in John?", "John 1:1-18, John 3:1-21, John 10:1-18, John 15:1-11, and John 20:30-31 are helpful places to begin."],
+      ["What should I look for in John?", "Look for signs, conversations, I am sayings, witness, belief, life, light, glory, and love."],
+      ["Can John be studied devotionally?", "Yes. John is rich for prayerful reflection, but each passage should still be read in context."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: John 20:30-31",
+        intro: "John 20:30-31 states the purpose of the Gospel and helps guide the whole study.",
+        items: [
+          ["Observation", "John says Jesus did many signs, and these written signs have a purpose."],
+          ["Interpretation", "The Gospel is written so readers may believe Jesus is the Christ, the Son of God, and have life in His name."],
+          ["Application", "A study of John should regularly ask: what does this passage show about Jesus, and how does it call for faith?"],
+          ["Prayer", "Lord Jesus, help me see You clearly and believe with living faith."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "John study checklist",
+        intro: "Use this checklist as you move through John’s Gospel.",
+        items: [
+          "What does this passage reveal about Jesus?",
+          "How do people respond to Him?",
+          "Is there a sign, saying, witness, or contrast?",
+          "How does this passage connect to John’s purpose?",
+          "What response of belief, worship, or obedience is fitting?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying John",
+        intro: "Open John in Bible Study Tutor and use OIA, SOAP, or Lectio Divina to follow the Gospel passage by passage.",
+        href: "/?tab=study&method=oia",
+        label: "Start a John study"
+      }
+    ]
   },
   {
     path: "/how-to-study-genesis",
     file: "how-to-study-genesis.html",
     title: "How to Study Genesis | Creation, Covenant, Fall and Promise",
-    description: "Learn how to study Genesis by tracing creation, fall, covenant, promise, family stories, and God’s faithfulness through the first book of the Bible.",
+    description: "Learn how to study Genesis with creation, fall, covenant, promise, starter passages, narrative cautions, a worked example, and guided study methods.",
     heading: "How to study Genesis",
     intro: "Genesis lays the foundation for the Bible’s story of creation, sin, promise, covenant, blessing, and God’s faithfulness. Study it slowly and watch how its themes echo through Scripture.",
     sections: [
@@ -1647,13 +1753,59 @@ const seoPages = [
       ["Links to Bible study methods", "Genesis pairs well with inductive study, character study, word study, and cross-reference study."]
     ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/inductive", "/bible-study-methods/character-study", "/bible-study-methods/cross-reference-study"]
+    related: ["/bible-study-methods/inductive", "/bible-study-methods/character-study", "/bible-study-methods/cross-reference-study", "/bible-study-methods/word-study"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read Genesis as narrative and notice repeated promises and themes.",
+      "Trace creation, fall, covenant, blessing, family conflict, and God’s faithfulness.",
+      "Study each scene in its immediate context before jumping ahead.",
+      "Use cross references carefully where later Scripture echoes Genesis.",
+      "Write what the passage reveals about God, human need, promise, and faith."
+    ],
+    faq: [
+      ["Why is Genesis important?", "Genesis introduces creation, sin, promise, covenant, blessing, and the family line through which God’s promises unfold."],
+      ["What method works well for Genesis?", "Inductive study and character study are especially helpful because Genesis is narrative."],
+      ["Where should I start in Genesis?", "Genesis 1-3, Genesis 12, Genesis 15, Genesis 22, and Genesis 50:15-21 are strong starter passages."],
+      ["What should I avoid when studying Genesis?", "Avoid treating every narrative detail as a direct command. Ask what the passage reveals in context."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Genesis 12:1-9",
+        intro: "Genesis 12 begins the story of Abram with command, promise, faith, and movement.",
+        items: [
+          ["Observation", "The Lord calls Abram to go and gives promises of land, nation, blessing, name, and blessing to all families of the earth."],
+          ["Interpretation", "This passage begins a major covenant promise thread that shapes the rest of Genesis and the Bible’s storyline."],
+          ["Application", "A faithful response might include trusting God’s promise when obedience requires leaving security behind."],
+          ["Prayer", "Lord, teach me to trust Your promises and follow You faithfully."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Genesis study cautions",
+        intro: "Genesis is foundational, but narrative needs careful reading.",
+        items: [
+          "Read scenes in their literary context.",
+          "Notice what God says and promises.",
+          "Do not treat every character action as something to imitate.",
+          "Trace repeated themes across the book.",
+          "Let later Scripture clarify echoes without ignoring Genesis itself."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Genesis",
+        intro: "Open Genesis in Bible Study Tutor and use inductive study or character study to follow the story carefully.",
+        href: "/?tab=study&method=inductive",
+        label: "Start a Genesis study"
+      }
+    ]
   },
   {
     path: "/how-to-study-psalms",
     file: "how-to-study-psalms.html",
     title: "How to Study Psalms | Prayer, Worship, Lament and Trust",
-    description: "Learn how to study Psalms by reading Hebrew poetry, noticing prayer, lament, praise, trust, kingship, wisdom, and honest worship before God.",
+    description: "Learn how to study Psalms with prayer, lament, praise, poetry, starter psalms, a worked example, safeguards, and guided study methods.",
     heading: "How to study Psalms",
     intro: "Psalms teaches God’s people to pray, worship, lament, remember, confess, and trust. It is both deeply personal and richly theological.",
     sections: [
@@ -1664,13 +1816,59 @@ const seoPages = [
       ["Links to Bible study methods", "Psalms works well with Lectio Divina, SOAP, word study, and topical study."]
     ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/lectio-divina", "/bible-study-methods/soap", "/bible-study-methods/word-study"]
+    related: ["/bible-study-methods/lectio-divina", "/bible-study-methods/soap", "/bible-study-methods/word-study", "/printable-bible-study-journal"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the psalm slowly as poetry and prayer.",
+      "Notice images, repeated words, emotional movement, and direct address to God.",
+      "Identify whether the psalm includes lament, praise, confession, wisdom, thanksgiving, or trust.",
+      "Ask what the psalm teaches about God and faithful prayer.",
+      "Write a prayer shaped by the psalm."
+    ],
+    faq: [
+      ["How should I study Psalms?", "Read each psalm as poetry and prayer, noticing images, movement, repeated words, and how the psalm speaks to God."],
+      ["What psalms are good to start with?", "Psalm 1, Psalm 23, Psalm 27, Psalm 46, Psalm 51, Psalm 103, and Psalm 139 are helpful starter psalms."],
+      ["Can I pray the Psalms?", "Yes. The Psalms teach honest prayer, including praise, lament, confession, thanksgiving, and trust."],
+      ["What method works well for Psalms?", "Lectio Divina, SOAP, word study, and journaling all work well with Psalms."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Psalm 23",
+        intro: "Psalm 23 is familiar, but slow study helps the imagery become richer.",
+        items: [
+          ["Observation", "The psalm uses shepherd, path, valley, table, oil, cup, goodness, mercy, and dwelling imagery."],
+          ["Interpretation", "David confesses the Lord’s care, guidance, protection, provision, and covenant goodness."],
+          ["Application", "A faithful response might be to trust God’s shepherding care in a specific place of fear or uncertainty."],
+          ["Prayer", "Lord, shepherd me today. Lead me, restore me, and teach me to trust Your presence."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Psalms study checklist",
+        intro: "Use this checklist to pray and study with care.",
+        items: [
+          "What kind of psalm is this: praise, lament, wisdom, thanksgiving, confession, or trust?",
+          "What images or repeated words stand out?",
+          "How does the psalm move emotionally?",
+          "What does it reveal about God?",
+          "How can this psalm shape my prayer?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Psalms",
+        intro: "Open a psalm in Bible Study Tutor and use Lectio Divina, SOAP, or journaling to pray through the passage.",
+        href: "/?tab=study&method=lectio",
+        label: "Start a Psalms study"
+      }
+    ]
   },
   {
     path: "/how-to-study-proverbs",
     file: "how-to-study-proverbs.html",
     title: "How to Study Proverbs | Wisdom, Character and the Fear of the Lord",
-    description: "Learn how to study Proverbs by tracing wisdom, folly, speech, work, money, relationships, discipline, and the fear of the Lord.",
+    description: "Learn how to study Proverbs with wisdom themes, genre cautions, starter passages, a worked example, topical study, and practical application.",
     heading: "How to study Proverbs",
     intro: "Proverbs trains readers in wise living before God. It calls us to fear the Lord, receive instruction, and practise wisdom in ordinary life.",
     sections: [
@@ -1681,7 +1879,53 @@ const seoPages = [
       ["Links to Bible study methods", "Proverbs pairs naturally with topical study, word study, and OIA."]
     ],
     cta: "Start a guided study",
-    related: ["/bible-study-methods/topical-study", "/bible-study-methods/word-study", "/bible-study-methods/oia"]
+    related: ["/bible-study-methods/topical-study", "/bible-study-methods/word-study", "/bible-study-methods/oia", "/bible-study-for-beginners"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read Proverbs as wisdom literature.",
+      "Begin with the fear of the Lord as the foundation of wisdom.",
+      "Group related proverbs by theme before drawing conclusions.",
+      "Avoid treating each proverb as a mechanical guarantee.",
+      "Write one concrete wise practice shaped by the passage."
+    ],
+    faq: [
+      ["How should Proverbs be interpreted?", "Proverbs should be read as wisdom sayings, not as mechanical promises detached from the rest of Scripture."],
+      ["Where should I start in Proverbs?", "Proverbs 1:1-7, Proverbs 3:1-12, Proverbs 4:20-27, Proverbs 10, and Proverbs 31:10-31 are helpful starting points."],
+      ["What themes should I trace?", "Wisdom, folly, speech, work, money, correction, relationships, justice, discipline, and the fear of the Lord are major themes."],
+      ["What method works well for Proverbs?", "Topical study works well because Proverbs often gathers wisdom in short sayings across repeated themes."]
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Worked example: Proverbs 3:5-6",
+        intro: "Proverbs 3:5-6 is often memorized, but it should be read in the context of wisdom, trust, and instruction.",
+        items: [
+          ["Observation", "The passage contrasts trusting the Lord with leaning on one’s own understanding. It calls for acknowledging Him in all ways."],
+          ["Interpretation", "The proverb teaches wholehearted trust and humble dependence, not a formula for an easy life without difficulty."],
+          ["Application", "A faithful response could be to identify one decision where self-reliance needs to become prayerful trust."],
+          ["Prayer", "Lord, teach me to trust You with my whole heart and seek Your wisdom in my decisions."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Proverbs study cautions",
+        intro: "These cautions help Proverbs form wisdom rather than simplistic expectations.",
+        items: [
+          "Read proverbs as wisdom sayings, not automatic guarantees.",
+          "Compare related proverbs on the same topic.",
+          "Let the fear of the Lord shape the whole study.",
+          "Look for patterns across the book.",
+          "Apply wisdom concretely in speech, work, relationships, and choices."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying Proverbs",
+        intro: "Open Proverbs in Bible Study Tutor and use topical study or OIA to trace wisdom into daily life.",
+        href: "/?tab=study&method=topical-study",
+        label: "Start a Proverbs study"
+      }
+    ]
   },
   {
     path: "/how-to-study-matthew",

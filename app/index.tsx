@@ -17,6 +17,7 @@ import { methods } from "@/data/methods";
 import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, getReaderPlanReadingChunk, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
+import { buildStudyContextReference, getStudyCrossReferences, isVerseWithinReference, type StudyCrossReference } from "@/data/studyContext";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { studyPlans } from "@/data/studyPlans";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -850,6 +851,12 @@ export default function Home() {
   const [bibleSearchStatus, setBibleSearchStatus] = useState("");
   const [bibleSearchDuration, setBibleSearchDuration] = useState("");
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
+  const [studyContextOpen, setStudyContextOpen] = useState(false);
+  const [studyContextPassage, setStudyContextPassage] = useState<BiblePassage | null>(null);
+  const [studyContextStatus, setStudyContextStatus] = useState("");
+  const [selectedStudyCrossReference, setSelectedStudyCrossReference] = useState<StudyCrossReference | null>(null);
+  const [studyCrossReferencePassage, setStudyCrossReferencePassage] = useState<BiblePassage | null>(null);
+  const [studyCrossReferenceStatus, setStudyCrossReferenceStatus] = useState("");
   const readerTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
@@ -861,6 +868,8 @@ export default function Home() {
   const readerPassageBoxYRef = useRef(0);
   const readerVerseYRef = useRef<Record<number, number>>({});
   const studyPassageRequestIdRef = useRef(0);
+  const studyContextRequestIdRef = useRef(0);
+  const studyCrossReferenceRequestIdRef = useRef(0);
   const readerPassageRequestIdRef = useRef(0);
   const bibleSearchRequestIdRef = useRef(0);
   const previousTabRef = useRef<Tab>(tab);
@@ -1436,6 +1445,9 @@ export default function Home() {
     answer: answers[`${method.id}:${index}`] || ""
   }));
   const hasStudyWork = sessionAnswers.some((item) => item.answer.trim());
+  const studyPassageReference = passageText?.reference || passage;
+  const studyContextReference = useMemo(() => buildStudyContextReference(studyPassageReference), [studyPassageReference]);
+  const studyCrossReferences = useMemo(() => getStudyCrossReferences(studyPassageReference), [studyPassageReference]);
   const studyHelps = useMemo(() => buildStudyHelpLinks(passageText?.reference || passage, bibleTranslation), [bibleTranslation, passage, passageText?.reference]);
   const continueLabel =
     step.responseType === "none"
@@ -2273,6 +2285,79 @@ export default function Home() {
       controller.abort();
     };
   }, [passage, passageReloadKey, bibleTranslation, tab]);
+
+  useEffect(() => {
+    setStudyContextOpen(false);
+    setStudyContextPassage(null);
+    setStudyContextStatus("");
+    setSelectedStudyCrossReference(null);
+    setStudyCrossReferencePassage(null);
+    setStudyCrossReferenceStatus("");
+  }, [studyPassageReference]);
+
+  useEffect(() => {
+    if (tab !== "study" || !studyContextOpen || !studyContextReference?.reference) return;
+    const requestId = ++studyContextRequestIdRef.current;
+    const controller = new AbortController();
+
+    setStudyContextStatus("Loading surrounding verses...");
+    setStudyContextPassage(null);
+
+    const timeout = setTimeout(async () => {
+      try {
+        const data =
+          bibleTranslation === "bsb"
+            ? await fetchBsbPassage(studyContextReference.reference, controller.signal)
+            : await fetchBibleApiPassage(studyContextReference.reference, bibleTranslation, controller.signal);
+
+        if (studyContextRequestIdRef.current !== requestId) return;
+        setStudyContextPassage(data);
+        setStudyContextStatus("");
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        if (studyContextRequestIdRef.current !== requestId) return;
+        setStudyContextPassage(null);
+        setStudyContextStatus("I couldn't load the surrounding verses just now.");
+      }
+    }, 150);
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [bibleTranslation, studyContextOpen, studyContextReference?.reference, tab]);
+
+  useEffect(() => {
+    if (tab !== "study" || !selectedStudyCrossReference?.reference) return;
+    const requestId = ++studyCrossReferenceRequestIdRef.current;
+    const controller = new AbortController();
+
+    setStudyCrossReferenceStatus("Loading cross reference...");
+    setStudyCrossReferencePassage(null);
+
+    const timeout = setTimeout(async () => {
+      try {
+        const data =
+          bibleTranslation === "bsb"
+            ? await fetchBsbPassage(selectedStudyCrossReference.reference, controller.signal)
+            : await fetchBibleApiPassage(selectedStudyCrossReference.reference, bibleTranslation, controller.signal);
+
+        if (studyCrossReferenceRequestIdRef.current !== requestId) return;
+        setStudyCrossReferencePassage(data);
+        setStudyCrossReferenceStatus("");
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        if (studyCrossReferenceRequestIdRef.current !== requestId) return;
+        setStudyCrossReferencePassage(null);
+        setStudyCrossReferenceStatus("I couldn't load that cross reference just now.");
+      }
+    }, 150);
+
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [bibleTranslation, selectedStudyCrossReference?.reference, tab]);
 
   useEffect(() => {
     if (tab !== "bible") return;
@@ -6710,6 +6795,100 @@ export default function Home() {
                     <Text style={[styles.translationNote, studyDarkMode && styles.accountDarkMutedText]}>
                       {passageText.translation_name} · {passageText.translation_note || "Public Domain"}
                     </Text>
+                    {(studyContextReference || studyCrossReferences.length > 0) && (
+                      <View style={[styles.studyContextTools, studyDarkMode && styles.accountDarkInsetBox]}>
+                        <View style={styles.studyContextToolHeader}>
+                          <View style={styles.studyContextToolTitleBlock}>
+                            <Text style={[styles.studyContextToolTitle, studyDarkMode && styles.accountDarkTitle]}>Context and cross references</Text>
+                            <Text style={[styles.studyContextToolIntro, studyDarkMode && styles.accountDarkMutedText]}>Read nearby verses first, then compare related passages.</Text>
+                          </View>
+                          {studyContextReference && (
+                            <Pressable
+                              accessibilityRole="button"
+                              accessibilityLabel={studyContextOpen ? "Hide surrounding context" : `Show surrounding context for ${studyContextReference.selectedReference}`}
+                              accessibilityState={{ expanded: studyContextOpen }}
+                              onPress={() => setStudyContextOpen((value) => !value)}
+                              style={[styles.studyContextToggle, studyDarkMode && styles.homeDarkResumeButton]}
+                            >
+                              <Ionicons name={studyContextOpen ? "chevron-up-outline" : "reader-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              <Text style={[styles.studyContextToggleText, studyDarkMode && styles.homeDarkResumeButtonText]}>{studyContextOpen ? "Hide context" : "Show context"}</Text>
+                            </Pressable>
+                          )}
+                        </View>
+
+                        {studyContextOpen && studyContextReference && (
+                          <View style={[styles.studyContextPreviewBox, studyDarkMode && styles.studyDarkPreviewBox]}>
+                            <Text style={[styles.studyContextPreviewLabel, studyDarkMode && styles.studyDarkAccentText]}>{studyContextReference.reference}</Text>
+                            {!!studyContextStatus && <Text style={[styles.helpDescription, studyDarkMode && styles.accountDarkMutedText]}>{studyContextStatus}</Text>}
+                            {studyContextPassage?.verses?.length ? (
+                              <View style={styles.studyContextVerseList}>
+                                {studyContextPassage.verses.map((verse) => {
+                                  const selected = isVerseWithinReference(verse, studyContextReference.selectedReference);
+                                  return (
+                                    <View key={`context-${verse.book_name}-${verse.chapter}-${verse.verse}`} style={[styles.studyContextVerseRow, selected && styles.studyContextSelectedVerseRow, studyDarkMode && styles.studyDarkContextVerseRow, selected && studyDarkMode && styles.studyDarkContextSelectedVerseRow]}>
+                                      <Text style={[styles.studyContextVerseNumber, selected && styles.studyContextSelectedVerseNumber, studyDarkMode && !selected && styles.accountDarkMutedText]}>{verse.verse}</Text>
+                                      <Text style={[styles.studyContextVerseText, selected && styles.studyContextSelectedVerseText, studyDarkMode && !selected && styles.accountDarkText, selected && studyDarkMode && styles.accountDarkTitle]}>{verse.text.trim()}</Text>
+                                    </View>
+                                  );
+                                })}
+                              </View>
+                            ) : null}
+                          </View>
+                        )}
+
+                        {studyCrossReferences.length > 0 && (
+                          <View style={styles.studyCrossReferenceArea}>
+                            <Text style={[styles.studyContextPreviewLabel, studyDarkMode && styles.studyDarkAccentText]}>Cross references</Text>
+                            <View style={styles.studyCrossReferenceRow}>
+                              {studyCrossReferences.map((item) => {
+                                const selected = selectedStudyCrossReference?.reference === item.reference;
+                                return (
+                                  <Pressable
+                                    key={item.reference}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Open cross reference ${item.reference}`}
+                                    accessibilityState={{ selected }}
+                                    onPress={() => setSelectedStudyCrossReference(selected ? null : item)}
+                                    style={[styles.studyCrossReferenceChip, selected && styles.activeStudyCrossReferenceChip, studyDarkMode && styles.studyDarkCrossReferenceChip, selected && studyDarkMode && styles.studyDarkActiveCrossReferenceChip]}
+                                  >
+                                    <Text style={[styles.studyCrossReferenceText, selected && styles.activeStudyCrossReferenceText, studyDarkMode && !selected && styles.accountDarkTitle]}>{item.reference}</Text>
+                                  </Pressable>
+                                );
+                              })}
+                            </View>
+                            {selectedStudyCrossReference && (
+                              <View style={[styles.studyContextPreviewBox, styles.studyCrossReferencePreviewBox, studyDarkMode && styles.studyDarkPreviewBox]}>
+                                <View style={styles.studyCrossReferencePreviewHeader}>
+                                  <View style={styles.studyCrossReferencePreviewTitleBlock}>
+                                    <Text style={[styles.studyContextPreviewLabel, studyDarkMode && styles.studyDarkAccentText]}>{selectedStudyCrossReference.title}</Text>
+                                    <Text style={[styles.studyCrossReferenceReason, studyDarkMode && styles.accountDarkMutedText]}>{selectedStudyCrossReference.reason}</Text>
+                                  </View>
+                                  <Pressable
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Close cross reference preview"
+                                    onPress={() => setSelectedStudyCrossReference(null)}
+                                    style={styles.studyCrossReferenceClose}
+                                  >
+                                    <Ionicons name="close-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.muted} />
+                                  </Pressable>
+                                </View>
+                                {!!studyCrossReferenceStatus && <Text style={[styles.helpDescription, studyDarkMode && styles.accountDarkMutedText]}>{studyCrossReferenceStatus}</Text>}
+                                {studyCrossReferencePassage?.verses?.length ? (
+                                  <View style={styles.studyContextVerseList}>
+                                    {studyCrossReferencePassage.verses.map((verse) => (
+                                      <View key={`cross-${verse.book_name}-${verse.chapter}-${verse.verse}`} style={[styles.studyContextVerseRow, studyDarkMode && styles.studyDarkContextVerseRow]}>
+                                        <Text style={[styles.studyContextVerseNumber, studyDarkMode && styles.accountDarkMutedText]}>{verse.verse}</Text>
+                                        <Text style={[styles.studyContextVerseText, studyDarkMode && styles.accountDarkText]}>{verse.text.trim()}</Text>
+                                      </View>
+                                    ))}
+                                  </View>
+                                ) : null}
+                              </View>
+                            )}
+                          </View>
+                        )}
+                      </View>
+                    )}
                     {passageText.verses?.length ? (
                       <View style={styles.studyPrintRow}>
                         <ResumeButton
@@ -16606,6 +16785,178 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
     marginTop: 10
+  },
+  studyContextTools: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 12,
+    padding: 11
+  },
+  studyContextToolHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "space-between"
+  },
+  studyContextToolTitleBlock: {
+    flex: 1,
+    gap: 2,
+    minWidth: 190
+  },
+  studyContextToolTitle: {
+    color: colors.ink,
+    fontSize: 14,
+    fontWeight: "800"
+  },
+  studyContextToolIntro: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17
+  },
+  studyContextToggle: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: colors.soft,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
+    minHeight: 32,
+    paddingHorizontal: 11
+  },
+  studyContextToggleText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "800"
+  },
+  studyContextPreviewBox: {
+    backgroundColor: "rgba(255, 246, 235, 0.78)",
+    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderRadius: 10,
+    borderWidth: 1,
+    gap: 8,
+    padding: 10
+  },
+  studyContextPreviewLabel: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "900",
+    letterSpacing: 0,
+    textTransform: "uppercase"
+  },
+  studyContextVerseList: {
+    gap: 5
+  },
+  studyContextVerseRow: {
+    alignItems: "flex-start",
+    borderRadius: 8,
+    flexDirection: "row",
+    gap: 7,
+    paddingHorizontal: 8,
+    paddingVertical: 6
+  },
+  studyContextSelectedVerseRow: {
+    backgroundColor: "#fff0df"
+  },
+  studyContextVerseNumber: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "800",
+    lineHeight: 19,
+    minWidth: 18,
+    textAlign: "right"
+  },
+  studyContextSelectedVerseNumber: {
+    color: colors.coral
+  },
+  studyContextVerseText: {
+    color: "#342821",
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 21,
+    minWidth: 0
+  },
+  studyContextSelectedVerseText: {
+    color: colors.ink,
+    fontWeight: "700"
+  },
+  studyCrossReferenceArea: {
+    gap: 8
+  },
+  studyCrossReferenceRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
+  },
+  studyCrossReferenceChip: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 32,
+    justifyContent: "center",
+    paddingHorizontal: 10
+  },
+  activeStudyCrossReferenceChip: {
+    backgroundColor: colors.coral,
+    borderColor: colors.coral
+  },
+  studyCrossReferenceText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "800"
+  },
+  activeStudyCrossReferenceText: {
+    color: "white"
+  },
+  studyCrossReferencePreviewBox: {
+    marginTop: 2
+  },
+  studyCrossReferencePreviewHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  studyCrossReferencePreviewTitleBlock: {
+    flex: 1,
+    gap: 3,
+    minWidth: 0
+  },
+  studyCrossReferenceReason: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17
+  },
+  studyCrossReferenceClose: {
+    alignItems: "center",
+    height: 30,
+    justifyContent: "center",
+    width: 30
+  },
+  studyDarkPreviewBox: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  studyDarkContextVerseRow: {
+    backgroundColor: "rgba(247, 237, 220, 0.03)"
+  },
+  studyDarkContextSelectedVerseRow: {
+    backgroundColor: "rgba(233, 183, 106, 0.12)"
+  },
+  studyDarkCrossReferenceChip: {
+    backgroundColor: "#151a19",
+    borderColor: "rgba(233, 183, 106, 0.18)"
+  },
+  studyDarkActiveCrossReferenceChip: {
+    backgroundColor: "#8f6a35",
+    borderColor: "#e9b76a"
   },
   phoneStudyPrintButton: {
     alignSelf: "stretch",

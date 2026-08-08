@@ -269,16 +269,70 @@ const seoPages = [
     path: "/bible-study-methods/word-study",
     file: "bible-study-methods/word-study.html",
     title: "Bible Word Study Method | Study Key Words in Scripture",
-    description: "Learn a Bible word study method for tracing key words, repeated phrases, context, meaning, and application without losing sight of the passage.",
+    description: "Learn a careful Bible word study method with an example, safeguards, checklist, and printable worksheet option so key words stay anchored in context.",
     heading: "Bible word study method",
-    intro: "A Bible word study helps you pay attention to important words in a passage while keeping the meaning anchored in context.",
+    intro: "A Bible word study helps you pay attention to important words in a passage while keeping the meaning anchored in context, author, genre, and the wider message of Scripture.",
     sections: [
-      ["Start with the passage", "Choose a word that carries weight in the text, then read the whole paragraph or chapter before studying the word by itself."],
-      ["Look for repeated use", "Notice where the word appears nearby, how the author uses it, and whether related words or phrases develop the same idea."],
-      ["Return to the main point", "A word study should help you understand the passage better, not pull the word away from what the passage is saying."]
+      ["Start with the passage", "Choose a word that carries weight in the text, then read the whole paragraph or chapter before studying the word by itself. Ask what the author is saying before asking how one word sounds in isolation."],
+      ["Look for repeated use", "Notice where the word appears nearby, how the author uses it, and whether related words or phrases develop the same idea. Repetition often shows emphasis, contrast, or movement in the argument."],
+      ["Compare carefully", "Compare the word in nearby passages first, then related passages by the same author, then the wider Bible. Do not assume every occurrence has the exact same shade of meaning."],
+      ["Return to the main point", "A word study should help you understand the passage better, not pull the word away from what the passage is saying. Finish by restating the passage in context and writing a faithful response."]
     ],
     cta: "Start a word study",
-    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/topical-study", "/bible-study-methods/inductive"]
+    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/printable-bible-study-worksheets"],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and surrounding paragraph before isolating the word.",
+      "Write the word, reference, immediate context, and why the word matters.",
+      "Look for repeated use in the same passage, book, or author.",
+      "Compare related passages carefully without forcing every occurrence to mean the same thing.",
+      "Summarize how the word clarifies the passage and write one prayerful response."
+    ],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Complete example: studying \"peace\" in John 14:27",
+        intro: "A simple word study might begin with Jesus’ words, “Peace I leave with you; My peace I give to you.” The aim is not to collect every possible meaning of peace, but to understand what Jesus is promising in this passage.",
+        items: [
+          ["Passage context", "John 14 is part of Jesus’ words to His disciples before the cross. The disciples are troubled, and Jesus speaks of the Father, the Spirit, His departure, and His continuing care."],
+          ["Word focus", "The word “peace” is repeated in the verse and contrasted with what the world gives. That contrast helps shape the meaning: Jesus gives a peace rooted in Himself, not merely calm circumstances."],
+          ["Careful comparison", "Related passages such as John 16:33 and Philippians 4:6-7 can help, but they should support the meaning of John 14:27 rather than replace it."],
+          ["Faithful summary", "In this passage, Jesus comforts His disciples with a peace that belongs to Him and is given by Him, so their hearts do not need to be ruled by fear."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Word study checklist",
+        intro: "Use this checklist before moving from observation to application.",
+        items: [
+          "Have I read the whole paragraph or chapter?",
+          "Have I written the word, reference, and immediate context?",
+          "Have I noticed repetition, contrast, commands, promises, or questions around the word?",
+          "Have I checked whether the same author uses the word nearby?",
+          "Have I avoided building a meaning from the word alone while ignoring the sentence?",
+          "Can I explain how this word helps clarify the passage?"
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Methodological safeguards",
+        intro: "These safeguards keep a word study from becoming detached from Scripture.",
+        items: [
+          "Do not treat a dictionary entry as the meaning of every verse.",
+          "Do not build a doctrine from one word without reading the whole passage.",
+          "Do not assume English word connections always reflect the original-language wording.",
+          "Do not use cross references to escape a difficult context.",
+          "Let the passage’s grammar, flow, and authorial purpose control the study."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Print a word study worksheet",
+        intro: "If you prefer pen and paper, select a passage in Bible Study Tutor, choose a word study approach, and print a worksheet with room for context, repeated words, comparisons, summary, and prayer.",
+        href: "/?tab=bible",
+        label: "Print a worksheet"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/topical-study",
@@ -569,16 +623,69 @@ const seoPages = [
     path: "/bible-study-app-for-churches",
     file: "bible-study-app-for-churches.html",
     title: "Bible Study App for Churches | Free Scripture Tools for Discipleship",
-    description: "A free Bible study app churches can use for Scripture reading, study methods, printable worksheets, memory verses, journaling, and private encouragement.",
+    description: "A free Bible study app churches can use for Scripture reading, guided study, printable worksheets, memory verses, journaling, private encouragement, and reading plans.",
     heading: "A free Bible study app for churches",
-    intro: "Bible Study Tutor is built to serve the church by keeping Scripture study free, practical, and accessible on desktop, mobile, and paper.",
+    intro: "Bible Study Tutor is built to serve the church by keeping Scripture study free, practical, and accessible on desktop, mobile, and paper. It helps leaders point people back to the Bible without adding a paid platform or public social feed.",
     sections: [
-      ["No paid barrier", "The core app is intended to remain free so churches can recommend it without asking people to pay for basic Bible study tools."],
-      ["Useful in different settings", "Use it for personal discipleship, small groups, youth groups, Bible classes, sermon follow-up, or printed study sheets."],
-      ["Careful community design", "Private encouragements, friends, and circles are designed to support real relationships without becoming another social feed."]
+      ["No paid barrier", "The core app is intended to remain free so churches can recommend it without asking people to pay for basic Bible study tools, reading plans, memory verses, or printable worksheets."],
+      ["Useful in different settings", "Use it for personal discipleship, small groups, youth groups, Bible classes, sermon follow-up, pastoral care follow-up, new believer pathways, or printed study sheets."],
+      ["Digital and printable", "Some people study best on a phone or laptop; others prefer paper. Bible Study Tutor supports both by pairing guided study tools with printable worksheets and memory cards."],
+      ["Careful community design", "Private encouragements, friends, and circles are designed to support real relationships without becoming another public feed, popularity system, or social media replacement."]
     ],
     cta: "Open Bible Study Tutor",
-    related: ["/free-bible-study-app", "/bible-study-for-small-groups", "/about"]
+    related: ["/free-bible-study-app", "/bible-study-for-small-groups", "/printable-bible-study-worksheets", "/bible-reading-plan-app", "/about"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Can a church use Bible Study Tutor for free?", "Yes. Bible Study Tutor is designed to be free for individuals, churches, small groups, youth groups, and Bible classes."],
+      ["Does Bible Study Tutor replace a church’s discipleship ministry?", "No. It is a practical tool to support Bible reading, guided study, journaling, memory verses, and printed handouts. It should serve local church discipleship rather than replace it."],
+      ["Can leaders print worksheets for group discussion?", "Yes. Leaders can select a passage and print worksheets for methods such as SOAP, OIA, Inductive Study, or word study."],
+      ["Is there a public social feed?", "No. Bible Study Tutor is designed around private friends and circles for trusted encouragement, not a public timeline."],
+      ["What private information is avoided in public analytics?", "Public analytics should not include journal text, study answers, notes, names, email addresses, Scripture search text, or community encouragement content."]
+    ],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "Practical church use cases",
+        intro: "A church can use Bible Study Tutor in several ordinary ministry settings without asking people to learn a complicated system.",
+        items: [
+          "Small group leaders can print a worksheet for Sunday’s sermon passage and invite people to bring handwritten observations.",
+          "Youth leaders can choose a short passage, use SOAP or OIA, and give students a simple structure for discussion.",
+          "New believers can begin with a reading plan, save questions in the journal, and memorize a small set of foundational verses.",
+          "Pastoral care teams can encourage someone privately with Scripture while keeping the app away from public social-media style posting.",
+          "Bible class teachers can point people to a method page, then ask them to study the same passage during the week."
+        ]
+      },
+      {
+        type: "list",
+        title: "Privacy-aware by design",
+        intro: "The app is intended to support real discipleship without turning private spiritual reflection into public content.",
+        items: [
+          "There is no public timeline for notes, studies, or encouragements.",
+          "Friends and circles are private spaces for trusted encouragement.",
+          "Public analytics are intended to measure app usage patterns, not private journal text, notes, answers, emails, names, or community content.",
+          "A free account helps sync saved study data across devices, but people can still explore the app before creating one.",
+          "Bible translation choices are shaped by legal access and the desire to keep the app free."
+        ]
+      },
+      {
+        type: "previews",
+        title: "What church members can do",
+        intro: "These lightweight previews show the kinds of workflows the app supports.",
+        items: [
+          ["Read and continue", "Open the Bible reader, follow a reading plan, and mark chapters or plan readings complete."],
+          ["Study with structure", "Send Romans 8:1-4 into Study, choose SOAP or Inductive Study, and save notes to the journal."],
+          ["Print for the room", "Create a printable worksheet for a group, youth lesson, or church class handout."],
+          ["Remember Scripture", "Save memory verses, review them during the week, and print cards for home or group use."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Try it with your next group passage",
+        intro: "Choose a passage, open the Bible reader, and print a worksheet or start a guided study before your next small group or Bible class.",
+        href: "/?tab=bible",
+        label: "Open the Bible reader"
+      }
+    ]
   },
   {
     path: "/free-bible-study-app-for-small-groups",
@@ -957,6 +1064,9 @@ function buildSeoPage(page, baseUrl) {
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
     .join("\n");
+  const extraBlocks = (page.extraBlocks || [])
+    .map((block) => buildExtraSeoBlock(block))
+    .join("\n");
   const faqBlock = page.faq?.length
     ? `<section class="faq-section" aria-labelledby="faq-heading">
         <h2 id="faq-heading">Common questions</h2>
@@ -1037,6 +1147,13 @@ function buildSeoPage(page, baseUrl) {
       .related-grid span { color: var(--muted); font-size: 14px; line-height: 1.45; }
       .faq-section { margin-top: 28px; }
       .faq-list { display: grid; gap: 10px; margin-top: 14px; }
+      .extra-block { margin-top: 18px; }
+      .extra-block ul, .extra-block ol { color: var(--muted); line-height: 1.65; margin: 12px 0 0; padding-left: 22px; }
+      .extra-block li + li { margin-top: 7px; }
+      .example-grid, .preview-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 14px; }
+      .example-card, .preview-card { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
+      .example-card h3, .preview-card h3 { color: var(--coral); font-size: 14px; letter-spacing: .04em; margin: 0 0 8px; text-transform: uppercase; }
+      .extra-cta { align-items: flex-start; display: grid; gap: 14px; }
       details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
       summary { color: var(--olive); cursor: pointer; font-weight: 900; }
       details p { margin-top: 10px; }
@@ -1075,6 +1192,7 @@ function buildSeoPage(page, baseUrl) {
         <p class="intro">${escapeHtml(page.intro)}</p>
       </section>
       <div class="grid">${sections}</div>
+      ${extraBlocks}
       ${faqBlock}
       ${relatedLinks}
       <section class="cta-section" aria-labelledby="cta-heading">
@@ -1092,6 +1210,52 @@ function buildSeoPage(page, baseUrl) {
   </body>
 </html>
 `;
+}
+
+function buildExtraSeoBlock(block) {
+  const intro = block.intro ? `<p>${escapeHtml(block.intro)}</p>` : "";
+
+  if (block.type === "example" || block.type === "previews") {
+    const cardClass = block.type === "example" ? "example-card" : "preview-card";
+    const gridClass = block.type === "example" ? "example-grid" : "preview-grid";
+    const cards = (block.items || [])
+      .map(([title, body]) => `<article class="${cardClass}"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`)
+      .join("\n          ");
+    return `<section class="extra-block" aria-labelledby="${slugifyForId(block.title)}">
+        <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
+        ${intro}
+        <div class="${gridClass}">
+          ${cards}
+        </div>
+      </section>`;
+  }
+
+  if (block.type === "checklist" || block.type === "list") {
+    const items = (block.items || [])
+      .map((item) => `<li>${escapeHtml(item)}</li>`)
+      .join("\n          ");
+    return `<section class="extra-block" aria-labelledby="${slugifyForId(block.title)}">
+        <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
+        ${intro}
+        <ul>
+          ${items}
+        </ul>
+      </section>`;
+  }
+
+  if (block.type === "cta") {
+    const href = block.href || "/";
+    const label = block.label || "Open Bible Study Tutor";
+    return `<section class="extra-block extra-cta" aria-labelledby="${slugifyForId(block.title)}">
+        <div>
+          <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
+          ${intro}
+        </div>
+        <a class="button" href="${escapeHtml(href)}">${escapeHtml(label)}</a>
+      </section>`;
+  }
+
+  return "";
 }
 
 function buildNotFoundPage(baseUrl) {
@@ -1308,6 +1472,13 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function slugifyForId(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "section";
 }
 
 function pngToIco(png, width, height) {

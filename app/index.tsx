@@ -45,6 +45,90 @@ function HydrationSafeIonicon({ ready, name, size, color }: { ready: boolean; na
   return <Ionicons name={name} size={size} color={color} />;
 }
 
+function HomeSemanticResourceLinks() {
+  if (Platform.OS !== "web") return null;
+
+  const links = [
+    ["/?tab=bible", "Open the Bible reader", "Read Scripture, follow reading plans, and print selected passages."],
+    ["/?tab=study", "Start a guided study", "Use SOAP, OIA, inductive study, word study, and other guided methods."],
+    ["/bible-study-methods", "Choose a study method", "Compare Bible study methods before beginning a passage."],
+    ["/printable-bible-study-worksheets", "Print a worksheet", "Prepare a paper worksheet for personal study, church groups, or youth groups."],
+    ["/bible-study-app-for-churches", "For churches", "See ways churches and small groups can use Bible Study Tutor responsibly."],
+    ["/bible-study-methods/word-study", "Learn word study", "Study key words while keeping the meaning anchored in context."]
+  ];
+  const hiddenHeadingStyle = {
+    border: 0,
+    clip: "rect(0 0 0 0)",
+    height: 1,
+    margin: -1,
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    whiteSpace: "nowrap",
+    width: 1
+  } as const;
+
+  return createElement(
+    "section",
+    {
+      "aria-labelledby": "home-resource-links-heading",
+      style: {
+        background: "#fffaf2",
+        border: "1px solid #eadcc9",
+        borderRadius: 16,
+        marginTop: 18,
+        padding: 18
+      }
+    },
+    createElement("h1", { style: hiddenHeadingStyle }, "Bible Study Tutor free Bible study app"),
+    createElement(
+      "h2",
+      {
+        id: "home-resource-links-heading",
+        style: { color: colors.oliveDark, fontSize: 20, lineHeight: 1.2, margin: "0 0 8px" }
+      },
+      "Start with what you need"
+    ),
+    createElement(
+      "p",
+      { style: { color: colors.muted, fontSize: 15, lineHeight: 1.55, margin: "0 0 14px" } },
+      "Bible Study Tutor is free, privacy-aware, and built for desktop, mobile, and printable Bible study."
+    ),
+    createElement(
+      "nav",
+      {
+        "aria-label": "Bible Study Tutor public resources",
+        style: {
+          display: "grid",
+          gap: 10,
+          gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))"
+        }
+      },
+      links.map(([href, label, description]) =>
+        createElement(
+          "a",
+          {
+            href,
+            key: href,
+            style: {
+              background: "#fffdf8",
+              border: "1px solid #eadcc9",
+              borderRadius: 12,
+              color: colors.oliveDark,
+              display: "grid",
+              gap: 4,
+              padding: 12,
+              textDecoration: "none"
+            }
+          },
+          createElement("strong", { style: { fontSize: 14 } }, label),
+          createElement("span", { style: { color: colors.muted, fontSize: 13, lineHeight: 1.35 } }, description)
+        )
+      )
+    )
+  );
+}
+
 type TabErrorBoundaryProps = {
   children: ReactNode;
   fallback: ReactNode;
@@ -6218,6 +6302,7 @@ export default function Home() {
                   </View>
                 </View>
               </View>
+              <HomeSemanticResourceLinks />
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>

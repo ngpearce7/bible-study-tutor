@@ -144,12 +144,54 @@ const seoPages = [
     heading: "Guided Bible study methods",
     intro: "Bible Study Tutor gives structure without making study feel complicated. Choose a method, read the passage, answer one step at a time, and save your study to the journal.",
     sections: [
-      ["SOAP and OIA", "Use simple observation, interpretation, application, prayer, and response prompts to slow down and listen carefully to the text."],
-      ["Deeper study methods", "Use Inductive Study, verse mapping, character study, word study, and cross-reference study when you want to examine a passage more deeply."],
-      ["Reflective methods", "Use Lectio Divina, READ, and prayerful reflection when you want to respond slowly and personally to Scripture."]
+      ["Start with the passage", "Every method should serve careful reading of Scripture. Choose the passage first, then use the method to slow down, notice details, understand context, and respond faithfully."],
+      ["Simple daily methods", "SOAP and OIA are useful when you want a clear rhythm for a short passage: read, observe, understand, apply, and pray."],
+      ["Deeper study methods", "Use Inductive Study, verse mapping, character study, word study, and cross-reference study when you want to examine structure, themes, repeated words, people, and related passages more deeply."],
+      ["Reflective methods", "Use Lectio Divina, READ, and prayerful reflection when you want to meditate slowly on Scripture and turn the passage into prayer."],
+      ["Save or print the study", "After studying, save the notes to your journal or print a worksheet for personal study, small groups, Bible classes, or youth groups."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["Which Bible study method should a beginner use first?", "SOAP or OIA are usually the easiest places to begin because they use simple prompts and work well with short passages."],
+      ["When should I use inductive Bible study?", "Use inductive study when you want to spend more time observing the text, understanding context, and applying a passage carefully."],
+      ["Can I change methods after starting?", "Yes. In Bible Study Tutor, methods are meant to help you study the passage, not trap you in one rigid approach."],
+      ["Can Bible study methods be printed?", "Yes. You can print worksheets using guided methods so the same passage can be studied on paper."]
     ],
     cta: "Choose a study method",
-    related: ["/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive"]
+    related: ["/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive", "/bible-study-methods/oia", "/printable-bible-study-worksheets"],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "How to choose a method",
+        intro: "Different methods fit different kinds of study. Start with the simplest option that helps you pay attention to the passage.",
+        items: [
+          ["SOAP", "Best for daily devotion, prayer, and simple Scripture reflection."],
+          ["OIA", "Best for learning to observe, interpret, and apply a passage clearly."],
+          ["Inductive Study", "Best for deeper study of paragraphs, letters, arguments, and repeated themes."],
+          ["Word Study", "Best for tracing a repeated or important biblical word in context."],
+          ["Lectio Divina", "Best for slow, prayerful meditation on a shorter passage."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Method selection checklist",
+        intro: "Use these questions before choosing a study method.",
+        items: [
+          "Am I studying a short passage, a full chapter, or a theme?",
+          "Do I need simple devotional reflection or deeper observation?",
+          "Would a printable worksheet help me slow down?",
+          "Do I want to save notes to my journal afterward?",
+          "Will this method help me listen to Scripture rather than forcing my own idea onto it?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Choose a Bible study method",
+        intro: "Open the Methods tab in Bible Study Tutor and choose a guided method before starting your next passage.",
+        href: "/?tab=methods",
+        label: "Choose a study method"
+      }
+    ]
   },
   {
     path: "/how-to-study-the-bible",
@@ -161,10 +203,58 @@ const seoPages = [
     sections: [
       ["Begin with prayer and context", "Ask God for wisdom, read the surrounding verses, and notice who is speaking, what is happening, and where the passage sits in the wider book."],
       ["Observe before applying", "Look for repeated words, commands, promises, contrasts, people, places, and questions before rushing to a personal takeaway."],
-      ["Respond with obedience", "A good Bible study does not stop at information. Write a prayer, choose one next step, and return to the passage through the week."]
+      ["Understand the passage in context", "Ask what the author is saying to the original audience before deciding what the passage means for you today."],
+      ["Respond with obedience", "A good Bible study does not stop at information. Write a prayer, choose one next step, and return to the passage through the week."],
+      ["Keep a record", "Save notes, questions, prayers, highlights, and memory verses so your study can grow over time rather than disappearing after one reading."]
+    ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Choose a Bible passage that is short enough to study carefully.",
+      "Pray and read the surrounding context.",
+      "Observe repeated words, commands, promises, contrasts, and questions.",
+      "Interpret the passage in its chapter, book, and biblical context.",
+      "Apply the passage with prayer, obedience, memory, or a saved journal note."
+    ],
+    faq: [
+      ["Where should I start studying the Bible?", "Start with a manageable passage, such as a paragraph in a Gospel, Psalm, or New Testament letter. Shorter passages are easier to observe carefully."],
+      ["Do I need a complicated method?", "No. A simple rhythm of reading, observing, understanding, applying, and praying is enough to begin."],
+      ["How can I avoid taking verses out of context?", "Read the surrounding verses, notice the flow of thought, and ask what the passage meant before applying it personally."],
+      ["Should I write notes while studying?", "Writing notes can help you slow down, remember what you saw, and return to the passage later."]
     ],
     cta: "Start a guided study",
-    related: ["/bible-study-for-beginners", "/how-to-study-a-bible-passage", "/bible-study-methods"]
+    related: ["/bible-study-for-beginners", "/how-to-study-a-bible-passage", "/bible-study-methods", "/bible-study-journal"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Simple example: studying Psalm 23:1",
+        intro: "A short verse can still be studied carefully when you slow down and ask good questions.",
+        items: [
+          ["Observation", "The verse says the Lord is my shepherd and connects His care with the statement that I shall not want."],
+          ["Interpretation", "The image of shepherding points to God's provision, guidance, protection, and personal care."],
+          ["Application", "A faithful response could be to name one anxiety and bring it under the care of the Lord in prayer."],
+          ["Prayer", "Lord, shepherd me today. Teach me to trust Your care rather than living as though I must provide everything for myself."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Bible study checklist",
+        intro: "Use this simple checklist whenever you feel unsure what to do next.",
+        items: [
+          "Have I read the passage more than once?",
+          "Have I noticed what is actually in the text?",
+          "Have I considered the surrounding context?",
+          "Can I summarize the main point in one sentence?",
+          "Have I responded with prayer or a specific next step?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start a simple Bible study",
+        intro: "Open the Study tab and let Bible Study Tutor guide you through Scripture one step at a time.",
+        href: "/?tab=study",
+        label: "Start a guided study"
+      }
+    ]
   },
   {
     path: "/how-to-study-a-bible-passage",
@@ -175,11 +265,60 @@ const seoPages = [
     intro: "When you study a Bible passage, the goal is to listen carefully to the text before deciding what it means for life. Bible Study Tutor gives you a structured way to do that.",
     sections: [
       ["Read the passage more than once", "Read slowly, then reread. Notice the flow of thought, key words, commands, promises, and anything that surprises you."],
-      ["Ask what the author meant", "Interpret the passage in context. Look at the chapter, the book, the audience, and how the passage points to God’s character and work."],
-      ["Write a clear response", "Turn your study into prayer, action, memory, or encouragement. Save the notes in your journal so you can revisit them later."]
+      ["Ask what the author meant", "Interpret the passage in context. Look at the chapter, the book, the audience, and how the passage points to God's character and work."],
+      ["Use a method without forcing the text", "A method like OIA, SOAP, or Inductive Study gives structure, but the passage should still set the agenda."],
+      ["Write a clear response", "Turn your study into prayer, action, memory, or encouragement. Save the notes in your journal so you can revisit them later."],
+      ["Print when paper helps", "If handwriting helps you think, print a worksheet with the selected passage and use it for quiet study, small groups, or sermon follow-up."]
+    ],
+    schemaType: "HowTo",
+    howToSteps: [
+      "Read the passage and the surrounding context.",
+      "Write observations from the text before applying it.",
+      "Identify the main idea of the passage.",
+      "Choose a method such as OIA, SOAP, or Inductive Study.",
+      "Save your notes, pray through the passage, or print a worksheet."
+    ],
+    faq: [
+      ["How long should a Bible passage be for study?", "A paragraph or short section is usually best. It gives enough context without becoming too large to observe carefully."],
+      ["What should I write first?", "Start with observations: repeated words, commands, contrasts, questions, people, places, and anything the passage emphasizes."],
+      ["What is the difference between interpretation and application?", "Interpretation asks what the passage means in context. Application asks how that meaning should shape belief, prayer, obedience, and daily life."],
+      ["Can I turn a passage study into a worksheet?", "Yes. Bible Study Tutor can print selected Scripture with guided prompts for personal or group study."]
     ],
     cta: "Study a passage now",
-    related: ["/how-to-study-the-bible", "/bible-study-methods/oia", "/printable-bible-study-worksheets"]
+    related: ["/how-to-study-the-bible", "/bible-study-methods/oia", "/printable-bible-study-worksheets", "/bible-study-journal"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example workflow: Romans 8:1-4",
+        intro: "A passage like Romans 8:1-4 can be studied in a focused way without trying to solve the whole letter at once.",
+        items: [
+          ["Read", "Read Romans 8:1-4, then glance back at the end of Romans 7 so the word therefore is not isolated."],
+          ["Observe", "Notice condemnation, Christ Jesus, law, Spirit, flesh, and righteous requirement."],
+          ["Interpret", "Ask how Paul connects freedom from condemnation with the work of Christ and the Spirit."],
+          ["Apply", "Write one way this passage calls you to trust Christ rather than live under condemnation."],
+          ["Pray", "Ask God to help the truth of the passage shape your confidence and obedience."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Passage study safeguards",
+        intro: "These safeguards keep a Bible passage study from becoming rushed or disconnected.",
+        items: [
+          "Do not build an application before reading the context.",
+          "Do not treat a single word as the whole meaning of the passage.",
+          "Notice the main idea before focusing on smaller details.",
+          "Let difficult questions slow you down rather than forcing a quick answer.",
+          "Save questions you need to revisit later."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Study a Bible passage",
+        intro: "Open the Study tab and use guided prompts to work through a selected passage carefully.",
+        href: "/?tab=study&method=oia",
+        label: "Study a passage now"
+      }
+    ]
   },
   {
     path: "/bible-study-methods/soap",
@@ -730,12 +869,42 @@ const seoPages = [
     heading: "Bible Study Tutor features",
     intro: "Bible Study Tutor brings reading, study, memory, journaling, and simple community rhythms together in one free app.",
     sections: [
-      ["Read and search Scripture", "Navigate by book and chapter, search exact words or themes, and send selected verses into Study."],
+      ["Read and search Scripture", "Navigate by book and chapter, search exact words or themes, follow Bible reading plans, and send selected verses into Study."],
+      ["Study with structure", "Use guided methods such as SOAP, OIA, Inductive Study, word study, verse mapping, topical study, and Lectio Divina."],
       ["Save what matters", "Highlight verses, add notes, bookmark passages, save studies to your journal, and return to previous reflections by date or Scripture."],
-      ["Memorize and review", "Save memory verses and practise them in three simple steps with blanks, hints, and review dates."]
+      ["Memorize and review", "Save memory verses and practise them in three simple steps with blanks, hints, review dates, collections, and printable cards."],
+      ["Print for paper study", "Create printable worksheets and memory cards for personal study, small groups, youth groups, church classes, and people who prefer handwriting."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["What can I do in Bible Study Tutor?", "You can read Scripture, follow reading plans, study passages, save notes, highlight verses, memorize Scripture, print worksheets, and keep a Bible study journal."],
+      ["Does Bible Study Tutor work on mobile?", "Yes. It is designed for desktop and mobile, with account sync available for signed-in users."],
+      ["Can I use the app with paper worksheets?", "Yes. Printable Bible study worksheets and memory cards are part of the app's purpose."],
+      ["Is there a public social feed?", "No. Community features are private and designed for trusted encouragement, not public posting."]
     ],
     cta: "Open the app",
-    related: ["/bible-memory-verses", "/online-bible-study-journal", "/bible-highlighting-and-notes"]
+    related: ["/bible-memory-verses", "/online-bible-study-journal", "/bible-highlighting-and-notes", "/printable-bible-study-worksheets", "/bible-reading-plan-app"],
+    extraBlocks: [
+      {
+        type: "previews",
+        title: "Feature pathways",
+        intro: "New users can begin with the part of the app that matches their immediate need.",
+        items: [
+          ["Read", "Open the Bible reader, choose a book and chapter, or continue a reading plan."],
+          ["Study", "Select a passage and use a guided method to write observations, application, and prayer."],
+          ["Remember", "Save a verse to Memory and review it with blanks, hints, and scheduled practice."],
+          ["Print", "Create a worksheet or memory cards for study away from the screen."],
+          ["Journal", "Return to saved notes, studies, meditations, highlights, and bookmarks."]
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open Bible Study Tutor",
+        intro: "Start with the Bible reader, a guided study method, or memory verses depending on what you want to do next.",
+        href: "/?tab=home",
+        label: "Open the app"
+      }
+    ]
   },
   {
     path: "/free-bible-study-app",
@@ -747,10 +916,41 @@ const seoPages = [
     sections: [
       ["No paywall for core study", "Read Scripture, use guided study methods, save notes, create journal entries, review memory verses, and print worksheets without needing a paid subscription."],
       ["Works where people study", "Use the app on a desktop at a desk, on a phone during the day, or with printed worksheets when pen and paper is the better fit."],
-      ["Built for steady habits", "Daily rhythm, memory review, bookmarks, notes, and journal history help users keep returning to Scripture without turning study into a complicated system."]
+      ["Built for steady habits", "Daily rhythm, memory review, bookmarks, notes, reading plans, and journal history help users keep returning to Scripture without turning study into a complicated system."],
+      ["Privacy-aware by design", "The app avoids public timelines and does not need to turn private study notes, answers, prayers, or journal entries into public content."],
+      ["Useful for churches", "Because the core tools are free, a church or small group can recommend the app without asking people to pay for the basic study experience."]
+    ],
+    schemaType: "FAQPage",
+    faq: [
+      ["Is Bible Study Tutor really free?", "Yes. The core app is intended to remain free for Bible reading, guided study, journaling, memory verses, and printable worksheets."],
+      ["Why is the app free?", "The goal is to make practical Bible study tools accessible to individuals, small groups, and churches without a paywall."],
+      ["Can I use Bible Study Tutor without an account?", "Yes. You can explore the app without signing in. A free account helps sync saved progress across devices."],
+      ["Why are some Bible translations limited?", "Some modern Bible translations require separate publisher permission or paid licensing. Bible Study Tutor uses legally available Bible texts so the app can stay free."]
     ],
     cta: "Start studying free",
-    related: ["/about", "/features", "/bible-study-for-beginners"]
+    related: ["/about", "/features", "/bible-study-for-beginners", "/pricing", "/bible-study-app-for-churches"],
+    extraBlocks: [
+      {
+        type: "list",
+        title: "What is included free",
+        intro: "The free app experience is designed around practical Scripture engagement.",
+        items: [
+          "Bible reading by book and chapter.",
+          "Bible search and selected passage study.",
+          "Guided methods such as SOAP, OIA, Inductive Study, word study, and Lectio Divina.",
+          "Journal entries, highlights, bookmarks, and notes.",
+          "Memory verse review, collections, and printable cards.",
+          "Printable Bible study worksheets for personal or group use."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Start studying free",
+        intro: "Open Bible Study Tutor and begin with Scripture, a guided method, or a printable worksheet.",
+        href: "/?tab=home",
+        label: "Start studying free"
+      }
+    ]
   },
   {
     path: "/bible-study-for-beginners",
@@ -1232,12 +1432,53 @@ const seoPages = [
     heading: "Bible study journal",
     intro: "A Bible study journal helps you remember what you have read, how you prayed, and how Scripture shaped your thinking over time.",
     sections: [
-      ["Save more than notes", "Bible Study Tutor can keep guided studies, meditations, highlights, bookmarks, drafts, and prayerful reflections together."],
+      ["Save more than notes", "Bible Study Tutor can keep guided studies, meditations, highlights, bookmarks, drafts, prayers, and reflections together."],
       ["Find your way back", "Filter journal entries by Scripture, date, type, status, or pinned favourites when you want to revisit a passage."],
+      ["Connect reading with memory", "Journal entries can sit alongside highlighted passages and saved memory verses so Scripture is easier to return to through the week."],
       ["Build a record of growth", "Your journal becomes a quiet history of what you have noticed, prayed, and returned to in Scripture."]
     ],
+    schemaType: "FAQPage",
+    faq: [
+      ["What goes into a Bible study journal?", "A journal can include observations, questions, prayers, applications, highlights, bookmarks, meditations, memory verses, and completed studies."],
+      ["How is the journal different from notes?", "Notes can be attached to passages, while the journal gives a broader place to revisit saved studies, meditations, highlights, bookmarks, and reflections."],
+      ["Can I filter journal entries?", "Yes. Bible Study Tutor includes filters for finding entries by Scripture, date, type, status, or pinned favourites."],
+      ["Can I use the journal without sharing publicly?", "Yes. The journal is for private study and reflection, not a public timeline."]
+    ],
     cta: "Open the journal",
-    related: ["/online-bible-study-journal", "/how-to-study-a-bible-passage", "/bible-highlighting-and-notes"]
+    related: ["/online-bible-study-journal", "/how-to-study-a-bible-passage", "/bible-highlighting-and-notes", "/bible-memory-verses"],
+    extraBlocks: [
+      {
+        type: "example",
+        title: "Example journal entry structure",
+        intro: "A helpful journal entry does not need to be long. It simply records what you saw and how you want to respond.",
+        items: [
+          ["Passage", "Romans 8:1-4"],
+          ["Observation", "Paul emphasizes no condemnation in Christ and life by the Spirit."],
+          ["Reflection", "I often live as though guilt has the final word, but this passage calls me back to Christ."],
+          ["Prayer", "Lord, help me trust Your grace and walk by the Spirit today."],
+          ["Next step", "Return to Romans 8:1 this week as a memory verse."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Bible journal prompts",
+        intro: "Use these prompts when you are not sure what to write.",
+        items: [
+          "What did I notice in the passage?",
+          "What does this show me about God, Christ, people, sin, grace, or obedience?",
+          "What question do I need to keep exploring?",
+          "How should I pray in response?",
+          "What is one concrete way to remember or obey this passage?"
+        ]
+      },
+      {
+        type: "cta",
+        title: "Open your Bible study journal",
+        intro: "Save a study, revisit notes, or return to Scripture you have highlighted and bookmarked.",
+        href: "/?tab=journal",
+        label: "Open the journal"
+      }
+    ]
   },
   {
     path: "/bible-memory-verses",

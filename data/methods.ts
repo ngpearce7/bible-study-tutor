@@ -37,13 +37,13 @@ export const methods: StudyMethod[] = [
     steps: [
       {
         title: "Read Slowly",
-        action: "Read the passage twice before writing anything.",
-        prompt: "First read for the overall flow. Then read again and slow down over repeated words, people, actions, and images.",
-        checklist: ["Read the whole passage once", "Read it a second time more slowly", "Notice one phrase that seems important"],
-        output: "No writing yet. Click next when you have read it twice.",
+        action: "Read once for the flow, then again to notice details.",
+        prompt: "The first reading helps you hear the whole passage. The second reading is for observation: repeated words, people, actions, images, commands, promises, and contrasts.",
+        checklist: ["Read the whole passage once", "Read it again looking for details", "Notice one phrase, action, or contrast that seems important"],
+        output: "No writing yet. Click next when you have read and noticed details.",
         example: "You are preparing to observe. Do not explain the passage yet.",
         responseType: "none",
-        nextLabel: "I read it twice"
+        nextLabel: "I noticed details"
       },
       {
         title: "Observe",
@@ -84,13 +84,13 @@ export const methods: StudyMethod[] = [
     steps: [
       {
         title: "Read Scripture",
-        action: "Read the selected passage twice, slowly.",
-        prompt: "On the first reading, take in the whole passage. On the second reading, slow down and listen for words, images, or phrases that stand out.",
-        checklist: ["Read the passage once from beginning to end", "Read it a second time more slowly", "Choose one verse or phrase you want to focus on"],
-        output: "No writing yet. Click next when you have read the passage twice.",
+        action: "Read slowly and choose the verse or phrase you will carry into SOAP.",
+        prompt: "Take in the whole passage, then settle on the Scripture line, verse, or phrase you want to observe, apply, and pray through.",
+        checklist: ["Read the passage from beginning to end", "Choose one verse or phrase to focus on", "Keep the chosen phrase connected to the surrounding passage"],
+        output: "No writing yet. Click next when you have chosen your Scripture focus.",
         example: "If a phrase stands out, hold it in mind for the next step.",
         responseType: "none",
-        nextLabel: "I read it twice"
+        nextLabel: "I chose a focus"
       },
       {
         title: "Observation",
@@ -131,9 +131,9 @@ export const methods: StudyMethod[] = [
     steps: [
       {
         title: "Read for Context",
-        action: "Read the passage twice and identify the basic setting.",
-        prompt: "Before analyzing details, get oriented. Notice the kind of writing, the people involved, and the basic flow.",
-        checklist: ["Read the whole passage twice", "Identify the speaker or main person", "Notice whether this is story, poetry, teaching, law, prophecy, or letter"],
+        action: "Read the passage and identify its basic setting.",
+        prompt: "Before analyzing details, get oriented. Notice the kind of writing, the people involved, the speaker or audience, and the basic flow of thought or events.",
+        checklist: ["Read the whole passage carefully", "Identify the speaker, audience, or main person", "Notice whether this is story, poetry, teaching, law, prophecy, or letter"],
         output: "No writing yet. Click next when you are oriented.",
         example: "You are preparing to study the passage in context.",
         responseType: "none",
@@ -187,9 +187,9 @@ export const methods: StudyMethod[] = [
     steps: [
       {
         title: "Read",
-        action: "Read the passage twice, slowly and prayerfully.",
-        prompt: "Do not try to study every detail. Listen for the word or phrase that draws your attention.",
-        checklist: ["Read once slowly", "Read a second time even slower", "Notice one word or phrase that stands out"],
+        action: "Read prayerfully and listen for one word or phrase.",
+        prompt: "Do not try to study every detail. Let the passage slow you down and listen for the word or phrase that draws your attention before God.",
+        checklist: ["Read slowly and prayerfully", "Pause over the words rather than rushing", "Notice one word or phrase that stands out"],
         output: "No writing yet. Click next when you have read and noticed one phrase.",
         example: "You might notice a phrase like “still waters” or “you are with me.”",
         responseType: "none",
@@ -246,13 +246,13 @@ export const methods: StudyMethod[] = [
     steps: [
       {
         title: "Read",
-        action: "Read the passage slowly and notice the basic flow.",
-        prompt: "Read once for the whole thought. Then read again and listen for a word, phrase, command, promise, warning, or image that seems important.",
-        checklist: ["Read the passage twice", "Notice one word or phrase that stands out", "Name the main movement of the passage"],
-        output: "No writing yet. Click next when you have read slowly.",
+        action: "Read the passage and name its main movement.",
+        prompt: "Read for the whole thought. Notice where the passage begins, where it moves, and whether a word, phrase, command, promise, warning, or image seems important.",
+        checklist: ["Read the passage for the whole thought", "Notice one word or phrase that stands out", "Name the main movement of the passage"],
+        output: "No writing yet. Click next when you can name the basic flow.",
         example: "You might notice a command, promise, image, or repeated word.",
         responseType: "none",
-        nextLabel: "I read it slowly"
+        nextLabel: "I see the flow"
       },
       {
         title: "Explore",
@@ -306,8 +306,8 @@ export const methods: StudyMethod[] = [
       {
         title: "Highlight",
         action: "Choose one word or phrase from the passage.",
-        prompt: "Read slowly and choose the phrase that carries weight for you today. It may comfort, challenge, puzzle, or invite you.",
-        checklist: ["Read the passage twice", "Choose one phrase", "Notice why it drew your attention"],
+        prompt: "Read slowly enough to choose the phrase that carries weight for you today. It may comfort, challenge, puzzle, or invite you.",
+        checklist: ["Read the passage slowly", "Choose one phrase", "Notice why it drew your attention"],
         output: "No writing yet. Click next when you have chosen a phrase.",
         example: "A phrase like “the Lord is my shepherd” may become your focus.",
         responseType: "none",
@@ -366,7 +366,7 @@ export const methods: StudyMethod[] = [
         title: "Context",
         action: "Notice where the passage sits and what is happening around it.",
         prompt: "Read the selected passage and look briefly at the verses before and after if available. Identify the speaker, audience, situation, or flow.",
-        checklist: ["Read the passage twice", "Identify the kind of writing", "Notice the nearby theme or situation"],
+        checklist: ["Read the selected passage", "Identify the kind of writing", "Notice the nearby theme or situation"],
         output: "Write 1-2 sentences beginning with “In context...”",
         example: "In context, Paul is encouraging believers toward joy, steadiness, and prayer.",
         responseType: "text"

@@ -1902,6 +1902,20 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout]);
 
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined") return;
+    if (tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1 || !memoryPracticeAllCorrect) return;
+
+    const handleMemoryPracticeEnter = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" || event.repeat || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+      event.preventDefault();
+      continueMemoryPractice();
+    };
+
+    window.addEventListener("keydown", handleMemoryPracticeEnter);
+    return () => window.removeEventListener("keydown", handleMemoryPracticeEnter);
+  }, [activeMemoryVerseId, memoryPracticeAllCorrect, memoryPracticeLevel, tab]);
+
   function scrollMemoryPracticeBy(delta: number, animated = true) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
     appScrollRef.current?.scrollTo?.({ y: Math.max(0, appScrollYRef.current + delta), animated });

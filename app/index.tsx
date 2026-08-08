@@ -2298,7 +2298,7 @@ export default function Home() {
   }, [studyPassageReference]);
 
   useEffect(() => {
-    if (tab !== "study") return;
+    if (tab !== "study" || !studyContextOpen) return;
     const requestId = ++studyCrossReferenceListRequestIdRef.current;
     const initialReferences = getStudyCrossReferences(studyPassageReference);
 
@@ -2318,7 +2318,7 @@ export default function Home() {
       setStudyCrossReferences(initialReferences);
       setStudyCrossReferenceListStatus(initialReferences.length ? "" : "No cross references found for this passage yet.");
     });
-  }, [studyPassageReference, tab]);
+  }, [studyContextOpen, studyPassageReference, tab]);
 
   useEffect(() => {
     if (tab !== "study" || !studyContextOpen || !studyContextReference?.reference) return;
@@ -6820,25 +6820,23 @@ export default function Home() {
                     <Text style={[styles.translationNote, studyDarkMode && styles.accountDarkMutedText]}>
                       {passageText.translation_name} · {passageText.translation_note || "Public Domain"}
                     </Text>
-                    {(studyContextReference || studyCrossReferences.length > 0) && (
+                    {passageText && (
                       <View style={[styles.studyContextTools, studyDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.studyContextToolHeader}>
                           <View style={styles.studyContextToolTitleBlock}>
                             <Text style={[styles.studyContextToolTitle, studyDarkMode && styles.accountDarkTitle]}>Context and cross references</Text>
-                            <Text style={[styles.studyContextToolIntro, studyDarkMode && styles.accountDarkMutedText]}>Read nearby verses first, then compare related passages.</Text>
+                            {studyContextOpen && <Text style={[styles.studyContextToolIntro, studyDarkMode && styles.accountDarkMutedText]}>Read nearby verses first, then compare related passages.</Text>}
                           </View>
-                          {studyContextReference && (
-                            <Pressable
-                              accessibilityRole="button"
-                              accessibilityLabel={studyContextOpen ? "Hide surrounding context" : `Show surrounding context for ${studyContextReference.selectedReference}`}
-                              accessibilityState={{ expanded: studyContextOpen }}
-                              onPress={() => setStudyContextOpen((value) => !value)}
-                              style={[styles.studyContextToggle, studyDarkMode && styles.homeDarkResumeButton]}
-                            >
-                              <Ionicons name={studyContextOpen ? "chevron-up-outline" : "reader-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-                              <Text style={[styles.studyContextToggleText, studyDarkMode && styles.homeDarkResumeButtonText]}>{studyContextOpen ? "Hide context" : "Show context"}</Text>
-                            </Pressable>
-                          )}
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={studyContextOpen ? "Hide context and cross references" : "Show context and cross references"}
+                            accessibilityState={{ expanded: studyContextOpen }}
+                            onPress={() => setStudyContextOpen((value) => !value)}
+                            style={[styles.studyContextToggle, studyDarkMode && styles.homeDarkResumeButton]}
+                          >
+                            <Ionicons name={studyContextOpen ? "chevron-up-outline" : "git-branch-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                            <Text style={[styles.studyContextToggleText, studyDarkMode && styles.homeDarkResumeButtonText]}>{studyContextOpen ? "Hide" : "Show"}</Text>
+                          </Pressable>
                         </View>
 
                         {studyContextOpen && studyContextReference && (
@@ -6861,7 +6859,7 @@ export default function Home() {
                           </View>
                         )}
 
-                        {studyCrossReferences.length > 0 && (
+                        {studyContextOpen && (studyCrossReferenceListStatus || studyCrossReferences.length > 0) && (
                           <View style={styles.studyCrossReferenceArea}>
                             <Text style={[styles.studyContextPreviewLabel, studyDarkMode && styles.studyDarkAccentText]}>Cross references</Text>
                             {!!studyCrossReferenceListStatus && <Text style={[styles.studyCrossReferenceReason, studyDarkMode && styles.accountDarkMutedText]}>{studyCrossReferenceListStatus}</Text>}

@@ -929,6 +929,7 @@ export default function Home() {
     }
     const requestedTab = url.searchParams.get("tab");
     const requestedMethod = url.searchParams.get("method");
+    const requestedPassage = url.searchParams.get("passage");
     const sharedSource = url.searchParams.get("shared");
     const pendingTab = safeGetLocalStorageValue("bibleStudyTutorReturnTab");
     const nextTab = publicUrlTabs.has(requestedTab as Tab) ? requestedTab : tabs.includes(pendingTab as Tab) ? pendingTab : "";
@@ -938,11 +939,27 @@ export default function Home() {
       setStepIndex(0);
       setStudyPhase("study");
     }
+    if (requestedPassage && requestedPassage.length <= 80) {
+      const normalizedRequestedPassage = requestedPassage.trim().replace(/\s+/g, " ");
+      if (normalizedRequestedPassage) {
+        setPassage(normalizedRequestedPassage);
+        setPassageQuery(normalizedRequestedPassage);
+        setPassageText(null);
+        setPassageStatus("Loading passage...");
+        setStepIndex(0);
+        setStudyPhase("study");
+        setSavedStudySummary(null);
+        setAnswers({});
+        setSelectedVerseKeys([]);
+        setActivePlanDayKey("");
+      }
+    }
     if (sharedSource) setIncomingShareSource(sharedSource.slice(0, 40));
     safeRemoveLocalStorageValue("bibleStudyTutorReturnTab");
     if (requestedTab && !publicUrlTabs.has(requestedTab as Tab)) {
       url.searchParams.set("tab", "home");
       url.searchParams.delete("method");
+      url.searchParams.delete("passage");
       safeReplaceBrowserUrl(url);
     }
     hasReadInitialUrlRef.current = true;
@@ -968,10 +985,12 @@ export default function Home() {
       }
       if (tab !== "study") {
         url.searchParams.delete("method");
+        url.searchParams.delete("passage");
       }
-    } else if (url.searchParams.has("tab") || url.searchParams.has("method")) {
+    } else if (url.searchParams.has("tab") || url.searchParams.has("method") || url.searchParams.has("passage")) {
       url.searchParams.delete("tab");
       url.searchParams.delete("method");
+      url.searchParams.delete("passage");
     }
     safeReplaceBrowserUrl(url);
   }, [tab]);

@@ -2432,7 +2432,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Romans",
         intro: "Open a passage from Romans in Bible Study Tutor and use inductive study or word study to move slowly through the text.",
-        href: "/?tab=study&method=inductive",
+        href: "/?tab=study&method=inductive&passage=Romans%2012%3A1-2",
         label: "Start a Romans study"
       }
     ]
@@ -2494,7 +2494,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying John",
         intro: "Open John in Bible Study Tutor and use OIA, SOAP, or Lectio Divina to follow the Gospel passage by passage.",
-        href: "/?tab=study&method=oia",
+        href: "/?tab=study&method=oia&passage=John%2020%3A30-31",
         label: "Start a John study"
       }
     ]
@@ -2557,7 +2557,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Genesis",
         intro: "Open Genesis in Bible Study Tutor and use inductive study or character study to follow the story carefully.",
-        href: "/?tab=study&method=inductive",
+        href: "/?tab=study&method=inductive&passage=Genesis%2012%3A1-9",
         label: "Start a Genesis study"
       }
     ]
@@ -2620,7 +2620,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Psalms",
         intro: "Open a psalm in Bible Study Tutor and use Lectio Divina, SOAP, or journaling to pray through the passage.",
-        href: "/?tab=study&method=lectio",
+        href: "/?tab=study&method=lectio&passage=Psalm%2023",
         label: "Start a Psalms study"
       }
     ]
@@ -2683,7 +2683,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Proverbs",
         intro: "Open Proverbs in Bible Study Tutor and use topical study or OIA to trace wisdom into daily life.",
-        href: "/?tab=study&method=topical-study",
+        href: "/?tab=study&method=topical-study&passage=Proverbs%203%3A5-6",
         label: "Start a Proverbs study"
       }
     ]
@@ -2745,7 +2745,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Matthew",
         intro: "Open Matthew in Bible Study Tutor and use guided study prompts to observe, interpret, apply, and pray through the passage.",
-        href: "/?tab=study&method=cross-reference-study",
+        href: "/?tab=study&method=cross-reference-study&passage=Matthew%2028%3A16-20",
         label: "Start a Matthew study"
       }
     ]
@@ -2807,7 +2807,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Mark",
         intro: "Open Mark in Bible Study Tutor and use OIA prompts to move carefully from the text to faithful response.",
-        href: "/?tab=study&method=oia",
+        href: "/?tab=study&method=oia&passage=Mark%2010%3A45",
         label: "Start a Mark study"
       }
     ]
@@ -2869,7 +2869,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Luke",
         intro: "Open Luke in Bible Study Tutor and use character study or topical study prompts to trace mercy, mission, and discipleship.",
-        href: "/?tab=study&method=character-study",
+        href: "/?tab=study&method=character-study&passage=Luke%2019%3A1-10",
         label: "Start a Luke study"
       }
     ]
@@ -2931,7 +2931,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Acts",
         intro: "Open Acts in Bible Study Tutor and use inductive prompts to follow the spread of the gospel with clarity.",
-        href: "/?tab=study&method=inductive",
+        href: "/?tab=study&method=inductive&passage=Acts%201%3A8",
         label: "Start an Acts study"
       }
     ]
@@ -2993,7 +2993,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Ephesians",
         intro: "Open Ephesians in Bible Study Tutor and use word study prompts to trace identity, grace, and gospel-shaped living.",
-        href: "/?tab=study&method=word-study",
+        href: "/?tab=study&method=word-study&passage=Ephesians%204%3A1-6",
         label: "Start an Ephesians study"
       }
     ]
@@ -3055,7 +3055,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Philippians",
         intro: "Open Philippians in Bible Study Tutor and use SOAP prompts for prayerful, practical reflection.",
-        href: "/?tab=study&method=soap",
+        href: "/?tab=study&method=soap&passage=Philippians%204%3A4-9",
         label: "Start a Philippians study"
       }
     ]
@@ -3117,7 +3117,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying James",
         intro: "Open James in Bible Study Tutor and use OIA or topical study prompts to turn careful reading into practical obedience.",
-        href: "/?tab=study&method=oia",
+        href: "/?tab=study&method=oia&passage=James%201%3A2-8",
         label: "Start a James study"
       }
     ]
@@ -3530,6 +3530,25 @@ function getCtaHref(page, appUrl) {
 }
 
 function getAppEntryQuery(page) {
+  const starterStudyTargets = {
+    "/how-to-study-romans": ["inductive", "Romans 12:1-2"],
+    "/how-to-study-the-gospel-of-john": ["oia", "John 20:30-31"],
+    "/how-to-study-genesis": ["inductive", "Genesis 12:1-9"],
+    "/how-to-study-psalms": ["lectio", "Psalm 23"],
+    "/how-to-study-proverbs": ["topical-study", "Proverbs 3:5-6"],
+    "/how-to-study-matthew": ["cross-reference-study", "Matthew 28:16-20"],
+    "/how-to-study-mark": ["oia", "Mark 10:45"],
+    "/how-to-study-luke": ["character-study", "Luke 19:1-10"],
+    "/how-to-study-acts": ["inductive", "Acts 1:8"],
+    "/how-to-study-ephesians": ["word-study", "Ephesians 4:1-6"],
+    "/how-to-study-philippians": ["soap", "Philippians 4:4-9"],
+    "/how-to-study-james": ["oia", "James 1:2-8"]
+  };
+  const starterStudyTarget = starterStudyTargets[page.path];
+  if (starterStudyTarget) {
+    const [methodId, passage] = starterStudyTarget;
+    return `tab=study&method=${methodId}&passage=${encodeURIComponent(passage)}`;
+  }
   if (page.path === "/bible-study-methods") return "tab=methods";
   if (page.path.startsWith("/bible-study-methods/")) {
     const methodSlug = page.path.split("/").filter(Boolean).pop() || "";

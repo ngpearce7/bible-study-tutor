@@ -292,7 +292,7 @@ const seoPages = [
         intro: "Open the Bible reader, choose a passage, and print a guided worksheet for study on paper.",
         href: "/?tab=bible",
         label: "Print a worksheet",
-        secondaryHref: "/?tab=study&method=soap&passage=Romans%208%3A1",
+        secondaryHref: "/?tab=study&method=soap&passage=Romans%208%3A1&print=worksheet",
         secondaryLabel: "Print a Romans 8:1 worksheet"
       }
     ]

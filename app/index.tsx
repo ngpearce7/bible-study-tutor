@@ -727,6 +727,7 @@ export default function Home() {
   const [loadedDraftKey, setLoadedDraftKey] = useState("");
   const [saveStatus, setSaveStatus] = useState("Not saved yet");
   const [printWorksheetRequest, setPrintWorksheetRequest] = useState<PrintableWorksheetRequest | null>(null);
+  const [pendingStudyWorksheetPrint, setPendingStudyWorksheetPrint] = useState(false);
   const [printWorksheetMethodId, setPrintWorksheetMethodId] = useState(methods[0]?.id || "");
   const [printWorksheetWritingSpace, setPrintWorksheetWritingSpace] = useState<WorksheetWritingSpace>("standard");
   const [printWorksheetIncludes, setPrintWorksheetIncludes] = useState({ memory: true, insight: true });
@@ -939,9 +940,11 @@ export default function Home() {
     const requestedTab = url.searchParams.get("tab");
     const requestedMethod = url.searchParams.get("method");
     const requestedPassage = url.searchParams.get("passage");
+    const requestedPrint = url.searchParams.get("print");
     const sharedSource = url.searchParams.get("shared");
     const pendingTab = safeGetLocalStorageValue("bibleStudyTutorReturnTab");
     const nextTab = publicUrlTabs.has(requestedTab as Tab) ? requestedTab : tabs.includes(pendingTab as Tab) ? pendingTab : "";
+    let hasRequestedStudyPassage = false;
     if (nextTab) setTab(nextTab as Tab);
     if (requestedMethod && methods.some((item) => item.id === requestedMethod)) {
       setMethodId(requestedMethod);
@@ -951,6 +954,7 @@ export default function Home() {
     if (requestedPassage && requestedPassage.length <= 80) {
       const normalizedRequestedPassage = requestedPassage.trim().replace(/\s+/g, " ");
       if (normalizedRequestedPassage) {
+        hasRequestedStudyPassage = true;
         setPassage(normalizedRequestedPassage);
         setPassageQuery(normalizedRequestedPassage);
         setPassageText(null);
@@ -962,12 +966,16 @@ export default function Home() {
         setSelectedVerseKeys([]);
       }
     }
+    if (requestedPrint === "worksheet" && nextTab === "study" && hasRequestedStudyPassage) {
+      setPendingStudyWorksheetPrint(true);
+    }
     if (sharedSource) setIncomingShareSource(sharedSource.slice(0, 40));
     safeRemoveLocalStorageValue("bibleStudyTutorReturnTab");
     if (requestedTab && !publicUrlTabs.has(requestedTab as Tab)) {
       url.searchParams.set("tab", "home");
       url.searchParams.delete("method");
       url.searchParams.delete("passage");
+      url.searchParams.delete("print");
       safeReplaceBrowserUrl(url);
     }
     hasReadInitialUrlRef.current = true;
@@ -994,11 +1002,13 @@ export default function Home() {
       if (tab !== "study") {
         url.searchParams.delete("method");
         url.searchParams.delete("passage");
+        url.searchParams.delete("print");
       }
-    } else if (url.searchParams.has("tab") || url.searchParams.has("method") || url.searchParams.has("passage")) {
+    } else if (url.searchParams.has("tab") || url.searchParams.has("method") || url.searchParams.has("passage") || url.searchParams.has("print")) {
       url.searchParams.delete("tab");
       url.searchParams.delete("method");
       url.searchParams.delete("passage");
+      url.searchParams.delete("print");
     }
     safeReplaceBrowserUrl(url);
   }, [tab]);
@@ -2282,6 +2292,28 @@ export default function Home() {
       controller.abort();
     };
   }, [passage, passageReloadKey, bibleTranslation, tab]);
+
+  useEffect(() => {
+    if (!pendingStudyWorksheetPrint || tab !== "study" || !passageText?.verses?.length) return;
+    setPendingStudyWorksheetPrint(false);
+    setPrintWorksheetMethodId(method.id);
+    setPrintWorksheetWritingSpace("standard");
+    setPrintWorksheetIncludes({ memory: true, insight: true });
+    setPrintWorksheetRequest({
+      source: "study",
+      reference: passageText.reference || passage,
+      translation: shortBibleTranslationName(passageText.translation_name),
+      verses: passageText.verses
+    });
+    setSaveStatus("Printable worksheet is ready to open.");
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      const url = safeCurrentUrl();
+      if (url?.searchParams.get("print") === "worksheet") {
+        url.searchParams.delete("print");
+        safeReplaceBrowserUrl(url);
+      }
+    }
+  }, [method.id, passage, passageText, pendingStudyWorksheetPrint, tab]);
 
   useEffect(() => {
     setStudyContextOpen(false);

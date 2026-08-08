@@ -291,7 +291,9 @@ const seoPages = [
         title: "Print a Bible study worksheet",
         intro: "Open the Bible reader, choose a passage, and print a guided worksheet for study on paper.",
         href: "/?tab=bible",
-        label: "Print a worksheet"
+        label: "Print a worksheet",
+        secondaryHref: "/?tab=study&method=soap&passage=Romans%208%3A1",
+        secondaryLabel: "Print a Romans 8:1 worksheet"
       }
     ]
   },
@@ -3736,6 +3738,8 @@ function buildSeoPage(page, baseUrl) {
       .journal-note { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
       .journal-note h3 { color: var(--olive); font-size: 15px; margin: 0 0 7px; }
       .extra-cta { align-items: flex-start; display: grid; gap: 14px; }
+      .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button.secondary { background: transparent; border: 1px solid var(--olive); color: var(--olive); }
       details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
       summary { color: var(--olive); cursor: pointer; font-weight: 900; }
       details p { margin-top: 10px; }
@@ -3845,12 +3849,18 @@ function buildExtraSeoBlock(block) {
   if (block.type === "cta") {
     const href = block.href || "/";
     const label = block.label || "Open Bible Study Tutor";
+    const secondaryButton = block.secondaryHref && block.secondaryLabel
+      ? `<a class="button secondary" href="${escapeHtml(block.secondaryHref)}">${escapeHtml(block.secondaryLabel)}</a>`
+      : "";
     return `<section class="extra-block extra-cta" aria-labelledby="${slugifyForId(block.title)}">
         <div>
           <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
           ${intro}
         </div>
-        <a class="button" href="${escapeHtml(href)}">${escapeHtml(label)}</a>
+        <div class="cta-actions">
+          <a class="button" href="${escapeHtml(href)}">${escapeHtml(label)}</a>
+          ${secondaryButton}
+        </div>
       </section>`;
   }
 

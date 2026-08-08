@@ -14864,8 +14864,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   },
   togglePill: {
+    alignItems: "center",
     backgroundColor: colors.soft,
     borderRadius: 999,
+    flexDirection: "row",
+    gap: 6,
+    justifyContent: "center",
     paddingHorizontal: 12,
     paddingVertical: 7
   },

@@ -197,6 +197,8 @@ function bestForFor(category = "", dayCount = 0) {
   if (lower.includes("beginner")) return "Beginners and anyone wanting a friendly first path";
   if (lower.includes("prayer")) return "Prayer, devotional reading, and reflection";
   if (lower.includes("care")) return "Comfort, peace, grief, and pastoral care";
+  if (lower.includes("identity")) return "Remembering who you are in Christ";
+  if (lower.includes("abiding")) return "Devotional reading, prayer, and remaining close to Christ";
   if (lower.includes("wisdom")) return "Decision-making, discernment, and daily wisdom";
   if (lower.includes("overview")) return "Seeing the big picture before deeper study";
   if (lower.includes("gospel") || lower.includes("gospels")) return "Learning Jesus' life, teaching, death, and resurrection";
@@ -218,6 +220,8 @@ function purposeFor(plan: Pick<BibleReadingPlan, "title" | "description" | "cate
   const category = (plan.category || "").toLowerCase();
   if (category.includes("prayer")) return "To help you turn Scripture into prayer, trust, worship, and honest dependence on God.";
   if (category.includes("care")) return "To give gentle Scripture readings for seasons of worry, grief, comfort, and hope.";
+  if (category.includes("identity")) return "To help you receive what Scripture says about who you are in Christ before rushing into performance or comparison.";
+  if (category.includes("abiding")) return "To help you slow down with Jesus' invitation to remain in him, depend on him, and bear fruit from closeness with him.";
   if (category.includes("wisdom")) return "To help you read slowly for wisdom, discernment, and faithful decisions.";
   if (category.includes("overview")) return "To give a manageable overview before choosing where to study more deeply.";
   if (category.includes("gospel")) return "To keep your attention on Jesus and the good news of grace, faith, and new life.";
@@ -371,6 +375,24 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Philippians 4", "Philippians", 4],
     ["Colossians 3", "Colossians", 3]
   ], "Care"),
+  planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
+    ["John 1", "John", 1, "Received as God's children"],
+    ["Romans 8", "Romans", 8, "No condemnation"],
+    ["2 Corinthians 5", "2 Corinthians", 5, "New creation"],
+    ["Galatians 3", "Galatians", 3, "Clothed with Christ"],
+    ["Ephesians 1", "Ephesians", 1, "Blessed and chosen"],
+    ["Colossians 3", "Colossians", 3, "Hidden with Christ"],
+    ["1 Peter 2", "1 Peter", 2, "A chosen people"]
+  ], "Identity"),
+  planFromReferences("abiding-in-christ", "Abiding in Christ", "A gentle week of readings about remaining with Jesus and bearing fruit from him.", [
+    ["John 15", "John", 15, "Remain in me"],
+    ["Psalm 1", "Psalms", 1, "Planted by streams"],
+    ["Psalm 27", "Psalms", 27, "Dwell with the Lord"],
+    ["Matthew 11", "Matthew", 11, "Come to me"],
+    ["Luke 10", "Luke", 10, "Sit at Jesus' feet"],
+    ["Colossians 2", "Colossians", 2, "Rooted and built up"],
+    ["1 John 2", "1 John", 2, "Abide in him"]
+  ], "Abiding"),
   planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding grace, faith, prayer, and new life.", [
     ["John 3", "John", 3],
     ["Ephesians 2", "Ephesians", 2],

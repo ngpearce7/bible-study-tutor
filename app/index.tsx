@@ -1667,7 +1667,7 @@ export default function Home() {
     ? readerPlanReadingChunkCount > 1
       ? `Part ${readerPlanReadingChunkIndex + 1} of ${readerPlanReadingChunkCount}: ${readerPlanCurrentChunk.reference}.`
       : readerPlanChunkIsFullCurrentChapter
-        ? "This chapter is the plan reading."
+        ? ""
         : readerPlanCurrentChunk.startVerse && readerPlanCurrentChunk.endVerse && readerPlanCurrentChunk.startVerse === readerPlanCurrentChunk.endVerse
           ? `Only verse ${readerPlanCurrentChunk.startVerse} is shown.`
           : readerPlanCurrentChunk.startVerse && readerPlanCurrentChunk.endVerse

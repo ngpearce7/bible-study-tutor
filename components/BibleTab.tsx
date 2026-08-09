@@ -117,6 +117,7 @@ export function BibleTab({
   activeReaderActionVerse,
   readerMemoryVerseKeys,
   activeReadingPlanDay,
+  activeReadingPlanName,
   activeReadingPlanDayCompleted,
   planReadingMode,
   planReadingCanMovePrevious,
@@ -277,6 +278,7 @@ export function BibleTab({
           memoryVerseKeys={readerMemoryVerseKeys}
           matchesActiveReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
           activeReadingPlanDay={activeReadingPlanDay}
+          activeReadingPlanName={activeReadingPlanName}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
           planReadingMode={planReadingMode}
               planReadingCanMovePrevious={planReadingCanMovePrevious}

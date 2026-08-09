@@ -16,6 +16,7 @@ type BibleReaderPassageProps = {
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
   activeReadingPlanDay?: { reference: string } | null;
+  activeReadingPlanName?: string;
   activeReadingPlanDayCompleted?: boolean;
   planReadingMode?: boolean;
   planReadingCanMovePrevious?: boolean;
@@ -61,6 +62,7 @@ export function BibleReaderPassage({
   memoryVerseKeys,
   matchesActiveReadingPlanDay,
   activeReadingPlanDay,
+  activeReadingPlanName,
   activeReadingPlanDayCompleted,
   planReadingMode,
   planReadingCanMovePrevious,
@@ -103,6 +105,16 @@ export function BibleReaderPassage({
   const showExitPlanReadingButton = !!planReadingMode;
   const exitPlanReadingLabel = phoneLayout ? "Cancel" : "Cancel reading";
   const exitPlanReadingAccessibilityLabel = "Cancel focused plan reading";
+  const activeReadingPlanLabel = activeReadingPlanDay
+    ? planReadingMode && activeReadingPlanName?.trim()
+      ? `${activeReadingPlanDay.reference} - ${activeReadingPlanName.trim()}`
+      : activeReadingPlanDay.reference
+    : "";
+  const focusedPlanReadingNote = planReadingNote || (planReadingHasMultipleParts
+    ? "Use Previous and Next to move through this plan reading."
+    : planReadingFullChapter
+      ? ""
+      : "Only this plan passage is shown.");
 
   return (
     <>
@@ -192,13 +204,9 @@ export function BibleReaderPassage({
             <View style={styles.readerPlanCompletionCopy}>
               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                {activeReadingPlanDayCompleted ? `${activeReadingPlanDay.reference} is complete.` : activeReadingPlanDay.reference}
+                {activeReadingPlanDayCompleted ? `${activeReadingPlanLabel} is complete.` : activeReadingPlanLabel}
                 {planReadingMode && !activeReadingPlanDayCompleted
-                  ? ` ${planReadingNote || (planReadingHasMultipleParts
-                    ? "Use Previous and Next to move through this plan reading."
-                    : planReadingFullChapter
-                      ? "This chapter is the plan reading."
-                      : "Only this plan passage is shown.")}`
+                  ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                   : ""}
               </Text>
             </View>

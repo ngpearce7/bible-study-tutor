@@ -7512,6 +7512,7 @@ export default function Home() {
               readerMemoryVerseKeys={readerMemoryVerseKeys}
               readerMatchesActiveBibleReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
               activeReadingPlanDay={readerActiveBibleReadingPlanDay}
+              activeReadingPlanName={readerBibleReadingPlan?.title || ""}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
               planReadingMode={readerPlanReadingActive}
               planReadingCanMovePrevious={readerPlanCanMovePrevious}

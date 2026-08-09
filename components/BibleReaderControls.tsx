@@ -10,6 +10,7 @@ type BibleReaderControlsProps = {
   translationId: string;
   readerReference: string;
   planReadingMode?: boolean;
+  planReadingLabel?: string;
   chapterDraft: string;
   chapterCount: number;
   selectedVerseCount: number;
@@ -37,6 +38,7 @@ export function BibleReaderControls({
   translationId,
   readerReference,
   planReadingMode,
+  planReadingLabel,
   chapterDraft,
   chapterCount,
   selectedVerseCount,
@@ -86,7 +88,7 @@ export function BibleReaderControls({
       {planReadingMode ? (
         <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
           <Ionicons name="reader-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-          <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>Plan reading mode</Text>
+          <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>{planReadingLabel || "Plan reading"}</Text>
         </View>
       ) : (
       <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>

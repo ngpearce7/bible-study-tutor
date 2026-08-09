@@ -97,6 +97,7 @@ export function BibleTab({
   readerStudyReference,
   readerChapterDraft,
   readerChapterCount,
+  planReadingLabel,
   selectedReaderVerses,
   currentChapterRead,
   currentChapterBookmarked,
@@ -246,6 +247,7 @@ export function BibleTab({
           translationId={bibleTranslation}
           readerReference={displayedReaderReference}
           planReadingMode={planReadingMode}
+          planReadingLabel={planReadingLabel}
           chapterDraft={readerChapterDraft}
           chapterCount={readerChapterCount}
           selectedVerseCount={selectedReaderVerses.length}

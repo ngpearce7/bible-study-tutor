@@ -1676,6 +1676,10 @@ export default function Home() {
               ? `This plan reading starts at verse ${readerPlanCurrentChunk.startVerse}.`
               : "Only this plan passage is shown."
     : "";
+  const readerPlanReadingLabel =
+    readerPlanReadingActive && readerBibleReadingPlan && readerActiveBibleReadingPlanDay
+      ? `${readerBibleReadingPlan.title} - Day ${readerActiveBibleReadingPlanDay.day}, ${readerActiveBibleReadingPlanDay.title || readerActiveBibleReadingPlanDay.reference}`
+      : "";
   const readerLoadRequest = buildReaderLoadRequest(readerPlanReadingActive, readerPlanReading, `${readerBook} ${readerChapter}`);
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
@@ -7491,6 +7495,7 @@ export default function Home() {
               readerStudyReference={readerStudyReference}
               readerChapterDraft={readerChapterDraft}
               readerChapterCount={readerChapterCount}
+              planReadingLabel={readerPlanReadingLabel}
               selectedReaderVerses={selectedReaderVerses}
               currentChapterRead={currentChapterRead}
               currentChapterBookmarked={currentChapterBookmarked}

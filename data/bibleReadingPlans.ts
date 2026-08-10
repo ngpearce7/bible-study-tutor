@@ -239,7 +239,7 @@ function purposeFor(plan: Pick<BibleReadingPlan, "title" | "description" | "cate
   if (category.includes("prayer")) return "To help you turn Scripture into prayer, trust, worship, and honest dependence on God.";
   if (category.includes("care")) return "To give gentle Scripture readings for seasons of worry, grief, comfort, and hope.";
   if (category.includes("identity")) return "To help you receive what Scripture says about who you are in Christ before rushing into performance or comparison.";
-  if (category.includes("abiding")) return "To help you slow down with Jesus' invitation to remain in him, depend on him, and bear fruit from closeness with him.";
+  if (category.includes("abiding")) return "To help you slow down with Jesus' invitation to remain in Him, depend on Him, and bear fruit from closeness with Him.";
   if (category.includes("wisdom")) return "To help you read slowly for wisdom, discernment, and faithful decisions.";
   if (category.includes("overview")) return "To give a manageable overview before choosing where to study more deeply.";
   if (category.includes("gospel")) return "To keep your attention on Jesus and the good news of grace, faith, and new life.";
@@ -323,7 +323,7 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
       `Pray through ${title}`,
       `This reading invites prayer before it invites performance. Let ${day.reference} give language to your dependence on God. Notice what the passage reveals about God's character, then turn that truth into honest prayer, whether that prayer begins with praise, confession, asking, waiting, or surrender.`,
       `What does ${day.reference} teach you to ask, confess, thank God for, or trust today?`,
-      "Father, let your word shape my prayer instead of letting my worries lead it."
+      "Father, let Your word shape my prayer instead of letting my worries lead it."
     );
   }
   if (theme === "peace") {
@@ -331,15 +331,15 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
       `Peace for ${title.toLowerCase()}`,
       `Biblical peace is more than a quiet mood. It is the steadiness that comes from God's presence, promises, and care. As you read ${day.reference}, do not rush past the fear or pressure named in the passage. Let Scripture bring that pressure into the light of who God is.`,
       "What anxiety, fear, or burden does this passage invite you to bring to God?",
-      "God of peace, guard my heart and mind as I bring this concern to you."
+      "God of peace, guard my heart and mind as I bring this concern to You."
     );
   }
   if (theme === "faith") {
     return devotional(
       `Trust in ${title.toLowerCase()}`,
-      `Faith is not pretending life is easy. In ${day.reference}, faith looks toward God and takes him at his word. Read slowly for what God promises, commands, reveals, or provides. Then consider one small act of trust that could make your faith visible today.`,
+      `Faith is not pretending life is easy. In ${day.reference}, faith looks toward God and takes Him at His word. Read slowly for what God promises, commands, reveals, or provides. Then consider one small act of trust that could make your faith visible today.`,
       "What would trusting God look like in one ordinary decision today?",
-      "Lord, strengthen my faith and help me obey you with a willing heart."
+      "Lord, strengthen my faith and help me obey You with a willing heart."
     );
   }
   if (theme === "wisdom") {
@@ -353,9 +353,9 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
   if (theme === "comfort") {
     return devotional(
       `Comfort in ${title.toLowerCase()}`,
-      `This passage does not ask you to hide sorrow from God. In ${day.reference}, bring grief, weariness, and longing honestly before him. Scripture's comfort is not shallow optimism; it is the nearness of God, the hope of his promises, and the mercy he gives in weakness.`,
+      `This passage does not ask you to hide sorrow from God. In ${day.reference}, bring grief, weariness, and longing honestly before Him. Scripture's comfort is not shallow optimism; it is the nearness of God, the hope of His promises, and the mercy He gives in weakness.`,
       "What sorrow or ache can you bring honestly to God as you read?",
-      "God of all comfort, meet me with your mercy and steady hope."
+      "God of all comfort, meet me with Your mercy and steady hope."
     );
   }
   if (theme === "gospel") {
@@ -363,14 +363,14 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
       `Grace in ${title.toLowerCase()}`,
       `Read ${day.reference} with your attention on what God has done before you consider what you must do. The gospel gives grace before it calls for response. Look for Christ's mercy, the seriousness of sin, the gift of faith, and the new life God creates by grace.`,
       "What part of the good news does this passage make clearer today?",
-      "Lord Jesus, keep my heart grounded in your grace and responsive to your word."
+      "Lord Jesus, keep my heart grounded in Your grace and responsive to Your word."
     );
   }
   return devotional(
     `Begin with ${title.toLowerCase()}`,
     `This reading is a simple starting point, not a test. As you read ${day.reference}, look for one clear thing the passage says about God, people, sin, grace, or hope. You do not need to understand everything today. Begin with what is plain, then respond honestly to God.`,
     "What is one clear truth from this passage that you can carry today?",
-    "Lord, open my eyes to understand your word and respond with trust."
+    "Lord, open my eyes to understand Your word and respond with trust."
   );
 }
 
@@ -480,23 +480,23 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       "Received before you perform",
       "John begins identity with reception, not achievement. Those who receive Christ are given the right to become children of God. That means belonging is not something you climb toward by religious effort; it is a gift God gives through Christ. Today, let this passage steady you before you measure yourself by productivity, approval, or failure.",
       "What false measure of identity does this passage gently correct for you?",
-      "Father, help me receive the gift of belonging to you through Christ."
+      "Father, help me receive the gift of belonging to You through Christ."
     )],
     ["Romans 8:1-4", "Romans", 8, "No condemnation", devotional(
       "No condemnation in Christ",
       "The Christian life does not begin under a cloud of accusation. Paul says there is now no condemnation for those who are in Christ Jesus. This is not denial of sin; it is confidence that Christ has dealt with sin. When shame tries to become your name, return to the sentence God speaks over those who belong to Christ.",
       "Where do you most need to hear 'no condemnation' today?",
-      "Lord Jesus, teach me to stand in your mercy rather than my shame."
+      "Lord Jesus, teach me to stand in Your mercy rather than my shame."
     )],
     ["2 Corinthians 5:17-21", "2 Corinthians", 5, "New creation", devotional(
       "Made new for reconciliation",
-      "In Christ, new creation is not merely a private feeling. God reconciles us to himself and then gives us a ministry of reconciliation. Your identity is both received and sent: loved by God, made new by grace, and invited to become a witness of that grace in ordinary relationships.",
+      "In Christ, new creation is not merely a private feeling. God reconciles us to Himself and then gives us a ministry of reconciliation. Your identity is both received and sent: loved by God, made new by grace, and invited to become a witness of that grace in ordinary relationships.",
       "What would it look like to live today as someone reconciled to God?",
-      "God of mercy, make your reconciling grace visible in me."
+      "God of mercy, make Your reconciling grace visible in me."
     )],
     ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ", devotional(
       "Clothed with Christ",
-      "Paul says believers have been clothed with Christ. This image is wonderfully practical: before the world sees your gifts, background, weakness, or status, God sees you in his Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
+      "Paul says believers have been clothed with Christ. This image is wonderfully practical: before the world sees your gifts, background, weakness, or status, God sees you in His Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
       "Which lesser label has been louder than your identity in Christ?",
       "Lord, let Christ be the truest thing about how I see myself and others."
     )],
@@ -504,45 +504,45 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       "Blessed in Christ",
       "Ephesians lifts your eyes from self-definition to God's gracious purpose. In Christ, believers are blessed, chosen, adopted, redeemed, and forgiven. These words are not decorations; they are anchors. Your identity is grounded in God's will, God's grace, and God's plan to bring all things together in Christ.",
       "Which word in this passage gives your heart the strongest anchor today?",
-      "Father, help me rest in the grace you have lavished in Christ."
+      "Father, help me rest in the grace You have lavished in Christ."
     )],
     ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ", devotional(
       "Hidden with Christ",
       "Some parts of your life are visible and easily judged. But Paul says your life is hidden with Christ in God. That hiddenness is not emptiness; it is safety. Your deepest life is held by Christ, even when circumstances feel exposed, ordinary, or unfinished.",
       "How does being hidden with Christ change the way you face today?",
-      "Christ, keep my mind set on you and my life anchored in you."
+      "Christ, keep my mind set on You and my life anchored in You."
     )],
     ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people", devotional(
-      "Chosen to declare his praise",
-      "Peter gives identity in plural form: a chosen people, a royal priesthood, a holy nation, God's own possession. You are not saved into isolation. You belong to God and to his people, so that your life can declare the mercy that brought you out of darkness into light.",
+      "Chosen to declare His praise",
+      "Peter gives identity in plural form: a chosen people, a royal priesthood, a holy nation, God's own possession. You are not saved into isolation. You belong to God and to His people, so that your life can declare the mercy that brought you out of darkness into light.",
       "How can your life quietly declare God's mercy today?",
-      "Lord, thank you for making me yours. Let my life point to your light."
+      "Lord, thank You for making me Yours. Let my life point to Your light."
     )]
   ], "Identity"),
-  planFromReferences("abiding-in-christ", "Abiding in Christ", "A gentle week of readings about remaining with Jesus and bearing fruit from him.", [
-    ["John 15:1-8", "John", 15, "Remain in me", devotional(
+  planFromReferences("abiding-in-christ", "Abiding in Christ", "A gentle week of readings about remaining with Jesus and bearing fruit from Him.", [
+    ["John 15:1-8", "John", 15, "Remain in Me", devotional(
       "Fruit from closeness",
-      "Jesus does not call his disciples to produce fruit by anxious striving. He calls them to remain in him. Branches bear fruit because they stay connected to the vine. Today, begin with dependence: receive his word, stay near, and let obedience grow from communion rather than pressure.",
+      "Jesus does not call His disciples to produce fruit by anxious striving. He calls them to remain in Him. Branches bear fruit because they stay connected to the vine. Today, begin with dependence: receive His word, stay near, and let obedience grow from communion rather than pressure.",
       "Where are you tempted to produce fruit without remaining close to Christ?",
-      "Jesus, teach me to remain in you and receive life from you."
+      "Jesus, teach me to remain in You and receive life from You."
     )],
     ["Psalm 1:1-3", "Psalms", 1, "Planted by streams", devotional(
       "Planted where life flows",
       "Psalm 1 describes a life rooted in God's instruction like a tree planted by streams of water. This is not hurried spirituality. It is a settled life, nourished over time. Abiding often looks ordinary: returning to Scripture, refusing the wrong path, and staying where God gives life.",
       "What stream of God's word do you need to stay near today?",
-      "Lord, plant me deeply in your word and make my life fruitful in season."
+      "Lord, plant me deeply in Your word and make my life fruitful in season."
     )],
     ["Psalm 27:4-8", "Psalms", 27, "Dwell with the Lord", devotional(
       "One thing",
-      "David's desire is beautifully focused: to dwell in the house of the Lord and seek him. Abiding is not adding more spiritual noise; it is learning to seek one necessary thing. In pressure or distraction, God invites you to turn your face toward him again.",
+      "David's desire is beautifully focused: to dwell in the house of the Lord and seek Him. Abiding is not adding more spiritual noise; it is learning to seek one necessary thing. In pressure or distraction, God invites you to turn your face toward Him again.",
       "What would it mean to seek the Lord as your 'one thing' today?",
-      "Lord, when you say, 'Seek my face,' help my heart answer, 'Your face I will seek.'"
+      "Lord, when You say, 'Seek My face,' help my heart answer, 'Your face I will seek.'"
     )],
-    ["Matthew 11:25-30", "Matthew", 11, "Come to me", devotional(
+    ["Matthew 11:25-30", "Matthew", 11, "Come to Me", devotional(
       "Rest for your soul",
-      "Jesus' invitation is personal and gentle: come to me. He does not ignore weariness; he names it and offers rest. Abiding in Christ includes bringing your burdens honestly to him and learning his way. His yoke is not the crushing weight of self-salvation, but the restful obedience of walking with him.",
+      "Jesus' invitation is personal and gentle: come to Me. He does not ignore weariness; He names it and offers rest. Abiding in Christ includes bringing your burdens honestly to Him and learning His way. His yoke is not the crushing weight of self-salvation, but the restful obedience of walking with Him.",
       "What burden do you need to bring to Jesus rather than carry alone?",
-      "Gentle and humble Savior, give rest to my soul as I come to you."
+      "Gentle and humble Savior, give rest to my soul as I come to You."
     )],
     ["Luke 10:38-42", "Luke", 10, "Sit at Jesus' feet", devotional(
       "The necessary thing",
@@ -552,15 +552,15 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     )],
     ["Colossians 2:6-7", "Colossians", 2, "Rooted and built up", devotional(
       "Continue as you received",
-      "Paul says to continue in Christ just as you received him. The Christian life grows by the same grace that began it. You are rooted, built up, strengthened, and overflowing with thankfulness as you keep walking in him. Abiding is steady continuation, not constant reinvention.",
+      "Paul says to continue in Christ just as you received Him. The Christian life grows by the same grace that began it. You are rooted, built up, strengthened, and overflowing with thankfulness as you keep walking in Him. Abiding is steady continuation, not constant reinvention.",
       "Where do you need to continue in simple trust rather than start over in anxiety?",
-      "Christ, root me more deeply in you and grow thanksgiving in me."
+      "Christ, root me more deeply in You and grow thanksgiving in me."
     )],
-    ["1 John 2:24-28", "1 John", 2, "Abide in him", devotional(
+    ["1 John 2:24-28", "1 John", 2, "Abide in Him", devotional(
       "Let the word remain",
-      "John connects abiding with letting the apostolic message remain in us. Staying close to Christ is not vague spirituality; it is holding fast to the truth about the Son and the Father. As his word remains in you, you are invited to remain in him with confidence.",
+      "John connects abiding with letting the apostolic message remain in us. Staying close to Christ is not vague spirituality; it is holding fast to the truth about the Son and the Father. As His word remains in you, you are invited to remain in Him with confidence.",
       "What truth about Christ do you need to let remain in you today?",
-      "Father, keep me in the truth of your Son and teach me to abide with confidence."
+      "Father, keep me in the truth of Your Son and teach me to abide with confidence."
     )]
   ], "Abiding"),
   withThemedDevotionals(planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding grace, faith, prayer, and new life.", [
@@ -758,7 +758,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Psalm 46:1-7", "Psalms", 46, "God is refuge"],
     ["Isaiah 26:3-4", "Isaiah", 26, "Perfect peace"],
     ["Matthew 6:25-34", "Matthew", 6, "Do not worry"],
-    ["Matthew 11:28-30", "Matthew", 11, "Come to me"],
+    ["Matthew 11:28-30", "Matthew", 11, "Come to Me"],
     ["John 14:25-27", "John", 14, "Peace from Jesus"],
     ["Philippians 4:4-9", "Philippians", 4, "Peace that guards"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"]
@@ -770,7 +770,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Proverbs 16:1-9", "Proverbs", 16, "Commit your way"],
     ["James 1:5-8", "James", 1, "Ask God for wisdom"],
     ["Colossians 3:12-17", "Colossians", 3, "Wisdom in community"],
-    ["Psalm 25:4-10", "Psalms", 25, "Teach me your paths"]
+    ["Psalm 25:4-10", "Psalms", 25, "Teach me Your paths"]
   ], "Wisdom"), "wisdom"),
   withThemedDevotionals(planFromReferences("grief-comfort", "Grief and Comfort", "Gentle passages for sorrow, comfort, hope, and God's nearness.", [
     ["Psalm 13:1-6", "Psalms", 13, "Bring sorrow to God"],

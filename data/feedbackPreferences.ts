@@ -165,6 +165,7 @@ export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleRe
     completedDays: Array.from(new Set(progress.completedDays)),
     customPlans: progress.customPlans.slice(0, MAX_CUSTOM_BIBLE_READING_PLANS),
     startDates: progress.startDates || {},
+    completedPlanDates: progress.completedPlanDates || {},
     updatedAt: progress.updatedAt || Date.now()
   }));
 }

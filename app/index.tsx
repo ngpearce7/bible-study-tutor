@@ -804,6 +804,8 @@ export default function Home() {
   const [customBibleReadingPlans, setCustomBibleReadingPlans] = useState<BibleReadingPlan[]>([]);
   const [bibleReadingPlanStartDates, setBibleReadingPlanStartDates] = useState<Record<string, string>>({});
   const [bibleReadingPlanCompletionDates, setBibleReadingPlanCompletionDates] = useState<Record<string, string>>({});
+  const [storedBibleReadingPlanProgress, setStoredBibleReadingPlanProgress] = useState<StoredBibleReadingPlanProgress | null>(null);
+  const [storedBibleReadingPlanProgressHydrated, setStoredBibleReadingPlanProgressHydrated] = useState(false);
   const [customBiblePlanTitle, setCustomBiblePlanTitle] = useState("");
   const [customBiblePlanDescription, setCustomBiblePlanDescription] = useState("");
   const [customBiblePlanDaysText, setCustomBiblePlanDaysText] = useState("");
@@ -1112,6 +1114,8 @@ export default function Home() {
       getStoredBibleReadingPlanProgress()
         .then((progress) => {
           const normalizedProgress = normalizeBibleReadingPlanProgress(progress);
+          setStoredBibleReadingPlanProgress(normalizedProgress || emptyBibleReadingPlanProgress());
+          setStoredBibleReadingPlanProgressHydrated(true);
           if (!normalizedProgress) return;
           const storedPlans = normalizedProgress.customPlans;
           const availablePlans = [...bibleReadingPlans, ...storedPlans];
@@ -1144,7 +1148,10 @@ export default function Home() {
           }
           setCompletedBibleReadingPlanDays(normalizedCompletedDays);
         })
-        .catch(() => undefined);
+        .catch(() => {
+          setStoredBibleReadingPlanProgress(emptyBibleReadingPlanProgress());
+          setStoredBibleReadingPlanProgressHydrated(true);
+        });
       getStoredBibleBookmarks()
         .then(setBibleBookmarks)
         .catch(() => undefined);
@@ -2138,12 +2145,14 @@ export default function Home() {
 
   useEffect(() => {
     if (!profileMatchesActiveState || !isAuthenticated || !profile) return;
+    if (!storedBibleReadingPlanProgressHydrated) return;
     const syncedReaderState = normalizeSyncedBibleReaderState((profile as any).bibleReaderState);
     if (!syncedReaderState) {
       const profileKey = String(activeProfileId || "");
-      if (appliedBibleReaderProfileIdRef.current !== profileKey && hasLocalBibleReaderState({ history: bibleReaderHistory, readChapters: readBibleChapters, bookmarks: bibleBookmarks, readingPlanProgress: currentBibleReadingPlanProgress() })) {
+      const localPlanProgress = storedBibleReadingPlanProgress || currentBibleReadingPlanProgress();
+      if (appliedBibleReaderProfileIdRef.current !== profileKey && hasLocalBibleReaderState({ history: bibleReaderHistory, readChapters: readBibleChapters, bookmarks: bibleBookmarks, readingPlanProgress: localPlanProgress })) {
         appliedBibleReaderProfileIdRef.current = profileKey;
-        persistBibleReaderState();
+        persistBibleReaderState({ readingPlanProgress: localPlanProgress });
       }
       return;
     }
@@ -2186,6 +2195,11 @@ export default function Home() {
     }
     if (syncedReaderState.readingPlanProgress) {
       const progress = syncedReaderState.readingPlanProgress;
+      const localProgress = storedBibleReadingPlanProgress;
+      if (hasBibleReadingPlanProgress(localProgress) && Number(localProgress?.updatedAt || 0) > Number(progress.updatedAt || 0)) {
+        if (localProgress) persistBibleReaderState({ readingPlanProgress: localProgress });
+        return;
+      }
       setActiveBibleReadingPlanId(progress.activePlanId);
       setFollowedBibleReadingPlanIds(progress.followedPlanIds || (progress.activePlanId ? [progress.activePlanId] : []));
       setCompletedBibleReadingPlanDays(progress.completedDays);
@@ -2193,13 +2207,14 @@ export default function Home() {
       setBibleReadingPlanStartDates(progress.startDates || {});
       setBibleReadingPlanCompletionDates(progress.completedPlanDates || {});
       saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
+      setStoredBibleReadingPlanProgress(progress);
     } else {
-      const localProgress = currentBibleReadingPlanProgress();
+      const localProgress = storedBibleReadingPlanProgress || currentBibleReadingPlanProgress();
       if (hasBibleReadingPlanProgress(localProgress)) {
         persistBibleReaderState({ readingPlanProgress: localProgress });
       }
     }
-  }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState]);
+  }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState, storedBibleReadingPlanProgress, storedBibleReadingPlanProgressHydrated]);
 
   useEffect(() => {
     if (profileAppearanceMode !== "light" && profileAppearanceMode !== "dark") return;
@@ -5063,6 +5078,8 @@ export default function Home() {
     completedPlanDates = bibleReadingPlanCompletionDates
   ) {
     const progress = currentBibleReadingPlanProgress(activePlanId, completedDays, customPlans, startDates, followedPlanIds, completedPlanDates);
+    setStoredBibleReadingPlanProgress(progress);
+    setStoredBibleReadingPlanProgressHydrated(true);
     saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
     persistBibleReaderState({ readingPlanProgress: progress });
   }

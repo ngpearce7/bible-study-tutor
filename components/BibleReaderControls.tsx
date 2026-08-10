@@ -58,6 +58,8 @@ export function BibleReaderControls({
   readerIconHoverProps,
   hideReaderTooltip
 }: BibleReaderControlsProps) {
+  const [planReadingPlanName, planReadingDetail] = (planReadingLabel || "Plan reading").split(" - ");
+
   return (
     <>
       <View style={styles.readerHeader}>
@@ -86,9 +88,12 @@ export function BibleReaderControls({
       )}
 
       {planReadingMode ? (
-        <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
+        <View style={[styles.readerSelectionBar, styles.readerPlanModeBar, darkMode && styles.accountDarkSection]}>
           <Ionicons name="reader-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-          <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>{planReadingLabel || "Plan reading"}</Text>
+          <View style={styles.readerPlanModeCopy}>
+            <Text style={[styles.readerPlanModeName, darkMode && styles.readerDarkPlanModeName]}>{planReadingPlanName}</Text>
+            {!!planReadingDetail && <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkMutedText]}>{planReadingDetail}</Text>}
+          </View>
         </View>
       ) : (
       <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>

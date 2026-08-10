@@ -14584,6 +14584,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800"
   },
+  readerPlanModeBar: {
+    alignItems: "center",
+    flexWrap: "nowrap",
+    justifyContent: "flex-start"
+  },
+  readerPlanModeCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  readerPlanModeName: {
+    color: colors.coral,
+    flexShrink: 1,
+    fontSize: 15,
+    fontWeight: "900",
+    lineHeight: 20
+  },
+  readerDarkPlanModeName: {
+    color: "#e17d67"
+  },
   readerVerseNumber: {
     color: colors.coral,
     fontSize: 12,

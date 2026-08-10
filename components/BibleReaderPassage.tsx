@@ -15,7 +15,16 @@ type BibleReaderPassageProps = {
   readerReference: string;
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
-  activeReadingPlanDay?: { reference: string } | null;
+  activeReadingPlanDay?: {
+    reference: string;
+    devotional?: {
+      title: string;
+      body: string;
+      source?: string;
+    };
+    reflectionPrompt?: string;
+    prayerPrompt?: string;
+  } | null;
   activeReadingPlanName?: string;
   activeReadingPlanDayCompleted?: boolean;
   planReadingMode?: boolean;
@@ -209,6 +218,31 @@ export function BibleReaderPassage({
                   ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                   : ""}
               </Text>
+              {(activeReadingPlanDay.devotional || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayerPrompt) && (
+                <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                  {!!activeReadingPlanDay.devotional && (
+                    <>
+                      <View style={styles.planDayDevotionalHeader}>
+                        <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.planDayDevotionalTitle, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
+                      </View>
+                      <Text style={[styles.planDayDevotionalText, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
+                    </>
+                  )}
+                  {!!activeReadingPlanDay.reflectionPrompt && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
+                      <Text style={[styles.planDayPromptText, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionPrompt}</Text>
+                    </View>
+                  )}
+                  {!!activeReadingPlanDay.prayerPrompt && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Pray</Text>
+                      <Text style={[styles.planDayPromptText, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayerPrompt}</Text>
+                    </View>
+                  )}
+                </View>
+              )}
             </View>
             <View style={[styles.inlineReaderActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
               {showExitPlanReadingButton && (

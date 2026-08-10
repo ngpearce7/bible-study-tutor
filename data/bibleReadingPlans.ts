@@ -9,6 +9,13 @@ export type BibleReadingPlanDay = {
   readerBook: string;
   readerChapter: number;
   studyReference: string;
+  devotional?: {
+    title: string;
+    body: string;
+    source?: string;
+  };
+  reflectionPrompt?: string;
+  prayerPrompt?: string;
 };
 
 export type BibleReadingPlan = {
@@ -81,26 +88,37 @@ function chaptersForBooks(books: string[]) {
   );
 }
 
-function buildDay(day: number, reference: string, readerBook: string, readerChapter: number, title = `Day ${day}`, studyReference = chapterReference(readerBook, readerChapter)): BibleReadingPlanDay {
+type BibleReadingPlanDayExtras = Pick<BibleReadingPlanDay, "devotional" | "reflectionPrompt" | "prayerPrompt">;
+
+function buildDay(
+  day: number,
+  reference: string,
+  readerBook: string,
+  readerChapter: number,
+  title = `Day ${day}`,
+  studyReference = chapterReference(readerBook, readerChapter),
+  extras: BibleReadingPlanDayExtras = {}
+): BibleReadingPlanDay {
   return {
     day,
     title,
     reference,
     readerBook,
     readerChapter,
-    studyReference
+    studyReference,
+    ...extras
   };
 }
 
-function planFromReferences(id: string, title: string, description: string, references: Array<[string, string, number, string?]>, category = "Topical"): BibleReadingPlan {
+function planFromReferences(id: string, title: string, description: string, references: Array<[string, string, number, string?, BibleReadingPlanDayExtras?]>, category = "Topical"): BibleReadingPlan {
   return enrichPlanMetadata({
     id,
     title,
     description,
     source: "built-in",
     category,
-    days: references.map(([reference, book, chapter, dayTitle], index) =>
-      buildDay(index + 1, reference, readerBookFromReferenceBook(book), chapter, dayTitle || reference, reference)
+    days: references.map(([reference, book, chapter, dayTitle, extras], index) =>
+      buildDay(index + 1, reference, readerBookFromReferenceBook(book), chapter, dayTitle || reference, reference, extras)
     )
   });
 }
@@ -274,6 +292,18 @@ const paulineBooks = ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "
 const pentateuchBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
 const majorProphetBooks = ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel"];
 
+function devotional(title: string, body: string, reflectionPrompt: string, prayerPrompt: string): BibleReadingPlanDayExtras {
+  return {
+    devotional: {
+      title,
+      body,
+      source: "Bible Study Tutor"
+    },
+    reflectionPrompt,
+    prayerPrompt
+  };
+}
+
 export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   oneChapterPerDayPlan("john-21", "21 Days in John", "Read one chapter a day through John's Gospel.", "John", 21),
   oneChapterPerDayPlan("romans-16", "Romans in 16 Days", "Move slowly through Paul's letter one chapter at a time.", "Romans", 16),
@@ -376,22 +406,92 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"]
   ], "Care"),
   planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
-    ["John 1:9-13", "John", 1, "Received as God's children"],
-    ["Romans 8:1-4", "Romans", 8, "No condemnation"],
-    ["2 Corinthians 5:17-21", "2 Corinthians", 5, "New creation"],
-    ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ"],
-    ["Ephesians 1:3-10", "Ephesians", 1, "Blessed and chosen"],
-    ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ"],
-    ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people"]
+    ["John 1:9-13", "John", 1, "Received as God's children", devotional(
+      "Received before you perform",
+      "John begins identity with reception, not achievement. Those who receive Christ are given the right to become children of God. That means belonging is not something you climb toward by religious effort; it is a gift God gives through Christ. Today, let this passage steady you before you measure yourself by productivity, approval, or failure.",
+      "What false measure of identity does this passage gently correct for you?",
+      "Father, help me receive the gift of belonging to you through Christ."
+    )],
+    ["Romans 8:1-4", "Romans", 8, "No condemnation", devotional(
+      "No condemnation in Christ",
+      "The Christian life does not begin under a cloud of accusation. Paul says there is now no condemnation for those who are in Christ Jesus. This is not denial of sin; it is confidence that Christ has dealt with sin. When shame tries to become your name, return to the sentence God speaks over those who belong to Christ.",
+      "Where do you most need to hear 'no condemnation' today?",
+      "Lord Jesus, teach me to stand in your mercy rather than my shame."
+    )],
+    ["2 Corinthians 5:17-21", "2 Corinthians", 5, "New creation", devotional(
+      "Made new for reconciliation",
+      "In Christ, new creation is not merely a private feeling. God reconciles us to himself and then gives us a ministry of reconciliation. Your identity is both received and sent: loved by God, made new by grace, and invited to become a witness of that grace in ordinary relationships.",
+      "What would it look like to live today as someone reconciled to God?",
+      "God of mercy, make your reconciling grace visible in me."
+    )],
+    ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ", devotional(
+      "Clothed with Christ",
+      "Paul says believers have been clothed with Christ. This image is wonderfully practical: before the world sees your gifts, background, weakness, or status, God sees you in his Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
+      "Which lesser label has been louder than your identity in Christ?",
+      "Lord, let Christ be the truest thing about how I see myself and others."
+    )],
+    ["Ephesians 1:3-10", "Ephesians", 1, "Blessed and chosen", devotional(
+      "Blessed in Christ",
+      "Ephesians lifts your eyes from self-definition to God's gracious purpose. In Christ, believers are blessed, chosen, adopted, redeemed, and forgiven. These words are not decorations; they are anchors. Your identity is grounded in God's will, God's grace, and God's plan to bring all things together in Christ.",
+      "Which word in this passage gives your heart the strongest anchor today?",
+      "Father, help me rest in the grace you have lavished in Christ."
+    )],
+    ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ", devotional(
+      "Hidden with Christ",
+      "Some parts of your life are visible and easily judged. But Paul says your life is hidden with Christ in God. That hiddenness is not emptiness; it is safety. Your deepest life is held by Christ, even when circumstances feel exposed, ordinary, or unfinished.",
+      "How does being hidden with Christ change the way you face today?",
+      "Christ, keep my mind set on you and my life anchored in you."
+    )],
+    ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people", devotional(
+      "Chosen to declare his praise",
+      "Peter gives identity in plural form: a chosen people, a royal priesthood, a holy nation, God's own possession. You are not saved into isolation. You belong to God and to his people, so that your life can declare the mercy that brought you out of darkness into light.",
+      "How can your life quietly declare God's mercy today?",
+      "Lord, thank you for making me yours. Let my life point to your light."
+    )]
   ], "Identity"),
   planFromReferences("abiding-in-christ", "Abiding in Christ", "A gentle week of readings about remaining with Jesus and bearing fruit from him.", [
-    ["John 15:1-8", "John", 15, "Remain in me"],
-    ["Psalm 1:1-3", "Psalms", 1, "Planted by streams"],
-    ["Psalm 27:4-8", "Psalms", 27, "Dwell with the Lord"],
-    ["Matthew 11:25-30", "Matthew", 11, "Come to me"],
-    ["Luke 10:38-42", "Luke", 10, "Sit at Jesus' feet"],
-    ["Colossians 2:6-7", "Colossians", 2, "Rooted and built up"],
-    ["1 John 2:24-28", "1 John", 2, "Abide in him"]
+    ["John 15:1-8", "John", 15, "Remain in me", devotional(
+      "Fruit from closeness",
+      "Jesus does not call his disciples to produce fruit by anxious striving. He calls them to remain in him. Branches bear fruit because they stay connected to the vine. Today, begin with dependence: receive his word, stay near, and let obedience grow from communion rather than pressure.",
+      "Where are you tempted to produce fruit without remaining close to Christ?",
+      "Jesus, teach me to remain in you and receive life from you."
+    )],
+    ["Psalm 1:1-3", "Psalms", 1, "Planted by streams", devotional(
+      "Planted where life flows",
+      "Psalm 1 describes a life rooted in God's instruction like a tree planted by streams of water. This is not hurried spirituality. It is a settled life, nourished over time. Abiding often looks ordinary: returning to Scripture, refusing the wrong path, and staying where God gives life.",
+      "What stream of God's word do you need to stay near today?",
+      "Lord, plant me deeply in your word and make my life fruitful in season."
+    )],
+    ["Psalm 27:4-8", "Psalms", 27, "Dwell with the Lord", devotional(
+      "One thing",
+      "David's desire is beautifully focused: to dwell in the house of the Lord and seek him. Abiding is not adding more spiritual noise; it is learning to seek one necessary thing. In pressure or distraction, God invites you to turn your face toward him again.",
+      "What would it mean to seek the Lord as your 'one thing' today?",
+      "Lord, when you say, 'Seek my face,' help my heart answer, 'Your face I will seek.'"
+    )],
+    ["Matthew 11:25-30", "Matthew", 11, "Come to me", devotional(
+      "Rest for your soul",
+      "Jesus' invitation is personal and gentle: come to me. He does not ignore weariness; he names it and offers rest. Abiding in Christ includes bringing your burdens honestly to him and learning his way. His yoke is not the crushing weight of self-salvation, but the restful obedience of walking with him.",
+      "What burden do you need to bring to Jesus rather than carry alone?",
+      "Gentle and humble Savior, give rest to my soul as I come to you."
+    )],
+    ["Luke 10:38-42", "Luke", 10, "Sit at Jesus' feet", devotional(
+      "The necessary thing",
+      "Martha's service mattered, but her worry crowded out attentiveness to Jesus. Mary shows a posture of receiving before doing. This passage does not shame faithful work; it reorders it. Abiding means letting Jesus have your attention before your activity takes over.",
+      "What good activity might be crowding out attention to Jesus?",
+      "Lord Jesus, quiet my distracted heart and help me choose what is necessary."
+    )],
+    ["Colossians 2:6-7", "Colossians", 2, "Rooted and built up", devotional(
+      "Continue as you received",
+      "Paul says to continue in Christ just as you received him. The Christian life grows by the same grace that began it. You are rooted, built up, strengthened, and overflowing with thankfulness as you keep walking in him. Abiding is steady continuation, not constant reinvention.",
+      "Where do you need to continue in simple trust rather than start over in anxiety?",
+      "Christ, root me more deeply in you and grow thanksgiving in me."
+    )],
+    ["1 John 2:24-28", "1 John", 2, "Abide in him", devotional(
+      "Let the word remain",
+      "John connects abiding with letting the apostolic message remain in us. Staying close to Christ is not vague spirituality; it is holding fast to the truth about the Son and the Father. As his word remains in you, you are invited to remain in him with confidence.",
+      "What truth about Christ do you need to let remain in you today?",
+      "Father, keep me in the truth of your Son and teach me to abide with confidence."
+    )]
   ], "Abiding"),
   planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding grace, faith, prayer, and new life.", [
     ["John 3", "John", 3],

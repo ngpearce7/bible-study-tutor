@@ -345,6 +345,10 @@ type UiPreferenceKey =
   | "memoryBookFilter"
   | "memoryChapterFilter"
   | "memoryCollectionFilter"
+  | "plansOpenSections"
+  | "plansExpandedPlanId"
+  | "plansCompletedOpen"
+  | "plansSelectedPlanDay"
   | "pinnedJournalEntryIds"
   | "customWritingPrompts"
   | "rhythmGraceHandledDates";
@@ -437,6 +441,7 @@ type SyncedBibleReaderState = {
   readingPlanProgress?: StoredBibleReadingPlanProgress;
 };
 
+const DEFAULT_OPEN_BIBLE_PLAN_SECTIONS = { short: true, medium: false, long: false };
 const SCRIPTURE_INSERT_SETTINGS_KEY = "bible-study-tutor-scripture-insert-settings";
 const DEFAULT_SCRIPTURE_INSERT_SETTINGS: ScriptureInsertSettings = {
   disabled: false,
@@ -487,6 +492,10 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "memoryBookFilter",
   "memoryChapterFilter",
   "memoryCollectionFilter",
+  "plansOpenSections",
+  "plansExpandedPlanId",
+  "plansCompletedOpen",
+  "plansSelectedPlanDay",
   "pinnedJournalEntryIds",
   "customWritingPrompts",
   "rhythmGraceHandledDates"
@@ -907,7 +916,7 @@ export default function Home() {
   const [activeBiblePlanSelectedDay, setActiveBiblePlanSelectedDay] = useState(0);
   const [activeBiblePlanSelectedPlanId, setActiveBiblePlanSelectedPlanId] = useState("");
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
-  const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>({ short: true, medium: false, long: false });
+  const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>(DEFAULT_OPEN_BIBLE_PLAN_SECTIONS);
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
   const [completedBiblePlansOpen, setCompletedBiblePlansOpen] = useState(false);
   const [bibleReaderHistory, setBibleReaderHistory] = useState<StoredBibleReaderHistoryItem[]>([]);
@@ -2276,6 +2285,9 @@ export default function Home() {
     const syncedMemoryBookFilter = uiMemoryBookFilter(profileUiPreferences);
     const syncedMemoryChapterFilter = uiMemoryChapterFilter(profileUiPreferences);
     const syncedMemoryCollectionFilter = uiMemoryCollectionFilter(profileUiPreferences);
+    const syncedPlanOpenSections = uiPlanOpenSections(profileUiPreferences);
+    const syncedPlanExpandedPlanId = uiPlanExpandedPlanId(profileUiPreferences);
+    const syncedPlanSelectedDay = uiPlanSelectedDay(profileUiPreferences);
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
     const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
@@ -2318,6 +2330,21 @@ export default function Home() {
     if (syncedMemoryBookFilter) setMemoryBookFilter(syncedMemoryBookFilter);
     if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
     if (syncedMemoryCollectionFilter) setMemoryCollectionFilter(syncedMemoryCollectionFilter);
+    if (syncedPlanOpenSections) {
+      setOpenBiblePlanSections({
+        ...DEFAULT_OPEN_BIBLE_PLAN_SECTIONS,
+        custom: syncedPlanOpenSections.includes("custom"),
+        short: syncedPlanOpenSections.includes("short"),
+        medium: syncedPlanOpenSections.includes("medium"),
+        long: syncedPlanOpenSections.includes("long")
+      });
+    }
+    if (syncedPlanExpandedPlanId !== undefined) setExpandedBiblePlanId(syncedPlanExpandedPlanId);
+    if (uiBoolean(profileUiPreferences, "plansCompletedOpen") !== undefined) setCompletedBiblePlansOpen(uiBoolean(profileUiPreferences, "plansCompletedOpen")!);
+    if (syncedPlanSelectedDay) {
+      setActiveBiblePlanSelectedPlanId(syncedPlanSelectedDay.planId);
+      setActiveBiblePlanSelectedDay(syncedPlanSelectedDay.day);
+    }
     if (syncedPinnedEntries) {
       setPinnedJournalEntryIds(syncedPinnedEntries);
       savePinnedJournalEntries(syncedPinnedEntries).catch(() => undefined);
@@ -5286,9 +5313,8 @@ export default function Home() {
     }
     setActiveBibleReadingPlanId(nextState.activePlanId);
     setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
-    setExpandedBiblePlanId(nextState.activePlanId);
-    setActiveBiblePlanSelectedDay(0);
-    setActiveBiblePlanSelectedPlanId(nextState.activePlanId);
+    setRememberedExpandedBiblePlanId(nextState.activePlanId);
+    setRememberedPlanSelectedDay(nextState.activePlanId, 0);
     setBibleReadingPlanStartDates(nextState.startDates);
     setBiblePlanStatus("");
     persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextState.startDates, nextState.followedPlanIds);
@@ -5329,9 +5355,14 @@ export default function Home() {
     setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
     setActiveBibleReadingPlanId(nextState.activePlanId);
     if (readerPlanReading?.planId === nextState.stoppedPlan.id) setReaderPlanReading(null);
-    setExpandedBiblePlanId(nextState.activePlanId);
-    setActiveBiblePlanSelectedDay(0);
-    setActiveBiblePlanSelectedPlanId(nextState.activePlanId);
+    setRememberedExpandedBiblePlanId(nextState.activePlanId);
+    if (nextState.activePlanId) {
+      setRememberedPlanSelectedDay(nextState.activePlanId, 0);
+    } else {
+      setActiveBiblePlanSelectedDay(0);
+      setActiveBiblePlanSelectedPlanId("");
+      persistUiPreference("plansSelectedPlanDay", "");
+    }
     setBiblePlanStatus(`${nextState.stoppedPlan.title} is no longer followed.`);
     persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, bibleReadingPlanStartDates, nextState.followedPlanIds);
     trackUsage("bible_reading_plan_stopped", { reference: nextState.stoppedPlan.id, tab: "plans" });
@@ -5350,9 +5381,8 @@ export default function Home() {
     setBibleReadingPlanCompletionDates(nextCompletionDates);
     setFollowedBibleReadingPlanIds(nextFollowedPlanIds);
     setActiveBibleReadingPlanId(plan.id);
-    setExpandedBiblePlanId(plan.id);
-    setActiveBiblePlanSelectedPlanId(plan.id);
-    setActiveBiblePlanSelectedDay(1);
+    setRememberedExpandedBiblePlanId(plan.id);
+    setRememberedPlanSelectedDay(plan.id, 1);
     if (readerPlanReading?.planId === plan.id) setReaderPlanReading(null);
     setBiblePlanStatus(`${plan.title} restarted from Day 1.`);
     persistBibleReadingPlanProgress(plan.id, nextCompletedDays, customBibleReadingPlans, nextStartDates, nextFollowedPlanIds, nextCompletionDates);
@@ -5428,8 +5458,7 @@ export default function Home() {
     const overdueBlock = options.skipOverdueGuard ? null : getOverduePlanReadingBlock(plan, planDay);
     if (plan && overdueBlock) {
       setActiveBibleReadingPlanId(plan.id);
-      setActiveBiblePlanSelectedPlanId(plan.id);
-      setActiveBiblePlanSelectedDay(planDay.day);
+      setRememberedPlanSelectedDay(plan.id, planDay.day);
       setPendingBiblePlanReadAhead({
         planId: plan.id,
         requestedDay: planDay.day,
@@ -5464,8 +5493,7 @@ export default function Home() {
     if (!plan || !missedDay) return;
     setPendingBiblePlanReadAhead(null);
     setActiveBibleReadingPlanId(plan.id);
-    setActiveBiblePlanSelectedPlanId(plan.id);
-    setActiveBiblePlanSelectedDay(missedDay.day);
+    setRememberedPlanSelectedDay(plan.id, missedDay.day);
     openBibleReadingPlanDayInBible(missedDay, plan.id);
   }
 
@@ -5475,8 +5503,7 @@ export default function Home() {
     if (!plan || !requestedDay) return;
     setPendingBiblePlanReadAhead(null);
     setActiveBibleReadingPlanId(plan.id);
-    setActiveBiblePlanSelectedPlanId(plan.id);
-    setActiveBiblePlanSelectedDay(requestedDay.day);
+    setRememberedPlanSelectedDay(plan.id, requestedDay.day);
     catchUpActiveBibleReadingPlanDates(plan.id);
     openBibleReadingPlanDayInBible(requestedDay, plan.id, { skipOverdueGuard: true });
   }
@@ -5487,8 +5514,7 @@ export default function Home() {
     const nextDay = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
     if (!nextDay) return;
     setActiveBibleReadingPlanId(plan.id);
-    setActiveBiblePlanSelectedPlanId(plan.id);
-    setActiveBiblePlanSelectedDay(nextDay.day);
+    setRememberedPlanSelectedDay(plan.id, nextDay.day);
     persistBibleReadingPlanProgress(plan.id, completedBibleReadingPlanDays);
     openBibleReadingPlanDay(nextDay, plan.id);
   }
@@ -5515,15 +5541,14 @@ export default function Home() {
     if (!plan || !nextDay) return;
     setPendingBiblePlanContinuePrompt(null);
     setActiveBibleReadingPlanId(plan.id);
-    setActiveBiblePlanSelectedPlanId(plan.id);
-    setActiveBiblePlanSelectedDay(nextDay.day);
+    setRememberedPlanSelectedDay(plan.id, nextDay.day);
     openBibleReadingPlanDayInBible(nextDay, plan.id, { skipOverdueGuard: true });
   }
 
   function chooseAnotherBibleReadingPlanAfterCelebration() {
     setPendingBiblePlanCompletionCelebration(null);
     setTab("plans");
-    setCompletedBiblePlansOpen(false);
+    setRememberedCompletedBiblePlansOpen(false);
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 80);
   }
 
@@ -5555,7 +5580,7 @@ export default function Home() {
       setBibleReadingPlanCompletionDates(nextCompletionDates);
     }
     if (activeBiblePlanSelectedPlanId === planId) {
-      setActiveBiblePlanSelectedDay(nextState.nextIncomplete?.day || 0);
+      setRememberedPlanSelectedDay(planId, nextState.nextIncomplete?.day || 0);
     }
     setPendingBiblePlanReadAhead((current) =>
       current?.planId === planId && (current.missedDay === planDay.day || current.requestedDay === planDay.day)
@@ -5670,9 +5695,14 @@ export default function Home() {
     setCustomBiblePlanStatus(nextState.canFollow ? `${plan.title} created.` : `${plan.title} created. Stop one plan before following it.`);
     setActiveBibleReadingPlanId(nextState.activePlanId);
     setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
-    setExpandedBiblePlanId(nextState.canFollow ? id : "");
-    setActiveBiblePlanSelectedDay(0);
-    setActiveBiblePlanSelectedPlanId(nextState.canFollow ? id : "");
+    setRememberedExpandedBiblePlanId(nextState.canFollow ? id : "");
+    if (nextState.canFollow) {
+      setRememberedPlanSelectedDay(id, 0);
+    } else {
+      setActiveBiblePlanSelectedDay(0);
+      setActiveBiblePlanSelectedPlanId("");
+      persistUiPreference("plansSelectedPlanDay", "");
+    }
     setBibleReadingPlanStartDates(nextState.startDates);
     persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, nextState.customPlans, nextState.startDates, nextState.followedPlanIds, bibleReadingPlanCompletionDates);
     trackUsage("bible_reading_plan_created", { reference: title, tab: "plans" });
@@ -6076,6 +6106,42 @@ export default function Home() {
     persistUiPreference("memoryCollectionFilter", normalized);
   }
 
+  function setRememberedPlanSelectedDay(planId: string, day: number) {
+    if (!isSafePlanId(planId)) return;
+    if (day <= 0) {
+      setActiveBiblePlanSelectedPlanId(planId);
+      setActiveBiblePlanSelectedDay(0);
+      persistUiPreference("plansSelectedPlanDay", "");
+      return;
+    }
+    const normalizedDay = Math.max(1, Math.min(9999, Math.round(day || 1)));
+    setActiveBiblePlanSelectedPlanId(planId);
+    setActiveBiblePlanSelectedDay(normalizedDay);
+    persistUiPreference("plansSelectedPlanDay", `${planId}:${normalizedDay}`);
+  }
+
+  function setRememberedExpandedBiblePlanId(planId: string) {
+    const normalized = planId && isSafePlanId(planId) ? planId : "";
+    setExpandedBiblePlanId(normalized);
+    persistUiPreference("plansExpandedPlanId", normalized);
+  }
+
+  function setRememberedCompletedBiblePlansOpen(nextValue: SetStateAction<boolean>) {
+    setCompletedBiblePlansOpen((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: boolean) => boolean)(current) : nextValue;
+      persistUiPreference("plansCompletedOpen", next);
+      return next;
+    });
+  }
+
+  function setRememberedOpenBiblePlanSections(nextValue: SetStateAction<Record<string, boolean>>) {
+    setOpenBiblePlanSections((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: Record<string, boolean>) => Record<string, boolean>)(current) : nextValue;
+      persistUiPreference("plansOpenSections", Object.entries(next).filter(([, open]) => open).map(([id]) => id));
+      return next;
+    });
+  }
+
   function currentBibleReadingPlanProgress(
     activePlanId = selectedBibleReadingPlanId || activeBibleReadingPlanId,
     completedDays = completedBibleReadingPlanDays,
@@ -6432,10 +6498,7 @@ export default function Home() {
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
                 accessibilityLabel={`Day ${planDay.day}${dateLabel ? `, ${dateLabel}` : ""}, ${planDay.reference}, ${done ? "completed" : scheduledToday ? "scheduled for today" : missed ? "missed" : nextIncomplete ? "next incomplete" : "not completed"}`}
-                onPress={() => {
-                  setActiveBiblePlanSelectedDay(planDay.day);
-                  setActiveBiblePlanSelectedPlanId(plan.id);
-                }}
+                onPress={() => setRememberedPlanSelectedDay(plan.id, planDay.day)}
                 style={[
                   styles.planDayTile,
                   phoneLayout && styles.phonePlanDayTile,
@@ -7926,10 +7989,7 @@ export default function Home() {
                         accessibilityRole="button"
                         accessibilityState={{ selected }}
                         accessibilityLabel={`Day ${planDay.day}${dateLabel ? `, ${dateLabel}` : ""}, ${planDay.reference}, ${done ? "completed" : scheduledToday ? "scheduled for today" : missed ? "missed" : nextIncomplete ? "next incomplete" : "not completed"}`}
-                        onPress={() => {
-                          setActiveBiblePlanSelectedDay(planDay.day);
-                          setActiveBiblePlanSelectedPlanId(activeBibleReadingPlan.id);
-                        }}
+                        onPress={() => setRememberedPlanSelectedDay(activeBibleReadingPlan.id, planDay.day)}
                         style={[
                           styles.planDayTile,
                           phoneLayout && styles.phonePlanDayTile,
@@ -8040,7 +8100,7 @@ export default function Home() {
                   accessibilityRole="button"
                   accessibilityLabel={`${completedBiblePlansOpen || completedFollowedBibleReadingPlans.length === 1 ? "Hide" : "Show"} completed reading plans`}
                   accessibilityState={{ expanded: completedBiblePlansOpen || completedFollowedBibleReadingPlans.length === 1 }}
-                  onPress={() => setCompletedBiblePlansOpen((open) => !open)}
+                  onPress={() => setRememberedCompletedBiblePlansOpen((open) => !open)}
                   style={styles.completedReadingPlanSectionHeader}
                 >
                   <View style={styles.planPageTitleRow}>
@@ -8107,7 +8167,7 @@ export default function Home() {
                       accessibilityRole="button"
                       accessibilityLabel={`${sectionOpen ? "Collapse" : "Expand"} ${group.title}`}
                       accessibilityState={{ expanded: sectionOpen }}
-                      onPress={() => setOpenBiblePlanSections((current) => ({ ...current, [group.id]: !sectionOpen }))}
+                      onPress={() => setRememberedOpenBiblePlanSections((current) => ({ ...current, [group.id]: !sectionOpen }))}
                       style={styles.planBrowseSectionHeader}
                     >
                       <View style={styles.planBrowseSectionTitleBlock}>
@@ -8179,7 +8239,7 @@ export default function Home() {
                         accessibilityLabel={expanded ? `Hide details for ${plan.title}` : `Show more details for ${plan.title}`}
                         accessibilityState={{ expanded }}
                         onPress={() => {
-                          setExpandedBiblePlanId(expanded ? "" : plan.id);
+                          setRememberedExpandedBiblePlanId(expanded ? "" : plan.id);
                           if (!expanded) setExpandedBiblePlanVisibleRows((current) => ({ ...current, [plan.id]: 0 }));
                         }}
                         style={[styles.planCardActionChip, styles.planCardSecondaryChip, plansDarkMode && styles.planCardSecondaryChipDark]}
@@ -11482,6 +11542,18 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (typeof item === "string" && item.length <= 80 && !item.startsWith("$") && !item.startsWith("_")) preferences[key] = item.trim() || "all";
       return;
     }
+    if (key === "plansOpenSections") {
+      if (Array.isArray(item)) preferences[key] = normalizePlanSectionIds(item);
+      return;
+    }
+    if (key === "plansExpandedPlanId") {
+      if (typeof item === "string" && isSafePlanId(item)) preferences[key] = item;
+      return;
+    }
+    if (key === "plansSelectedPlanDay") {
+      if (typeof item === "string" && isSafePlanDaySelection(item)) preferences[key] = item;
+      return;
+    }
     if (key === "customWritingPrompts") {
       if (Array.isArray(item)) preferences[key] = normalizeCustomWritingPrompts(item);
       return;
@@ -11529,6 +11601,37 @@ function uiMemoryChapterFilter(preferences: UiPreferenceMap) {
 function uiMemoryCollectionFilter(preferences: UiPreferenceMap) {
   const value = preferences.memoryCollectionFilter;
   return typeof value === "string" && value.length <= 80 && !value.startsWith("$") && !value.startsWith("_") ? value : undefined;
+}
+
+function normalizePlanSectionIds(value: unknown[]) {
+  const allowed = new Set(["custom", "short", "medium", "long"]);
+  return Array.from(new Set(value.map((item) => (typeof item === "string" ? item.trim() : "")).filter((item) => allowed.has(item)))).slice(0, 4);
+}
+
+function isSafePlanId(value: string) {
+  return /^[a-z0-9-]{1,80}$/i.test(value);
+}
+
+function isSafePlanDaySelection(value: string) {
+  return /^[a-z0-9-]{1,80}:\d{1,4}$/i.test(value);
+}
+
+function uiPlanOpenSections(preferences: UiPreferenceMap) {
+  const value = preferences.plansOpenSections;
+  return Array.isArray(value) ? normalizePlanSectionIds(value) : undefined;
+}
+
+function uiPlanExpandedPlanId(preferences: UiPreferenceMap) {
+  const value = preferences.plansExpandedPlanId;
+  return typeof value === "string" && isSafePlanId(value) ? value : undefined;
+}
+
+function uiPlanSelectedDay(preferences: UiPreferenceMap) {
+  const value = preferences.plansSelectedPlanDay;
+  if (typeof value !== "string" || !isSafePlanDaySelection(value)) return undefined;
+  const [planId, dayValue] = value.split(":");
+  const day = Number.parseInt(dayValue, 10);
+  return planId && Number.isFinite(day) && day > 0 ? { planId, day } : undefined;
 }
 
 function uiStudyMethodId(preferences: UiPreferenceMap) {

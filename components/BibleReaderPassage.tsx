@@ -121,9 +121,7 @@ export function BibleReaderPassage({
     : "";
   const focusedPlanReadingNote = planReadingNote || (planReadingHasMultipleParts
     ? "Use Previous and Next to move through this plan reading."
-    : planReadingFullChapter
-      ? ""
-      : "Only this plan passage is shown.");
+    : "");
 
   return (
     <>

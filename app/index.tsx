@@ -1673,15 +1673,7 @@ export default function Home() {
   const readerPlanChunkNote = readerPlanReadingActive && readerPlanCurrentChunk
     ? readerPlanReadingChunkCount > 1
       ? `Part ${readerPlanReadingChunkIndex + 1} of ${readerPlanReadingChunkCount}: ${readerPlanCurrentChunk.reference}.`
-      : readerPlanChunkIsFullCurrentChapter
-        ? ""
-        : readerPlanCurrentChunk.startVerse && readerPlanCurrentChunk.endVerse && readerPlanCurrentChunk.startVerse === readerPlanCurrentChunk.endVerse
-          ? `Only verse ${readerPlanCurrentChunk.startVerse} is shown.`
-          : readerPlanCurrentChunk.startVerse && readerPlanCurrentChunk.endVerse
-            ? `Only verses ${readerPlanCurrentChunk.startVerse}-${readerPlanCurrentChunk.endVerse} are shown.`
-            : readerPlanCurrentChunk.startVerse
-              ? `This plan reading starts at verse ${readerPlanCurrentChunk.startVerse}.`
-              : "Only this plan passage is shown."
+      : ""
     : "";
   const readerPlanReadingLabel =
     readerPlanReadingActive && readerBibleReadingPlan && readerActiveBibleReadingPlanDay

@@ -3122,7 +3122,7 @@ export default function Home() {
 
   function restoreDailyRhythmFromGracePrompt() {
     if (!pendingRhythmGracePrompt) return;
-    const restoredCount = Math.max(currentRhythmCount + 1, 1);
+    const restoredCount = Math.max(currentRhythmCount, 1);
     safeSetLocalStorageValue(pendingRhythmGracePrompt.storageKey, "handled");
     trackUsage("rhythm_restored", { reference: pendingRhythmGracePrompt.missedDate, tab: "home" });
     setRhythmGraceSuccess({ missedDate: pendingRhythmGracePrompt.missedDate, restoredCount });
@@ -9852,9 +9852,6 @@ export default function Home() {
                 {currentRhythmCount} day{currentRhythmCount === 1 ? "" : "s"}
               </Text>
             </View>
-            <Text style={[styles.rhythmGraceBodyText, accountDarkMode && styles.accountDarkMutedText]}>
-              This simply records today as a rhythm check-in. Your notes, reading plans, and memory verses stay unchanged.
-            </Text>
             <View style={[styles.printOptionsActions, styles.rhythmGraceActions, phoneLayout && styles.phoneRhythmGraceActions]}>
               <ResumeButton label="Restore rhythm" icon="refresh-outline" onPress={restoreDailyRhythmFromGracePrompt} variant="primary" style={[styles.rhythmGracePrimaryButton, phoneLayout && styles.phonePrintOpenButton]} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
               <Pressable onPress={dismissRhythmGracePrompt} style={[styles.rhythmGraceSecondaryButton, accountDarkMode && styles.printDarkCancelButton]}>
@@ -9879,17 +9876,15 @@ export default function Home() {
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
-            <View style={[styles.rhythmGraceSuccessBox, accountDarkMode && styles.memoryDarkSoftPanel]}>
+            <View style={[styles.rhythmGraceCountBox, accountDarkMode && styles.memoryDarkSoftPanel]}>
+              <Text style={[styles.rhythmGraceCountLabel, accountDarkMode && styles.accountDarkMutedText]}>Current rhythm</Text>
+              <Text style={[styles.rhythmGraceCountValue, accountDarkMode && styles.accountDarkTitle]}>
+                {rhythmGraceSuccess.restoredCount} day{rhythmGraceSuccess.restoredCount === 1 ? "" : "s"}
+              </Text>
+            </View>
+            <View style={styles.rhythmGraceSuccessIconRow}>
               <View style={[styles.rhythmGraceSuccessIcon, accountDarkMode && styles.homeDarkIconBubble]}>
-                <Ionicons name="checkmark-outline" size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-              </View>
-              <View style={styles.rhythmGraceInfoCopy}>
-                <Text style={[styles.rhythmGraceInfoLabel, accountDarkMode && styles.studyDarkAccentText]}>
-                  Current rhythm: {rhythmGraceSuccess.restoredCount}
-                </Text>
-                <Text style={[styles.rhythmGraceInfoText, accountDarkMode && styles.accountDarkMutedText]}>
-                  You have restored your Scripture rhythm. Keep going gently from today.
-                </Text>
+                <Ionicons name="checkmark-outline" size={34} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
               </View>
             </View>
             <View style={[styles.printOptionsActions, styles.rhythmGraceActions, phoneLayout && styles.phoneRhythmGraceActions]}>
@@ -22455,23 +22450,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "900"
   },
-  rhythmGraceSuccessBox: {
+  rhythmGraceSuccessIconRow: {
     alignItems: "center",
-    backgroundColor: "#f7f7ed",
-    borderColor: "rgba(53, 74, 45, 0.18)",
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 10,
-    padding: 12
+    justifyContent: "center",
+    paddingVertical: 4
   },
   rhythmGraceSuccessIcon: {
     alignItems: "center",
     backgroundColor: colors.sage,
     borderRadius: 999,
-    height: 36,
+    height: 58,
     justifyContent: "center",
-    width: 36
+    width: 58
   },
   rhythmGraceBodyText: {
     color: colors.muted,

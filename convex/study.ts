@@ -720,7 +720,6 @@ function countsTowardScriptureRhythm(eventType: string) {
     "memory_cards_doc_downloaded",
     "memory_cards_printed",
     "memory_saved",
-    "rhythm_restored",
     "study_completed",
     "study_insight_posted",
     "worksheet_printed"

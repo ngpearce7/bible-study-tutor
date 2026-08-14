@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Daily Rhythm Dialogues</title>
+    <style>
+      :root {
+        --bg: #f7efe4;
+        --card: #fffaf2;
+        --inset: #fff6eb;
+        --line: #eadcc9;
+        --ink: #241d19;
+        --muted: #766b5f;
+        --olive: #354a2d;
+        --coral: #d36a53;
+        --sage: #dfead6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        align-items: center;
+        background: var(--bg);
+        color: var(--ink);
+        display: flex;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        justify-content: center;
+        margin: 0;
+        min-height: 100vh;
+        padding: 28px;
+      }
+
+      .stage {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(320px, 1fr));
+        max-width: 1080px;
+        width: 100%;
+      }
+
+      .dialog {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 22px 60px rgba(36, 29, 25, 0.18);
+        display: grid;
+        gap: 14px;
+        padding: 22px;
+      }
+
+      .header {
+        align-items: flex-start;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+      }
+
+      h2 {
+        font-size: 23px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin: 0;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 1.35;
+        margin: 5px 0 0;
+      }
+
+      .close {
+        color: var(--muted);
+        font-size: 26px;
+        line-height: 1;
+      }
+
+      .info,
+      .success {
+        align-items: flex-start;
+        background: var(--inset);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        display: flex;
+        gap: 12px;
+        padding: 13px;
+      }
+
+      .success {
+        align-items: center;
+        background: #f7f7ed;
+        border-color: rgba(53, 74, 45, 0.18);
+      }
+
+      .success-check {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        padding: 4px 0;
+      }
+
+      .success-check .icon {
+        background: var(--sage);
+        color: var(--olive);
+      }
+
+      .icon {
+        align-items: center;
+        background: #fff0df;
+        border-radius: 999px;
+        color: var(--coral);
+        display: flex;
+        flex: 0 0 auto;
+        font-size: 18px;
+        height: 36px;
+        justify-content: center;
+        width: 36px;
+      }
+
+      .success .icon {
+        background: var(--sage);
+        color: var(--olive);
+      }
+
+      .large-check {
+        font-size: 32px;
+        height: 58px;
+        width: 58px;
+      }
+
+      .label {
+        color: var(--coral);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+        margin: 0 0 4px;
+        text-transform: uppercase;
+      }
+
+      .copy {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      .count {
+        align-items: center;
+        background: var(--card);
+        border: 1px solid rgba(53, 74, 45, 0.16);
+        border-radius: 14px;
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 14px;
+      }
+
+      .count-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .count-value {
+        color: var(--olive);
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      .body {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.55;
+        margin: 0;
+      }
+
+      .actions {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+      }
+
+      .primary {
+        align-items: center;
+        background: var(--coral);
+        border: 0;
+        border-radius: 999px;
+        color: white;
+        display: inline-flex;
+        font-size: 15px;
+        font-weight: 900;
+        gap: 8px;
+        justify-content: center;
+        min-height: 44px;
+        min-width: 190px;
+        padding: 0 22px;
+      }
+
+      .secondary {
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 900;
+      }
+
+      @media (max-width: 760px) {
+        body {
+          padding: 16px;
+        }
+
+        .stage {
+          grid-template-columns: 1fr;
+        }
+
+        .dialog {
+          padding: 16px;
+        }
+
+        .actions {
+          align-items: stretch;
+          flex-direction: column-reverse;
+        }
+
+        .primary {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+      <section class="dialog" aria-label="Restore daily rhythm prompt">
+        <div class="header">
+          <div>
+            <h2>Restore your daily rhythm?</h2>
+            <p class="subtitle">Nick, you missed Yesterday.</p>
+          </div>
+          <div class="close" aria-hidden="true">&times;</div>
+        </div>
+
+        <div class="info">
+          <div class="icon" aria-hidden="true">&#8635;</div>
+          <div>
+            <p class="label">Grace day available</p>
+            <p class="copy">Use one grace day to keep your Scripture rhythm going from today.</p>
+          </div>
+        </div>
+
+        <div class="count">
+          <span class="count-label">Current rhythm</span>
+          <span class="count-value">7 days</span>
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="button">&#8635; Restore rhythm</button>
+          <span class="secondary">Not now</span>
+        </div>
+      </section>
+
+      <section class="dialog" aria-label="Restored rhythm confirmation">
+        <div class="header">
+          <div>
+            <h2>Rhythm restored</h2>
+            <p class="subtitle">Success, Nick. Your current rhythm is now 7 days.</p>
+          </div>
+          <div class="close" aria-hidden="true">&times;</div>
+        </div>
+
+        <div class="count">
+          <span class="count-label">Current rhythm</span>
+          <span class="count-value">7 days</span>
+        </div>
+
+        <div class="success-check">
+          <div class="icon large-check" aria-hidden="true">&#10003;</div>
+        </div>
+
+        <div class="actions">
+          <span></span>
+          <button class="primary" type="button">&#10003; Done</button>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

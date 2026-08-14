@@ -354,6 +354,8 @@ type UiPreferenceKey =
   | "journalFiltersOpen"
   | "journalExpandedScriptureBook"
   | "journalSelectedScripture"
+  | "accountPrivacyOpen"
+  | "accountLegalSection"
   | "pinnedJournalEntryIds"
   | "customWritingPrompts"
   | "rhythmGraceHandledDates";
@@ -506,6 +508,8 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "journalFiltersOpen",
   "journalExpandedScriptureBook",
   "journalSelectedScripture",
+  "accountPrivacyOpen",
+  "accountLegalSection",
   "pinnedJournalEntryIds",
   "customWritingPrompts",
   "rhythmGraceHandledDates"
@@ -2301,6 +2305,7 @@ export default function Home() {
     const syncedJournalFilter = uiJournalFilter(profileUiPreferences);
     const syncedJournalExpandedScriptureBook = uiJournalExpandedScriptureBook(profileUiPreferences);
     const syncedJournalSelectedScripture = uiJournalSelectedScripture(profileUiPreferences);
+    const syncedAccountLegalSection = uiAccountLegalSection(profileUiPreferences);
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
     const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
@@ -2366,6 +2371,8 @@ export default function Home() {
       setSelectedJournalScriptureBook(syncedJournalSelectedScripture.book);
       setSelectedJournalScriptureChapter(syncedJournalSelectedScripture.chapter);
     }
+    if (uiBoolean(profileUiPreferences, "accountPrivacyOpen") !== undefined) setAccountPrivacyOpen(uiBoolean(profileUiPreferences, "accountPrivacyOpen")!);
+    if (syncedAccountLegalSection !== undefined) setOpenLegalSection(syncedAccountLegalSection);
     if (syncedPinnedEntries) {
       setPinnedJournalEntryIds(syncedPinnedEntries);
       savePinnedJournalEntries(syncedPinnedEntries).catch(() => undefined);
@@ -5191,8 +5198,8 @@ export default function Home() {
   }
 
   function openPrivacyPolicyFromAccountIntro() {
-    setAccountPrivacyOpen(true);
-    setOpenLegalSection("privacy");
+    setRememberedAccountPrivacyOpen(true);
+    setRememberedOpenLegalSection("privacy");
     const scrollToLegal = () => {
       appScrollRef.current?.scrollTo?.({ y: Math.max(0, accountLegalYRef.current - (phoneLayout ? 82 : 18)), animated: true });
     };
@@ -6196,6 +6203,23 @@ export default function Home() {
     setSelectedJournalScriptureBook(normalizedBook);
     setSelectedJournalScriptureChapter(normalizedChapter);
     persistUiPreference("journalSelectedScripture", normalizedBook && normalizedChapter ? `${normalizedBook}:${normalizedChapter}` : "");
+  }
+
+  function setRememberedAccountPrivacyOpen(nextValue: SetStateAction<boolean>) {
+    setAccountPrivacyOpen((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: boolean) => boolean)(current) : nextValue;
+      persistUiPreference("accountPrivacyOpen", next);
+      return next;
+    });
+  }
+
+  function setRememberedOpenLegalSection(nextValue: SetStateAction<LegalSection>) {
+    setOpenLegalSection((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: LegalSection) => LegalSection)(current) : nextValue;
+      const normalized = next === "privacy" || next === "terms" ? next : "";
+      persistUiPreference("accountLegalSection", normalized);
+      return normalized;
+    });
   }
 
   function currentBibleReadingPlanProgress(
@@ -9107,7 +9131,7 @@ export default function Home() {
                 style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}
               >
                 <Pressable
-                  onPress={() => setAccountPrivacyOpen((open) => !open)}
+                  onPress={() => setRememberedAccountPrivacyOpen((open) => !open)}
                   style={styles.accountCollapsibleHeader}
                   accessibilityRole="button"
                   accessibilityLabel={accountPrivacyOpen ? "Hide privacy and data" : "Show privacy and data"}
@@ -9154,7 +9178,7 @@ export default function Home() {
                         icon="shield-checkmark-outline"
                         open={openLegalSection === "privacy"}
                         sections={PRIVACY_POLICY_SECTIONS}
-                        onToggle={() => setOpenLegalSection((current) => (current === "privacy" ? "" : "privacy"))}
+                        onToggle={() => setRememberedOpenLegalSection((current) => (current === "privacy" ? "" : "privacy"))}
                         darkMode={accountDarkMode}
                       />
                       <LegalDocument
@@ -9162,7 +9186,7 @@ export default function Home() {
                         icon="document-text-outline"
                         open={openLegalSection === "terms"}
                         sections={TERMS_OF_SERVICE_SECTIONS}
-                        onToggle={() => setOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
+                        onToggle={() => setRememberedOpenLegalSection((current) => (current === "terms" ? "" : "terms"))}
                         darkMode={accountDarkMode}
                       />
                     </View>
@@ -11625,6 +11649,10 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (typeof item === "string" && (item === "" || isSafeJournalScriptureSelection(item))) preferences[key] = item;
       return;
     }
+    if (key === "accountLegalSection") {
+      if (item === "" || item === "privacy" || item === "terms") preferences[key] = item;
+      return;
+    }
     if (key === "customWritingPrompts") {
       if (Array.isArray(item)) preferences[key] = normalizeCustomWritingPrompts(item);
       return;
@@ -11749,6 +11777,11 @@ function uiJournalSelectedScripture(preferences: UiPreferenceMap) {
     book: value.slice(0, separatorIndex),
     chapter: Number.parseInt(value.slice(separatorIndex + 1), 10)
   };
+}
+
+function uiAccountLegalSection(preferences: UiPreferenceMap) {
+  const value = preferences.accountLegalSection;
+  return value === "" || value === "privacy" || value === "terms" ? value : undefined;
 }
 
 function uiStudyMethodId(preferences: UiPreferenceMap) {

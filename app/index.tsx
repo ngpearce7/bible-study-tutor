@@ -336,7 +336,8 @@ type UiPreferenceKey =
   | "communityRecentExpanded"
   | "memoryDueSort"
   | "memoryReviewedSort"
-  | "pinnedJournalEntryIds";
+  | "pinnedJournalEntryIds"
+  | "rhythmGraceHandledDates";
 type UiPreferenceValue = boolean | string | string[];
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, UiPreferenceValue>>;
 type ReaderMobileMenu = "old" | "new" | null;
@@ -467,7 +468,8 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "communityRecentExpanded",
   "memoryDueSort",
   "memoryReviewedSort",
-  "pinnedJournalEntryIds"
+  "pinnedJournalEntryIds",
+  "rhythmGraceHandledDates"
 ];
 const STUDY_PANEL_UI_PREFERENCE_KEYS: Record<StudySidePanelKey, UiPreferenceKey> = {
   community: "studyPanelCommunityCollapsed",
@@ -1355,6 +1357,7 @@ export default function Home() {
     profile !== undefined &&
     String((profile as any)?._id || "") === String(activeProfileId) &&
     (isAuthenticated ? !!(profile as any)?.authUserId : !(profile as any)?.authUserId);
+  const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
   const shouldLoadStudyLists = profileMatchesActiveState && (tab === "account" || tab === "journal");
   const shouldLoadDueStudyReviews = profileMatchesActiveState && (tab === "home" || tab === "journal");
   const shouldLoadEncouragements = profileMatchesActiveState && (tab === "account" || tab === "accountability" || tab === "journal");
@@ -1384,6 +1387,12 @@ export default function Home() {
     const missedDate = typeof rhythmGrace?.missedDate === "string" ? rhythmGrace.missedDate : "";
     if (!profileMatchesActiveState || !activeProfileId || !missedDate) return;
     const storageKey = `bible-study-tutor-rhythm-grace-${activeProfileId}-${missedDate}`;
+    const syncedHandledDates = uiStringList(profileUiPreferences, "rhythmGraceHandledDates") || [];
+    if (syncedHandledDates.includes(missedDate)) {
+      safeSetLocalStorageValue(storageKey, "handled");
+      if (pendingRhythmGracePrompt?.storageKey === storageKey) setPendingRhythmGracePrompt(null);
+      return;
+    }
     if (pendingRhythmGracePrompt?.storageKey === storageKey) return;
     if (safeGetLocalStorageValue(storageKey) === "handled") return;
     setPendingRhythmGracePrompt({
@@ -1395,6 +1404,7 @@ export default function Home() {
     activeProfileId,
     pendingRhythmGracePrompt?.storageKey,
     profileMatchesActiveState,
+    profileUiPreferences,
     rhythmGrace?.latestActivityDate,
     rhythmGrace?.missedDate
   ]);
@@ -1404,7 +1414,6 @@ export default function Home() {
   const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 50 } : "skip");
   const memoryHistory = useQuery((api as any).memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
   const memoryStats = useQuery((api as any).memory.stats, shouldLoadMemoryHistory ? { profileId: activeProfileId } : "skip");
-  const profileUiPreferences = useMemo(() => normalizeUiPreferences((profile as any)?.uiPreferences), [profile]);
   const adminOverview = useQuery((api as any).insights.adminOverview, shouldLoadAdminOverview ? {} : "skip");
   const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
   const adminUsers = useQuery((api as any).insights.adminUsers, shouldLoadAdminDetails ? {} : "skip");
@@ -3150,7 +3159,7 @@ export default function Home() {
 
   function dismissRhythmGracePrompt() {
     if (pendingRhythmGracePrompt?.storageKey) {
-      safeSetLocalStorageValue(pendingRhythmGracePrompt.storageKey, "handled");
+      persistRhythmGraceHandledDate(pendingRhythmGracePrompt.missedDate, pendingRhythmGracePrompt.storageKey);
     }
     setPendingRhythmGracePrompt(null);
   }
@@ -3158,7 +3167,7 @@ export default function Home() {
   function restoreDailyRhythmFromGracePrompt() {
     if (!pendingRhythmGracePrompt) return;
     const restoredCount = Math.max(currentRhythmCount, 1);
-    safeSetLocalStorageValue(pendingRhythmGracePrompt.storageKey, "handled");
+    persistRhythmGraceHandledDate(pendingRhythmGracePrompt.missedDate, pendingRhythmGracePrompt.storageKey);
     trackUsage("rhythm_restored", { reference: pendingRhythmGracePrompt.missedDate, tab: "home" });
     setRhythmGraceSuccess({ missedDate: pendingRhythmGracePrompt.missedDate, restoredCount });
     setPendingRhythmGracePrompt(null);
@@ -5927,6 +5936,15 @@ export default function Home() {
     const next = Array.from(new Set(ids.map((id) => String(id)).filter(Boolean))).slice(0, 80);
     savePinnedJournalEntries(next).catch(() => undefined);
     persistUiPreference("pinnedJournalEntryIds", next);
+  }
+
+  function persistRhythmGraceHandledDate(missedDate: string, storageKey?: string) {
+    const cleanDate = /^\d{4}-\d{2}-\d{2}$/.test(missedDate) ? missedDate : "";
+    if (!cleanDate) return;
+    if (storageKey) safeSetLocalStorageValue(storageKey, "handled");
+    const current = uiStringList(profileUiPreferences, "rhythmGraceHandledDates") || [];
+    const next = [cleanDate, ...current.filter((date) => date !== cleanDate)].slice(0, 30);
+    persistUiPreference("rhythmGraceHandledDates", next);
   }
 
   function currentBibleReadingPlanProgress(
@@ -11308,7 +11326,7 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (item === "oldest" || item === "newest") preferences[key] = item;
       return;
     }
-    if (key === "pinnedJournalEntryIds") {
+    if (key === "pinnedJournalEntryIds" || key === "rhythmGraceHandledDates") {
       if (Array.isArray(item)) {
         preferences[key] = Array.from(new Set(item.map((entryId) => (typeof entryId === "string" ? entryId.trim() : "")).filter(Boolean))).slice(0, 80);
       }
@@ -11328,7 +11346,7 @@ function uiMemoryReviewSort(preferences: UiPreferenceMap, key: "memoryDueSort" |
   return value === "newest" || value === "oldest" ? value : undefined;
 }
 
-function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds") {
+function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "rhythmGraceHandledDates") {
   const value = preferences[key];
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : undefined;
 }

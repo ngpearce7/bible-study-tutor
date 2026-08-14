@@ -356,6 +356,13 @@ type UiPreferenceKey =
   | "journalSelectedScripture"
   | "accountPrivacyOpen"
   | "accountLegalSection"
+  | "printWorksheetMethodId"
+  | "printWorksheetWritingSpace"
+  | "printWorksheetIncludes"
+  | "memoryPrintSet"
+  | "memoryPrintLayout"
+  | "memoryPrintCopies"
+  | "memoryPrintSafeMode"
   | "pinnedJournalEntryIds"
   | "customWritingPrompts"
   | "rhythmGraceHandledDates";
@@ -510,6 +517,13 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "journalSelectedScripture",
   "accountPrivacyOpen",
   "accountLegalSection",
+  "printWorksheetMethodId",
+  "printWorksheetWritingSpace",
+  "printWorksheetIncludes",
+  "memoryPrintSet",
+  "memoryPrintLayout",
+  "memoryPrintCopies",
+  "memoryPrintSafeMode",
   "pinnedJournalEntryIds",
   "customWritingPrompts",
   "rhythmGraceHandledDates"
@@ -2306,6 +2320,12 @@ export default function Home() {
     const syncedJournalExpandedScriptureBook = uiJournalExpandedScriptureBook(profileUiPreferences);
     const syncedJournalSelectedScripture = uiJournalSelectedScripture(profileUiPreferences);
     const syncedAccountLegalSection = uiAccountLegalSection(profileUiPreferences);
+    const syncedPrintWorksheetMethodId = uiPrintWorksheetMethodId(profileUiPreferences);
+    const syncedPrintWorksheetWritingSpace = uiPrintWorksheetWritingSpace(profileUiPreferences);
+    const syncedPrintWorksheetIncludes = uiPrintWorksheetIncludes(profileUiPreferences);
+    const syncedMemoryPrintSet = uiMemoryPrintSet(profileUiPreferences);
+    const syncedMemoryPrintLayout = uiMemoryPrintLayout(profileUiPreferences);
+    const syncedMemoryPrintCopies = uiMemoryPrintCopies(profileUiPreferences);
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
     const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
@@ -2373,6 +2393,13 @@ export default function Home() {
     }
     if (uiBoolean(profileUiPreferences, "accountPrivacyOpen") !== undefined) setAccountPrivacyOpen(uiBoolean(profileUiPreferences, "accountPrivacyOpen")!);
     if (syncedAccountLegalSection !== undefined) setOpenLegalSection(syncedAccountLegalSection);
+    if (syncedPrintWorksheetMethodId) setPrintWorksheetMethodId(syncedPrintWorksheetMethodId);
+    if (syncedPrintWorksheetWritingSpace) setPrintWorksheetWritingSpace(syncedPrintWorksheetWritingSpace);
+    if (syncedPrintWorksheetIncludes) setPrintWorksheetIncludes(syncedPrintWorksheetIncludes);
+    if (syncedMemoryPrintSet) setMemoryPrintSet(syncedMemoryPrintSet);
+    if (syncedMemoryPrintLayout) setMemoryPrintLayout(syncedMemoryPrintLayout);
+    if (syncedMemoryPrintCopies) setMemoryPrintCopies(syncedMemoryPrintCopies);
+    if (uiBoolean(profileUiPreferences, "memoryPrintSafeMode") !== undefined) setMemoryPrintSafeMode(uiBoolean(profileUiPreferences, "memoryPrintSafeMode")!);
     if (syncedPinnedEntries) {
       setPinnedJournalEntryIds(syncedPinnedEntries);
       savePinnedJournalEntries(syncedPinnedEntries).catch(() => undefined);
@@ -2556,9 +2583,7 @@ export default function Home() {
   useEffect(() => {
     if (!pendingStudyWorksheetPrint || tab !== "study" || !passageText?.verses?.length) return;
     setPendingStudyWorksheetPrint(false);
-    setPrintWorksheetMethodId(method.id);
-    setPrintWorksheetWritingSpace("standard");
-    setPrintWorksheetIncludes({ memory: true, insight: true });
+    setRememberedPrintWorksheetMethodId(method.id);
     setPrintWorksheetRequest({
       source: "study",
       reference: passageText.reference || passage,
@@ -4556,9 +4581,6 @@ export default function Home() {
 
   function openReaderWorksheetOptions() {
     if (!readerPassage || selectedReaderVerseObjects.length === 0) return;
-    setPrintWorksheetMethodId(method.id);
-    setPrintWorksheetWritingSpace("standard");
-    setPrintWorksheetIncludes({ memory: true, insight: true });
     setPrintWorksheetRequest({
       source: "bible",
       reference: buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses),
@@ -4573,9 +4595,7 @@ export default function Home() {
       return;
     }
     const versesToPrint = selectedVerses.length ? selectedVerses : passageText.verses;
-    setPrintWorksheetMethodId(method.id);
-    setPrintWorksheetWritingSpace("standard");
-    setPrintWorksheetIncludes({ memory: true, insight: true });
+    setRememberedPrintWorksheetMethodId(method.id);
     setPrintWorksheetRequest({
       source: "study",
       reference: selectedVerses.length ? buildMemoryReference(selectedVerses) : passageText.reference || passage,
@@ -4669,8 +4689,6 @@ export default function Home() {
     setMemoryPrintSet(initialSet);
     setMemoryPrintCollectionFilter(initialCollectionFilter);
     setMemoryPrintSelectedVerseIds(initialVerses.map((verse: any) => String(verse._id)));
-    setMemoryPrintLayout("pocket");
-    setMemoryPrintCopies(1);
     setMemoryPrintOptionsOpen(true);
   }
 
@@ -4680,7 +4698,7 @@ export default function Home() {
       changeMemoryPrintCollection(defaultCollection);
       return;
     }
-    setMemoryPrintSet(printSet);
+    setRememberedMemoryPrintSet(printSet);
     setMemoryPrintSelectedVerseIds(getMemoryPrintCandidateVerses(printSet).map((verse: any) => String(verse._id)));
   }
 
@@ -4688,7 +4706,7 @@ export default function Home() {
     setMemoryPrintCollectionFilter(collectionName);
     const saved = memoryVerses || [];
     const verses = collectionName === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(collectionName));
-    setMemoryPrintSet("collection");
+    setRememberedMemoryPrintSet("collection");
     setMemoryPrintSelectedVerseIds(verses.map((verse: any) => String(verse._id)));
   }
 
@@ -6220,6 +6238,52 @@ export default function Home() {
       persistUiPreference("accountLegalSection", normalized);
       return normalized;
     });
+  }
+
+  function setRememberedPrintWorksheetMethodId(nextMethodId: string) {
+    const normalized = methods.some((item) => item.id === nextMethodId) ? nextMethodId : methods[0]?.id || "";
+    setPrintWorksheetMethodId(normalized);
+    if (normalized) persistUiPreference("printWorksheetMethodId", normalized);
+  }
+
+  function setRememberedPrintWorksheetWritingSpace(nextSpace: WorksheetWritingSpace) {
+    const normalized = nextSpace === "more" ? "more" : "standard";
+    setPrintWorksheetWritingSpace(normalized);
+    persistUiPreference("printWorksheetWritingSpace", normalized);
+  }
+
+  function setRememberedPrintWorksheetIncludes(nextValue: SetStateAction<{ memory: boolean; insight: boolean }>) {
+    setPrintWorksheetIncludes((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: { memory: boolean; insight: boolean }) => { memory: boolean; insight: boolean })(current) : nextValue;
+      persistUiPreference("printWorksheetIncludes", [
+        ...(next.memory ? ["memory"] : []),
+        ...(next.insight ? ["insight"] : [])
+      ]);
+      return next;
+    });
+  }
+
+  function setRememberedMemoryPrintSet(nextSet: MemoryPrintSet) {
+    const normalized = isMemoryPrintSetValue(nextSet) ? nextSet : "due";
+    setMemoryPrintSet(normalized);
+    persistUiPreference("memoryPrintSet", normalized);
+  }
+
+  function setRememberedMemoryPrintLayout(nextLayout: MemoryCardLayout) {
+    const normalized = nextLayout === "large" ? "large" : "pocket";
+    setMemoryPrintLayout(normalized);
+    persistUiPreference("memoryPrintLayout", normalized);
+  }
+
+  function setRememberedMemoryPrintCopies(nextCopies: number) {
+    const normalized = [1, 2, 3, 4, 6].includes(nextCopies) ? nextCopies : 1;
+    setMemoryPrintCopies(normalized);
+    persistUiPreference("memoryPrintCopies", String(normalized));
+  }
+
+  function setRememberedMemoryPrintSafeMode(nextSafeMode: boolean) {
+    setMemoryPrintSafeMode(nextSafeMode);
+    persistUiPreference("memoryPrintSafeMode", nextSafeMode);
   }
 
   function currentBibleReadingPlanProgress(
@@ -9986,7 +10050,7 @@ export default function Home() {
                   ].map(([key, label]) => (
                     <Pressable
                       key={key}
-                      onPress={() => setMemoryPrintLayout(key as MemoryCardLayout)}
+                      onPress={() => setRememberedMemoryPrintLayout(key as MemoryCardLayout)}
                       style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintLayout === key && styles.activePrintOptionChip]}
                     >
                       <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintLayout === key && styles.activePrintOptionChipText]}>{label}</Text>
@@ -10001,7 +10065,7 @@ export default function Home() {
                   {[1, 2, 3, 4, 6].map((count) => (
                     <Pressable
                       key={count}
-                      onPress={() => setMemoryPrintCopies(count)}
+                      onPress={() => setRememberedMemoryPrintCopies(count)}
                       style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryPrintCopies === count && styles.activePrintOptionChip]}
                     >
                       <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryPrintCopies === count && styles.activePrintOptionChipText]}>{count}</Text>
@@ -10046,7 +10110,7 @@ export default function Home() {
                 {methods.map((item) => (
                   <Pressable
                     key={item.id}
-                    onPress={() => setPrintWorksheetMethodId(item.id)}
+                    onPress={() => setRememberedPrintWorksheetMethodId(item.id)}
                     style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, printWorksheetMethodId === item.id && styles.activePrintOptionChip]}
                   >
                     <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, printWorksheetMethodId === item.id && styles.activePrintOptionChipText]}>{item.short}</Text>
@@ -10064,7 +10128,7 @@ export default function Home() {
                 ].map(([key, label]) => (
                   <Pressable
                     key={key}
-                    onPress={() => setPrintWorksheetWritingSpace(key as WorksheetWritingSpace)}
+                    onPress={() => setRememberedPrintWorksheetWritingSpace(key as WorksheetWritingSpace)}
                     style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, printWorksheetWritingSpace === key && styles.activePrintOptionChip]}
                   >
                     <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, printWorksheetWritingSpace === key && styles.activePrintOptionChipText]}>{label}</Text>
@@ -10084,7 +10148,7 @@ export default function Home() {
                   return (
                     <Pressable
                       key={key}
-                      onPress={() => setPrintWorksheetIncludes((current) => ({ ...current, [key]: !current[key as keyof typeof current] }))}
+                      onPress={() => setRememberedPrintWorksheetIncludes((current) => ({ ...current, [key]: !current[key as keyof typeof current] }))}
                       style={styles.printOptionToggle}
                     >
                       <Ionicons name={active ? "checkbox" : "square-outline"} size={19} color={active ? (accountDarkMode ? "#e9b76a" : colors.coral) : (accountDarkMode ? "#c8bda9" : colors.muted)} />
@@ -11653,6 +11717,30 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (item === "" || item === "privacy" || item === "terms") preferences[key] = item;
       return;
     }
+    if (key === "printWorksheetMethodId") {
+      if (typeof item === "string" && methods.some((method) => method.id === item)) preferences[key] = item;
+      return;
+    }
+    if (key === "printWorksheetWritingSpace") {
+      if (item === "standard" || item === "more") preferences[key] = item;
+      return;
+    }
+    if (key === "printWorksheetIncludes") {
+      if (Array.isArray(item)) preferences[key] = normalizePrintWorksheetIncludes(item);
+      return;
+    }
+    if (key === "memoryPrintSet") {
+      if (isMemoryPrintSetValue(item)) preferences[key] = item;
+      return;
+    }
+    if (key === "memoryPrintLayout") {
+      if (item === "pocket" || item === "large") preferences[key] = item;
+      return;
+    }
+    if (key === "memoryPrintCopies") {
+      if (typeof item === "string" && ["1", "2", "3", "4", "6"].includes(item)) preferences[key] = item;
+      return;
+    }
     if (key === "customWritingPrompts") {
       if (Array.isArray(item)) preferences[key] = normalizeCustomWritingPrompts(item);
       return;
@@ -11782,6 +11870,56 @@ function uiJournalSelectedScripture(preferences: UiPreferenceMap) {
 function uiAccountLegalSection(preferences: UiPreferenceMap) {
   const value = preferences.accountLegalSection;
   return value === "" || value === "privacy" || value === "terms" ? value : undefined;
+}
+
+function normalizePrintWorksheetIncludes(value: unknown[]) {
+  const allowed = new Set(["memory", "insight"]);
+  return Array.from(new Set(value.map((item) => (typeof item === "string" ? item.trim() : "")).filter((item) => allowed.has(item)))).slice(0, 2);
+}
+
+function uiPrintWorksheetMethodId(preferences: UiPreferenceMap) {
+  const value = preferences.printWorksheetMethodId;
+  return typeof value === "string" && methods.some((method) => method.id === value) ? value : undefined;
+}
+
+function uiPrintWorksheetWritingSpace(preferences: UiPreferenceMap) {
+  const value = preferences.printWorksheetWritingSpace;
+  return value === "standard" || value === "more" ? value : undefined;
+}
+
+function uiPrintWorksheetIncludes(preferences: UiPreferenceMap) {
+  const value = preferences.printWorksheetIncludes;
+  if (!Array.isArray(value)) return undefined;
+  const normalized = normalizePrintWorksheetIncludes(value);
+  return {
+    memory: normalized.includes("memory"),
+    insight: normalized.includes("insight")
+  };
+}
+
+function isMemoryPrintSetValue(value: unknown): value is MemoryPrintSet {
+  return value === "due" ||
+    value === "reviewed" ||
+    value === "all" ||
+    value === "current" ||
+    value === "collection" ||
+    value === "custom";
+}
+
+function uiMemoryPrintSet(preferences: UiPreferenceMap) {
+  const value = preferences.memoryPrintSet;
+  return isMemoryPrintSetValue(value) ? value : undefined;
+}
+
+function uiMemoryPrintLayout(preferences: UiPreferenceMap) {
+  const value = preferences.memoryPrintLayout;
+  return value === "pocket" || value === "large" ? value : undefined;
+}
+
+function uiMemoryPrintCopies(preferences: UiPreferenceMap) {
+  const value = preferences.memoryPrintCopies;
+  if (typeof value !== "string" || !["1", "2", "3", "4", "6"].includes(value)) return undefined;
+  return Number.parseInt(value, 10);
 }
 
 function uiStudyMethodId(preferences: UiPreferenceMap) {

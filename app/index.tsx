@@ -129,6 +129,12 @@ function HomeSemanticResourceLinks() {
   );
 }
 
+function formatInlineList(items: string[]) {
+  if (items.length <= 1) return items[0] || "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}
+
 type TabErrorBoundaryProps = {
   children: ReactNode;
   fallback: ReactNode;
@@ -1492,6 +1498,27 @@ export default function Home() {
       : profile?.authName?.trim() || authName.trim() || "Bible student";
   const firstName = personalDisplayName !== "Bible student" ? personalDisplayName.split(/\s+/)[0] : "";
   const friendlyName = firstName || "friend";
+  const weeklyRhythm = (stats as any)?.weeklyRhythm;
+  const homeWeeklyRhythmText = useMemo(() => {
+    if (!weeklyRhythm) return "";
+    const activeDays = Number(weeklyRhythm.activeDays || 0);
+    if (activeDays <= 0) return `${friendlyName}, begin gently with one reading, study, or memory review this week.`;
+
+    const parts = [
+      [weeklyRhythm.planReadingsCompleted, "completed plan reading"],
+      [weeklyRhythm.chaptersRead, "chapter marked read"],
+      [weeklyRhythm.memoryReviews, "memory review"],
+      [weeklyRhythm.studiesCompleted, "guided study"],
+      [weeklyRhythm.worksheetsPrinted + weeklyRhythm.memoryCardsPrinted, "printable resource"],
+      [weeklyRhythm.encouragementsShared, "encouragement shared"]
+    ]
+      .map(([count, label]) => ({ count: Number(count || 0), label: String(label) }))
+      .filter((item) => item.count > 0)
+      .map((item) => `${item.count} ${item.label}${item.count === 1 ? "" : "s"}`);
+    const detail = parts.length ? ` You ${formatInlineList(parts)}.` : "";
+    const strongest = weeklyRhythm.strongestArea ? ` Your strongest rhythm has been ${String(weeklyRhythm.strongestArea).toLowerCase()}.` : "";
+    return `This week, ${friendlyName}, you met with Scripture on ${activeDays} day${activeDays === 1 ? "" : "s"}.${detail}${strongest} Keep going gently.`;
+  }, [friendlyName, weeklyRhythm]);
   const accountIdentityLabel = profile?.authUsername
     ? `${personalDisplayName} (@${profile.authUsername})`
     : profile?.authEmail
@@ -6530,6 +6557,15 @@ export default function Home() {
                   <Metric value={dueMemoryCount} label="memory due" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
                   <Metric value={dueStudyReviewCount} label="study reviews" compact={phoneLayout} style={homeDarkMode && styles.homeDarkMetric} valueStyle={homeDarkMode && styles.homeDarkMetricValue} labelStyle={homeDarkMode && styles.accountDarkMutedText} />
                 </View>
+                {!!homeWeeklyRhythmText && (
+                  <View style={[styles.homeWeeklyRhythmPanel, homeDarkMode && styles.homeDarkWeeklyRhythmPanel]}>
+                    <View style={styles.homeWeeklyRhythmHeader}>
+                      <HydrationSafeIonicon ready={iconFontReady} name="leaf-outline" size={16} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Text style={[styles.homeWeeklyRhythmTitle, homeDarkMode && styles.accountDarkTitle]}>This week</Text>
+                    </View>
+                    <Text style={[styles.homeWeeklyRhythmText, homeDarkMode && styles.accountDarkMutedText]}>{homeWeeklyRhythmText}</Text>
+                  </View>
+                )}
                 <View style={styles.homeSmallActions}>
                   <ResumeButton label="Choose method" icon="layers-outline" iconReady={iconFontReady} onPress={() => setTab("methods")} style={homeDarkMode && styles.homeDarkResumeButton} labelStyle={homeDarkMode && styles.homeDarkResumeButtonText} iconColor={homeDarkMode ? "#e9b76a" : undefined} />
                   <ResumeButton
@@ -13027,6 +13063,35 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8
+  },
+  homeWeeklyRhythmPanel: {
+    backgroundColor: "#fff6eb",
+    borderColor: "rgba(53, 74, 45, 0.16)",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 7,
+    padding: 11
+  },
+  homeDarkWeeklyRhythmPanel: {
+    backgroundColor: "#1b211f",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  homeWeeklyRhythmHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7
+  },
+  homeWeeklyRhythmTitle: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  homeWeeklyRhythmText: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "600",
+    lineHeight: 19
   },
   homeSmallActions: {
     flexDirection: "row",

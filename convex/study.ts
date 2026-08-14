@@ -480,12 +480,22 @@ export const stats = query({
     const dates = Array.from(new Set(activityTimestamps.map((timestamp) => dayKey(timestamp, timezoneOffsetMinutes)))).sort();
 
     const rhythm = currentStreak(dates, timezoneOffsetMinutes);
+    const weeklyRhythm = buildWeeklyRhythmSummary({
+      sessions,
+      checkins,
+      memoryVerses,
+      memoryHistory,
+      usageEvents,
+      activeDates: dates,
+      timezoneOffsetMinutes
+    });
 
     return {
       sessionCount: sessions.length,
       minutes: sessions.reduce((total, session) => total + session.minutes, 0),
       currentStreak: rhythm.current,
       bestStreak: Math.max(bestStreak(dates), rhythm.current),
+      weeklyRhythm,
       rhythmGrace: rhythm.graceUsed
         ? {
             missedDate: rhythm.missedDate,
@@ -700,15 +710,85 @@ function bestStreak(dates: string[]) {
 
 function countsTowardScriptureRhythm(eventType: string) {
   return [
+    "bible_reading_plan_day_completed",
+    "bible_reading_plan_opened",
+    "bible_reading_plan_studied",
     "bible_search",
     "bookmark_saved",
     "chapter_read",
     "checkin_saved",
+    "memory_cards_doc_downloaded",
+    "memory_cards_printed",
     "memory_saved",
     "rhythm_restored",
     "study_completed",
+    "study_insight_posted",
     "worksheet_printed"
   ].includes(eventType);
+}
+
+type RhythmSession = { completedAt: number };
+type RhythmCheckin = { createdAt: number };
+type RhythmMemoryVerse = { createdAt: number; lastReviewedAt?: number };
+type RhythmMemoryHistoryEvent = { event: string; createdAt: number };
+type RhythmUsageEvent = { eventType: string; createdAt: number };
+
+function buildWeeklyRhythmSummary(args: {
+  sessions: RhythmSession[];
+  checkins: RhythmCheckin[];
+  memoryVerses: RhythmMemoryVerse[];
+  memoryHistory: RhythmMemoryHistoryEvent[];
+  usageEvents: RhythmUsageEvent[];
+  activeDates: string[];
+  timezoneOffsetMinutes: number;
+}) {
+  const today = dayKey(Date.now(), args.timezoneOffsetMinutes);
+  const weekStart = addDaysToDateKey(today, -6);
+  const inCurrentWeek = (timestamp: number) => {
+    const date = dayKey(timestamp, args.timezoneOffsetMinutes);
+    return date >= weekStart && date <= today;
+  };
+  const activeDays = args.activeDates.filter((date) => date >= weekStart && date <= today).length;
+  const eventCount = (...eventTypes: string[]) =>
+    args.usageEvents.filter((event) => eventTypes.includes(event.eventType) && inCurrentWeek(event.createdAt)).length;
+  const memoryReviewsFromHistory = args.memoryHistory.filter((event) => event.event === "reviewed" && inCurrentWeek(event.createdAt)).length;
+  const memoryReviews =
+    memoryReviewsFromHistory ||
+    args.memoryVerses.filter((verse) => isNumber(verse.lastReviewedAt) && inCurrentWeek(verse.lastReviewedAt)).length;
+  const memoryMeditations = args.memoryHistory.filter((event) => event.event === "meditated" && inCurrentWeek(event.createdAt)).length;
+  const memorySavedFromHistory = args.memoryHistory.filter((event) => event.event === "added" && inCurrentWeek(event.createdAt)).length;
+  const memorySaved = memorySavedFromHistory || eventCount("memory_saved");
+  const planReadingsCompleted = eventCount("bible_reading_plan_day_completed");
+  const planReadingsOpened = eventCount("bible_reading_plan_opened");
+  const chaptersRead = eventCount("chapter_read");
+  const bibleSearches = eventCount("bible_search");
+  const studiesCompleted = args.sessions.filter((session) => inCurrentWeek(session.completedAt)).length;
+  const worksheetsPrinted = eventCount("worksheet_printed");
+  const memoryCardsPrinted = eventCount("memory_cards_printed", "memory_cards_doc_downloaded");
+  const encouragementsShared = args.checkins.filter((checkin) => inCurrentWeek(checkin.createdAt)).length + eventCount("study_insight_posted");
+  const bookmarksSaved = eventCount("bookmark_saved");
+  const areaScores = [
+    { area: "Bible reading", score: planReadingsCompleted + planReadingsOpened + chaptersRead + bibleSearches },
+    { area: "Memory", score: memoryReviews + memoryMeditations + memorySaved + memoryCardsPrinted },
+    { area: "Guided study", score: studiesCompleted + worksheetsPrinted },
+    { area: "Encouragement", score: encouragementsShared + bookmarksSaved }
+  ].sort((left, right) => right.score - left.score);
+  const strongestArea = areaScores[0]?.score ? areaScores[0].area : "";
+
+  return {
+    activeDays,
+    planReadingsCompleted,
+    chaptersRead,
+    studiesCompleted,
+    memoryReviews,
+    memoryMeditations,
+    memorySaved,
+    worksheetsPrinted,
+    memoryCardsPrinted,
+    encouragementsShared,
+    bookmarksSaved,
+    strongestArea
+  };
 }
 
 function isNumber(value: unknown): value is number {

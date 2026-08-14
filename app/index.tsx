@@ -222,6 +222,11 @@ type PendingRhythmGracePrompt = {
   storageKey: string;
 };
 
+type RhythmGraceSuccess = {
+  missedDate: string;
+  restoredCount: number;
+};
+
 class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundaryState> {
   state: TabErrorBoundaryState = { hasError: false };
 
@@ -788,6 +793,7 @@ export default function Home() {
   const [memoryPrintCollectionFilter, setMemoryPrintCollectionFilter] = useState("all");
   const [memoryPrintSelectedVerseIds, setMemoryPrintSelectedVerseIds] = useState<string[]>([]);
   const [pendingRhythmGracePrompt, setPendingRhythmGracePrompt] = useState<PendingRhythmGracePrompt | null>(null);
+  const [rhythmGraceSuccess, setRhythmGraceSuccess] = useState<RhythmGraceSuccess | null>(null);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
@@ -1354,6 +1360,7 @@ export default function Home() {
 
   const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId, timezoneOffsetMinutes } : "skip");
   const rhythmGrace = (stats as any)?.rhythmGrace;
+  const currentRhythmCount = Number((stats as any)?.currentStreak || 0);
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
     api.study.draftForPassage,
@@ -3115,8 +3122,10 @@ export default function Home() {
 
   function restoreDailyRhythmFromGracePrompt() {
     if (!pendingRhythmGracePrompt) return;
+    const restoredCount = Math.max(currentRhythmCount + 1, 1);
     safeSetLocalStorageValue(pendingRhythmGracePrompt.storageKey, "handled");
     trackUsage("rhythm_restored", { reference: pendingRhythmGracePrompt.missedDate, tab: "home" });
+    setRhythmGraceSuccess({ missedDate: pendingRhythmGracePrompt.missedDate, restoredCount });
     setPendingRhythmGracePrompt(null);
     setTab("home");
   }
@@ -9837,6 +9846,12 @@ export default function Home() {
                 </Text>
               </View>
             </View>
+            <View style={[styles.rhythmGraceCountBox, accountDarkMode && styles.memoryDarkSoftPanel]}>
+              <Text style={[styles.rhythmGraceCountLabel, accountDarkMode && styles.accountDarkMutedText]}>Current rhythm</Text>
+              <Text style={[styles.rhythmGraceCountValue, accountDarkMode && styles.accountDarkTitle]}>
+                {currentRhythmCount} day{currentRhythmCount === 1 ? "" : "s"}
+              </Text>
+            </View>
             <Text style={[styles.rhythmGraceBodyText, accountDarkMode && styles.accountDarkMutedText]}>
               This simply records today as a rhythm check-in. Your notes, reading plans, and memory verses stay unchanged.
             </Text>
@@ -9845,6 +9860,40 @@ export default function Home() {
               <Pressable onPress={dismissRhythmGracePrompt} style={[styles.rhythmGraceSecondaryButton, accountDarkMode && styles.printDarkCancelButton]}>
                 <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
               </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
+      {rhythmGraceSuccess && (
+        <View style={styles.printOptionsOverlay}>
+          <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setRhythmGraceSuccess(null)} />
+          <View style={[styles.printOptionsCard, styles.rhythmGraceCard, phoneLayout && styles.phonePrintOptionsCard, phoneLayout && styles.phoneRhythmGraceCard, accountDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Rhythm restored</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
+                  Success{firstName ? `, ${firstName}` : ""}. Your current rhythm is now {rhythmGraceSuccess.restoredCount} day{rhythmGraceSuccess.restoredCount === 1 ? "" : "s"}.
+                </Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close restored rhythm confirmation" onPress={() => setRhythmGraceSuccess(null)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+            <View style={[styles.rhythmGraceSuccessBox, accountDarkMode && styles.memoryDarkSoftPanel]}>
+              <View style={[styles.rhythmGraceSuccessIcon, accountDarkMode && styles.homeDarkIconBubble]}>
+                <Ionicons name="checkmark-outline" size={20} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
+              </View>
+              <View style={styles.rhythmGraceInfoCopy}>
+                <Text style={[styles.rhythmGraceInfoLabel, accountDarkMode && styles.studyDarkAccentText]}>
+                  Current rhythm: {rhythmGraceSuccess.restoredCount}
+                </Text>
+                <Text style={[styles.rhythmGraceInfoText, accountDarkMode && styles.accountDarkMutedText]}>
+                  You have restored your Scripture rhythm. Keep going gently from today.
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.printOptionsActions, styles.rhythmGraceActions, phoneLayout && styles.phoneRhythmGraceActions]}>
+              <ResumeButton label="Done" icon="checkmark-outline" onPress={() => setRhythmGraceSuccess(null)} variant="primary" style={[styles.rhythmGracePrimaryButton, phoneLayout && styles.phonePrintOpenButton]} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
           </View>
         </View>
@@ -22382,6 +22431,47 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 13,
     lineHeight: 19
+  },
+  rhythmGraceCountBox: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: "rgba(53, 74, 45, 0.16)",
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 12,
+    paddingVertical: 10
+  },
+  rhythmGraceCountLabel: {
+    color: colors.muted,
+    fontSize: 12,
+    fontWeight: "900",
+    textTransform: "uppercase"
+  },
+  rhythmGraceCountValue: {
+    color: colors.oliveDark,
+    fontSize: 20,
+    fontWeight: "900"
+  },
+  rhythmGraceSuccessBox: {
+    alignItems: "center",
+    backgroundColor: "#f7f7ed",
+    borderColor: "rgba(53, 74, 45, 0.18)",
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    padding: 12
+  },
+  rhythmGraceSuccessIcon: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    height: 36,
+    justifyContent: "center",
+    width: 36
   },
   rhythmGraceBodyText: {
     color: colors.muted,

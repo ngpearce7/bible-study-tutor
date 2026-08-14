@@ -339,6 +339,12 @@ type UiPreferenceKey =
   | "communityRecentExpanded"
   | "memoryDueSort"
   | "memoryReviewedSort"
+  | "memoryView"
+  | "memoryBrowseFiltersOpen"
+  | "memoryBrowseStatusFilter"
+  | "memoryBookFilter"
+  | "memoryChapterFilter"
+  | "memoryCollectionFilter"
   | "pinnedJournalEntryIds"
   | "customWritingPrompts"
   | "rhythmGraceHandledDates";
@@ -475,6 +481,12 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "communityRecentExpanded",
   "memoryDueSort",
   "memoryReviewedSort",
+  "memoryView",
+  "memoryBrowseFiltersOpen",
+  "memoryBrowseStatusFilter",
+  "memoryBookFilter",
+  "memoryChapterFilter",
+  "memoryCollectionFilter",
   "pinnedJournalEntryIds",
   "customWritingPrompts",
   "rhythmGraceHandledDates"
@@ -2038,7 +2050,7 @@ export default function Home() {
           detail: `${(memoryVerses || []).length} verse${(memoryVerses || []).length === 1 ? "" : "s"} saved`,
           icon: "sparkles-outline",
           onPress: () => {
-            setMemoryView("browse");
+            setRememberedMemoryView("browse");
             setTab("memory");
           }
         }]
@@ -2259,6 +2271,11 @@ export default function Home() {
     }));
     const syncedDueSort = uiMemoryReviewSort(profileUiPreferences, "memoryDueSort");
     const syncedReviewedSort = uiMemoryReviewSort(profileUiPreferences, "memoryReviewedSort");
+    const syncedMemoryView = uiMemoryView(profileUiPreferences);
+    const syncedMemoryStatusFilter = uiMemoryBrowseStatusFilter(profileUiPreferences);
+    const syncedMemoryBookFilter = uiMemoryBookFilter(profileUiPreferences);
+    const syncedMemoryChapterFilter = uiMemoryChapterFilter(profileUiPreferences);
+    const syncedMemoryCollectionFilter = uiMemoryCollectionFilter(profileUiPreferences);
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
     const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
@@ -2295,6 +2312,12 @@ export default function Home() {
       setReviewedMemoryReviewSort(syncedReviewedSort);
       saveStoredMemoryReviewSorts({ due: syncedDueSort || dueMemoryReviewSort, reviewed: syncedReviewedSort }).catch(() => undefined);
     }
+    if (syncedMemoryView) setMemoryView(syncedMemoryView);
+    if (uiBoolean(profileUiPreferences, "memoryBrowseFiltersOpen") !== undefined) setMemoryBrowseFiltersOpen(uiBoolean(profileUiPreferences, "memoryBrowseFiltersOpen")!);
+    if (syncedMemoryStatusFilter) setMemoryBrowseStatusFilter(syncedMemoryStatusFilter);
+    if (syncedMemoryBookFilter) setMemoryBookFilter(syncedMemoryBookFilter);
+    if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
+    if (syncedMemoryCollectionFilter) setMemoryCollectionFilter(syncedMemoryCollectionFilter);
     if (syncedPinnedEntries) {
       setPinnedJournalEntryIds(syncedPinnedEntries);
       savePinnedJournalEntries(syncedPinnedEntries).catch(() => undefined);
@@ -2802,7 +2825,7 @@ export default function Home() {
       return;
     }
 
-    setMemoryView("browse");
+    setRememberedMemoryView("browse");
     setMemorySearch(entry.passage || "");
     setTab("memory");
     setMemoryStatus("Find this saved verse in Memory to meditate on it again.");
@@ -4386,8 +4409,8 @@ export default function Home() {
       setMemoryStatus(message);
       setMemoryBookCollectionOpen(false);
       setAddMemoryPanelOpen(false);
-      setMemoryView("browse");
-      setMemoryCollectionFilter(collectionName);
+      setRememberedMemoryView("browse");
+      setRememberedMemoryCollectionFilter(collectionName);
       trackUsage("memory_collection_created", {
         reference: chapters.length === 1 ? `${normalizeBibleBookName(book)} ${startChapter}` : `${normalizeBibleBookName(book)} ${startChapter}-${endChapter}`,
         translation: bibleTranslation.toUpperCase(),
@@ -4615,39 +4638,39 @@ export default function Home() {
   }
 
   function clearMemoryBrowseFilters() {
-    setMemoryCollectionFilter("all");
+    setRememberedMemoryCollectionFilter("all");
     setMemoryCollectionPickerOpen(false);
-    setMemoryBookFilter("all");
-    setMemoryChapterFilter("all");
-    setMemoryBrowseStatusFilter("all");
+    setRememberedMemoryBookFilter("all");
+    setRememberedMemoryChapterFilter("all");
+    setRememberedMemoryBrowseStatusFilter("all");
     setExpandedMemoryFilterBook("");
     setMemoryFilterMobileMenu(null);
-    setMemoryBrowseFiltersOpen(false);
+    setRememberedMemoryBrowseFiltersOpen(false);
   }
 
   function selectMemoryFilterBook(book: string) {
     if (expandedMemoryFilterBook === book) {
       setExpandedMemoryFilterBook("");
       if (memoryBookFilter === book) {
-        setMemoryBookFilter("all");
-        setMemoryChapterFilter("all");
-        setMemoryBrowseFiltersOpen(false);
+        setRememberedMemoryBookFilter("all");
+        setRememberedMemoryChapterFilter("all");
+        setRememberedMemoryBrowseFiltersOpen(false);
       }
       return;
     }
 
     setExpandedMemoryFilterBook(book);
-    setMemoryBookFilter(book);
-    setMemoryChapterFilter("all");
+    setRememberedMemoryBookFilter(book);
+    setRememberedMemoryChapterFilter("all");
     setMemoryFilterMobileMenu(OLD_TESTAMENT_BOOKS.includes(book) ? "old" : "new");
   }
 
   function selectMemoryFilterChapter(book: string, chapterKey: string) {
-    setMemoryBookFilter(book);
-    setMemoryChapterFilter(chapterKey);
+    setRememberedMemoryBookFilter(book);
+    setRememberedMemoryChapterFilter(chapterKey);
     setExpandedMemoryFilterBook("");
     setMemoryFilterMobileMenu(null);
-    setMemoryBrowseFiltersOpen(false);
+    setRememberedMemoryBrowseFiltersOpen(false);
   }
 
   function toggleMemoryPrintVerse(verseId: string) {
@@ -4763,7 +4786,7 @@ export default function Home() {
     if (!dueVerses.length) return;
 
     setMemoryReviewQueueIds(dueVerses.map((verse: any) => String(verse._id)));
-    setMemoryView("review");
+    setRememberedMemoryView("review");
     startMemoryPractice(dueVerses[0], { preserveReviewQueue: true });
   }
 
@@ -6015,6 +6038,42 @@ export default function Home() {
     setStudyFocusMode(nextValue);
     saveStoredStudyFocusMode(nextValue).catch(() => undefined);
     persistUiPreference("studyFocusMode", nextValue);
+  }
+
+  function setRememberedMemoryView(nextView: MemoryView) {
+    setMemoryView(nextView);
+    persistUiPreference("memoryView", nextView);
+  }
+
+  function setRememberedMemoryBrowseFiltersOpen(nextValue: SetStateAction<boolean>) {
+    setMemoryBrowseFiltersOpen((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: boolean) => boolean)(current) : nextValue;
+      persistUiPreference("memoryBrowseFiltersOpen", next);
+      return next;
+    });
+  }
+
+  function setRememberedMemoryBrowseStatusFilter(nextFilter: MemoryBrowseStatusFilter) {
+    setMemoryBrowseStatusFilter(nextFilter);
+    persistUiPreference("memoryBrowseStatusFilter", nextFilter);
+  }
+
+  function setRememberedMemoryBookFilter(nextBook: string) {
+    const normalized = nextBook === "all" || bibleBooks.includes(nextBook) ? nextBook : "all";
+    setMemoryBookFilter(normalized);
+    persistUiPreference("memoryBookFilter", normalized);
+  }
+
+  function setRememberedMemoryChapterFilter(nextChapter: string) {
+    const normalized = nextChapter === "all" || /^[A-Za-z0-9 .]+:\d{1,3}$/.test(nextChapter) ? nextChapter : "all";
+    setMemoryChapterFilter(normalized);
+    persistUiPreference("memoryChapterFilter", normalized);
+  }
+
+  function setRememberedMemoryCollectionFilter(nextCollection: string) {
+    const normalized = nextCollection.trim().slice(0, 80) || "all";
+    setMemoryCollectionFilter(normalized);
+    persistUiPreference("memoryCollectionFilter", normalized);
   }
 
   function currentBibleReadingPlanProgress(
@@ -8523,10 +8582,10 @@ export default function Home() {
               setExpandedMemoryVerseIds={setExpandedMemoryVerseIds}
               setExpandedReviewOptionsVerseId={setExpandedReviewOptionsVerseId}
               setHistoryMemoryVerseId={setHistoryMemoryVerseId}
-              setMemoryBrowseFiltersOpen={setMemoryBrowseFiltersOpen}
-              setMemoryBrowseStatusFilter={setMemoryBrowseStatusFilter}
+              setMemoryBrowseFiltersOpen={setRememberedMemoryBrowseFiltersOpen}
+              setMemoryBrowseStatusFilter={setRememberedMemoryBrowseStatusFilter}
               setMemoryCollectionDraft={setMemoryCollectionDraft}
-              setMemoryCollectionFilter={setMemoryCollectionFilter}
+              setMemoryCollectionFilter={setRememberedMemoryCollectionFilter}
               setMemoryCollectionPickerOpen={setMemoryCollectionPickerOpen}
               setMemoryFilterMobileMenu={setMemoryFilterMobileMenu}
               setMemoryHintsVisible={setMemoryHintsVisible}
@@ -8540,7 +8599,7 @@ export default function Home() {
               setMemoryMoreVerseId={setMemoryMoreVerseId}
               setMemorySearch={setMemorySearch}
               setMemoryToolbarMoreOpen={setMemoryToolbarMoreOpen}
-              setMemoryView={setMemoryView}
+              setMemoryView={setRememberedMemoryView}
               setReviewScheduleVerseId={setReviewScheduleVerseId}
               setReviewedMemoryReviewSort={setReviewedMemoryReviewSort}
               setTab={setTab}
@@ -11403,6 +11462,26 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (item === "oldest" || item === "newest") preferences[key] = item;
       return;
     }
+    if (key === "memoryView") {
+      if (item === "review" || item === "browse" || item === "history") preferences[key] = item;
+      return;
+    }
+    if (key === "memoryBrowseStatusFilter") {
+      if (item === "all" || item === "due" || item === "learning" || item === "memorized") preferences[key] = item;
+      return;
+    }
+    if (key === "memoryBookFilter") {
+      if (item === "all" || (typeof item === "string" && bibleBooks.includes(item))) preferences[key] = item;
+      return;
+    }
+    if (key === "memoryChapterFilter") {
+      if (item === "all" || (typeof item === "string" && /^[A-Za-z0-9 .]+:\d{1,3}$/.test(item))) preferences[key] = item;
+      return;
+    }
+    if (key === "memoryCollectionFilter") {
+      if (typeof item === "string" && item.length <= 80 && !item.startsWith("$") && !item.startsWith("_")) preferences[key] = item.trim() || "all";
+      return;
+    }
     if (key === "customWritingPrompts") {
       if (Array.isArray(item)) preferences[key] = normalizeCustomWritingPrompts(item);
       return;
@@ -11425,6 +11504,31 @@ function uiBoolean(preferences: UiPreferenceMap, key: UiPreferenceKey) {
 function uiMemoryReviewSort(preferences: UiPreferenceMap, key: "memoryDueSort" | "memoryReviewedSort") {
   const value = preferences[key];
   return value === "newest" || value === "oldest" ? value : undefined;
+}
+
+function uiMemoryView(preferences: UiPreferenceMap) {
+  const value = preferences.memoryView;
+  return value === "review" || value === "browse" || value === "history" ? value : undefined;
+}
+
+function uiMemoryBrowseStatusFilter(preferences: UiPreferenceMap) {
+  const value = preferences.memoryBrowseStatusFilter;
+  return value === "all" || value === "due" || value === "learning" || value === "memorized" ? value : undefined;
+}
+
+function uiMemoryBookFilter(preferences: UiPreferenceMap) {
+  const value = preferences.memoryBookFilter;
+  return value === "all" || (typeof value === "string" && bibleBooks.includes(value)) ? value : undefined;
+}
+
+function uiMemoryChapterFilter(preferences: UiPreferenceMap) {
+  const value = preferences.memoryChapterFilter;
+  return value === "all" || (typeof value === "string" && /^[A-Za-z0-9 .]+:\d{1,3}$/.test(value)) ? value : undefined;
+}
+
+function uiMemoryCollectionFilter(preferences: UiPreferenceMap) {
+  const value = preferences.memoryCollectionFilter;
+  return typeof value === "string" && value.length <= 80 && !value.startsWith("$") && !value.startsWith("_") ? value : undefined;
 }
 
 function uiStudyMethodId(preferences: UiPreferenceMap) {

@@ -2172,7 +2172,7 @@ export default function Home() {
   const journalDarkMode = accountDarkMode;
   const communityDarkMode = accountDarkMode;
   const adminDarkMode = accountDarkMode;
-  const phoneMemoryFocusMode = phoneLayout && tab === "memory" && !!activeMemoryVerseId;
+  const phoneMemoryFocusMode = tab === "memory" && !!activeMemoryVerseId && (phoneLayout || activeMemoryReviewQueueCount > 0);
   const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
       ...section,
@@ -6911,7 +6911,7 @@ export default function Home() {
           styles.content,
           accountDarkMode && styles.appDarkContent,
           phoneLayout && styles.phoneContent,
-          phoneMemoryFocusMode && memoryPracticeLevel > 1 && styles.phoneMemoryPracticeScrollContent,
+          phoneLayout && phoneMemoryFocusMode && memoryPracticeLevel > 1 && styles.phoneMemoryPracticeScrollContent,
           showMobileReaderSelectionDock && styles.contentWithMobileReaderDock,
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
         ]}

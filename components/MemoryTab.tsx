@@ -226,22 +226,6 @@ export function MemoryTab(props: any) {
             )}
           </View>
         )}
-        {!phoneMemoryFocusMode && activeMemoryReviewQueueCount > 1 && activeMemoryReviewQueueIndex >= 0 && (
-          <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
-            <Ionicons name="school-outline" size={18} color={colors.coral} />
-            <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>
-              Review set {activeMemoryReviewQueueIndex + 1} of {activeMemoryReviewQueueCount}. Finish this verse to open the next due verse automatically.
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Stop reviewing due verses"
-              onPress={stopMemoryReviewQueue}
-              style={[styles.memoryReviewQueueStopButton, memoryDarkMode && styles.homeDarkResumeButton]}
-            >
-              <Text style={[styles.memoryReviewQueueStopText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Stop</Text>
-            </Pressable>
-          </View>
-        )}
         {(memoryVerses || []).length === 0 ? (
           <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
             <Ionicons name="sparkles-outline" size={24} color={colors.coral} />

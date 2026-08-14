@@ -331,6 +331,10 @@ type UiPreferenceKey =
   | "bibleReaderHistoryCollapsed"
   | "bibleBookmarksCollapsed"
   | "bibleSearchCollapsed"
+  | "bibleSearchScope"
+  | "bibleSearchMode"
+  | "bibleSearchBook"
+  | "bibleSearchCriteriaOpen"
   | "communityPeoplePanelCollapsed"
   | "communityFriendsPanelOpen"
   | "communityCirclesPanelOpen"
@@ -492,6 +496,10 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "bibleReaderHistoryCollapsed",
   "bibleBookmarksCollapsed",
   "bibleSearchCollapsed",
+  "bibleSearchScope",
+  "bibleSearchMode",
+  "bibleSearchBook",
+  "bibleSearchCriteriaOpen",
   "communityPeoplePanelCollapsed",
   "communityFriendsPanelOpen",
   "communityCirclesPanelOpen",
@@ -2280,7 +2288,7 @@ export default function Home() {
   useEffect(() => {
     if (!bibleSearchBook) return;
     const options = buildBibleSearchBookOptions(bibleSearchScope);
-    if (!options.includes(bibleSearchBook)) setBibleSearchBook("");
+    if (!options.includes(bibleSearchBook)) setRememberedBibleSearchBook("");
   }, [bibleSearchBook, bibleSearchScope]);
 
   useEffect(() => {
@@ -2330,6 +2338,9 @@ export default function Home() {
     const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
     const syncedStudyStepIndex = uiStudyStepIndex(profileUiPreferences, syncedStudyMethodId || methodId);
+    const syncedBibleSearchScope = uiBibleSearchScope(profileUiPreferences);
+    const syncedBibleSearchMode = uiBibleSearchMode(profileUiPreferences);
+    const syncedBibleSearchBook = uiBibleSearchBook(profileUiPreferences);
     if (syncedStudyMethodId) {
       const nextMethod = methods.find((item) => item.id === syncedStudyMethodId) || methods[0];
       setMethodId(nextMethod.id);
@@ -2348,6 +2359,10 @@ export default function Home() {
     if (uiBoolean(profileUiPreferences, "bibleReaderHistoryCollapsed") !== undefined) setReaderHistoryCollapsed(uiBoolean(profileUiPreferences, "bibleReaderHistoryCollapsed")!);
     if (uiBoolean(profileUiPreferences, "bibleBookmarksCollapsed") !== undefined) setBookmarksCollapsed(uiBoolean(profileUiPreferences, "bibleBookmarksCollapsed")!);
     if (uiBoolean(profileUiPreferences, "bibleSearchCollapsed") !== undefined) setBibleSearchCollapsed(uiBoolean(profileUiPreferences, "bibleSearchCollapsed")!);
+    if (syncedBibleSearchScope) setBibleSearchScope(syncedBibleSearchScope);
+    if (syncedBibleSearchMode) setBibleSearchMode(syncedBibleSearchMode);
+    if (syncedBibleSearchBook !== undefined) setBibleSearchBook(syncedBibleSearchBook);
+    if (uiBoolean(profileUiPreferences, "bibleSearchCriteriaOpen") !== undefined) setBibleSearchCriteriaOpen(uiBoolean(profileUiPreferences, "bibleSearchCriteriaOpen")!);
     if (uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed") !== undefined) setPeoplePanelCollapsed(uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed")!);
     if (uiBoolean(profileUiPreferences, "communityFriendsPanelOpen") !== undefined) setMobileFriendsPanelOpen(uiBoolean(profileUiPreferences, "communityFriendsPanelOpen")!);
     if (uiBoolean(profileUiPreferences, "communityCirclesPanelOpen") !== undefined) setMobileCirclesPanelOpen(uiBoolean(profileUiPreferences, "communityCirclesPanelOpen")!);
@@ -6104,6 +6119,32 @@ export default function Home() {
     persistUiPreference("studyStepIndex", String(normalizedStepIndex));
   }
 
+  function setRememberedBibleSearchScope(nextScope: BibleSearchScope) {
+    const normalized = nextScope === "old" || nextScope === "new" ? nextScope : "all";
+    setBibleSearchScope(normalized);
+    persistUiPreference("bibleSearchScope", normalized);
+  }
+
+  function setRememberedBibleSearchMode(nextMode: BibleSearchMode) {
+    const normalized = isBibleSearchModeValue(nextMode) ? nextMode : "word";
+    setBibleSearchMode(normalized);
+    persistUiPreference("bibleSearchMode", normalized);
+  }
+
+  function setRememberedBibleSearchBook(nextBook: string) {
+    const normalized = bibleBooks.includes(nextBook) ? nextBook : "";
+    setBibleSearchBook(normalized);
+    persistUiPreference("bibleSearchBook", normalized);
+  }
+
+  function setRememberedBibleSearchCriteriaOpen(nextValue: SetStateAction<boolean>) {
+    setBibleSearchCriteriaOpen((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: boolean) => boolean)(current) : nextValue;
+      persistUiPreference("bibleSearchCriteriaOpen", next);
+      return next;
+    });
+  }
+
   function setRememberedStudyStepIndex(nextStepIndex: number) {
     const normalizedStepIndex = Math.max(0, Math.min(method.steps.length - 1, nextStepIndex));
     setStepIndex(normalizedStepIndex);
@@ -8000,12 +8041,12 @@ export default function Home() {
               onBibleSearchQueryChange={setBibleSearchQuery}
               onRunBibleSearch={runBibleSearch}
               onClearBibleSearch={clearBibleSearch}
-              onToggleBibleSearchCriteria={() => setBibleSearchCriteriaOpen((value) => !value)}
-              onSelectBibleSearchScope={setBibleSearchScope}
-              onSelectBibleSearchMode={setBibleSearchMode}
+              onToggleBibleSearchCriteria={() => setRememberedBibleSearchCriteriaOpen((value) => !value)}
+              onSelectBibleSearchScope={setRememberedBibleSearchScope}
+              onSelectBibleSearchMode={setRememberedBibleSearchMode}
               onToggleBibleSearchBookMenu={() => setBibleSearchBookMenuOpen((value) => !value)}
               onSelectBibleSearchBook={(nextBook: string) => {
-                setBibleSearchBook(nextBook);
+                setRememberedBibleSearchBook(nextBook);
                 setBibleSearchBookMenuOpen(false);
               }}
               onBibleSearchSummaryLayout={(event: any) => {
@@ -11665,6 +11706,18 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (item === "oldest" || item === "newest") preferences[key] = item;
       return;
     }
+    if (key === "bibleSearchScope") {
+      if (item === "all" || item === "old" || item === "new") preferences[key] = item;
+      return;
+    }
+    if (key === "bibleSearchMode") {
+      if (isBibleSearchModeValue(item)) preferences[key] = item;
+      return;
+    }
+    if (key === "bibleSearchBook") {
+      if (typeof item === "string" && (item === "" || bibleBooks.includes(item))) preferences[key] = item;
+      return;
+    }
     if (key === "memoryView") {
       if (item === "review" || item === "browse" || item === "history") preferences[key] = item;
       return;
@@ -11763,6 +11816,29 @@ function uiBoolean(preferences: UiPreferenceMap, key: UiPreferenceKey) {
 function uiMemoryReviewSort(preferences: UiPreferenceMap, key: "memoryDueSort" | "memoryReviewedSort") {
   const value = preferences[key];
   return value === "newest" || value === "oldest" ? value : undefined;
+}
+
+function uiBibleSearchScope(preferences: UiPreferenceMap) {
+  const value = preferences.bibleSearchScope;
+  return value === "all" || value === "old" || value === "new" ? value : undefined;
+}
+
+function isBibleSearchModeValue(value: unknown): value is BibleSearchMode {
+  return value === "word" ||
+    value === "phrase" ||
+    value === "allWords" ||
+    value === "anyWords" ||
+    value === "theme";
+}
+
+function uiBibleSearchMode(preferences: UiPreferenceMap) {
+  const value = preferences.bibleSearchMode;
+  return isBibleSearchModeValue(value) ? value : undefined;
+}
+
+function uiBibleSearchBook(preferences: UiPreferenceMap) {
+  const value = preferences.bibleSearchBook;
+  return typeof value === "string" && (value === "" || bibleBooks.includes(value)) ? value : undefined;
 }
 
 function uiMemoryView(preferences: UiPreferenceMap) {

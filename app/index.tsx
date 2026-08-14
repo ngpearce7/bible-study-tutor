@@ -45,7 +45,7 @@ function HydrationSafeIonicon({ ready, name, size, color }: { ready: boolean; na
   return <Ionicons name={name} size={size} color={color} />;
 }
 
-function HomeSemanticResourceLinks() {
+function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean }) {
   if (Platform.OS !== "web") return null;
 
   const links = [
@@ -73,11 +73,12 @@ function HomeSemanticResourceLinks() {
     {
       "aria-labelledby": "home-resource-links-heading",
       style: {
-        background: "#fffaf2",
-        border: "1px solid #eadcc9",
+        background: darkMode ? "#1b211f" : "#fffaf2",
+        border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.16)" : "#eadcc9"}`,
         borderRadius: 16,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         marginTop: 18,
-        padding: 18
+        padding: 16
       }
     },
     createElement("h1", { style: hiddenHeadingStyle }, "Bible Study Tutor free Bible study app"),
@@ -85,13 +86,30 @@ function HomeSemanticResourceLinks() {
       "h2",
       {
         id: "home-resource-links-heading",
-        style: { color: colors.oliveDark, fontSize: 20, lineHeight: 1.2, margin: "0 0 8px" }
+        style: {
+          color: darkMode ? "#f7eddc" : colors.oliveDark,
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          fontSize: 18,
+          fontWeight: 900,
+          letterSpacing: 0,
+          lineHeight: 1.2,
+          margin: "0 0 7px"
+        }
       },
       "Start with what you need"
     ),
     createElement(
       "p",
-      { style: { color: colors.muted, fontSize: 15, lineHeight: 1.55, margin: "0 0 14px" } },
+      {
+        style: {
+          color: darkMode ? "#c8bda9" : colors.muted,
+          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          fontSize: 14,
+          fontWeight: 600,
+          lineHeight: 1.45,
+          margin: "0 0 14px"
+        }
+      },
       "Bible Study Tutor is free, privacy-aware, and built for desktop, mobile, and printable Bible study."
     ),
     createElement(
@@ -111,18 +129,43 @@ function HomeSemanticResourceLinks() {
             href,
             key: href,
             style: {
-              background: "#fffdf8",
-              border: "1px solid #eadcc9",
+              background: darkMode ? "#211d18" : "#fffdf8",
+              border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : "#eadcc9"}`,
               borderRadius: 12,
-              color: colors.oliveDark,
+              color: darkMode ? "#f7eddc" : colors.ink,
               display: "grid",
-              gap: 4,
+              gap: 5,
+              minHeight: 88,
               padding: 12,
               textDecoration: "none"
             }
           },
-          createElement("strong", { style: { fontSize: 14 } }, label),
-          createElement("span", { style: { color: colors.muted, fontSize: 13, lineHeight: 1.35 } }, description)
+          createElement(
+            "strong",
+            {
+              style: {
+                color: darkMode ? "#f7eddc" : colors.ink,
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: 14,
+                fontWeight: 900,
+                lineHeight: 1.25
+              }
+            },
+            label
+          ),
+          createElement(
+            "span",
+            {
+              style: {
+                color: darkMode ? "#c8bda9" : colors.muted,
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                fontSize: 13,
+                fontWeight: 600,
+                lineHeight: 1.35
+              }
+            },
+            description
+          )
         )
       )
     )
@@ -6496,7 +6539,7 @@ export default function Home() {
                   </View>
                 </View>
               </View>
-              <HomeSemanticResourceLinks />
+              <HomeSemanticResourceLinks darkMode={homeDarkMode} />
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>

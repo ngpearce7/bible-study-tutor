@@ -318,6 +318,9 @@ type MemoryReviewSort = StoredMemoryReviewSort;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
+  | "studyMethodId"
+  | "studyStepIndex"
+  | "studyFocusMode"
   | "studyInstructionsCollapsed"
   | "studyCoachingVisible"
   | "studyPanelCommunityCollapsed"
@@ -450,6 +453,9 @@ const NOTE_HIGHLIGHT_COLOR_OPTIONS = [
   { label: "Lavender", value: "#e7ddf4" }
 ];
 const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
+  "studyMethodId",
+  "studyStepIndex",
+  "studyFocusMode",
   "studyInstructionsCollapsed",
   "studyCoachingVisible",
   "studyPanelCommunityCollapsed",
@@ -669,6 +675,7 @@ export default function Home() {
   const [studyMethodPickerOpen, setStudyMethodPickerOpen] = useState(false);
   const [studyStepAnchorY, setStudyStepAnchorY] = useState(0);
   const [studyFocusMode, setStudyFocusMode] = useState(false);
+  const [studyFocusModeHydrated, setStudyFocusModeHydrated] = useState(false);
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [answerSelection, setAnswerSelection] = useState({ start: 0, end: 0 });
   const [lastAnswerSelection, setLastAnswerSelection] = useState({ start: 0, end: 0 });
@@ -1014,8 +1021,7 @@ export default function Home() {
     let hasRequestedStudyPassage = false;
     if (nextTab) setTab(nextTab as Tab);
     if (requestedMethod && methods.some((item) => item.id === requestedMethod)) {
-      setMethodId(requestedMethod);
-      setStepIndex(0);
+      setRememberedStudyMethod(requestedMethod, 0);
       setStudyPhase("study");
     }
     if (requestedPassage && requestedPassage.length <= 80) {
@@ -1026,7 +1032,7 @@ export default function Home() {
         setPassageQuery(normalizedRequestedPassage);
         setPassageText(null);
         setPassageStatus("Loading passage...");
-        setStepIndex(0);
+        setRememberedStudyStepIndex(0);
         setStudyPhase("study");
         setSavedStudySummary(null);
         setAnswers({});
@@ -1221,8 +1227,11 @@ export default function Home() {
         .then(setBibleBookmarks)
         .catch(() => undefined);
       getStoredStudyFocusMode()
-        .then(setStudyFocusMode)
-        .catch(() => undefined);
+        .then((value) => {
+          setStudyFocusMode(value);
+          setStudyFocusModeHydrated(true);
+        })
+        .catch(() => setStudyFocusModeHydrated(true));
       getStoredTutorCoachingEnabled()
         .then(setShowCoaching)
         .catch(() => undefined);
@@ -1428,6 +1437,14 @@ export default function Home() {
       persistUiPreference("pinnedJournalEntryIds", pinnedJournalEntryIds.slice(0, 80));
     }
   }, [dueMemoryReviewSort, memoryReviewSortsHydrated, pinnedJournalEntryIds, profileMatchesActiveState, profileUiPreferences, reviewedMemoryReviewSort]);
+
+  useEffect(() => {
+    if (!profileMatchesActiveState || !studyFocusModeHydrated) return;
+    if (uiBoolean(profileUiPreferences, "studyFocusMode") === undefined && studyFocusMode) {
+      persistUiPreference("studyFocusMode", true);
+    }
+  }, [profileMatchesActiveState, profileUiPreferences, studyFocusMode, studyFocusModeHydrated]);
+
   useEffect(() => {
     if (!COMMUNITY_CIRCLES_ENABLED || !activeProfileId || !isAuthenticated) {
       setMyFriendCode("");
@@ -2230,6 +2247,20 @@ export default function Home() {
     const syncedDueSort = uiMemoryReviewSort(profileUiPreferences, "memoryDueSort");
     const syncedReviewedSort = uiMemoryReviewSort(profileUiPreferences, "memoryReviewedSort");
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
+    const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
+    const syncedStudyStepIndex = uiStudyStepIndex(profileUiPreferences, syncedStudyMethodId || methodId);
+    if (syncedStudyMethodId) {
+      const nextMethod = methods.find((item) => item.id === syncedStudyMethodId) || methods[0];
+      setMethodId(nextMethod.id);
+      setStepIndex(syncedStudyStepIndex ?? Math.min(stepIndex, nextMethod.steps.length - 1));
+    } else if (syncedStudyStepIndex !== undefined) {
+      setStepIndex(syncedStudyStepIndex);
+    }
+    if (uiBoolean(profileUiPreferences, "studyFocusMode") !== undefined) {
+      const syncedFocusMode = uiBoolean(profileUiPreferences, "studyFocusMode")!;
+      setStudyFocusMode(syncedFocusMode);
+      saveStoredStudyFocusMode(syncedFocusMode).catch(() => undefined);
+    }
     if (uiBoolean(profileUiPreferences, "studyInstructionsCollapsed") !== undefined) setInstructionsCollapsed(uiBoolean(profileUiPreferences, "studyInstructionsCollapsed")!);
     if (uiBoolean(profileUiPreferences, "studyCoachingVisible") !== undefined) setShowCoaching(uiBoolean(profileUiPreferences, "studyCoachingVisible")!);
     if (uiBoolean(profileUiPreferences, "bibleReaderNavCollapsed") !== undefined) setReaderNavCollapsed(uiBoolean(profileUiPreferences, "bibleReaderNavCollapsed")!);
@@ -2700,7 +2731,7 @@ export default function Home() {
       method.steps.forEach((_, index) => delete nextAnswers[`${method.id}:${index}`]);
       return nextAnswers;
     });
-    setStepIndex(0);
+    setRememberedStudyStepIndex(0);
     setShareNote("");
     setPassageMarkups({});
     setPassageMarkupNotes({});
@@ -2780,8 +2811,7 @@ export default function Home() {
     const resumeStepIndex = pickResumeStepIndex(nextAnswers, nextStepIndex);
 
     setPassage(nextPassage);
-    setMethodId(nextMethodId);
-    setStepIndex(resumeStepIndex);
+    setRememberedStudyMethod(nextMethodId, resumeStepIndex);
     setStudyPhase("study");
     setSavedStudySummary(null);
     setAnswers(restoredAnswers);
@@ -2806,7 +2836,7 @@ export default function Home() {
 
   function goToStudyStep(nextStepIndex: number) {
     setStudyPhase("study");
-    setStepIndex(Math.max(0, Math.min(method.steps.length - 1, nextStepIndex)));
+    setRememberedStudyStepIndex(nextStepIndex);
     scrollStudyStepIntoView();
   }
 
@@ -2829,8 +2859,7 @@ export default function Home() {
   function switchMethod(nextMethodId: string) {
     if (nextMethodId === method.id) return;
     trackPublicAnalytics({ eventType: "method_selected", source: "study_method_switcher", ctaTarget: `/?tab=study&method=${nextMethodId}`, methodId: nextMethodId });
-    setMethodId(nextMethodId);
-    setStepIndex(0);
+    setRememberedStudyMethod(nextMethodId, 0);
     setStudyPhase("study");
     setSavedStudySummary(null);
     setAnswers({});
@@ -2844,10 +2873,9 @@ export default function Home() {
     const nextMethod = methods.find((item) => item.id === nextMethodId) || methods[0];
     const examplePassage = nextMethod.detail?.examplePassage || buildPassagePresets(nextMethod.id)[0] || "Psalm 23";
 
-    setMethodId(nextMethod.id);
+    setRememberedStudyMethod(nextMethod.id, 0);
     setPassage(examplePassage);
     setPassageQuery(examplePassage);
-    setStepIndex(0);
     setStudyPhase("study");
     setSavedStudySummary(null);
     setAnswers({});
@@ -2866,9 +2894,8 @@ export default function Home() {
     resetPassageMarkup();
     setPassage(lastStudiedPassage);
     setPassageQuery(lastStudiedPassage);
-    setStudyFocusMode(false);
-    saveStoredStudyFocusMode(false).catch(() => undefined);
-    setStepIndex(0);
+    setRememberedStudyFocusMode(false);
+    setRememberedStudyStepIndex(0);
     setStudyPhase("study");
     setSavedStudySummary(null);
     setLoadedDraftKey("");
@@ -2882,7 +2909,7 @@ export default function Home() {
     setAnswers({});
     setShareNote("");
     resetPassageMarkup();
-    setStepIndex(0);
+    setRememberedStudyStepIndex(0);
     setStudyPhase("study");
     setSavedStudySummary(null);
     setLoadedDraftKey("");
@@ -5642,7 +5669,7 @@ export default function Home() {
     setAnswers({});
     setShareNote("");
     resetPassageMarkup();
-    setStepIndex(0);
+    setRememberedStudyStepIndex(0);
     setStudyPhase("study");
     setLoadedDraftKey("");
     setSaveStatus(`${planDay.reference} loaded from Bible reading plan`);
@@ -5739,7 +5766,7 @@ export default function Home() {
     setAnswers({});
     setShareNote("");
     resetPassageMarkup();
-    setStepIndex(0);
+    setRememberedStudyStepIndex(0);
     setStudyPhase("study");
     setSaveStatus("Loaded from Bible search");
     setTab("study");
@@ -5890,7 +5917,7 @@ export default function Home() {
     setAnswers({});
     setShareNote("");
     resetPassageMarkup();
-    setStepIndex(0);
+    setRememberedStudyStepIndex(0);
     setStudyPhase("study");
     setSavedStudySummary(null);
     setLoadedDraftKey("");
@@ -5945,6 +5972,28 @@ export default function Home() {
     const current = uiStringList(profileUiPreferences, "rhythmGraceHandledDates") || [];
     const next = [cleanDate, ...current.filter((date) => date !== cleanDate)].slice(0, 30);
     persistUiPreference("rhythmGraceHandledDates", next);
+  }
+
+  function setRememberedStudyMethod(nextMethodId: string, nextStepIndex = 0) {
+    const nextMethod = methods.find((item) => item.id === nextMethodId);
+    if (!nextMethod) return;
+    const normalizedStepIndex = Math.max(0, Math.min(nextMethod.steps.length - 1, nextStepIndex));
+    setMethodId(nextMethod.id);
+    setStepIndex(normalizedStepIndex);
+    persistUiPreference("studyMethodId", nextMethod.id);
+    persistUiPreference("studyStepIndex", String(normalizedStepIndex));
+  }
+
+  function setRememberedStudyStepIndex(nextStepIndex: number) {
+    const normalizedStepIndex = Math.max(0, Math.min(method.steps.length - 1, nextStepIndex));
+    setStepIndex(normalizedStepIndex);
+    persistUiPreference("studyStepIndex", String(normalizedStepIndex));
+  }
+
+  function setRememberedStudyFocusMode(nextValue: boolean) {
+    setStudyFocusMode(nextValue);
+    saveStoredStudyFocusMode(nextValue).catch(() => undefined);
+    persistUiPreference("studyFocusMode", nextValue);
   }
 
   function currentBibleReadingPlanProgress(
@@ -6723,8 +6772,7 @@ export default function Home() {
                     accessibilityLabel={studyFocusMode ? "Turn study focus mode off" : "Turn study focus mode on"}
                     onPress={() => {
                       const nextValue = !studyFocusMode;
-                      setStudyFocusMode(nextValue);
-                      saveStoredStudyFocusMode(nextValue).catch(() => undefined);
+                      setRememberedStudyFocusMode(nextValue);
                     }}
                     style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyDarkMode && styles.studyDarkTogglePill, studyFocusMode && styles.activeTogglePill]}
                   >
@@ -11322,6 +11370,14 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
   const preferences: UiPreferenceMap = {};
   UI_PREFERENCE_KEYS.forEach((key) => {
     const item = source[key];
+    if (key === "studyMethodId") {
+      if (typeof item === "string" && methods.some((method) => method.id === item)) preferences[key] = item;
+      return;
+    }
+    if (key === "studyStepIndex") {
+      if (typeof item === "string" && /^\d{1,2}$/.test(item)) preferences[key] = item;
+      return;
+    }
     if (key === "memoryDueSort" || key === "memoryReviewedSort") {
       if (item === "oldest" || item === "newest") preferences[key] = item;
       return;
@@ -11344,6 +11400,20 @@ function uiBoolean(preferences: UiPreferenceMap, key: UiPreferenceKey) {
 function uiMemoryReviewSort(preferences: UiPreferenceMap, key: "memoryDueSort" | "memoryReviewedSort") {
   const value = preferences[key];
   return value === "newest" || value === "oldest" ? value : undefined;
+}
+
+function uiStudyMethodId(preferences: UiPreferenceMap) {
+  const value = preferences.studyMethodId;
+  return typeof value === "string" && methods.some((method) => method.id === value) ? value : undefined;
+}
+
+function uiStudyStepIndex(preferences: UiPreferenceMap, methodId: string) {
+  const value = preferences.studyStepIndex;
+  if (typeof value !== "string" || !/^\d{1,2}$/.test(value)) return undefined;
+  const method = methods.find((item) => item.id === methodId) || methods[0];
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return undefined;
+  return Math.max(0, Math.min(method.steps.length - 1, parsed));
 }
 
 function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "rhythmGraceHandledDates") {

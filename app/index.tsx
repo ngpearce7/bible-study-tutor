@@ -340,6 +340,7 @@ type UiPreferenceKey =
   | "memoryDueSort"
   | "memoryReviewedSort"
   | "pinnedJournalEntryIds"
+  | "customWritingPrompts"
   | "rhythmGraceHandledDates";
 type UiPreferenceValue = boolean | string | string[];
 type UiPreferenceMap = Partial<Record<UiPreferenceKey, UiPreferenceValue>>;
@@ -475,6 +476,7 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "memoryDueSort",
   "memoryReviewedSort",
   "pinnedJournalEntryIds",
+  "customWritingPrompts",
   "rhythmGraceHandledDates"
 ];
 const STUDY_PANEL_UI_PREFERENCE_KEYS: Record<StudySidePanelKey, UiPreferenceKey> = {
@@ -684,6 +686,7 @@ export default function Home() {
   const [scriptureInsertStatus, setScriptureInsertStatus] = useState("");
   const [scriptureInsertFocusKey, setScriptureInsertFocusKey] = useState(0);
   const [customWritingPrompts, setCustomWritingPrompts] = useState<string[]>([]);
+  const [customWritingPromptsHydrated, setCustomWritingPromptsHydrated] = useState(false);
   const [writingPromptStatus, setWritingPromptStatus] = useState("");
   const [weeklyGoal, setWeeklyGoal] = useState("");
   const [planStatus, setPlanStatus] = useState("");
@@ -1239,8 +1242,11 @@ export default function Home() {
         .then(setCollapsedStudyPanels)
         .catch(() => undefined);
       getStoredCustomWritingPrompts()
-        .then(setCustomWritingPrompts)
-        .catch(() => undefined);
+        .then((prompts) => {
+          setCustomWritingPrompts(normalizeCustomWritingPrompts(prompts));
+          setCustomWritingPromptsHydrated(true);
+        })
+        .catch(() => setCustomWritingPromptsHydrated(true));
       getStoredMemoryReviewSorts()
         .then((sorts) => {
           setDueMemoryReviewSort(sorts.due);
@@ -1444,6 +1450,13 @@ export default function Home() {
       persistUiPreference("studyFocusMode", true);
     }
   }, [profileMatchesActiveState, profileUiPreferences, studyFocusMode, studyFocusModeHydrated]);
+
+  useEffect(() => {
+    if (!profileMatchesActiveState || !customWritingPromptsHydrated) return;
+    if (!uiStringList(profileUiPreferences, "customWritingPrompts") && customWritingPrompts.length > 0) {
+      persistUiPreference("customWritingPrompts", normalizeCustomWritingPrompts(customWritingPrompts));
+    }
+  }, [customWritingPrompts, customWritingPromptsHydrated, profileMatchesActiveState, profileUiPreferences]);
 
   useEffect(() => {
     if (!COMMUNITY_CIRCLES_ENABLED || !activeProfileId || !isAuthenticated) {
@@ -2247,6 +2260,7 @@ export default function Home() {
     const syncedDueSort = uiMemoryReviewSort(profileUiPreferences, "memoryDueSort");
     const syncedReviewedSort = uiMemoryReviewSort(profileUiPreferences, "memoryReviewedSort");
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
+    const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
     const syncedStudyStepIndex = uiStudyStepIndex(profileUiPreferences, syncedStudyMethodId || methodId);
     if (syncedStudyMethodId) {
@@ -2284,6 +2298,11 @@ export default function Home() {
     if (syncedPinnedEntries) {
       setPinnedJournalEntryIds(syncedPinnedEntries);
       savePinnedJournalEntries(syncedPinnedEntries).catch(() => undefined);
+    }
+    if (syncedWritingPrompts) {
+      const normalizedPrompts = normalizeCustomWritingPrompts(syncedWritingPrompts);
+      setCustomWritingPrompts(normalizedPrompts);
+      saveStoredCustomWritingPrompts(normalizedPrompts).catch(() => undefined);
     }
   }, [profile, profileUiPreferences]);
 
@@ -4129,17 +4148,19 @@ export default function Home() {
       return false;
     }
 
-    const nextPrompts = Array.from(new Set([trimmed, ...customWritingPrompts])).slice(0, 12);
+    const nextPrompts = normalizeCustomWritingPrompts([trimmed, ...customWritingPrompts]);
     setCustomWritingPrompts(nextPrompts);
     saveStoredCustomWritingPrompts(nextPrompts).catch(() => undefined);
+    persistUiPreference("customWritingPrompts", nextPrompts);
     setWritingPromptStatus("Starter saved");
     return true;
   }
 
   function removeCustomWritingPrompt(prompt: string) {
-    const nextPrompts = customWritingPrompts.filter((item) => item !== prompt);
+    const nextPrompts = normalizeCustomWritingPrompts(customWritingPrompts.filter((item) => item !== prompt));
     setCustomWritingPrompts(nextPrompts);
     saveStoredCustomWritingPrompts(nextPrompts).catch(() => undefined);
+    persistUiPreference("customWritingPrompts", nextPrompts);
     setWritingPromptStatus("Starter removed");
   }
 
@@ -11382,6 +11403,10 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (item === "oldest" || item === "newest") preferences[key] = item;
       return;
     }
+    if (key === "customWritingPrompts") {
+      if (Array.isArray(item)) preferences[key] = normalizeCustomWritingPrompts(item);
+      return;
+    }
     if (key === "pinnedJournalEntryIds" || key === "rhythmGraceHandledDates") {
       if (Array.isArray(item)) {
         preferences[key] = Array.from(new Set(item.map((entryId) => (typeof entryId === "string" ? entryId.trim() : "")).filter(Boolean))).slice(0, 80);
@@ -11416,7 +11441,13 @@ function uiStudyStepIndex(preferences: UiPreferenceMap, methodId: string) {
   return Math.max(0, Math.min(method.steps.length - 1, parsed));
 }
 
-function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "rhythmGraceHandledDates") {
+function normalizeCustomWritingPrompts(value: unknown[]) {
+  return Array.from(
+    new Set(value.map((item) => (typeof item === "string" ? item.trim().replace(/\s+/g, " ") : "")).filter(Boolean))
+  ).slice(0, 12);
+}
+
+function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "customWritingPrompts" | "rhythmGraceHandledDates") {
   const value = preferences[key];
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : undefined;
 }

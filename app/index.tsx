@@ -333,8 +333,12 @@ type UiPreferenceKey =
   | "communityCirclesPanelOpen"
   | "communityFriendToolsOpen"
   | "communityCircleToolsOpen"
-  | "communityRecentExpanded";
-type UiPreferenceMap = Partial<Record<UiPreferenceKey, boolean>>;
+  | "communityRecentExpanded"
+  | "memoryDueSort"
+  | "memoryReviewedSort"
+  | "pinnedJournalEntryIds";
+type UiPreferenceValue = boolean | string | string[];
+type UiPreferenceMap = Partial<Record<UiPreferenceKey, UiPreferenceValue>>;
 type ReaderMobileMenu = "old" | "new" | null;
 type MemoryFilterMobileMenu = "old" | "new" | null;
 const DARK_MODE_ENABLED = true;
@@ -460,7 +464,10 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "communityCirclesPanelOpen",
   "communityFriendToolsOpen",
   "communityCircleToolsOpen",
-  "communityRecentExpanded"
+  "communityRecentExpanded",
+  "memoryDueSort",
+  "memoryReviewedSort",
+  "pinnedJournalEntryIds"
 ];
 const STUDY_PANEL_UI_PREFERENCE_KEYS: Record<StudySidePanelKey, UiPreferenceKey> = {
   community: "studyPanelCommunityCollapsed",
@@ -722,6 +729,7 @@ export default function Home() {
   const [memoryView, setMemoryView] = useState<MemoryView>("review");
   const [dueMemoryReviewSort, setDueMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
   const [reviewedMemoryReviewSort, setReviewedMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
+  const [memoryReviewSortsHydrated, setMemoryReviewSortsHydrated] = useState(false);
   const [memorySearch, setMemorySearch] = useState("");
   const [memoryBookFilter, setMemoryBookFilter] = useState("all");
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
@@ -1227,18 +1235,21 @@ export default function Home() {
           setDueMemoryReviewSort(sorts.due);
           setReviewedMemoryReviewSort(sorts.reviewed);
         })
-        .catch(() => undefined);
+        .catch(() => undefined)
+        .finally(() => setMemoryReviewSortsHydrated(true));
     });
   }, [appInitializationAllowed]);
 
   useEffect(() => {
-    if (!appInitializationAllowed) return;
+    if (!appInitializationAllowed || !memoryReviewSortsHydrated) return;
 
     saveStoredMemoryReviewSorts({
       due: dueMemoryReviewSort,
       reviewed: reviewedMemoryReviewSort
     }).catch(() => undefined);
-  }, [appInitializationAllowed, dueMemoryReviewSort, reviewedMemoryReviewSort]);
+    persistUiPreference("memoryDueSort", dueMemoryReviewSort);
+    persistUiPreference("memoryReviewedSort", reviewedMemoryReviewSort);
+  }, [appInitializationAllowed, dueMemoryReviewSort, memoryReviewSortsHydrated, reviewedMemoryReviewSort]);
 
   useEffect(() => {
     return () => {
@@ -1399,6 +1410,15 @@ export default function Home() {
   const adminUsers = useQuery((api as any).insights.adminUsers, shouldLoadAdminDetails ? {} : "skip");
   const adminUserDetail = useQuery((api as any).insights.adminUserDetail, shouldLoadAdminDetails && selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
   const adminAuditLog = useQuery((api as any).insights.adminAuditLog, shouldLoadAdminDetails ? { limit: 20 } : "skip");
+
+  useEffect(() => {
+    if (!profileMatchesActiveState || !memoryReviewSortsHydrated) return;
+    if (!uiMemoryReviewSort(profileUiPreferences, "memoryDueSort")) persistUiPreference("memoryDueSort", dueMemoryReviewSort);
+    if (!uiMemoryReviewSort(profileUiPreferences, "memoryReviewedSort")) persistUiPreference("memoryReviewedSort", reviewedMemoryReviewSort);
+    if (!uiStringList(profileUiPreferences, "pinnedJournalEntryIds") && pinnedJournalEntryIds.length > 0) {
+      persistUiPreference("pinnedJournalEntryIds", pinnedJournalEntryIds.slice(0, 80));
+    }
+  }, [dueMemoryReviewSort, memoryReviewSortsHydrated, pinnedJournalEntryIds, profileMatchesActiveState, profileUiPreferences, reviewedMemoryReviewSort]);
   useEffect(() => {
     if (!COMMUNITY_CIRCLES_ENABLED || !activeProfileId || !isAuthenticated) {
       setMyFriendCode("");
@@ -2193,23 +2213,38 @@ export default function Home() {
         : DEFAULT_MEMORY_MILESTONE_IDS
     );
     setCollapsedStudyPanels((current) => ({
-      community: profileUiPreferences.studyPanelCommunityCollapsed ?? current.community,
-      plan: profileUiPreferences.studyPanelPlanCollapsed ?? current.plan,
-      feedback: profileUiPreferences.studyPanelFeedbackCollapsed ?? current.feedback,
-      helps: profileUiPreferences.studyPanelHelpsCollapsed ?? current.helps
+      community: uiBoolean(profileUiPreferences, "studyPanelCommunityCollapsed") ?? current.community,
+      plan: uiBoolean(profileUiPreferences, "studyPanelPlanCollapsed") ?? current.plan,
+      feedback: uiBoolean(profileUiPreferences, "studyPanelFeedbackCollapsed") ?? current.feedback,
+      helps: uiBoolean(profileUiPreferences, "studyPanelHelpsCollapsed") ?? current.helps
     }));
-    if (profileUiPreferences.studyInstructionsCollapsed !== undefined) setInstructionsCollapsed(profileUiPreferences.studyInstructionsCollapsed);
-    if (profileUiPreferences.studyCoachingVisible !== undefined) setShowCoaching(profileUiPreferences.studyCoachingVisible);
-    if (profileUiPreferences.bibleReaderNavCollapsed !== undefined) setReaderNavCollapsed(profileUiPreferences.bibleReaderNavCollapsed);
-    if (profileUiPreferences.bibleReaderHistoryCollapsed !== undefined) setReaderHistoryCollapsed(profileUiPreferences.bibleReaderHistoryCollapsed);
-    if (profileUiPreferences.bibleBookmarksCollapsed !== undefined) setBookmarksCollapsed(profileUiPreferences.bibleBookmarksCollapsed);
-    if (profileUiPreferences.bibleSearchCollapsed !== undefined) setBibleSearchCollapsed(profileUiPreferences.bibleSearchCollapsed);
-    if (profileUiPreferences.communityPeoplePanelCollapsed !== undefined) setPeoplePanelCollapsed(profileUiPreferences.communityPeoplePanelCollapsed);
-    if (profileUiPreferences.communityFriendsPanelOpen !== undefined) setMobileFriendsPanelOpen(profileUiPreferences.communityFriendsPanelOpen);
-    if (profileUiPreferences.communityCirclesPanelOpen !== undefined) setMobileCirclesPanelOpen(profileUiPreferences.communityCirclesPanelOpen);
-    if (profileUiPreferences.communityFriendToolsOpen !== undefined) setFriendToolsOpen(profileUiPreferences.communityFriendToolsOpen);
-    if (profileUiPreferences.communityCircleToolsOpen !== undefined) setCircleManagerOpen(profileUiPreferences.communityCircleToolsOpen);
-    if (profileUiPreferences.communityRecentExpanded !== undefined) setRecentCheckinsExpanded(profileUiPreferences.communityRecentExpanded);
+    const syncedDueSort = uiMemoryReviewSort(profileUiPreferences, "memoryDueSort");
+    const syncedReviewedSort = uiMemoryReviewSort(profileUiPreferences, "memoryReviewedSort");
+    const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
+    if (uiBoolean(profileUiPreferences, "studyInstructionsCollapsed") !== undefined) setInstructionsCollapsed(uiBoolean(profileUiPreferences, "studyInstructionsCollapsed")!);
+    if (uiBoolean(profileUiPreferences, "studyCoachingVisible") !== undefined) setShowCoaching(uiBoolean(profileUiPreferences, "studyCoachingVisible")!);
+    if (uiBoolean(profileUiPreferences, "bibleReaderNavCollapsed") !== undefined) setReaderNavCollapsed(uiBoolean(profileUiPreferences, "bibleReaderNavCollapsed")!);
+    if (uiBoolean(profileUiPreferences, "bibleReaderHistoryCollapsed") !== undefined) setReaderHistoryCollapsed(uiBoolean(profileUiPreferences, "bibleReaderHistoryCollapsed")!);
+    if (uiBoolean(profileUiPreferences, "bibleBookmarksCollapsed") !== undefined) setBookmarksCollapsed(uiBoolean(profileUiPreferences, "bibleBookmarksCollapsed")!);
+    if (uiBoolean(profileUiPreferences, "bibleSearchCollapsed") !== undefined) setBibleSearchCollapsed(uiBoolean(profileUiPreferences, "bibleSearchCollapsed")!);
+    if (uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed") !== undefined) setPeoplePanelCollapsed(uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed")!);
+    if (uiBoolean(profileUiPreferences, "communityFriendsPanelOpen") !== undefined) setMobileFriendsPanelOpen(uiBoolean(profileUiPreferences, "communityFriendsPanelOpen")!);
+    if (uiBoolean(profileUiPreferences, "communityCirclesPanelOpen") !== undefined) setMobileCirclesPanelOpen(uiBoolean(profileUiPreferences, "communityCirclesPanelOpen")!);
+    if (uiBoolean(profileUiPreferences, "communityFriendToolsOpen") !== undefined) setFriendToolsOpen(uiBoolean(profileUiPreferences, "communityFriendToolsOpen")!);
+    if (uiBoolean(profileUiPreferences, "communityCircleToolsOpen") !== undefined) setCircleManagerOpen(uiBoolean(profileUiPreferences, "communityCircleToolsOpen")!);
+    if (uiBoolean(profileUiPreferences, "communityRecentExpanded") !== undefined) setRecentCheckinsExpanded(uiBoolean(profileUiPreferences, "communityRecentExpanded")!);
+    if (syncedDueSort) {
+      setDueMemoryReviewSort(syncedDueSort);
+      saveStoredMemoryReviewSorts({ due: syncedDueSort, reviewed: syncedReviewedSort || reviewedMemoryReviewSort }).catch(() => undefined);
+    }
+    if (syncedReviewedSort) {
+      setReviewedMemoryReviewSort(syncedReviewedSort);
+      saveStoredMemoryReviewSorts({ due: syncedDueSort || dueMemoryReviewSort, reviewed: syncedReviewedSort }).catch(() => undefined);
+    }
+    if (syncedPinnedEntries) {
+      setPinnedJournalEntryIds(syncedPinnedEntries);
+      savePinnedJournalEntries(syncedPinnedEntries).catch(() => undefined);
+    }
   }, [profile, profileUiPreferences]);
 
   useEffect(() => {
@@ -3890,7 +3925,7 @@ export default function Home() {
       await deleteSessionMutation({ profileId: activeProfileId, sessionId: entry._id });
       const nextPinnedEntries = pinnedJournalEntryIds.filter((id) => id !== entryId);
       setPinnedJournalEntryIds(nextPinnedEntries);
-      savePinnedJournalEntries(nextPinnedEntries).catch(() => undefined);
+      persistPinnedJournalEntries(nextPinnedEntries);
     } else {
       await deleteCheckinMutation({ profileId: activeProfileId, checkinId: entry._id });
     }
@@ -4969,7 +5004,7 @@ export default function Home() {
   function togglePinnedJournalEntry(entryId: string) {
     setPinnedJournalEntryIds((current) => {
       const next = current.includes(entryId) ? current.filter((id) => id !== entryId) : [entryId, ...current];
-      savePinnedJournalEntries(next).catch(() => undefined);
+      persistPinnedJournalEntries(next);
       return next;
     });
   }
@@ -5883,9 +5918,15 @@ export default function Home() {
     });
   }
 
-  function persistUiPreference(key: UiPreferenceKey, value: boolean) {
-    if (!activeProfileId) return;
+  function persistUiPreference(key: UiPreferenceKey, value: UiPreferenceValue) {
+    if (!activeProfileId || !profileMatchesActiveState) return;
     saveUiPreference({ profileId: activeProfileId, key, value }).catch(() => undefined);
+  }
+
+  function persistPinnedJournalEntries(ids: string[]) {
+    const next = Array.from(new Set(ids.map((id) => String(id)).filter(Boolean))).slice(0, 80);
+    savePinnedJournalEntries(next).catch(() => undefined);
+    persistUiPreference("pinnedJournalEntryIds", next);
   }
 
   function currentBibleReadingPlanProgress(
@@ -11260,10 +11301,36 @@ function normalizeScriptureInsertSettings(value: Partial<ScriptureInsertSettings
 function normalizeUiPreferences(value: unknown): UiPreferenceMap {
   if (!value || typeof value !== "object") return {};
   const source = value as Record<string, unknown>;
-  return UI_PREFERENCE_KEYS.reduce<UiPreferenceMap>((preferences, key) => {
-    if (typeof source[key] === "boolean") preferences[key] = source[key] as boolean;
-    return preferences;
-  }, {});
+  const preferences: UiPreferenceMap = {};
+  UI_PREFERENCE_KEYS.forEach((key) => {
+    const item = source[key];
+    if (key === "memoryDueSort" || key === "memoryReviewedSort") {
+      if (item === "oldest" || item === "newest") preferences[key] = item;
+      return;
+    }
+    if (key === "pinnedJournalEntryIds") {
+      if (Array.isArray(item)) {
+        preferences[key] = Array.from(new Set(item.map((entryId) => (typeof entryId === "string" ? entryId.trim() : "")).filter(Boolean))).slice(0, 80);
+      }
+      return;
+    }
+    if (typeof item === "boolean") preferences[key] = item;
+  });
+  return preferences;
+}
+
+function uiBoolean(preferences: UiPreferenceMap, key: UiPreferenceKey) {
+  return typeof preferences[key] === "boolean" ? preferences[key] as boolean : undefined;
+}
+
+function uiMemoryReviewSort(preferences: UiPreferenceMap, key: "memoryDueSort" | "memoryReviewedSort") {
+  const value = preferences[key];
+  return value === "newest" || value === "oldest" ? value : undefined;
+}
+
+function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds") {
+  const value = preferences[key];
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : undefined;
 }
 
 function getScriptureMatchKey(match: { reference: string; from: number; to: number }) {

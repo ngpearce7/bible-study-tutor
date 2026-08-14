@@ -20,7 +20,8 @@ const scriptureInsertSettings = v.object({
   referencePosition: v.union(v.literal("front"), v.literal("end"))
 });
 
-const uiPreferences = v.record(v.string(), v.boolean());
+const uiPreferenceValue = v.union(v.boolean(), v.string(), v.array(v.string()));
+const uiPreferences = v.record(v.string(), uiPreferenceValue);
 const bibleReaderHistoryItem = v.object({
   book: v.string(),
   chapter: v.number(),

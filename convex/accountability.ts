@@ -171,18 +171,24 @@ export const saveUiPreference = mutation({
   args: {
     profileId: v.id("profiles"),
     key: v.string(),
-    value: v.boolean()
+    value: v.union(v.boolean(), v.string(), v.array(v.string()))
   },
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
     const key = clampText(args.key, 80);
     if (!key || key.startsWith("$") || key.startsWith("_")) throw new Error("Invalid preference key.");
+    const value =
+      typeof args.value === "string"
+        ? clampText(args.value, 120)
+        : Array.isArray(args.value)
+          ? Array.from(new Set(args.value.map((item) => clampText(item, 120)).filter(Boolean))).slice(0, 80)
+          : args.value;
 
     await ctx.db.patch(args.profileId, {
       uiPreferences: {
-        ...(((profile as any).uiPreferences as Record<string, boolean> | undefined) || {}),
-        [key]: args.value
+        ...(((profile as any).uiPreferences as Record<string, boolean | string | string[]> | undefined) || {}),
+        [key]: value
       },
       updatedAt: Date.now()
     });

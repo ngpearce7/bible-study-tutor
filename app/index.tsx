@@ -349,6 +349,11 @@ type UiPreferenceKey =
   | "plansExpandedPlanId"
   | "plansCompletedOpen"
   | "plansSelectedPlanDay"
+  | "journalView"
+  | "journalFilter"
+  | "journalFiltersOpen"
+  | "journalExpandedScriptureBook"
+  | "journalSelectedScripture"
   | "pinnedJournalEntryIds"
   | "customWritingPrompts"
   | "rhythmGraceHandledDates";
@@ -496,6 +501,11 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "plansExpandedPlanId",
   "plansCompletedOpen",
   "plansSelectedPlanDay",
+  "journalView",
+  "journalFilter",
+  "journalFiltersOpen",
+  "journalExpandedScriptureBook",
+  "journalSelectedScripture",
   "pinnedJournalEntryIds",
   "customWritingPrompts",
   "rhythmGraceHandledDates"
@@ -995,7 +1005,6 @@ export default function Home() {
 
   useEffect(() => {
     if (tab === "journal" && previousTabRef.current !== "journal") {
-      setJournalView("list");
       setJournalDateFilterKey("");
     }
     previousTabRef.current = tab;
@@ -2288,6 +2297,10 @@ export default function Home() {
     const syncedPlanOpenSections = uiPlanOpenSections(profileUiPreferences);
     const syncedPlanExpandedPlanId = uiPlanExpandedPlanId(profileUiPreferences);
     const syncedPlanSelectedDay = uiPlanSelectedDay(profileUiPreferences);
+    const syncedJournalView = uiJournalView(profileUiPreferences);
+    const syncedJournalFilter = uiJournalFilter(profileUiPreferences);
+    const syncedJournalExpandedScriptureBook = uiJournalExpandedScriptureBook(profileUiPreferences);
+    const syncedJournalSelectedScripture = uiJournalSelectedScripture(profileUiPreferences);
     const syncedPinnedEntries = uiStringList(profileUiPreferences, "pinnedJournalEntryIds");
     const syncedWritingPrompts = uiStringList(profileUiPreferences, "customWritingPrompts");
     const syncedStudyMethodId = uiStudyMethodId(profileUiPreferences);
@@ -2344,6 +2357,14 @@ export default function Home() {
     if (syncedPlanSelectedDay) {
       setActiveBiblePlanSelectedPlanId(syncedPlanSelectedDay.planId);
       setActiveBiblePlanSelectedDay(syncedPlanSelectedDay.day);
+    }
+    if (syncedJournalView) setJournalView(syncedJournalView);
+    if (syncedJournalFilter) setJournalFilter(syncedJournalFilter);
+    if (uiBoolean(profileUiPreferences, "journalFiltersOpen") !== undefined) setJournalFiltersOpen(uiBoolean(profileUiPreferences, "journalFiltersOpen")!);
+    if (syncedJournalExpandedScriptureBook !== undefined) setExpandedJournalScriptureBook(syncedJournalExpandedScriptureBook);
+    if (syncedJournalSelectedScripture) {
+      setSelectedJournalScriptureBook(syncedJournalSelectedScripture.book);
+      setSelectedJournalScriptureChapter(syncedJournalSelectedScripture.chapter);
     }
     if (syncedPinnedEntries) {
       setPinnedJournalEntryIds(syncedPinnedEntries);
@@ -2915,7 +2936,7 @@ export default function Home() {
   }
 
   function openSavedHighlights() {
-    setJournalFilter("highlights");
+    setRememberedJournalFilter("highlights");
     setTab("journal");
   }
 
@@ -3749,7 +3770,7 @@ export default function Home() {
       setReflectionInsight("");
       setReflectionPrayer("");
       setReflectionNextStep("");
-      setJournalFilter("all");
+      setRememberedJournalFilter("all");
     } finally {
       setIsSavingReflection(false);
     }
@@ -6140,6 +6161,41 @@ export default function Home() {
       persistUiPreference("plansOpenSections", Object.entries(next).filter(([, open]) => open).map(([id]) => id));
       return next;
     });
+  }
+
+  function setRememberedJournalView(nextView: JournalView) {
+    setJournalView(nextView);
+    persistUiPreference("journalView", nextView);
+  }
+
+  function setRememberedJournalFilter(nextFilter: JournalFilter) {
+    setJournalFilter(nextFilter);
+    persistUiPreference("journalFilter", nextFilter);
+  }
+
+  function setRememberedJournalFiltersOpen(nextValue: SetStateAction<boolean>) {
+    setJournalFiltersOpen((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: boolean) => boolean)(current) : nextValue;
+      persistUiPreference("journalFiltersOpen", next);
+      return next;
+    });
+  }
+
+  function setRememberedExpandedJournalScriptureBook(nextValue: SetStateAction<string>) {
+    setExpandedJournalScriptureBook((current) => {
+      const next = typeof nextValue === "function" ? (nextValue as (value: string) => string)(current) : nextValue;
+      const normalized = bibleBooks.includes(next) ? next : "";
+      persistUiPreference("journalExpandedScriptureBook", normalized);
+      return normalized;
+    });
+  }
+
+  function setRememberedSelectedJournalScripture(book: string, chapter: number) {
+    const normalizedBook = bibleBooks.includes(book) ? book : "";
+    const normalizedChapter = normalizedBook && Number.isFinite(chapter) && chapter > 0 ? Math.min(200, Math.round(chapter)) : 0;
+    setSelectedJournalScriptureBook(normalizedBook);
+    setSelectedJournalScriptureChapter(normalizedChapter);
+    persistUiPreference("journalSelectedScripture", normalizedBook && normalizedChapter ? `${normalizedBook}:${normalizedChapter}` : "");
   }
 
   function currentBibleReadingPlanProgress(
@@ -9263,14 +9319,14 @@ export default function Home() {
               journalSearch={journalSearch}
               setJournalSearch={setJournalSearch}
               journalView={journalView}
-              setJournalView={setJournalView}
+              setJournalView={setRememberedJournalView}
               journalDateFilterKey={journalDateFilterKey}
               setJournalDateFilterKey={setJournalDateFilterKey}
               journalFiltersOpen={journalFiltersOpen}
-              setJournalFiltersOpen={setJournalFiltersOpen}
+              setJournalFiltersOpen={setRememberedJournalFiltersOpen}
               activeJournalFilterLabel={activeJournalFilterLabel}
               journalFilter={journalFilter}
-              setJournalFilter={setJournalFilter}
+              setJournalFilter={setRememberedJournalFilter}
               journalFilterOptions={journalFilterOptions}
               totalSavedHighlightCount={totalSavedHighlightCount}
               buildJournalGuideText={buildJournalGuideText}
@@ -9280,11 +9336,10 @@ export default function Home() {
               addMonths={addMonths}
               journalScriptureBookSections={journalScriptureBookSections}
               expandedJournalScriptureBook={expandedJournalScriptureBook}
-              setExpandedJournalScriptureBook={setExpandedJournalScriptureBook}
+              setExpandedJournalScriptureBook={setRememberedExpandedJournalScriptureBook}
               selectedJournalScriptureBook={selectedJournalScriptureBook}
               selectedJournalScriptureChapter={selectedJournalScriptureChapter}
-              setSelectedJournalScriptureBook={setSelectedJournalScriptureBook}
-              setSelectedJournalScriptureChapter={setSelectedJournalScriptureChapter}
+              setSelectedJournalScripture={setRememberedSelectedJournalScripture}
               formatJournalDateKey={formatJournalDateKey}
               selectedJournalDateEntryCount={selectedJournalDateEntryCount}
               selectedJournalScriptureEntryCount={selectedJournalScriptureEntryCount}
@@ -11554,6 +11609,22 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (typeof item === "string" && isSafePlanDaySelection(item)) preferences[key] = item;
       return;
     }
+    if (key === "journalView") {
+      if (item === "list" || item === "calendar" || item === "scripture") preferences[key] = item;
+      return;
+    }
+    if (key === "journalFilter") {
+      if (isJournalFilterValue(item)) preferences[key] = item;
+      return;
+    }
+    if (key === "journalExpandedScriptureBook") {
+      if (typeof item === "string" && (item === "" || bibleBooks.includes(item))) preferences[key] = item;
+      return;
+    }
+    if (key === "journalSelectedScripture") {
+      if (typeof item === "string" && (item === "" || isSafeJournalScriptureSelection(item))) preferences[key] = item;
+      return;
+    }
     if (key === "customWritingPrompts") {
       if (Array.isArray(item)) preferences[key] = normalizeCustomWritingPrompts(item);
       return;
@@ -11632,6 +11703,52 @@ function uiPlanSelectedDay(preferences: UiPreferenceMap) {
   const [planId, dayValue] = value.split(":");
   const day = Number.parseInt(dayValue, 10);
   return planId && Number.isFinite(day) && day > 0 ? { planId, day } : undefined;
+}
+
+function isJournalFilterValue(value: unknown): value is JournalFilter {
+  return value === "all" ||
+    value === "pinned" ||
+    value === "drafts" ||
+    value === "studies" ||
+    value === "meditations" ||
+    value === "checkins" ||
+    value === "highlights" ||
+    value === "reviews";
+}
+
+function uiJournalView(preferences: UiPreferenceMap) {
+  const value = preferences.journalView;
+  return value === "list" || value === "calendar" || value === "scripture" ? value : undefined;
+}
+
+function uiJournalFilter(preferences: UiPreferenceMap) {
+  const value = preferences.journalFilter;
+  return isJournalFilterValue(value) ? value : undefined;
+}
+
+function uiJournalExpandedScriptureBook(preferences: UiPreferenceMap) {
+  const value = preferences.journalExpandedScriptureBook;
+  return typeof value === "string" && (value === "" || bibleBooks.includes(value)) ? value : undefined;
+}
+
+function isSafeJournalScriptureSelection(value: string) {
+  const separatorIndex = value.lastIndexOf(":");
+  if (separatorIndex <= 0) return false;
+  const book = value.slice(0, separatorIndex);
+  const chapter = Number.parseInt(value.slice(separatorIndex + 1), 10);
+  return bibleBooks.includes(book) && Number.isFinite(chapter) && chapter > 0 && chapter <= 200;
+}
+
+function uiJournalSelectedScripture(preferences: UiPreferenceMap) {
+  const value = preferences.journalSelectedScripture;
+  if (typeof value !== "string") return undefined;
+  if (!value) return { book: "", chapter: 0 };
+  if (!isSafeJournalScriptureSelection(value)) return undefined;
+  const separatorIndex = value.lastIndexOf(":");
+  return {
+    book: value.slice(0, separatorIndex),
+    chapter: Number.parseInt(value.slice(separatorIndex + 1), 10)
+  };
 }
 
 function uiStudyMethodId(preferences: UiPreferenceMap) {

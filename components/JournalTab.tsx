@@ -42,8 +42,7 @@ export function JournalTab(props: any) {
     setExpandedJournalScriptureBook,
     selectedJournalScriptureBook,
     selectedJournalScriptureChapter,
-    setSelectedJournalScriptureBook,
-    setSelectedJournalScriptureChapter,
+    setSelectedJournalScripture,
     formatJournalDateKey,
     selectedJournalDateEntryCount,
     selectedJournalScriptureEntryCount,
@@ -237,8 +236,7 @@ export function JournalTab(props: any) {
                 }}
                 onSelectChapter={(book: string, chapter: number) => {
             const selected = selectedJournalScriptureBook === book && selectedJournalScriptureChapter === chapter;
-            setSelectedJournalScriptureBook(selected ? "" : book);
-            setSelectedJournalScriptureChapter(selected ? 0 : chapter);
+            setSelectedJournalScripture(selected ? "" : book, selected ? 0 : chapter);
           }}
           darkMode={journalDarkMode}
         />
@@ -258,10 +256,7 @@ export function JournalTab(props: any) {
             {`${selectedJournalScriptureBook} ${selectedJournalScriptureChapter} · ${selectedJournalScriptureEntryCount} entr${selectedJournalScriptureEntryCount === 1 ? "y" : "ies"}`}
           </Text>
           <Pressable
-            onPress={() => {
-              setSelectedJournalScriptureBook("");
-              setSelectedJournalScriptureChapter(0);
-            }}
+            onPress={() => setSelectedJournalScripture("", 0)}
             style={[styles.clearPassageFilterInlineButton, journalDarkMode && styles.homeDarkResumeButton]}
           >
             <Ionicons name="close-outline" size={14} color={colors.coral} />

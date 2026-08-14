@@ -321,24 +321,24 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
   if (theme === "prayer") {
     return devotional(
       `Pray through ${title}`,
-      `This reading invites prayer before it invites performance. Let ${day.reference} give language to your dependence on God. Notice what the passage reveals about God's character, then turn that truth into honest prayer, whether that prayer begins with praise, confession, asking, waiting, or surrender.`,
-      `What does ${day.reference} teach you to ask, confess, thank God for, or trust today?`,
+      `Begin by noticing what ${day.reference} actually says about God, His works, His commands, and the human response before Him. Then let the passage give language to your dependence. Prayer may become praise, confession, asking, waiting, thanksgiving, or surrender, but it should rise from the Scripture rather than from pressure to perform.`,
+      `What does ${day.reference} teach you to praise, ask, confess, thank God for, or trust today?`,
       "Father, let Your word shape my prayer instead of letting my worries lead it."
     );
   }
   if (theme === "peace") {
     return devotional(
       `Peace for ${title.toLowerCase()}`,
-      `Biblical peace is more than a quiet mood. It is the steadiness that comes from God's presence, promises, and care. As you read ${day.reference}, do not rush past the fear or pressure named in the passage. Let Scripture bring that pressure into the light of who God is.`,
-      "What anxiety, fear, or burden does this passage invite you to bring to God?",
+      `Biblical peace is more than a quiet mood. It is the steadiness that comes from God's presence, promises, rule, and care. As you read ${day.reference}, do not rush past the fear, pressure, command, or hope named in the passage. Let Scripture bring earthly concerns into the light of who God is and what He has spoken.`,
+      "What fear, pressure, command, or hope does this passage place before God today?",
       "God of peace, guard my heart and mind as I bring this concern to You."
     );
   }
   if (theme === "faith") {
     return devotional(
       `Trust in ${title.toLowerCase()}`,
-      `Faith is not pretending life is easy. In ${day.reference}, faith looks toward God and takes Him at His word. Read slowly for what God promises, commands, reveals, or provides. Then consider one small act of trust that could make your faith visible today.`,
-      "What would trusting God look like in one ordinary decision today?",
+      `Faith is not pretending life is easy or treating obedience as a way to earn God's love. In ${day.reference}, faith looks toward God and takes Him at His word. Read slowly for what God promises, commands, reveals, or provides. Then consider one small act of trust that could make faith visible as a response to His grace.`,
+      "What would trusting God look like as a grace-shaped response today?",
       "Lord, strengthen my faith and help me obey You with a willing heart."
     );
   }
@@ -353,7 +353,7 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
   if (theme === "comfort") {
     return devotional(
       `Comfort in ${title.toLowerCase()}`,
-      `This passage does not ask you to hide sorrow from God. In ${day.reference}, bring grief, weariness, and longing honestly before Him. Scripture's comfort is not shallow optimism; it is the nearness of God, the hope of His promises, and the mercy He gives in weakness.`,
+      `This passage does not ask you to hide sorrow from God or pretend pain is small. In ${day.reference}, bring grief, weariness, and longing honestly before Him while listening for what He reveals, promises, corrects, or restores. Scripture's comfort is not shallow optimism; it is the nearness of God, the hope of His promises, and the mercy He gives in weakness.`,
       "What sorrow or ache can you bring honestly to God as you read?",
       "God of all comfort, meet me with Your mercy and steady hope."
     );
@@ -368,7 +368,7 @@ function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay
   }
   return devotional(
     `Begin with ${title.toLowerCase()}`,
-    `This reading is a simple starting point, not a test. As you read ${day.reference}, look for one clear thing the passage says about God, people, sin, grace, or hope. You do not need to understand everything today. Begin with what is plain, then respond honestly to God.`,
+    `This reading is a simple starting point, not a test. As you read ${day.reference}, first ask what the passage says in its own context. Then look for one clear truth about God, people, sin, grace, obedience, or hope. You do not need to understand everything today. Begin with what is plain, then respond honestly to God.`,
     "What is one clear truth from this passage that you can carry today?",
     "Lord, open my eyes to understand Your word and respond with trust."
   );
@@ -484,7 +484,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     )],
     ["Romans 8:1-4", "Romans", 8, "No condemnation", devotional(
       "No condemnation in Christ",
-      "The Christian life does not begin under a cloud of accusation. Paul says there is now no condemnation for those who are in Christ Jesus. This is not denial of sin; it is confidence that Christ has dealt with sin. When shame tries to become your name, return to the sentence God speaks over those who belong to Christ.",
+      "The Christian life does not begin under a cloud of accusation. Paul says there is now no condemnation for those who are in Christ Jesus because God has acted through His Son where the law could not rescue us. This is not denial of sin; it is confidence that Christ has dealt with sin so that life can now be walked by the Spirit.",
       "Where do you most need to hear 'no condemnation' today?",
       "Lord Jesus, teach me to stand in Your mercy rather than my shame."
     )],
@@ -508,8 +508,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     )],
     ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ", devotional(
       "Hidden with Christ",
-      "Some parts of your life are visible and easily judged. But Paul says your life is hidden with Christ in God. That hiddenness is not emptiness; it is safety. Your deepest life is held by Christ, even when circumstances feel exposed, ordinary, or unfinished.",
-      "How does being hidden with Christ change the way you face today?",
+      "Paul does not speak of being hidden with Christ as escape from ordinary life. Because believers have been raised with Christ, he calls them to seek the things above and set their minds where Christ is. Your life is hidden with Christ in God, so earthly pressures no longer get the final word. Hiddenness means safety, new direction, and future hope when Christ appears in glory.",
+      "What earthly concern needs to be re-ordered by seeking Christ and setting your mind on things above?",
       "Christ, keep my mind set on You and my life anchored in You."
     )],
     ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people", devotional(

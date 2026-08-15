@@ -19174,7 +19174,7 @@ const styles = StyleSheet.create({
     left: -1600,
     position: "absolute",
     right: -1600,
-    top: -1600,
+    top: 78,
     zIndex: 900
   },
   devotionalTextSizePopoverButtons: {

@@ -3,6 +3,20 @@ import { Pressable, Text, View } from "react-native";
 import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { colors } from "@/components/ui";
 
+type DevotionalTextSize = "normal" | "large" | "larger";
+
+const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; label: string }[] = [
+  { id: "normal", label: "A" },
+  { id: "large", label: "A+" },
+  { id: "larger", label: "A++" }
+];
+
+const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
+  normal: { body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
+  large: { body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
+  larger: { body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
+};
+
 type BibleReaderPassageProps = {
   styles: any;
   darkMode: boolean;
@@ -27,6 +41,8 @@ type BibleReaderPassageProps = {
   } | null;
   activeReadingPlanName?: string;
   activeReadingPlanDayCompleted?: boolean;
+  devotionalTextSize?: DevotionalTextSize;
+  onDevotionalTextSizeChange?: (size: DevotionalTextSize) => void;
   planReadingMode?: boolean;
   planReadingCanMovePrevious?: boolean;
   planReadingCanMoveNext?: boolean;
@@ -73,6 +89,8 @@ export function BibleReaderPassage({
   activeReadingPlanDay,
   activeReadingPlanName,
   activeReadingPlanDayCompleted,
+  devotionalTextSize = "normal",
+  onDevotionalTextSizeChange,
   planReadingMode,
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
@@ -122,6 +140,26 @@ export function BibleReaderPassage({
   const focusedPlanReadingNote = planReadingNote || (planReadingHasMultipleParts
     ? "Use Previous and Next to move through this plan reading."
     : "");
+  const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
+  const devotionalTextSizeControl = (
+    <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
+      {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
+        const selected = devotionalTextSize === option.id;
+        return (
+          <Pressable
+            key={option.id}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            accessibilityLabel={`Use ${option.id === "normal" ? "normal" : option.id} devotional text size`}
+            onPress={() => onDevotionalTextSizeChange?.(option.id)}
+            style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
+          >
+            <Text style={[styles.devotionalTextSizeButtonText, selected && styles.devotionalTextSizeButtonTextActive, darkMode && styles.homeDarkResumeButtonText, darkMode && selected && styles.devotionalTextSizeButtonTextActiveDark]}>{option.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
 
   return (
     <>
@@ -221,22 +259,25 @@ export function BibleReaderPassage({
                   {!!activeReadingPlanDay.devotional && (
                     <>
                       <View style={styles.planDayDevotionalHeader}>
-                        <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                        <Text style={[styles.planDayDevotionalTitle, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
+                        <View style={styles.planDayDevotionalTitleRow}>
+                          <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                          <Text style={[styles.planDayDevotionalTitle, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
+                        </View>
+                        {devotionalTextSizeControl}
                       </View>
-                      <Text style={[styles.planDayDevotionalText, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
+                      <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
                     </>
                   )}
                   {!!activeReadingPlanDay.reflectionPrompt && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-                      <Text style={[styles.planDayPromptText, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionPrompt}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionPrompt}</Text>
                     </View>
                   )}
                   {!!activeReadingPlanDay.prayerPrompt && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-                      <Text style={[styles.planDayPromptText, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayerPrompt}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayerPrompt}</Text>
                     </View>
                   )}
                 </View>

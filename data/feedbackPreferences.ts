@@ -32,6 +32,7 @@ export type StoredMemoryReviewSorts = {
   due: StoredMemoryReviewSort;
   reviewed: StoredMemoryReviewSort;
 };
+export type StoredDevotionalTextSize = "normal" | "large" | "larger";
 
 const pinnedJournalEntriesKey = "bible-study-tutor-pinned-journal-entries";
 const completedPlanDaysKey = "bible-study-tutor-completed-plan-days";
@@ -49,6 +50,7 @@ const collapsedStudyPanelsKey = "bible-study-tutor-collapsed-study-panels";
 const customWritingPromptsKey = "bible-study-tutor-custom-writing-prompts";
 const appearanceModeKey = "bible-study-tutor-appearance-mode";
 const memoryReviewSortsKey = "bible-study-tutor-memory-review-sorts";
+const devotionalTextSizeKey = "bible-study-tutor-devotional-text-size";
 const defaultCollapsedStudyPanels: StoredCollapsedStudyPanels = {
   community: false,
   plan: false,
@@ -272,6 +274,15 @@ export async function saveStoredMemoryReviewSorts(sorts: StoredMemoryReviewSorts
     due: sorts.due === "newest" ? "newest" : "oldest",
     reviewed: sorts.reviewed === "newest" ? "newest" : "oldest"
   }));
+}
+
+export async function getStoredDevotionalTextSize(): Promise<StoredDevotionalTextSize> {
+  const stored = await getStoredValue(devotionalTextSizeKey);
+  return stored === "large" || stored === "larger" ? stored : "normal";
+}
+
+export async function saveStoredDevotionalTextSize(size: StoredDevotionalTextSize) {
+  await setStoredValue(devotionalTextSizeKey, size);
 }
 
 export async function getPinnedJournalEntries(): Promise<string[]> {

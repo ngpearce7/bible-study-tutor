@@ -9,7 +9,7 @@ import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, bible
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -315,6 +315,7 @@ type MemoryBookCollectionDraft = {
   collectionName: string;
 };
 type MemoryReviewSort = StoredMemoryReviewSort;
+type DevotionalTextSize = StoredDevotionalTextSize;
 type StudyReviewPreset = "tomorrow" | "three-days" | "next-week" | "next-month";
 type StudySidePanelKey = "community" | "plan" | "feedback" | "helps";
 type UiPreferenceKey =
@@ -482,6 +483,16 @@ const NOTE_HIGHLIGHT_COLOR_OPTIONS = [
   { label: "Sky", value: "#d6e8f7" },
   { label: "Lavender", value: "#e7ddf4" }
 ];
+const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; label: string }[] = [
+  { id: "normal", label: "A" },
+  { id: "large", label: "A+" },
+  { id: "larger", label: "A++" }
+];
+const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
+  normal: { body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
+  large: { body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
+  larger: { body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
+};
 const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "studyMethodId",
   "studyStepIndex",
@@ -938,6 +949,7 @@ export default function Home() {
   const [bibleReadingPlanCompletionDates, setBibleReadingPlanCompletionDates] = useState<Record<string, string>>({});
   const [storedBibleReadingPlanProgress, setStoredBibleReadingPlanProgress] = useState<StoredBibleReadingPlanProgress | null>(null);
   const [storedBibleReadingPlanProgressHydrated, setStoredBibleReadingPlanProgressHydrated] = useState(false);
+  const [devotionalTextSize, setDevotionalTextSize] = useState<DevotionalTextSize>("normal");
   const [customBiblePlanTitle, setCustomBiblePlanTitle] = useState("");
   const [customBiblePlanDescription, setCustomBiblePlanDescription] = useState("");
   const [customBiblePlanDaysText, setCustomBiblePlanDaysText] = useState("");
@@ -1310,6 +1322,9 @@ export default function Home() {
         })
         .catch(() => undefined)
         .finally(() => setMemoryReviewSortsHydrated(true));
+      getStoredDevotionalTextSize()
+        .then(setDevotionalTextSize)
+        .catch(() => undefined);
     });
   }, [appInitializationAllowed]);
 
@@ -6583,31 +6598,63 @@ export default function Home() {
     selectedBibleReadingPlanId
   ]);
 
+  function setRememberedDevotionalTextSize(size: DevotionalTextSize) {
+    setDevotionalTextSize(size);
+    saveStoredDevotionalTextSize(size).catch(() => undefined);
+  }
+
+  const renderDevotionalTextSizeControl = (darkMode: boolean) => (
+    <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
+      {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
+        const selected = devotionalTextSize === option.id;
+        return (
+          <Pressable
+            key={option.id}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            accessibilityLabel={`Use ${option.id === "normal" ? "normal" : option.id} devotional text size`}
+            onPress={(event: any) => {
+              event.stopPropagation?.();
+              setRememberedDevotionalTextSize(option.id);
+            }}
+            style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
+          >
+            <Text style={[styles.devotionalTextSizeButtonText, selected && styles.devotionalTextSizeButtonTextActive, darkMode && styles.homeDarkResumeButtonText, darkMode && selected && styles.devotionalTextSizeButtonTextActiveDark]}>{option.label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+
   const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean) => {
     if (!planDay.devotional && !planDay.reflectionPrompt && !planDay.prayerPrompt) return null;
+    const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
 
     return (
       <View style={[styles.planDayDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
         {!!planDay.devotional && (
           <>
             <View style={styles.planDayDevotionalHeader}>
-              <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-              <Text style={[styles.planDayDevotionalTitle, darkMode && styles.accountDarkTitle]}>{planDay.devotional.title}</Text>
+              <View style={styles.planDayDevotionalTitleRow}>
+                <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                <Text style={[styles.planDayDevotionalTitle, darkMode && styles.accountDarkTitle]}>{planDay.devotional.title}</Text>
+              </View>
+              {renderDevotionalTextSizeControl(darkMode)}
             </View>
-            <Text style={[styles.planDayDevotionalText, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
+            <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
             {!!planDay.devotional.source && <Text style={[styles.planDayDevotionalSource, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.source}</Text>}
           </>
         )}
         {!!planDay.reflectionPrompt && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-            <Text style={[styles.planDayPromptText, darkMode && styles.accountDarkMutedText]}>{planDay.reflectionPrompt}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.reflectionPrompt}</Text>
           </View>
         )}
         {!!planDay.prayerPrompt && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-            <Text style={[styles.planDayPromptText, darkMode && styles.accountDarkMutedText]}>{planDay.prayerPrompt}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.prayerPrompt}</Text>
           </View>
         )}
       </View>
@@ -8085,6 +8132,8 @@ export default function Home() {
               activeReadingPlanDay={readerActiveBibleReadingPlanDay}
               activeReadingPlanName={readerBibleReadingPlan?.title || ""}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
+              devotionalTextSize={devotionalTextSize}
+              onDevotionalTextSizeChange={setRememberedDevotionalTextSize}
               planReadingMode={readerPlanReadingActive}
               planReadingCanMovePrevious={readerPlanCanMovePrevious}
               planReadingCanMoveNext={readerPlanCanMoveNext}
@@ -18962,13 +19011,63 @@ const styles = StyleSheet.create({
   planDayDevotionalHeader: {
     alignItems: "center",
     flexDirection: "row",
-    gap: 6
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  planDayDevotionalTitleRow: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    gap: 6,
+    minWidth: 0
   },
   planDayDevotionalTitle: {
     color: colors.ink,
     flex: 1,
     fontSize: 13,
     fontWeight: "900"
+  },
+  devotionalTextSizeControl: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.62)",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 2,
+    padding: 2
+  },
+  devotionalTextSizeControlDark: {
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  devotionalTextSizeButton: {
+    alignItems: "center",
+    borderRadius: 999,
+    minHeight: 26,
+    minWidth: 34,
+    justifyContent: "center",
+    paddingHorizontal: 7
+  },
+  devotionalTextSizeButtonDark: {
+    backgroundColor: "transparent"
+  },
+  devotionalTextSizeButtonActive: {
+    backgroundColor: colors.oliveDark
+  },
+  devotionalTextSizeButtonActiveDark: {
+    backgroundColor: "#e9b76a"
+  },
+  devotionalTextSizeButtonText: {
+    color: colors.muted,
+    fontSize: 11,
+    fontWeight: "900"
+  },
+  devotionalTextSizeButtonTextActive: {
+    color: "white"
+  },
+  devotionalTextSizeButtonTextActiveDark: {
+    color: "#211a12"
   },
   planDayDevotionalText: {
     color: colors.muted,

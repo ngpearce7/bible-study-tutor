@@ -120,6 +120,8 @@ export function BibleTab({
   activeReadingPlanDay,
   activeReadingPlanName,
   activeReadingPlanDayCompleted,
+  devotionalTextSize,
+  onDevotionalTextSizeChange,
   planReadingMode,
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
@@ -282,6 +284,8 @@ export function BibleTab({
           activeReadingPlanDay={activeReadingPlanDay}
           activeReadingPlanName={activeReadingPlanName}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
+          devotionalTextSize={devotionalTextSize}
+          onDevotionalTextSizeChange={onDevotionalTextSizeChange}
           planReadingMode={planReadingMode}
               planReadingCanMovePrevious={planReadingCanMovePrevious}
               planReadingCanMoveNext={planReadingCanMoveNext}

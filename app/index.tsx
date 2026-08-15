@@ -1867,17 +1867,17 @@ export default function Home() {
   const readerBibleReadingPlan = readerPlanReading?.planId
     ? allBibleReadingPlans.find((plan) => plan.id === readerPlanReading.planId) || activeBibleReadingPlan
     : activeBibleReadingPlan;
+  const readerPlanReadingActive = isReaderPlanReadingActive(readerBibleReadingPlan, readerPlanReading, readerBook, readerChapter);
   const readerActiveBibleReadingPlanDay =
-    readerBibleReadingPlan && readerPlanReading?.planId === readerBibleReadingPlan.id
+    readerPlanReadingActive && readerBibleReadingPlan && readerPlanReading?.planId === readerBibleReadingPlan.id
       ? readerBibleReadingPlan.days.find((day) => day.day === readerPlanReading.day) || getReaderPlanDayForChapter(readerBibleReadingPlan, readerBook, readerChapter)
-      : getReaderPlanDayForChapter(readerBibleReadingPlan, readerBook, readerChapter);
+      : null;
   const readerActiveBibleReadingPlanDayComplete =
     !!readerBibleReadingPlan &&
     !!readerActiveBibleReadingPlanDay &&
     completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(readerBibleReadingPlan.id, readerActiveBibleReadingPlanDay.day));
   const readerMatchesActiveBibleReadingPlanDay =
-    !!readerActiveBibleReadingPlanDay;
-  const readerPlanReadingActive = isReaderPlanReadingActive(readerBibleReadingPlan, readerPlanReading, readerBook, readerChapter);
+    !!readerPlanReadingActive && !!readerActiveBibleReadingPlanDay;
   const readerPlanCurrentChunkParsed = readerPlanCurrentChunkReference ? parseBsbPassageReference(readerPlanCurrentChunkReference) : null;
   const readerPlanChunkIsFullCurrentChapter =
     !!readerPlanReadingActive &&

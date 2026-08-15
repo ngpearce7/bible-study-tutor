@@ -9,7 +9,7 @@ import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_S
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
-import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderLastReadPosition, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderLastReadPosition, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredBibleReaderPosition, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -455,6 +455,7 @@ type ScriptureInsertSettings = {
 type SyncedBibleReaderState = {
   translation?: BibleTranslationId;
   position?: { book: string; chapter: number };
+  lastReadPosition?: { book: string; chapter: number };
   history?: StoredBibleReaderHistoryItem[];
   readChapters?: StoredBibleReadChapters;
   bookmarks?: StoredBibleBookmark[];
@@ -940,6 +941,7 @@ export default function Home() {
   const [readerPassage, setReaderPassage] = useState<BiblePassage | null>(null);
   const [readerStatus, setReaderStatus] = useState("Loading chapter...");
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
+  const [readerLastReadPosition, setReaderLastReadPosition] = useState<StoredBibleReaderPosition | null>(null);
   const [readerPlanReading, setReaderPlanReading] = useState<ReaderPlanReading | null>(null);
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(false);
@@ -1242,19 +1244,23 @@ export default function Home() {
       getStoredBibleTranslation()
         .then(setBibleTranslation)
         .catch(() => undefined);
-      getStoredBibleReaderPosition()
-        .then((position) => {
-          if (!position || !bibleBooks.includes(position.book)) return;
-          const chapterCount = BIBLE_CHAPTER_COUNTS[position.book] || 1;
-          setReaderBook(position.book);
-          setReaderChapter(Math.min(Math.max(position.chapter, 1), chapterCount));
-        })
-        .catch(() => undefined);
       getStoredBibleReaderHistory()
         .then(setBibleReaderHistory)
         .catch(() => undefined);
-      getStoredBibleReadChapters()
-        .then(setReadBibleChapters)
+      Promise.all([
+        getStoredBibleReaderPosition(),
+        getStoredBibleReaderLastReadPosition(),
+        getStoredBibleReadChapters()
+      ])
+        .then(([position, lastReadPosition, readChapters]) => {
+          setReadBibleChapters(readChapters);
+          const normalizedLastReadPosition = normalizeBibleReaderPosition(lastReadPosition);
+          setReaderLastReadPosition(normalizedLastReadPosition);
+          const preferredPosition = getPreferredBibleReaderStartPosition(position, normalizedLastReadPosition, readChapters);
+          if (!preferredPosition) return;
+          setReaderBook(preferredPosition.book);
+          setReaderChapter(preferredPosition.chapter);
+        })
         .catch(() => undefined);
       getStoredBibleReadingPlanProgress()
         .then((progress) => {
@@ -2489,10 +2495,20 @@ export default function Home() {
       setBibleTranslation(syncedReaderState.translation);
       saveStoredBibleTranslation(syncedReaderState.translation).catch(() => undefined);
     }
-    if (syncedReaderState.position && bibleBooks.includes(syncedReaderState.position.book)) {
-      const chapterCount = BIBLE_CHAPTER_COUNTS[syncedReaderState.position.book] || 1;
-      setReaderBook(syncedReaderState.position.book);
-      setReaderChapter(Math.min(Math.max(syncedReaderState.position.chapter, 1), chapterCount));
+    if (syncedReaderState.position || syncedReaderState.lastReadPosition) {
+      const preferredPosition = getPreferredBibleReaderStartPosition(
+        syncedReaderState.position,
+        syncedReaderState.lastReadPosition,
+        syncedReaderState.readChapters || {}
+      );
+      if (preferredPosition) {
+        setReaderBook(preferredPosition.book);
+        setReaderChapter(preferredPosition.chapter);
+      }
+    }
+    if (syncedReaderState.lastReadPosition) {
+      setReaderLastReadPosition(syncedReaderState.lastReadPosition);
+      saveStoredBibleReaderLastReadPosition(syncedReaderState.lastReadPosition).catch(() => undefined);
     }
     if (syncedReaderState.history) {
       setBibleReaderHistory(syncedReaderState.history);
@@ -5326,6 +5342,7 @@ export default function Home() {
 
   function toggleReaderChapterRead() {
     const wasRead = currentChapterRead;
+    const lastReadPosition = { book: readerBook, chapter: readerChapter };
     setReadBibleChapters((current) => {
       const currentBookChapters = current[readerBook] || [];
       const chapterSet = new Set(currentBookChapters);
@@ -5343,7 +5360,13 @@ export default function Home() {
         delete next[readerBook];
       }
       saveStoredBibleReadChapters(next).catch(() => undefined);
-      persistBibleReaderState({ readChapters: next });
+      if (!wasRead) {
+        setReaderLastReadPosition(lastReadPosition);
+        saveStoredBibleReaderLastReadPosition(lastReadPosition).catch(() => undefined);
+        persistBibleReaderState({ readChapters: next, lastReadPosition });
+      } else {
+        persistBibleReaderState({ readChapters: next });
+      }
       return next;
     });
     if (!wasRead) {
@@ -6384,6 +6407,7 @@ export default function Home() {
     const state = normalizeSyncedBibleReaderState({
       translation: bibleTranslation,
       position: { book: readerBook, chapter: readerChapter },
+      lastReadPosition: readerLastReadPosition || undefined,
       history: bibleReaderHistory,
       readChapters: readBibleChapters,
       bookmarks: bibleBookmarks,
@@ -13330,6 +13354,12 @@ function normalizeSyncedBibleReaderState(value: unknown): SyncedBibleReaderState
         chapter: Math.min(Math.max(Math.round(Number(source.position.chapter) || 1), 1), BIBLE_CHAPTER_COUNTS[source.position.book] || 1)
       }
     : undefined;
+  const lastReadPosition = source.lastReadPosition && typeof source.lastReadPosition === "object" && bibleBooks.includes(source.lastReadPosition.book)
+    ? {
+        book: source.lastReadPosition.book,
+        chapter: Math.min(Math.max(Math.round(Number(source.lastReadPosition.chapter) || 1), 1), BIBLE_CHAPTER_COUNTS[source.lastReadPosition.book] || 1)
+      }
+    : undefined;
   const history = Array.isArray(source.history)
     ? source.history
         .map((item: any): StoredBibleReaderHistoryItem | null => {
@@ -13383,11 +13413,33 @@ function normalizeSyncedBibleReaderState(value: unknown): SyncedBibleReaderState
   const state: SyncedBibleReaderState = {};
   if (translation) state.translation = translation;
   if (position) state.position = position;
+  if (lastReadPosition) state.lastReadPosition = lastReadPosition;
   if (history) state.history = history;
   if (readChapters) state.readChapters = readChapters;
   if (bookmarks) state.bookmarks = bookmarks;
   if (readingPlanProgress) state.readingPlanProgress = readingPlanProgress;
   return Object.keys(state).length ? state : null;
+}
+
+function normalizeBibleReaderPosition(position?: { book: string; chapter: number } | null): StoredBibleReaderPosition | null {
+  if (!position || !bibleBooks.includes(position.book)) return null;
+  const chapterCount = BIBLE_CHAPTER_COUNTS[position.book] || 1;
+  return {
+    book: position.book,
+    chapter: Math.min(Math.max(Math.round(Number(position.chapter) || 1), 1), chapterCount)
+  };
+}
+
+function getPreferredBibleReaderStartPosition(
+  position: StoredBibleReaderPosition | null | undefined,
+  lastReadPosition: StoredBibleReaderPosition | null | undefined,
+  readChapters: StoredBibleReadChapters
+) {
+  const normalizedLastRead = normalizeBibleReaderPosition(lastReadPosition);
+  if (normalizedLastRead && readChapters[normalizedLastRead.book]?.includes(normalizedLastRead.chapter)) {
+    return normalizedLastRead;
+  }
+  return normalizeBibleReaderPosition(position);
 }
 
 function hasLocalBibleReaderState(state: Pick<SyncedBibleReaderState, "history" | "readChapters" | "bookmarks" | "readingPlanProgress">) {

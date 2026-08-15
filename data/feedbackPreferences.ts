@@ -40,7 +40,6 @@ const checkinPartnersKey = "bible-study-tutor-checkin-partners";
 const activeCheckinPartnerKey = "bible-study-tutor-active-checkin-partner";
 const bibleTranslationKey = "bible-study-tutor-bible-translation";
 const bibleReaderPositionKey = "bible-study-tutor-bible-reader-position";
-const bibleReaderLastReadPositionKey = "bible-study-tutor-bible-reader-last-read-position";
 const bibleReaderHistoryKey = "bible-study-tutor-bible-reader-history";
 const bibleReadChaptersKey = "bible-study-tutor-bible-read-chapters";
 const bibleReadingPlanProgressKey = "bible-study-tutor-bible-reading-plan-progress";
@@ -97,28 +96,6 @@ export async function getStoredBibleReaderPosition(): Promise<StoredBibleReaderP
 
 export async function saveStoredBibleReaderPosition(position: StoredBibleReaderPosition) {
   await setStoredValue(bibleReaderPositionKey, JSON.stringify(position));
-}
-
-export async function getStoredBibleReaderLastReadPosition(): Promise<StoredBibleReaderPosition | null> {
-  const stored = await getStoredValue(bibleReaderLastReadPositionKey);
-  if (!stored) return null;
-
-  try {
-    const parsed = JSON.parse(stored);
-    return typeof parsed?.book === "string" && Number.isFinite(parsed?.chapter)
-      ? { book: parsed.book, chapter: Math.max(1, Math.round(parsed.chapter)) }
-      : null;
-  } catch {
-    return null;
-  }
-}
-
-export async function saveStoredBibleReaderLastReadPosition(position: StoredBibleReaderPosition | null) {
-  if (!position) {
-    await setStoredValue(bibleReaderLastReadPositionKey, "");
-    return;
-  }
-  await setStoredValue(bibleReaderLastReadPositionKey, JSON.stringify(position));
 }
 
 export async function getStoredBibleReaderHistory(): Promise<StoredBibleReaderHistoryItem[]> {

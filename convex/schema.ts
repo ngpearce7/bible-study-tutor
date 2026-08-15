@@ -68,7 +68,6 @@ const bibleReadingPlanProgress = v.object({
 const bibleReaderState = v.object({
   translation: v.optional(v.union(v.literal("bsb"), v.literal("web"), v.literal("kjv"))),
   position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
-  lastReadPosition: v.optional(v.object({ book: v.string(), chapter: v.number() })),
   history: v.optional(v.array(bibleReaderHistoryItem)),
   readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
   bookmarks: v.optional(v.array(bibleBookmark)),

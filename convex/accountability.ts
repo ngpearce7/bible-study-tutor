@@ -220,7 +220,6 @@ export const saveBibleReaderState = mutation({
     state: v.object({
       translation: v.optional(bibleTranslation),
       position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
-      lastReadPosition: v.optional(v.object({ book: v.string(), chapter: v.number() })),
       history: v.optional(v.array(bibleReaderHistoryItem)),
       readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
       bookmarks: v.optional(v.array(bibleBookmark)),
@@ -548,7 +547,6 @@ function reactionSummary(reactions: Doc<"communityReactions">[]) {
 function cleanBibleReaderState(state: {
   translation?: "bsb" | "web" | "kjv";
   position?: { book: string; chapter: number };
-  lastReadPosition?: { book: string; chapter: number };
   history?: Array<{ book: string; chapter: number; reference: string; translation: "bsb" | "web" | "kjv"; updatedAt: string }>;
   readChapters?: Record<string, number[]>;
   bookmarks?: Array<{
@@ -604,12 +602,6 @@ function cleanBibleReaderState(state: {
       ? {
           book: clampText(state.position.book, 80),
           chapter: Math.max(1, Math.min(200, Math.round(state.position.chapter)))
-        }
-      : undefined,
-    lastReadPosition: state.lastReadPosition
-      ? {
-          book: clampText(state.lastReadPosition.book, 80),
-          chapter: Math.max(1, Math.min(200, Math.round(state.lastReadPosition.chapter)))
         }
       : undefined,
     history: (state.history || []).slice(0, 12).map((item) => ({

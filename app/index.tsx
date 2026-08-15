@@ -6505,6 +6505,12 @@ export default function Home() {
   }, [completedBibleReadingPlanDaySet, pendingBiblePlanReadAhead]);
 
   useEffect(() => {
+    if (!devotionalTextSizeOptionsOpen) return;
+    const timer = setTimeout(() => setDevotionalTextSizeOptionsOpen(false), 7000);
+    return () => clearTimeout(timer);
+  }, [devotionalTextSizeOptionsOpen]);
+
+  useEffect(() => {
     if (!pendingBiblePlanContinueCheck) return;
     const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanContinueCheck.planId);
     if (!plan) {

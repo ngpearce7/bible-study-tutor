@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { colors } from "@/components/ui";
@@ -120,6 +120,12 @@ export function BibleReaderPassage({
 }: BibleReaderPassageProps) {
   const [devotionalTextSizeOptionsOpen, setDevotionalTextSizeOptionsOpen] = useState(false);
 
+  useEffect(() => {
+    if (!devotionalTextSizeOptionsOpen) return;
+    const timer = setTimeout(() => setDevotionalTextSizeOptionsOpen(false), 7000);
+    return () => clearTimeout(timer);
+  }, [devotionalTextSizeOptionsOpen]);
+
   if (!passage?.verses?.length) {
     return (
       <>
@@ -145,6 +151,7 @@ export function BibleReaderPassage({
     : "");
   const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
   const activeDevotionalTextSizeOption = DEVOTIONAL_TEXT_SIZE_OPTIONS.find((option) => option.id === devotionalTextSize) || DEVOTIONAL_TEXT_SIZE_OPTIONS[0];
+
   const devotionalTextSizeControl = (
     <View style={styles.devotionalTextSizeAnchor}>
       <Pressable

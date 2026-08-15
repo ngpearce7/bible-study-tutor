@@ -6723,6 +6723,13 @@ export default function Home() {
     );
   };
 
+  const formatPlanDayReferenceTitle = (planDay: BibleReadingPlanDay) => {
+    const reference = planDay.reference.trim();
+    const title = planDay.title.trim();
+    if (!title || title.toLowerCase() === reference.toLowerCase()) return reference;
+    return `${reference} · ${title}`;
+  };
+
   const renderFollowedBibleReadingPlanPanel = (plan: BibleReadingPlan) => {
     const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
     const today = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
@@ -6828,9 +6835,7 @@ export default function Home() {
                 <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && selectedDone && styles.completedPlanDayTextDark]}>
                   {`Day ${selectedDay.day}${selectedDateKey ? ` · ${formatPlanDayDate(selectedDateKey)}` : ""}`}
                 </Text>
-                <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && selectedDone && styles.completedPlanDayMutedTextDark]}>
-                  {selectedDay.title ? `${selectedDay.reference} · ${selectedDay.title}` : selectedDay.reference}
-                </Text>
+                <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && selectedDone && styles.completedPlanDayMutedTextDark]}>{formatPlanDayReferenceTitle(selectedDay)}</Text>
               </View>
               <View style={styles.planDayActionStack}>
                 <View style={styles.planDayActions}>
@@ -8323,9 +8328,7 @@ export default function Home() {
                         <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayTextDark]}>
                           {`Day ${activeBibleReadingPlanSelectedDay.day}${activeBibleReadingPlanSelectedDateKey ? ` · ${formatPlanDayDate(activeBibleReadingPlanSelectedDateKey)}` : ""}`}
                         </Text>
-                        <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>
-                          {activeBibleReadingPlanSelectedDay.title ? `${activeBibleReadingPlanSelectedDay.reference} · ${activeBibleReadingPlanSelectedDay.title}` : activeBibleReadingPlanSelectedDay.reference}
-                        </Text>
+                        <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{formatPlanDayReferenceTitle(activeBibleReadingPlanSelectedDay)}</Text>
                       </View>
                       <View style={styles.planDayActionStack}>
                         <View style={styles.planDayActions}>

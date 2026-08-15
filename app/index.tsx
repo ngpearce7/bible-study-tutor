@@ -19063,7 +19063,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     gap: 8,
-    justifyContent: "space-between"
+    justifyContent: "space-between",
+    position: "relative",
+    zIndex: 60
   },
   planDayDevotionalTitleRow: {
     alignItems: "center",
@@ -19094,8 +19096,9 @@ const styles = StyleSheet.create({
   },
   devotionalTextSizeAnchor: {
     alignItems: "flex-end",
+    elevation: 12,
     position: "relative",
-    zIndex: 20
+    zIndex: 100
   },
   devotionalTextSizeSingleButton: {
     alignItems: "center",
@@ -19110,11 +19113,11 @@ const styles = StyleSheet.create({
   },
   devotionalTextSizePopover: {
     alignItems: "center",
-    backgroundColor: "rgb(255, 253, 250)",
+    backgroundColor: "#fff",
     borderColor: colors.line,
     borderRadius: 12,
-    borderWidth: 1,
-    elevation: 6,
+    borderWidth: 1.5,
+    elevation: 18,
     marginTop: 6,
     minWidth: 128,
     padding: 6,
@@ -19122,10 +19125,10 @@ const styles = StyleSheet.create({
     right: 0,
     shadowColor: colors.ink,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
+    shadowOpacity: 0.2,
+    shadowRadius: 18,
     top: 34,
-    zIndex: 40
+    zIndex: 999
   },
   devotionalTextSizePopoverDark: {
     backgroundColor: "rgb(33, 26, 18)",
@@ -19150,12 +19153,15 @@ const styles = StyleSheet.create({
   },
   devotionalTextSizePopoverButtons: {
     alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 999,
     flexDirection: "row",
-    gap: 4
+    gap: 0,
+    overflow: "hidden"
   },
   devotionalTextSizeButton: {
     alignItems: "center",
-    backgroundColor: "rgb(249, 244, 235)",
+    backgroundColor: "#fff",
     borderRadius: 999,
     minHeight: 26,
     minWidth: 34,

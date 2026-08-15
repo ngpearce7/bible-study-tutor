@@ -6622,46 +6622,49 @@ export default function Home() {
 
   const renderDevotionalTextSizeControl = (darkMode: boolean) => {
     const activeOption = DEVOTIONAL_TEXT_SIZE_OPTIONS.find((option) => option.id === devotionalTextSize) || DEVOTIONAL_TEXT_SIZE_OPTIONS[0];
-    if (!devotionalTextSizeOptionsOpen) {
-      return (
+    return (
+      <View style={styles.devotionalTextSizeAnchor}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Show devotional text size options"
+          accessibilityState={{ expanded: devotionalTextSizeOptionsOpen }}
+          accessibilityLabel={devotionalTextSizeOptionsOpen ? "Hide devotional text size options" : "Show devotional text size options"}
           onLongPress={(event: any) => {
             event.stopPropagation?.();
             setDevotionalTextSizeOptionsOpen(true);
           }}
           onPress={(event: any) => {
             event.stopPropagation?.();
-            setDevotionalTextSizeOptionsOpen(true);
+            setDevotionalTextSizeOptionsOpen((open) => !open);
           }}
           style={[styles.devotionalTextSizeSingleButton, darkMode && styles.devotionalTextSizeButtonDark]}
         >
           <Ionicons name="search-outline" size={activeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
         </Pressable>
-      );
-    }
-
-    return (
-      <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
-        {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
-          const selected = devotionalTextSize === option.id;
-          return (
-            <Pressable
-              key={option.id}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              accessibilityLabel={option.accessibilityLabel}
-              onPress={(event: any) => {
-                event.stopPropagation?.();
-                setRememberedDevotionalTextSize(option.id);
-              }}
-              style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
-            >
-              <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
-            </Pressable>
-          );
-        })}
+        {devotionalTextSizeOptionsOpen && (
+          <View style={[styles.devotionalTextSizePopover, darkMode && styles.devotionalTextSizePopoverDark]}>
+            <View style={[styles.devotionalTextSizePopoverTail, darkMode && styles.devotionalTextSizePopoverTailDark]} />
+            <View style={styles.devotionalTextSizePopoverButtons}>
+              {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
+                const selected = devotionalTextSize === option.id;
+                return (
+                  <Pressable
+                    key={option.id}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={option.accessibilityLabel}
+                    onPress={(event: any) => {
+                      event.stopPropagation?.();
+                      setRememberedDevotionalTextSize(option.id);
+                    }}
+                    style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
+                  >
+                    <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
       </View>
     );
   };
@@ -19089,6 +19092,11 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
+  devotionalTextSizeAnchor: {
+    alignItems: "flex-end",
+    position: "relative",
+    zIndex: 20
+  },
   devotionalTextSizeSingleButton: {
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.62)",
@@ -19099,6 +19107,50 @@ const styles = StyleSheet.create({
     minHeight: 30,
     minWidth: 34,
     paddingHorizontal: 7
+  },
+  devotionalTextSizePopover: {
+    alignItems: "center",
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    elevation: 6,
+    marginTop: 6,
+    padding: 6,
+    position: "absolute",
+    right: 0,
+    shadowColor: colors.ink,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    top: 34,
+    zIndex: 40
+  },
+  devotionalTextSizePopoverDark: {
+    backgroundColor: "#211a12",
+    borderColor: "rgba(233, 183, 106, 0.2)",
+    shadowColor: "#000"
+  },
+  devotionalTextSizePopoverTail: {
+    backgroundColor: "#fffdfa",
+    borderColor: colors.line,
+    borderLeftWidth: 1,
+    borderTopWidth: 1,
+    height: 10,
+    position: "absolute",
+    right: 13,
+    top: -5,
+    transform: [{ rotate: "45deg" }],
+    width: 10
+  },
+  devotionalTextSizePopoverTailDark: {
+    backgroundColor: "#211a12",
+    borderColor: "rgba(233, 183, 106, 0.2)"
+  },
+  devotionalTextSizePopoverButtons: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 4
   },
   devotionalTextSizeButton: {
     alignItems: "center",

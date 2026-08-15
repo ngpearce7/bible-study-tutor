@@ -145,37 +145,44 @@ export function BibleReaderPassage({
     : "");
   const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
   const activeDevotionalTextSizeOption = DEVOTIONAL_TEXT_SIZE_OPTIONS.find((option) => option.id === devotionalTextSize) || DEVOTIONAL_TEXT_SIZE_OPTIONS[0];
-  const devotionalTextSizeControl = devotionalTextSizeOptionsOpen ? (
-    <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
-      {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
-        const selected = devotionalTextSize === option.id;
-        return (
-          <Pressable
-            key={option.id}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            accessibilityLabel={option.accessibilityLabel}
-            onPress={() => {
-              onDevotionalTextSizeChange?.(option.id);
-              setDevotionalTextSizeOptionsOpen(false);
-            }}
-            style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
-          >
-            <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
-          </Pressable>
-        );
-      })}
+  const devotionalTextSizeControl = (
+    <View style={styles.devotionalTextSizeAnchor}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: devotionalTextSizeOptionsOpen }}
+        accessibilityLabel={devotionalTextSizeOptionsOpen ? "Hide devotional text size options" : "Show devotional text size options"}
+        onLongPress={() => setDevotionalTextSizeOptionsOpen(true)}
+        onPress={() => setDevotionalTextSizeOptionsOpen((open) => !open)}
+        style={[styles.devotionalTextSizeSingleButton, darkMode && styles.devotionalTextSizeButtonDark]}
+      >
+        <Ionicons name="search-outline" size={activeDevotionalTextSizeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
+      </Pressable>
+      {devotionalTextSizeOptionsOpen && (
+        <View style={[styles.devotionalTextSizePopover, darkMode && styles.devotionalTextSizePopoverDark]}>
+          <View style={[styles.devotionalTextSizePopoverTail, darkMode && styles.devotionalTextSizePopoverTailDark]} />
+          <View style={styles.devotionalTextSizePopoverButtons}>
+            {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
+              const selected = devotionalTextSize === option.id;
+              return (
+                <Pressable
+                  key={option.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                  accessibilityLabel={option.accessibilityLabel}
+                  onPress={() => {
+                    onDevotionalTextSizeChange?.(option.id);
+                    setDevotionalTextSizeOptionsOpen(false);
+                  }}
+                  style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
+                >
+                  <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
+                </Pressable>
+              );
+            })}
+          </View>
+        </View>
+      )}
     </View>
-  ) : (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Show devotional text size options"
-      onLongPress={() => setDevotionalTextSizeOptionsOpen(true)}
-      onPress={() => setDevotionalTextSizeOptionsOpen(true)}
-      style={[styles.devotionalTextSizeSingleButton, darkMode && styles.devotionalTextSizeButtonDark]}
-    >
-      <Ionicons name="search-outline" size={activeDevotionalTextSizeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
-    </Pressable>
   );
 
   return (

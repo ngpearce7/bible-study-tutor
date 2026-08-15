@@ -952,6 +952,7 @@ export default function Home() {
   const [storedBibleReadingPlanProgress, setStoredBibleReadingPlanProgress] = useState<StoredBibleReadingPlanProgress | null>(null);
   const [storedBibleReadingPlanProgressHydrated, setStoredBibleReadingPlanProgressHydrated] = useState(false);
   const [devotionalTextSize, setDevotionalTextSize] = useState<DevotionalTextSize>("normal");
+  const [devotionalTextSizeOptionsOpen, setDevotionalTextSizeOptionsOpen] = useState(false);
   const [customBiblePlanTitle, setCustomBiblePlanTitle] = useState("");
   const [customBiblePlanDescription, setCustomBiblePlanDescription] = useState("");
   const [customBiblePlanDaysText, setCustomBiblePlanDaysText] = useState("");
@@ -6614,32 +6615,56 @@ export default function Home() {
 
   function setRememberedDevotionalTextSize(size: DevotionalTextSize) {
     setDevotionalTextSize(size);
+    setDevotionalTextSizeOptionsOpen(false);
     saveStoredDevotionalTextSize(size).catch(() => undefined);
     persistUiPreference("devotionalTextSize", size);
   }
 
-  const renderDevotionalTextSizeControl = (darkMode: boolean) => (
-    <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
-      {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
-        const selected = devotionalTextSize === option.id;
-        return (
-          <Pressable
-            key={option.id}
-            accessibilityRole="button"
-            accessibilityState={{ selected }}
-            accessibilityLabel={option.accessibilityLabel}
-            onPress={(event: any) => {
-              event.stopPropagation?.();
-              setRememberedDevotionalTextSize(option.id);
-            }}
-            style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
-          >
-            <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
-          </Pressable>
-        );
-      })}
-    </View>
-  );
+  const renderDevotionalTextSizeControl = (darkMode: boolean) => {
+    const activeOption = DEVOTIONAL_TEXT_SIZE_OPTIONS.find((option) => option.id === devotionalTextSize) || DEVOTIONAL_TEXT_SIZE_OPTIONS[0];
+    if (!devotionalTextSizeOptionsOpen) {
+      return (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Show devotional text size options"
+          onLongPress={(event: any) => {
+            event.stopPropagation?.();
+            setDevotionalTextSizeOptionsOpen(true);
+          }}
+          onPress={(event: any) => {
+            event.stopPropagation?.();
+            setDevotionalTextSizeOptionsOpen(true);
+          }}
+          style={[styles.devotionalTextSizeSingleButton, darkMode && styles.devotionalTextSizeButtonDark]}
+        >
+          <Ionicons name="search-outline" size={activeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
+        </Pressable>
+      );
+    }
+
+    return (
+      <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
+        {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
+          const selected = devotionalTextSize === option.id;
+          return (
+            <Pressable
+              key={option.id}
+              accessibilityRole="button"
+              accessibilityState={{ selected }}
+              accessibilityLabel={option.accessibilityLabel}
+              onPress={(event: any) => {
+                event.stopPropagation?.();
+                setRememberedDevotionalTextSize(option.id);
+              }}
+              style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
+            >
+              <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
+            </Pressable>
+          );
+        })}
+      </View>
+    );
+  };
 
   const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean) => {
     if (!planDay.devotional && !planDay.reflectionPrompt && !planDay.prayerPrompt) return null;
@@ -19063,6 +19088,17 @@ const styles = StyleSheet.create({
   devotionalTextSizeControlDark: {
     backgroundColor: "rgba(255, 255, 255, 0.04)",
     borderColor: "rgba(233, 183, 106, 0.16)"
+  },
+  devotionalTextSizeSingleButton: {
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.62)",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    justifyContent: "center",
+    minHeight: 30,
+    minWidth: 34,
+    paddingHorizontal: 7
   },
   devotionalTextSizeButton: {
     alignItems: "center",

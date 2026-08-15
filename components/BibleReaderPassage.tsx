@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { colors } from "@/components/ui";
@@ -117,6 +118,8 @@ export function BibleReaderPassage({
   isVerseBookmarked,
   isVerseNoted
 }: BibleReaderPassageProps) {
+  const [devotionalTextSizeOptionsOpen, setDevotionalTextSizeOptionsOpen] = useState(false);
+
   if (!passage?.verses?.length) {
     return (
       <>
@@ -141,7 +144,8 @@ export function BibleReaderPassage({
     ? "Use Previous and Next to move through this plan reading."
     : "");
   const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
-  const devotionalTextSizeControl = (
+  const activeDevotionalTextSizeOption = DEVOTIONAL_TEXT_SIZE_OPTIONS.find((option) => option.id === devotionalTextSize) || DEVOTIONAL_TEXT_SIZE_OPTIONS[0];
+  const devotionalTextSizeControl = devotionalTextSizeOptionsOpen ? (
     <View style={[styles.devotionalTextSizeControl, darkMode && styles.devotionalTextSizeControlDark]}>
       {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
         const selected = devotionalTextSize === option.id;
@@ -151,7 +155,10 @@ export function BibleReaderPassage({
             accessibilityRole="button"
             accessibilityState={{ selected }}
             accessibilityLabel={option.accessibilityLabel}
-            onPress={() => onDevotionalTextSizeChange?.(option.id)}
+            onPress={() => {
+              onDevotionalTextSizeChange?.(option.id);
+              setDevotionalTextSizeOptionsOpen(false);
+            }}
             style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
           >
             <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
@@ -159,6 +166,16 @@ export function BibleReaderPassage({
         );
       })}
     </View>
+  ) : (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Show devotional text size options"
+      onLongPress={() => setDevotionalTextSizeOptionsOpen(true)}
+      onPress={() => setDevotionalTextSizeOptionsOpen(true)}
+      style={[styles.devotionalTextSizeSingleButton, darkMode && styles.devotionalTextSizeButtonDark]}
+    >
+      <Ionicons name="search-outline" size={activeDevotionalTextSizeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
+    </Pressable>
   );
 
   return (

@@ -2,6 +2,7 @@ import { BIBLE_CHAPTER_COUNTS } from "@/data/bibleLibrary";
 import { bibleReadingPlans, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
 
 export const MAX_FOLLOWED_BIBLE_READING_PLANS = 3;
+export const MAX_STORED_BIBLE_READING_PLAN_IDS = 60;
 export const MAX_CUSTOM_BIBLE_READING_PLANS = 30;
 export const MAX_CUSTOM_BIBLE_READING_PLAN_DAYS = 400;
 export const MAX_COMPLETED_BIBLE_READING_PLAN_DAYS = 5000;
@@ -56,7 +57,7 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
   const normalizedFollowedPlanIds = Array.from(new Set([
     normalizedActivePlanId,
     ...(followedPlanIds.length ? followedPlanIds : normalizedActivePlanId ? [normalizedActivePlanId] : [])
-  ].filter(Boolean))).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+  ].filter(Boolean))).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
   const completedDays = normalizeBibleReadingPlanProgressKeys(
     Array.isArray(source.completedDays)
       ? source.completedDays.map((key) => String(key).slice(0, 100)).filter(Boolean)

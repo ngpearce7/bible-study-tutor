@@ -5,7 +5,7 @@ import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, cr
 import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
-import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
+import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
@@ -1265,7 +1265,7 @@ export default function Home() {
           const storedPlans = normalizedProgress.customPlans;
           const availablePlans = [...bibleReadingPlans, ...storedPlans];
           const normalizedActivePlanId = normalizedProgress.activePlanId;
-          const normalizedFollowedPlanIds = (normalizedProgress.followedPlanIds || []).filter((planId) => availablePlans.some((plan) => plan.id === planId)).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+          const normalizedFollowedPlanIds = (normalizedProgress.followedPlanIds || []).filter((planId) => availablePlans.some((plan) => plan.id === planId)).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
           const normalizedCompletedDays = normalizedProgress.completedDays;
           const normalizedStartDates = normalizedProgress.startDates || {};
           const normalizedCompletionDates = normalizedProgress.completedPlanDates || {};
@@ -5395,6 +5395,7 @@ export default function Home() {
       followedPlanIds: followedBibleReadingPlanIds,
       activePlanId: activeBibleReadingPlanId,
       startDates: bibleReadingPlanStartDates,
+      completedDayKeys: completedBibleReadingPlanDays,
       todayKey: localDateKey()
     });
     if (!nextState) return;
@@ -5466,7 +5467,7 @@ export default function Home() {
     const nextCompletedDays = completedBibleReadingPlanDays.filter((key) => !key.startsWith(`${plan.id}:`));
     const nextCompletionDates = { ...bibleReadingPlanCompletionDates };
     delete nextCompletionDates[plan.id];
-    const nextFollowedPlanIds = Array.from(new Set([plan.id, ...followedBibleReadingPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+    const nextFollowedPlanIds = Array.from(new Set([plan.id, ...followedBibleReadingPlanIds])).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
     setCompletedBibleReadingPlanDays(nextCompletedDays);
     setBibleReadingPlanStartDates(nextStartDates);
     setBibleReadingPlanCompletionDates(nextCompletionDates);
@@ -5772,10 +5773,12 @@ export default function Home() {
     };
     const nextState = createCustomBibleReadingPlanState({
       plan,
+      allPlans: allBibleReadingPlans,
       customPlans: customBibleReadingPlans,
       followedPlanIds: followedBibleReadingPlanIds,
       activePlanId: activeBibleReadingPlanId,
       startDates: bibleReadingPlanStartDates,
+      completedDayKeys: completedBibleReadingPlanDays,
       todayKey: localDateKey()
     });
     setCustomBibleReadingPlans(nextState.customPlans);

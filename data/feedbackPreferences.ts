@@ -2,7 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import {
   MAX_CUSTOM_BIBLE_READING_PLANS,
-  MAX_FOLLOWED_BIBLE_READING_PLANS,
+  MAX_STORED_BIBLE_READING_PLAN_IDS,
   emptyBibleReadingPlanProgress,
   normalizeBibleReadingPlanProgress,
   type StoredBibleReadingPlanProgress
@@ -160,7 +160,7 @@ export async function getStoredBibleReadingPlanProgress(): Promise<StoredBibleRe
 }
 
 export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleReadingPlanProgress) {
-  const followedPlanIds = Array.from(new Set(progress.followedPlanIds || (progress.activePlanId ? [progress.activePlanId] : []))).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+  const followedPlanIds = Array.from(new Set(progress.followedPlanIds || (progress.activePlanId ? [progress.activePlanId] : []))).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
   await setStoredValue(bibleReadingPlanProgressKey, JSON.stringify({
     activePlanId: progress.activePlanId,
     followedPlanIds,

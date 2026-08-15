@@ -50,13 +50,12 @@ export function buildBibleReadingPlanView({
   const allPlans = [...bibleReadingPlans, ...customPlans];
   const followedPlans = followedPlanIds
     .map((planId) => allPlans.find((plan) => plan.id === planId))
-    .filter((plan): plan is BibleReadingPlan => !!plan)
-    .slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+    .filter((plan): plan is BibleReadingPlan => !!plan);
   const completedDaySet = new Set(completedDayKeys);
   const planIsComplete = (plan: BibleReadingPlan) =>
     plan.days.length > 0 &&
     plan.days.every((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
-  const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan));
+  const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan)).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
   const completedFollowedPlans = followedPlans
     .filter(planIsComplete)
     .sort((a, b) => {

@@ -658,9 +658,9 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
   const activePlanId = clampText(progress.activePlanId, 80);
   const followedPlanIds = Array.from(new Set((progress.followedPlanIds || []).map((planId) => clampText(planId, 80)).filter(Boolean)))
     .filter((planId) => (planId.startsWith("custom-") ? customPlanIds.has(planId) : true))
-    .slice(0, 3);
+    .slice(0, 60);
   const normalizedActivePlanId = activePlanId && (activePlanId.startsWith("custom-") ? customPlanIds.has(activePlanId) : true) ? activePlanId : followedPlanIds[0] || "";
-  const normalizedFollowedPlanIds = Array.from(new Set([normalizedActivePlanId, ...followedPlanIds].filter(Boolean))).slice(0, 3);
+  const normalizedFollowedPlanIds = Array.from(new Set([normalizedActivePlanId, ...followedPlanIds].filter(Boolean))).slice(0, 60);
   const completedDays = Array.from(new Set((progress.completedDays || []).map((key) => clampText(key, 100)).filter(Boolean))).slice(0, 5000);
   const startDates = Object.entries(progress.startDates || {})
     .slice(0, 60)

@@ -1,5 +1,14 @@
 import type { BibleReadingPlan, BibleReadingPlanDay } from "@/data/bibleReadingPlans";
-import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
+import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
+
+function countActiveFollowedPlans(allPlans: BibleReadingPlan[], followedPlanIds: string[], completedDayKeys: string[]) {
+  const completedDaySet = new Set(completedDayKeys);
+  return followedPlanIds.filter((planId) => {
+    const plan = allPlans.find((item) => item.id === planId);
+    if (!plan) return false;
+    return !plan.days.every((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
+  }).length;
+}
 
 export function followBibleReadingPlanState({
   planId,
@@ -7,6 +16,7 @@ export function followBibleReadingPlanState({
   followedPlanIds,
   activePlanId,
   startDates,
+  completedDayKeys,
   todayKey
 }: {
   planId: string;
@@ -14,15 +24,16 @@ export function followBibleReadingPlanState({
   followedPlanIds: string[];
   activePlanId: string;
   startDates: Record<string, string>;
+  completedDayKeys: string[];
   todayKey: string;
 }) {
   const nextPlanId = allPlans.some((plan) => plan.id === planId) ? planId : "";
   if (!nextPlanId) return null;
   const alreadyFollowed = followedPlanIds.includes(nextPlanId);
-  if (!alreadyFollowed && followedPlanIds.length >= MAX_FOLLOWED_BIBLE_READING_PLANS) {
+  if (!alreadyFollowed && countActiveFollowedPlans(allPlans, followedPlanIds, completedDayKeys) >= MAX_FOLLOWED_BIBLE_READING_PLANS) {
     return { blocked: true as const, planId: nextPlanId };
   }
-  const nextFollowedPlanIds = Array.from(new Set([nextPlanId, ...followedPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+  const nextFollowedPlanIds = Array.from(new Set([nextPlanId, ...followedPlanIds])).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
   const nextStartDates = startDates[nextPlanId] ? startDates : { ...startDates, [nextPlanId]: todayKey };
   return {
     blocked: false as const,
@@ -117,22 +128,26 @@ export function uncompleteBibleReadingPlanDayState({
 
 export function createCustomBibleReadingPlanState({
   plan,
+  allPlans,
   customPlans,
   followedPlanIds,
   activePlanId,
   startDates,
+  completedDayKeys,
   todayKey
 }: {
   plan: BibleReadingPlan;
+  allPlans: BibleReadingPlan[];
   customPlans: BibleReadingPlan[];
   followedPlanIds: string[];
   activePlanId: string;
   startDates: Record<string, string>;
+  completedDayKeys: string[];
   todayKey: string;
 }) {
   const customPlansNext = [plan, ...customPlans].slice(0, MAX_CUSTOM_BIBLE_READING_PLANS);
-  const canFollow = followedPlanIds.length < MAX_FOLLOWED_BIBLE_READING_PLANS;
-  const nextFollowedPlanIds = canFollow ? Array.from(new Set([plan.id, ...followedPlanIds])).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS) : followedPlanIds;
+  const canFollow = countActiveFollowedPlans([...allPlans, plan], followedPlanIds, completedDayKeys) < MAX_FOLLOWED_BIBLE_READING_PLANS;
+  const nextFollowedPlanIds = canFollow ? Array.from(new Set([plan.id, ...followedPlanIds])).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS) : followedPlanIds;
   const nextActivePlanId = canFollow ? plan.id : activePlanId;
   return {
     canFollow,

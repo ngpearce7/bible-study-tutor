@@ -11,10 +11,10 @@ const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; accessibilityLabel
   { id: "larger", accessibilityLabel: "Use larger devotional text size", iconSize: 19 }
 ];
 
-const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { title: { fontSize: number; lineHeight: number }; body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
-  normal: { title: { fontSize: 13, lineHeight: 17 }, body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
-  large: { title: { fontSize: 15, lineHeight: 20 }, body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
-  larger: { title: { fontSize: 17, lineHeight: 23 }, body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
+const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { title: { fontSize: number; lineHeight: number }; label: { fontSize: number; lineHeight: number }; body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
+  normal: { title: { fontSize: 13, lineHeight: 17 }, label: { fontSize: 10, lineHeight: 13 }, body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
+  large: { title: { fontSize: 15, lineHeight: 20 }, label: { fontSize: 12, lineHeight: 15 }, body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
+  larger: { title: { fontSize: 17, lineHeight: 23 }, label: { fontSize: 13, lineHeight: 17 }, body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
 };
 
 type BibleReaderPassageProps = {
@@ -270,13 +270,13 @@ export function BibleReaderPassage({
                   )}
                   {!!activeReadingPlanDay.reflectionPrompt && (
                     <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionPrompt}</Text>
                     </View>
                   )}
                   {!!activeReadingPlanDay.prayerPrompt && (
                     <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, darkMode && styles.studyDarkAccentText]}>Pray</Text>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayerPrompt}</Text>
                     </View>
                   )}

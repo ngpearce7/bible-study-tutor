@@ -336,6 +336,7 @@ type UiPreferenceKey =
   | "bibleSearchMode"
   | "bibleSearchBook"
   | "bibleSearchCriteriaOpen"
+  | "devotionalTextSize"
   | "communityPeoplePanelCollapsed"
   | "communityFriendsPanelOpen"
   | "communityCirclesPanelOpen"
@@ -511,6 +512,7 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "bibleSearchMode",
   "bibleSearchBook",
   "bibleSearchCriteriaOpen",
+  "devotionalTextSize",
   "communityPeoplePanelCollapsed",
   "communityFriendsPanelOpen",
   "communityCirclesPanelOpen",
@@ -1516,6 +1518,13 @@ export default function Home() {
   }, [dueMemoryReviewSort, memoryReviewSortsHydrated, pinnedJournalEntryIds, profileMatchesActiveState, profileUiPreferences, reviewedMemoryReviewSort]);
 
   useEffect(() => {
+    if (!profileMatchesActiveState) return;
+    if (uiDevotionalTextSize(profileUiPreferences) === undefined && devotionalTextSize !== "normal") {
+      persistUiPreference("devotionalTextSize", devotionalTextSize);
+    }
+  }, [devotionalTextSize, profileMatchesActiveState, profileUiPreferences]);
+
+  useEffect(() => {
     if (!profileMatchesActiveState || !studyFocusModeHydrated) return;
     if (uiBoolean(profileUiPreferences, "studyFocusMode") === undefined && studyFocusMode) {
       persistUiPreference("studyFocusMode", true);
@@ -2356,6 +2365,7 @@ export default function Home() {
     const syncedBibleSearchScope = uiBibleSearchScope(profileUiPreferences);
     const syncedBibleSearchMode = uiBibleSearchMode(profileUiPreferences);
     const syncedBibleSearchBook = uiBibleSearchBook(profileUiPreferences);
+    const syncedDevotionalTextSize = uiDevotionalTextSize(profileUiPreferences);
     if (syncedStudyMethodId) {
       const nextMethod = methods.find((item) => item.id === syncedStudyMethodId) || methods[0];
       setMethodId(nextMethod.id);
@@ -2377,6 +2387,10 @@ export default function Home() {
     if (syncedBibleSearchScope) setBibleSearchScope(syncedBibleSearchScope);
     if (syncedBibleSearchMode) setBibleSearchMode(syncedBibleSearchMode);
     if (syncedBibleSearchBook !== undefined) setBibleSearchBook(syncedBibleSearchBook);
+    if (syncedDevotionalTextSize) {
+      setDevotionalTextSize(syncedDevotionalTextSize);
+      saveStoredDevotionalTextSize(syncedDevotionalTextSize).catch(() => undefined);
+    }
     if (uiBoolean(profileUiPreferences, "bibleSearchCriteriaOpen") !== undefined) setBibleSearchCriteriaOpen(uiBoolean(profileUiPreferences, "bibleSearchCriteriaOpen")!);
     if (uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed") !== undefined) setPeoplePanelCollapsed(uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed")!);
     if (uiBoolean(profileUiPreferences, "communityFriendsPanelOpen") !== undefined) setMobileFriendsPanelOpen(uiBoolean(profileUiPreferences, "communityFriendsPanelOpen")!);
@@ -6601,6 +6615,7 @@ export default function Home() {
   function setRememberedDevotionalTextSize(size: DevotionalTextSize) {
     setDevotionalTextSize(size);
     saveStoredDevotionalTextSize(size).catch(() => undefined);
+    persistUiPreference("devotionalTextSize", size);
   }
 
   const renderDevotionalTextSizeControl = (darkMode: boolean) => (
@@ -6642,7 +6657,6 @@ export default function Home() {
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
             <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
-            {!!planDay.devotional.source && <Text style={[styles.planDayDevotionalSource, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.source}</Text>}
           </>
         )}
         {!!planDay.reflectionPrompt && (
@@ -11767,6 +11781,10 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (typeof item === "string" && (item === "" || bibleBooks.includes(item))) preferences[key] = item;
       return;
     }
+    if (key === "devotionalTextSize") {
+      if (item === "normal" || item === "large" || item === "larger") preferences[key] = item;
+      return;
+    }
     if (key === "memoryView") {
       if (item === "review" || item === "browse" || item === "history") preferences[key] = item;
       return;
@@ -11888,6 +11906,11 @@ function uiBibleSearchMode(preferences: UiPreferenceMap) {
 function uiBibleSearchBook(preferences: UiPreferenceMap) {
   const value = preferences.bibleSearchBook;
   return typeof value === "string" && (value === "" || bibleBooks.includes(value)) ? value : undefined;
+}
+
+function uiDevotionalTextSize(preferences: UiPreferenceMap) {
+  const value = preferences.devotionalTextSize;
+  return value === "normal" || value === "large" || value === "larger" ? value : undefined;
 }
 
 function uiMemoryView(preferences: UiPreferenceMap) {

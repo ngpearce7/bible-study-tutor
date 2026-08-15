@@ -6647,29 +6647,40 @@ export default function Home() {
           <Ionicons name="search-outline" size={activeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
         </Pressable>
         {devotionalTextSizeOptionsOpen && (
-          <View style={[styles.devotionalTextSizePopover, darkMode && styles.devotionalTextSizePopoverDark]}>
-            <View style={[styles.devotionalTextSizePopoverTail, darkMode && styles.devotionalTextSizePopoverTailDark]} />
-            <View style={styles.devotionalTextSizePopoverButtons}>
-              {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
-                const selected = devotionalTextSize === option.id;
-                return (
-                  <Pressable
-                    key={option.id}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected }}
-                    accessibilityLabel={option.accessibilityLabel}
-                    onPress={(event: any) => {
-                      event.stopPropagation?.();
-                      setRememberedDevotionalTextSize(option.id);
-                    }}
-                    style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
-                  >
-                    <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
-                  </Pressable>
-                );
-              })}
+          <>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close devotional text size options"
+              onPress={(event: any) => {
+                event.stopPropagation?.();
+                setDevotionalTextSizeOptionsOpen(false);
+              }}
+              style={styles.devotionalTextSizeDismissLayer}
+            />
+            <View style={[styles.devotionalTextSizePopover, darkMode && styles.devotionalTextSizePopoverDark]}>
+              <View style={[styles.devotionalTextSizePopoverTail, darkMode && styles.devotionalTextSizePopoverTailDark]} />
+              <View style={styles.devotionalTextSizePopoverButtons}>
+                {DEVOTIONAL_TEXT_SIZE_OPTIONS.map((option) => {
+                  const selected = devotionalTextSize === option.id;
+                  return (
+                    <Pressable
+                      key={option.id}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected }}
+                      accessibilityLabel={option.accessibilityLabel}
+                      onPress={(event: any) => {
+                        event.stopPropagation?.();
+                        setRememberedDevotionalTextSize(option.id);
+                      }}
+                      style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
+                    >
+                      <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
-          </View>
+          </>
         )}
       </View>
     );
@@ -19156,6 +19167,15 @@ const styles = StyleSheet.create({
   devotionalTextSizePopoverTailDark: {
     backgroundColor: "rgb(33, 26, 18)",
     borderColor: "rgba(233, 183, 106, 0.2)"
+  },
+  devotionalTextSizeDismissLayer: {
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    bottom: -1600,
+    left: -1600,
+    position: "absolute",
+    right: -1600,
+    top: -1600,
+    zIndex: 900
   },
   devotionalTextSizePopoverButtons: {
     alignItems: "center",

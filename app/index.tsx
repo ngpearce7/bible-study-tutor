@@ -19110,12 +19110,13 @@ const styles = StyleSheet.create({
   },
   devotionalTextSizePopover: {
     alignItems: "center",
-    backgroundColor: "#fffdfa",
+    backgroundColor: "rgb(255, 253, 250)",
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
     elevation: 6,
     marginTop: 6,
+    minWidth: 128,
     padding: 6,
     position: "absolute",
     right: 0,
@@ -19127,12 +19128,12 @@ const styles = StyleSheet.create({
     zIndex: 40
   },
   devotionalTextSizePopoverDark: {
-    backgroundColor: "#211a12",
+    backgroundColor: "rgb(33, 26, 18)",
     borderColor: "rgba(233, 183, 106, 0.2)",
     shadowColor: "#000"
   },
   devotionalTextSizePopoverTail: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: "rgb(255, 253, 250)",
     borderColor: colors.line,
     borderLeftWidth: 1,
     borderTopWidth: 1,
@@ -19144,7 +19145,7 @@ const styles = StyleSheet.create({
     width: 10
   },
   devotionalTextSizePopoverTailDark: {
-    backgroundColor: "#211a12",
+    backgroundColor: "rgb(33, 26, 18)",
     borderColor: "rgba(233, 183, 106, 0.2)"
   },
   devotionalTextSizePopoverButtons: {
@@ -19154,6 +19155,7 @@ const styles = StyleSheet.create({
   },
   devotionalTextSizeButton: {
     alignItems: "center",
+    backgroundColor: "rgb(249, 244, 235)",
     borderRadius: 999,
     minHeight: 26,
     minWidth: 34,
@@ -19161,7 +19163,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7
   },
   devotionalTextSizeButtonDark: {
-    backgroundColor: "transparent"
+    backgroundColor: "rgba(255, 255, 255, 0.08)"
   },
   devotionalTextSizeButtonActive: {
     backgroundColor: colors.oliveDark

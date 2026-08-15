@@ -6828,7 +6828,9 @@ export default function Home() {
                 <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && selectedDone && styles.completedPlanDayTextDark]}>
                   {`Day ${selectedDay.day}${selectedDateKey ? ` · ${formatPlanDayDate(selectedDateKey)}` : ""}`}
                 </Text>
-                <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && selectedDone && styles.completedPlanDayMutedTextDark]}>{selectedDay.title}</Text>
+                <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && selectedDone && styles.completedPlanDayMutedTextDark]}>
+                  {selectedDay.title ? `${selectedDay.reference} · ${selectedDay.title}` : selectedDay.reference}
+                </Text>
               </View>
               <View style={styles.planDayActionStack}>
                 <View style={styles.planDayActions}>
@@ -8321,7 +8323,9 @@ export default function Home() {
                         <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanDayTitle, plansDarkMode && styles.accountDarkTitle, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayTextDark]}>
                           {`Day ${activeBibleReadingPlanSelectedDay.day}${activeBibleReadingPlanSelectedDateKey ? ` · ${formatPlanDayDate(activeBibleReadingPlanSelectedDateKey)}` : ""}`}
                         </Text>
-                        <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>{activeBibleReadingPlanSelectedDay.title}</Text>
+                        <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText, plansDarkMode && activeBibleReadingPlanSelectedDone && styles.completedPlanDayMutedTextDark]}>
+                          {activeBibleReadingPlanSelectedDay.title ? `${activeBibleReadingPlanSelectedDay.reference} · ${activeBibleReadingPlanSelectedDay.title}` : activeBibleReadingPlanSelectedDay.reference}
+                        </Text>
                       </View>
                       <View style={styles.planDayActionStack}>
                         <View style={styles.planDayActions}>

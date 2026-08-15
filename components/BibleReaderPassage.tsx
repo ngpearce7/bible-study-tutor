@@ -5,16 +5,16 @@ import { colors } from "@/components/ui";
 
 type DevotionalTextSize = "normal" | "large" | "larger";
 
-const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; label: string }[] = [
-  { id: "normal", label: "A" },
-  { id: "large", label: "A+" },
-  { id: "larger", label: "A++" }
+const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; accessibilityLabel: string; iconSize: number }[] = [
+  { id: "normal", accessibilityLabel: "Use normal devotional text size", iconSize: 13 },
+  { id: "large", accessibilityLabel: "Use large devotional text size", iconSize: 16 },
+  { id: "larger", accessibilityLabel: "Use larger devotional text size", iconSize: 19 }
 ];
 
-const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
-  normal: { body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
-  large: { body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
-  larger: { body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
+const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { title: { fontSize: number; lineHeight: number }; body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
+  normal: { title: { fontSize: 13, lineHeight: 17 }, body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
+  large: { title: { fontSize: 15, lineHeight: 20 }, body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
+  larger: { title: { fontSize: 17, lineHeight: 23 }, body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
 };
 
 type BibleReaderPassageProps = {
@@ -150,11 +150,11 @@ export function BibleReaderPassage({
             key={option.id}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            accessibilityLabel={`Use ${option.id === "normal" ? "normal" : option.id} devotional text size`}
+            accessibilityLabel={option.accessibilityLabel}
             onPress={() => onDevotionalTextSizeChange?.(option.id)}
             style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
           >
-            <Text style={[styles.devotionalTextSizeButtonText, selected && styles.devotionalTextSizeButtonTextActive, darkMode && styles.homeDarkResumeButtonText, darkMode && selected && styles.devotionalTextSizeButtonTextActiveDark]}>{option.label}</Text>
+            <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
           </Pressable>
         );
       })}
@@ -261,7 +261,7 @@ export function BibleReaderPassage({
                       <View style={styles.planDayDevotionalHeader}>
                         <View style={styles.planDayDevotionalTitleRow}>
                           <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                          <Text style={[styles.planDayDevotionalTitle, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
+                          <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
                         </View>
                         {devotionalTextSizeControl}
                       </View>

@@ -318,8 +318,479 @@ const psalm46RefugeDevotional = devotional(
   "God, be my refuge and strength today. Teach me to trust Your presence more than the noise around me."
 );
 
+type CuratedDevotionalMap = Record<string, Record<string, BibleReadingPlanDayExtras>>;
+
+const curatedDevotionalsByPlan: CuratedDevotionalMap = {
+  "seven-days-prayer": {
+    "Matthew 6:5-13": devotional(
+      "Pray to your Father",
+      "Jesus warns against prayer that performs for people and teaches prayer that rests before the Father. The Lord's Prayer begins with God's name, kingdom, and will before turning to daily bread, forgiveness, and deliverance. Prayer is not a display of spirituality; it is childlike dependence on the Father who sees.",
+      "Where does your prayer need to become simpler, more honest, and more Father-centered?",
+      "Father, teach me to pray for Your name, Your kingdom, and today's needed grace."
+    ),
+    "Luke 11:1-13": devotional(
+      "Teach us to pray",
+      "The disciples ask Jesus to teach them to pray, and He answers with both a pattern and encouragement to ask. The Father is not reluctant or careless; He gives what is good, especially the Holy Spirit. Prayer grows when you trust the Father's goodness more than your own words.",
+      "What do you need to ask the Father for with renewed trust in His goodness?",
+      "Father, teach me to ask, seek, and knock as one who trusts Your heart."
+    ),
+    "Psalm 23:1-6": devotional(
+      "Pray from trust",
+      "Psalm 23 gives prayer the language of trust. The Lord shepherds, restores, guides, protects, provides, and surrounds His people with goodness and mercy. You can pray from need without panic because the Shepherd knows how to care for His sheep.",
+      "Which line of Psalm 23 gives words to your prayer today?",
+      "Lord, my Shepherd, lead me, restore me, and keep me near You."
+    ),
+    "Psalm 46:1-11": psalm46StillBeforeGodDevotional,
+    "Philippians 4:4-7": devotional(
+      "Pray with thanksgiving",
+      "Paul calls anxious hearts to bring requests to God with thanksgiving. Thanksgiving does not pretend needs are small; it remembers God's faithfulness while naming them. The peace that follows is God's guard over the heart and mind in Christ.",
+      "What anxious request can you bring to God with thanksgiving today?",
+      "Lord, receive my requests and guard my heart and mind in Christ."
+    ),
+    "James 5:13-18": devotional(
+      "Pray in every season",
+      "James places prayer in suffering, cheerfulness, sickness, confession, and restoration. Prayer is not reserved for one emotional state; it belongs to the whole life of faith. The example of Elijah reminds you that God works through ordinary human prayer offered in trust.",
+      "What season are you in, and what kind of prayer does James invite from you?",
+      "Lord, teach me to turn to You in suffering, joy, weakness, confession, and hope."
+    ),
+    "1 John 5:13-15": devotional(
+      "Ask with confidence",
+      "John grounds confidence in eternal life given through the Son and in asking according to God's will. This is not confidence that every desire will be granted as imagined, but confidence that God hears His children and is faithful to His will.",
+      "What request needs to be brought under God's will with confidence that He hears?",
+      "Father, help me ask with trust, humility, and confidence in Your will."
+    )
+  },
+  "fourteen-days-anxiety-trust": {
+    "Psalm 23:1-4": devotional(
+      "The Shepherd is near",
+      "Psalm 23 begins with the Lord Himself, not with the sheep's ability to manage fear. David can walk through the valley because the Shepherd is with him. This passage does not deny dark places; it teaches you to locate comfort in God's presence, guidance, and care while you pass through them.",
+      "Where do you need to remember that the Lord is with you, not merely watching from far away?",
+      "Lord, Shepherd of my soul, steady me with Your presence and lead me in Your care."
+    ),
+    "Psalm 27:1-5": devotional(
+      "Light when fear rises",
+      "David names enemies and trouble, but he begins with the Lord as light, salvation, and stronghold. Fear is answered first by who God is. The desire to dwell with the Lord is not escape; it is the deepest safety David knows when pressure surrounds him.",
+      "Which fear needs to be answered today by who the Lord is?",
+      "Lord, be my light and salvation. Teach my heart to seek You before fear takes the lead."
+    ),
+    "Psalm 46:1-11": psalm46StillBeforeGodDevotional,
+    "Psalm 91:1-4": devotional(
+      "Shelter under His wings",
+      "Psalm 91 speaks of dwelling in the shelter of the Most High. Its confidence is relational: God is refuge, fortress, and trustworthy protector. The image of wings invites a humble posture of nearness and dependence, not a demand that life contain no danger.",
+      "What would it look like to take refuge in God rather than rehearse fear today?",
+      "Most High God, draw me under Your care and teach me to trust You in the place of fear."
+    ),
+    "Isaiah 26:3-4": devotional(
+      "A mind stayed on Him",
+      "Isaiah connects peace with a mind stayed on God because it trusts in Him. This is not positive thinking; it is steady attention to the Lord as the everlasting Rock. Peace grows as trust is anchored in God's character rather than in changing circumstances.",
+      "What thought pattern needs to be re-anchored in the Lord today?",
+      "Lord, keep my mind stayed on You and teach me to trust You as my everlasting Rock."
+    ),
+    "Isaiah 41:8-13": devotional(
+      "Held by His righteous hand",
+      "God's words to His servant are tender and strong: do not fear, for I am with you. The command rests on His presence, His help, and His upholding hand. Fear is not minimized; it is met by God's covenant faithfulness and personal nearness.",
+      "Where do you need to receive God's promise, 'I will help you'?",
+      "Lord, uphold me with Your righteous hand and make me brave in Your presence."
+    ),
+    "Matthew 6:25-34": devotional(
+      "Seek first the Father",
+      "Jesus does not mock anxious thoughts. He redirects them toward the Father's care, the birds and lilies, and the priority of God's kingdom. The passage calls you away from tomorrow's imagined burdens and toward today's faithful trust.",
+      "What tomorrow concern are you trying to carry before grace has been given for it?",
+      "Father, help me seek Your kingdom today and trust You with tomorrow."
+    ),
+    "Matthew 11:28-30": devotional(
+      "Rest under Jesus' yoke",
+      "Jesus invites the weary to come to Him, not merely to adopt a calmer mindset. His rest comes through belonging to Him and learning His gentle way. The yoke of Christ is not crushing self-rescue; it is the restful obedience of walking with the Savior.",
+      "What burden do you need to bring honestly to Jesus rather than keep carrying alone?",
+      "Gentle Savior, teach me Your way and give rest to my soul."
+    ),
+    "John 14:25-27": devotional(
+      "Peace from Jesus",
+      "Jesus gives peace while preparing His disciples for His departure. His peace is not the world's promise of easy circumstances, but the settled gift of His presence, word, and Spirit. Troubled hearts are invited to trust Him because He remains faithful.",
+      "What trouble needs to be brought under the peace Jesus gives?",
+      "Lord Jesus, give me Your peace and keep my heart from being ruled by fear."
+    ),
+    "Romans 8:31-39": devotional(
+      "Nothing can separate",
+      "Paul stacks question upon question so believers will feel the strength of God's love in Christ. Suffering is named honestly, but it cannot separate God's people from Christ. Assurance rests not in your grip on God, but in His saving love shown through His Son.",
+      "Which accusation, fear, or suffering needs to hear that nothing can separate you from Christ's love?",
+      "Father, root me deeply in the love You have shown in Christ Jesus my Lord."
+    ),
+    "Philippians 4:4-9": devotional(
+      "Peace that guards",
+      "Paul does not tell anxious believers simply to stop feeling anxious. He calls them to bring requests to God with thanksgiving and to fill their minds with what is true, honorable, and praiseworthy. God's peace guards the heart and mind in Christ, like a watchman at the gate.",
+      "What request can you bring to God today with thanksgiving rather than silent worry?",
+      "God of peace, guard my heart and mind in Christ Jesus."
+    ),
+    "Colossians 3:12-17": devotional(
+      "Let peace rule",
+      "Paul places peace inside the life of a community clothed with compassion, forgiveness, love, and thankfulness. Peace is not only an inner feeling; it is allowed to rule relationships under Christ's lordship. Anxiety is often calmed as Christ's word and peace take the governing place.",
+      "Where does Christ's peace need to rule your response to another person?",
+      "Lord Jesus, let Your peace rule in me and let Your word dwell richly in my life."
+    ),
+    "1 Peter 5:6-11": devotional(
+      "Cast your cares on Him",
+      "Peter joins humility, watchfulness, suffering, and hope. Casting anxieties on God is not denial; it is a humble act of trust because He cares for you. The God of all grace will restore, confirm, strengthen, and establish His people.",
+      "What care do you need to hand to God because He cares for you?",
+      "God of all grace, receive my cares and strengthen me in Christ."
+    ),
+    "1 John 4:13-19": devotional(
+      "Love that drives out fear",
+      "John grounds confidence in God's love made known through Christ and witnessed by the Spirit. Perfect love casts out fear because judgment is no longer the believer's final terror in Christ. Fear is answered by abiding in the love God has first given.",
+      "Where do you need God's first love to quiet fear of punishment, rejection, or exposure?",
+      "Father, help me abide in Your love and live without the fear that Christ has answered."
+    )
+  },
+  "prayer-dependence": {
+    "Matthew 6:9-13": devotional(
+      "Pray as a child of the Father",
+      "Jesus teaches prayer by turning His disciples first toward the Father: His name, His kingdom, and His will. Daily needs, forgiveness, and deliverance are then brought into that relationship. This prayer trains dependence without anxiety or performance.",
+      "Which phrase of the Lord's Prayer most needs to shape your dependence today?",
+      "Father, hallow Your name in me and teach me to depend on You for today."
+    ),
+    "Luke 11:5-13": devotional(
+      "Ask the generous Father",
+      "Jesus encourages persistence in prayer by pointing to the Father's goodness. The heart of the passage is not that God is reluctant, but that He gives what is truly good, especially the Holy Spirit. Dependence grows when you ask from trust rather than suspicion.",
+      "Where are you hesitant to ask because you doubt the Father's goodness?",
+      "Father, teach me to ask, seek, and knock with trust in Your generous heart."
+    ),
+    "Psalm 23:1-6": devotional(
+      "The Lord provides",
+      "Psalm 23 turns dependence into worship. The Lord gives rest, guidance, protection, provision, mercy, and a dwelling place with Him. David's confidence is not in having no need ever appear, but in having the Shepherd who meets him in every season.",
+      "Which need can you bring to the Shepherd instead of managing alone?",
+      "Lord, my Shepherd, lead me, restore me, and teach me to trust Your provision."
+    ),
+    "Psalm 46:1-11": psalm46StillBeforeGodDevotional,
+    "Philippians 4:4-7": devotional(
+      "Pray with thanksgiving",
+      "Paul calls believers to rejoice, be gentle, and bring requests to God. Thanksgiving does not erase need; it remembers God's faithfulness while need is being named. The promised peace guards hearts and minds in Christ, not apart from Him.",
+      "What request can you bring to God today with honest need and real thanksgiving?",
+      "Lord, receive my requests and guard my heart and mind in Christ Jesus."
+    ),
+    "James 1:5-8": devotional(
+      "Ask God for wisdom",
+      "James invites those who lack wisdom to ask God, who gives generously. This is dependence in decision-making: not pretending to know, not wavering between self-rule and trust, but asking the Lord for wisdom to endure faithfully.",
+      "Where do you need wisdom more than control?",
+      "Generous God, give me wisdom and make my trust steady before You."
+    ),
+    "1 Peter 5:6-11": devotional(
+      "Cast your cares",
+      "Peter calls believers to humble themselves under God's mighty hand and cast anxieties on Him because He cares. Dependence does not make you careless; the same passage calls for sober watchfulness. You can be alert without being ruled by fear.",
+      "What care needs to be cast on God rather than carried as though it belongs to you alone?",
+      "God of all grace, care for me, strengthen me, and keep me watchful in hope."
+    )
+  },
+  "fourteen-days-faith": {
+    "Genesis 15:1-6": devotional(
+      "Believed the Lord",
+      "Abram hears God's promise while the visible evidence still looks impossible. His faith is not vague optimism; he believes the Lord who speaks. Scripture says this trust was counted to him as righteousness, pointing forward to the grace God gives through faith.",
+      "What promise of God needs to become weightier than what you can presently see?",
+      "Lord, help me take You at Your word and trust Your promise."
+    ),
+    "Psalm 37:3-7": devotional(
+      "Trust and wait",
+      "Psalm 37 joins trust with concrete faithfulness: dwell, do good, delight in the Lord, commit your way, be still, and wait. Faith is not frantic control. It is patient confidence that the Lord sees and acts rightly.",
+      "Where do you need to practice trust by waiting faithfully rather than forcing an outcome?",
+      "Lord, help me commit my way to You and wait with a quiet heart."
+    ),
+    "Habakkuk 3:17-19": devotional(
+      "Rejoice when it is hard",
+      "Habakkuk's faith does not depend on visible abundance. Even if fields, flocks, and harvests fail, he rejoices in the Lord and takes strength in God. This is not denial of loss; it is worship anchored in God when supports are stripped away.",
+      "What circumstance is testing whether your joy is anchored in God Himself?",
+      "Lord, be my strength when visible supports feel weak."
+    ),
+    "Matthew 8:5-13": devotional(
+      "Great faith",
+      "The centurion recognizes Jesus' authority and trusts His word even from a distance. Jesus marvels at this faith because it sees who He is. Faith is not confidence in technique; it is confidence in the authority and mercy of Christ.",
+      "Where do you need to trust the authority of Jesus' word today?",
+      "Lord Jesus, strengthen my faith in Your authority and mercy."
+    ),
+    "Mark 9:20-27": devotional(
+      "Help my unbelief",
+      "The father's cry is honest: 'I believe; help my unbelief.' Jesus does not require polished confidence before mercy is given. This passage gives weak faith words to bring both trust and struggle to Christ.",
+      "Where can you honestly say, 'I believe; help my unbelief'?",
+      "Lord Jesus, meet me in weak faith and strengthen my trust in You."
+    ),
+    "John 20:24-31": devotional(
+      "Blessed are those who believe",
+      "Thomas moves from doubt to worship when he meets the risen Christ. John writes so readers may believe that Jesus is the Christ, the Son of God, and have life in His name. Faith rests on the witness to the risen Lord.",
+      "What does this passage invite you to confess about Jesus?",
+      "My Lord and my God, deepen my faith in Your risen life."
+    ),
+    "Romans 4:18-25": devotional(
+      "Faith credited",
+      "Paul reflects on Abraham's faith to show that righteousness is counted by grace, not achieved by works. Abraham trusts the God who gives life to the dead, and Paul points believers to Jesus, delivered for our trespasses and raised for our justification.",
+      "How does Christ's death and resurrection strengthen your confidence before God?",
+      "Father, ground my faith in Christ who died and was raised for me."
+    ),
+    "Romans 5:1-5": devotional(
+      "Justified by faith",
+      "Because believers are justified by faith, they have peace with God through Jesus Christ. Even suffering is not meaningless, because God uses it to form endurance, character, and hope. This hope does not shame us because God's love has been poured into our hearts.",
+      "Where do you need peace with God to steady you in suffering?",
+      "Lord, let the hope of Your love strengthen me through trial."
+    ),
+    "Galatians 2:19-21": devotional(
+      "Live by faith",
+      "Paul says he has been crucified with Christ and now lives by faith in the Son of God, who loved him and gave Himself for him. Faith is deeply personal here: daily life is lived from union with Christ and His self-giving love.",
+      "What part of today needs to be lived by faith in the Son of God who loves you?",
+      "Christ, live in me and teach me to trust Your love."
+    ),
+    "Ephesians 2:8-10": devotional(
+      "Saved by grace",
+      "Ephesians makes the order clear: salvation is by grace through faith, not works, so no one may boast. Yet grace also creates a new life prepared for good works. Faith receives God's gift before it walks in God's workmanship.",
+      "Where do you need to receive grace before trying to prove yourself?",
+      "Father, keep me humble in grace and ready for the good works You prepare."
+    ),
+    "Hebrews 10:35-39": devotional(
+      "Do not shrink back",
+      "Hebrews calls weary believers to endurance because God's promise is sure. Faith keeps moving toward the coming One rather than shrinking back under pressure. The passage encourages confidence rooted in God's faithfulness.",
+      "Where are you tempted to shrink back instead of endure in faith?",
+      "Lord, give me endurance and keep my confidence in Your promise."
+    ),
+    "Hebrews 11:1-6": devotional(
+      "Faith and pleasing God",
+      "Hebrews describes faith as assurance and conviction rooted in God's unseen reality. Abel, Enoch, and all who draw near to God show that faith believes He exists and rewards those who seek Him. Faith is relational trust in God Himself.",
+      "What unseen promise of God needs your trust today?",
+      "Lord, help me draw near to You with faith that seeks and trusts You."
+    ),
+    "James 2:14-18": devotional(
+      "Faith made visible",
+      "James does not oppose Paul; he opposes empty claims that never become love. Genuine faith shows itself in mercy and obedience. Works do not replace faith, but living faith refuses to leave a neighbor uncared for.",
+      "How might faith become visible in love or mercy today?",
+      "Lord, make my faith living, humble, and active in love."
+    ),
+    "1 Peter 1:3-9": devotional(
+      "Faith through trials",
+      "Peter blesses God for new birth into a living hope through the resurrection of Jesus. Trials grieve believers, but tested faith is precious because it looks toward Christ and the salvation to be revealed. Faith holds joy and grief together in hope.",
+      "What trial needs to be held in the living hope of Christ's resurrection?",
+      "Father, guard my faith and fill me with hope in the risen Christ."
+    )
+  },
+  "seven-days-peace": {
+    "Psalm 4:6-8": devotional(
+      "Sleep in the Lord's care",
+      "David contrasts anxious searching for good with the joy and safety that come from the Lord. He can lie down and sleep because the Lord makes him dwell in safety. Peace here is trust that rests under God's care even before every circumstance changes.",
+      "What concern is keeping your heart awake before God?",
+      "Lord, lift the light of Your face on me and teach me to rest in Your safety."
+    ),
+    "Psalm 23:1-4": devotional(
+      "Peace with the Shepherd",
+      "The green pastures and quiet waters of Psalm 23 come from the Shepherd's presence and leading. Even the valley is not faced alone. Peace is not the absence of shadows; it is the nearness of the Lord who restores and guides.",
+      "Where do you need to follow the Shepherd into peace rather than force peace for yourself?",
+      "Lord, restore my soul and lead me in the path of Your care."
+    ),
+    "Isaiah 26:3-4": devotional(
+      "Perfect peace",
+      "Isaiah speaks of perfect peace for the one whose mind is stayed on God because that person trusts Him. The foundation is the Lord Himself, the everlasting Rock. Peace grows as attention and trust are re-centered on Him.",
+      "What thought needs to be stayed on God rather than carried alone?",
+      "Lord, keep my mind fixed on You and teach me to trust You as my Rock."
+    ),
+    "Matthew 6:25-34": devotional(
+      "The Father knows",
+      "Jesus answers worry by pointing to the Father's knowledge and care. Birds and lilies become witnesses that life is not secured by anxious striving. The call is to seek first God's kingdom and receive today's grace for today's trouble.",
+      "What need does your Father already know before you can solve it?",
+      "Father, help me seek Your kingdom today and trust Your care for what I need."
+    ),
+    "John 14:25-27": devotional(
+      "Peace Jesus gives",
+      "Jesus gives peace to disciples who are about to face confusion and loss. His peace is tied to His word and the Spirit's help. It is not fragile like worldly calm; it rests on the presence and promise of Christ.",
+      "What trouble needs to be brought beneath Jesus' words, 'My peace I give to you'?",
+      "Jesus, give me Your peace and keep my heart from fear."
+    ),
+    "Philippians 4:4-9": devotional(
+      "Peace that guards",
+      "Paul brings prayer, thanksgiving, disciplined thought, and faithful practice together. God's peace guards the heart and mind in Christ, and the God of peace is with His people as they walk in what they have received.",
+      "What request, thought, or practice needs to be brought under God's peace today?",
+      "God of peace, guard me and guide me in what is true and pleasing to You."
+    ),
+    "Colossians 3:12-17": devotional(
+      "Peace ruling together",
+      "Colossians describes peace among people clothed with compassion, forgiveness, love, and thankfulness. Peace is not merely private calm; it rules in the body of Christ as His word dwells richly among His people.",
+      "Where does Christ's peace need to govern your words or relationships today?",
+      "Christ, let Your peace rule in me and make me thankful."
+    )
+  },
+  "anxiety-peace": {
+    "Psalm 23:1-4": devotional(
+      "The Shepherd's care",
+      "Psalm 23 meets anxiety with the Shepherd's presence. The Lord leads, restores, and walks with His people through dark valleys. The comfort is not that every valley disappears, but that His rod and staff are there with you.",
+      "What valley feels less lonely when you remember the Shepherd is with you?",
+      "Lord, Shepherd me today and comfort me with Your presence."
+    ),
+    "Psalm 46:1-7": psalm46RefugeDevotional,
+    "Isaiah 26:3-4": devotional(
+      "Peace held by trust",
+      "Isaiah's perfect peace is not detached from trust. The mind stayed on God rests on the Lord as the everlasting Rock. Anxiety may pull attention in many directions; this passage calls attention back to Him.",
+      "What anxious thought needs to be redirected toward the Lord's steady character?",
+      "Lord, keep me in Your peace as I trust in You."
+    ),
+    "Matthew 6:25-34": devotional(
+      "Do not borrow tomorrow",
+      "Jesus calls His disciples away from anxious striving by reminding them of the Father's care. Today's trouble is enough for today, and today's obedience is to seek first the kingdom. Anxiety is answered by trust-filled attention to the Father.",
+      "What tomorrow are you trying to live before it arrives?",
+      "Father, give me grace for today and teach me to seek Your kingdom first."
+    ),
+    "Matthew 11:28-30": devotional(
+      "Come to Me",
+      "Jesus does not tell the weary to hide their weariness. He invites them to Himself. His yoke teaches a different way to carry life: not self-saving pressure, but humble learning from the gentle Savior.",
+      "What burden needs to be carried with Jesus instead of apart from Him?",
+      "Jesus, I come to You. Teach me Your rest."
+    ),
+    "John 14:25-27": devotional(
+      "Peace from Jesus",
+      "Jesus gives peace when His disciples have reason to be troubled. His peace is grounded in His ongoing care and the Spirit's work, not in easy circumstances. The command not to fear rests on the gift He gives.",
+      "Where do you need to receive Jesus' peace rather than manufacture your own?",
+      "Lord Jesus, let Your peace quiet my troubled heart."
+    ),
+    "Philippians 4:4-9": devotional(
+      "Peace that guards",
+      "Philippians 4 gives anxiety a path toward God: rejoice, pray, ask, give thanks, and dwell on what is true. God's peace guards in Christ, and His presence meets His people as they practice what they have received.",
+      "What request can become prayer instead of circling worry?",
+      "God of peace, guard my heart and mind in Christ."
+    ),
+    "1 Peter 5:6-11": devotional(
+      "Cast your cares",
+      "Peter's call to cast anxieties on God is rooted in God's care. The passage also names spiritual alertness and suffering, so peace is not denial. It is humble trust in the God who restores and strengthens His people.",
+      "Which care can you name before God and entrust to Him today?",
+      "God of all grace, take my cares and strengthen me in Christ."
+    )
+  },
+  "fourteen-days-grief-comfort": {
+    "Psalm 13:1-6": devotional(
+      "Lament with trust",
+      "Psalm 13 gives grief honest words: 'How long?' David does not rush past sorrow, yet he turns toward God's steadfast love. Biblical lament brings pain into relationship with God and waits for His salvation.",
+      "What honest sorrow can you bring to God without pretending it is small?",
+      "Lord, receive my lament and help me trust Your steadfast love."
+    ),
+    "Psalm 23:1-6": devotional(
+      "Comfort from the Shepherd",
+      "Psalm 23 comforts by showing the Lord's personal care through rest, restoration, guidance, protection, provision, and mercy. Even in the valley, the Shepherd is present. Grief is not walked alone.",
+      "Where do you need the Shepherd's presence in grief today?",
+      "Lord, restore my soul and walk with me through every valley."
+    ),
+    "Psalm 34:17-22": devotional(
+      "Near the brokenhearted",
+      "Psalm 34 does not say the righteous avoid affliction. It says the Lord hears, is near to the brokenhearted, and saves the crushed in spirit. Comfort begins with God's nearness to real pain.",
+      "Where do you need to believe that the Lord is near, not distant?",
+      "Lord, be near to me in brokenness and save me with Your mercy."
+    ),
+    "Psalm 42:5-11": devotional(
+      "Hope in God",
+      "Psalm 42 speaks to a downcast soul rather than shaming it. The Psalmist remembers God, names turmoil, and calls the soul to hope again. Grief may keep speaking, but faith also learns to speak back.",
+      "What does your downcast soul need to remember about God today?",
+      "Lord, help me hope in You while my soul is still unsettled."
+    ),
+    "Psalm 46:1-7": psalm46RefugeDevotional,
+    "Psalm 73:23-28": devotional(
+      "God is my portion",
+      "Psalm 73 moves from confusion to nearness. The Psalmist discovers that even when heart and flesh fail, God is the strength of the heart and portion forever. Comfort rests in having God Himself, not in having every question resolved.",
+      "What loss or confusion needs the promise that God is your portion?",
+      "Lord, hold me by Your hand and be the strength of my heart."
+    ),
+    "Isaiah 40:27-31": devotional(
+      "Strength renewed",
+      "Isaiah speaks to weary people who wonder if their way is hidden from the Lord. God does not grow faint, and He gives power to the weary. Waiting on Him is not empty delay; it is dependence on the everlasting God.",
+      "Where are you weary enough to need strength that only God can give?",
+      "Everlasting God, renew my strength as I wait for You."
+    ),
+    "Isaiah 43:1-7": devotional(
+      "Called by name",
+      "Isaiah 43 comforts with belonging: 'I have called you by name; you are Mine.' Waters and fire are named, but God's presence is promised through them. The Lord's redeeming love is stronger than the threatening flood.",
+      "What water or fire do you need to face with the words, 'You are Mine'?",
+      "Redeeming Lord, help me trust Your presence and love in the deep waters."
+    ),
+    "Lamentations 3:19-26": devotional(
+      "Mercies each morning",
+      "Lamentations does not hide affliction; hope appears in the middle of remembered bitterness. The turning point is God's steadfast love, mercy, and faithfulness. Waiting quietly for the Lord is possible because His compassion is not exhausted.",
+      "What sorrow needs to be held together with the truth that His mercies are new?",
+      "Faithful God, meet me with mercy today and teach me to wait for You."
+    ),
+    "Matthew 5:1-12": devotional(
+      "Blessed are those who mourn",
+      "Jesus does not call mourners blessed because grief feels good, but because the kingdom of heaven belongs to those who receive God's comfort. Mourning is not outside His blessing. In Christ, sorrow is seen by God and held in hope.",
+      "Where do you need Jesus' promise of comfort for mourners?",
+      "Lord Jesus, meet my mourning with the comfort of Your kingdom."
+    ),
+    "John 11:32-44": devotional(
+      "Jesus wept",
+      "At Lazarus' tomb, Jesus reveals both compassion and authority. He weeps with those who weep, and He calls the dead man out. Christian comfort does not choose between tears and resurrection hope; Jesus brings both together.",
+      "What grief needs the compassion of Jesus and the hope of His resurrection power?",
+      "Jesus, weep with me, strengthen my hope, and call life where death feels loud."
+    ),
+    "Romans 8:18-25": devotional(
+      "Future glory",
+      "Paul places present suffering inside the larger hope of coming glory. Creation groans, believers groan, and yet hope waits for redemption. Comfort does not deny pain; it gives pain a horizon because God will complete His work.",
+      "What present suffering needs to be held in the hope of future glory?",
+      "Lord, help me wait with hope for the redemption You have promised."
+    ),
+    "2 Corinthians 1:3-7": devotional(
+      "God of all comfort",
+      "Paul praises the Father of mercies and God of all comfort, who comforts us in affliction so that comfort can overflow to others. Suffering is not good in itself, but God's mercy is active in it and can make us instruments of His comfort.",
+      "Where have you received comfort that may one day help you comfort another?",
+      "Father of mercies, comfort me and make me gentle with others in pain."
+    ),
+    "Revelation 21:1-5": devotional(
+      "Every tear wiped away",
+      "Revelation 21 gives grief its final horizon: God dwelling with His people, wiping every tear, and making all things new. This promise does not trivialize today's sorrow; it assures you that sorrow will not have the last word.",
+      "What tear needs to be held before the God who will make all things new?",
+      "Lord, keep my hope fixed on the day when You wipe every tear away."
+    )
+  },
+  "grief-comfort": {
+    "Psalm 13:1-6": devotional(
+      "Lament with trust",
+      "Psalm 13 gives grief honest words: 'How long?' David does not rush past sorrow, yet he turns toward God's steadfast love. Biblical lament brings pain into relationship with God and waits for His salvation.",
+      "What honest sorrow can you bring to God without pretending it is small?",
+      "Lord, receive my lament and help me trust Your steadfast love."
+    ),
+    "Psalm 34:17-22": devotional(
+      "Near the brokenhearted",
+      "Psalm 34 does not say the righteous avoid affliction. It says the Lord hears, is near to the brokenhearted, and saves the crushed in spirit. Comfort begins with God's nearness to real pain.",
+      "Where do you need to believe that the Lord is near, not distant?",
+      "Lord, be near to me in brokenness and save me with Your mercy."
+    ),
+    "Psalm 42:5-11": devotional(
+      "Hope in God",
+      "Psalm 42 speaks to a downcast soul rather than shaming it. The Psalmist remembers God, names turmoil, and calls the soul to hope again. Grief may keep speaking, but faith also learns to speak back.",
+      "What does your downcast soul need to remember about God today?",
+      "Lord, help me hope in You while my soul is still unsettled."
+    ),
+    "Isaiah 40:27-31": devotional(
+      "Strength renewed",
+      "Isaiah speaks to weary people who wonder if their way is hidden from the Lord. God does not grow faint, and He gives power to the weary. Waiting on Him is not empty delay; it is dependence on the everlasting God.",
+      "Where are you weary enough to need strength that only God can give?",
+      "Everlasting God, renew my strength as I wait for You."
+    ),
+    "John 11:32-44": devotional(
+      "Jesus wept",
+      "At Lazarus' tomb, Jesus reveals both compassion and authority. He weeps with those who weep, and He calls the dead man out. Christian comfort does not choose between tears and resurrection hope; Jesus brings both together.",
+      "What grief needs the compassion of Jesus and the hope of His resurrection power?",
+      "Jesus, weep with me, strengthen my hope, and call life where death feels loud."
+    ),
+    "2 Corinthians 1:3-7": devotional(
+      "God of all comfort",
+      "Paul praises the Father of mercies and God of all comfort, who comforts us in affliction so that comfort can overflow to others. Suffering is not good in itself, but God's mercy is active in it and can make us instruments of His comfort.",
+      "Where have you received comfort that may one day help you comfort another?",
+      "Father of mercies, comfort me and make me gentle with others in pain."
+    ),
+    "Revelation 21:1-5": devotional(
+      "Every tear wiped away",
+      "Revelation 21 gives grief its final horizon: God dwelling with His people, wiping every tear, and making all things new. This promise does not trivialize today's sorrow; it assures you that sorrow will not have the last word.",
+      "What tear needs to be held before the God who will make all things new?",
+      "Lord, keep my hope fixed on the day when You wipe every tear away."
+    )
+  }
+};
+
 function withCuratedDevotionals(plan: BibleReadingPlan): BibleReadingPlan {
-  return plan;
+  const curatedDevotionals = curatedDevotionalsByPlan[plan.id] || {};
+  return {
+    ...plan,
+    days: plan.days.map((day) => ({
+      ...day,
+      ...(day.devotional ? {} : curatedDevotionals[day.reference] || {})
+    }))
+  };
 }
 
 export const builtInBibleReadingPlans: BibleReadingPlan[] = [

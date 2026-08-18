@@ -318,74 +318,8 @@ const psalm46RefugeDevotional = devotional(
   "God, be my refuge and strength today. Teach me to trust Your presence more than the noise around me."
 );
 
-type DevotionalTheme = "prayer" | "peace" | "faith" | "wisdom" | "comfort" | "gospel" | "beginner";
-
-function withThemedDevotionals(plan: BibleReadingPlan, theme: DevotionalTheme): BibleReadingPlan {
-  return {
-    ...plan,
-    days: plan.days.map((day) => ({
-      ...day,
-      ...(day.devotional ? {} : themedDevotionalForDay(theme, day))
-    }))
-  };
-}
-
-function themedDevotionalForDay(theme: DevotionalTheme, day: BibleReadingPlanDay): BibleReadingPlanDayExtras {
-  const title = day.title || day.reference;
-  if (theme === "prayer") {
-    return devotional(
-      `Pray through ${title}`,
-      `Begin by noticing what ${day.reference} actually says about God, His works, His commands, and the human response before Him. Then let the passage give language to your dependence. Prayer may become praise, confession, asking, waiting, thanksgiving, or surrender, but it should rise from the Scripture rather than from pressure to perform.`,
-      `What does ${day.reference} teach you to praise, ask, confess, thank God for, or trust today?`,
-      "Father, let Your word shape my prayer instead of letting my worries lead it."
-    );
-  }
-  if (theme === "peace") {
-    return devotional(
-      `Peace for ${title.toLowerCase()}`,
-      `Biblical peace is more than a quiet mood. It is the steadiness that comes from God's presence, promises, rule, and care. As you read ${day.reference}, do not rush past the fear, pressure, command, or hope named in the passage. Let Scripture bring earthly concerns into the light of who God is and what He has spoken.`,
-      "What fear, pressure, command, or hope does this passage place before God today?",
-      "God of peace, guard my heart and mind as I bring this concern to You."
-    );
-  }
-  if (theme === "faith") {
-    return devotional(
-      `Trust in ${title.toLowerCase()}`,
-      `Faith is not pretending life is easy or treating obedience as a way to earn God's love. In ${day.reference}, faith looks toward God and takes Him at His word. Read slowly for what God promises, commands, reveals, or provides. Then consider one small act of trust that could make faith visible as a response to His grace.`,
-      "What would trusting God look like as a grace-shaped response today?",
-      "Lord, strengthen my faith and help me obey You with a willing heart."
-    );
-  }
-  if (theme === "wisdom") {
-    return devotional(
-      `Wisdom for ${title.toLowerCase()}`,
-      `Wisdom begins with reverence for God and grows through attentive listening. As you read ${day.reference}, look for the path Scripture commends and the path it warns against. The goal is not merely to make better decisions, but to become a person whose choices are shaped by God.`,
-      "What wise path is Scripture placing before you today?",
-      "Lord, give me wisdom that is humble, teachable, and faithful."
-    );
-  }
-  if (theme === "comfort") {
-    return devotional(
-      `Comfort in ${title.toLowerCase()}`,
-      `This passage does not ask you to hide sorrow from God or pretend pain is small. In ${day.reference}, bring grief, weariness, and longing honestly before Him while listening for what He reveals, promises, corrects, or restores. Scripture's comfort is not shallow optimism; it is the nearness of God, the hope of His promises, and the mercy He gives in weakness.`,
-      "What sorrow or ache can you bring honestly to God as you read?",
-      "God of all comfort, meet me with Your mercy and steady hope."
-    );
-  }
-  if (theme === "gospel") {
-    return devotional(
-      `Grace in ${title.toLowerCase()}`,
-      `Read ${day.reference} with your attention on what God has done before you consider what you must do. The gospel gives grace before it calls for response. Look for Christ's mercy, the seriousness of sin, the gift of faith, and the new life God creates by grace.`,
-      "What part of the good news does this passage make clearer today?",
-      "Lord Jesus, keep my heart grounded in Your grace and responsive to Your word."
-    );
-  }
-  return devotional(
-    `Begin with ${title.toLowerCase()}`,
-    `This reading is a simple starting point, not a test. As you read ${day.reference}, first ask what the passage says in its own context. Then look for one clear truth about God, people, sin, grace, obedience, or hope. You do not need to understand everything today. Begin with what is plain, then respond honestly to God.`,
-    "What is one clear truth from this passage that you can carry today?",
-    "Lord, open my eyes to understand Your word and respond with trust."
-  );
+function withCuratedDevotionals(plan: BibleReadingPlan): BibleReadingPlan {
+  return plan;
 }
 
 export const builtInBibleReadingPlans: BibleReadingPlan[] = [
@@ -471,7 +405,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Numbers 20", "Numbers", 20, "Water from the rock"],
     ["Deuteronomy 34", "Deuteronomy", 34, "Moses' final view"]
   ], "Character study"),
-  withThemedDevotionals(planFromReferences("seven-days-prayer", "7 Days of Prayer", "A one-week path for turning Scripture into prayer.", [
+  withCuratedDevotionals(planFromReferences("seven-days-prayer", "7 Days of Prayer", "A one-week path for turning Scripture into prayer.", [
     ["Matthew 6:5-13", "Matthew", 6, "Pray to your Father"],
     ["Luke 11:1-13", "Luke", 11, "Teach us to pray"],
     ["Psalm 23:1-6", "Psalms", 23, "Pray from trust"],
@@ -479,8 +413,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving"],
     ["James 5:13-18", "James", 5, "Pray in every season"],
     ["1 John 5:13-15", "1 John", 5, "Ask with confidence"]
-  ], "Prayer"), "prayer"),
-  withThemedDevotionals(planFromReferences("seven-days-peace", "7 Days of Peace", "A short plan for anxiety, rest, and the peace of God.", [
+  ], "Prayer")),
+  withCuratedDevotionals(planFromReferences("seven-days-peace", "7 Days of Peace", "A short plan for anxiety, rest, and the peace of God.", [
     ["Psalm 4:6-8", "Psalms", 4, "Sleep in peace"],
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd's care"],
     ["Isaiah 26:3-4", "Isaiah", 26, "Perfect peace"],
@@ -488,7 +422,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 14:25-27", "John", 14, "My peace I give"],
     ["Philippians 4:4-9", "Philippians", 4, "Peace that guards"],
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"]
-  ], "Care"), "peace"),
+  ], "Care")),
   planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
     ["John 1:9-13", "John", 1, "Received as God's children", devotional(
       "Received before you perform",
@@ -577,7 +511,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       "Father, keep me in the truth of Your Son and teach me to abide with confidence."
     )]
   ], "Abiding"),
-  withThemedDevotionals(planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding grace, faith, prayer, and new life.", [
+  withCuratedDevotionals(planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding grace, faith, prayer, and new life.", [
     ["John 3", "John", 3],
     ["Ephesians 2", "Ephesians", 2],
     ["Romans 8", "Romans", 8],
@@ -585,8 +519,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Galatians 5", "Galatians", 5],
     ["1 John 1", "1 John", 1],
     ["Colossians 3", "Colossians", 3]
-  ], "Beginner"), "beginner"),
-  withThemedDevotionals(planFromReferences("ten-days-psalms", "10 Days in the Psalms", "Ten Psalms for worship, honesty, trust, and hope.", [
+  ], "Beginner")),
+  withCuratedDevotionals(planFromReferences("ten-days-psalms", "10 Days in the Psalms", "Ten Psalms for worship, honesty, trust, and hope.", [
     ["Psalm 1", "Psalms", 1],
     ["Psalm 8", "Psalms", 8],
     ["Psalm 19", "Psalms", 19],
@@ -597,7 +531,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Psalm 51", "Psalms", 51],
     ["Psalm 91", "Psalms", 91],
     ["Psalm 103", "Psalms", 103]
-  ], "Prayer"), "prayer"),
+  ], "Prayer")),
   planFromReferences("fourteen-days-proverbs", "14 Days in Proverbs", "Two weeks of practical wisdom for daily decisions.", [
     ["Proverbs 1", "Proverbs", 1],
     ["Proverbs 2", "Proverbs", 2],
@@ -630,7 +564,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 19", "John", 19],
     ["John 20", "John", 20]
   ], "Gospels"),
-  withThemedDevotionals(planFromReferences("fourteen-days-faith", "14 Days on Faith", "Readings about trust, endurance, grace, and living by faith.", [
+  withCuratedDevotionals(planFromReferences("fourteen-days-faith", "14 Days on Faith", "Readings about trust, endurance, grace, and living by faith.", [
     ["Genesis 15:1-6", "Genesis", 15, "Believed the Lord"],
     ["Psalm 37:3-7", "Psalms", 37, "Trust and wait"],
     ["Habakkuk 3:17-19", "Habakkuk", 3, "Rejoice when it is hard"],
@@ -645,8 +579,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Hebrews 11:1-6", "Hebrews", 11, "Faith and pleasing God"],
     ["James 2:14-18", "James", 2, "Faith made visible"],
     ["1 Peter 1:3-9", "1 Peter", 1, "Faith through trials"]
-  ], "Gospel"), "faith"),
-  withThemedDevotionals(planFromReferences("fourteen-days-wisdom", "14 Days on Wisdom", "Two weeks of readings for wise choices, words, and priorities.", [
+  ], "Gospel")),
+  withCuratedDevotionals(planFromReferences("fourteen-days-wisdom", "14 Days on Wisdom", "Two weeks of readings for wise choices, words, and priorities.", [
     ["1 Kings 3:5-14", "1 Kings", 3, "Ask for wisdom"],
     ["Psalm 1:1-6", "Psalms", 1, "The way of wisdom"],
     ["Psalm 119:97-105", "Psalms", 119, "A lamp to my feet"],
@@ -661,8 +595,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["James 3:13-18", "James", 3, "Wisdom from above"],
     ["Colossians 3:12-17", "Colossians", 3, "Wise community life"],
     ["2 Timothy 3:14-17", "2 Timothy", 3, "Scripture equips"]
-  ], "Wisdom"), "wisdom"),
-  withThemedDevotionals(planFromReferences("fourteen-days-grief-comfort", "14 Days on Grief and Comfort", "Gentle readings for sorrow, hope, and God's nearness.", [
+  ], "Wisdom")),
+  withCuratedDevotionals(planFromReferences("fourteen-days-grief-comfort", "14 Days on Grief and Comfort", "Gentle readings for sorrow, hope, and God's nearness.", [
     ["Psalm 13:1-6", "Psalms", 13, "How long, O Lord"],
     ["Psalm 23:1-6", "Psalms", 23, "The Shepherd's comfort"],
     ["Psalm 34:17-22", "Psalms", 34, "Near the brokenhearted"],
@@ -677,8 +611,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8:18-25", "Romans", 8, "Future glory"],
     ["2 Corinthians 1:3-7", "2 Corinthians", 1, "God of all comfort"],
     ["Revelation 21:1-5", "Revelation", 21, "Every tear wiped away"]
-  ], "Care"), "comfort"),
-  withThemedDevotionals(planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
+  ], "Care")),
+  withCuratedDevotionals(planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd is near"],
     ["Psalm 27:1-5", "Psalms", 27, "The Lord is my light"],
     ["Psalm 46:1-11", "Psalms", 46, "Be still", psalm46StillBeforeGodDevotional],
@@ -693,7 +627,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"],
     ["1 John 4:13-19", "1 John", 4, "Perfect love"]
-  ], "Care"), "peace"),
+  ], "Care")),
   planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
     ["Matthew 21", "Matthew", 21, "Palm Sunday"],
     ["Matthew 22", "Matthew", 22, "Questions and teaching"],
@@ -749,7 +683,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 19", "John", 19, "The cross"],
     ["John 20", "John", 20, "The resurrection"]
   ], "Gospels"),
-  withThemedDevotionals(planFromReferences("romans-road", "Romans Road", "A short path through Romans for sin, grace, faith, and new life.", [
+  withCuratedDevotionals(planFromReferences("romans-road", "Romans Road", "A short path through Romans for sin, grace, faith, and new life.", [
     ["Romans 1", "Romans", 1],
     ["Romans 3", "Romans", 3],
     ["Romans 5", "Romans", 5],
@@ -757,8 +691,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8", "Romans", 8],
     ["Romans 10", "Romans", 10],
     ["Romans 12", "Romans", 12]
-  ], "Gospel"), "gospel"),
-  withThemedDevotionals(planFromReferences("prayer-dependence", "Prayer and Dependence", "Readings that invite trust, prayer, and daily dependence on God.", [
+  ], "Gospel")),
+  withCuratedDevotionals(planFromReferences("prayer-dependence", "Prayer and Dependence", "Readings that invite trust, prayer, and daily dependence on God.", [
     ["Matthew 6:9-13", "Matthew", 6, "The Lord's Prayer"],
     ["Luke 11:5-13", "Luke", 11, "Ask, seek, knock"],
     ["Psalm 23:1-6", "Psalms", 23, "The Lord provides"],
@@ -766,8 +700,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving"],
     ["James 1:5-8", "James", 1, "Ask for wisdom"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"]
-  ], "Prayer"), "prayer"),
-  withThemedDevotionals(planFromReferences("anxiety-peace", "Anxiety and Peace", "Scripture readings for worry, fear, peace, and trust.", [
+  ], "Prayer")),
+  withCuratedDevotionals(planFromReferences("anxiety-peace", "Anxiety and Peace", "Scripture readings for worry, fear, peace, and trust.", [
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd's care"],
     ["Psalm 46:1-7", "Psalms", 46, "God is refuge", psalm46RefugeDevotional],
     ["Isaiah 26:3-4", "Isaiah", 26, "Perfect peace"],
@@ -776,8 +710,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 14:25-27", "John", 14, "Peace from Jesus"],
     ["Philippians 4:4-9", "Philippians", 4, "Peace that guards"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"]
-  ], "Care"), "peace"),
-  withThemedDevotionals(planFromReferences("wisdom-decisions", "Wisdom for Decisions", "Readings for wisdom, discernment, and faithful choices.", [
+  ], "Care")),
+  withCuratedDevotionals(planFromReferences("wisdom-decisions", "Wisdom for Decisions", "Readings for wisdom, discernment, and faithful choices.", [
     ["Proverbs 1:1-7", "Proverbs", 1, "Begin with the fear of the Lord"],
     ["Proverbs 2:1-11", "Proverbs", 2, "Search for wisdom"],
     ["Proverbs 3:5-12", "Proverbs", 3, "Trust the Lord"],
@@ -785,8 +719,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["James 1:5-8", "James", 1, "Ask God for wisdom"],
     ["Colossians 3:12-17", "Colossians", 3, "Wisdom in community"],
     ["Psalm 25:4-10", "Psalms", 25, "Teach me Your paths"]
-  ], "Wisdom"), "wisdom"),
-  withThemedDevotionals(planFromReferences("grief-comfort", "Grief and Comfort", "Gentle passages for sorrow, comfort, hope, and God's nearness.", [
+  ], "Wisdom")),
+  withCuratedDevotionals(planFromReferences("grief-comfort", "Grief and Comfort", "Gentle passages for sorrow, comfort, hope, and God's nearness.", [
     ["Psalm 13:1-6", "Psalms", 13, "Bring sorrow to God"],
     ["Psalm 34:17-22", "Psalms", 34, "Near the brokenhearted"],
     ["Psalm 42:5-11", "Psalms", 42, "Hope in God"],
@@ -794,8 +728,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 11:32-44", "John", 11, "Jesus wept"],
     ["2 Corinthians 1:3-7", "2 Corinthians", 1, "God of all comfort"],
     ["Revelation 21:1-5", "Revelation", 21, "Every tear wiped away"]
-  ], "Care"), "comfort"),
-  withThemedDevotionals(planFromReferences("beginner-bible", "Beginner Bible Reading Plan", "A friendly first path through major Bible themes and stories.", [
+  ], "Care")),
+  withCuratedDevotionals(planFromReferences("beginner-bible", "Beginner Bible Reading Plan", "A friendly first path through major Bible themes and stories.", [
     ["Genesis 1", "Genesis", 1],
     ["Genesis 12", "Genesis", 12],
     ["Exodus 3", "Exodus", 3],
@@ -806,7 +740,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8", "Romans", 8],
     ["Ephesians 2", "Ephesians", 2],
     ["Revelation 21", "Revelation", 21]
-  ], "Beginner"), "beginner"),
+  ], "Beginner")),
   planFromReferences("chronological-overview", "Chronological Bible Overview", "A broad overview of the Bible story in historical flow.", [
     ["Genesis 1", "Genesis", 1],
     ["Genesis 12", "Genesis", 12],

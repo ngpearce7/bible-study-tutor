@@ -355,7 +355,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     ),
     "1 John 5:13-15": devotional(
       "Ask with confidence",
-      "John grounds confidence in eternal life given through the Son and in asking according to God's will. This is not confidence that every desire will be granted as imagined, but confidence that God hears His children and is faithful to His will.",
+      "John grounds confidence in eternal life given through the Son and in asking according to God's will. This is not confidence that every desire will be granted on our terms, but confidence that God hears His children and is faithful to His will.",
       "What request needs to be brought under God's will with confidence that He hears?",
       "Father, help me ask with trust, humility, and confidence in Your will."
     )
@@ -376,9 +376,9 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     "Psalm 46:1-11": psalm46StillBeforeGodDevotional,
     "Psalm 91:1-4": devotional(
       "Shelter under His wings",
-      "Psalm 91 speaks of dwelling in the shelter of the Most High. Its confidence is relational: God is refuge, fortress, and trustworthy protector. The image of wings invites a humble posture of nearness and dependence, not a demand that life contain no danger.",
-      "What would it look like to take refuge in God rather than rehearse fear today?",
-      "Most High God, draw me under Your care and teach me to trust You in the place of fear."
+      "Psalm 91 speaks of dwelling in the shelter of the Most High. Its confidence is relational: God is refuge and fortress for those who trust Him. The image of wings invites nearness and dependence, not a demand that hardship cannot touch us. The safest place is belonging to the Lord.",
+      "Where are you tempted to seek shelter in control rather than in God Himself?",
+      "Most High God, draw me near and teach me to trust Your care when fear looks for another refuge."
     ),
     "Isaiah 26:3-4": devotional(
       "A mind stayed on Him",
@@ -395,7 +395,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     "Matthew 6:25-34": devotional(
       "Seek first the Father",
       "Jesus does not mock anxious thoughts. He redirects them toward the Father's care, the birds and lilies, and the priority of God's kingdom. The passage calls you away from tomorrow's imagined burdens and toward today's faithful trust.",
-      "What tomorrow concern are you trying to carry before grace has been given for it?",
+      "Which concern about tomorrow are you trying to carry before grace has been given for it?",
       "Father, help me seek Your kingdom today and trust You with tomorrow."
     ),
     "Matthew 11:28-30": devotional(
@@ -446,7 +446,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       "Pray as a child of the Father",
       "Jesus teaches prayer by turning His disciples first toward the Father: His name, His kingdom, and His will. Daily needs, forgiveness, and deliverance are then brought into that relationship. This prayer trains dependence without anxiety or performance.",
       "Which phrase of the Lord's Prayer most needs to shape your dependence today?",
-      "Father, hallow Your name in me and teach me to depend on You for today."
+      "Father, let Your name be hallowed in me and teach me to depend on You for today."
     ),
     "Luke 11:5-13": devotional(
       "Ask the generous Father",
@@ -593,7 +593,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     ),
     "John 14:25-27": devotional(
       "Peace Jesus gives",
-      "Jesus gives peace to disciples who are about to face confusion and loss. His peace is tied to His word and the Spirit's help. It is not fragile like worldly calm; it rests on the presence and promise of Christ.",
+      "Jesus gives peace to disciples who are about to face confusion and loss. His peace is tied to His word and the Spirit's help. It is not dependent on outward calm; it rests on the presence and promise of Christ.",
       "What trouble needs to be brought beneath Jesus' words, 'My peace I give to you'?",
       "Jesus, give me Your peace and keep my heart from fear."
     ),
@@ -639,7 +639,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     "John 14:25-27": devotional(
       "Peace from Jesus",
       "Jesus gives peace when His disciples have reason to be troubled. His peace is grounded in His ongoing care and the Spirit's work, not in easy circumstances. The command not to fear rests on the gift He gives.",
-      "Where do you need to receive Jesus' peace rather than manufacture your own?",
+      "Where do you need to receive Jesus' peace rather than try to create calm by control?",
       "Lord Jesus, let Your peace quiet my troubled heart."
     ),
     "Philippians 4:4-9": devotional(
@@ -715,7 +715,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       "Jesus wept",
       "At Lazarus' tomb, Jesus reveals both compassion and authority. He weeps with those who weep, and He calls the dead man out. Christian comfort does not choose between tears and resurrection hope; Jesus brings both together.",
       "What grief needs the compassion of Jesus and the hope of His resurrection power?",
-      "Jesus, weep with me, strengthen my hope, and call life where death feels loud."
+      "Lord Jesus, meet me in grief, strengthen my hope, and keep me near the resurrection life that is in You."
     ),
     "Romans 8:18-25": devotional(
       "Future glory",
@@ -765,7 +765,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       "Jesus wept",
       "At Lazarus' tomb, Jesus reveals both compassion and authority. He weeps with those who weep, and He calls the dead man out. Christian comfort does not choose between tears and resurrection hope; Jesus brings both together.",
       "What grief needs the compassion of Jesus and the hope of His resurrection power?",
-      "Jesus, weep with me, strengthen my hope, and call life where death feels loud."
+      "Lord Jesus, meet me in grief, strengthen my hope, and keep me near the resurrection life that is in You."
     ),
     "2 Corinthians 1:3-7": devotional(
       "God of all comfort",

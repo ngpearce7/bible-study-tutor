@@ -6381,13 +6381,14 @@ export default function Home() {
 
   function persistBibleReaderState(overrides: Partial<SyncedBibleReaderState> = {}) {
     if (!activeProfileId || !isAuthenticated || !profileMatchesActiveState) return;
+    const readingPlanProgressForSync = storedBibleReadingPlanProgress || currentBibleReadingPlanProgress();
     const state = normalizeSyncedBibleReaderState({
       translation: bibleTranslation,
       position: { book: readerBook, chapter: readerChapter },
       history: bibleReaderHistory,
       readChapters: readBibleChapters,
       bookmarks: bibleBookmarks,
-      readingPlanProgress: currentBibleReadingPlanProgress(),
+      readingPlanProgress: readingPlanProgressForSync,
       ...overrides
     });
     if (!state) return;

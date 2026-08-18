@@ -304,6 +304,20 @@ function devotional(title: string, body: string, reflectionPrompt: string, praye
   };
 }
 
+const psalm46StillBeforeGodDevotional = devotional(
+  "Be still before the God who reigns",
+  "Psalm 46 does not pretend the world is calm. The earth gives way, nations rage, and kingdoms totter, yet God is present with His people as refuge, strength, and help. The call to be still is not passive avoidance; it is a summons to stop striving as though everything rests on you, and to know that the Lord is exalted over every shaking thing.",
+  "Where are you carrying pressure as though God is absent, hurried, or unable to help?",
+  "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted."
+);
+
+const psalm46RefugeDevotional = devotional(
+  "God is refuge in the shaking",
+  "Psalm 46 names real instability: trouble, fear, noise, conflict, and upheaval. Its comfort is not that trouble disappears, but that God is with His people in the midst of it. Read the Psalm slowly and notice the repeated confidence: the Lord is refuge, the Lord is with us, and the Lord will be exalted.",
+  "What trouble feels loud today, and what does this Psalm say is truer than that trouble?",
+  "God, be my refuge and strength today. Teach me to trust Your presence more than the noise around me."
+);
+
 type DevotionalTheme = "prayer" | "peace" | "faith" | "wisdom" | "comfort" | "gospel" | "beginner";
 
 function withThemedDevotionals(plan: BibleReadingPlan, theme: DevotionalTheme): BibleReadingPlan {
@@ -461,7 +475,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Matthew 6:5-13", "Matthew", 6, "Pray to your Father"],
     ["Luke 11:1-13", "Luke", 11, "Teach us to pray"],
     ["Psalm 23:1-6", "Psalms", 23, "Pray from trust"],
-    ["Psalm 46:1-11", "Psalms", 46, "Be still before God"],
+    ["Psalm 46:1-11", "Psalms", 46, "Be still before God", psalm46StillBeforeGodDevotional],
     ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving"],
     ["James 5:13-18", "James", 5, "Pray in every season"],
     ["1 John 5:13-15", "1 John", 5, "Ask with confidence"]
@@ -579,7 +593,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Psalm 23", "Psalms", 23],
     ["Psalm 27", "Psalms", 27],
     ["Psalm 42", "Psalms", 42],
-    ["Psalm 46", "Psalms", 46],
+    ["Psalm 46", "Psalms", 46, "Be still before God", psalm46StillBeforeGodDevotional],
     ["Psalm 51", "Psalms", 51],
     ["Psalm 91", "Psalms", 91],
     ["Psalm 103", "Psalms", 103]
@@ -653,7 +667,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Psalm 23:1-6", "Psalms", 23, "The Shepherd's comfort"],
     ["Psalm 34:17-22", "Psalms", 34, "Near the brokenhearted"],
     ["Psalm 42:5-11", "Psalms", 42, "Hope in God"],
-    ["Psalm 46:1-7", "Psalms", 46, "God is refuge"],
+    ["Psalm 46:1-7", "Psalms", 46, "God is refuge", psalm46RefugeDevotional],
     ["Psalm 73:23-28", "Psalms", 73, "God is my portion"],
     ["Isaiah 40:27-31", "Isaiah", 40, "Strength renewed"],
     ["Isaiah 43:1-7", "Isaiah", 43, "I have called you by name"],
@@ -667,7 +681,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   withThemedDevotionals(planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd is near"],
     ["Psalm 27:1-5", "Psalms", 27, "The Lord is my light"],
-    ["Psalm 46:1-11", "Psalms", 46, "Be still"],
+    ["Psalm 46:1-11", "Psalms", 46, "Be still", psalm46StillBeforeGodDevotional],
     ["Psalm 91:1-4", "Psalms", 91, "Shelter of the Most High"],
     ["Isaiah 26:3-4", "Isaiah", 26, "Perfect peace"],
     ["Isaiah 41:8-13", "Isaiah", 41, "Do not fear"],
@@ -748,14 +762,14 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Matthew 6:9-13", "Matthew", 6, "The Lord's Prayer"],
     ["Luke 11:5-13", "Luke", 11, "Ask, seek, knock"],
     ["Psalm 23:1-6", "Psalms", 23, "The Lord provides"],
-    ["Psalm 46:1-11", "Psalms", 46, "God is refuge"],
+    ["Psalm 46:1-11", "Psalms", 46, "God is refuge", psalm46StillBeforeGodDevotional],
     ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving"],
     ["James 1:5-8", "James", 1, "Ask for wisdom"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"]
   ], "Prayer"), "prayer"),
   withThemedDevotionals(planFromReferences("anxiety-peace", "Anxiety and Peace", "Scripture readings for worry, fear, peace, and trust.", [
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd's care"],
-    ["Psalm 46:1-7", "Psalms", 46, "God is refuge"],
+    ["Psalm 46:1-7", "Psalms", 46, "God is refuge", psalm46RefugeDevotional],
     ["Isaiah 26:3-4", "Isaiah", 26, "Perfect peace"],
     ["Matthew 6:25-34", "Matthew", 6, "Do not worry"],
     ["Matthew 11:28-30", "Matthew", 11, "Come to Me"],

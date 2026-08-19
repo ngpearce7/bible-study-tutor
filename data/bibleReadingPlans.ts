@@ -614,90 +614,288 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     })
   },
   "fourteen-days-faith": {
-    "Genesis 15:1-6": devotional(
-      "Believed the Lord",
-      "Abram hears God's promise while the visible evidence still looks impossible. His faith is not vague optimism; he believes the Lord who speaks. Scripture says this trust was counted to him as righteousness, pointing forward to the grace God gives through faith.",
-      "What promise of God needs to become weightier than what you can presently see?",
-      "Lord, help me take You at Your word and trust Your promise."
-    ),
-    "Psalm 37:3-7": devotional(
-      "Trust and wait",
-      "Psalm 37 joins trust with concrete faithfulness: dwell, do good, delight in the Lord, commit your way, be still, and wait. Faith is not frantic control. It is patient confidence that the Lord sees and acts rightly.",
-      "Where do you need to practice trust by waiting faithfully rather than forcing an outcome?",
-      "Lord, help me commit my way to You and wait with a quiet heart."
-    ),
-    "Habakkuk 3:17-19": devotional(
-      "Rejoice when it is hard",
-      "Habakkuk's faith does not depend on visible abundance. Even if fields, flocks, and harvests fail, he rejoices in the Lord and takes strength in God. This is not denial of loss; it is worship anchored in God when supports are stripped away.",
-      "What circumstance is testing whether your joy is anchored in God Himself?",
-      "Lord, be my strength when visible supports feel weak."
-    ),
-    "Matthew 8:5-13": devotional(
-      "Great faith",
-      "The centurion recognizes Jesus' authority and trusts His word even from a distance. Jesus marvels at this faith because it sees who He is. Faith is not confidence in technique; it is confidence in the authority and mercy of Christ.",
-      "Where do you need to trust the authority of Jesus' word today?",
-      "Lord Jesus, strengthen my faith in Your authority and mercy."
-    ),
-    "Mark 9:20-27": devotional(
-      "Help my unbelief",
-      "The father's cry is honest: 'I believe; help my unbelief.' Jesus does not require polished confidence before mercy is given. This passage gives weak faith words to bring both trust and struggle to Christ.",
-      "Where can you honestly say, 'I believe; help my unbelief'?",
-      "Lord Jesus, meet me in weak faith and strengthen my trust in You."
-    ),
-    "John 20:24-31": devotional(
-      "Blessed are those who believe",
-      "Thomas moves from doubt to worship when he meets the risen Christ. John writes so readers may believe that Jesus is the Christ, the Son of God, and have life in His name. Faith rests on the witness to the risen Lord.",
-      "What does this passage invite you to confess about Jesus?",
-      "My Lord and my God, deepen my faith in Your risen life."
-    ),
-    "Romans 4:18-25": devotional(
-      "Faith credited",
-      "Paul reflects on Abraham's faith to show that righteousness is counted by grace, not achieved by works. Abraham trusts the God who gives life to the dead, and Paul points believers to Jesus, delivered for our trespasses and raised for our justification.",
-      "How does Christ's death and resurrection strengthen your confidence before God?",
-      "Father, ground my faith in Christ who died and was raised for me."
-    ),
-    "Romans 5:1-5": devotional(
-      "Justified by faith",
-      "Because believers are justified by faith, they have peace with God through Jesus Christ. Even suffering is not meaningless, because God uses it to form endurance, character, and hope. This hope does not shame us because God's love has been poured into our hearts.",
-      "Where do you need peace with God to steady you in suffering?",
-      "Lord, let the hope of Your love strengthen me through trial."
-    ),
-    "Galatians 2:19-21": devotional(
-      "Live by faith",
-      "Paul says he has been crucified with Christ and now lives by faith in the Son of God, who loved him and gave Himself for him. Faith is deeply personal here: daily life is lived from union with Christ and His self-giving love.",
-      "What part of today needs to be lived by faith in the Son of God who loves you?",
-      "Christ, live in me and teach me to trust Your love."
-    ),
-    "Ephesians 2:8-10": devotional(
-      "Saved by grace",
-      "Ephesians makes the order clear: salvation is by grace through faith, not works, so no one may boast. Yet grace also creates a new life prepared for good works. Faith receives God's gift before it walks in God's workmanship.",
-      "Where do you need to receive grace before trying to prove yourself?",
-      "Father, keep me humble in grace and ready for the good works You prepare."
-    ),
-    "Hebrews 10:35-39": devotional(
-      "Do not shrink back",
-      "Hebrews calls weary believers to endurance because God's promise is sure. Faith keeps moving toward the coming One rather than shrinking back under pressure. The passage encourages confidence rooted in God's faithfulness.",
-      "Where are you tempted to shrink back instead of endure in faith?",
-      "Lord, give me endurance and keep my confidence in Your promise."
-    ),
-    "Hebrews 11:1-6": devotional(
-      "Faith and pleasing God",
-      "Hebrews describes faith as assurance and conviction rooted in God's unseen reality. Abel, Enoch, and all who draw near to God show that faith believes He exists and rewards those who seek Him. Faith is relational trust in God Himself.",
-      "What unseen promise of God needs your trust today?",
-      "Lord, help me draw near to You with faith that seeks and trusts You."
-    ),
-    "James 2:14-18": devotional(
-      "Faith made visible",
-      "James does not oppose Paul; he opposes empty claims that never become love. Genuine faith shows itself in mercy and obedience. Works do not replace faith, but living faith refuses to leave a neighbor uncared for.",
-      "How might faith become visible in love or mercy today?",
-      "Lord, make my faith living, humble, and active in love."
-    ),
-    "1 Peter 1:3-9": devotional(
-      "Faith through trials",
-      "Peter blesses God for new birth into a living hope through the resurrection of Jesus. Trials grieve believers, but tested faith is precious because it looks toward Christ and the salvation to be revealed. Faith holds joy and grief together in hope.",
-      "What trial needs to be held in the living hope of Christ's resurrection?",
-      "Father, guard my faith and fill me with hope in the risen Christ."
-    )
+    "Genesis 15:1-6": guidedDevotional({
+      title: "Believed the Lord",
+      context: "Abram receives God's promise while the visible evidence still looks impossible.",
+      body: "Abram's faith is not vague optimism; he believes the Lord who speaks. Scripture says this trust was counted to him as righteousness, pointing forward to the grace God gives through faith. Faith begins by taking God at His word even when sight has not caught up.",
+      observationQuestion: "What does God promise Abram, and how does Abram respond?",
+      reflectionQuestion: "What promise of God needs to become weightier than what you can presently see?",
+      prayer: "Lord, help me take You at Your word and trust Your promise.",
+      gentleAction: "Name one promise of God and one visible circumstance that makes trust feel difficult.",
+      studyMethod: "OIA"
+    }),
+    "Psalm 37:3-7": guidedDevotional({
+      title: "Trust and wait",
+      context: "Psalm 37 teaches God's people how to respond when the wicked seem to prosper and outcomes feel delayed.",
+      body: "Trust is joined with concrete faithfulness: dwell, do good, delight in the Lord, commit your way, be still, and wait. Faith is not frantic control. It is patient confidence that the Lord sees and acts rightly.",
+      observationQuestion: "What active commands does the Psalm give to someone learning to trust?",
+      reflectionQuestion: "Where do you need to practice trust by waiting faithfully rather than forcing an outcome?",
+      prayer: "Lord, help me commit my way to You and wait with a quiet heart.",
+      gentleAction: "Choose one faithful action you can do while leaving the outcome with God.",
+      studyMethod: "SOAP"
+    }),
+    "Habakkuk 3:17-19": guidedDevotional({
+      title: "Rejoice when it is hard",
+      context: "Habakkuk ends with worship after wrestling honestly with injustice, waiting, and fear.",
+      body: "Habakkuk's faith does not depend on visible abundance. Even if fields, flocks, and harvests fail, he rejoices in the Lord and takes strength in God. This is not denial of loss; it is worship anchored in God when supports are stripped away.",
+      observationQuestion: "What losses does Habakkuk name, and where does he locate joy and strength?",
+      reflectionQuestion: "What circumstance is testing whether your joy is anchored in God Himself?",
+      prayer: "Lord, be my strength when visible supports feel weak.",
+      gentleAction: "Write a short 'even if... yet I will...' prayer from your present situation.",
+      studyMethod: "Meditation"
+    }),
+    "Matthew 8:5-13": guidedDevotional({
+      title: "Great faith",
+      context: "A centurion comes to Jesus for his servant, recognizing Jesus' authority even from a distance.",
+      body: "The centurion trusts Jesus' word because he sees Jesus' authority. Jesus marvels at this faith because it understands who He is. Faith is not confidence in technique; it is confidence in the authority and mercy of Christ.",
+      observationQuestion: "What does the centurion understand about authority, and how does Jesus respond?",
+      reflectionQuestion: "Where do you need to trust the authority of Jesus' word today?",
+      prayer: "Lord Jesus, strengthen my faith in Your authority and mercy.",
+      gentleAction: "Bring one need to Jesus simply, without trying to control how He must answer.",
+      studyMethod: "COMA"
+    }),
+    "Mark 9:20-27": guidedDevotional({
+      title: "Help my unbelief",
+      context: "A desperate father brings his son to Jesus after years of suffering and mixed hope.",
+      body: "The father's cry is honest: 'I believe; help my unbelief.' Jesus does not require polished confidence before mercy is given. This passage gives weak faith words to bring both trust and struggle to Christ.",
+      observationQuestion: "What does the father confess to Jesus, and what does Jesus do?",
+      reflectionQuestion: "Where can you honestly say, 'I believe; help my unbelief'?",
+      prayer: "Lord Jesus, meet me in weak faith and strengthen my trust in You.",
+      gentleAction: "Use the father's prayer exactly as your own when faith feels mixed today.",
+      studyMethod: "OIA"
+    }),
+    "John 20:24-31": guidedDevotional({
+      title: "Blessed are those who believe",
+      context: "Thomas moves from doubt to worship when he encounters the risen Christ.",
+      body: "John writes so readers may believe that Jesus is the Christ, the Son of God, and have life in His name. Faith rests on the witness to the risen Lord. Doubt is not answered by vague comfort, but by the crucified and risen Jesus.",
+      observationQuestion: "What confession does Thomas make, and why does John say he wrote these things?",
+      reflectionQuestion: "What does this passage invite you to confess about Jesus?",
+      prayer: "My Lord and my God, deepen my faith in Your risen life.",
+      gentleAction: "Say Thomas' confession slowly as a prayer of faith.",
+      studyMethod: "Inductive"
+    }),
+    "Romans 4:18-25": guidedDevotional({
+      title: "Faith credited",
+      context: "Paul reflects on Abraham's faith to show that righteousness is counted by grace, not achieved by works.",
+      body: "Abraham trusts the God who gives life to the dead, and Paul points believers to Jesus, delivered for our trespasses and raised for our justification. Saving faith looks away from self-earning and toward the God who raises the dead.",
+      observationQuestion: "How does Paul connect Abraham's faith with faith in Jesus?",
+      reflectionQuestion: "How does Christ's death and resurrection strengthen your confidence before God?",
+      prayer: "Father, ground my faith in Christ who died and was raised for me.",
+      gentleAction: "Thank God specifically for Christ being delivered and raised for you.",
+      studyMethod: "Word study"
+    }),
+    "Romans 5:1-5": guidedDevotional({
+      title: "Justified by faith",
+      context: "Paul describes the results of being justified by faith: peace, access, hope, endurance, and God's poured-out love.",
+      body: "Because believers are justified by faith, they have peace with God through Jesus Christ. Even suffering is not meaningless, because God uses it to form endurance, character, and hope. This hope does not shame us because God's love has been poured into our hearts.",
+      observationQuestion: "What blessings flow from being justified by faith?",
+      reflectionQuestion: "Where do you need peace with God to steady you in suffering?",
+      prayer: "Lord, let the hope of Your love strengthen me through trial.",
+      gentleAction: "Write one hardship beside one hope named in this passage.",
+      studyMethod: "SOAP"
+    }),
+    "Galatians 2:19-21": guidedDevotional({
+      title: "Live by faith",
+      context: "Paul explains life in Christ as crucified with Christ and now lived by faith in the Son of God.",
+      body: "Faith is deeply personal here: daily life is lived from union with Christ and His self-giving love. Paul does not set aside grace by trying to build righteousness apart from Christ. The believer's life is shaped by the Son of God who loved and gave Himself.",
+      observationQuestion: "What does Paul say happened to him, and how does he now live?",
+      reflectionQuestion: "What part of today needs to be lived by faith in the Son of God who loves you?",
+      prayer: "Christ, live in me and teach me to trust Your love.",
+      gentleAction: "Before one ordinary action today, remember: 'Christ loved me and gave Himself for me.'",
+      studyMethod: "Meditation"
+    }),
+    "Ephesians 2:8-10": guidedDevotional({
+      title: "Saved by grace",
+      context: "Paul makes the order clear: salvation is God's gracious gift, and good works flow from His workmanship.",
+      body: "Salvation is by grace through faith, not works, so no one may boast. Yet grace also creates a new life prepared for good works. Faith receives God's gift before it walks in God's workmanship.",
+      observationQuestion: "What does Paul say salvation is, and what does he say good works are?",
+      reflectionQuestion: "Where do you need to receive grace before trying to prove yourself?",
+      prayer: "Father, keep me humble in grace and ready for the good works You prepare.",
+      gentleAction: "Practice one good work today as gratitude, not self-proof.",
+      studyMethod: "Inductive"
+    }),
+    "Hebrews 10:35-39": guidedDevotional({
+      title: "Do not shrink back",
+      context: "Hebrews encourages weary believers to endure because God's promise is sure and the coming One will come.",
+      body: "Faith keeps moving toward the coming One rather than shrinking back under pressure. This passage encourages confidence rooted in God's faithfulness, not in easy circumstances. Endurance grows when the promise of God feels more solid than the pressure to retreat.",
+      observationQuestion: "What does the passage say believers need, and what promise is given?",
+      reflectionQuestion: "Where are you tempted to shrink back instead of endure in faith?",
+      prayer: "Lord, give me endurance and keep my confidence in Your promise.",
+      gentleAction: "Choose one small act of endurance that says, 'I am still trusting You.'",
+      studyMethod: "COMA"
+    }),
+    "Hebrews 11:1-6": guidedDevotional({
+      title: "Faith and pleasing God",
+      context: "Hebrews describes faith through assurance, conviction, and examples of people who drew near to God.",
+      body: "Faith is assurance and conviction rooted in God's unseen reality. Abel, Enoch, and all who draw near to God show that faith believes He exists and rewards those who seek Him. Faith is relational trust in God Himself.",
+      observationQuestion: "How does Hebrews describe faith, and what must those who draw near believe?",
+      reflectionQuestion: "What unseen promise of God needs your trust today?",
+      prayer: "Lord, help me draw near to You with faith that seeks and trusts You.",
+      gentleAction: "Take one deliberate step of seeking God before checking for visible results.",
+      studyMethod: "OIA"
+    }),
+    "James 2:14-18": guidedDevotional({
+      title: "Faith made visible",
+      context: "James challenges empty claims of faith that do not become mercy toward people in need.",
+      body: "James does not oppose Paul; he opposes claims that never become love. Genuine faith shows itself in mercy and obedience. Works do not replace faith, but living faith refuses to leave a neighbor uncared for.",
+      observationQuestion: "What example does James use to expose empty faith?",
+      reflectionQuestion: "How might faith become visible in love or mercy today?",
+      prayer: "Lord, make my faith living, humble, and active in love.",
+      gentleAction: "Look for one practical mercy you can offer without making a display of it.",
+      studyMethod: "Inductive"
+    }),
+    "1 Peter 1:3-9": guidedDevotional({
+      title: "Faith through trials",
+      context: "Peter blesses God for new birth into living hope while acknowledging grief in various trials.",
+      body: "Trials grieve believers, but tested faith is precious because it looks toward Christ and the salvation to be revealed. Faith holds joy and grief together in hope. The resurrection of Jesus gives suffering a future it cannot destroy.",
+      observationQuestion: "What hope does Peter name, and how does he describe tested faith?",
+      reflectionQuestion: "What trial needs to be held in the living hope of Christ's resurrection?",
+      prayer: "Father, guard my faith and fill me with hope in the risen Christ.",
+      gentleAction: "Name one grief and one hope from this passage in the same prayer.",
+      studyMethod: "SOAP"
+    })
+  },
+  "fourteen-days-wisdom": {
+    "1 Kings 3:5-14": guidedDevotional({
+      title: "Ask for wisdom",
+      context: "At the beginning of his reign, Solomon asks the Lord for wisdom to govern God's people rather than asking first for wealth or long life.",
+      body: "Wisdom begins with humble need. Solomon knows the task before him is too large for self-confidence, so he asks God for a discerning heart. This passage invites us to bring responsibility, decisions, and limits before the God who gives wisdom.",
+      observationQuestion: "What does Solomon ask for, and why is the Lord pleased with his request?",
+      reflectionQuestion: "Where do you need wisdom more than control, speed, or self-confidence?",
+      prayer: "Lord, give me a discerning heart and make my decisions faithful before You.",
+      gentleAction: "Name one decision and ask God for wisdom before you act.",
+      studyMethod: "COMA"
+    }),
+    "Psalm 1:1-6": guidedDevotional({
+      title: "The way of wisdom",
+      context: "Psalm 1 opens the Psalms by contrasting the way of the righteous with the way of the wicked.",
+      body: "Wisdom is more than clever choices; it is a rooted life. The blessed person refuses destructive counsel and delights in the Lord's instruction. Like a tree by streams of water, wisdom grows through steady nourishment, not hurried self-improvement.",
+      observationQuestion: "What does the blessed person avoid, and what do they delight in?",
+      reflectionQuestion: "What counsel, habit, or influence needs to be weighed against God's word?",
+      prayer: "Lord, plant me near Your word and make my life fruitful in Your time.",
+      gentleAction: "Notice one influence shaping you today and ask whether it leads toward the Lord.",
+      studyMethod: "Meditation"
+    }),
+    "Psalm 119:97-105": guidedDevotional({
+      title: "A lamp to my feet",
+      context: "Psalm 119 celebrates the Lord's word as wisdom, sweetness, protection, and light for the path.",
+      body: "God's word does not always show the whole road at once, but it gives light for faithful steps. Wisdom listens, meditates, restrains the feet from evil, and keeps walking. Scripture is not only information; it is guidance for the next obedient step.",
+      observationQuestion: "What does the Psalmist say God's word does for understanding and direction?",
+      reflectionQuestion: "Where do you need enough light for the next step rather than certainty about the whole path?",
+      prayer: "Lord, make Your word a lamp to my feet and a light to my path.",
+      gentleAction: "Choose one clear obedient step from today's reading.",
+      studyMethod: "SOAP"
+    }),
+    "Proverbs 1:1-7": guidedDevotional({
+      title: "The beginning of knowledge",
+      context: "Proverbs opens by explaining its purpose and naming the fear of the Lord as the beginning of knowledge.",
+      body: "Biblical wisdom begins with reverence. Skill for living is not detached from God; it starts with receiving instruction under His authority. The fool refuses wisdom because pride will not listen, but the wise become teachable before the Lord.",
+      observationQuestion: "What purposes does Proverbs give for its instruction?",
+      reflectionQuestion: "Where do you need to become teachable before the Lord?",
+      prayer: "Lord, give me reverence, humility, and a heart willing to receive correction.",
+      gentleAction: "Ask one honest question today before defending your first instinct.",
+      studyMethod: "Word study"
+    }),
+    "Proverbs 2:1-11": guidedDevotional({
+      title: "Search for wisdom",
+      context: "Proverbs 2 describes wisdom as something received from the Lord and pursued with attention, prayer, and effort.",
+      body: "Wisdom is both gift and pursuit. The Lord gives wisdom, yet the passage calls us to receive, treasure, call out, seek, and search. This protects us from passivity and pride: we depend on God while actively seeking what He gives.",
+      observationQuestion: "What actions does the passage call for, and what does the Lord give?",
+      reflectionQuestion: "What would it look like to seek wisdom more deliberately this week?",
+      prayer: "Lord, teach me to seek wisdom as treasure and receive what comes from Your mouth.",
+      gentleAction: "Write one area where you need wisdom, then list one practical way to search for it faithfully.",
+      studyMethod: "Inductive"
+    }),
+    "Proverbs 3:5-12": guidedDevotional({
+      title: "Trust the Lord",
+      context: "Proverbs 3 joins trust, humility, obedience, generosity, and receiving the Lord's correction.",
+      body: "Wisdom is not leaning on your own understanding while asking God to bless your plan. It is trusting the Lord with all your heart, acknowledging Him, and receiving His correction as love. The wise path is relational before it is strategic.",
+      observationQuestion: "What does this passage contrast with leaning on your own understanding?",
+      reflectionQuestion: "Where are you tempted to trust your own understanding more than the Lord?",
+      prayer: "Lord, help me trust You with all my heart and acknowledge You in my ways.",
+      gentleAction: "Pause before one decision and consciously acknowledge the Lord.",
+      studyMethod: "SOAP"
+    }),
+    "Proverbs 4:20-27": guidedDevotional({
+      title: "Guard your heart",
+      context: "A father urges careful attention to wise words because the heart shapes the direction of life.",
+      body: "Wisdom pays attention to the inner life. The heart is not ignored as long as outward behavior looks fine; it must be guarded because life flows from it. Words, eyes, paths, and feet all matter because the whole person is being directed.",
+      observationQuestion: "What parts of life does the passage tell the listener to watch or guard?",
+      reflectionQuestion: "What is currently shaping your heart more than you realize?",
+      prayer: "Lord, guard my heart and straighten the path of my words, attention, and choices.",
+      gentleAction: "Remove or limit one influence today that is bending your heart away from wisdom.",
+      studyMethod: "OIA"
+    }),
+    "Proverbs 8:10-21": guidedDevotional({
+      title: "Wisdom's value",
+      context: "Wisdom speaks, calling people to value instruction, prudence, truth, righteousness, and what is better than riches.",
+      body: "Wisdom is valuable because it aligns life with what is true and right before God. Proverbs 8 does not despise practical life; it teaches us to prize wisdom above the things we often chase first. Better treasure leads to better decisions.",
+      observationQuestion: "What does wisdom say is better than silver, gold, and jewels?",
+      reflectionQuestion: "What lesser treasure is competing with wisdom in your choices?",
+      prayer: "Lord, make wisdom more precious to me than comfort, approval, or gain.",
+      gentleAction: "Before one purchase, plan, or ambition, ask what wisdom would value most.",
+      studyMethod: "Word study"
+    }),
+    "Ecclesiastes 3:1-11": guidedDevotional({
+      title: "A time for everything",
+      context: "Ecclesiastes reflects on the seasons of life and the limits of human understanding under God's rule.",
+      body: "Wisdom accepts that life has seasons we cannot fully control. God makes everything beautiful in its time, yet humans cannot grasp the whole work of God from beginning to end. This passage invites humility, patience, and trust when timing is not in your hands.",
+      observationQuestion: "What repeated pattern does the passage use to describe life's seasons?",
+      reflectionQuestion: "What season do you need to receive with humility before God?",
+      prayer: "Lord, teach me to trust Your timing when I cannot see the whole work You are doing.",
+      gentleAction: "Name the season you are in and one faithful response for today.",
+      studyMethod: "COMA"
+    }),
+    "Matthew 7:24-27": guidedDevotional({
+      title: "Build on the rock",
+      context: "Jesus closes the Sermon on the Mount by comparing those who hear and obey His words with those who hear and do not obey.",
+      body: "Wisdom is not merely admiring Jesus' teaching. The wise builder hears and does His words. Storms reveal foundations, so the question is not whether words sounded inspiring, but whether life is being built on obedience to Christ.",
+      observationQuestion: "What is the difference between the wise and foolish builders?",
+      reflectionQuestion: "What word of Jesus needs to move from hearing to obedience in your life?",
+      prayer: "Lord Jesus, make me a hearer and doer of Your words.",
+      gentleAction: "Choose one command of Jesus you can put into practice today.",
+      studyMethod: "SOAP"
+    }),
+    "James 1:5-8": guidedDevotional({
+      title: "Ask God for wisdom",
+      context: "James writes to believers facing trials and invites those lacking wisdom to ask the generous God.",
+      body: "Wisdom is needed not only for big decisions but for endurance. James points us to a God who gives generously without reproach. Asking for wisdom is an act of faith: we come to God as the source rather than wavering between dependence and self-rule.",
+      observationQuestion: "What does James say God is like toward those who ask for wisdom?",
+      reflectionQuestion: "Where do you need to ask God for wisdom instead of merely reacting?",
+      prayer: "Generous God, give me wisdom and make my trust steady.",
+      gentleAction: "Ask God for wisdom before responding to one pressure today.",
+      studyMethod: "Inductive"
+    }),
+    "James 3:13-18": guidedDevotional({
+      title: "Wisdom from above",
+      context: "James contrasts earthly wisdom marked by selfish ambition with wisdom from above marked by purity and peace.",
+      body: "Not all wisdom is from God. James exposes the difference by its fruit. Heavenly wisdom is pure, peaceable, gentle, open to reason, full of mercy and good fruit, impartial, and sincere. True wisdom can be recognized in the kind of life it produces.",
+      observationQuestion: "What traits distinguish wisdom from above from earthly wisdom?",
+      reflectionQuestion: "Which fruit of wisdom from above needs to grow in your relationships?",
+      prayer: "Lord, make my wisdom peaceable, gentle, merciful, and sincere.",
+      gentleAction: "Choose gentleness in one conversation where self-protection would be easier.",
+      studyMethod: "OIA"
+    }),
+    "Colossians 3:12-17": guidedDevotional({
+      title: "Wise community life",
+      context: "Paul describes the life of God's chosen people as they put on compassion, forgiveness, love, peace, gratitude, and the word of Christ.",
+      body: "Wisdom is not only private decision-making. It is seen in the way believers bear with one another, forgive, let peace rule, and let Christ's word dwell richly. A wise life is a word-shaped, thankful, love-clothed life among other people.",
+      observationQuestion: "What practices does Paul call God's people to put on or let rule among them?",
+      reflectionQuestion: "Where does wisdom need to shape your words or relationships today?",
+      prayer: "Christ, let Your word dwell richly in me and make my life thankful and loving.",
+      gentleAction: "Speak one word today that is shaped by gratitude, peace, or forgiveness.",
+      studyMethod: "COMA"
+    }),
+    "2 Timothy 3:14-17": guidedDevotional({
+      title: "Scripture equips",
+      context: "Paul urges Timothy to continue in the Scriptures, which are God-breathed and able to make him wise for salvation through faith in Christ.",
+      body: "Scripture gives wisdom that leads to salvation in Christ and equips God's people for every good work. This keeps wisdom anchored: the goal is not appearing insightful, but being taught, corrected, trained, and equipped by God's breathed-out word.",
+      observationQuestion: "What does Paul say Scripture is able to do and useful for?",
+      reflectionQuestion: "Where do you need Scripture to teach, correct, train, or equip you?",
+      prayer: "God, let Your breathed-out Word make me wise in Christ and ready for good works.",
+      gentleAction: "Choose one correction or encouragement from Scripture to carry into action.",
+      studyMethod: "Inductive"
+    })
   },
   "seven-days-peace": {
     "Psalm 4:6-8": guidedDevotional({

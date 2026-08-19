@@ -13,7 +13,8 @@
     "seo:prepare": "node scripts/prepare-seo.mjs",
     "web:export": "npm run seo:prepare && HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo export --platform web",
     "serve:dist": "python3 -m http.server 8088 --directory dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "plans:audit": "node scripts/validate-reading-plans.mjs"
   },
   "dependencies": {
     "@auth/core": "^0.37.0",

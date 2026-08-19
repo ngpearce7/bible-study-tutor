@@ -169,10 +169,36 @@ function buildChapterPlanWithReflectionDays(id: string, title: string, descripti
     const chapter = chapters[Math.min(day - 1, chapters.length - 1)] || chapters[0];
     const reference = chapterReference(chapter.book, chapter.chapter);
     const isReflectionDay = day > chapters.length;
-    days.push(buildDay(day, reference, chapter.book, chapter.chapter, isReflectionDay ? `Reflect on ${reference}` : reference, reference));
+    days.push(
+      buildDay(
+        day,
+        reference,
+        chapter.book,
+        chapter.chapter,
+        isReflectionDay ? `Reflect on ${reference}` : reference,
+        reference,
+        isReflectionDay ? reflectionDayGuidance(reference) : {}
+      )
+    );
   }
 
   return enrichPlanMetadata({ id, title, description, source: "built-in", category, days });
+}
+
+function reflectionDayGuidance(reference: string): BibleReadingPlanDayExtras {
+  return {
+    context: `This reflection day returns to ${reference} so the passage can settle rather than simply be checked off.`,
+    devotional: {
+      title: `Return to ${reference}`,
+      body: "A slower reading can reveal what a first reading missed. Come back to the passage with attention to repeated words, commands, promises, warnings, and the way it points you toward God. Let review become meditation, not busywork.",
+      source: "Bible Study Tutor"
+    },
+    observationQuestion: "What did you notice this time that you did not notice before?",
+    reflectionQuestion: "What part of this passage needs to shape your trust, repentance, worship, or obedience today?",
+    prayer: "Lord, help Your Word remain with me and form me in faithful love for You.",
+    gentleAction: "Write one sentence you want to carry from this passage today.",
+    studyMethod: "Meditation"
+  };
 }
 
 function buildOldNewTogetherPlan(id: string, title: string, description: string, dayCount: number): BibleReadingPlan {
@@ -365,6 +391,17 @@ function guidedDevotional({
     studyMethod,
     careNote
   });
+}
+
+function withPastoralCareNote(plan: BibleReadingPlan): BibleReadingPlan {
+  return {
+    ...plan,
+    careNote: plan.careNote || carePlanPastoralNote,
+    days: plan.days.map((day) => ({
+      ...day,
+      careNote: day.careNote || carePlanPastoralNote
+    }))
+  };
 }
 
 const psalm46StillBeforeGodDevotional = devotional(
@@ -1266,7 +1303,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Colossians 3:12-17", "Colossians", 3, "Wise community life"],
     ["2 Timothy 3:14-17", "2 Timothy", 3, "Scripture equips"]
   ], "Wisdom")),
-  withCuratedDevotionals(planFromReferences("fourteen-days-grief-comfort", "14 Days on Grief and Comfort", "Gentle readings for sorrow, hope, and God's nearness.", [
+  withPastoralCareNote(withCuratedDevotionals(planFromReferences("fourteen-days-grief-comfort", "14 Days on Grief and Comfort", "Gentle readings for sorrow, hope, and God's nearness.", [
     ["Psalm 13:1-6", "Psalms", 13, "How long, O Lord"],
     ["Psalm 23:1-6", "Psalms", 23, "The Shepherd's comfort"],
     ["Psalm 34:17-22", "Psalms", 34, "Near the brokenhearted"],
@@ -1281,8 +1318,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8:18-25", "Romans", 8, "Future glory"],
     ["2 Corinthians 1:3-7", "2 Corinthians", 1, "God of all comfort"],
     ["Revelation 21:1-5", "Revelation", 21, "Every tear wiped away"]
-  ], "Care")),
-  withCuratedDevotionals(planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
+  ], "Care"))),
+  withPastoralCareNote(withCuratedDevotionals(planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd is near"],
     ["Psalm 27:1-5", "Psalms", 27, "The Lord is my light"],
     ["Psalm 46:1-11", "Psalms", 46, "Be still", psalm46StillBeforeGodDevotional],
@@ -1297,7 +1334,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"],
     ["1 John 4:13-19", "1 John", 4, "Perfect love"]
-  ], "Care")),
+  ], "Care"))),
   planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
     ["Matthew 21", "Matthew", 21, "Palm Sunday"],
     ["Matthew 22", "Matthew", 22, "Questions and teaching"],

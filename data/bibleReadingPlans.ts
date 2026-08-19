@@ -563,9 +563,308 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   })
 };
 
+const holyWeekDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Matthew 21": guidedDevotional({
+    title: "The King comes humbly",
+    context: "Jesus enters Jerusalem as crowds shout Hosanna, then He enters the temple and confronts fruitless religion.",
+    body: "Holy Week begins with Jesus openly receiving royal praise, but His kingship is humble, prophetic, and searching. He comes not as a ruler who flatters religious appearances, but as the promised King who exposes what is barren and calls His people to true worship.",
+    observationQuestion: "What do the crowds say about Jesus, and what does Jesus confront after entering Jerusalem?",
+    reflectionQuestion: "Where might you welcome Jesus publicly while resisting His searching authority privately?",
+    prayer: "King Jesus, receive my worship and make my life fruitful before You.",
+    gentleAction: "Pray 'Hosanna' slowly and ask where Christ's rule needs to be welcomed today.",
+    studyMethod: "COMA"
+  }),
+  "Matthew 22": guidedDevotional({
+    title: "Love God and neighbor",
+    context: "Religious leaders test Jesus with questions, and He answers with wisdom about kingdom invitation, allegiance, resurrection, and the greatest commandment.",
+    body: "Jesus is not trapped by hostile questions. He reveals the heart of faithful life: love the Lord with all your heart, soul, and mind, and love your neighbor as yourself. In the shadow of the cross, Jesus shows that true obedience is ordered by love.",
+    observationQuestion: "What questions are brought to Jesus, and how does He redirect attention to God?",
+    reflectionQuestion: "Where does love for God or neighbor need to become more than an idea today?",
+    prayer: "Lord Jesus, order my loves around God and teach me to love my neighbor faithfully.",
+    gentleAction: "Choose one concrete act that reflects love for God or neighbor today.",
+    studyMethod: "OIA"
+  }),
+  "Matthew 26": lifeOfJesusDevotionals["Matthew 26"],
+  "John 13": lifeOfJesusDevotionals["John 13"],
+  "John 17": lifeOfJesusDevotionals["John 17"],
+  "John 19": lifeOfJesusDevotionals["John 19"],
+  "John 20": lifeOfJesusDevotionals["John 20"]
+};
+
+const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Genesis 3": guidedDevotional({
+    title: "Promise in the fall",
+    context: "Human rebellion brings shame, judgment, and exile, yet God speaks a promise of defeat for the serpent.",
+    body: "Advent begins where the need for rescue begins. The promise of the woman's offspring does not erase the seriousness of sin, but it plants hope inside judgment. The coming of Christ answers a problem deeper than disappointment: humanity needs a Redeemer.",
+    observationQuestion: "What is broken by sin, and what promise does God speak?",
+    reflectionQuestion: "How does the first promise of rescue deepen your view of why Christ came?",
+    prayer: "Lord God, thank You for promising rescue when humanity could not rescue itself.",
+    gentleAction: "Name one place where you need redemption rather than self-repair.",
+    studyMethod: "Biblical theology"
+  }),
+  "Genesis 12": guidedDevotional({
+    title: "Blessing for the nations",
+    context: "God calls Abram and promises land, descendants, blessing, and blessing for all families of the earth.",
+    body: "The hope of Christ is not narrow or accidental. God promises blessing through Abraham that will reach the nations. Advent remembers that Jesus comes as the promised seed through whom God's blessing spreads beyond one family to people from every people and place.",
+    observationQuestion: "What does God promise Abram, and who will be blessed through him?",
+    reflectionQuestion: "How does God's promise to bless the nations enlarge your worship of Christ?",
+    prayer: "God of promise, thank You that Your blessing in Christ reaches the nations.",
+    gentleAction: "Pray for one nation, people group, or community to know Christ's blessing.",
+    studyMethod: "COMA"
+  }),
+  "Isaiah 7": guidedDevotional({
+    title: "God with us",
+    context: "In a time of political fear, Isaiah gives the sign of Immanuel: God with us.",
+    body: "Isaiah 7 speaks into fear and unbelief. The sign of Immanuel becomes part of the long hope that God will be with His people in a decisive way. Advent is not simply comfort in the abstract; it is the wonder that God draws near in Christ.",
+    observationQuestion: "What fear surrounds the passage, and what sign is given?",
+    reflectionQuestion: "Where do you need the promise of God with us to confront fear or unbelief?",
+    prayer: "Immanuel, steady my heart with the truth that God has drawn near in Christ.",
+    gentleAction: "Write 'God with us' beside one concern you are carrying.",
+    studyMethod: "OIA"
+  }),
+  "Isaiah 9": guidedDevotional({
+    title: "A child who reigns",
+    context: "Isaiah promises light for people in darkness and a child whose government and peace will not end.",
+    body: "The promised child is more than a symbol of hope. He bears royal names and brings righteous peace. Advent holds together tenderness and majesty: a child is born, a Son is given, and the government rests on His shoulders.",
+    observationQuestion: "What darkness is answered, and what names are given to the promised child?",
+    reflectionQuestion: "Which name of the promised King do you most need to trust today?",
+    prayer: "Wonderful Counselor, Mighty God, Everlasting Father, Prince of Peace, reign in my heart today.",
+    gentleAction: "Pray through one title from Isaiah 9 as worship.",
+    studyMethod: "Word study"
+  }),
+  "Isaiah 11": guidedDevotional({
+    title: "The righteous Branch",
+    context: "Isaiah looks for a shoot from Jesse's line, filled with the Spirit and ruling with righteousness.",
+    body: "The Messiah brings wisdom, justice, and peace that reaches beyond what human rulers can produce. Isaiah's vision is not mere moral improvement; it is creation renewed under the righteous reign of the Lord's anointed King.",
+    observationQuestion: "What does the Spirit give the coming King, and what kind of reign follows?",
+    reflectionQuestion: "Where do you long for Christ's righteous peace to make things new?",
+    prayer: "Righteous King, rule with wisdom and peace, and teach me to hope in Your renewal.",
+    gentleAction: "Pray for one place where righteousness and peace are desperately needed.",
+    studyMethod: "Inductive"
+  }),
+  "Micah 5": guidedDevotional({
+    title: "Ruler from Bethlehem",
+    context: "Micah promises a ruler from Bethlehem whose origins are ancient and whose greatness reaches to the ends of the earth.",
+    body: "God's promised ruler comes from a small place, yet His rule is everlasting and His care is shepherd-like. Advent teaches you to look for God's saving work where the world may not think to look: in humility, promise, and faithful shepherding.",
+    observationQuestion: "What does Micah say about the ruler's origin, rule, and shepherding care?",
+    reflectionQuestion: "How does Bethlehem's smallness help you recognize God's way of working?",
+    prayer: "Lord, teach me to trust Your promised Shepherd-King even when Your ways appear small.",
+    gentleAction: "Thank God for one quiet mercy that reveals His faithful care.",
+    studyMethod: "SOAP"
+  }),
+  "Luke 1": guidedDevotional({
+    title: "Mercy remembered",
+    context: "Luke 1 announces the births of John and Jesus, and Mary praises God for remembering His mercy.",
+    body: "The coming of Jesus is not an isolated miracle. It is God's faithfulness to His promises, His mercy to the humble, and His saving help for His people. Mary's song teaches Advent worship to remember God's character and promises.",
+    observationQuestion: "What does Mary say God has done, and what kind of people receive His mercy?",
+    reflectionQuestion: "Where do you need to remember that God keeps His promises with mercy?",
+    prayer: "Lord, magnify Your mercy in my heart and teach me to rejoice in Your faithfulness.",
+    gentleAction: "Write one phrase from Mary's song as a sentence of praise.",
+    studyMethod: "OIA"
+  }),
+  "Luke 2": lifeOfJesusDevotionals["Luke 2"],
+  "Matthew 1": guidedDevotional({
+    title: "Jesus saves His people",
+    context: "Matthew traces Jesus' genealogy and records the angel's word to Joseph about Mary's child.",
+    body: "Jesus' name declares His mission: He will save His people from their sins. Matthew also names Him Immanuel, God with us. Advent joy is therefore not vague cheer; it is salvation from sin and God's presence with His people in the Son.",
+    observationQuestion: "What names or titles are given to Jesus, and what do they reveal?",
+    reflectionQuestion: "How does Jesus' mission to save from sin shape your Advent hope?",
+    prayer: "Jesus, Savior and Immanuel, forgive my sin and draw me near to God.",
+    gentleAction: "Pray with the name Jesus, thanking Him for saving grace.",
+    studyMethod: "SOAP"
+  }),
+  "Matthew 2": guidedDevotional({
+    title: "Worship the newborn King",
+    context: "Magi seek Jesus, Herod resists Him, and God protects the child through warning and flight.",
+    body: "Matthew 2 contrasts worship and opposition. The nations begin to come to the King, while earthly power feels threatened by Him. The chapter reminds you that Christ's coming calls for costly worship and that God's preserving hand is active even amid danger.",
+    observationQuestion: "How do the Magi and Herod respond differently to the birth of Jesus?",
+    reflectionQuestion: "Where does Christ's kingship call for worship rather than control?",
+    prayer: "King Jesus, receive my worship and loosen my grip on control.",
+    gentleAction: "Offer one concrete gift of attention, time, or obedience to Christ today.",
+    studyMethod: "COMA"
+  }),
+  "John 1": guidedDevotional({
+    title: "The Word became flesh",
+    context: "John begins before creation and announces that the eternal Word became flesh and dwelt among us.",
+    body: "The child in the manger is the eternal Word through whom all things were made. John holds together glory and nearness: the Word became flesh, full of grace and truth. Advent worship bows before the mystery that God the Son truly came among us.",
+    observationQuestion: "What does John say about the Word before describing His becoming flesh?",
+    reflectionQuestion: "What does it mean for you today that God's grace and truth have come in Christ?",
+    prayer: "Word made flesh, fill my heart with wonder at Your glory, grace, and truth.",
+    gentleAction: "Read John 1:14 slowly three times and emphasize a different word each time.",
+    studyMethod: "Meditation"
+  }),
+  "Galatians 4": guidedDevotional({
+    title: "Sent in the fullness of time",
+    context: "Paul explains that God sent His Son to redeem those under the law so they might receive adoption.",
+    body: "Christmas is timed by God's wisdom and aimed at redemption and adoption. The Son is sent so slaves become children and the Spirit teaches them to cry, 'Abba, Father.' Advent hope reaches into identity: in Christ, you are received as God's child.",
+    observationQuestion: "Why does Paul say God sent His Son, and what status is given to believers?",
+    reflectionQuestion: "Where do you need to live as an adopted child rather than a spiritual orphan?",
+    prayer: "Father, thank You for sending Your Son so I may belong to You as Your child.",
+    gentleAction: "Pray 'Abba, Father' and name one need honestly before God.",
+    studyMethod: "Word study"
+  }),
+  "Philippians 2": guidedDevotional({
+    title: "The humility of Christ",
+    context: "Paul calls believers to humility by pointing to Christ's descent, obedience, death, and exaltation.",
+    body: "The incarnation reveals not only that Christ came, but how He came: in humility, servanthood, and obedience to death. The Father exalts Him, and every knee will bow. Advent worship should produce humble love, not merely seasonal feeling.",
+    observationQuestion: "What movement do you see from Christ's humility to His exaltation?",
+    reflectionQuestion: "Where should Christ's humility reshape your attitude toward others?",
+    prayer: "Lord Jesus, humble my heart and teach me to love in the pattern of Your self-giving.",
+    gentleAction: "Choose one interaction where you can take the lower place in love.",
+    studyMethod: "Inductive"
+  }),
+  "Revelation 22": guidedDevotional({
+    title: "Come, Lord Jesus",
+    context: "The Bible ends with the river of life, the tree of life, and the promise that Jesus is coming soon.",
+    body: "Advent looks back to Christ's first coming and forward to His return. The final prayer, 'Come, Lord Jesus,' gathers longing, hope, and worship. The One who came in humility will come again, and His people will see His face.",
+    observationQuestion: "What future hope is described, and what promise does Jesus give?",
+    reflectionQuestion: "How does longing for Christ's return shape the way you wait now?",
+    prayer: "Come, Lord Jesus. Keep my hope awake until I see Your face.",
+    gentleAction: "End today with the prayer, 'Come, Lord Jesus.'",
+    studyMethod: "Meditation"
+  })
+};
+
+const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Isaiah 53": guidedDevotional({
+    title: "Wounded for our transgressions",
+    context: "Isaiah speaks of the suffering Servant who bears sin, is pierced, and yet sees life beyond His suffering.",
+    body: "Isaiah 53 prepares you to see the cross as substitution, not tragedy alone. The Servant suffers for His people, bears their iniquity, and brings peace through His wounds. Easter hope begins with the costly mercy of the suffering Servant.",
+    observationQuestion: "What does the Servant suffer, and for whom does He suffer?",
+    reflectionQuestion: "How does Christ bearing sin change the way you bring guilt or shame to God?",
+    prayer: "Lord Jesus, thank You for bearing sin and bringing peace through Your wounds.",
+    gentleAction: "Confess one sin honestly and receive the mercy of Christ.",
+    studyMethod: "SOAP"
+  }),
+  "Matthew 28": guidedDevotional({
+    title: "He has risen",
+    context: "Women come to the tomb, hear the angel's announcement, meet the risen Jesus, and receive a commission.",
+    body: "The resurrection is announced with clarity: He is not here; He has risen. Fear gives way to worship and mission. The risen Jesus sends His disciples with authority, presence, and a command to make disciples of all nations.",
+    observationQuestion: "What message is given at the tomb, and what command does Jesus give His disciples?",
+    reflectionQuestion: "Where should resurrection hope turn fear into worship or witness?",
+    prayer: "Risen Lord, fill me with worship and courage to live as Your disciple.",
+    gentleAction: "Tell one person or write one sentence about why the resurrection matters.",
+    studyMethod: "COMA"
+  }),
+  "Mark 16": guidedDevotional({
+    title: "Alarm and announcement",
+    context: "The women come to anoint Jesus and find the stone rolled away and the tomb empty.",
+    body: "Mark's resurrection account confronts human fear with divine announcement. The crucified Jesus is risen, and His followers are called to go and tell. The passage does not ask you to manufacture confidence; it asks you to hear the announcement and respond.",
+    observationQuestion: "What do the women expect, what do they find, and what message are they given?",
+    reflectionQuestion: "What fear needs to be answered by the announcement that Jesus is risen?",
+    prayer: "Lord Jesus, meet my fear with the truth of Your resurrection.",
+    gentleAction: "Repeat the words 'He has risen' when fear feels louder than faith.",
+    studyMethod: "OIA"
+  }),
+  "Luke 24": guidedDevotional({
+    title: "Opened eyes and burning hearts",
+    context: "Luke 24 moves from the empty tomb to the Emmaus road and Jesus opening the Scriptures to His disciples.",
+    body: "The risen Jesus teaches His followers to understand His death and resurrection from the Scriptures. Their hearts burn as He opens the Word, and their eyes are opened to know Him. Resurrection faith is anchored in Scripture and fellowship with the living Christ.",
+    observationQuestion: "How does Jesus explain His suffering and glory to the disciples?",
+    reflectionQuestion: "Where do you need Christ to open the Scriptures and renew your hope?",
+    prayer: "Risen Lord, open my eyes to know You and my heart to receive Your Word.",
+    gentleAction: "Read one paragraph slowly and ask, 'How does this point me to Christ?'",
+    studyMethod: "Biblical theology"
+  }),
+  "John 20": lifeOfJesusDevotionals["John 20"],
+  "John 21": guidedDevotional({
+    title: "Restored and sent",
+    context: "The risen Jesus meets His disciples by the sea, provides breakfast, and restores Peter.",
+    body: "Jesus restores Peter not by ignoring his failure, but by drawing love and calling from him again. The risen Lord feeds, forgives, and commissions. Easter grace restores failed disciples into renewed love and faithful service.",
+    observationQuestion: "How does Jesus care for the disciples and restore Peter?",
+    reflectionQuestion: "Where do you need the risen Jesus to restore love after failure?",
+    prayer: "Lord Jesus, restore my love for You and teach me to follow You faithfully.",
+    gentleAction: "Answer Jesus' question, 'Do you love Me?' in prayer with honesty.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 2": guidedDevotional({
+    title: "The risen Christ proclaimed",
+    context: "At Pentecost, Peter proclaims that God raised Jesus and made Him both Lord and Christ.",
+    body: "The resurrection becomes public proclamation. Peter announces that the crucified Jesus is risen, exalted, and reigning. The right response is repentance, faith, baptism, and life among God's people under the gift of the Spirit.",
+    observationQuestion: "What does Peter say God has done with Jesus?",
+    reflectionQuestion: "How should Jesus' resurrection and lordship shape your repentance and witness?",
+    prayer: "Lord Jesus, rule over me by Your Spirit and make me bold in faithful witness.",
+    gentleAction: "Pray for courage to speak of Christ clearly and humbly.",
+    studyMethod: "Inductive"
+  }),
+  "Acts 4": guidedDevotional({
+    title: "No other name",
+    context: "Peter and John testify before leaders after healing a man in Jesus' name.",
+    body: "The apostles do not present Jesus as one spiritual option among many. The rejected stone has become the cornerstone, and salvation is found in no other name. Resurrection confidence produces humble boldness before opposition.",
+    observationQuestion: "What claims are made about Jesus' name and salvation?",
+    reflectionQuestion: "Where do you need Spirit-given courage to hold fast to Christ?",
+    prayer: "Lord Jesus, keep me faithful to Your name with courage, humility, and love.",
+    gentleAction: "Pray Acts 4:12 as a confession of trust in Christ.",
+    studyMethod: "COMA"
+  }),
+  "Romans 6": guidedDevotional({
+    title: "Raised to new life",
+    context: "Paul explains that believers are united with Christ in His death and resurrection.",
+    body: "The resurrection is not only something to believe about Jesus; it is the life believers share in Him. United to Christ, you are no longer to live as a slave to sin. Easter power means walking in newness of life.",
+    observationQuestion: "What does Paul say happened to believers with Christ?",
+    reflectionQuestion: "What would it look like to walk in newness of life today?",
+    prayer: "Lord Jesus, make Your resurrection life visible in my desires, choices, and habits.",
+    gentleAction: "Identify one old pattern to resist and one new obedience to practice.",
+    studyMethod: "OIA"
+  }),
+  "Romans 8": guidedDevotional({
+    title: "Life in the Spirit",
+    context: "Romans 8 describes life in Christ, the Spirit's work, present suffering, future glory, and God's inseparable love.",
+    body: "Because of Christ, there is no condemnation for those who are in Him. The Spirit gives life, helps weakness, and anchors hope as believers wait for glory. Resurrection hope does not erase suffering, but it assures you that nothing can separate you from God's love in Christ.",
+    observationQuestion: "What does Romans 8 say the Spirit does for those who belong to Christ?",
+    reflectionQuestion: "Which promise in this chapter needs to steady your hope today?",
+    prayer: "Spirit of God, lead me in life, help me in weakness, and anchor me in Christ's love.",
+    gentleAction: "Choose one promise from Romans 8 and keep it visible today.",
+    studyMethod: "SOAP"
+  }),
+  "1 Corinthians 15": guidedDevotional({
+    title: "If Christ has been raised",
+    context: "Paul defends the resurrection and explains why Christ's resurrection is central to Christian hope.",
+    body: "Paul makes the resurrection essential, not optional. If Christ is not raised, faith is empty; but Christ has been raised, the firstfruits of those who sleep. This hope gives courage for steadfast, meaningful labor in the Lord.",
+    observationQuestion: "What consequences does Paul name if Christ is not raised, and what hope follows because He is raised?",
+    reflectionQuestion: "How does resurrection hope make faithfulness worth it today?",
+    prayer: "Risen Christ, make me steadfast and full of hope because Your resurrection is sure.",
+    gentleAction: "Do one small act of faithful service as work that is not in vain.",
+    studyMethod: "Inductive"
+  }),
+  "1 Peter 1": guidedDevotional({
+    title: "Born again to living hope",
+    context: "Peter writes to suffering believers and begins with praise for new birth through Jesus' resurrection.",
+    body: "The resurrection gives believers a living hope and an imperishable inheritance. Trials are real, but they are not ultimate. Faith is refined, Christ is loved though unseen, and salvation is guarded by God's power.",
+    observationQuestion: "What blessings flow from the resurrection of Jesus in this passage?",
+    reflectionQuestion: "Where do you need living hope to steady you in trial or uncertainty?",
+    prayer: "Father, strengthen my living hope through the resurrection of Jesus Christ.",
+    gentleAction: "Name one hope in Christ that cannot perish, spoil, or fade.",
+    studyMethod: "Meditation"
+  }),
+  "Revelation 1": guidedDevotional({
+    title: "The Living One",
+    context: "John sees the risen and glorified Christ, who declares that He was dead and is alive forevermore.",
+    body: "The risen Jesus is not fragile or distant. He is the Living One, holding authority over death and Hades. Easter hope matures into awe: the crucified and risen Christ reigns in glory and speaks to His churches.",
+    observationQuestion: "How is Jesus described in John's vision?",
+    reflectionQuestion: "How does seeing Jesus as the Living One reshape fear of death or uncertainty?",
+    prayer: "Living Lord Jesus, fill me with reverent trust in Your victory and authority.",
+    gentleAction: "Pray Revelation 1:17-18 as worship and courage.",
+    studyMethod: "OIA"
+  }),
+  "Revelation 21": guidedDevotional({
+    title: "Every tear wiped away",
+    context: "John sees the new heaven and new earth, where God dwells with His people and makes all things new.",
+    body: "Resurrection hope ends in renewal. Death, mourning, crying, and pain do not have the final word. The God who raised Jesus will make all things new and dwell with His people forever.",
+    observationQuestion: "What former things pass away, and what does God promise to make new?",
+    reflectionQuestion: "Which sorrow needs to be held in the light of God's promised renewal?",
+    prayer: "God of resurrection hope, keep my heart anchored in the day when You make all things new.",
+    gentleAction: "Bring one sorrow to God and answer it with the words, 'I am making all things new.'",
+    studyMethod: "Meditation"
+  })
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
   "life-of-jesus": lifeOfJesusDevotionals,
+  "holy-week-passion-week": holyWeekDevotionals,
+  "advent-readings": adventDevotionals,
+  "easter-resurrection-readings": easterDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -2333,7 +2632,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"],
     ["1 John 4:13-19", "1 John", 4, "Perfect love"]
   ], "Care"))),
-  planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
+  withCuratedDevotionals(planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
     ["Matthew 21", "Matthew", 21, "Palm Sunday"],
     ["Matthew 22", "Matthew", 22, "Questions and teaching"],
     ["Matthew 26", "Matthew", 26, "Gethsemane"],
@@ -2341,8 +2640,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 17", "John", 17, "Jesus prays"],
     ["John 19", "John", 19, "The cross"],
     ["John 20", "John", 20, "The resurrection"]
-  ], "Gospels"),
-  planFromReferences("advent-readings", "Advent readings", "Readings that trace promise, hope, and the coming of Christ.", [
+  ], "Gospels")),
+  withCuratedDevotionals(planFromReferences("advent-readings", "Advent readings", "Readings that trace promise, hope, and the coming of Christ.", [
     ["Genesis 3", "Genesis", 3],
     ["Genesis 12", "Genesis", 12],
     ["Isaiah 7", "Isaiah", 7],
@@ -2357,8 +2656,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Galatians 4", "Galatians", 4],
     ["Philippians 2", "Philippians", 2],
     ["Revelation 22", "Revelation", 22]
-  ], "Gospels"),
-  planFromReferences("easter-resurrection-readings", "Easter / Resurrection readings", "Readings that focus on the resurrection and the hope it brings.", [
+  ], "Gospels")),
+  withCuratedDevotionals(planFromReferences("easter-resurrection-readings", "Easter / Resurrection readings", "Readings that focus on the resurrection and the hope it brings.", [
     ["Isaiah 53", "Isaiah", 53],
     ["Matthew 28", "Matthew", 28],
     ["Mark 16", "Mark", 16],
@@ -2373,7 +2672,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["1 Peter 1", "1 Peter", 1],
     ["Revelation 1", "Revelation", 1],
     ["Revelation 21", "Revelation", 21]
-  ], "Gospels"),
+  ], "Gospels")),
   withCuratedDevotionals(planFromReferences("life-of-jesus", "Life of Jesus", "Key readings from the birth, ministry, death, and resurrection of Jesus.", [
     ["Luke 2", "Luke", 2, "Birth of Jesus"],
     ["Matthew 3", "Matthew", 3, "Baptism of Jesus"],

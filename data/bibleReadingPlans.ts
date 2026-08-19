@@ -1623,6 +1623,236 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
     prayer: "Lord Jesus, let Your grace be sufficient and Your power rest on me in weakness.",
     gentleAction: "Pray, 'Your grace is sufficient,' over one limitation today.",
     studyMethod: "Meditation"
+  }),
+  "2 Corinthians 13; Galatians 1": guidedDevotional({
+    title: "Examine yourselves, hold fast to grace",
+    context: "Paul closes 2 Corinthians with a call to self-examination, then opens Galatians defending the one true gospel.",
+    body: "These chapters hold together sober self-examination and fierce gospel clarity. Paul wants believers to test whether they are in the faith, but he also refuses any distorted gospel that adds to Christ. Healthy faith is honest before God and anchored in grace.",
+    observationQuestion: "What does Paul urge the Corinthians to examine, and what warning does he give the Galatians?",
+    reflectionQuestion: "Where do you need both honest self-examination and renewed confidence in the gospel of grace?",
+    prayer: "Lord Jesus, keep me honest before You and guarded from every distortion of Your gospel.",
+    gentleAction: "Name one fruit of faith to examine and one gospel truth to hold fast.",
+    studyMethod: "COMA"
+  }),
+  "Galatians 2-3": guidedDevotional({
+    title: "Crucified with Christ",
+    context: "Paul defends justification by faith and confronts any return to law-based acceptance before God.",
+    body: "Paul insists that sinners are justified through faith in Christ, not works of the law. The Christian life is not self-salvation dressed in religious language; it is union with Christ. You live by faith in the Son of God, who loved you and gave Himself for you.",
+    observationQuestion: "What does Paul say about justification, faith, the law, and Christ's giving of Himself?",
+    reflectionQuestion: "Where are you tempted to rebuild a performance-based standing before God?",
+    prayer: "Lord Jesus, help me live by faith in You, the Son of God who loved me and gave Yourself for me.",
+    gentleAction: "Write Galatians 2:20 in your own words as a prayer.",
+    studyMethod: "SOAP"
+  }),
+  "Galatians 4-5": guidedDevotional({
+    title: "Freedom through the Spirit",
+    context: "Paul describes adoption in Christ and calls believers to stand firm in freedom and walk by the Spirit.",
+    body: "The gospel makes slaves into children who cry, 'Abba, Father.' Freedom in Christ is not permission for self-indulgence; it is life by the Spirit, expressed through love. The fruit of the Spirit shows what freedom grows into over time.",
+    observationQuestion: "What does Paul say about adoption, freedom, love, and the Spirit's fruit?",
+    reflectionQuestion: "Where should freedom in Christ become love rather than self-protection or self-indulgence?",
+    prayer: "Father, teach me to live as Your child and walk by the Spirit in love.",
+    gentleAction: "Choose one fruit of the Spirit to pray for and practice today.",
+    studyMethod: "OIA"
+  }),
+  "Galatians 6; Ephesians 1": guidedDevotional({
+    title: "Boasting in the cross, blessed in Christ",
+    context: "Galatians closes with cross-shaped boasting, and Ephesians opens with praise for every spiritual blessing in Christ.",
+    body: "Paul ends Galatians refusing to boast except in the cross, then begins Ephesians blessing God for grace planned, accomplished, and sealed in Christ. The Christian's identity is not self-made. It is received in Christ and marked by His cross.",
+    observationQuestion: "What does Paul boast in, and what blessings does he name in Christ?",
+    reflectionQuestion: "Which blessing in Christ needs to become more real to your sense of identity?",
+    prayer: "Father, teach me to boast in the cross and receive every blessing You give in Christ.",
+    gentleAction: "Choose one phrase from Ephesians 1 and thank God for it slowly.",
+    studyMethod: "Inductive"
+  }),
+  "Ephesians 2-3": guidedDevotional({
+    title: "Grace creates one new people",
+    context: "Paul explains salvation by grace and the mystery of Jews and Gentiles made one in Christ.",
+    body: "Ephesians 2 begins with death and mercy, then moves to reconciliation. Grace saves individuals and creates a new people, breaking down hostility through the cross. Paul's prayer in chapter 3 asks that believers would know Christ's love beyond knowledge.",
+    observationQuestion: "What does God do by grace, and what dividing wall has Christ broken down?",
+    reflectionQuestion: "How should grace make you humbler before God and more welcoming toward others?",
+    prayer: "Lord, root me in Christ's love and make me part of Your reconciled people.",
+    gentleAction: "Pray for one relationship or group where Christ's peace is needed.",
+    studyMethod: "SOAP"
+  }),
+  "Ephesians 4-5": guidedDevotional({
+    title: "Walk worthy in love and light",
+    context: "Paul moves from doctrine to the church's shared life, calling believers to unity, maturity, holiness, love, and light.",
+    body: "The gospel creates a new walk. Believers put off the old self and put on the new, speaking truth, forgiving as God forgave them, walking in love, and walking as children of light. Doctrine becomes visible in habits, speech, purity, and relationships.",
+    observationQuestion: "What old patterns are to be put off, and what new patterns are to be put on?",
+    reflectionQuestion: "Which part of your walk needs to better match the grace you have received?",
+    prayer: "Lord Jesus, make my life worthy of Your calling, full of truth, forgiveness, love, and light.",
+    gentleAction: "Practice one specific 'put off' and one specific 'put on' today.",
+    studyMethod: "OIA"
+  }),
+  "Ephesians 6; Philippians 1": guidedDevotional({
+    title: "Stand firm, live worthy",
+    context: "Ephesians ends with spiritual warfare and prayer, while Philippians begins with gospel partnership and courage.",
+    body: "Paul calls believers to stand in the Lord's strength, clothed with God's armor and dependent in prayer. Philippians then shows gospel partnership marked by affection, discernment, and courage. The Christian life is not passive; it stands firm and lives worthy of the gospel.",
+    observationQuestion: "What resources does God give for standing firm, and what does Paul pray for in Philippians?",
+    reflectionQuestion: "Where do you need strength to stand firm and love to grow in discernment?",
+    prayer: "Lord, strengthen me in Your armor and make my life worthy of the gospel.",
+    gentleAction: "Pray through one piece of God's armor before a difficult part of your day.",
+    studyMethod: "COMA"
+  }),
+  "Philippians 2-3": guidedDevotional({
+    title: "The mind of Christ",
+    context: "Paul points to Christ's humility and exaltation, then counts everything loss because of the surpassing worth of knowing Him.",
+    body: "Christ's humility is the pattern for the church's life together. Paul then shows the same gospel logic personally: status and achievement are loss compared with knowing Christ. The Christian presses on because Christ has made them His own.",
+    observationQuestion: "What does Christ's humility look like, and what does Paul count as loss?",
+    reflectionQuestion: "Where does the mind of Christ confront pride, rivalry, or misplaced confidence?",
+    prayer: "Lord Jesus, form Your humility in me and make knowing You my surpassing treasure.",
+    gentleAction: "Take one lowly step of service that no one needs to applaud.",
+    studyMethod: "Meditation"
+  }),
+  "Philippians 4; Colossians 1": guidedDevotional({
+    title: "Peace and the preeminence of Christ",
+    context: "Philippians closes with peace, contentment, and generosity, while Colossians opens with the supremacy of Christ.",
+    body: "Paul's peace is not detached from Christ's greatness. Philippians calls anxious hearts to prayer and contentment; Colossians shows the Son as image of God, Creator, Sustainer, Redeemer, and Head of the church. Peace grows as the heart is anchored in Christ's preeminence.",
+    observationQuestion: "What does Paul say about prayer, contentment, and the supremacy of Christ?",
+    reflectionQuestion: "Which concern needs to be brought under the greatness and nearness of Christ?",
+    prayer: "Lord Jesus, rule my heart with Your peace and keep my eyes fixed on Your glory.",
+    gentleAction: "Turn one anxious thought into a specific prayer with thanksgiving.",
+    studyMethod: "SOAP"
+  }),
+  "Colossians 2-3": guidedDevotional({
+    title: "Rooted in Christ, raised with Christ",
+    context: "Paul warns against empty teaching and calls believers to live from their union with Christ.",
+    body: "Colossians roots maturity in Christ Himself. Believers are filled in Him, buried and raised with Him, and called to set their minds above because their life is hidden with Christ in God. New life then becomes visible in putting off sin and putting on love.",
+    observationQuestion: "What does Paul say believers have in Christ, and what are they called to put off and put on?",
+    reflectionQuestion: "Where should being raised with Christ change your attention, desires, or relationships?",
+    prayer: "Christ, keep me rooted in You and make my hidden life with You visible in love.",
+    gentleAction: "Choose one 'put on' quality from Colossians 3 to practice deliberately.",
+    studyMethod: "Inductive"
+  }),
+  "Colossians 4; 1 Thessalonians 1": guidedDevotional({
+    title: "Prayerful witness and visible faith",
+    context: "Colossians closes with prayerful, gracious speech, and 1 Thessalonians opens by celebrating faith, love, and hope.",
+    body: "Paul joins witness and character. Believers are to pray for open doors, speak with grace, and live in such a way that faith, love, and hope become visible. The gospel rings out through ordinary communities shaped by Christ.",
+    observationQuestion: "What does Paul ask believers to pray for, and what does he celebrate in the Thessalonians?",
+    reflectionQuestion: "How could your speech or daily faith make Christ more visible this week?",
+    prayer: "Lord, open doors for Your Word and make my faith, love, and hope visible.",
+    gentleAction: "Prepare one gracious sentence that could point someone toward Christ.",
+    studyMethod: "OIA"
+  }),
+  "1 Thessalonians 2-3": guidedDevotional({
+    title: "Gentle care and steadfast faith",
+    context: "Paul recalls his gentle, honest ministry among the Thessalonians and his concern for their endurance.",
+    body: "Gospel ministry is both truthful and tender. Paul compares his care to a nursing mother and an encouraging father, then rejoices that the believers stand firm. Christian encouragement is not vague positivity; it helps faith endure under pressure.",
+    observationQuestion: "What images does Paul use for his care, and what does he desire for their faith?",
+    reflectionQuestion: "Who needs your truthful, gentle encouragement to stand firm?",
+    prayer: "Lord, make me tender, truthful, and strengthening toward others in faith.",
+    gentleAction: "Encourage one believer with a specific reminder of God's faithfulness.",
+    studyMethod: "SOAP"
+  }),
+  "1 Thessalonians 4-5": guidedDevotional({
+    title: "Holiness, hope, and watchfulness",
+    context: "Paul teaches about holiness, brotherly love, resurrection hope, the day of the Lord, and life together.",
+    body: "The hope of Christ's return shapes present holiness. Paul comforts grief with resurrection promise and calls the church to watchfulness, encouragement, prayer, gratitude, and discernment. Future hope should make ordinary faithfulness steadier.",
+    observationQuestion: "What does Paul teach about holiness, grief, Christ's return, and life together?",
+    reflectionQuestion: "How should resurrection hope change the way you grieve, encourage, or pursue holiness?",
+    prayer: "Lord Jesus, sanctify me and keep me watchful in hope until You come.",
+    gentleAction: "Use 1 Thessalonians 5:16-18 as a simple rhythm today: rejoice, pray, give thanks.",
+    studyMethod: "COMA"
+  }),
+  "2 Thessalonians 1-2": guidedDevotional({
+    title: "Steady hope under confusion",
+    context: "Paul comforts suffering believers and corrects confusion about the day of the Lord.",
+    body: "The Thessalonians face affliction and unsettling claims, but Paul anchors them in God's righteous judgment, Christ's glory, and the truth they received. Hope does not need speculation to survive; it needs steadfast trust in the Lord who will set things right.",
+    observationQuestion: "What comfort and correction does Paul give to suffering and unsettled believers?",
+    reflectionQuestion: "Where do you need steady hope rather than anxious speculation?",
+    prayer: "Lord Jesus, steady me in truth, hope, and endurance under pressure.",
+    gentleAction: "Turn one anxious question about the future into trust in Christ's faithful return.",
+    studyMethod: "Inductive"
+  }),
+  "2 Thessalonians 3; 1 Timothy 1": guidedDevotional({
+    title: "Faithful order and abundant mercy",
+    context: "Paul calls for prayer, ordered work, and perseverance, then opens 1 Timothy by celebrating mercy to sinners.",
+    body: "Paul cares about both church order and gospel mercy. The Lord is faithful to establish and guard His people, and Christ came into the world to save sinners. Ordered discipleship must never forget the mercy that rescued Paul and rescues us.",
+    observationQuestion: "What does Paul ask believers to pray for, and how does he describe Christ's mercy in 1 Timothy?",
+    reflectionQuestion: "Where do you need both disciplined faithfulness and fresh gratitude for mercy?",
+    prayer: "Lord, establish me in faithfulness and keep me amazed that Christ saves sinners.",
+    gentleAction: "Pray for the Word of the Lord to speed ahead in one place or person.",
+    studyMethod: "SOAP"
+  }),
+  "1 Timothy 2-3": guidedDevotional({
+    title: "Prayer and faithful leadership",
+    context: "Paul gives instructions about prayer, godliness, and qualifications for overseers and deacons.",
+    body: "The church's life is to be shaped by prayer, peaceable godliness, and trustworthy leadership. Paul grounds the church's hope in the one mediator, Christ Jesus, who gave Himself as a ransom. Leadership matters because the church belongs to the living God.",
+    observationQuestion: "What does Paul teach about prayer, Christ as mediator, and church leadership?",
+    reflectionQuestion: "How can you pray more faithfully for leaders and for people to know Christ?",
+    prayer: "God our Savior, make Your church prayerful, godly, and faithful under Christ our mediator.",
+    gentleAction: "Pray for church leaders and for one public authority by name.",
+    studyMethod: "OIA"
+  }),
+  "1 Timothy 4-5": guidedDevotional({
+    title: "Train for godliness, care for people",
+    context: "Paul warns against false teaching, urges Timothy toward godliness, and gives practical care instructions for the church.",
+    body: "Godliness is trained over time through Scripture, teaching, example, and perseverance. Paul also shows that doctrine must produce practical care, especially for vulnerable people. Truth and tenderness are not enemies in a healthy church.",
+    observationQuestion: "What is Timothy told to train, teach, model, and care for?",
+    reflectionQuestion: "What small training habit in godliness would be faithful for you right now?",
+    prayer: "Lord, train me in godliness and make my doctrine visible in practical care.",
+    gentleAction: "Choose one repeatable practice: Scripture, prayer, service, or encouragement.",
+    studyMethod: "COMA"
+  }),
+  "1 Timothy 6; 2 Timothy 1": guidedDevotional({
+    title: "Contentment and courage",
+    context: "Paul warns about greed and calls Timothy to fight the good fight, then urges him not to be ashamed of the gospel.",
+    body: "Contentment guards the heart from the love of money, and courage guards witness from shame. Paul calls Timothy to hold eternal life, guard the good deposit, and rely on God's power. Faithfulness requires both loosened hands and strengthened courage.",
+    observationQuestion: "What dangers and commands does Paul name around wealth, witness, and guarding the gospel?",
+    reflectionQuestion: "Where do you need contentment with earthly things and courage in gospel witness?",
+    prayer: "Lord, free me from greed and strengthen me to guard and share the gospel without shame.",
+    gentleAction: "Give thanks for enough, then pray for courage in one gospel opportunity.",
+    studyMethod: "Inductive"
+  }),
+  "2 Timothy 2-3": guidedDevotional({
+    title: "Endure and continue in Scripture",
+    context: "Paul calls Timothy to endure as a faithful worker and continue in the Scriptures that make one wise for salvation.",
+    body: "Faithful ministry is not glamorous. It includes endurance, careful handling of the Word, fleeing sin, gentle correction, and continuing in Scripture. The Word equips God's servant for every good work because it is breathed out by God.",
+    observationQuestion: "What images and commands does Paul use for faithful endurance and Scripture-shaped ministry?",
+    reflectionQuestion: "Where do you need to continue steadily rather than chase something new?",
+    prayer: "Lord, make me faithful, gentle, and deeply shaped by Your breathed-out Word.",
+    gentleAction: "Read 2 Timothy 3:16-17 and name one way Scripture can equip you today.",
+    studyMethod: "SOAP"
+  }),
+  "2 Timothy 4; Titus 1": guidedDevotional({
+    title: "Finish faithfully, appoint faithfully",
+    context: "Paul charges Timothy to preach the Word and finishes with personal reflections, while Titus is told to appoint qualified elders.",
+    body: "Paul's final charge is sober and hopeful: preach the Word, endure, fulfill your ministry. His own race is nearly complete. Titus 1 reminds the church that faithful teaching and qualified leadership protect God's people from empty talk and error.",
+    observationQuestion: "What charge does Paul give Timothy, and what qualities matter for elders in Titus?",
+    reflectionQuestion: "What would faithful finishing look like in the responsibility God has given you?",
+    prayer: "Lord, help me fulfill my calling faithfully and love sound teaching.",
+    gentleAction: "Pray for perseverance in one responsibility that feels tiring.",
+    studyMethod: "COMA"
+  }),
+  "Titus 2": guidedDevotional({
+    title: "Grace trains us",
+    context: "Paul describes sound teaching across generations and explains that God's grace trains believers for godly living.",
+    body: "Grace is not only pardon; it is a teacher. The grace of God has appeared in Christ, bringing salvation and training believers to renounce ungodliness while waiting for blessed hope. Good works flow from a people redeemed by Christ.",
+    observationQuestion: "What does grace train believers to renounce, pursue, and wait for?",
+    reflectionQuestion: "Where is grace training you toward a more self-controlled, upright, and godly life?",
+    prayer: "Lord Jesus, let Your grace train me while I wait for Your appearing.",
+    gentleAction: "Identify one ungodly habit to renounce and one good work to practice.",
+    studyMethod: "OIA"
+  }),
+  "Titus 3": guidedDevotional({
+    title: "Saved by mercy",
+    context: "Paul calls believers to gentle public conduct and grounds salvation in God's mercy, not works.",
+    body: "Titus 3 joins humility toward others with memory of mercy. Believers should not be quarrelsome or harsh because they too were rescued by God's kindness. Salvation comes through mercy, renewal by the Spirit, and justification by grace.",
+    observationQuestion: "What conduct does Paul command, and how does he describe God's saving mercy?",
+    reflectionQuestion: "How should remembering mercy make you gentler toward others?",
+    prayer: "God of mercy, renew me by Your Spirit and make me gentle because I have received grace.",
+    gentleAction: "Choose gentleness in one conversation where irritation would be easier.",
+    studyMethod: "SOAP"
+  }),
+  "Philemon 1": guidedDevotional({
+    title: "The gospel reshapes relationships",
+    context: "Paul appeals to Philemon to receive Onesimus no longer merely as a slave, but as a beloved brother.",
+    body: "Philemon is personal, but not small. Paul applies the gospel to a strained and costly relationship, appealing through love rather than coercion. In Christ, reconciliation must become visible in how believers receive one another.",
+    observationQuestion: "How does Paul describe Onesimus, and what does he ask Philemon to do?",
+    reflectionQuestion: "Where might the gospel require costly welcome, forgiveness, or restored relationship?",
+    prayer: "Lord Jesus, let Your reconciling grace reshape the way I receive and forgive others.",
+    gentleAction: "Pray honestly about one relationship where gospel-shaped reconciliation is needed.",
+    studyMethod: "OIA"
   })
 };
 

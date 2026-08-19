@@ -1116,6 +1116,250 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       studyMethod: "Meditation"
     })
   },
+  "ten-days-psalms": {
+    "Psalm 1": guidedDevotional({
+      title: "Rooted in the Lord's word",
+      context: "Psalm 1 opens the Psalms by contrasting the way of the righteous with the way of the wicked.",
+      body: "The blessed life is pictured as a tree planted by streams of water. This is not hurried spirituality; it is a life nourished by delighting in the Lord's instruction. The Psalm asks where your roots are going down and what counsel is shaping your path.",
+      observationQuestion: "What does the blessed person avoid, and what do they delight in?",
+      reflectionQuestion: "What is currently shaping your path more than God's word?",
+      prayer: "Lord, root me deeply in Your word and make my life fruitful in Your time.",
+      gentleAction: "Choose one phrase from Psalm 1 to carry through the day.",
+      studyMethod: "Meditation"
+    }),
+    "Psalm 8": guidedDevotional({
+      title: "Majesty and smallness",
+      context: "Psalm 8 praises the Lord's majesty in creation and wonders that God cares for human beings.",
+      body: "This Psalm holds together two truths: God is majestic above the heavens, and He gives dignity to small human creatures. Worship grows when you see both His greatness and His kindness. Your worth is not self-made; it is received from the Creator who remembers and cares.",
+      observationQuestion: "What does David notice about God, creation, and humanity?",
+      reflectionQuestion: "Where do you need to receive both humility and dignity before God?",
+      prayer: "Majestic Lord, teach me to worship You with humility and receive my life as Your gift.",
+      gentleAction: "Look at one created thing today and turn it into praise.",
+      studyMethod: "OIA"
+    }),
+    "Psalm 19": guidedDevotional({
+      title: "Creation and the word",
+      context: "Psalm 19 moves from the heavens declaring God's glory to the Lord's word reviving, making wise, rejoicing, and warning.",
+      body: "God speaks through what He has made and through what He has revealed. Creation declares His glory, and Scripture searches and restores the heart. The Psalm ends personally: the worshiper asks that words and thoughts would be pleasing to the Lord.",
+      observationQuestion: "What does creation declare, and what does the Lord's word do?",
+      reflectionQuestion: "Where do your words or thoughts need the Lord's searching and restoring work?",
+      prayer: "Lord, let the words of my mouth and the meditation of my heart be pleasing to You.",
+      gentleAction: "Pause before one conversation and ask God to shape your words.",
+      studyMethod: "SOAP"
+    }),
+    "Psalm 23": guidedDevotional({
+      title: "The Shepherd's care",
+      context: "David describes the Lord as Shepherd across rest, restoration, guidance, danger, provision, mercy, and home.",
+      body: "Psalm 23 gives trust a voice. The Lord's care is not abstract; He leads, restores, comforts, provides, and keeps His people near. Even the valley is not outside His presence. The Shepherd remains faithful from green pastures to the house of the Lord.",
+      observationQuestion: "What actions does the Shepherd take throughout the Psalm?",
+      reflectionQuestion: "Which part of the Shepherd's care do you most need today?",
+      prayer: "Lord, my Shepherd, lead me, restore me, and keep me near You.",
+      gentleAction: "Pray one line of Psalm 23 slowly during a pause today.",
+      studyMethod: "Lectio Divina"
+    }),
+    "Psalm 27": guidedDevotional({
+      title: "Seek His face",
+      context: "David names fear, enemies, and trouble, yet longs to dwell with the Lord and seek His face.",
+      body: "Psalm 27 answers fear first with who the Lord is: light, salvation, and stronghold. David's desire to behold the Lord is not escape from trouble; it is the deepest safety he knows. Courage grows as the heart learns to seek God's face.",
+      observationQuestion: "What does David fear, and what does he desire most?",
+      reflectionQuestion: "What would it mean to seek the Lord as your 'one thing' today?",
+      prayer: "Lord, when You say, 'Seek My face,' help my heart answer, 'Your face I will seek.'",
+      gentleAction: "Turn one anxious pause into a short prayer of seeking.",
+      studyMethod: "COMA"
+    }),
+    "Psalm 42": guidedDevotional({
+      title: "Speak hope to your soul",
+      context: "Psalm 42 gives words to spiritual thirst, tears, memory, turmoil, and renewed hope in God.",
+      body: "The Psalmist does not shame a downcast soul. He speaks to it with honesty and hope. Faith may include tears, longing, and questions, but it also learns to remember God and wait for praise to return.",
+      observationQuestion: "What signs of distress appear, and what does the Psalmist say to his soul?",
+      reflectionQuestion: "What does your soul need to remember about God today?",
+      prayer: "Lord, meet me in longing and teach my soul to hope in You.",
+      gentleAction: "Speak one gentle truth from this Psalm to yourself.",
+      studyMethod: "Meditation"
+    }),
+    "Psalm 46": guidedDevotional({
+      title: "Be still before the God who reigns",
+      context: "Psalm 46 names trouble, shaking, conflict, and noise, but repeats that God is refuge and present with His people.",
+      body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Prayer can become worship when pressure is brought before the God who reigns.",
+      observationQuestion: "What trouble is named, and what is repeated about God?",
+      reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
+      prayer: "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
+      gentleAction: "Sit quietly for one minute and repeat, 'The Lord is with us.'",
+      studyMethod: "COMA"
+    }),
+    "Psalm 51": guidedDevotional({
+      title: "Mercy for a contrite heart",
+      context: "Psalm 51 is David's prayer of confession after grievous sin, asking for mercy, cleansing, renewal, and restored joy.",
+      body: "This Psalm does not excuse sin, but it does teach sinners where to go. David appeals to God's mercy and asks for a clean heart. Repentance is not self-punishment; it is honest return to the God who can cleanse, renew, and restore.",
+      observationQuestion: "What does David confess, and what does he ask God to create or restore?",
+      reflectionQuestion: "Where do you need to bring honest confession rather than hiding?",
+      prayer: "Merciful God, create in me a clean heart and renew a steadfast spirit within me.",
+      gentleAction: "Pray one honest sentence of confession and one request for renewal.",
+      studyMethod: "SOAP"
+    }),
+    "Psalm 91": guidedDevotional({
+      title: "Dwelling in refuge",
+      context: "Psalm 91 speaks of dwelling in the shelter of the Most High and trusting Him as refuge and fortress.",
+      body: "The Psalm's safety language invites nearness and trust in the Lord. It is not a tool for demanding a trouble-free life; it is a call to dwell with God as refuge. The safest place is belonging to Him.",
+      observationQuestion: "What refuge images does the Psalm use for God's care?",
+      reflectionQuestion: "Where are you tempted to seek shelter somewhere other than the Lord?",
+      prayer: "Most High God, teach me to dwell near You and trust Your faithful care.",
+      gentleAction: "Name one false refuge, then ask God to draw you back to Himself.",
+      studyMethod: "OIA"
+    }),
+    "Psalm 103": guidedDevotional({
+      title: "Bless the Lord",
+      context: "Psalm 103 calls the soul to bless the Lord and remember His mercy, forgiveness, compassion, and steadfast love.",
+      body: "Praise grows by remembering. The Psalm gathers God's benefits: forgiveness, healing, redemption, compassion, patience, and covenant love. It teaches the soul not to forget the Lord's mercy, especially when weakness and dust-like frailty are obvious.",
+      observationQuestion: "What reasons does the Psalm give for blessing the Lord?",
+      reflectionQuestion: "Which mercy of the Lord do you need to remember today?",
+      prayer: "Lord, help my soul remember Your mercy and bless Your holy name.",
+      gentleAction: "List three mercies from this Psalm and thank God for one of them.",
+      studyMethod: "Inductive"
+    })
+  },
+  "fourteen-days-proverbs": {
+    "Proverbs 1": guidedDevotional({
+      title: "The beginning of wisdom",
+      context: "Proverbs opens by naming its purpose and placing the fear of the Lord at the beginning of knowledge.",
+      body: "Wisdom begins with reverence. Proverbs is not merely advice for getting ahead; it teaches a teachable life before God. The wise listen and receive correction because they know the Lord is the source of knowledge.",
+      observationQuestion: "What purposes does Proverbs give for its instruction?",
+      reflectionQuestion: "Where do you need to become more teachable before the Lord?",
+      prayer: "Lord, give me reverence, humility, and a heart willing to receive wisdom.",
+      gentleAction: "Ask one honest question today before defending your first instinct.",
+      studyMethod: "Word study"
+    }),
+    "Proverbs 2": guidedDevotional({
+      title: "Search for wisdom",
+      context: "Proverbs 2 describes wisdom as something received from the Lord and pursued like treasure.",
+      body: "Wisdom is both gift and pursuit. The Lord gives wisdom, yet the wise receive, treasure, call out, seek, and search. This protects from passivity and pride: you depend on God while actively seeking what He gives.",
+      observationQuestion: "What actions are used to describe seeking wisdom?",
+      reflectionQuestion: "What area of life needs a more deliberate search for wisdom?",
+      prayer: "Lord, help me seek wisdom as treasure and receive what comes from Your mouth.",
+      gentleAction: "Write one question where you need wisdom and bring it to God.",
+      studyMethod: "Inductive"
+    }),
+    "Proverbs 3": guidedDevotional({
+      title: "Trust the Lord",
+      context: "Proverbs 3 joins trust, acknowledging the Lord, humility, generosity, and receiving His correction.",
+      body: "Wisdom does not lean on self-reliance while asking God to bless the result. It trusts the Lord with all the heart and acknowledges Him in the way itself. Even correction is part of His fatherly love.",
+      observationQuestion: "What does this chapter say about trust, understanding, and correction?",
+      reflectionQuestion: "Where are you leaning on your own understanding?",
+      prayer: "Lord, help me trust You with all my heart and acknowledge You in my ways.",
+      gentleAction: "Pause before one choice and consciously acknowledge the Lord.",
+      studyMethod: "SOAP"
+    }),
+    "Proverbs 4": guidedDevotional({
+      title: "Guard your heart",
+      context: "Proverbs 4 urges careful attention to instruction because the heart shapes the course of life.",
+      body: "Wisdom pays attention to the inner life. The heart is not ignored as long as outward behavior looks fine; it must be guarded because life flows from it. Words, eyes, paths, and feet all matter because the whole person is being directed.",
+      observationQuestion: "What parts of life does this chapter tell the listener to guard or direct?",
+      reflectionQuestion: "What is shaping your heart more than you realize?",
+      prayer: "Lord, guard my heart and straighten the path of my words, attention, and choices.",
+      gentleAction: "Remove or limit one influence today that bends your heart away from wisdom.",
+      studyMethod: "OIA"
+    }),
+    "Proverbs 8": guidedDevotional({
+      title: "Wisdom's worth",
+      context: "Wisdom calls out publicly and invites people to value instruction, truth, prudence, and righteousness.",
+      body: "Wisdom is valuable because it aligns life with what is true and right before God. Proverbs 8 teaches us to prize wisdom above things we often chase first. Better treasure leads to better decisions.",
+      observationQuestion: "What does wisdom say is better than silver, gold, and jewels?",
+      reflectionQuestion: "What lesser treasure is competing with wisdom in your choices?",
+      prayer: "Lord, make wisdom more precious to me than comfort, approval, or gain.",
+      gentleAction: "Before one choice today, ask what wisdom would value most.",
+      studyMethod: "Word study"
+    }),
+    "Proverbs 10": guidedDevotional({
+      title: "Daily wisdom in contrast",
+      context: "Proverbs 10 begins a collection of short sayings that often contrast wisdom and folly, righteousness and wickedness.",
+      body: "This chapter shows wisdom in ordinary life: words, work, honesty, discipline, wealth, fear, and hope. Wisdom is not abstract. It appears in repeated small choices that either build life or scatter it.",
+      observationQuestion: "Which contrasts appear repeatedly in this chapter?",
+      reflectionQuestion: "Which ordinary area of life needs wisdom most today: words, work, money, or discipline?",
+      prayer: "Lord, make me faithful in the small choices where wisdom becomes visible.",
+      gentleAction: "Choose one proverb from the chapter and apply it to a concrete action today.",
+      studyMethod: "OIA"
+    }),
+    "Proverbs 11": guidedDevotional({
+      title: "Integrity and generosity",
+      context: "Proverbs 11 highlights honest scales, humility, righteousness, generosity, and the fruit of wise living.",
+      body: "Wisdom cares about integrity when no one is watching and generosity when self-protection feels safer. The Lord delights in honesty, and the generous life bears fruit beyond itself. Wisdom is both upright and open-handed.",
+      observationQuestion: "What does this chapter say about honesty, humility, and generosity?",
+      reflectionQuestion: "Where does integrity or generosity need to shape your next step?",
+      prayer: "Lord, make me honest, humble, and generous before You.",
+      gentleAction: "Practice one quiet act of honesty or generosity today.",
+      studyMethod: "SOAP"
+    }),
+    "Proverbs 12": guidedDevotional({
+      title: "Words that heal",
+      context: "Proverbs 12 gives many sayings about speech, diligence, truth, anxiety, and the way of righteousness.",
+      body: "Wisdom is heard in speech. Rash words can pierce, but wise words bring healing. This chapter does not treat words as harmless; it calls for truth, care, diligence, and speech that serves life.",
+      observationQuestion: "What kinds of speech are contrasted in this chapter?",
+      reflectionQuestion: "Where could your words bring healing rather than harm today?",
+      prayer: "Lord, make my words truthful, careful, and life-giving.",
+      gentleAction: "Before one reply, pause and ask whether your words will heal or pierce.",
+      studyMethod: "Word study"
+    }),
+    "Proverbs 15": guidedDevotional({
+      title: "A gentle answer",
+      context: "Proverbs 15 speaks often about speech, correction, prayer, humility, and the Lord's sight.",
+      body: "Wisdom is not only what is said, but how it is said. A gentle answer can turn away wrath, while harsh words stir it up. The chapter also reminds us that the Lord sees deeply and receives the prayer of the upright.",
+      observationQuestion: "What does this chapter teach about gentle and harsh speech?",
+      reflectionQuestion: "Where would a gentle answer be wiser than winning an argument?",
+      prayer: "Lord, give me humility to receive correction and gentleness in my speech.",
+      gentleAction: "Use a gentler tone than your first impulse in one conversation today.",
+      studyMethod: "COMA"
+    }),
+    "Proverbs 16": guidedDevotional({
+      title: "Plans under the Lord",
+      context: "Proverbs 16 holds human plans and the Lord's sovereign direction together.",
+      body: "Wisdom neither refuses planning nor pretends plans control everything. A person may make plans, weigh motives, and commit work to the Lord, but the Lord establishes steps. This gives freedom to plan humbly and walk dependently.",
+      observationQuestion: "What belongs to human planning, and what belongs to the Lord?",
+      reflectionQuestion: "What plan needs to be committed to the Lord with humility?",
+      prayer: "Lord, establish what is faithful and redirect what is proud or unwise.",
+      gentleAction: "Write one plan and pray, 'Establish my steps as You see fit.'",
+      studyMethod: "SOAP"
+    }),
+    "Proverbs 18": guidedDevotional({
+      title: "Listening before answering",
+      context: "Proverbs 18 includes sayings about isolation, speech, listening, conflict, and the name of the Lord as a strong tower.",
+      body: "Wisdom listens before answering. The chapter warns against words that damage and opinions formed too quickly. It also gives refuge: the name of the Lord is a strong tower for the righteous.",
+      observationQuestion: "What does this chapter say about listening, answering, and words?",
+      reflectionQuestion: "Where do you need to listen before answering?",
+      prayer: "Lord, slow my speech, deepen my listening, and make Your name my refuge.",
+      gentleAction: "Ask one clarifying question before offering your opinion today.",
+      studyMethod: "OIA"
+    }),
+    "Proverbs 22": guidedDevotional({
+      title: "A good name and a generous heart",
+      context: "Proverbs 22 speaks about reputation, humility, riches, training, justice, generosity, and guarding against oppression.",
+      body: "Wisdom values character over image and justice over advantage. A good name is better than great riches, and humility before the Lord shapes how power, money, and opportunity are handled. The wise life notices the vulnerable.",
+      observationQuestion: "What values does this chapter lift above wealth or advantage?",
+      reflectionQuestion: "Where should character, justice, or generosity matter more than gain?",
+      prayer: "Lord, form my character and make me attentive to people who are easily overlooked.",
+      gentleAction: "Choose one generous or just action that costs you some convenience.",
+      studyMethod: "COMA"
+    }),
+    "Proverbs 27": guidedDevotional({
+      title: "Faithful friendship and humility",
+      context: "Proverbs 27 includes sayings about tomorrow, praise, friendship, counsel, and careful attention to responsibilities.",
+      body: "Wisdom is humble about tomorrow and honest about relationships. Faithful wounds from a friend may serve love better than flattery, and wise counsel can sharpen a life. This chapter invites humility, teachability, and faithful attention to what has been entrusted.",
+      observationQuestion: "What does this chapter say about friends, counsel, and tomorrow?",
+      reflectionQuestion: "Where do you need faithful counsel or humility about tomorrow?",
+      prayer: "Lord, make me humble, teachable, and faithful with today's responsibilities.",
+      gentleAction: "Thank one faithful friend or ask for honest counsel where you need it.",
+      studyMethod: "Inductive"
+    }),
+    "Proverbs 31": guidedDevotional({
+      title: "Wisdom embodied",
+      context: "Proverbs 31 includes royal counsel and a portrait of wisdom embodied in faithful, capable, generous household leadership.",
+      body: "This chapter is not meant to crush people with an impossible image. It honors wisdom lived out in strength, diligence, generosity, speech, planning, and fear of the Lord. The final measure is not charm or appearance, but reverence for God expressed in faithful life.",
+      observationQuestion: "What qualities are praised, and what is named as worthy of praise?",
+      reflectionQuestion: "Which wise quality in this chapter do you want God to grow in you?",
+      prayer: "Lord, grow wisdom that becomes faithful action, generous care, and reverence for You.",
+      gentleAction: "Choose one ordinary responsibility and do it today as service before the Lord.",
+      studyMethod: "Inductive"
+    })
+  },
   "seven-days-peace": {
     "Psalm 4:6-8": guidedDevotional({
       title: "Sleep in the Lord's care",
@@ -1843,12 +2087,12 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Psalm 23", "Psalms", 23],
     ["Psalm 27", "Psalms", 27],
     ["Psalm 42", "Psalms", 42],
-    ["Psalm 46", "Psalms", 46, "Be still before God", psalm46StillBeforeGodDevotional],
+    ["Psalm 46", "Psalms", 46, "Be still before God"],
     ["Psalm 51", "Psalms", 51],
     ["Psalm 91", "Psalms", 91],
     ["Psalm 103", "Psalms", 103]
   ], "Prayer")),
-  planFromReferences("fourteen-days-proverbs", "14 Days in Proverbs", "Two weeks of practical wisdom for daily decisions.", [
+  withCuratedDevotionals(planFromReferences("fourteen-days-proverbs", "14 Days in Proverbs", "Two weeks of practical wisdom for daily decisions.", [
     ["Proverbs 1", "Proverbs", 1],
     ["Proverbs 2", "Proverbs", 2],
     ["Proverbs 3", "Proverbs", 3],
@@ -1863,7 +2107,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Proverbs 22", "Proverbs", 22],
     ["Proverbs 27", "Proverbs", 27],
     ["Proverbs 31", "Proverbs", 31]
-  ], "Wisdom"),
+  ], "Wisdom")),
   planFromReferences("fourteen-days-life-of-jesus", "14 Days on the Life of Jesus", "A focused two-week path through Jesus' life, teaching, death, and resurrection.", [
     ["Luke 2", "Luke", 2],
     ["Matthew 3", "Matthew", 3],

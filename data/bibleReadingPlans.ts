@@ -420,7 +420,152 @@ const psalm46RefugeDevotional = devotional(
 
 type CuratedDevotionalMap = Record<string, Record<string, BibleReadingPlanDayExtras>>;
 
+const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Luke 2": guidedDevotional({
+    title: "The Savior is born",
+    context: "Luke places Jesus' birth in ordinary history: a census, Bethlehem, a manger, and shepherds keeping watch.",
+    body: "The promised Savior comes with deep humility. Heaven announces Him as Savior, Christ, and Lord, yet the sign is a baby lying in a manger. This passage invites you to see God's glory in the humility of Christ and to receive the good news with worship rather than mere sentiment.",
+    observationQuestion: "What titles are given to Jesus, and what sign are the shepherds told to look for?",
+    reflectionQuestion: "Where do you need to receive Christ's humble nearness as good news today?",
+    prayer: "Lord Jesus, help me worship You as Savior, Christ, and Lord, and receive Your humble nearness with joy.",
+    gentleAction: "Write down one title for Jesus from the passage and carry it into prayer today.",
+    studyMethod: "OIA"
+  }),
+  "Matthew 3": guidedDevotional({
+    title: "The beloved Son",
+    context: "Jesus comes to John at the Jordan, where people are confessing sin and being baptized.",
+    body: "Jesus has no sin to confess, yet He stands with His people in the waters. The Father delights in Him, and the Spirit rests upon Him. Before Jesus' public ministry unfolds, the passage shows who He is: the beloved Son who fulfills righteousness and acts in the pleasure of the Father.",
+    observationQuestion: "What does Jesus say about His baptism, and what does the Father say about Him?",
+    reflectionQuestion: "How does the Father's delight in the Son steady your view of Jesus' mission?",
+    prayer: "Father, help me behold Your beloved Son with reverence, trust, and joy.",
+    gentleAction: "Pause over the words 'My beloved Son' and let them shape your worship.",
+    studyMethod: "SOAP"
+  }),
+  "Matthew 4": guidedDevotional({
+    title: "Faithful in temptation",
+    context: "After His baptism, Jesus is led by the Spirit into the wilderness and tempted by the devil.",
+    body: "Jesus answers temptation with Scripture and faithful dependence on the Father. Where Israel failed in the wilderness, the Son remains obedient. He refuses to use His identity for self-protection, spectacle, or false worship. His victory teaches you to trust God's Word when pressure tries to bend your desires.",
+    observationQuestion: "What does each temptation offer, and how does Jesus answer it?",
+    reflectionQuestion: "Where do you need Scripture to reorder desire, fear, or ambition?",
+    prayer: "Lord Jesus, train me to trust Your Word and resist every path that leads away from the Father.",
+    gentleAction: "Choose one sentence from Jesus' replies and pray it before a likely temptation today.",
+    studyMethod: "COMA"
+  }),
+  "Matthew 5": guidedDevotional({
+    title: "Kingdom life",
+    context: "Matthew 5 begins the Sermon on the Mount, where Jesus teaches His disciples the character of kingdom life.",
+    body: "Jesus does not describe a shallow spirituality. He blesses the poor in spirit, the meek, the merciful, and the persecuted, then calls His people to visible righteousness from the heart. The passage presses beyond appearance and into a life formed by the King Himself.",
+    observationQuestion: "What kind of people does Jesus call blessed, and what kind of righteousness does He describe?",
+    reflectionQuestion: "Which part of Jesus' kingdom teaching exposes an area that needs His formation?",
+    prayer: "King Jesus, form Your character in me and make my life a faithful witness to Your kingdom.",
+    gentleAction: "Pick one beatitude and ask how it could shape one interaction today.",
+    studyMethod: "Inductive"
+  }),
+  "Mark 2": guidedDevotional({
+    title: "Authority and mercy",
+    context: "Mark gathers scenes where Jesus forgives, heals, calls Levi, eats with sinners, and teaches about Sabbath mercy.",
+    body: "Jesus' authority is not cold power; it is mercy that restores. He forgives sins, calls the unlikely, and challenges religious hardness. The chapter asks you to see Him as the Son of Man with authority to forgive and as the Physician who comes for the sick.",
+    observationQuestion: "How do people respond to Jesus' authority and mercy in this chapter?",
+    reflectionQuestion: "Where do you need to come to Jesus honestly as one who needs mercy?",
+    prayer: "Lord Jesus, forgive, heal, and reorder my heart by Your merciful authority.",
+    gentleAction: "Name one place where you need mercy rather than image-management.",
+    studyMethod: "OIA"
+  }),
+  "Luke 15": guidedDevotional({
+    title: "The Father's joy",
+    context: "Jesus tells these parables in response to grumbling that He welcomes sinners and eats with them.",
+    body: "The lost sheep, lost coin, and lost son reveal the joy of God in restoring the lost. Jesus does not minimize sin, but He magnifies grace. The elder brother's resentment warns against hearts that resent mercy while standing close to the house.",
+    observationQuestion: "What is lost, what is found, and what joy follows in each parable?",
+    reflectionQuestion: "Do you most need to return, rejoice, or repent of resentment today?",
+    prayer: "Father, bring me home to Your mercy and teach me to rejoice when others receive it too.",
+    gentleAction: "Pray by name for someone who needs to know the Father's welcome.",
+    studyMethod: "COMA"
+  }),
+  "John 6": guidedDevotional({
+    title: "The bread of life",
+    context: "After feeding the crowd, Jesus teaches that the sign points beyond bread to Himself.",
+    body: "Jesus does not merely provide bread; He is the Bread of Life. The crowd wants another sign and another meal, but Jesus calls them to come to Him and believe. The passage turns appetite into invitation: lasting life is found in Christ Himself.",
+    observationQuestion: "How does Jesus move the crowd from physical bread to Himself?",
+    reflectionQuestion: "Where are you seeking gifts from Jesus while needing to come to Jesus Himself?",
+    prayer: "Lord Jesus, satisfy me with Yourself and teach me to seek the life that only You give.",
+    gentleAction: "Before one meal today, thank Christ as the giver and sustainer of true life.",
+    studyMethod: "Word study"
+  }),
+  "John 10": guidedDevotional({
+    title: "The Good Shepherd",
+    context: "Jesus uses shepherd imagery to describe His relationship to His sheep and His coming death.",
+    body: "The Good Shepherd knows His sheep, calls them by name, protects them, and lays down His life for them. This is not vague comfort; it is costly care. Jesus' sheep are safe because their Shepherd gives Himself for them and holds them in His hand.",
+    observationQuestion: "What does Jesus say the Good Shepherd does for His sheep?",
+    reflectionQuestion: "Which promise of the Shepherd do you most need to trust today?",
+    prayer: "Good Shepherd, help me hear Your voice, trust Your care, and rest in Your keeping.",
+    gentleAction: "Repeat one shepherd promise from the passage when you feel scattered today.",
+    studyMethod: "Meditation"
+  }),
+  "John 11": guidedDevotional({
+    title: "Resurrection and life",
+    context: "Lazarus has died, and Jesus meets Martha and Mary in grief before going to the tomb.",
+    body: "Jesus reveals Himself as the resurrection and the life while also weeping with those who grieve. His tears show real compassion; His command at the tomb shows real authority. Hope in this passage is not an idea but a Person standing before death.",
+    observationQuestion: "What does Jesus say about Himself, and how does He respond to grief?",
+    reflectionQuestion: "Where do you need to trust both the compassion and authority of Jesus?",
+    prayer: "Lord Jesus, be my resurrection hope and meet me with Your compassion and power.",
+    gentleAction: "Bring one grief or fear of loss honestly to Christ in prayer.",
+    studyMethod: "SOAP"
+  }),
+  "John 13": guidedDevotional({
+    title: "Servant love",
+    context: "During the last supper, Jesus washes His disciples' feet before teaching them to love one another.",
+    body: "Jesus knows His hour has come, yet He stoops to serve. The Lord and Teacher takes the servant's place, showing love that cleanses and humbles. His command to love one another is grounded in His own costly, lowly love.",
+    observationQuestion: "What does Jesus know, what does He do, and what command does He give?",
+    reflectionQuestion: "Where is Jesus' servant love calling you away from pride or self-protection?",
+    prayer: "Lord Jesus, wash my pride and teach me to love others from the love You have shown me.",
+    gentleAction: "Choose one quiet act of service that reflects Christ's humility.",
+    studyMethod: "OIA"
+  }),
+  "John 17": guidedDevotional({
+    title: "Jesus prays for His people",
+    context: "Before the cross, Jesus prays to the Father for His disciples and for those who will believe through their word.",
+    body: "Jesus prays for glory, eternal life, protection, sanctification, unity, and love. His people are not left to themselves; they are carried in the prayer of the Son to the Father. The passage lets you listen to the heart of Christ for those who belong to Him.",
+    observationQuestion: "What does Jesus ask the Father to do for His people?",
+    reflectionQuestion: "Which part of Jesus' prayer gives you courage or correction today?",
+    prayer: "Lord Jesus, sanctify me in Your truth and keep me in the love of the Father.",
+    gentleAction: "Pray one request from John 17 for yourself and one other believer.",
+    studyMethod: "COMA"
+  }),
+  "Matthew 26": guidedDevotional({
+    title: "Obedience in sorrow",
+    context: "Matthew 26 moves through betrayal, Passover, Gethsemane, arrest, and denial.",
+    body: "In Gethsemane, Jesus is deeply sorrowful and yet wholly submitted to the Father. His obedience is not detached or easy; it is costly faithfulness under the weight of the coming cross. The passage invites reverent attention to the Savior who says, 'Your will be done.'",
+    observationQuestion: "What sorrow, weakness, betrayal, and obedience appear in this chapter?",
+    reflectionQuestion: "How does Jesus' costly obedience reshape the way you pray in hardship?",
+    prayer: "Lord Jesus, thank You for obeying the Father for us. Teach me trust when obedience is costly.",
+    gentleAction: "Pray 'Your will be done' over one area you are tempted to control.",
+    studyMethod: "Meditation"
+  }),
+  "John 19": guidedDevotional({
+    title: "It is finished",
+    context: "John records Jesus' trial, crucifixion, death, and burial with repeated attention to Scripture being fulfilled.",
+    body: "Jesus is mocked as king, lifted up on the cross, and yet remains sovereign in His suffering. His words 'It is finished' announce completion, not defeat. The Lamb gives Himself fully, fulfilling Scripture and accomplishing the work the Father gave Him to do.",
+    observationQuestion: "What details show both Jesus' suffering and the fulfillment of Scripture?",
+    reflectionQuestion: "What changes when you receive the cross as finished work rather than unfinished striving?",
+    prayer: "Lord Jesus, thank You that Your saving work is finished. Help me rest in Your cross with grateful faith.",
+    gentleAction: "Write 'It is finished' beside one burden of guilt or striving.",
+    studyMethod: "SOAP"
+  }),
+  "John 20": guidedDevotional({
+    title: "The risen Lord",
+    context: "John 20 moves from the empty tomb to Jesus appearing to Mary, the disciples, and Thomas.",
+    body: "The resurrection turns grief into witness, fear into peace, and doubt into confession. Jesus is not merely remembered; He is risen and present with His people. Thomas' confession, 'My Lord and my God,' gives the fitting response to the risen Christ.",
+    observationQuestion: "How do Mary, the disciples, and Thomas respond as they encounter the risen Jesus?",
+    reflectionQuestion: "Where do you need the risen Lord to turn fear, grief, or doubt into faith?",
+    prayer: "Risen Lord Jesus, give me peace, strengthen my faith, and send me as Your witness.",
+    gentleAction: "Confess slowly: 'My Lord and my God,' and let that shape your day.",
+    studyMethod: "Inductive"
+  })
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
+  "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
+  "life-of-jesus": lifeOfJesusDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -2108,7 +2253,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Proverbs 27", "Proverbs", 27],
     ["Proverbs 31", "Proverbs", 31]
   ], "Wisdom")),
-  planFromReferences("fourteen-days-life-of-jesus", "14 Days on the Life of Jesus", "A focused two-week path through Jesus' life, teaching, death, and resurrection.", [
+  withCuratedDevotionals(planFromReferences("fourteen-days-life-of-jesus", "14 Days on the Life of Jesus", "A focused two-week path through Jesus' life, teaching, death, and resurrection.", [
     ["Luke 2", "Luke", 2],
     ["Matthew 3", "Matthew", 3],
     ["Matthew 4", "Matthew", 4],
@@ -2123,7 +2268,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Matthew 26", "Matthew", 26],
     ["John 19", "John", 19],
     ["John 20", "John", 20]
-  ], "Gospels"),
+  ], "Gospels")),
   withCuratedDevotionals(planFromReferences("fourteen-days-faith", "14 Days on Faith", "Readings about trust, endurance, grace, and living by faith.", [
     ["Genesis 15:1-6", "Genesis", 15, "Believed the Lord"],
     ["Psalm 37:3-7", "Psalms", 37, "Trust and wait"],
@@ -2229,7 +2374,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Revelation 1", "Revelation", 1],
     ["Revelation 21", "Revelation", 21]
   ], "Gospels"),
-  planFromReferences("life-of-jesus", "Life of Jesus", "Key readings from the birth, ministry, death, and resurrection of Jesus.", [
+  withCuratedDevotionals(planFromReferences("life-of-jesus", "Life of Jesus", "Key readings from the birth, ministry, death, and resurrection of Jesus.", [
     ["Luke 2", "Luke", 2, "Birth of Jesus"],
     ["Matthew 3", "Matthew", 3, "Baptism of Jesus"],
     ["Matthew 4", "Matthew", 4, "Temptation"],
@@ -2242,7 +2387,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Matthew 26", "Matthew", 26, "Gethsemane"],
     ["John 19", "John", 19, "The cross"],
     ["John 20", "John", 20, "The resurrection"]
-  ], "Gospels"),
+  ], "Gospels")),
   withCuratedDevotionals(planFromReferences("romans-road", "Romans Road", "A short path through Romans for sin, grace, faith, and new life.", [
     ["Romans 1", "Romans", 1],
     ["Romans 3", "Romans", 3],

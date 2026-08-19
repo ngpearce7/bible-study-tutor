@@ -542,43 +542,76 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     )
   },
   "prayer-dependence": {
-    "Matthew 6:9-13": devotional(
-      "Pray as a child of the Father",
-      "Jesus teaches prayer by turning His disciples first toward the Father: His name, His kingdom, and His will. Daily needs, forgiveness, and deliverance are then brought into that relationship. This prayer trains dependence without anxiety or performance.",
-      "Which phrase of the Lord's Prayer most needs to shape your dependence today?",
-      "Father, let Your name be hallowed in me and teach me to depend on You for today."
-    ),
-    "Luke 11:5-13": devotional(
-      "Ask the generous Father",
-      "Jesus encourages persistence in prayer by pointing to the Father's goodness. The heart of the passage is not that God is reluctant, but that He gives what is truly good, especially the Holy Spirit. Dependence grows when you ask from trust rather than suspicion.",
-      "Where are you hesitant to ask because you doubt the Father's goodness?",
-      "Father, teach me to ask, seek, and knock with trust in Your generous heart."
-    ),
-    "Psalm 23:1-6": devotional(
-      "The Lord provides",
-      "Psalm 23 turns dependence into worship. The Lord gives rest, guidance, protection, provision, mercy, and a dwelling place with Him. David's confidence is not in having no need ever appear, but in having the Shepherd who meets him in every season.",
-      "Which need can you bring to the Shepherd instead of managing alone?",
-      "Lord, my Shepherd, lead me, restore me, and teach me to trust Your provision."
-    ),
-    "Psalm 46:1-11": psalm46StillBeforeGodDevotional,
-    "Philippians 4:4-7": devotional(
-      "Pray with thanksgiving",
-      "Paul calls believers to rejoice, be gentle, and bring requests to God. Thanksgiving does not erase need; it remembers God's faithfulness while need is being named. The promised peace guards hearts and minds in Christ, not apart from Him.",
-      "What request can you bring to God today with honest need and real thanksgiving?",
-      "Lord, receive my requests and guard my heart and mind in Christ Jesus."
-    ),
-    "James 1:5-8": devotional(
-      "Ask God for wisdom",
-      "James invites those who lack wisdom to ask God, who gives generously. This is dependence in decision-making: not pretending to know, not wavering between self-rule and trust, but asking the Lord for wisdom to endure faithfully.",
-      "Where do you need wisdom more than control?",
-      "Generous God, give me wisdom and make my trust steady before You."
-    ),
-    "1 Peter 5:6-11": devotional(
-      "Cast your cares",
-      "Peter calls believers to humble themselves under God's mighty hand and cast anxieties on Him because He cares. Dependence does not make you careless; the same passage calls for sober watchfulness. You can be alert without being ruled by fear.",
-      "What care needs to be cast on God rather than carried as though it belongs to you alone?",
-      "God of all grace, care for me, strengthen me, and keep me watchful in hope."
-    )
+    "Matthew 6:9-13": guidedDevotional({
+      title: "Pray as a child of the Father",
+      context: "Jesus teaches His disciples to pray with God first: His name, His kingdom, and His will, then daily needs, forgiveness, and deliverance.",
+      body: "The Lord's Prayer trains dependence without performance. It begins with the Father, not with frantic need. Daily bread, forgiveness, and rescue are brought into relationship with the One whose name is holy and whose kingdom is coming.",
+      observationQuestion: "What requests are directed toward God first, and what needs are then brought to Him?",
+      reflectionQuestion: "Which phrase of the Lord's Prayer most needs to shape your dependence today?",
+      prayer: "Father, let Your name be hallowed in me and teach me to depend on You for today.",
+      gentleAction: "Pray the Lord's Prayer slowly, pausing at the phrase that most catches your attention.",
+      studyMethod: "SOAP"
+    }),
+    "Luke 11:5-13": guidedDevotional({
+      title: "Ask the generous Father",
+      context: "After teaching prayer, Jesus encourages persistence by pointing to human asking and the Father's greater goodness.",
+      body: "The heart of this passage is not that God is reluctant and must be worn down. Jesus points beyond imperfect human generosity to the Father's goodness, especially His gift of the Holy Spirit. Dependence grows when you ask from trust rather than suspicion.",
+      observationQuestion: "What does Jesus say the Father gives, and how does He compare the Father to human parents?",
+      reflectionQuestion: "Where are you hesitant to ask because you doubt the Father's goodness?",
+      prayer: "Father, teach me to ask, seek, and knock with trust in Your generous heart.",
+      gentleAction: "Ask God plainly for one good thing you need, then thank Him for hearing you as Father.",
+      studyMethod: "OIA"
+    }),
+    "Psalm 23:1-6": guidedDevotional({
+      title: "The Lord provides",
+      context: "David confesses the Lord as Shepherd across rest, restoration, guidance, danger, provision, mercy, and dwelling with God.",
+      body: "Psalm 23 turns dependence into worship. David's confidence is not that need never appears, but that the Shepherd meets him in every season. The Lord's care is personal, steady, and generous enough for green pastures, dark valleys, and the house of the Lord.",
+      observationQuestion: "What does the Shepherd provide or do across this Psalm?",
+      reflectionQuestion: "Which need can you bring to the Shepherd instead of managing alone?",
+      prayer: "Lord, my Shepherd, lead me, restore me, and teach me to trust Your provision.",
+      gentleAction: "Name one place where you need shepherding and ask the Lord to lead you there.",
+      studyMethod: "Meditation"
+    }),
+    "Psalm 46:1-11": guidedDevotional({
+      title: "Be still before the God who reigns",
+      context: "Psalm 46 names trouble, shaking, conflict, and noise, but repeats that God is refuge and present with His people.",
+      body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Dependence becomes worship when pressure is brought before the God who reigns.",
+      observationQuestion: "What trouble is named, and what is repeated about God?",
+      reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
+      prayer: "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
+      gentleAction: "Sit quietly for one minute and repeat, 'The Lord is with us.'",
+      studyMethod: "COMA"
+    }),
+    "Philippians 4:4-7": guidedDevotional({
+      title: "Pray with thanksgiving",
+      context: "Paul writes from hardship and calls believers to rejoice, be gentle, and bring requests to God with thanksgiving.",
+      body: "Thanksgiving does not erase need; it remembers God's faithfulness while need is being named. The promised peace guards hearts and minds in Christ, not apart from Him. Dependence means bringing requests to God rather than letting them rule unspoken.",
+      observationQuestion: "What does Paul tell believers to do with their requests?",
+      reflectionQuestion: "What request can you bring to God today with honest need and real thanksgiving?",
+      prayer: "Lord, receive my requests and guard my heart and mind in Christ Jesus.",
+      gentleAction: "Write one request and one reason for thanksgiving beside it.",
+      studyMethod: "SOAP"
+    }),
+    "James 1:5-8": guidedDevotional({
+      title: "Ask God for wisdom",
+      context: "James writes about trials and steadfastness, then invites those who lack wisdom to ask the generous God.",
+      body: "This is dependence in decision-making: not pretending to know, not wavering between self-rule and trust, but asking the Lord for wisdom to endure faithfully. God is not stingy with wisdom. He gives generously to those who come to Him.",
+      observationQuestion: "What does James say to do when wisdom is lacking?",
+      reflectionQuestion: "Where do you need wisdom more than control?",
+      prayer: "Generous God, give me wisdom and make my trust steady before You.",
+      gentleAction: "Before making one decision today, ask God for wisdom in a single honest sentence.",
+      studyMethod: "Inductive"
+    }),
+    "1 Peter 5:6-11": guidedDevotional({
+      title: "Cast your cares",
+      context: "Peter speaks to humbled believers under pressure, calling them to cast anxieties on God while remaining watchful and hopeful.",
+      body: "Dependence does not make you careless; the same passage calls for sober watchfulness. You can be alert without being ruled by fear because God cares for you, and the God of all grace will restore, confirm, strengthen, and establish His people.",
+      observationQuestion: "What does Peter connect with humility, watchfulness, suffering, and God's care?",
+      reflectionQuestion: "What care needs to be cast on God rather than carried as though it belongs to you alone?",
+      prayer: "God of all grace, care for me, strengthen me, and keep me watchful in hope.",
+      gentleAction: "Open your hands as a simple prayer and name one care you are giving to God.",
+      studyMethod: "COMA"
+    })
   },
   "fourteen-days-faith": {
     "Genesis 15:1-6": devotional(
@@ -667,48 +700,76 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     )
   },
   "seven-days-peace": {
-    "Psalm 4:6-8": devotional(
-      "Sleep in the Lord's care",
-      "David contrasts anxious searching for good with the joy and safety that come from the Lord. He can lie down and sleep because the Lord makes him dwell in safety. Peace here is trust that rests under God's care even before every circumstance changes.",
-      "What concern is keeping your heart awake before God?",
-      "Lord, lift the light of Your face on me and teach me to rest in Your safety."
-    ),
-    "Psalm 23:1-4": devotional(
-      "Peace with the Shepherd",
-      "The green pastures and quiet waters of Psalm 23 come from the Shepherd's presence and leading. Even the valley is not faced alone. Peace is not the absence of shadows; it is the nearness of the Lord who restores and guides.",
-      "Where do you need to follow the Shepherd into peace rather than force peace for yourself?",
-      "Lord, restore my soul and lead me in the path of Your care."
-    ),
-    "Isaiah 26:3-4": devotional(
-      "Perfect peace",
-      "Isaiah speaks of perfect peace for the one whose mind is stayed on God because that person trusts Him. The foundation is the Lord Himself, the everlasting Rock. Peace grows as attention and trust are re-centered on Him.",
-      "What thought needs to be stayed on God rather than carried alone?",
-      "Lord, keep my mind fixed on You and teach me to trust You as my Rock."
-    ),
-    "Matthew 6:25-34": devotional(
-      "The Father knows",
-      "Jesus answers worry by pointing to the Father's knowledge and care. Birds and lilies become witnesses that life is not secured by anxious striving. The call is to seek first God's kingdom and receive today's grace for today's trouble.",
-      "What need does your Father already know before you can solve it?",
-      "Father, help me seek Your kingdom today and trust Your care for what I need."
-    ),
-    "John 14:25-27": devotional(
-      "Peace Jesus gives",
-      "Jesus gives peace to disciples who are about to face confusion and loss. His peace is tied to His word and the Spirit's help. It is not dependent on outward calm; it rests on the presence and promise of Christ.",
-      "What trouble needs to be brought beneath Jesus' words, 'My peace I give to you'?",
-      "Jesus, give me Your peace and keep my heart from fear."
-    ),
-    "Philippians 4:4-9": devotional(
-      "Peace that guards",
-      "Paul brings prayer, thanksgiving, disciplined thought, and faithful practice together. God's peace guards the heart and mind in Christ, and the God of peace is with His people as they walk in what they have received.",
-      "What request, thought, or practice needs to be brought under God's peace today?",
-      "God of peace, guard me and guide me in what is true and pleasing to You."
-    ),
-    "Colossians 3:12-17": devotional(
-      "Peace ruling together",
-      "Colossians describes peace among people clothed with compassion, forgiveness, love, and thankfulness. Peace is not merely private calm; it rules in the body of Christ as His word dwells richly among His people.",
-      "Where does Christ's peace need to govern your words or relationships today?",
-      "Christ, let Your peace rule in me and make me thankful."
-    )
+    "Psalm 4:6-8": guidedDevotional({
+      title: "Sleep in the Lord's care",
+      context: "David speaks to God while many are asking who will show them good. His confidence rests in the Lord's face, joy, safety, and care.",
+      body: "Psalm 4 does not promise that every outward pressure has disappeared by bedtime. It shows a heart learning to rest because the Lord Himself gives safety. Peace here is not denial; it is trust that can lie down under God's care even before every circumstance changes.",
+      observationQuestion: "What does David ask from the Lord, and what allows him to lie down in peace?",
+      reflectionQuestion: "What concern is keeping your heart awake before God?",
+      prayer: "Lord, lift the light of Your face on me and teach me to rest in Your safety.",
+      gentleAction: "Before sleep or a quiet pause, name one concern and entrust it to the Lord.",
+      studyMethod: "Meditation"
+    }),
+    "Psalm 23:1-4": guidedDevotional({
+      title: "Peace with the Shepherd",
+      context: "David describes the Lord as Shepherd who provides, restores, leads, and stays near even in the valley of deep darkness.",
+      body: "The green pastures and quiet waters come from the Shepherd's presence and leading. Even the valley is not faced alone. Peace is not the absence of shadows; it is the nearness of the Lord who restores and guides His people.",
+      observationQuestion: "What does the Shepherd do for His sheep in these verses?",
+      reflectionQuestion: "Where do you need to follow the Shepherd into peace rather than force peace for yourself?",
+      prayer: "Lord, restore my soul and lead me in the path of Your care.",
+      gentleAction: "Pray slowly through one phrase from Psalm 23 and let it answer one anxious thought.",
+      studyMethod: "SOAP"
+    }),
+    "Isaiah 26:3-4": guidedDevotional({
+      title: "Perfect peace",
+      context: "Isaiah calls God's people to trust the Lord forever because He is the everlasting Rock.",
+      body: "Perfect peace is tied to a mind stayed on God because it trusts Him. The foundation is not a technique, mood, or personality type; it is the Lord Himself. Peace grows as attention and trust are re-centered on Him.",
+      observationQuestion: "What connection does Isaiah make between mind, trust, peace, and the Lord?",
+      reflectionQuestion: "What thought needs to be stayed on God rather than carried alone?",
+      prayer: "Lord, keep my mind fixed on You and teach me to trust You as my Rock.",
+      gentleAction: "When your mind circles today, repeat, 'The Lord is my everlasting Rock.'",
+      studyMethod: "Word study"
+    }),
+    "Matthew 6:25-34": guidedDevotional({
+      title: "The Father knows",
+      context: "In the Sermon on the Mount, Jesus speaks to worry by pointing to the Father's care, creation's witness, and the priority of God's kingdom.",
+      body: "Jesus does not mock human need. He names food, drink, clothing, and tomorrow, then brings them under the Father's knowledge and care. Birds and lilies become witnesses that life is not secured by anxious striving. The call is to seek first God's kingdom and receive today's grace for today's trouble.",
+      observationQuestion: "What examples does Jesus use to show the Father's care?",
+      reflectionQuestion: "What need does your Father already know before you can solve it?",
+      prayer: "Father, help me seek Your kingdom today and trust Your care for what I need.",
+      gentleAction: "Write one worry for tomorrow, then ask God for faithfulness for today.",
+      studyMethod: "COMA"
+    }),
+    "John 14:25-27": guidedDevotional({
+      title: "Peace Jesus gives",
+      context: "Jesus speaks to His disciples before the cross, promising the Spirit and giving peace in the middle of coming trouble.",
+      body: "Jesus gives peace to disciples who are about to face confusion and loss. His peace is tied to His word and the Spirit's help. It is not dependent on outward calm; it rests on the presence and promise of Christ.",
+      observationQuestion: "What does Jesus promise, and how is His peace different from the world's peace?",
+      reflectionQuestion: "What trouble needs to be brought beneath Jesus' words, 'My peace I give to you'?",
+      prayer: "Jesus, give me Your peace and keep my heart from fear.",
+      gentleAction: "Pause once today and ask the Holy Spirit to remind you of Jesus' words.",
+      studyMethod: "OIA"
+    }),
+    "Philippians 4:4-9": guidedDevotional({
+      title: "Peace that guards",
+      context: "Paul writes from hardship and teaches joy, gentleness, prayer, thanksgiving, disciplined thought, and faithful practice.",
+      body: "God's peace guards the heart and mind in Christ, and the God of peace is with His people as they walk in what they have received. Peace is not detached from prayer or practice; it is received as worries are brought to God and minds are trained toward what is true and worthy.",
+      observationQuestion: "What commands does Paul give before and after describing God's peace?",
+      reflectionQuestion: "What request, thought, or practice needs to be brought under God's peace today?",
+      prayer: "God of peace, guard me and guide me in what is true and pleasing to You.",
+      gentleAction: "Bring one request to God with thanksgiving, then choose one true thing to dwell on.",
+      studyMethod: "SOAP"
+    }),
+    "Colossians 3:12-17": guidedDevotional({
+      title: "Peace ruling together",
+      context: "Paul describes the life of God's chosen people as they put on compassion, forgiveness, love, peace, gratitude, and the word of Christ.",
+      body: "Colossians shows that peace is not merely private calm. It rules among people who forgive, love, give thanks, and let Christ's word dwell richly. The peace of Christ shapes relationships, words, worship, and ordinary community life.",
+      observationQuestion: "What virtues and practices surround the command to let Christ's peace rule?",
+      reflectionQuestion: "Where does Christ's peace need to govern your words or relationships today?",
+      prayer: "Christ, let Your peace rule in me and make me thankful.",
+      gentleAction: "Choose one word or action today that lets peace, gratitude, or forgiveness lead.",
+      studyMethod: "Inductive"
+    })
   },
   "anxiety-peace": {
     "Psalm 23:1-4": devotional(
@@ -1459,7 +1520,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Matthew 6:9-13", "Matthew", 6, "The Lord's Prayer"],
     ["Luke 11:5-13", "Luke", 11, "Ask, seek, knock"],
     ["Psalm 23:1-6", "Psalms", 23, "The Lord provides"],
-    ["Psalm 46:1-11", "Psalms", 46, "God is refuge", psalm46StillBeforeGodDevotional],
+    ["Psalm 46:1-11", "Psalms", 46, "God is refuge"],
     ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving"],
     ["James 1:5-8", "James", 1, "Ask for wisdom"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"]

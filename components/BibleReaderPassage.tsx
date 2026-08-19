@@ -32,13 +32,20 @@ type BibleReaderPassageProps = {
   matchesActiveReadingPlanDay: boolean;
   activeReadingPlanDay?: {
     reference: string;
+    context?: string;
     devotional?: {
       title: string;
       body: string;
       source?: string;
     };
+    observationQuestion?: string;
+    reflectionQuestion?: string;
     reflectionPrompt?: string;
+    prayer?: string;
     prayerPrompt?: string;
+    gentleAction?: string;
+    studyMethod?: string;
+    careNote?: string;
   } | null;
   activeReadingPlanName?: string;
   activeReadingPlanDayCompleted?: boolean;
@@ -293,8 +300,14 @@ export function BibleReaderPassage({
                   ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                   : ""}
               </Text>
-              {(activeReadingPlanDay.devotional || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayerPrompt) && (
+              {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.careNote) && (
                 <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                  {!!activeReadingPlanDay.context && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>
+                    </View>
+                  )}
                   {!!activeReadingPlanDay.devotional && (
                     <>
                       <View style={styles.planDayDevotionalHeader}>
@@ -307,16 +320,40 @@ export function BibleReaderPassage({
                       <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
                     </>
                   )}
-                  {!!activeReadingPlanDay.reflectionPrompt && (
+                  {!!activeReadingPlanDay.observationQuestion && (
                     <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionPrompt}</Text>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.observationQuestion}</Text>
                     </View>
                   )}
-                  {!!activeReadingPlanDay.prayerPrompt && (
+                  {!!(activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt) && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt}</Text>
+                    </View>
+                  )}
+                  {!!(activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt) && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayerPrompt}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt}</Text>
+                    </View>
+                  )}
+                  {!!activeReadingPlanDay.gentleAction && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.gentleAction}</Text>
+                    </View>
+                  )}
+                  {!!activeReadingPlanDay.studyMethod && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
+                    </View>
+                  )}
+                  {!!activeReadingPlanDay.careNote && (
+                    <View style={styles.planDayPromptRow}>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.careNote}</Text>
                     </View>
                   )}
                 </View>

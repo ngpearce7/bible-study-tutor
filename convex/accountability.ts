@@ -583,6 +583,20 @@ function cleanBibleReaderState(state: {
         readerBook: string;
         readerChapter: number;
         studyReference: string;
+        context?: string;
+        devotional?: {
+          title: string;
+          body: string;
+          source?: string;
+        };
+        observationQuestion?: string;
+        reflectionQuestion?: string;
+        reflectionPrompt?: string;
+        prayer?: string;
+        prayerPrompt?: string;
+        gentleAction?: string;
+        studyMethod?: string;
+        careNote?: string;
       }>;
     }>;
     startDates?: Record<string, string>;
@@ -640,14 +654,33 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
     .map((plan) => {
       const days = (plan.days || [])
         .slice(0, 400)
-        .map((day) => ({
-          day: Math.max(1, Math.min(400, Math.round(day.day))),
-          title: clampText(day.title, 80),
-          reference: clampText(day.reference, 120),
-          readerBook: clampText(day.readerBook, 80),
-          readerChapter: Math.max(1, Math.min(200, Math.round(day.readerChapter))),
-          studyReference: clampText(day.studyReference, 120)
-        }))
+        .map((day) => {
+          const devotional = day.devotional
+            ? {
+                title: clampText(day.devotional.title, 120),
+                body: clampText(day.devotional.body, 1200),
+                source: clampOptionalText(day.devotional.source, 80)
+              }
+            : undefined;
+          return {
+            day: Math.max(1, Math.min(400, Math.round(day.day))),
+            title: clampText(day.title, 80),
+            reference: clampText(day.reference, 120),
+            readerBook: clampText(day.readerBook, 80),
+            readerChapter: Math.max(1, Math.min(200, Math.round(day.readerChapter))),
+            studyReference: clampText(day.studyReference, 120),
+            context: clampOptionalText(day.context, 700),
+            devotional: devotional?.title && devotional.body ? devotional : undefined,
+            observationQuestion: clampOptionalText(day.observationQuestion, 240),
+            reflectionQuestion: clampOptionalText(day.reflectionQuestion, 240),
+            reflectionPrompt: clampOptionalText(day.reflectionPrompt, 240),
+            prayer: clampOptionalText(day.prayer, 500),
+            prayerPrompt: clampOptionalText(day.prayerPrompt, 500),
+            gentleAction: clampOptionalText(day.gentleAction, 260),
+            studyMethod: clampOptionalText(day.studyMethod, 80),
+            careNote: clampOptionalText(day.careNote, 600)
+          };
+        })
         .filter((day) => day.reference && day.readerBook);
       if (!days.length) return null;
       return {

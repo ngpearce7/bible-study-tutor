@@ -131,12 +131,29 @@ function normalizeCustomBibleReadingPlanDay(day: any): BibleReadingPlanDay | nul
   if (!day || typeof day.reference !== "string" || typeof day.readerBook !== "string") return null;
   const readerBook = readerBookFromReferenceBook(String(day.readerBook).slice(0, 80));
   const chapterCount = BIBLE_CHAPTER_COUNTS[readerBook] || 200;
+  const devotional = day.devotional && typeof day.devotional === "object"
+    ? {
+        title: String(day.devotional.title || "").slice(0, 120),
+        body: String(day.devotional.body || "").slice(0, 1200),
+        source: typeof day.devotional.source === "string" ? day.devotional.source.slice(0, 80) : undefined
+      }
+    : undefined;
   return {
     day: Math.max(1, Math.min(MAX_CUSTOM_BIBLE_READING_PLAN_DAYS, Math.round(Number(day.day) || 1))),
     title: String(day.title || `Day ${day.day || 1}`).slice(0, 80),
     reference: String(day.reference).slice(0, 120),
     readerBook,
     readerChapter: Math.max(1, Math.min(chapterCount, Math.round(Number(day.readerChapter) || 1))),
-    studyReference: String(day.studyReference || day.reference).slice(0, 120)
+    studyReference: String(day.studyReference || day.reference).slice(0, 120),
+    context: typeof day.context === "string" ? day.context.slice(0, 700) : undefined,
+    devotional: devotional?.title && devotional.body ? devotional : undefined,
+    observationQuestion: typeof day.observationQuestion === "string" ? day.observationQuestion.slice(0, 240) : undefined,
+    reflectionQuestion: typeof day.reflectionQuestion === "string" ? day.reflectionQuestion.slice(0, 240) : undefined,
+    reflectionPrompt: typeof day.reflectionPrompt === "string" ? day.reflectionPrompt.slice(0, 240) : undefined,
+    prayer: typeof day.prayer === "string" ? day.prayer.slice(0, 500) : undefined,
+    prayerPrompt: typeof day.prayerPrompt === "string" ? day.prayerPrompt.slice(0, 500) : undefined,
+    gentleAction: typeof day.gentleAction === "string" ? day.gentleAction.slice(0, 260) : undefined,
+    studyMethod: typeof day.studyMethod === "string" ? day.studyMethod.slice(0, 80) : undefined,
+    careNote: typeof day.careNote === "string" ? day.careNote.slice(0, 600) : undefined
   };
 }

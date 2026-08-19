@@ -46,7 +46,21 @@ const bibleReadingPlanDay = v.object({
   reference: v.string(),
   readerBook: v.string(),
   readerChapter: v.number(),
-  studyReference: v.string()
+  studyReference: v.string(),
+  context: v.optional(v.string()),
+  devotional: v.optional(v.object({
+    title: v.string(),
+    body: v.string(),
+    source: v.optional(v.string())
+  })),
+  observationQuestion: v.optional(v.string()),
+  reflectionQuestion: v.optional(v.string()),
+  reflectionPrompt: v.optional(v.string()),
+  prayer: v.optional(v.string()),
+  prayerPrompt: v.optional(v.string()),
+  gentleAction: v.optional(v.string()),
+  studyMethod: v.optional(v.string()),
+  careNote: v.optional(v.string())
 });
 const customBibleReadingPlan = v.object({
   id: v.string(),

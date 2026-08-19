@@ -6381,6 +6381,9 @@ export default function Home() {
 
   function persistBibleReaderState(overrides: Partial<SyncedBibleReaderState> = {}) {
     if (!activeProfileId || !isAuthenticated || !profileMatchesActiveState) return;
+    const profileId = String(activeProfileId);
+    const includesReadingPlanProgress = Object.prototype.hasOwnProperty.call(overrides, "readingPlanProgress");
+    if (!includesReadingPlanProgress && appliedBibleReaderProfileIdRef.current !== profileId) return;
     const readingPlanProgressForSync = storedBibleReadingPlanProgress || currentBibleReadingPlanProgress();
     const state = normalizeSyncedBibleReaderState({
       translation: bibleTranslation,
@@ -6394,7 +6397,6 @@ export default function Home() {
     if (!state) return;
 
     const signature = JSON.stringify(state);
-    const profileId = String(activeProfileId);
     appliedBibleReaderStateSignatureRef.current = signature;
     pendingBibleReaderStateProfileIdRef.current = profileId;
     pendingBibleReaderStateSignatureRef.current = signature;

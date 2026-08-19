@@ -252,8 +252,14 @@ export const saveBibleReaderState = mutation({
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
 
+    const cleanedState = cleanBibleReaderState(args.state);
+    const existingReaderState = (profile as any).bibleReaderState;
+    if (!cleanedState.readingPlanProgress && existingReaderState?.readingPlanProgress) {
+      cleanedState.readingPlanProgress = existingReaderState.readingPlanProgress;
+    }
+
     await ctx.db.patch(args.profileId, {
-      bibleReaderState: cleanBibleReaderState(args.state),
+      bibleReaderState: cleanedState,
       updatedAt: Date.now()
     });
   }

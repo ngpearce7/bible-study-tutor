@@ -1063,92 +1063,148 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"]
   ], "Care")),
   planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
-    ["John 1:9-13", "John", 1, "Received as God's children", devotional(
-      "Received before you perform",
-      "John begins identity with reception, not achievement. Those who receive Christ are given the right to become children of God. That means belonging is not something you climb toward by religious effort; it is a gift God gives through Christ. Today, let this passage steady you before you measure yourself by productivity, approval, or failure.",
-      "What false measure of identity does this passage gently correct for you?",
-      "Father, help me receive the gift of belonging to You through Christ."
-    )],
-    ["Romans 8:1-4", "Romans", 8, "No condemnation", devotional(
-      "No condemnation in Christ",
-      "The Christian life does not begin under a cloud of accusation. Paul says there is now no condemnation for those who are in Christ Jesus because God has acted through His Son where the law could not rescue us. This is not denial of sin; it is confidence that Christ has dealt with sin so that life can now be walked by the Spirit.",
-      "Where do you most need to hear 'no condemnation' today?",
-      "Lord Jesus, teach me to stand in Your mercy rather than my shame."
-    )],
-    ["2 Corinthians 5:17-21", "2 Corinthians", 5, "New creation", devotional(
-      "Made new for reconciliation",
-      "In Christ, new creation is not merely a private feeling. God reconciles us to Himself and then gives us a ministry of reconciliation. Your identity is both received and sent: loved by God, made new by grace, and invited to become a witness of that grace in ordinary relationships.",
-      "What would it look like to live today as someone reconciled to God?",
-      "God of mercy, make Your reconciling grace visible in me."
-    )],
-    ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ", devotional(
-      "Clothed with Christ",
-      "Paul says believers have been clothed with Christ. This image is wonderfully practical: before the world sees your gifts, background, weakness, or status, God sees you in His Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
-      "Which lesser label has been louder than your identity in Christ?",
-      "Lord, let Christ be the truest thing about how I see myself and others."
-    )],
-    ["Ephesians 1:3-10", "Ephesians", 1, "Blessed and chosen", devotional(
-      "Blessed in Christ",
-      "Ephesians lifts your eyes from self-definition to God's gracious purpose. In Christ, believers are blessed, chosen, adopted, redeemed, and forgiven. These words are not decorations; they are anchors. Your identity is grounded in God's will, God's grace, and God's plan to bring all things together in Christ.",
-      "Which word in this passage gives your heart the strongest anchor today?",
-      "Father, help me rest in the grace You have lavished in Christ."
-    )],
-    ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ", devotional(
-      "Hidden with Christ",
-      "Paul does not speak of being hidden with Christ as escape from ordinary life. Because believers have been raised with Christ, he calls them to seek the things above and set their minds where Christ is. Your life is hidden with Christ in God, so earthly pressures no longer get the final word. Hiddenness means safety, new direction, and future hope when Christ appears in glory.",
-      "What earthly concern needs to be re-ordered by seeking Christ and setting your mind on things above?",
-      "Christ, keep my mind set on You and my life anchored in You."
-    )],
-    ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people", devotional(
-      "Chosen to declare His praise",
-      "Peter gives identity in plural form: a chosen people, a royal priesthood, a holy nation, God's own possession. You are not saved into isolation. You belong to God and to His people, so that your life can declare the mercy that brought you out of darkness into light.",
-      "How can your life quietly declare God's mercy today?",
-      "Lord, thank You for making me Yours. Let my life point to Your light."
-    )]
+    ["John 1:9-13", "John", 1, "Received as God's children", guidedDevotional({
+      title: "Received before you perform",
+      context: "John introduces Jesus as the true Light who came into the world. Not everyone received Him, but those who did were given the right to become children of God.",
+      body: "This passage begins identity with reception, not achievement. Belonging to God is not something you climb toward by religious effort; it is a gift given through Christ. Before productivity, approval, failure, or family history speaks over you, Scripture says that those who receive the Son are born of God.",
+      observationQuestion: "What does John say is given to those who receive Christ and believe in His name?",
+      reflectionQuestion: "What false measure of identity does this passage gently correct for you?",
+      prayer: "Father, help me receive the gift of belonging to You through Christ.",
+      gentleAction: "Write one sentence beginning, 'Because of Christ, I am received by God...'",
+      studyMethod: "OIA"
+    })],
+    ["Romans 8:1-4", "Romans", 8, "No condemnation", guidedDevotional({
+      title: "No condemnation in Christ",
+      context: "Paul has just described the struggle with sin and now announces what God has done through Christ and the Spirit.",
+      body: "The Christian life does not begin under a cloud of accusation. There is now no condemnation for those who are in Christ Jesus because God has acted through His Son where the law could not rescue us. This is not denial of sin; it is confidence that Christ has dealt with sin so that life can now be walked by the Spirit.",
+      observationQuestion: "What has God done through His Son that the law could not do?",
+      reflectionQuestion: "Where do you most need to hear 'no condemnation' today?",
+      prayer: "Lord Jesus, teach me to stand in Your mercy rather than my shame.",
+      gentleAction: "When accusation rises today, pause and answer it with Romans 8:1.",
+      studyMethod: "SOAP"
+    })],
+    ["2 Corinthians 5:17-21", "2 Corinthians", 5, "New creation", guidedDevotional({
+      title: "Made new for reconciliation",
+      context: "Paul describes the ministry of reconciliation that flows from Christ's death and resurrection.",
+      body: "In Christ, new creation is not merely a private feeling. God reconciles us to Himself and then gives us a ministry of reconciliation. Your identity is both received and sent: loved by God, made new by grace, and invited to become a witness of that grace in ordinary relationships.",
+      observationQuestion: "What does Paul say God has done for us in Christ, and what has He entrusted to us?",
+      reflectionQuestion: "What would it look like to live today as someone reconciled to God?",
+      prayer: "God of mercy, make Your reconciling grace visible in me.",
+      gentleAction: "Choose one ordinary relationship where you can practice peace, honesty, or forgiveness today.",
+      studyMethod: "COMA"
+    })],
+    ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ", guidedDevotional({
+      title: "Clothed with Christ",
+      context: "Paul is explaining how faith in Christ makes believers children of God and joins them together as heirs of the promise.",
+      body: "Believers have been clothed with Christ. Before the world sees your gifts, background, weakness, status, or mistakes, God sees you in His Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
+      observationQuestion: "What identity words does Paul use for those who belong to Christ?",
+      reflectionQuestion: "Which lesser label has been louder than your identity in Christ?",
+      prayer: "Lord, let Christ be the truest thing about how I see myself and others.",
+      gentleAction: "Name one label you need to hold under the greater truth that you belong to Christ.",
+      studyMethod: "Word study"
+    })],
+    ["Ephesians 1:3-10", "Ephesians", 1, "Blessed and chosen", guidedDevotional({
+      title: "Blessed in Christ",
+      context: "Paul opens Ephesians with a long blessing that traces salvation to God's grace, purpose, and work in Christ.",
+      body: "Ephesians lifts your eyes from self-definition to God's gracious purpose. In Christ, believers are blessed, chosen, adopted, redeemed, and forgiven. These words are not decorations; they are anchors. Your identity is grounded in God's will, God's grace, and God's plan to bring all things together in Christ.",
+      observationQuestion: "List the blessings Paul says believers have in Christ.",
+      reflectionQuestion: "Which word in this passage gives your heart the strongest anchor today?",
+      prayer: "Father, help me rest in the grace You have lavished in Christ.",
+      gentleAction: "Choose one identity word from the passage and carry it through the day.",
+      studyMethod: "Inductive"
+    })],
+    ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ", guidedDevotional({
+      title: "Hidden with Christ",
+      context: "Paul calls believers who have been raised with Christ to seek the things above and set their minds where Christ is.",
+      body: "Being hidden with Christ is not escape from ordinary life. Because believers have been raised with Christ, they learn to seek what belongs to Him and set their minds where He reigns. Your life is hidden with Christ in God, so earthly pressures no longer get the final word. Hiddenness means safety, new direction, and future hope when Christ appears in glory.",
+      observationQuestion: "What does Paul say believers should seek and set their minds on?",
+      reflectionQuestion: "What earthly concern needs to be re-ordered by seeking Christ and setting your mind on things above?",
+      prayer: "Christ, keep my mind set on You and my life anchored in You.",
+      gentleAction: "When one earthly pressure feels loud today, deliberately name Christ's rule over it.",
+      studyMethod: "Meditation"
+    })],
+    ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people", guidedDevotional({
+      title: "Chosen to declare His praise",
+      context: "Peter writes to believers who are scattered and pressured, reminding them who they are together in God's mercy.",
+      body: "Peter gives identity in plural form: a chosen people, a royal priesthood, a holy nation, God's own possession. You are not saved into isolation. You belong to God and to His people, so that your life can declare the mercy that brought you out of darkness into light.",
+      observationQuestion: "What names does Peter give God's people, and what purpose does he attach to them?",
+      reflectionQuestion: "How can your life quietly declare God's mercy today?",
+      prayer: "Lord, thank You for making me Yours. Let my life point to Your light.",
+      gentleAction: "Tell God one specific mercy He has shown you and look for one quiet way to reflect it.",
+      studyMethod: "SOAP"
+    })]
   ], "Identity"),
   planFromReferences("abiding-in-christ", "Abiding in Christ", "A gentle week of readings about remaining with Jesus and bearing fruit from Him.", [
-    ["John 15:1-8", "John", 15, "Remain in Me", devotional(
-      "Fruit from closeness",
-      "Jesus does not call His disciples to produce fruit by anxious striving. He calls them to remain in Him. Branches bear fruit because they stay connected to the vine. Today, begin with dependence: receive His word, stay near, and let obedience grow from communion rather than pressure.",
-      "Where are you tempted to produce fruit without remaining close to Christ?",
-      "Jesus, teach me to remain in You and receive life from You."
-    )],
-    ["Psalm 1:1-3", "Psalms", 1, "Planted by streams", devotional(
-      "Planted where life flows",
-      "Psalm 1 describes a life rooted in God's instruction like a tree planted by streams of water. This is not hurried spirituality. It is a settled life, nourished over time. Abiding often looks ordinary: returning to Scripture, refusing the wrong path, and staying where God gives life.",
-      "What stream of God's word do you need to stay near today?",
-      "Lord, plant me deeply in Your word and make my life fruitful in season."
-    )],
-    ["Psalm 27:4-8", "Psalms", 27, "Dwell with the Lord", devotional(
-      "One thing",
-      "David's desire is beautifully focused: to dwell in the house of the Lord and seek Him. Abiding is not adding more spiritual noise; it is learning to seek one necessary thing. In pressure or distraction, God invites you to turn your face toward Him again.",
-      "What would it mean to seek the Lord as your 'one thing' today?",
-      "Lord, when You say, 'Seek My face,' help my heart answer, 'Your face I will seek.'"
-    )],
-    ["Matthew 11:25-30", "Matthew", 11, "Come to Me", devotional(
-      "Rest for your soul",
-      "Jesus' invitation is personal and gentle: come to Me. He does not ignore weariness; He names it and offers rest. Abiding in Christ includes bringing your burdens honestly to Him and learning His way. His yoke is not the crushing weight of self-salvation, but the restful obedience of walking with Him.",
-      "What burden do you need to bring to Jesus rather than carry alone?",
-      "Gentle and humble Savior, give rest to my soul as I come to You."
-    )],
-    ["Luke 10:38-42", "Luke", 10, "Sit at Jesus' feet", devotional(
-      "The necessary thing",
-      "Martha's service mattered, but her worry crowded out attentiveness to Jesus. Mary shows a posture of receiving before doing. This passage does not shame faithful work; it reorders it. Abiding means letting Jesus have your attention before your activity takes over.",
-      "What good activity might be crowding out attention to Jesus?",
-      "Lord Jesus, quiet my distracted heart and help me choose what is necessary."
-    )],
-    ["Colossians 2:6-7", "Colossians", 2, "Rooted and built up", devotional(
-      "Continue as you received",
-      "Paul says to continue in Christ just as you received Him. The Christian life grows by the same grace that began it. You are rooted, built up, strengthened, and overflowing with thankfulness as you keep walking in Him. Abiding is steady continuation, not constant reinvention.",
-      "Where do you need to continue in simple trust rather than start over in anxiety?",
-      "Christ, root me more deeply in You and grow thanksgiving in me."
-    )],
-    ["1 John 2:24-28", "1 John", 2, "Abide in Him", devotional(
-      "Let the word remain",
-      "John connects abiding with letting the apostolic message remain in us. Staying close to Christ is not vague spirituality; it is holding fast to the truth about the Son and the Father. As His word remains in you, you are invited to remain in Him with confidence.",
-      "What truth about Christ do you need to let remain in you today?",
-      "Father, keep me in the truth of Your Son and teach me to abide with confidence."
-    )]
+    ["John 15:1-8", "John", 15, "Remain in Me", guidedDevotional({
+      title: "Fruit from closeness",
+      context: "On the night before the cross, Jesus teaches His disciples that He is the true vine and they are branches.",
+      body: "Jesus does not call His disciples to produce fruit by anxious striving. He calls them to remain in Him. Branches bear fruit because they stay connected to the vine. Begin with dependence: receive His word, stay near, and let obedience grow from communion rather than pressure.",
+      observationQuestion: "What does Jesus say branches can and cannot do apart from the vine?",
+      reflectionQuestion: "Where are you tempted to produce fruit without remaining close to Christ?",
+      prayer: "Jesus, teach me to remain in You and receive life from You.",
+      gentleAction: "Before one task today, pray, 'Apart from You I can do nothing.'",
+      studyMethod: "OIA"
+    })],
+    ["Psalm 1:1-3", "Psalms", 1, "Planted by streams", guidedDevotional({
+      title: "Planted where life flows",
+      context: "Psalm 1 contrasts two paths and describes the blessed person as one who delights in the Lord's instruction.",
+      body: "Psalm 1 describes a life rooted in God's instruction like a tree planted by streams of water. This is not hurried spirituality. It is a settled life, nourished over time. Abiding often looks ordinary: returning to Scripture, refusing the wrong path, and staying where God gives life.",
+      observationQuestion: "What does the blessed person avoid, and what do they delight in?",
+      reflectionQuestion: "What stream of God's word do you need to stay near today?",
+      prayer: "Lord, plant me deeply in Your word and make my life fruitful in season.",
+      gentleAction: "Read the passage slowly once more and underline one phrase to meditate on.",
+      studyMethod: "Meditation"
+    })],
+    ["Psalm 27:4-8", "Psalms", 27, "Dwell with the Lord", guidedDevotional({
+      title: "One thing",
+      context: "David speaks from desire and need, longing to dwell with the Lord, behold His beauty, and seek Him.",
+      body: "David's desire is beautifully focused: to dwell in the house of the Lord and seek Him. Abiding is not adding more spiritual noise; it is learning to seek one necessary thing. In pressure or distraction, God invites you to turn your face toward Him again.",
+      observationQuestion: "What is the 'one thing' David asks of the Lord?",
+      reflectionQuestion: "What would it mean to seek the Lord as your 'one thing' today?",
+      prayer: "Lord, when You say, 'Seek My face,' help my heart answer, 'Your face I will seek.'",
+      gentleAction: "Take one ordinary pause today and turn it into a moment of seeking the Lord.",
+      studyMethod: "SOAP"
+    })],
+    ["Matthew 11:25-30", "Matthew", 11, "Come to Me", guidedDevotional({
+      title: "Rest for your soul",
+      context: "Jesus reveals the Father and then invites the weary and burdened to come to Him.",
+      body: "Jesus' invitation is personal and gentle: come to Me. He does not ignore weariness; He names it and offers rest. Abiding in Christ includes bringing your burdens honestly to Him and learning His way. His yoke is not the crushing weight of self-salvation, but the restful obedience of walking with Him.",
+      observationQuestion: "Who does Jesus invite, and what does He promise to give?",
+      reflectionQuestion: "What burden do you need to bring to Jesus rather than carry alone?",
+      prayer: "Gentle and humble Savior, give rest to my soul as I come to You.",
+      gentleAction: "Name one burden in prayer before you try to solve it.",
+      studyMethod: "COMA"
+    })],
+    ["Luke 10:38-42", "Luke", 10, "Sit at Jesus' feet", guidedDevotional({
+      title: "The necessary thing",
+      context: "Jesus visits the home of Martha and Mary. Martha serves anxiously while Mary sits at Jesus' feet listening to His word.",
+      body: "Martha's service mattered, but her worry crowded out attentiveness to Jesus. Mary shows a posture of receiving before doing. This passage does not shame faithful work; it reorders it. Abiding means letting Jesus have your attention before your activity takes over.",
+      observationQuestion: "What is Martha troubled by, and what does Jesus commend in Mary?",
+      reflectionQuestion: "What good activity might be crowding out attention to Jesus?",
+      prayer: "Lord Jesus, quiet my distracted heart and help me choose what is necessary.",
+      gentleAction: "Before checking a task list, spend two quiet minutes receiving from Jesus' words.",
+      studyMethod: "OIA"
+    })],
+    ["Colossians 2:6-7", "Colossians", 2, "Rooted and built up", guidedDevotional({
+      title: "Continue as you received",
+      context: "Paul urges believers who received Christ to continue walking in Him, rooted and built up in faith.",
+      body: "The Christian life grows by the same grace that began it. You are rooted, built up, strengthened, and overflowing with thankfulness as you keep walking in Him. Abiding is steady continuation, not constant reinvention.",
+      observationQuestion: "What images does Paul use to describe continuing in Christ?",
+      reflectionQuestion: "Where do you need to continue in simple trust rather than start over in anxiety?",
+      prayer: "Christ, root me more deeply in You and grow thanksgiving in me.",
+      gentleAction: "Write one thing you are thankful for as evidence of God's steady work.",
+      studyMethod: "Word study"
+    })],
+    ["1 John 2:24-28", "1 John", 2, "Abide in Him", guidedDevotional({
+      title: "Let the word remain",
+      context: "John calls believers to let what they heard from the beginning remain in them so they remain in the Son and the Father.",
+      body: "Staying close to Christ is not vague spirituality; it is holding fast to the truth about the Son and the Father. As His word remains in you, you are invited to remain in Him with confidence. Abiding is personal, but it is also anchored in the truth God has spoken.",
+      observationQuestion: "What does John say should remain in believers?",
+      reflectionQuestion: "What truth about Christ do you need to let remain in you today?",
+      prayer: "Father, keep me in the truth of Your Son and teach me to abide with confidence.",
+      gentleAction: "Choose one phrase from the passage and repeat it when your attention drifts.",
+      studyMethod: "Inductive"
+    })]
   ], "Abiding"),
   {
     ...planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding Jesus, grace, faith, prayer, new life, the Spirit, and following Christ with His people.", [

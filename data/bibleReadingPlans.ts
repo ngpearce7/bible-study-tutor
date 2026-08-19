@@ -1138,6 +1138,271 @@ const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   "Revelation 21": easterDevotionals["Revelation 21"]
 };
 
+const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Acts 1": guidedDevotional({
+    title: "Witnesses by the Spirit",
+    context: "The risen Jesus teaches His apostles, promises the Holy Spirit, ascends, and prepares them for witness.",
+    body: "Acts begins with the risen Christ still leading His people. The mission does not rest on human energy; Jesus promises power from the Holy Spirit and sends His witnesses outward. Waiting and witness belong together because the church moves by Christ's command and Spirit's power.",
+    observationQuestion: "What does Jesus promise, and what mission does He give His witnesses?",
+    reflectionQuestion: "Where do you need to wait on the Lord rather than rush ahead in your own strength?",
+    prayer: "Risen Lord, make me a faithful witness by the power of Your Spirit.",
+    gentleAction: "Pray for one ordinary opportunity to bear witness to Christ today.",
+    studyMethod: "COMA"
+  }),
+  "Acts 2": easterDevotionals["Acts 2"],
+  "Acts 3": guidedDevotional({
+    title: "In the name of Jesus",
+    context: "Peter and John meet a lame man at the temple gate, and he is healed in Jesus' name.",
+    body: "The healing points beyond the miracle itself to the risen Jesus. Peter refuses personal credit and calls people to repentance and restoration. The church's mercy and message belong together: Jesus is alive, powerful, and worthy of trust.",
+    observationQuestion: "How does Peter explain the healing and point attention away from himself?",
+    reflectionQuestion: "Where might a gift, mercy, or answered prayer need to point back to Jesus?",
+    prayer: "Lord Jesus, make my words and actions point clearly to Your living power.",
+    gentleAction: "Give thanks for one mercy and name Jesus as the giver.",
+    studyMethod: "OIA"
+  }),
+  "Acts 4": easterDevotionals["Acts 4"],
+  "Acts 5": guidedDevotional({
+    title: "Holiness and bold witness",
+    context: "Acts 5 includes the judgment of Ananias and Sapphira, signs among the people, opposition, and renewed apostolic witness.",
+    body: "The early church is marked by both grace and holiness. God is not a tool for reputation, and the apostles are not silenced by pressure. The chapter holds together reverent fear, healing mercy, suffering for Christ, and joy in His name.",
+    observationQuestion: "What forms of fear, opposition, and boldness appear in this chapter?",
+    reflectionQuestion: "Where do you need honesty before God and courage before people?",
+    prayer: "Holy Lord, purify my motives and give me joyfully faithful courage.",
+    gentleAction: "Practice one hidden act of honesty before God today.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 6": guidedDevotional({
+    title: "Serving without neglecting the Word",
+    context: "A practical need in the church leads to Spirit-filled servants being appointed, and Stephen's witness begins.",
+    body: "Growth brings real needs and possible tension. The apostles do not treat practical care as unspiritual, nor do they neglect prayer and the Word. The church needs wise, Spirit-filled service so both mercy and ministry remain healthy.",
+    observationQuestion: "What problem arises, and how does the church respond?",
+    reflectionQuestion: "Where does faithful service require wisdom, fairness, and spiritual maturity?",
+    prayer: "Lord, make Your church wise in care and faithful in prayer and the Word.",
+    gentleAction: "Notice one practical need and consider how to serve without resentment.",
+    studyMethod: "OIA"
+  }),
+  "Acts 7": guidedDevotional({
+    title: "Faithful witness under pressure",
+    context: "Stephen retells Israel's story, exposes resistance to God, and dies while seeing the exalted Christ.",
+    body: "Stephen's speech shows that God's presence and purposes have never been confined to one building or controlled by human opposition. His death is tragic, but not meaningless; he bears witness to the Son of Man standing at God's right hand.",
+    observationQuestion: "How does Stephen use Israel's history to confront his hearers?",
+    reflectionQuestion: "What would faithfulness look like when truth is costly?",
+    prayer: "Lord Jesus, keep my eyes on You when faithfulness is difficult.",
+    gentleAction: "Pray for persecuted believers and for courage to speak truth with grace.",
+    studyMethod: "Biblical theology"
+  }),
+  "Acts 8": guidedDevotional({
+    title: "The gospel spreads through scattering",
+    context: "Persecution scatters believers, Philip preaches in Samaria, and an Ethiopian official receives the gospel.",
+    body: "Opposition cannot cage the Word of God. The gospel moves to Samaria and to an Ethiopian seeker through Scripture, Spirit-led witness, and the good news of Jesus. God gathers people across old boundaries and personal distance.",
+    observationQuestion: "How does the gospel spread, and who receives it in this chapter?",
+    reflectionQuestion: "Where might God use disruption or an unexpected conversation for witness?",
+    prayer: "Lord, send Your gospel across boundaries and make me attentive to Spirit-led opportunities.",
+    gentleAction: "Be ready to explain one Scripture or one hope in Christ simply.",
+    studyMethod: "COMA"
+  }),
+  "Acts 9": guidedDevotional({
+    title: "Grace meets an enemy",
+    context: "Saul persecutes the church until the risen Jesus confronts him on the road to Damascus.",
+    body: "Saul is not seeking Jesus when Jesus stops him. His conversion displays sovereign mercy: an enemy becomes a chosen instrument. Ananias' obedience also matters, showing costly welcome toward someone he had reason to fear.",
+    observationQuestion: "What does Jesus say to Saul, and how does Ananias respond to Jesus' command?",
+    reflectionQuestion: "How does Saul's conversion enlarge your view of grace for unlikely people?",
+    prayer: "Lord Jesus, thank You for mercy that can transform enemies into servants.",
+    gentleAction: "Pray for someone you find difficult to imagine receiving grace.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 10": guidedDevotional({
+    title: "God shows no partiality",
+    context: "Peter is sent to Cornelius, and Gentiles receive the Holy Spirit as the gospel crosses another boundary.",
+    body: "God teaches Peter that the good news of Jesus is not confined by ethnic boundary or religious habit. Cornelius' household hears of Christ's life, death, resurrection, and forgiveness, and the Spirit confirms God's welcome of Gentile believers.",
+    observationQuestion: "What does Peter learn, and what does he proclaim about Jesus?",
+    reflectionQuestion: "Where might your assumptions be narrower than God's welcome in Christ?",
+    prayer: "Lord, align my heart with Your mercy for people from every nation.",
+    gentleAction: "Pray for someone culturally or socially distant from you to know Christ.",
+    studyMethod: "Inductive"
+  }),
+  "Acts 11": guidedDevotional({
+    title: "Grace recognized",
+    context: "Peter explains Gentile inclusion, and the church in Antioch grows through scattered believers and faithful teaching.",
+    body: "The Jerusalem believers learn to recognize God's grace where they did not expect it. Antioch becomes a place of teaching, generosity, and the name Christian. The chapter calls the church to discern God's work and respond with gladness.",
+    observationQuestion: "How do believers respond when they hear what God did among the Gentiles?",
+    reflectionQuestion: "Where do you need to recognize and rejoice in grace beyond familiar places?",
+    prayer: "Lord, give me eyes to recognize Your grace and a heart that rejoices in it.",
+    gentleAction: "Name one sign of God's grace in someone else's life and give thanks.",
+    studyMethod: "OIA"
+  }),
+  "Acts 12": guidedDevotional({
+    title: "Prayer and deliverance",
+    context: "James is killed, Peter is imprisoned, and the church prays while God delivers Peter.",
+    body: "Acts 12 does not give a simple formula: James dies, Peter is rescued, and Herod is judged. The church prays in weakness, and God rules over prison doors and proud kings. Faith trusts God's sovereignty even when outcomes differ.",
+    observationQuestion: "What different outcomes appear in this chapter, and how does the church respond?",
+    reflectionQuestion: "How can you pray faithfully while leaving outcomes in God's hands?",
+    prayer: "Sovereign Lord, teach me to pray with trust when I cannot control the outcome.",
+    gentleAction: "Pray honestly for one hard situation without demanding the script.",
+    studyMethod: "COMA"
+  }),
+  "Acts 13": guidedDevotional({
+    title: "Sent by the Spirit",
+    context: "The church in Antioch sends Barnabas and Saul, and Paul proclaims Jesus from Israel's story.",
+    body: "Mission begins in worship, fasting, and the Spirit's sending. Paul's sermon shows that Jesus is the promised Savior, raised from the dead, and the source of forgiveness. The gospel goes out because God keeps His promises.",
+    observationQuestion: "How are Barnabas and Saul sent, and how does Paul connect Jesus to Israel's story?",
+    reflectionQuestion: "Where does mission need to begin with worship and dependence rather than strategy alone?",
+    prayer: "Holy Spirit, send Your people with worshipful dependence and gospel clarity.",
+    gentleAction: "Pray for a missionary, church planter, or gospel worker today.",
+    studyMethod: "Biblical theology"
+  }),
+  "Acts 14": guidedDevotional({
+    title: "Strengthened through trials",
+    context: "Paul and Barnabas preach, suffer opposition, and strengthen new disciples before returning to Antioch.",
+    body: "The gospel bears fruit amid misunderstanding, praise, violence, and perseverance. Paul and Barnabas do not promise ease; they strengthen believers to continue in faith through many tribulations. The kingdom advances through faithful endurance.",
+    observationQuestion: "What opposition and encouragement appear as Paul and Barnabas travel?",
+    reflectionQuestion: "Where do you need strengthening to continue in faith rather than chase ease?",
+    prayer: "Lord, strengthen me to continue in faith through difficulty.",
+    gentleAction: "Encourage one believer who is trying to remain faithful under pressure.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 15": guidedDevotional({
+    title: "Grace for the nations",
+    context: "The Jerusalem council addresses whether Gentile believers must take on the law of Moses to be saved.",
+    body: "The church protects the truth that salvation is by the grace of the Lord Jesus. The council also seeks wise love between Jewish and Gentile believers. Gospel clarity and communal care belong together.",
+    observationQuestion: "What question is debated, and what conclusion is reached about grace?",
+    reflectionQuestion: "Where do you need to protect grace while practicing love toward others?",
+    prayer: "Lord Jesus, keep me clear about grace and careful in love.",
+    gentleAction: "Ask whether one expectation you place on others is gospel truth or cultural habit.",
+    studyMethod: "Inductive"
+  }),
+  "Acts 16": guidedDevotional({
+    title: "The gospel opens hearts",
+    context: "Paul's team is led to Macedonia, Lydia believes, a slave girl is freed, and a jailer is saved.",
+    body: "Acts 16 shows many kinds of gospel openings: a businesswoman by a river, a captive girl in spiritual bondage, and a jailer in crisis. The Lord opens hearts, breaks chains, and creates household joy through Christ.",
+    observationQuestion: "Who receives mercy in this chapter, and how does God work in each situation?",
+    reflectionQuestion: "How does this chapter expand your expectation of where God may be working?",
+    prayer: "Lord, open hearts to Your gospel and make me attentive to Your leading.",
+    gentleAction: "Pray for one person by name, asking God to open their heart.",
+    studyMethod: "OIA"
+  }),
+  "Acts 17": guidedDevotional({
+    title: "Reasoning from Scripture and creation",
+    context: "Paul reasons in synagogues and speaks in Athens, proclaiming the Creator and the risen Judge.",
+    body: "Paul adapts his approach without changing the message. With Jews he reasons from Scripture; in Athens he begins with creation and idolatry, then proclaims repentance and resurrection. Faithful witness listens carefully and points clearly to Christ.",
+    observationQuestion: "How does Paul's approach differ in Thessalonica, Berea, and Athens?",
+    reflectionQuestion: "Where do you need both careful listening and clear witness?",
+    prayer: "Lord, give me wisdom to speak Christ clearly in different settings.",
+    gentleAction: "Practice explaining one reason the resurrection matters in simple words.",
+    studyMethod: "COMA"
+  }),
+  "Acts 18": guidedDevotional({
+    title: "Do not be afraid",
+    context: "Paul ministers in Corinth, receives encouragement from the Lord, and later Apollos is taught more accurately.",
+    body: "The Lord strengthens Paul in a hard city: do not be afraid, keep speaking, for I am with you. The chapter also shows humble teaching through Priscilla and Aquila helping Apollos. Gospel ministry needs courage, patience, and teachability.",
+    observationQuestion: "How does the Lord encourage Paul, and how is Apollos helped?",
+    reflectionQuestion: "Where do you need courage to keep speaking or humility to keep learning?",
+    prayer: "Lord, keep me faithful, teachable, and unafraid because You are with me.",
+    gentleAction: "Receive one correction or encouragement today as a gift from God.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 19": guidedDevotional({
+    title: "The Word grows in power",
+    context: "In Ephesus, the gospel confronts incomplete understanding, spiritual counterfeits, magic, and economic idolatry.",
+    body: "The Word of the Lord grows and prevails as people confess, turn from false power, and abandon costly idols. The gospel does not merely add Jesus to existing loyalties; it challenges rival powers and reorders worship.",
+    observationQuestion: "What false powers or rival loyalties are exposed in Ephesus?",
+    reflectionQuestion: "What costly loyalty might the gospel call you to surrender?",
+    prayer: "Lord Jesus, let Your Word prevail over every rival loyalty in my life.",
+    gentleAction: "Identify one habit, possession, or ambition that needs to be placed under Christ.",
+    studyMethod: "OIA"
+  }),
+  "Acts 20": guidedDevotional({
+    title: "Shepherding with tears",
+    context: "Paul encourages believers, raises Eutychus, and gives farewell counsel to the Ephesian elders.",
+    body: "Paul's ministry is marked by humility, tears, teaching, warning, and generosity. He entrusts the elders to God and to the word of His grace. Leadership in the church is not image or control; it is watchful care under Christ.",
+    observationQuestion: "What does Paul say about his ministry and the elders' responsibility?",
+    reflectionQuestion: "Where does faithful care require humility, warning, or generosity?",
+    prayer: "Lord, make Your church faithful under the word of Your grace.",
+    gentleAction: "Pray for a pastor, elder, or church leader to shepherd faithfully.",
+    studyMethod: "Inductive"
+  }),
+  "Acts 21": guidedDevotional({
+    title: "Ready for the name of Jesus",
+    context: "Paul travels toward Jerusalem despite warnings and is arrested after unrest in the temple.",
+    body: "Paul is not careless, but he is surrendered. He is ready to suffer for the name of the Lord Jesus. The chapter also shows how quickly misunderstanding can turn into conflict, making Paul's steady allegiance to Christ stand out.",
+    observationQuestion: "What warnings does Paul receive, and how does he respond?",
+    reflectionQuestion: "Where does allegiance to Jesus need to outrank comfort or reputation?",
+    prayer: "Lord Jesus, make me faithful to Your name when obedience is costly.",
+    gentleAction: "Pray for courage to obey Christ in one uncomfortable area.",
+    studyMethod: "COMA"
+  }),
+  "Acts 22": guidedDevotional({
+    title: "A testimony of mercy",
+    context: "Paul tells his conversion story to a hostile crowd in Jerusalem.",
+    body: "Paul's testimony is not self-promotion; it is witness to the mercy and calling of Jesus. He tells how the risen Lord interrupted him, forgave him, and sent him. Personal story becomes faithful witness when Christ is the center.",
+    observationQuestion: "What parts of Paul's story highlight Jesus' mercy and calling?",
+    reflectionQuestion: "How could you tell your story in a way that makes Christ, not yourself, central?",
+    prayer: "Lord Jesus, help me speak honestly of Your mercy in my life.",
+    gentleAction: "Write three sentences about what Christ has done for you.",
+    studyMethod: "OIA"
+  }),
+  "Acts 23": guidedDevotional({
+    title: "Take courage",
+    context: "Paul faces division, danger, and a plot against his life, but the Lord stands by him.",
+    body: "The Lord's word to Paul is tender and purposeful: take courage. Human plotting is real, yet God's purpose carries Paul forward toward Rome. The chapter encourages trust when circumstances look chaotic but Christ has not left His servant.",
+    observationQuestion: "What danger surrounds Paul, and what does the Lord say to him?",
+    reflectionQuestion: "Where do you need to hear Christ's courage-giving presence today?",
+    prayer: "Lord Jesus, stand near me with courage when circumstances feel unstable.",
+    gentleAction: "Write 'Take courage' beside one situation that feels uncertain.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 24": guidedDevotional({
+    title: "Faithfulness while waiting",
+    context: "Paul gives his defense before Felix and remains imprisoned while Felix delays justice.",
+    body: "Paul speaks about faith in Christ, resurrection hope, righteousness, self-control, and coming judgment. Felix delays, but Paul remains faithful. The chapter teaches patient witness when people are interested but unwilling to surrender.",
+    observationQuestion: "What does Paul speak about, and how does Felix respond?",
+    reflectionQuestion: "Where do you need patience when someone delays responding to truth?",
+    prayer: "Lord, help me speak truth patiently and trust Your timing.",
+    gentleAction: "Pray for someone who seems near truth but hesitant to respond.",
+    studyMethod: "COMA"
+  }),
+  "Acts 25": guidedDevotional({
+    title: "Appeal and providence",
+    context: "Paul stands before Festus, appeals to Caesar, and continues moving toward Rome through legal proceedings.",
+    body: "Acts 25 may feel procedural, but providence often works through ordinary systems and delays. Paul's appeal is not escape from mission; it becomes the road toward Rome. God can use slow, tangled circumstances for His purposes.",
+    observationQuestion: "What legal decisions move Paul's case forward?",
+    reflectionQuestion: "Where might God be working through a slow process you would not have chosen?",
+    prayer: "Lord, help me trust Your providence in delays, decisions, and systems beyond my control.",
+    gentleAction: "Entrust one slow process to God in a brief written prayer.",
+    studyMethod: "OIA"
+  }),
+  "Acts 26": guidedDevotional({
+    title: "Almost persuaded",
+    context: "Paul testifies before Agrippa, retelling his calling and proclaiming Christ's suffering and resurrection.",
+    body: "Paul speaks with respect and boldness. His defense becomes proclamation: Christ suffered, rose, and brings light to Jews and Gentiles. Agrippa's response is close but unresolved, reminding you that hearing the gospel still calls for response.",
+    observationQuestion: "How does Paul describe his commission and the message about Christ?",
+    reflectionQuestion: "Where do you need to move from almost persuaded to obedient trust?",
+    prayer: "Lord Jesus, keep my heart responsive to Your light and truth.",
+    gentleAction: "Ask God to expose one area where you are delaying obedience.",
+    studyMethod: "Inductive"
+  }),
+  "Acts 27": guidedDevotional({
+    title: "God's promise in the storm",
+    context: "Paul sails toward Rome, the ship is caught in a violent storm, and God promises preservation.",
+    body: "The storm is severe, but God's promise stands. Paul becomes a calm witness of trust in the middle of danger, urging courage because he believes God. Faith does not deny the storm; it holds fast to the God who speaks in it.",
+    observationQuestion: "What does God promise Paul, and how does Paul encourage the others?",
+    reflectionQuestion: "What storm needs to be answered by trust in God's word rather than panic?",
+    prayer: "Lord, help me believe what You have spoken when the storm is loud.",
+    gentleAction: "Speak one promise of God aloud before reacting to pressure today.",
+    studyMethod: "SOAP"
+  }),
+  "Acts 28": guidedDevotional({
+    title: "The kingdom unhindered",
+    context: "Paul reaches Rome, ministers on Malta, and proclaims the kingdom of God and Jesus Christ under house arrest.",
+    body: "Acts ends with Paul confined but the Word unhindered. The gospel has moved from Jerusalem toward Rome, and Christ's kingdom is still being proclaimed. The ending is open because the mission continues through the Spirit-empowered witness of the church.",
+    observationQuestion: "How does Acts describe Paul's final ministry in Rome?",
+    reflectionQuestion: "Where do you need to remember that God's Word is not chained by your limitations?",
+    prayer: "Lord Jesus, let Your kingdom be proclaimed through my life, even within my limits.",
+    gentleAction: "Ask how one current limitation could still become a place of witness.",
+    studyMethod: "Biblical theology"
+  })
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
   "life-of-jesus": lifeOfJesusDevotionals,
@@ -1147,6 +1412,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "life-of-david": lifeOfDavidDevotionals,
   "life-of-moses": lifeOfMosesDevotionals,
   "chronological-overview": chronologicalOverviewDevotionals,
+  "acts-early-church": actsEarlyChurchDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -2469,7 +2735,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels"),
   buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study"),
   buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"),
-  buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament"),
+  withCuratedDevotionals(buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament")),
   buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament"),
   withCuratedDevotionals(planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [
     ["1 Samuel 16", "1 Samuel", 16, "David anointed"],

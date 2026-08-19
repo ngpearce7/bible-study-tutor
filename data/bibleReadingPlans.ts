@@ -1105,6 +1105,39 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   })
 };
 
+const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Genesis 1": guidedDevotional({
+    title: "The God who creates",
+    context: "Genesis opens the Bible with God creating by His word, ordering the world, and making humanity in His image.",
+    body: "The Bible story begins with God, not with human effort or confusion. Creation is good because it comes from Him, and humanity has dignity because people are made in His image. This first chapter gives the whole story its foundation: the world belongs to the Lord.",
+    observationQuestion: "What does God create, bless, and call good in this chapter?",
+    reflectionQuestion: "How does beginning with God as Creator reshape the way you see yourself and the world?",
+    prayer: "Creator God, teach me to receive life, creation, and calling as gifts from You.",
+    gentleAction: "Notice one created thing today and turn it into praise.",
+    studyMethod: "OIA"
+  }),
+  "Genesis 12": adventDevotionals["Genesis 12"],
+  "Exodus 12": lifeOfMosesDevotionals["Exodus 12"],
+  "Joshua 1": guidedDevotional({
+    title: "Courage for the next step",
+    context: "After Moses' death, Joshua is called to lead Israel into the land God promised.",
+    body: "Joshua's courage is grounded in God's presence and promise, not in Joshua's natural confidence. The Lord calls him to meditate on the law and walk in obedience. At a major transition point, the path forward is faithfulness to the God who goes with His people.",
+    observationQuestion: "What promises and commands does the Lord give Joshua?",
+    reflectionQuestion: "What next step requires courage grounded in God's presence rather than self-confidence?",
+    prayer: "Lord, make me strong and courageous by keeping me close to Your Word and Your presence.",
+    gentleAction: "Write one obedience step for today and pray before taking it.",
+    studyMethod: "SOAP"
+  }),
+  "1 Samuel 16": lifeOfDavidDevotionals["1 Samuel 16"],
+  "2 Samuel 7": lifeOfDavidDevotionals["2 Samuel 7"],
+  "Isaiah 53": easterDevotionals["Isaiah 53"],
+  "Luke 2": lifeOfJesusDevotionals["Luke 2"],
+  "John 19": lifeOfJesusDevotionals["John 19"],
+  "Acts 2": easterDevotionals["Acts 2"],
+  "Romans 8": easterDevotionals["Romans 8"],
+  "Revelation 21": easterDevotionals["Revelation 21"]
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
   "life-of-jesus": lifeOfJesusDevotionals,
@@ -1113,6 +1146,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "easter-resurrection-readings": easterDevotionals,
   "life-of-david": lifeOfDavidDevotionals,
   "life-of-moses": lifeOfMosesDevotionals,
+  "chronological-overview": chronologicalOverviewDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -3155,7 +3189,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Ephesians 2", "Ephesians", 2],
     ["Revelation 21", "Revelation", 21]
   ], "Beginner")),
-  planFromReferences("chronological-overview", "Chronological Bible Overview", "A broad overview of the Bible story in historical flow.", [
+  withCuratedDevotionals(planFromReferences("chronological-overview", "Chronological Bible Overview", "A broad overview of the Bible story in historical flow.", [
     ["Genesis 1", "Genesis", 1],
     ["Genesis 12", "Genesis", 12],
     ["Exodus 12", "Exodus", 12],
@@ -3168,7 +3202,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Acts 2", "Acts", 2],
     ["Romans 8", "Romans", 8],
     ["Revelation 21", "Revelation", 21]
-  ], "Overview"),
+  ], "Overview")),
   buildChapterPlan("old-testament-overview", "Old Testament Overview in 60 Days", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview"),
   buildChapterPlan("new-testament-overview", "New Testament Overview", "A broad chapter-by-chapter overview of the New Testament.", NEW_TESTAMENT_BOOKS, 30, "Overview")
 ];

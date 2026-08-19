@@ -859,12 +859,260 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   })
 };
 
+const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "1 Samuel 16": guidedDevotional({
+    title: "The Lord looks at the heart",
+    context: "Samuel is sent to Bethlehem to anoint the king God has chosen from Jesse's sons.",
+    body: "David's story begins with God's seeing. The impressive sons pass before Samuel, but the Lord is not bound by outward appearance. David is chosen by grace and prepared by the Spirit. This passage teaches that God's purposes are not measured by human visibility or status.",
+    observationQuestion: "What does the Lord tell Samuel about outward appearance and the heart?",
+    reflectionQuestion: "Where are you tempted to measure yourself or others by what people can see?",
+    prayer: "Lord, shape my heart before You and free me from judging by outward appearance.",
+    gentleAction: "Ask God to make one hidden part of your life faithful before Him.",
+    studyMethod: "OIA"
+  }),
+  "1 Samuel 17": guidedDevotional({
+    title: "Courage rooted in the Lord",
+    context: "David faces Goliath while Israel's army is afraid and Saul's armor does not fit him.",
+    body: "David's courage is not confidence in himself. He remembers the Lord's past deliverance and trusts that the battle belongs to Him. The passage is not mainly about becoming a hero; it points to faith that sees the Lord as greater than the enemy.",
+    observationQuestion: "What does David say about the Lord before facing Goliath?",
+    reflectionQuestion: "What fear needs to be placed under the truth that the battle belongs to the Lord?",
+    prayer: "Lord, give me courage rooted in Your faithfulness, not in my own strength.",
+    gentleAction: "Name one fear and one past mercy of God beside it.",
+    studyMethod: "COMA"
+  }),
+  "1 Samuel 18": guidedDevotional({
+    title: "Faithfulness under jealousy",
+    context: "David succeeds, Jonathan loves him, and Saul grows jealous and afraid.",
+    body: "David's rise exposes Saul's insecurity. Jealousy turns Saul against the one God is blessing, while Jonathan responds with covenant love. The chapter invites you to notice how the heart responds when God blesses another person.",
+    observationQuestion: "How do Saul and Jonathan respond differently to David?",
+    reflectionQuestion: "Where do you need to resist jealousy and practice covenant love or contentment?",
+    prayer: "Lord, guard my heart from jealousy and teach me to rejoice in Your work in others.",
+    gentleAction: "Encourage one person today without needing their place or recognition.",
+    studyMethod: "SOAP"
+  }),
+  "1 Samuel 24": guidedDevotional({
+    title: "Mercy in the cave",
+    context: "David has an opportunity to kill Saul, but he refuses to seize the throne by violence.",
+    body: "David trusts God's timing enough to show mercy when revenge is available. He does not deny Saul's wrongdoing, but he refuses to take judgment into his own hands. The passage teaches restraint, reverence, and patient trust under injustice.",
+    observationQuestion: "What opportunity does David have, and why does he refuse to take it?",
+    reflectionQuestion: "Where are you tempted to force an outcome instead of trusting God's timing?",
+    prayer: "Lord, teach me patient mercy and keep me from grasping what You have not given.",
+    gentleAction: "Pray for restraint in one situation where you feel wronged.",
+    studyMethod: "OIA"
+  }),
+  "2 Samuel 5": guidedDevotional({
+    title: "Shepherding God's people",
+    context: "David is made king over Israel, and the people name his call to shepherd and lead them.",
+    body: "David's kingship is described in shepherd language. Authority is not given for self-importance but for faithful care. David's reign points beyond itself to the greater Son of David, Jesus, whose rule perfectly shepherds God's people.",
+    observationQuestion: "What reasons do the tribes give for coming to David as king?",
+    reflectionQuestion: "How should responsibility be shaped by shepherd-like care rather than status?",
+    prayer: "Lord, make every responsibility I carry an act of faithful service before You.",
+    gentleAction: "Identify one person or task you can serve rather than control today.",
+    studyMethod: "Biblical theology"
+  }),
+  "2 Samuel 6": guidedDevotional({
+    title: "Reverent joy",
+    context: "David brings the ark toward Jerusalem, and the chapter holds together holy reverence and public joy.",
+    body: "The ark reminds Israel that God's presence is holy, not manageable. David's worship becomes joyful, embodied, and humble, yet the chapter warns against treating the Lord casually. True worship holds reverence and gladness together.",
+    observationQuestion: "What moments in the chapter reveal both holiness and joy?",
+    reflectionQuestion: "Does your worship need deeper reverence, freer joy, or both?",
+    prayer: "Holy Lord, teach me to worship You with reverence, joy, and humility.",
+    gentleAction: "Offer one simple act of worship today without performing for others.",
+    studyMethod: "Inductive"
+  }),
+  "2 Samuel 7": guidedDevotional({
+    title: "God builds the house",
+    context: "David wants to build a house for the Lord, but God promises to build David's house instead.",
+    body: "Grace reverses David's plan. David wants to do something great for God, but God gives a covenant promise that reaches forward to an everlasting kingdom. This promise finds its fulfillment in Christ, the Son of David whose throne endures forever.",
+    observationQuestion: "What does David want to build, and what does God promise to build?",
+    reflectionQuestion: "Where do you need to receive God's promise before trying to prove yourself by service?",
+    prayer: "Lord, thank You that Your promises are greater than my plans. Keep me resting in Christ the King.",
+    gentleAction: "Write one promise of God that is stronger than your best effort.",
+    studyMethod: "Biblical theology"
+  }),
+  "2 Samuel 11": guidedDevotional({
+    title: "The danger of hidden sin",
+    context: "David remains in Jerusalem, takes Bathsheba, and arranges Uriah's death to cover his sin.",
+    body: "This chapter does not excuse David. Power, desire, deceit, and violence are exposed with painful clarity. Scripture tells the truth about human sin so that repentance is possible and so that hope rests in God's mercy, not in human heroes.",
+    observationQuestion: "What steps does David take as sin deepens and spreads?",
+    reflectionQuestion: "What warning does this chapter give about secrecy, power, or unchecked desire?",
+    prayer: "Merciful God, expose what needs to be brought into the light and lead me to repentance.",
+    gentleAction: "Confess one hidden compromise to God and seek wise help if needed.",
+    studyMethod: "SOAP"
+  }),
+  "2 Samuel 12": guidedDevotional({
+    title: "Mercy through confrontation",
+    context: "Nathan confronts David with a parable, and David is brought to confession.",
+    body: "God's mercy sometimes comes through painful truth. Nathan's confrontation exposes David's sin and breaks through self-deception. The chapter shows both real consequences and real forgiveness, teaching you not to confuse grace with pretending sin is small.",
+    observationQuestion: "How does Nathan expose David's sin, and how does David respond?",
+    reflectionQuestion: "Where might you need to receive correction as a mercy from God?",
+    prayer: "Lord, give me a repentant heart that receives truth and runs to Your mercy.",
+    gentleAction: "Ask God to make you teachable before correction becomes harder.",
+    studyMethod: "COMA"
+  }),
+  "Psalm 51": guidedDevotional({
+    title: "A broken and contrite heart",
+    context: "Psalm 51 gives David's prayer of repentance after Nathan confronts him about Bathsheba.",
+    body: "David does not bargain or minimize. He appeals to God's steadfast love, confesses sin, asks for cleansing, and longs for a renewed heart. Repentance is not despair; it is returning to the God whose mercy can create clean hearts.",
+    observationQuestion: "What does David ask God to wash, create, restore, and renew?",
+    reflectionQuestion: "What would honest repentance sound like in your own words today?",
+    prayer: "Have mercy on me, O God. Create in me a clean heart and renew a right spirit within me.",
+    gentleAction: "Pray Psalm 51:10 slowly and honestly.",
+    studyMethod: "Lectio Divina"
+  }),
+  "Psalm 23": guidedDevotional({
+    title: "The Shepherd who restores",
+    context: "David, once a shepherd and later king, prays of the Lord as his Shepherd.",
+    body: "Psalm 23 is personal trust in the Lord's care. The Shepherd provides, restores, leads, protects, prepares a table, and brings His people home. David's best shepherding points beyond himself to the Lord who shepherds perfectly.",
+    observationQuestion: "What does the Lord do as Shepherd in this Psalm?",
+    reflectionQuestion: "Which shepherding action of the Lord do you most need today?",
+    prayer: "Lord, my Shepherd, restore my soul and lead me in Your faithful care.",
+    gentleAction: "Choose one phrase from Psalm 23 to repeat during the day.",
+    studyMethod: "Meditation"
+  }),
+  "1 Kings 2": guidedDevotional({
+    title: "A final charge",
+    context: "Near death, David charges Solomon to walk faithfully before the Lord as king.",
+    body: "David's final words mix wisdom, unfinished consequences, and a call to covenant faithfulness. His life has shown both grace and failure. The chapter reminds you that legacy is not image management; it is a call to walk before the Lord with faithful obedience.",
+    observationQuestion: "What does David urge Solomon to keep and follow?",
+    reflectionQuestion: "What kind of faithfulness do you want to pass on through your words and life?",
+    prayer: "Lord, teach me to walk faithfully before You and leave behind what points others to You.",
+    gentleAction: "Write one sentence of faith you would want someone younger to remember.",
+    studyMethod: "OIA"
+  })
+};
+
+const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Exodus 2": guidedDevotional({
+    title: "Preserved before he knows",
+    context: "Moses is born under Pharaoh's threat, hidden by faith, drawn from the water, and later flees after killing an Egyptian.",
+    body: "Moses' life begins under danger, but God's preserving hand is already at work before Moses understands it. The chapter also tells the truth about Moses' flawed zeal and exile. God's calling grows in a real, complicated life, not a polished biography.",
+    observationQuestion: "How is Moses preserved, and what events lead him into exile?",
+    reflectionQuestion: "Where can you look back and see God's preserving mercy before you understood it?",
+    prayer: "Lord, thank You for hidden mercies and for working even through complicated beginnings.",
+    gentleAction: "Name one past mercy of God that you did not recognize at the time.",
+    studyMethod: "OIA"
+  }),
+  "Exodus 3": guidedDevotional({
+    title: "The God who sees and sends",
+    context: "At the burning bush, the Lord reveals His holiness, His name, His compassion, and His call for Moses.",
+    body: "God does not call Moses because Moses feels ready. He calls because He has seen His people's affliction and will be with the one He sends. The holy God draws near with compassion and reveals Himself as the faithful I AM.",
+    observationQuestion: "What does God say He has seen, heard, and come down to do?",
+    reflectionQuestion: "Where do you need to trust God's presence more than your readiness?",
+    prayer: "I AM, help me trust Your presence and obey Your call with reverence.",
+    gentleAction: "Pray over one task by saying, 'Lord, be with me in this.'",
+    studyMethod: "COMA"
+  }),
+  "Exodus 12": guidedDevotional({
+    title: "Deliverance by the lamb",
+    context: "The Passover marks Israel's deliverance from judgment and slavery through the blood of the lamb.",
+    body: "Passover teaches that deliverance comes by God's provision, not Israel's strength. The lamb's blood marks rescue from judgment and begins a new identity as a redeemed people. Christians rightly see this pattern fulfilled in Christ, our Passover Lamb.",
+    observationQuestion: "What are the Israelites told to do, and what does the blood signify?",
+    reflectionQuestion: "How does deliverance by sacrifice deepen your gratitude for Christ?",
+    prayer: "Lord, thank You for redeeming Your people by mercy and sacrifice.",
+    gentleAction: "Thank Christ specifically for deliverance from sin and judgment.",
+    studyMethod: "Biblical theology"
+  }),
+  "Exodus 14": guidedDevotional({
+    title: "Stand firm and see salvation",
+    context: "Israel is trapped between Pharaoh's army and the sea, and the Lord delivers them through the waters.",
+    body: "Israel cannot save itself. The Lord fights for His people and makes a way where there is none. This chapter teaches faith at the edge of impossibility: stand firm, see the salvation of the Lord, and follow where He opens the way.",
+    observationQuestion: "What are Israel, Moses, and the Lord each doing in this chapter?",
+    reflectionQuestion: "Where do you need to stop panic from becoming unbelief and look to the Lord's salvation?",
+    prayer: "Lord, help me stand firm in trust when I cannot see the way forward.",
+    gentleAction: "Write 'The Lord will fight for you' beside one pressure you face.",
+    studyMethod: "SOAP"
+  }),
+  "Exodus 16": guidedDevotional({
+    title: "Daily bread in the wilderness",
+    context: "Israel grumbles in the wilderness, and the Lord provides manna day by day.",
+    body: "The manna trains Israel in daily dependence. God gives enough for each day and exposes the impulse to hoard or distrust. Wilderness provision is not only about food; it is about learning that life is sustained by the Lord.",
+    observationQuestion: "What instructions does God give about gathering manna?",
+    reflectionQuestion: "Where do you need to receive today's provision instead of trying to secure tomorrow by anxiety?",
+    prayer: "Lord, give me daily bread and train my heart in daily trust.",
+    gentleAction: "Thank God for one provision from today before thinking about tomorrow.",
+    studyMethod: "Meditation"
+  }),
+  "Exodus 19": guidedDevotional({
+    title: "A treasured people",
+    context: "At Sinai, God reminds Israel of deliverance and calls them to covenant faithfulness.",
+    body: "Before commands are given, God reminds Israel what He has done: He carried them on eagles' wings and brought them to Himself. Obedience is meant to flow from redemption and belonging. Israel is called to be a treasured possession and holy nation.",
+    observationQuestion: "What does God say He has done for Israel before calling them to obey?",
+    reflectionQuestion: "How does belonging to God change the way you think about obedience?",
+    prayer: "Lord, let my obedience grow from gratitude for Your redeeming grace.",
+    gentleAction: "Begin one act of obedience today by first thanking God for His grace.",
+    studyMethod: "OIA"
+  }),
+  "Exodus 20": guidedDevotional({
+    title: "Words for a redeemed people",
+    context: "God gives the Ten Commandments after declaring that He brought Israel out of slavery.",
+    body: "The commandments begin with grace: 'I am the LORD your God, who brought you out.' God's law reveals His character and forms His redeemed people. It is not a ladder into salvation, but instruction for life under the Lord who saves.",
+    observationQuestion: "How does God introduce Himself before giving the commandments?",
+    reflectionQuestion: "Which commandment reveals an area where love for God or neighbor needs attention?",
+    prayer: "Lord, write Your ways on my heart and teach me obedience shaped by love.",
+    gentleAction: "Choose one commandment and ask how it protects love today.",
+    studyMethod: "Inductive"
+  }),
+  "Exodus 32": guidedDevotional({
+    title: "The danger of false gods",
+    context: "While Moses is on the mountain, Israel makes the golden calf and worships what their hands have made.",
+    body: "Idolatry often begins when waiting feels too hard. Israel wants something visible and controllable, but the result is spiritual ruin. Moses' intercession shows the seriousness of sin and the need for mercy from the covenant Lord.",
+    observationQuestion: "What leads Israel toward the golden calf, and how does Moses respond?",
+    reflectionQuestion: "What visible or controllable thing are you tempted to trust instead of the Lord?",
+    prayer: "Lord, expose my idols and draw me back to worship You alone.",
+    gentleAction: "Name one false trust and surrender it to God in prayer.",
+    studyMethod: "COMA"
+  }),
+  "Exodus 33": guidedDevotional({
+    title: "If Your presence will not go",
+    context: "After Israel's sin, Moses pleads for God's presence to go with His people.",
+    body: "Moses understands that the promised land without God's presence would not be enough. The true gift is God Himself with His people. This chapter teaches longing for the Lord above success, destination, or visible blessing.",
+    observationQuestion: "What does Moses ask God for, and why is God's presence essential?",
+    reflectionQuestion: "Where are you tempted to want God's gifts more than God's presence?",
+    prayer: "Lord, let Your presence be my greatest need and deepest joy.",
+    gentleAction: "Pray, 'If Your presence will not go with me, do not let me settle for less.'",
+    studyMethod: "Meditation"
+  }),
+  "Numbers 13": guidedDevotional({
+    title: "Seeing by faith",
+    context: "The spies see the land's fruitfulness and its dangers, but most interpret the future through fear.",
+    body: "The same land produces two kinds of reports: fear without faith, and faith that remembers the Lord's promise. This passage does not deny real obstacles. It asks whether those obstacles will be interpreted apart from God's faithfulness.",
+    observationQuestion: "What do the spies agree about, and where do their conclusions differ?",
+    reflectionQuestion: "Where are you interpreting a real obstacle as though God has not spoken?",
+    prayer: "Lord, teach me to see difficulties in the light of Your promises.",
+    gentleAction: "Write one obstacle and one promise of God in the same sentence.",
+    studyMethod: "OIA"
+  }),
+  "Numbers 20": guidedDevotional({
+    title: "Leadership under pressure",
+    context: "The people quarrel for water, and Moses strikes the rock instead of speaking to it as the Lord commanded.",
+    body: "Moses' failure is sobering because it happens under pressure and after years of leadership. The passage warns that frustration can distort obedience and misrepresent God's holiness. Even faithful servants need humble dependence on the Lord.",
+    observationQuestion: "What does God command Moses to do, and what does Moses actually do?",
+    reflectionQuestion: "Where does pressure tempt you to act from frustration rather than trust?",
+    prayer: "Holy Lord, guard my obedience when I am tired, pressured, or frustrated.",
+    gentleAction: "Pause before one difficult response today and ask God for meekness.",
+    studyMethod: "SOAP"
+  }),
+  "Deuteronomy 34": guidedDevotional({
+    title: "The Lord's faithful servant",
+    context: "Moses sees the land from a distance, dies, and is remembered as the prophet whom the Lord knew face to face.",
+    body: "Moses' story ends with both consequence and grace. He does not enter the land, yet the Lord Himself shows it to him and honors him as His servant. The chapter leaves you longing for the greater Prophet like Moses, fulfilled in Christ.",
+    observationQuestion: "How is Moses remembered, and what remains unresolved at the end of his life?",
+    reflectionQuestion: "How does Moses' ending teach humility, hope, and trust in God's larger story?",
+    prayer: "Lord, make me faithful in my part of the story and keep my hope fixed on Christ.",
+    gentleAction: "Thank God for one unfinished thing you can entrust to Him.",
+    studyMethod: "Biblical theology"
+  })
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
   "life-of-jesus": lifeOfJesusDevotionals,
   "holy-week-passion-week": holyWeekDevotionals,
   "advent-readings": adventDevotionals,
   "easter-resurrection-readings": easterDevotionals,
+  "life-of-david": lifeOfDavidDevotionals,
+  "life-of-moses": lifeOfMosesDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -2189,7 +2437,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"),
   buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament"),
   buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament"),
-  planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [
+  withCuratedDevotionals(planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [
     ["1 Samuel 16", "1 Samuel", 16, "David anointed"],
     ["1 Samuel 17", "1 Samuel", 17, "David and Goliath"],
     ["1 Samuel 18", "1 Samuel", 18, "David and Saul"],
@@ -2202,8 +2450,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Psalm 51", "Psalms", 51, "Repentance"],
     ["Psalm 23", "Psalms", 23, "The shepherd king"],
     ["1 Kings 2", "1 Kings", 2, "David's final charge"]
-  ], "Character study"),
-  planFromReferences("life-of-moses", "Life of Moses", "Follow Moses from deliverance to leadership, wilderness testing, and covenant faithfulness.", [
+  ], "Character study")),
+  withCuratedDevotionals(planFromReferences("life-of-moses", "Life of Moses", "Follow Moses from deliverance to leadership, wilderness testing, and covenant faithfulness.", [
     ["Exodus 2", "Exodus", 2, "Moses preserved"],
     ["Exodus 3", "Exodus", 3, "The burning bush"],
     ["Exodus 12", "Exodus", 12, "Passover"],
@@ -2216,7 +2464,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Numbers 13", "Numbers", 13, "Spies in the land"],
     ["Numbers 20", "Numbers", 20, "Water from the rock"],
     ["Deuteronomy 34", "Deuteronomy", 34, "Moses' final view"]
-  ], "Character study"),
+  ], "Character study")),
   {
     ...planFromReferences("seven-days-prayer", "7 Days of Prayer", "A one-week path for learning prayer as relationship, trust, worship, lament, confession, and dependence.", [
       ["Matthew 6:5-13", "Matthew", 6, "Pray to your Father", guidedDevotional({

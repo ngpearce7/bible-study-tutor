@@ -1403,6 +1403,229 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   })
 };
 
+const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Romans 1-2": guidedDevotional({
+    title: "The gospel and human need",
+    context: "Romans opens with Paul's eagerness to preach the gospel, then exposes Gentile and Jewish need before God.",
+    body: "Paul begins with the power of the gospel before showing why every person needs it. Human sin is not limited to obvious rebellion; it includes suppressing truth, judging others, and relying on religious privilege. The good news shines because the need is universal.",
+    observationQuestion: "What does Paul say about the gospel, and what kinds of human sin does he expose?",
+    reflectionQuestion: "Where do you need the gospel to confront both obvious sin and quiet self-righteousness?",
+    prayer: "Lord, humble me under the truth and make me grateful for the power of the gospel.",
+    gentleAction: "Ask God to show one place where you judge others while needing mercy yourself.",
+    studyMethod: "Inductive"
+  }),
+  "Romans 3-4": guidedDevotional({
+    title: "Justified by faith",
+    context: "Paul explains that all have sinned and that righteousness comes through faith in Christ, using Abraham as a witness.",
+    body: "Romans 3-4 moves from the closing of every mouth to the gift of justification. God is just and the justifier of the one who has faith in Jesus. Abraham's example shows that faith receives God's promise rather than earning standing by works.",
+    observationQuestion: "What does Paul say about sin, righteousness, faith, and boasting?",
+    reflectionQuestion: "Where do you still try to establish your standing before God by performance?",
+    prayer: "Father, help me rest in the righteousness You give through faith in Christ.",
+    gentleAction: "Write 'received, not earned' beside Romans 3:24 or Romans 4:5.",
+    studyMethod: "SOAP"
+  }),
+  "Romans 5-6": guidedDevotional({
+    title: "Peace and newness of life",
+    context: "Paul connects justification with peace, hope, union with Christ, and freedom from slavery to sin.",
+    body: "Grace is not thin forgiveness. Through Christ, believers have peace with God, hope in suffering, and participation in His death and resurrection. Romans 6 refuses the idea that grace makes sin safe; grace brings new life under Christ's lordship.",
+    observationQuestion: "What gifts flow from justification, and what does Paul say about union with Christ?",
+    reflectionQuestion: "What would it look like to live today as someone united to Christ in new life?",
+    prayer: "Lord Jesus, deepen my peace with God and teach me to walk in newness of life.",
+    gentleAction: "Choose one old pattern to resist and one new obedience to practice today.",
+    studyMethod: "OIA"
+  }),
+  "Romans 7-8": guidedDevotional({
+    title: "No condemnation in Christ",
+    context: "Paul names the struggle with sin and then announces life, assurance, help, and hope in the Spirit.",
+    body: "Romans 8 answers the distress of Romans 7 with Christ and the Spirit. There is no condemnation for those in Christ Jesus. The Spirit gives life, helps weakness, anchors hope in future glory, and assures believers that nothing can separate them from God's love.",
+    observationQuestion: "What does Romans 8 say the Spirit does for believers?",
+    reflectionQuestion: "Which promise from Romans 8 needs to answer shame, weakness, or fear today?",
+    prayer: "Spirit of God, lead me in life and keep me anchored in the love of Christ.",
+    gentleAction: "Return to Romans 8:1 whenever accusation or shame rises today.",
+    studyMethod: "Meditation"
+  }),
+  "Romans 9-10": guidedDevotional({
+    title: "Mercy and the preached word",
+    context: "Paul grieves for Israel and reflects on God's mercy, human response, and the nearness of the word of faith.",
+    body: "These chapters are weighty because Paul holds together sorrow, God's sovereign mercy, and the call to believe and confess Christ. The gospel is not hidden far away; Christ is proclaimed, and everyone who calls on the name of the Lord will be saved.",
+    observationQuestion: "What does Paul grieve, and what does he say about calling on the Lord?",
+    reflectionQuestion: "How do mercy, prayer, and proclamation belong together in your concern for others?",
+    prayer: "Merciful God, save people through the preached word of Christ and make me faithful in prayer.",
+    gentleAction: "Pray Romans 10:13 for one person by name.",
+    studyMethod: "COMA"
+  }),
+  "Romans 11-12": guidedDevotional({
+    title: "Mercy that becomes worship",
+    context: "Paul moves from God's mercy in His saving purposes to the call to present our bodies as living sacrifices.",
+    body: "Doctrine becomes doxology, and doxology becomes embodied worship. After marveling at God's wisdom and mercy, Paul calls believers to offer their lives to God and be transformed by renewed minds. Mercy is meant to reshape ordinary life.",
+    observationQuestion: "How does Paul move from worship to practical obedience?",
+    reflectionQuestion: "What part of your ordinary life needs to become worship in response to mercy?",
+    prayer: "Lord, renew my mind and make my whole life a living response to Your mercy.",
+    gentleAction: "Offer one ordinary task to God as worship today.",
+    studyMethod: "OIA"
+  }),
+  "Romans 13-14": guidedDevotional({
+    title: "Love in ordinary tensions",
+    context: "Paul addresses civic responsibility, love as fulfilling the law, and patient welcome among believers with different consciences.",
+    body: "Christian obedience touches public life, private conduct, and community disagreements. Paul calls believers to wakefulness, love, and humility with one another. The strong and weak must not despise or judge, because each belongs to the Lord.",
+    observationQuestion: "What commands does Paul give about love, conduct, and judging one another?",
+    reflectionQuestion: "Where do you need to practice love rather than contempt in a disagreement?",
+    prayer: "Lord Jesus, teach me to walk in love, humility, and wakeful obedience.",
+    gentleAction: "Choose one way to honor another believer whose conscience differs from yours.",
+    studyMethod: "Inductive"
+  }),
+  "Romans 15-16": guidedDevotional({
+    title: "Welcome and mission",
+    context: "Paul closes Romans by calling believers to welcome one another, hope in Scripture, and participate in gospel mission.",
+    body: "The God of endurance and encouragement forms a people of hope. Paul wants Jews and Gentiles to glorify God together in Christ, and he names many co-workers in mission. The gospel creates welcome, worship, and shared labor.",
+    observationQuestion: "What does Paul pray for, and how does he describe his mission and co-workers?",
+    reflectionQuestion: "How might hope in Christ make you more welcoming and mission-minded?",
+    prayer: "God of hope, fill me with joy and peace in believing, and make me useful in Your mission.",
+    gentleAction: "Thank God for one person who has helped your faith.",
+    studyMethod: "SOAP"
+  }),
+  "1 Corinthians 1-2": guidedDevotional({
+    title: "Christ crucified, God's wisdom",
+    context: "Paul addresses a divided church by centering them on the cross and the wisdom revealed by the Spirit.",
+    body: "The Corinthians are tempted by status, eloquence, and party spirit. Paul responds with Christ crucified, the wisdom and power of God. The cross humbles boasting and teaches the church to measure wisdom by God's revelation rather than cultural applause.",
+    observationQuestion: "What divisions or boasts does Paul confront, and how does he center the cross?",
+    reflectionQuestion: "Where are you tempted to seek impressive spirituality instead of cruciform wisdom?",
+    prayer: "Lord Jesus, keep my confidence in Your cross, not in human status or cleverness.",
+    gentleAction: "Ask whether one desire for approval is shaping your faith more than the cross.",
+    studyMethod: "COMA"
+  }),
+  "1 Corinthians 3-4": guidedDevotional({
+    title: "Servants, not celebrities",
+    context: "Paul confronts spiritual immaturity, leader factions, and pride in the Corinthian church.",
+    body: "Paul refuses celebrity Christianity. Leaders are servants, God gives the growth, and the church belongs to Him. The passage challenges pride that compares people, claims status, or forgets that every gift is received.",
+    observationQuestion: "How does Paul describe leaders, the church, and God's role in growth?",
+    reflectionQuestion: "Where do comparison or personality loyalties need to give way to humility before God?",
+    prayer: "Lord, make me humble, teachable, and grateful for every servant You use.",
+    gentleAction: "Thank God for one faithful servant without turning them into your identity marker.",
+    studyMethod: "OIA"
+  }),
+  "1 Corinthians 5-6": guidedDevotional({
+    title: "Holiness with costly grace",
+    context: "Paul addresses serious sin, church discipline, lawsuits, sexual immorality, and the believer's body as belonging to Christ.",
+    body: "Grace does not make holiness optional. Paul calls the church to take sin seriously because believers belong to Christ and are temples of the Holy Spirit. The passage is firm because redemption is precious: you were bought with a price.",
+    observationQuestion: "What reasons does Paul give for taking sin and the body seriously?",
+    reflectionQuestion: "Where does belonging to Christ need to reshape your choices with your body or relationships?",
+    prayer: "Lord Jesus, help me glorify You with my body because I belong to You.",
+    gentleAction: "Name one boundary or confession that would honor Christ's ownership today.",
+    studyMethod: "SOAP"
+  }),
+  "1 Corinthians 7-8": guidedDevotional({
+    title: "Love in freedom and calling",
+    context: "Paul gives pastoral counsel about marriage, singleness, calling, conscience, and food offered to idols.",
+    body: "Paul applies the gospel to complex personal situations without reducing wisdom to slogans. Whether married, single, free, or constrained, believers belong to the Lord. Knowledge must be governed by love, because freedom that wounds a brother or sister is not mature freedom.",
+    observationQuestion: "What does Paul say about calling, devotion to the Lord, knowledge, and love?",
+    reflectionQuestion: "Where should love guide the way you use freedom or knowledge?",
+    prayer: "Lord, help me live faithfully in my calling and use freedom for love.",
+    gentleAction: "Consider one choice where love should matter more than proving you are right.",
+    studyMethod: "Inductive"
+  }),
+  "1 Corinthians 9-10": guidedDevotional({
+    title: "Freedom that serves",
+    context: "Paul describes surrendering rights for the gospel and warns from Israel's wilderness failures.",
+    body: "Christian freedom is not self-indulgence. Paul gives up rights to serve the gospel, disciplines himself, and warns against idolatry and presumption. The goal is God's glory and the good of others, not the maximum exercise of personal liberty.",
+    observationQuestion: "What rights does Paul surrender, and what warnings does he draw from Israel's story?",
+    reflectionQuestion: "Where might love for the gospel call you to limit a freedom willingly?",
+    prayer: "Lord, make my freedom serve Your glory and the good of others.",
+    gentleAction: "Choose one small way to give up convenience for someone else's good.",
+    studyMethod: "COMA"
+  }),
+  "1 Corinthians 11-12": guidedDevotional({
+    title: "One body, many gifts",
+    context: "Paul addresses worship disorder, the Lord's Supper, spiritual gifts, and the unity of Christ's body.",
+    body: "The Corinthians need to learn that worship and gifts are not stages for self-display. The Lord's Supper calls for discernment and care, and spiritual gifts are given for the common good. The Spirit forms one body with many members.",
+    observationQuestion: "How does Paul connect worship, the body, gifts, and care for others?",
+    reflectionQuestion: "Where do your gifts need to be used for the common good rather than self-importance?",
+    prayer: "Holy Spirit, help me honor Christ's body and serve with the gifts You give.",
+    gentleAction: "Use one ability quietly for another person's good today.",
+    studyMethod: "OIA"
+  }),
+  "1 Corinthians 13-14": guidedDevotional({
+    title: "Love builds up",
+    context: "Paul places love at the center of spiritual maturity and then applies it to gathered worship.",
+    body: "Spiritual gifts without love become noise. Love is patient, kind, humble, enduring, and committed to building others up. Paul does not oppose gifts; he orders them under love so the church is strengthened rather than confused.",
+    observationQuestion: "What does love look like, and how should it shape gathered worship?",
+    reflectionQuestion: "Where does your speech or service need to become more loving and upbuilding?",
+    prayer: "Lord, make my words and gifts servants of love.",
+    gentleAction: "Before speaking today, ask whether your words will build up.",
+    studyMethod: "Meditation"
+  }),
+  "1 Corinthians 15-16": guidedDevotional({
+    title: "Resurrection and steadfastness",
+    context: "Paul defends the resurrection, then closes with practical instructions and affection for fellow workers.",
+    body: "The resurrection is the foundation for steadfast faithfulness. Because Christ has been raised, labor in the Lord is not in vain. Paul moves from future hope to present endurance, generosity, courage, love, and partnership.",
+    observationQuestion: "What does Paul say follows if Christ has been raised?",
+    reflectionQuestion: "How does resurrection hope make today's ordinary faithfulness worth it?",
+    prayer: "Risen Christ, make me steadfast, immovable, and abounding in Your work.",
+    gentleAction: "Do one ordinary act of service as labor that is not in vain.",
+    studyMethod: "SOAP"
+  }),
+  "2 Corinthians 1-2": guidedDevotional({
+    title: "Comfort and costly forgiveness",
+    context: "Paul begins with the God of all comfort, explains affliction, and urges restored love toward a repentant offender.",
+    body: "Paul does not hide suffering. Comfort comes from God and then moves through His people to others. The church must also practice forgiveness and restoration where repentance is real, so sorrow does not become despair.",
+    observationQuestion: "How does comfort move from God to Paul and then to others?",
+    reflectionQuestion: "Where might received comfort need to become shared comfort or forgiving love?",
+    prayer: "God of all comfort, comfort me in Christ and make me a comfort to others.",
+    gentleAction: "Send one gentle word of comfort to someone who is burdened.",
+    studyMethod: "OIA"
+  }),
+  "2 Corinthians 3-4": guidedDevotional({
+    title: "Treasure in jars of clay",
+    context: "Paul contrasts old and new covenant ministry and describes weakness as the setting for God's surpassing power.",
+    body: "New covenant ministry is marked by the Spirit, unveiled sight of Christ's glory, and perseverance in weakness. The treasure is not the messenger's impressiveness but the gospel of Christ. Fragile jars of clay make God's power clearer.",
+    observationQuestion: "What contrasts does Paul make between veil and glory, weakness and power?",
+    reflectionQuestion: "Where do you need to stop despising weakness and trust God's power in it?",
+    prayer: "Lord, let the treasure of Christ shine through my weakness.",
+    gentleAction: "Name one weakness and ask how it could display dependence on God.",
+    studyMethod: "COMA"
+  }),
+  "2 Corinthians 5-6": guidedDevotional({
+    title: "New creation and reconciliation",
+    context: "Paul speaks of resurrection hope, pleasing Christ, new creation, reconciliation, and faithful ministry under hardship.",
+    body: "In Christ, new creation has begun. Believers are reconciled to God and entrusted with a message of reconciliation. This calling is carried in real hardship, but it is strengthened by the love of Christ and the promise of life beyond death.",
+    observationQuestion: "What does Paul say Christ's love does, and what ministry is entrusted to believers?",
+    reflectionQuestion: "Where should reconciliation with God reshape the way you relate to others?",
+    prayer: "Lord Jesus, let Your reconciling love control me and move through me.",
+    gentleAction: "Pray for one strained relationship in light of Christ's reconciling work.",
+    studyMethod: "Inductive"
+  }),
+  "2 Corinthians 7-8": guidedDevotional({
+    title: "Godly grief and generous grace",
+    context: "Paul rejoices over repentance and then points to the Macedonians' generous giving by God's grace.",
+    body: "Godly grief leads to repentance without regret, not shame that crushes. Grace also produces generosity that surprises worldly expectations. Paul roots giving in Christ Himself, who became poor so that His people might become rich in grace.",
+    observationQuestion: "What fruit comes from godly grief, and what motivates generous giving?",
+    reflectionQuestion: "Where do you need repentance that leads to life or generosity shaped by grace?",
+    prayer: "Lord, give me repentance without despair and generosity rooted in Christ's grace.",
+    gentleAction: "Choose one small act of generosity that reflects grace, not pressure.",
+    studyMethod: "SOAP"
+  }),
+  "2 Corinthians 9-10": guidedDevotional({
+    title: "Cheerful giving and humble strength",
+    context: "Paul continues teaching about generosity, then defends ministry with spiritual rather than worldly weapons.",
+    body: "God loves cheerful giving because generosity reflects trust in His provision. Paul also refuses worldly boasting, reminding the church that spiritual strength is not measured by appearances. The gospel forms open hands and humbled confidence.",
+    observationQuestion: "What does Paul say about sowing, giving, boasting, and spiritual weapons?",
+    reflectionQuestion: "Where do you need either open-handed generosity or freedom from appearance-based boasting?",
+    prayer: "God, make me cheerful in generosity and humble in confidence before You.",
+    gentleAction: "Give, share, or encourage in a way that does not seek attention.",
+    studyMethod: "OIA"
+  }),
+  "2 Corinthians 11-12": guidedDevotional({
+    title: "Power made perfect in weakness",
+    context: "Paul warns against false apostles and describes boasting only in weakness because Christ's grace is sufficient.",
+    body: "Paul's weakness is not a branding strategy; it is where Christ's power is displayed. He refuses impressive spiritual performance that leads people away from sincere devotion to Christ. The thorn remains, but grace is sufficient.",
+    observationQuestion: "What does Paul fear for the church, and what does the Lord say about weakness?",
+    reflectionQuestion: "What weakness could become a place to rely more deeply on Christ's sufficient grace?",
+    prayer: "Lord Jesus, let Your grace be sufficient and Your power rest on me in weakness.",
+    gentleAction: "Pray, 'Your grace is sufficient,' over one limitation today.",
+    studyMethod: "Meditation"
+  })
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
   "life-of-jesus": lifeOfJesusDevotionals,
@@ -1413,6 +1636,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "life-of-moses": lifeOfMosesDevotionals,
   "chronological-overview": chronologicalOverviewDevotionals,
   "acts-early-church": actsEarlyChurchDevotionals,
+  "pauls-letters-overview": paulsLettersOverviewDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -2736,7 +2960,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study"),
   buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"),
   withCuratedDevotionals(buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament")),
-  buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament"),
+  withCuratedDevotionals(buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament")),
   withCuratedDevotionals(planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [
     ["1 Samuel 16", "1 Samuel", 16, "David anointed"],
     ["1 Samuel 17", "1 Samuel", 17, "David and Goliath"],

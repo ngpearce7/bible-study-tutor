@@ -2156,6 +2156,156 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
     prayer: "Lord, great is Your faithfulness. Meet me with mercy in places that still feel ruined.",
     gentleAction: "Pray Lamentations 3:22-24 slowly, without pretending grief is gone.",
     studyMethod: "Meditation"
+  }),
+  "Ezekiel 1-4": guidedDevotional({
+    title: "Glory in exile",
+    context: "Ezekiel is among the exiles by the Chebar canal when he sees the glory of the Lord and receives a difficult prophetic calling.",
+    body: "Ezekiel begins outside the land, but not outside God's reach. The vision of glory shows that the Lord is not trapped in Jerusalem or defeated by exile. Ezekiel's calling is weighty: he must speak God's word whether people listen or refuse.",
+    observationQuestion: "What does Ezekiel see, hear, eat, and act out in these opening chapters?",
+    reflectionQuestion: "Where do you need to remember that the Lord's glory is not limited by your location or circumstances?",
+    prayer: "Lord, open my eyes to Your glory and make me faithful with the word You give.",
+    gentleAction: "Name one place that feels like exile, then confess that the Lord is present there.",
+    studyMethod: "OIA"
+  }),
+  "Ezekiel 5-8": guidedDevotional({
+    title: "When worship is corrupted",
+    context: "Ezekiel acts out Jerusalem's judgment, prophesies against idolatry, and is shown hidden abominations in the temple.",
+    body: "These chapters are severe because Israel's worship has been corrupted at the center. The Lord sees what is public and what is hidden. Judgment is not random anger; it exposes idolatry that has replaced covenant faithfulness.",
+    observationQuestion: "What sins are named, and where are they taking place?",
+    reflectionQuestion: "What hidden loyalties might compete with sincere worship of the Lord?",
+    prayer: "Holy God, search my heart and turn me from hidden idols to wholehearted worship.",
+    gentleAction: "Ask what one habit, fear, or desire has been receiving worship-like attention.",
+    studyMethod: "COMA"
+  }),
+  "Ezekiel 9-12": guidedDevotional({
+    title: "The word stands",
+    context: "Ezekiel sees judgment on Jerusalem, the glory departing, and signs that exile is truly coming.",
+    body: "The departure of glory is devastating. It shows that the real tragedy is not only political collapse but the loss of God's holy presence among a rebellious people. Yet the Lord's word still stands when people dismiss it as delayed or unlikely.",
+    observationQuestion: "How do people respond to Ezekiel's warnings, and what does the Lord say about His word?",
+    reflectionQuestion: "Where have you been tempted to treat God's warnings or promises as distant and unreal?",
+    prayer: "Lord, teach me to take Your word seriously and to grieve anything that pushes away Your presence.",
+    gentleAction: "Write one sentence beginning, 'Your word stands when...'",
+    studyMethod: "SOAP"
+  }),
+  "Ezekiel 13-16": guidedDevotional({
+    title: "False comfort and covenant grief",
+    context: "The Lord rebukes false prophets, exposes idolatry, and describes Jerusalem's covenant unfaithfulness in painful detail.",
+    body: "False comfort can sound kind while keeping people from repentance. Ezekiel confronts spiritual leaders who heal wounds lightly and a city that has forgotten grace. The imagery is confronting, but its point is covenant grief: the Lord had loved and rescued His people, and they turned from Him.",
+    observationQuestion: "What kinds of false security are exposed in these chapters?",
+    reflectionQuestion: "Where do you need the Lord's truthful mercy more than shallow reassurance?",
+    prayer: "Lord, save me from false comfort and bring me back to faithful love for You.",
+    gentleAction: "Identify one comforting message you need to test against Scripture.",
+    studyMethod: "OIA"
+  }),
+  "Ezekiel 17-20": guidedDevotional({
+    title: "Grace remembered, rebellion exposed",
+    context: "Ezekiel uses parables and history to show Jerusalem's rebellion while holding out the Lord's future promise.",
+    body: "The Lord remembers Israel's story more truly than Israel does. He exposes repeated rebellion, but He also promises a tender sprig that He Himself will plant. Responsibility matters, history matters, and grace is still the Lord's work from beginning to end.",
+    observationQuestion: "What does Ezekiel say about responsibility, history, and the Lord's promised future?",
+    reflectionQuestion: "Where do you need to remember grace honestly without excusing rebellion?",
+    prayer: "Lord, help me remember Your mercy truthfully and follow You with an undivided heart.",
+    gentleAction: "List one mercy from your past that should lead to faithfulness today.",
+    studyMethod: "Biblical theology"
+  }),
+  "Ezekiel 21-24": guidedDevotional({
+    title: "The end of false security",
+    context: "Ezekiel announces the sword, exposes corrupt leadership and worship, and marks Jerusalem's siege with painful signs.",
+    body: "These chapters refuse to let false security survive. Kings, priests, prophets, and people are all weighed by the Lord's holiness. Ezekiel's personal sorrow also shows that judgment is not an abstract idea; sin tears through real lives.",
+    observationQuestion: "What people, institutions, and false hopes are judged in these chapters?",
+    reflectionQuestion: "What security would collapse if it were not anchored in the Lord?",
+    prayer: "Lord, remove false confidence and anchor me in Your righteous rule.",
+    gentleAction: "Name one thing you rely on that cannot carry the weight of your hope.",
+    studyMethod: "COMA"
+  }),
+  "Ezekiel 25-28": guidedDevotional({
+    title: "Pride among the nations",
+    context: "The Lord speaks judgment against surrounding nations, especially Tyre, for pride, violence, and rejoicing over Judah's fall.",
+    body: "Ezekiel widens the view from Jerusalem to the nations. The Lord rules over every people, economy, ruler, and boast. Pride may look secure for a season, but no nation can exalt itself above the God who made the seas and the coastlands.",
+    observationQuestion: "What attitudes and actions are condemned among the surrounding nations?",
+    reflectionQuestion: "Where do pride, success, or comparison quietly shape your sense of security?",
+    prayer: "King of the nations, humble my pride and teach me to trust Your rule.",
+    gentleAction: "Turn one boast into thanksgiving before the Lord.",
+    studyMethod: "Inductive"
+  }),
+  "Ezekiel 29-32": guidedDevotional({
+    title: "Egypt brought low",
+    context: "Ezekiel announces judgment on Egypt and Pharaoh, using images of monsters, trees, and descent to the grave.",
+    body: "Egypt represents impressive power that cannot finally save. Pharaoh's boast is answered by the Lord's sovereignty. The passage teaches that political strength, military confidence, and ancient prestige all bow before the One who judges nations justly.",
+    observationQuestion: "What images does Ezekiel use to describe Egypt's pride and downfall?",
+    reflectionQuestion: "What impressive power are you tempted to fear or trust more than the Lord?",
+    prayer: "Lord, You are greater than every power that frightens or fascinates me.",
+    gentleAction: "Pray for humility in the way you think about earthly power.",
+    studyMethod: "OIA"
+  }),
+  "Ezekiel 33-36": guidedDevotional({
+    title: "Watchman, shepherd, new heart",
+    context: "Ezekiel is renewed as watchman, Israel's shepherds are judged, and the Lord promises cleansing, a new heart, and His Spirit.",
+    body: "After judgment, restoration begins with the Lord's own name and mercy. Bad shepherds are confronted, scattered sheep are sought, and hard hearts are promised renewal. Hope rests not in Israel improving itself, but in the Lord giving His people a new heart and Spirit.",
+    observationQuestion: "What does the Lord promise to do for His people in these chapters?",
+    reflectionQuestion: "Where do you need more than self-improvement: a heart renewed by God?",
+    prayer: "Lord, cleanse me, give me a tender heart, and lead me as my true Shepherd.",
+    gentleAction: "Pray Ezekiel 36:26 in your own words.",
+    studyMethod: "SOAP"
+  }),
+  "Ezekiel 37-40": guidedDevotional({
+    title: "Dry bones and returning hope",
+    context: "Ezekiel sees dry bones raised, the people reunited under one shepherd, enemies defeated, and a restored temple vision beginning.",
+    body: "The valley of dry bones is not optimism; it is resurrection-like hope created by God's Spirit and word. The Lord can bring life where there is no human possibility. The restored temple vision then turns hope toward His dwelling presence.",
+    observationQuestion: "How does life come to the dry bones, and what future does the Lord promise?",
+    reflectionQuestion: "Where do you need hope that depends on God's Spirit rather than your strength?",
+    prayer: "Spirit of God, breathe life where I have only seen dry bones.",
+    gentleAction: "Speak one prayer of hope over a place that feels impossible.",
+    studyMethod: "Biblical theology"
+  }),
+  "Ezekiel 41-44": guidedDevotional({
+    title: "A holy dwelling",
+    context: "Ezekiel continues the temple vision, sees the Lord's glory return, and hears instructions about holiness and worship.",
+    body: "The measurements can feel slow, but they teach order, holiness, and reverence. Restoration is not merely getting land back; it is the return of the Lord's glory. His people are called to live around His presence with renewed awe.",
+    observationQuestion: "What details emphasize holiness, order, and the return of the Lord's glory?",
+    reflectionQuestion: "How might reverence for God's presence reshape ordinary parts of your life?",
+    prayer: "Lord, make my life a place of reverent attention to Your holy presence.",
+    gentleAction: "Choose one ordinary space or routine to dedicate consciously to the Lord.",
+    studyMethod: "OIA"
+  }),
+  "Ezekiel 45-48": guidedDevotional({
+    title: "The Lord is there",
+    context: "Ezekiel's vision concludes with restored worship, renewed land, a life-giving river, and a city named for the Lord's presence.",
+    body: "Ezekiel ends not with exile but with presence. The river flowing from the temple brings life wherever it goes, and the final name of the city is the deepest promise: the Lord is there. Restoration is finally about dwelling with Him.",
+    observationQuestion: "What signs of restored worship, justice, life, and presence appear in these chapters?",
+    reflectionQuestion: "Where do you long to know, in a settled way, that the Lord is there?",
+    prayer: "Lord, let Your presence be my hope, my home, and my life.",
+    gentleAction: "Write the phrase 'The Lord is there' beside one concern you are carrying.",
+    studyMethod: "Meditation"
+  }),
+  "Daniel 1-4": guidedDevotional({
+    title: "Faithful in exile",
+    context: "Daniel and his friends serve in Babylon while remaining faithful, interpreting dreams, facing the furnace, and seeing a proud king humbled.",
+    body: "Daniel shows faithfulness under pressure without pretending exile is easy. The Lord gives wisdom, preserves His servants, and humbles kings. Even in Babylon, no ruler has the final word over those who belong to God.",
+    observationQuestion: "How do Daniel and his friends remain faithful, and how does the Lord act?",
+    reflectionQuestion: "Where do you need quiet courage to remain faithful in a pressured environment?",
+    prayer: "Lord, give me wisdom, courage, and humility wherever You have placed me.",
+    gentleAction: "Choose one small act of faithfulness you can practice without needing attention.",
+    studyMethod: "COMA"
+  }),
+  "Daniel 5-8": guidedDevotional({
+    title: "Kingdoms weighed and passing",
+    context: "Daniel interprets Babylon's fall, survives the lions' den, and receives visions of kingdoms that rise and pass away.",
+    body: "Earthly kingdoms can look overwhelming, but Daniel insists they are accountable to God. Proud rulers are weighed, faithful prayer is tested, and beastly powers do not last forever. The Ancient of Days reigns when history looks unstable.",
+    observationQuestion: "What do these chapters reveal about rulers, kingdoms, prayer, and God's authority?",
+    reflectionQuestion: "What current fear becomes smaller when you remember that earthly kingdoms pass away?",
+    prayer: "Ancient of Days, steady my heart under Your everlasting rule.",
+    gentleAction: "Pray Daniel 6:10-like faithfulness into one pressure you face today.",
+    studyMethod: "Biblical theology"
+  }),
+  "Daniel 9-12": guidedDevotional({
+    title: "Hope beyond exile",
+    context: "Daniel prays confession over Israel's exile and receives visions of conflict, endurance, and final resurrection hope.",
+    body: "Daniel's hope is deeply prayerful. He does not treat prophecy as curiosity, but responds with confession, humility, and trust. The final visions are difficult, yet they lift the reader toward endurance and resurrection: the Lord has not lost control of history.",
+    observationQuestion: "How does Daniel pray, and what hope is given to God's people in the final chapters?",
+    reflectionQuestion: "Where do you need endurance that is rooted in confession, mercy, and resurrection hope?",
+    prayer: "Lord, have mercy, give endurance, and keep my hope fixed on Your final victory.",
+    gentleAction: "Pray a short confession, then thank the Lord for hope beyond what you can see.",
+    studyMethod: "SOAP"
   })
 };
 

@@ -359,7 +359,7 @@ export function BibleReaderPassage({
                 </View>
               )}
             </View>
-            <View style={[styles.inlineReaderActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
+            <View style={[styles.inlineReaderActions, styles.readerPlanCompletionActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
               {showExitPlanReadingButton && (
                 <Pressable
                   accessibilityRole="button"

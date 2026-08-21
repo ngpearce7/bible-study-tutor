@@ -15507,19 +15507,16 @@ const styles = StyleSheet.create({
     paddingTop: 12
   },
   readerPlanCompletionBox: {
-    alignItems: "center",
+    alignItems: "stretch",
     backgroundColor: "#fff6eb",
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
-    flexDirection: "row",
-    gap: 10,
-    justifyContent: "space-between",
+    flexDirection: "column",
+    gap: 12,
     padding: 10
   },
   phoneReaderPlanCompletionBox: {
-    alignItems: "stretch",
-    flexDirection: "column",
     gap: 8
   },
   readerPlanCompletionCopy: {
@@ -15535,6 +15532,10 @@ const styles = StyleSheet.create({
     gap: 7,
     marginTop: 8,
     padding: 10
+  },
+  readerPlanCompletionActions: {
+    alignSelf: "stretch",
+    justifyContent: "flex-end"
   },
   phoneReaderPlanCompletionActions: {
     alignItems: "stretch",

@@ -967,6 +967,7 @@ export default function Home() {
   const [activeBiblePlanSelectedDay, setActiveBiblePlanSelectedDay] = useState(0);
   const [activeBiblePlanSelectedPlanId, setActiveBiblePlanSelectedPlanId] = useState("");
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
+  const [expandedBiblePlanPreviews, setExpandedBiblePlanPreviews] = useState<Record<string, boolean>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>(DEFAULT_OPEN_BIBLE_PLAN_SECTIONS);
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
   const [completedBiblePlansOpen, setCompletedBiblePlansOpen] = useState(false);
@@ -8523,6 +8524,7 @@ export default function Home() {
                 const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
                 const planDetails = getBibleReadingPlanDetails(plan);
                 const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 0;
+                const previewOpen = !!expandedBiblePlanPreviews[plan.id];
                 const visiblePlanDays = visibleRows > 0 ? plan.days.slice(0, visibleRows) : [];
                 const planStarted = completedCount > 0;
                 const planComplete = plan.days.length > 0 && completedCount >= plan.days.length;
@@ -8626,6 +8628,54 @@ export default function Home() {
                               </View>
                             ))}
                           </View>
+                          {planDetails.previewDay ? (
+                            <View style={styles.planSampleList}>
+                              <Pressable
+                                accessibilityRole="button"
+                                accessibilityLabel={`${previewOpen ? "Hide" : "Show"} a complete day preview for ${plan.title}`}
+                                accessibilityState={{ expanded: previewOpen }}
+                                onPress={() => setExpandedBiblePlanPreviews((current) => ({ ...current, [plan.id]: !previewOpen }))}
+                                style={[styles.readerBookmarkExpandButton, styles.planViewAllButton, plansDarkMode && styles.homeDarkResumeButton]}
+                              >
+                                <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>{previewOpen ? "Hide complete day" : "Preview a complete day"}</Text>
+                                <Ionicons name={previewOpen ? "chevron-up-outline" : "reader-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              </Pressable>
+                              {previewOpen ? (
+                                <View style={[styles.planSampleReading, styles.planPreviewDayBox, plansDarkMode && styles.plansDarkDayRow]}>
+                                  <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, plansDarkMode && styles.plansDarkDayBadge]}>{planDetails.previewDay.day}</Text>
+                                  <View style={styles.planDayCopy}>
+                                    <Text style={[styles.planDayTitle, plansDarkMode && styles.accountDarkTitle]}>{planDetails.previewDay.title}</Text>
+                                    <Text style={[styles.planDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{planDetails.previewDay.reference}</Text>
+                                    {planDetails.previewDay.context ? (
+                                      <>
+                                        <Text style={[styles.planDetailLabel, styles.planPreviewSectionLabel, plansDarkMode && styles.studyDarkAccentText]}>Context</Text>
+                                        <Text style={[styles.planDetailText, plansDarkMode && styles.accountDarkMutedText]}>{planDetails.previewDay.context}</Text>
+                                      </>
+                                    ) : null}
+                                    {planDetails.previewDay.devotional ? (
+                                      <>
+                                        <Text style={[styles.planDetailLabel, styles.planPreviewSectionLabel, plansDarkMode && styles.studyDarkAccentText]}>{planDetails.previewDay.devotional.title}</Text>
+                                        <Text style={[styles.planDetailText, plansDarkMode && styles.accountDarkMutedText]}>{planDetails.previewDay.devotional.body}</Text>
+                                      </>
+                                    ) : null}
+                                    {[
+                                      ["Notice", planDetails.previewDay.observationQuestion],
+                                      ["Reflect", planDetails.previewDay.reflectionQuestion || planDetails.previewDay.reflectionPrompt],
+                                      ["Pray", planDetails.previewDay.prayer || planDetails.previewDay.prayerPrompt],
+                                      ["Next step", planDetails.previewDay.gentleAction],
+                                      ["Study deeper", planDetails.previewDay.studyMethod],
+                                      ["Care note", planDetails.previewDay.careNote]
+                                    ].filter(([, value]) => !!value).map(([label, value]) => (
+                                      <View key={label} style={styles.planPreviewSection}>
+                                        <Text style={[styles.planDetailLabel, plansDarkMode && styles.studyDarkAccentText]}>{label}</Text>
+                                        <Text style={[styles.planDetailText, plansDarkMode && styles.accountDarkMutedText]}>{value}</Text>
+                                      </View>
+                                    ))}
+                                  </View>
+                                </View>
+                              ) : null}
+                            </View>
+                          ) : null}
                           <Pressable
                             accessibilityRole="button"
                             accessibilityLabel={visibleRows > 0 ? `Hide all readings for ${plan.title}` : `View all readings for ${plan.title}`}
@@ -18935,6 +18985,17 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 9,
     paddingVertical: 8
+  },
+  planPreviewDayBox: {
+    alignItems: "flex-start",
+    paddingVertical: 10
+  },
+  planPreviewSection: {
+    gap: 2,
+    marginTop: 8
+  },
+  planPreviewSectionLabel: {
+    marginTop: 8
   },
   planViewAllButton: {
     alignSelf: "flex-start"

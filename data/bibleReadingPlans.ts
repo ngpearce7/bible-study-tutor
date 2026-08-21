@@ -39,6 +39,7 @@ export type BibleReadingPlan = {
   rhythm?: string;
   careNote?: string;
   sampleDayNumbers?: number[];
+  previewDayNumber?: number;
   days: BibleReadingPlanDay[];
 };
 
@@ -302,7 +303,7 @@ function enrichPlanMetadata(plan: BibleReadingPlan): BibleReadingPlan {
     pace: plan.pace || paceFor(plan.days.length, plan.category),
     estimatedTime: plan.estimatedTime || estimateTimeFor(plan.days.length),
     coverage: plan.coverage || coverageFor(plan),
-    rhythm: plan.rhythm || "Read the passage, notice one thing, pray briefly, then mark the day complete when you finish.",
+    rhythm: plan.rhythm || "Read the passage, consider the devotional, reflect and pray, then complete the day when you are ready.",
     sampleDayNumbers: plan.sampleDayNumbers || sampleDayNumbersFor(plan.days.length)
   };
 }
@@ -313,6 +314,10 @@ export function getBibleReadingPlanDetails(plan: BibleReadingPlan) {
   const sampleReadings = sampleNumbers
     .map((dayNumber) => enriched.days.find((day) => day.day === dayNumber))
     .filter((day): day is BibleReadingPlanDay => !!day);
+  const previewDay =
+    enriched.days.find((day) => day.day === enriched.previewDayNumber && hasCompleteDayPreview(day)) ||
+    enriched.days.find(hasCompleteDayPreview) ||
+    enriched.days[0];
 
   return {
     purpose: enriched.purpose || "",
@@ -322,8 +327,21 @@ export function getBibleReadingPlanDetails(plan: BibleReadingPlan) {
     coverage: enriched.coverage || "",
     rhythm: enriched.rhythm || "",
     careNote: enriched.careNote || "",
-    sampleReadings
+    sampleReadings,
+    previewDay
   };
+}
+
+function hasCompleteDayPreview(day: BibleReadingPlanDay) {
+  return !!(
+    day.context &&
+    day.devotional?.title &&
+    day.devotional.body &&
+    day.observationQuestion &&
+    (day.reflectionQuestion || day.reflectionPrompt) &&
+    (day.prayer || day.prayerPrompt) &&
+    day.gentleAction
+  );
 }
 
 const gospelBooks = ["Matthew", "Mark", "Luke", "John"];
@@ -1018,7 +1036,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
     context: "Israel is trapped between Pharaoh's army and the sea, and the Lord delivers them through the waters.",
     body: "Israel cannot save itself. The Lord fights for His people and makes a way where there is none. This chapter teaches faith at the edge of impossibility: stand firm, see the salvation of the Lord, and follow where He opens the way.",
     observationQuestion: "What are Israel, Moses, and the Lord each doing in this chapter?",
-    reflectionQuestion: "Where do you need to stop panic from becoming unbelief and look to the Lord's salvation?",
+    reflectionQuestion: "When fear rises quickly, what might it look like to turn your attention toward the Lord's salvation?",
     prayer: "Lord, help me stand firm in trust when I cannot see the way forward.",
     gentleAction: "Write 'The Lord will fight for you' beside one pressure you face.",
     studyMethod: "SOAP"
@@ -1579,7 +1597,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
     context: "Paul contrasts old and new covenant ministry and describes weakness as the setting for God's surpassing power.",
     body: "New covenant ministry is marked by the Spirit, unveiled sight of Christ's glory, and perseverance in weakness. The treasure is not the messenger's impressiveness but the gospel of Christ. Fragile jars of clay make God's power clearer.",
     observationQuestion: "What contrasts does Paul make between veil and glory, weakness and power?",
-    reflectionQuestion: "Where do you need to stop despising weakness and trust God's power in it?",
+    reflectionQuestion: "When weakness feels discouraging, how does this passage invite you to trust God's power?",
     prayer: "Lord, let the treasure of Christ shine through my weakness.",
     gentleAction: "Name one weakness and ask how it could display dependence on God.",
     studyMethod: "COMA"
@@ -2318,14 +2336,14 @@ const johnGospelDevotionals = devotionalEntries([
   ["John 2", "Glory revealed in signs", "Jesus' first sign at Cana and His cleansing of the temple both reveal His authority. He brings joy, fulfills what old symbols pointed toward, and claims the right to reorder worship around Himself.", "Where do you need Jesus to reorder shallow religion into true worship?", "Lord Jesus, purify my worship and teach me to trust Your glory."],
   ["John 3", "Born from above", "Nicodemus learns that religious knowledge cannot replace new birth. The Son is lifted up so that believing sinners may receive eternal life, not condemnation, through God's love.", "What would it mean to receive salvation as new birth rather than self-improvement?", "Father, thank You for loving the world by giving Your Son."],
   ["John 4", "Living water for outsiders", "Jesus meets a Samaritan woman with truth and mercy. He exposes thirst, offers living water, and teaches that true worship is in spirit and truth.", "Where are you trying to satisfy thirst apart from Christ?", "Lord Jesus, give me living water and make me a truthful worshiper."],
-  ["John 5", "The Son gives life", "Jesus heals on the Sabbath and teaches that the Son does the Father's work, gives life, and will raise the dead. The chapter presses readers to honor the Son as they honor the Father.", "What does this chapter reveal about Jesus' authority to give life?", "Father, help me honor the Son and hear His voice with faith."],
+  ["John 5", "The Son gives life", "Jesus heals on the Sabbath and teaches that the Son does the Father's work, gives life, and will raise the dead. The chapter presses readers to honor the Son as they honor the Father.", "How might Jesus' authority to give life strengthen your trust in Him today?", "Father, help me honor the Son and hear His voice with faith."],
   ["John 6", "The bread of life", "After feeding the crowd, Jesus teaches that He Himself is the true bread from heaven. He does not merely give gifts; He gives Himself for the life of the world.", "Where are you seeking satisfaction without coming to Christ Himself?", "Lord Jesus, feed my soul with Yourself, the bread of life."],
   ["John 7", "Thirst and division", "At the feast, Jesus calls the thirsty to come to Him and drink while crowds divide over His identity. His words expose whether people judge by appearance or receive Him by faith.", "What thirst or confusion does Jesus invite you to bring to Him?", "Lord Jesus, teach me to come to You and receive the Spirit's life."],
   ["John 8", "Truth that sets free", "Jesus confronts false confidence and offers freedom through abiding in His word. True freedom is not self-rule; it is rescue from sin through the Son.", "Where do you need freedom that comes from abiding in Jesus' word?", "Lord Jesus, keep me in Your truth and set me free from sin's lies."],
   ["John 9", "Sight for the blind", "Jesus gives sight to a man born blind while religious leaders reveal spiritual blindness. The sign asks whether we will truly see and worship the Son of Man.", "Where might pride keep you from seeing what Jesus is showing?", "Lord Jesus, open my eyes and lead me to worship You."],
   ["John 10", "The good Shepherd", "Jesus is the door and the good Shepherd who knows His sheep, lays down His life, and gives eternal life. His care is personal, costly, and secure.", "Which promise of the Shepherd most steadies you today?", "Good Shepherd, help me hear Your voice and rest in Your care."],
   ["John 11", "Resurrection and tears", "At Lazarus' tomb, Jesus weeps and then reveals Himself as the resurrection and the life. He meets grief with compassion and hope that is stronger than death.", "What grief needs both the tears and power of Jesus?", "Lord Jesus, meet me in sorrow and keep my hope in Your life."],
-  ["John 12", "The hour has come", "Mary's worship, the crowd's praise, and Jesus' teaching all move toward His hour. The grain of wheat must die to bear fruit, pointing to the cross.", "What does Jesus' path of self-giving love challenge in you?", "Lord Jesus, help me follow You in humble, fruitful obedience."],
+  ["John 12", "The hour has come", "Mary's worship, the crowd's praise, and Jesus' teaching all move toward His hour. The grain of wheat must die to bear fruit, pointing to the cross.", "How might Jesus' path of self-giving love shape your response to Him today?", "Lord Jesus, help me follow You in humble, fruitful obedience."],
   ["John 13", "Love with a towel", "Jesus washes His disciples' feet and commands them to love one another. His authority is expressed in humble service, and His people are marked by His love.", "Who is Jesus calling you to serve with humble love?", "Lord Jesus, wash me, humble me, and make Your love visible in me."],
   ["John 14", "The way to the Father", "Jesus comforts troubled disciples by promising the Father's house, the Spirit, and His peace. He is not one way among many; He is the way, the truth, and the life.", "Where does your troubled heart need Christ's peace and promise?", "Lord Jesus, keep my heart trusting You as the way to the Father."],
   ["John 15", "Abide and bear fruit", "Jesus describes Himself as the true vine and calls His disciples to abide in Him. Fruitful life comes from remaining in His love, not from detached effort.", "What would abiding in Christ look like in one ordinary part of today?", "Lord Jesus, keep me near You so my life bears fruit that honors You."],
@@ -2338,7 +2356,7 @@ const johnGospelDevotionals = devotionalEntries([
 ]);
 
 const romansDevotionals = devotionalEntries([
-  ["Romans 1", "The gospel of God", "Paul introduces the gospel as God's promised good news about His Son. Human sin is serious, but the letter begins with the righteousness of God revealed through faith.", "What does Romans 1 say the gospel is about before it says anything about us?", "Father, help me receive the gospel as Your good news about Your Son."],
+  ["Romans 1", "The gospel of God", "Paul introduces the gospel as God's promised good news about His Son. Human sin is serious, but the letter begins with the righteousness of God revealed through faith.", "How does beginning with God's good news about His Son steady the way you read Romans?", "Father, help me receive the gospel as Your good news about Your Son."],
   ["Romans 2", "Judgment and true obedience", "Paul warns religious and moral people not to hide behind comparison. God's judgment is truthful, impartial, and concerned with reality rather than outward labels.", "Where are you tempted to rely on comparison instead of honest repentance?", "Lord, make my faith sincere from the heart, not merely outward."],
   ["Romans 3", "Righteousness through faith", "Paul gathers all people under sin, then announces righteousness through faith in Jesus Christ. Grace is not vague kindness; it comes through Christ's redeeming blood.", "What makes grace necessary and secure in this chapter?", "Lord Jesus, thank You for redemption and righteousness received by faith."],
   ["Romans 4", "Faith counted as righteousness", "Abraham is Paul’s example that righteousness is received by faith, not achieved by works. God's promise rests on grace so that it may be certain.", "Where do you need to trust promise rather than performance?", "God of promise, strengthen my faith in what You have done."],
@@ -2357,7 +2375,7 @@ const romansDevotionals = devotionalEntries([
 ]);
 
 const psalmsPrayerDevotionals = devotionalEntries([
-  ["Psalm 1-8", "Prayer begins with delight", "The Psalms open by contrasting the way of the righteous with the way of the wicked, then move through trouble, trust, and praise. Prayer begins with delight in God's instruction and honest dependence on His care.", "What do these Psalms teach you to desire, fear, confess, or praise?", "Lord, root my life in Your word and teach me to pray honestly."],
+  ["Psalm 1-8", "Prayer begins with delight", "The Psalms open by contrasting the way of the righteous with the way of the wicked, then move through trouble, trust, and praise. Prayer begins with delight in God's instruction and honest dependence on His care.", "Which desire, fear, confession, or praise from these Psalms gives words to your prayer today?", "Lord, root my life in Your word and teach me to pray honestly."],
   ["Psalm 9-16", "Refuge and trust", "These Psalms bring enemies, injustice, lament, and confidence before the Lord. They teach that prayer can name danger while taking refuge in God's faithful rule.", "Which line helps you bring fear or injustice to the Lord today?", "Lord, be my refuge and keep my heart trusting You."],
   ["Psalm 17-24", "The King and Shepherd", "David prays for protection, celebrates deliverance, hears creation declare God's glory, and sings of the Lord as Shepherd and King. Prayer becomes both need and worship.", "How do these Psalms move you from request to worship?", "Lord, shepherd me, search me, and reign over my heart."],
   ["Psalm 25-31", "Teach me Your ways", "These Psalms repeatedly ask for guidance, forgiveness, protection, and courage. They train believers to bring shame, fear, waiting, and trust into God's presence.", "Where do you need to pray, 'Teach me Your paths'?", "Lord, guide me in Your truth and keep me waiting with courage."],
@@ -2375,7 +2393,7 @@ const psalmsPrayerDevotionals = devotionalEntries([
   ["Psalm 109-115", "Justice, Messiah, and glory", "These Psalms cry for justice, speak of the Lord's chosen King and Priest, and reject idols. Prayer learns to seek God's glory above human vengeance or false trust.", "Where do you need God's justice and glory to reframe your response?", "Lord, not to us, but to Your name give glory."],
   ["Psalm 116-122", "Thanks and pilgrimage", "These Psalms thank the Lord for rescue and then move into songs for the journey to worship. Prayer becomes gratitude, testimony, and longing for peace.", "What rescue or mercy should become thanksgiving today?", "Lord, thank You for hearing me. Lead me in peace and worship."],
   ["Psalm 123-129", "Dependence on the journey", "The pilgrim Psalms lift tired eyes to the Lord, remember His help, and ask for mercy. They form prayer for people who are still on the way.", "Where do you need to lift your eyes to the Lord rather than stare at the difficulty?", "Lord, have mercy and keep me walking with You."],
-  ["Psalm 130-136", "Waiting and steadfast love", "These Psalms move from the depths to hope, unity, worship, and the repeated refrain of God's steadfast love. Waiting is held by mercy.", "What does it mean to wait for the Lord with hope in His steadfast love?", "Lord, from the depths I wait for You and trust Your unfailing mercy."],
+  ["Psalm 130-136", "Waiting and steadfast love", "These Psalms move from the depths to hope, unity, worship, and the repeated refrain of God's steadfast love. Waiting is held by mercy.", "Where might the Lord's steadfast love help you wait with hope rather than despair?", "Lord, from the depths I wait for You and trust Your unfailing mercy."],
   ["Psalm 137-143", "Exile, honesty, and rescue", "These Psalms include the ache of exile, thanksgiving, searching prayer, and pleas for deliverance. They teach honest prayer that still turns toward God's faithful character.", "What hard emotion needs to be prayed honestly before the Lord?", "Lord, search me, lead me, and deliver me according to Your steadfast love."],
   ["Psalm 144-150", "Everything that has breath", "The Psalter ends with rescue, kingdom praise, and a crescendo of hallelujah. Prayer that began with delight now gathers every breath into praise.", "How can praise become the final word over this season of prayer?", "Lord, let everything in me praise You with joy and faithfulness."]
 ]);
@@ -3943,7 +3961,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     bestFor: "Anyone wanting a focused week of prayer, worship, confession, thanksgiving, lament, and trust.",
     estimatedTime: "7-12 minutes"
   },
-  withCuratedDevotionals(planFromReferences("seven-days-peace", "7 Days of Peace", "A short plan for anxiety, rest, and the peace of God.", [
+  withPastoralCareNote(withCuratedDevotionals(planFromReferences("seven-days-peace", "7 Days of Peace", "A short plan for anxiety, rest, and the peace of God.", [
     ["Psalm 4:6-8", "Psalms", 4, "Sleep in peace"],
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd's care"],
     ["Isaiah 26:3-4", "Isaiah", 26, "Perfect peace"],
@@ -3951,7 +3969,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 14:25-27", "John", 14, "My peace I give"],
     ["Philippians 4:4-9", "Philippians", 4, "Peace that guards"],
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"]
-  ], "Care")),
+  ], "Care"))),
   planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
     ["John 1:9-13", "John", 1, "Received as God's children", guidedDevotional({
       title: "Received before you perform",
@@ -3997,7 +4015,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       title: "Blessed in Christ",
       context: "Paul opens Ephesians with a long blessing that traces salvation to God's grace, purpose, and work in Christ.",
       body: "Ephesians lifts your eyes from self-definition to God's gracious purpose. In Christ, believers are blessed, chosen, adopted, redeemed, and forgiven. These words are not decorations; they are anchors. Your identity is grounded in God's will, God's grace, and God's plan to bring all things together in Christ.",
-      observationQuestion: "List the blessings Paul says believers have in Christ.",
+      observationQuestion: "What blessings does Paul say believers have in Christ?",
       reflectionQuestion: "Which word in this passage gives your heart the strongest anchor today?",
       prayer: "Father, help me rest in the grace You have lavished in Christ.",
       gentleAction: "Choose one identity word from the passage and carry it through the day.",
@@ -4103,7 +4121,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         context: "John opens his Gospel by showing that Jesus is not merely a teacher. He is the eternal Word who became flesh and made God known.",
         body: "Christian faith begins with Jesus Himself. He is the light who enters darkness and the Son who reveals the Father. New life is not built on vague spirituality, but on receiving the One who came full of grace and truth.",
         observationQuestion: "What does John say about who Jesus is and what He came to reveal?",
-        reflectionQuestion: "What part of this description of Jesus do you most need to receive today?",
+        reflectionQuestion: "Which truth about Jesus in this passage most strengthens or challenges your understanding of Him today?",
         prayer: "Lord Jesus, help me see You truly and receive Your grace and truth.",
         gentleAction: "Read verse 14 aloud and thank God that Jesus came near.",
         studyMethod: "OIA"
@@ -4123,7 +4141,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         context: "Paul contrasts spiritual death with God's mercy and explains that salvation is by grace through faith, not by works.",
         body: "This passage protects new believers from both pride and despair. Salvation is God's gift, received by faith, not a wage earned by performance. Good works matter, but they flow from grace; they are not the basis of being saved.",
         observationQuestion: "What does Paul say salvation is, and what does he say it is not?",
-        reflectionQuestion: "Where do you need to stop trying to earn what God gives by grace?",
+        reflectionQuestion: "When are you tempted to measure God's acceptance by your performance? How do verses 8-9 answer that temptation?",
         prayer: "God of mercy, help me rest in Your grace and walk in the good works You prepare.",
         gentleAction: "Write the phrase 'by grace through faith' somewhere you will see it today.",
         studyMethod: "Inductive"
@@ -4133,7 +4151,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         context: "After describing the struggle with sin, Paul announces the assurance believers have in Christ and the Spirit's new way of life.",
         body: "New life begins under the word 'no condemnation.' This does not make sin unimportant; it means Christ has answered condemnation so the Spirit can lead believers into life. Assurance looks to Christ before it looks at your progress.",
         observationQuestion: "What has God done through His Son that the law could not do?",
-        reflectionQuestion: "What accusation needs to hear 'no condemnation' today?",
+        reflectionQuestion: "Where are you carrying guilt or shame? How does Romans 8:1 direct you to look to Christ?",
         prayer: "Father, help me stand in Christ's mercy and walk by the Spirit.",
         gentleAction: "Pause when shame rises today and answer it with Romans 8:1.",
         studyMethod: "SOAP"
@@ -4154,8 +4172,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         body: "The Christian life is not self-improvement by sheer willpower. Believers are called to walk by the Spirit. The fruit listed here grows from God's work in us, shaping love, joy, peace, patience, and holiness over time.",
         observationQuestion: "What fruit does Paul say the Spirit produces?",
         reflectionQuestion: "Which fruit of the Spirit do you want to ask God to grow in you?",
-        prayer: "Holy Spirit, lead me today and grow Your fruit in my life.",
-        gentleAction: "Choose one fruit of the Spirit and ask God for one small practice of it today.",
+        prayer: "Father, lead me by Your Spirit today and grow the Spirit's fruit in my life.",
+        gentleAction: "Choose one fruit of the Spirit and identify one concrete way it could shape your words or actions today. Ask God to help you respond that way.",
         studyMethod: "OIA"
       })],
       ["Acts 2:42-47", "Acts", 2, "Following Jesus with His people", guidedDevotional({
@@ -4164,7 +4182,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         body: "Jesus saves people into a family, not isolation. The church is not the basis of salvation, but it is one of God's gifts for growth, care, teaching, prayer, and shared witness. Following Jesus becomes a shared life of grace.",
         observationQuestion: "What practices shaped the first believers' life together?",
         reflectionQuestion: "What small step could help you follow Jesus with His people?",
-        prayer: "Lord, place me wisely among Your people and help me grow in grace with them.",
+        prayer: "Lord, guide me toward a faithful Christian community. Help me receive care, grow in truth, and serve others with grace.",
         gentleAction: "Consider one trusted church, pastor, or mature Christian you could connect with this week.",
         studyMethod: "COMA"
       })]

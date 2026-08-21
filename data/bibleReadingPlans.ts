@@ -3678,13 +3678,118 @@ function withCuratedDevotionals(plan: BibleReadingPlan): BibleReadingPlan {
   };
 }
 
+const torahBookSet = new Set(["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"]);
+const historicalBookSet = new Set(["Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther"]);
+const wisdomBookSet = new Set(["Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon"]);
+const prophetBookSet = new Set(["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi"]);
+const gospelBookSet = new Set(["Matthew", "Mark", "Luke", "John"]);
+const paulineBookSet = new Set(paulineBooks);
+const generalEpistleBookSet = new Set(["Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude"]);
+
+function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
+  if (torahBookSet.has(book)) {
+    return devotional(
+      `Beginning ${book}`,
+      `${book} belongs to the Torah, where Scripture lays foundations for creation, covenant, rescue, holiness, wilderness faith, and life with the Lord. Read this section slowly, asking how God's character and covenant purposes are being revealed before rushing to application.`,
+      `What foundation for knowing the Lord is being laid as ${book} begins?`,
+      "Lord, ground my faith in Your character, Your promises, and Your covenant mercy."
+    );
+  }
+  if (historicalBookSet.has(book)) {
+    return devotional(
+      `Entering ${book}`,
+      `${book} tells part of Israel's lived history with the Lord. Watch for faithfulness and failure, leadership and worship, judgment and mercy. These chapters are not merely examples to imitate or avoid; they show how God's purposes continue through real people and real consequences.`,
+      `What does ${book} show about the Lord's faithfulness in the middle of human faithfulness and failure?`,
+      "Lord, teach me to read history with humility, repentance, and trust in Your purposes."
+    );
+  }
+  if (wisdomBookSet.has(book)) {
+    return devotional(
+      `Learning prayer and wisdom in ${book}`,
+      `${book} trains the heart as well as the mind. Read for worship, honest prayer, wisdom, limits, longing, and faithful living before God. Let the passage shape what you love, fear, ask, confess, and practice.`,
+      `What desire, prayer, or wisdom is ${book} forming in you today?`,
+      "Lord, shape my heart with wisdom, worship, and honest prayer."
+    );
+  }
+  if (prophetBookSet.has(book)) {
+    return devotional(
+      `Listening to ${book}`,
+      `${book} speaks into covenant unfaithfulness, injustice, judgment, mercy, and hope. Prophetic books are not mainly prediction puzzles; they call God's people to hear His word, return to Him, and trust His promised restoration.`,
+      `What warning, promise, or hope should be heard clearly as ${book} begins?`,
+      "Lord, give me ears to hear Your word with repentance, reverence, and hope."
+    );
+  }
+  if (gospelBookSet.has(book)) {
+    return devotional(
+      `Following Jesus in ${book}`,
+      `${book} presents the life, teaching, death, and resurrection of Jesus. Read with your eyes on who He is, what He reveals about the Father, how He brings the kingdom, and how He calls people to trust and follow Him.`,
+      `What does ${book} reveal about Jesus that should shape your faith today?`,
+      "Lord Jesus, help me see You clearly and follow You faithfully."
+    );
+  }
+  if (book === "Acts") {
+    return devotional(
+      "The risen Christ at work",
+      "Acts shows the risen Jesus continuing His mission by the Spirit through His witnesses. Watch how prayer, courage, suffering, preaching, repentance, and community form the early church as the gospel moves outward.",
+      "How does Acts show the Spirit empowering witness to Jesus?",
+      "Risen Lord, make me faithful by Your Spirit in ordinary witness and love."
+    );
+  }
+  if (paulineBookSet.has(book)) {
+    return devotional(
+      `Reading ${book} as gospel-shaped instruction`,
+      `${book} is part of Paul's apostolic teaching for churches and believers. Look for how gospel truth leads into worship, identity, holiness, unity, endurance, and love. Keep grace as the root, not merely behavior as the goal.`,
+      `How does ${book} connect what God has done in Christ with how believers now live?`,
+      "Lord, let Your grace take root in my belief, worship, relationships, and obedience."
+    );
+  }
+  if (generalEpistleBookSet.has(book)) {
+    return devotional(
+      `Receiving ${book}`,
+      `${book} helps believers endure, discern truth, love faithfully, and live as God's people. Read for both comfort and correction, remembering that Christian obedience grows from belonging to the Lord.`,
+      `What comfort or correction does ${book} bring to faithful discipleship?`,
+      "Lord, strengthen me to receive Your word and live faithfully as one who belongs to You."
+    );
+  }
+  if (book === "Revelation") {
+    return devotional(
+      "The Lamb reigns",
+      "Revelation unveils Jesus Christ as the slain and risen Lamb who reigns, judges evil, keeps His people, and brings all things to their appointed end. Read with worship and endurance rather than speculation.",
+      "How does Revelation call you to worship, endurance, and hope in Christ?",
+      "Lord Jesus, keep my hope fixed on Your victory and coming renewal."
+    );
+  }
+  return devotional(
+    `Beginning ${book}`,
+    `${book} begins a new section in this reading plan. Pause before moving quickly and ask where this book sits in the wider story of Scripture, what it reveals about God, and how it calls His people to trust, worship, repentance, or obedience.`,
+    `What does this new section reveal about the Lord and His purposes?`,
+    "Lord, help me read this section with attention, humility, and faith."
+  );
+}
+
+function withBookSectionGuidance(plan: BibleReadingPlan): BibleReadingPlan {
+  const seenBooks = new Set<string>();
+  return {
+    ...plan,
+    days: plan.days.map((day) => {
+      const startsNewBookSection = !seenBooks.has(day.readerBook);
+      seenBooks.add(day.readerBook);
+      if (!startsNewBookSection || day.devotional) return day;
+      return {
+        ...day,
+        ...bookSectionGuidance(day.readerBook)
+      };
+    })
+  };
+}
+
 export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   withCuratedDevotionals(oneChapterPerDayPlan("john-21", "21 Days in John", "Read one chapter a day through John's Gospel.", "John", 21)),
   withCuratedDevotionals(oneChapterPerDayPlan("romans-16", "Romans in 16 Days", "Move slowly through Paul's letter one chapter at a time.", "Romans", 16)),
   withCuratedDevotionals(buildChapterPlan("psalms-prayer", "Psalms for Prayer", "Twenty-one Psalms chosen to shape prayer, trust, confession, and worship.", ["Psalms"], 21, "Prayer")),
-  buildChapterPlan("new-testament-90", "New Testament in 90 Days", "Read through the New Testament in steady daily portions.", NEW_TESTAMENT_BOOKS, 90, "New Testament"),
-  buildChapterPlan("bible-365", "Bible in 1 Year", "A simple chapter-by-chapter path through every book of the Bible.", wholeBibleBooks, 365),
-  {
+  withBookSectionGuidance(buildChapterPlan("new-testament-90", "New Testament in 90 Days", "Read through the New Testament in steady daily portions.", NEW_TESTAMENT_BOOKS, 90, "New Testament")),
+  withBookSectionGuidance(buildChapterPlan("bible-365", "Bible in 1 Year", "A simple chapter-by-chapter path through every book of the Bible.", wholeBibleBooks, 365)),
+  withBookSectionGuidance({
     ...buildChapterPlan("bible-1-year-chronological", "Bible in 1 Year Chronological", "Read the Bible in a broad historical flow over one year.", chronologicalBibleBooks, 365),
     purpose: "To help you follow the Bible story in a roughly historical order from creation, the patriarchs, Israel, exile, Jesus, the church, and new creation.",
     bestFor: "Readers who want the storyline of Scripture to feel connected across the whole year.",
@@ -3692,8 +3797,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     estimatedTime: "15-30 minutes",
     coverage: "A whole-Bible journey arranged in a broad chronological-style sequence.",
     rhythm: "Read the daily portion, notice where it fits in the story, pray, then mark the day complete."
-  },
-  {
+  }),
+  withBookSectionGuidance({
     ...buildOldNewTogetherPlan("bible-1-year-old-new", "Old and New Testament Daily Pairing", "A one-year plan that pairs Old Testament and New Testament readings each day.", 365),
     purpose: "To keep the whole Bible moving while regularly returning to the teaching of Jesus, the apostles, and the early church.",
     bestFor: "Readers who like variety and want Old Testament and New Testament readings side by side.",
@@ -3701,36 +3806,36 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     estimatedTime: "15-30 minutes",
     coverage: "Daily portions pair Old Testament and New Testament readings through the year.",
     rhythm: "Read both portions, notice one connection, pray briefly, then mark the day complete."
-  },
-  {
+  }),
+  withBookSectionGuidance({
     ...buildChapterPlan("bible-6-months", "Bible in 6 Months", "A brisk six-month journey through the whole Bible.", wholeBibleBooks, 180),
     pace: "Brisk daily readings",
     estimatedTime: "25-40 minutes",
     bestFor: "Readers who want a focused season of stronger whole-Bible momentum."
-  },
-  {
+  }),
+  withBookSectionGuidance({
     ...buildChapterPlanWithReflectionDays("new-testament-1-year", "New Testament in 1 Year", "A gentle year-long path through the New Testament with reflection days.", NEW_TESTAMENT_BOOKS, 365, "New Testament"),
     purpose: "To let the New Testament settle slowly through repeated reading and reflection.",
     pace: "Gentle long-term rhythm",
     estimatedTime: "5-10 minutes",
     coverage: "Every New Testament chapter with later reflection readings to help the message sink in."
-  },
-  {
+  }),
+  withBookSectionGuidance({
     ...buildChapterPlanWithReflectionDays("psalms-proverbs-1-year", "Psalms and Proverbs in 1 Year", "A slow yearly rhythm through prayer, worship, and wisdom.", ["Psalms", "Proverbs"], 365, "Wisdom"),
     purpose: "To shape prayer and daily wisdom through repeated exposure to Psalms and Proverbs.",
     pace: "Gentle long-term rhythm",
     estimatedTime: "5-10 minutes",
     coverage: "Psalms and Proverbs with reflection readings across the year."
-  },
-  buildChapterPlan("bible-30", "Bible in 30 Days", "A fast overview pace through the whole Bible.", wholeBibleBooks, 30),
-  buildChapterPlan("bible-90", "Bible in 90 Days", "A strong three-month path through the whole Bible.", wholeBibleBooks, 90),
-  buildChapterPlan("bible-overview-60", "Bible Overview in 60 Days", "A two-month overview of the Bible's major movements.", wholeBibleBooks, 60, "Overview"),
-  buildChapterPlan("new-testament-30", "New Testament in 30 Days", "Read the New Testament in one month.", NEW_TESTAMENT_BOOKS, 30, "New Testament"),
-  buildChapterPlan("psalms-30", "Psalms in 30 Days", "Pray and reflect through the Psalms in a month.", ["Psalms"], 30, "Prayer"),
-  oneChapterPerDayPlan("proverbs-31", "Proverbs in 31 Days", "Read one chapter of Proverbs each day.", "Proverbs", 31, "Wisdom"),
-  buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels"),
-  buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study"),
-  withCuratedDevotionals(buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview")),
+  }),
+  withBookSectionGuidance(buildChapterPlan("bible-30", "Bible in 30 Days", "A fast overview pace through the whole Bible.", wholeBibleBooks, 30)),
+  withBookSectionGuidance(buildChapterPlan("bible-90", "Bible in 90 Days", "A strong three-month path through the whole Bible.", wholeBibleBooks, 90)),
+  withBookSectionGuidance(buildChapterPlan("bible-overview-60", "Bible Overview in 60 Days", "A two-month overview of the Bible's major movements.", wholeBibleBooks, 60, "Overview")),
+  withBookSectionGuidance(buildChapterPlan("new-testament-30", "New Testament in 30 Days", "Read the New Testament in one month.", NEW_TESTAMENT_BOOKS, 30, "New Testament")),
+  withBookSectionGuidance(buildChapterPlan("psalms-30", "Psalms in 30 Days", "Pray and reflect through the Psalms in a month.", ["Psalms"], 30, "Prayer")),
+  withBookSectionGuidance(oneChapterPerDayPlan("proverbs-31", "Proverbs in 31 Days", "Read one chapter of Proverbs each day.", "Proverbs", 31, "Wisdom")),
+  withBookSectionGuidance(buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels")),
+  withBookSectionGuidance(buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study")),
+  withBookSectionGuidance(withCuratedDevotionals(buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"))),
   withCuratedDevotionals(buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament")),
   withCuratedDevotionals(buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament")),
   withCuratedDevotionals(planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [
@@ -4465,8 +4570,8 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8", "Romans", 8],
     ["Revelation 21", "Revelation", 21]
   ], "Overview")),
-  buildChapterPlan("old-testament-overview", "Old Testament Overview in 60 Days", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview"),
-  buildChapterPlan("new-testament-overview", "New Testament Overview", "A broad chapter-by-chapter overview of the New Testament.", NEW_TESTAMENT_BOOKS, 30, "Overview")
+  withBookSectionGuidance(buildChapterPlan("old-testament-overview", "Old Testament Overview in 60 Days", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview")),
+  withBookSectionGuidance(buildChapterPlan("new-testament-overview", "New Testament Overview", "A broad chapter-by-chapter overview of the New Testament.", NEW_TESTAMENT_BOOKS, 30, "Overview"))
 ];
 
 export const bibleReadingPlans = builtInBibleReadingPlans;

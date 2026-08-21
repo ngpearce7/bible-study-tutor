@@ -351,7 +351,7 @@ export function BibleReaderPassage({
                     </View>
                   )}
                   {!!activeReadingPlanDay.careNote && (
-                    <View style={styles.planDayPromptRow}>
+                    <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.careNote}</Text>
                     </View>

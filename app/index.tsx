@@ -6755,7 +6755,7 @@ export default function Home() {
           </View>
         )}
         {!!planDay.careNote && (
-          <View style={styles.planDayPromptRow}>
+          <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
             <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.careNote}</Text>
           </View>
@@ -8667,7 +8667,7 @@ export default function Home() {
                                       ["Study deeper", planDetails.previewDay.studyMethod],
                                       ["Care note", planDetails.previewDay.careNote]
                                     ].filter(([, value]) => !!value).map(([label, value]) => (
-                                      <View key={label} style={styles.planPreviewSection}>
+                                      <View key={label} style={[styles.planPreviewSection, label === "Care note" && styles.planDayCareNoteBox, label === "Care note" && plansDarkMode && styles.planDayCareNoteBoxDark]}>
                                         <Text style={[styles.planDetailLabel, plansDarkMode && styles.studyDarkAccentText]}>{label}</Text>
                                         <Text style={[styles.planDetailText, plansDarkMode && styles.accountDarkMutedText]}>{value}</Text>
                                       </View>
@@ -19345,6 +19345,19 @@ const styles = StyleSheet.create({
   },
   planDayPromptRow: {
     gap: 2
+  },
+  planDayCareNoteBox: {
+    backgroundColor: "#fff4ea",
+    borderColor: "#ecd8c7",
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 4,
+    marginTop: 4,
+    padding: 10
+  },
+  planDayCareNoteBoxDark: {
+    backgroundColor: "rgba(233, 183, 106, 0.08)",
+    borderColor: "rgba(233, 183, 106, 0.24)"
   },
   planDayPromptLabel: {
     color: colors.coral,

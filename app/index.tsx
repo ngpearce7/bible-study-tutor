@@ -8641,10 +8641,10 @@ export default function Home() {
                                 <Ionicons name={previewOpen ? "chevron-up-outline" : "reader-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                               </Pressable>
                               {previewOpen ? (
-                                <View style={[styles.planSampleReading, styles.planPreviewDayBox, plansDarkMode && styles.plansDarkDayRow]}>
+                                <View style={[styles.planSampleReading, styles.planPreviewDayBox, phoneLayout && styles.phonePlanPreviewDayBox, plansDarkMode && styles.plansDarkDayRow]}>
                                   <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, plansDarkMode && styles.plansDarkDayBadge]}>{planDetails.previewDay.day}</Text>
-                                  <View style={styles.planDayCopy}>
-                                    <Text style={[styles.planDayTitle, plansDarkMode && styles.accountDarkTitle]}>{planDetails.previewDay.title}</Text>
+                                  <View style={[styles.planDayCopy, phoneLayout && styles.phonePlanPreviewCopy]}>
+                                    <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanPreviewTitle, plansDarkMode && styles.accountDarkTitle]}>{planDetails.previewDay.title}</Text>
                                     <Text style={[styles.planDayPassage, plansDarkMode && styles.accountDarkMutedText]}>{planDetails.previewDay.reference}</Text>
                                     {planDetails.previewDay.context ? (
                                       <>
@@ -18989,6 +18989,20 @@ const styles = StyleSheet.create({
   planPreviewDayBox: {
     alignItems: "flex-start",
     paddingVertical: 10
+  },
+  phonePlanPreviewDayBox: {
+    flexDirection: "column",
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 10
+  },
+  phonePlanPreviewCopy: {
+    alignSelf: "stretch",
+    width: "100%"
+  },
+  phonePlanPreviewTitle: {
+    fontSize: 14,
+    lineHeight: 19
   },
   planPreviewSection: {
     gap: 2,

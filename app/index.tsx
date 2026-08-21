@@ -5447,8 +5447,13 @@ export default function Home() {
       activePlanId: activeBibleReadingPlanId
     });
     if (!nextState) return;
+    const stoppedPlanHasProgress = completedBibleReadingPlanDays.some((key) => key.startsWith(`${nextState.stoppedPlan.id}:`));
+    const nextStartDates = stoppedPlanHasProgress
+      ? bibleReadingPlanStartDates
+      : Object.fromEntries(Object.entries(bibleReadingPlanStartDates).filter(([id]) => id !== nextState.stoppedPlan.id));
     setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
     setActiveBibleReadingPlanId(nextState.activePlanId);
+    if (!stoppedPlanHasProgress) setBibleReadingPlanStartDates(nextStartDates);
     if (readerPlanReading?.planId === nextState.stoppedPlan.id) setReaderPlanReading(null);
     setRememberedExpandedBiblePlanId(nextState.activePlanId);
     if (nextState.activePlanId) {
@@ -5459,7 +5464,7 @@ export default function Home() {
       persistUiPreference("plansSelectedPlanDay", "");
     }
     setBiblePlanStatus(`${nextState.stoppedPlan.title} is no longer followed.`);
-    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, bibleReadingPlanStartDates, nextState.followedPlanIds);
+    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextStartDates, nextState.followedPlanIds);
     trackUsage("bible_reading_plan_stopped", { reference: nextState.stoppedPlan.id, tab: "plans" });
   }
 

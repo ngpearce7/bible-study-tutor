@@ -93,7 +93,17 @@ const sensitivePlanIds = new Set([
   "grief-comfort",
   "fourteen-days-grief-comfort"
 ]);
-const prayerPlanIds = new Set(["seven-days-prayer", "prayer-dependence", "psalms-prayer", "psalms-30"]);
+const prayerPlanIds = new Set(["seven-days-prayer", "prayer-dependence", "psalms-prayer"]);
+const intentionalDevotionalReusePlanIds = new Set([
+  "life-of-jesus",
+  "holy-week-passion-week",
+  "advent-readings",
+  "easter-resurrection-readings",
+  "chronological-overview",
+  "ten-days-psalms",
+  "fourteen-days-wisdom",
+  "wisdom-decisions"
+]);
 const oldGenericRhythm = "Read the passage, notice one thing, pray briefly, then mark the day complete when you finish.";
 const unresolvedPlaceholderPattern = /\{\{|\}\}|TODO|TBD|FIXME|\[[^\]]*(passage|reference|title|name)[^\]]*\]/i;
 const discouragedPhrases = [
@@ -289,7 +299,8 @@ function checkPlan(plan) {
   }
   if (prayerPlanIds.has(plan.id)) {
     const prayerText = normalized(plan.days.map((day) => day.prayer || day.prayerPrompt || "").join(" "));
-    const rangeWords = ["praise", "thank", "confess", "lament", "depend", "trust", "will"];
+    if (!prayerText) return;
+    const rangeWords = ["praise", "thank", "confess", "lament", "depend", "trust", "will", "ask", "bring", "receive", "cast"];
     const found = rangeWords.filter((word) => prayerText.includes(word)).length;
     if (found < 3) pushIssue(warnings, plan, null, "prayer-focused plan may need a broader range of prayer language.");
   }
@@ -302,11 +313,11 @@ for (const plan of bibleReadingPlans) {
   seenIds.add(plan.id);
   checkPlan(plan);
   for (const day of plan.days) {
-    if (generatedSectionGuidancePlanIds.has(plan.id)) continue;
+    if (generatedSectionGuidancePlanIds.has(plan.id) || intentionalDevotionalReusePlanIds.has(plan.id)) continue;
     const body = normalized(day.devotional?.body);
     if (!body || body.length < 80) continue;
     const existing = devotionalBodiesByText.get(body);
-    if (existing && existing.planId !== plan.id) {
+    if (existing && existing.planId !== plan.id && !intentionalDevotionalReusePlanIds.has(existing.planId)) {
       pushIssue(warnings, plan, day, `devotional body matches ${existing.planId} day ${existing.day}.`);
     } else {
       devotionalBodiesByText.set(body, { planId: plan.id, day: day.day });

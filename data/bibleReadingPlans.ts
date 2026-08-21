@@ -706,7 +706,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
     context: "John begins before creation and announces that the eternal Word became flesh and dwelt among us.",
     body: "The child in the manger is the eternal Word through whom all things were made. John holds together glory and nearness: the Word became flesh, full of grace and truth. Advent worship bows before the mystery that God the Son truly came among us.",
     observationQuestion: "What does John say about the Word before describing His becoming flesh?",
-    reflectionQuestion: "What does it mean for you today that God's grace and truth have come in Christ?",
+    reflectionQuestion: "Where do you need to receive Christ's grace and truth today?",
     prayer: "Word made flesh, fill my heart with wonder at Your glory, grace, and truth.",
     gentleAction: "Read John 1:14 slowly three times and emphasize a different word each time.",
     studyMethod: "Meditation"
@@ -2399,12 +2399,12 @@ const psalmsPrayerDevotionals = devotionalEntries([
 ]);
 
 const beginnerBibleDevotionals = devotionalEntries([
-  ["Genesis 1", "The God who creates", "The Bible begins with God, not with us. Genesis 1 shows the Lord creating, ordering, blessing, and making humanity in His image. This gives the whole story its foundation: life belongs to God and is made for His glory.", "What does creation teach you about God, humanity, and purpose?", "Creator God, teach me to receive life as Your gift and live for Your glory."],
+  ["Genesis 1", "The God who creates", "The Bible begins with God, not with us. Genesis 1 shows the Lord creating, ordering, blessing, and making humanity in His image. This gives the whole story its foundation: life belongs to God and is made for His glory.", "How does seeing God as Creator reshape your sense of dignity, purpose, and worship?", "Creator God, teach me to receive life as Your gift and live for Your glory."],
   ["Genesis 12", "Promise and blessing", "God calls Abram and promises land, offspring, and blessing for the nations. The Bible's story of redemption begins to narrow through one family so blessing can widen to the world.", "How does God's promise to Abram show both personal calling and global mercy?", "Lord, help me trust Your promises and live as a blessing to others."],
-  ["Exodus 3", "The God who sees and sends", "At the burning bush, the Lord reveals His name, hears His people's cries, and sends Moses. Deliverance begins with God's compassion and covenant faithfulness.", "What does this chapter reveal about God's attention to suffering?", "Lord, You see and hear. Help me trust Your faithful presence."],
+  ["Exodus 3", "The God who sees and sends", "At the burning bush, the Lord reveals His name, hears His people's cries, and sends Moses. Deliverance begins with God's compassion and covenant faithfulness.", "Where do you need to trust that God sees suffering and is able to act?", "Lord, You see and hear. Help me trust Your faithful presence."],
   ["Psalm 23", "The Lord shepherds", "Psalm 23 gives a simple and deep picture of God's personal care. The Lord leads, restores, protects, provides, and brings His people home.", "Which action of the Shepherd do you most need today?", "Lord, shepherd me and keep me close to Your care."],
-  ["Isaiah 53", "The suffering Servant", "Isaiah points to the Servant who bears grief, sin, rejection, and judgment for others. Christians see this fulfilled in Jesus' suffering and saving work.", "What does this passage show about the cost and mercy of salvation?", "Lord Jesus, thank You for bearing sin and bringing peace."],
-  ["Luke 2", "Christ the Savior is born", "Luke places Jesus' birth among ordinary people and announces good news of great joy. The Savior, Christ the Lord, comes in humility.", "What does Jesus' humble birth teach you about God's way of coming near?", "Lord Jesus, fill me with wonder that You came near to save."],
+  ["Isaiah 53", "The suffering Servant", "Isaiah points to the Servant who bears grief, sin, rejection, and judgment for others. Christians see this fulfilled in Jesus' suffering and saving work.", "How does the Servant's suffering deepen your gratitude for God's mercy in Christ?", "Lord Jesus, thank You for bearing sin and bringing peace."],
+  ["Luke 2", "Christ the Savior is born", "Luke places Jesus' birth among ordinary people and announces good news of great joy. The Savior, Christ the Lord, comes in humility.", "Where do you need to receive Jesus' humble nearness as good news today?", "Lord Jesus, fill me with wonder that You came near to save."],
   ["John 3", "God so loved the world", "Jesus teaches new birth and the gift of the Son. Eternal life is received by believing in Him, because God loved the world and gave His Son.", "How does John 3 explain both our need and God's love?", "Father, thank You for giving Your Son so that sinners may have life."],
   ["Romans 8", "No condemnation, no separation", "Romans 8 gathers the assurance of the Christian life: no condemnation in Christ, life by the Spirit, hope in suffering, and no separation from God's love.", "Which assurance in Romans 8 do you need to hold today?", "Lord, help me rest in Your Spirit's life and Your inseparable love."],
   ["Ephesians 2", "Saved by grace", "Paul describes spiritual death, God's mercy, salvation by grace through faith, and a new people made in Christ. Good works flow from grace; they do not purchase it.", "How does this chapter keep grace first and obedience in its right place?", "God of mercy, thank You for saving by grace and making me alive in Christ."],
@@ -2750,7 +2750,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       context: "Thomas moves from doubt to worship when he encounters the risen Christ.",
       body: "John writes so readers may believe that Jesus is the Christ, the Son of God, and have life in His name. Faith rests on the witness to the risen Lord. Doubt is not answered by vague comfort, but by the crucified and risen Jesus.",
       observationQuestion: "What confession does Thomas make, and why does John say he wrote these things?",
-      reflectionQuestion: "What does this passage invite you to confess about Jesus?",
+      reflectionQuestion: "How might Thomas' confession help you bring doubt or hesitation honestly to the risen Jesus?",
       prayer: "My Lord and my God, deepen my faith in Your risen life.",
       gentleAction: "Say Thomas' confession slowly as a prayer of faith.",
       studyMethod: "Inductive"
@@ -3034,7 +3034,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       context: "Paul speaks of righteousness by faith, confessing Jesus as Lord, believing God raised Him, and calling on Him.",
       body: "The gospel is not hidden behind impossible achievement. Paul says the word is near: confess with your mouth that Jesus is Lord and believe in your heart that God raised Him from the dead. Salvation rests on Christ and is received by faith that calls on Him.",
       observationQuestion: "What does Paul say about confessing, believing, and calling on the Lord?",
-      reflectionQuestion: "What does it mean for you to trust Jesus as Lord rather than yourself?",
+      reflectionQuestion: "Where do you need to trust Jesus as Lord rather than lean on your own righteousness or control?",
       prayer: "Lord Jesus, I confess You as Lord and trust the life God gives through You.",
       gentleAction: "Pray a simple confession of trust in Jesus as Lord.",
       studyMethod: "Word study"
@@ -3178,7 +3178,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       context: "Psalm 42 gives words to spiritual thirst, tears, memory, turmoil, and renewed hope in God.",
       body: "The Psalmist does not shame a downcast soul. He speaks to it with honesty and hope. Faith may include tears, longing, and questions, but it also learns to remember God and wait for praise to return.",
       observationQuestion: "What signs of distress appear, and what does the Psalmist say to his soul?",
-      reflectionQuestion: "What does your soul need to remember about God today?",
+      reflectionQuestion: "Where does your own soul need hope in God to speak louder than discouragement today?",
       prayer: "Lord, meet me in longing and teach my soul to hope in You.",
       gentleAction: "Speak one gentle truth from this Psalm to yourself.",
       studyMethod: "Meditation"
@@ -3522,7 +3522,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       context: "Psalm 42 speaks to a downcast soul while remembering God and longing for renewed praise.",
       body: "The Psalmist speaks to a downcast soul rather than shaming it. He remembers God, names turmoil, and calls the soul to hope again. Grief may keep speaking, but faith also learns to speak back with patience and hope.",
       observationQuestion: "What does the Psalmist say to his own soul?",
-      reflectionQuestion: "What does your downcast soul need to remember about God today?",
+      reflectionQuestion: "Where does your downcast soul need hope in God to speak louder than turmoil today?",
       prayer: "Lord, help me hope in You while my soul is still unsettled.",
       gentleAction: "Speak one gentle truth from this Psalm to your own soul.",
       studyMethod: "Meditation",
@@ -3655,7 +3655,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     "Psalm 42:5-11": devotional(
       "Hope in God",
       "Psalm 42 speaks to a downcast soul rather than shaming it. The Psalmist remembers God, names turmoil, and calls the soul to hope again. Grief may keep speaking, but faith also learns to speak back.",
-      "What does your downcast soul need to remember about God today?",
+      "Where does your downcast soul need hope in God to speak louder than grief today?",
       "Lord, help me hope in You while my soul is still unsettled."
     ),
     "Isaiah 40:27-31": devotional(
@@ -4506,7 +4506,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         context: "Psalm 42 speaks to a soul that is downcast and in turmoil while remembering God.",
         body: "The Psalmist does not scold sadness away. He speaks to his soul and calls it toward hope while turmoil remains. Grief may keep speaking, and faith may need to answer again and again with remembrance of God.",
         observationQuestion: "What words or images show the Psalmist's inner turmoil?",
-        reflectionQuestion: "What does your downcast soul need to remember about God today?",
+        reflectionQuestion: "Where does your downcast soul need hope in God to speak louder than grief today?",
         prayer: "Lord, help me hope in You while my soul is still unsettled.",
         gentleAction: "Choose one truth about God to repeat when grief feels loud.",
         studyMethod: "OIA",

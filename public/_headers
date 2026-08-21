@@ -21,3 +21,9 @@
 
 /icon.png
   Cache-Control: public, max-age=86400
+
+/ionicons.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+/material-community-icons.ttf
+  Cache-Control: public, max-age=31536000, immutable

@@ -35,8 +35,18 @@ transpileToCjs("data/bibleLibrary.ts", "bibleLibrary.cjs", [
 const plansPath = transpileToCjs("data/bibleReadingPlans.ts", "bibleReadingPlans.cjs", [
   ['"@/data/bibleLibrary"', '"./bibleLibrary.cjs"']
 ]);
+const progressPath = transpileToCjs("data/bibleReadingPlanProgress.ts", "bibleReadingPlanProgress.cjs", [
+  ['"@/data/bibleLibrary"', '"./bibleLibrary.cjs"'],
+  ['"@/data/bibleReadingPlans"', '"./bibleReadingPlans.cjs"']
+]);
+const actionsPath = transpileToCjs("data/bibleReadingPlanActions.ts", "bibleReadingPlanActions.cjs", [
+  ['"@/data/bibleReadingPlans"', '"./bibleReadingPlans.cjs"'],
+  ['"@/data/bibleReadingPlanProgress"', '"./bibleReadingPlanProgress.cjs"']
+]);
 
-const { bibleReadingPlans } = require(plansPath);
+const { bibleReadingPlans, getBibleReadingPlanDetails } = require(plansPath);
+const { bibleReadingPlanDayKey, normalizeBibleReadingPlanProgress } = require(progressPath);
+const { followBibleReadingPlanState, completeBibleReadingPlanDayState, stopFollowingBibleReadingPlanState } = require(actionsPath);
 
 const errors = [];
 const warnings = [];
@@ -75,7 +85,8 @@ const exactTextExpectations = {
       reflectionQuestion: "When are you tempted to measure God's acceptance by your performance? How do verses 8-9 answer that temptation?"
     },
     4: {
-      reflectionQuestion: "Where are you carrying guilt or shame? How does Romans 8:1 direct you to look to Christ?"
+      reflectionQuestion: "Where are you carrying guilt or shame? How does Romans 8:1 direct you to look to Christ?",
+      gentleAction: "When guilt or shame rises, read Romans 8:1 again. Ask whether you need to receive Christ's assurance, confess honestly, make an appropriate repair, or seek trusted support."
     },
     6: {
       prayer: "Father, lead me by Your Spirit today and grow the Spirit's fruit in my life.",
@@ -85,6 +96,17 @@ const exactTextExpectations = {
       prayer: "Lord, guide me toward a faithful Christian community. Help me receive care, grow in truth, and serve others with grace."
     }
   }
+};
+const anxietyPastoralCareNote =
+  "Anxiety is not a sign that you have failed spiritually. Scripture can accompany you through worry and distress, but this plan is not a substitute for appropriate pastoral, medical, or mental-health care. If anxiety is persistent, severe, or leaves you feeling unsafe or unable to cope, contact a trusted person and suitable local support.";
+const griefPastoralCareNote =
+  "Grief is not a sign that you have failed spiritually, and it does not follow a fixed timetable. Scripture can accompany you in sorrow, but this plan is not a substitute for appropriate personal, pastoral, medical, or mental-health support. If you feel unsafe or unable to cope, contact a trusted person and suitable local support.";
+const exactCareNoteExpectations = {
+  "seven-days-peace": anxietyPastoralCareNote,
+  "fourteen-days-anxiety-trust": anxietyPastoralCareNote,
+  "anxiety-peace": anxietyPastoralCareNote,
+  "fourteen-days-grief-comfort": griefPastoralCareNote,
+  "grief-comfort": griefPastoralCareNote
 };
 const sensitivePlanIds = new Set([
   "anxiety-peace",
@@ -294,6 +316,18 @@ function checkPlan(plan) {
   if (carePlanIds.has(plan.id) && !hasText(plan.careNote)) {
     pushIssue(warnings, plan, null, "care plan does not include a plan-level pastoral care note.");
   }
+  if (exactCareNoteExpectations[plan.id]) {
+    const expectedCareNote = exactCareNoteExpectations[plan.id];
+    if (plan.careNote !== expectedCareNote) pushIssue(errors, plan, null, "plan-level pastoral care note does not match approved wording.");
+    for (const day of plan.days) {
+      if (day.careNote !== expectedCareNote) pushIssue(errors, plan, day, "day pastoral care note does not match approved plan-specific wording.");
+    }
+  }
+  for (const [label, value] of [["plan care note", plan.careNote], ...plan.days.map((day) => [`day ${day.day} care note`, day.careNote])]) {
+    if (hasText(value) && normalized(value).includes("anxiety and grief are not signs")) {
+      pushIssue(errors, plan, null, `${label} still uses the old shared anxiety/grief care wording.`);
+    }
+  }
   if (sensitivePlanIds.has(plan.id) && !hasText(plan.careNote) && plan.days.some((day) => !hasText(day.careNote))) {
     pushIssue(warnings, plan, null, "sensitive pastoral-care plan should include a plan-level or day-level care note.");
   }
@@ -303,6 +337,80 @@ function checkPlan(plan) {
     const rangeWords = ["praise", "thank", "confess", "lament", "depend", "trust", "will", "ask", "bring", "receive", "cast"];
     const found = rangeWords.filter((word) => prayerText.includes(word)).length;
     if (found < 3) pushIssue(warnings, plan, null, "prayer-focused plan may need a broader range of prayer language.");
+  }
+}
+
+function checkPreviewAndPlanActions() {
+  const appSource = fs.readFileSync(path.join(repoRoot, "app/index.tsx"), "utf8");
+  const previewButtonPattern = /Preview a complete day/;
+  const previewStatePattern = /accessibilityState=\{\{ expanded: previewOpen \}\}/;
+  const previewLabelPattern = /\$\{plan\.title\} day \$\{planDetails\.previewDay\.day\}, \$\{planDetails\.previewDay\.reference\}/;
+  const previewMutationPattern = /onPress=\{\(\) => setExpandedBiblePlanPreviews\(\(current\) => \(\{ \.\.\.current, \[plan\.id\]: !previewOpen \}\)\)\}/;
+  if (!previewButtonPattern.test(appSource)) errors.push("Plans UI: complete-day preview visible text is missing.");
+  if (!previewStatePattern.test(appSource)) errors.push("Plans UI: complete-day preview missing expanded/collapsed accessibility state.");
+  if (!previewLabelPattern.test(appSource)) errors.push("Plans UI: complete-day preview accessibility label should include plan, day, and reference.");
+  if (!previewMutationPattern.test(appSource)) errors.push("Plans UI: preview button should only toggle preview state.");
+  if (/accessibilityLabel=\{`Selected reading day/.test(appSource)) errors.push("Plans UI: selected active day is still exposed as a nested button container.");
+  if (/Pressable key=\{planDay\.day\} onPress=\{\(\) => openBibleReadingPlanDayInBible\(planDay, \"\"\)\}/.test(appSource)) {
+    errors.push("Plans UI: non-active all-reading rows still nest icon buttons inside a pressable row.");
+  }
+
+  for (const plan of bibleReadingPlans) {
+    const hasGuidance = plan.days.some(dayHasGuidedFields);
+    if (!hasGuidance) continue;
+    const previewDay = getBibleReadingPlanDetails(plan).previewDay;
+    if (!previewDay || !hasCompletePreview(previewDay)) {
+      pushIssue(errors, plan, null, "devotional plan does not expose a complete day preview.");
+    }
+  }
+
+  const samplePlan = bibleReadingPlans.find((plan) => plan.id === "anxiety-peace");
+  if (!samplePlan) {
+    errors.push("Plan action test: anxiety-peace plan missing.");
+    return;
+  }
+  const todayKey = "2026-08-22";
+  const followed = followBibleReadingPlanState({
+    planId: samplePlan.id,
+    allPlans: bibleReadingPlans,
+    followedPlanIds: [],
+    activePlanId: "",
+    startDates: {},
+    completedDayKeys: [],
+    todayKey
+  });
+  if (!followed || followed.blocked || followed.activePlanId !== samplePlan.id || followed.startDates[samplePlan.id] !== todayKey) {
+    errors.push("Plan action test: following a plan should set active plan and start date.");
+    return;
+  }
+  const stoppedBeforeProgress = stopFollowingBibleReadingPlanState({
+    planId: samplePlan.id,
+    allPlans: bibleReadingPlans,
+    followedPlanIds: followed.followedPlanIds,
+    activePlanId: followed.activePlanId
+  });
+  if (!stoppedBeforeProgress || stoppedBeforeProgress.activePlanId || stoppedBeforeProgress.followedPlanIds.includes(samplePlan.id)) {
+    errors.push("Plan action test: stopping an unstarted plan should clear active/followed state.");
+  }
+  const completed = completeBibleReadingPlanDayState({
+    plan: samplePlan,
+    planDay: samplePlan.days[0],
+    planId: samplePlan.id,
+    completedDayKeys: []
+  });
+  if (!completed?.completedDays.includes(bibleReadingPlanDayKey(samplePlan.id, 1))) {
+    errors.push("Plan action test: completing a day should add the expected completed-day key.");
+  }
+  const normalizedProgress = normalizeBibleReadingPlanProgress({
+    activePlanId: samplePlan.id,
+    followedPlanIds: [samplePlan.id],
+    completedDays: completed?.completedDays || [],
+    customPlans: [],
+    startDates: followed.startDates,
+    completedPlanDates: {}
+  });
+  if (!normalizedProgress || normalizedProgress.activePlanId !== samplePlan.id || normalizedProgress.completedDays.length !== 1) {
+    errors.push("Plan persistence test: completed plan progress should normalize for local/authenticated sync storage.");
   }
 }
 
@@ -324,6 +432,7 @@ for (const plan of bibleReadingPlans) {
     }
   }
 }
+checkPreviewAndPlanActions();
 
 console.log(`Checked ${bibleReadingPlans.length} Bible reading plans.`);
 

@@ -376,8 +376,13 @@ function devotional(
   };
 }
 
-const carePlanPastoralNote =
-  "Anxiety and grief are not signs that you have failed spiritually. Scripture can accompany you through distress, but this plan is not a substitute for appropriate pastoral, medical, or mental-health care. If you feel unsafe or unable to cope, contact a trusted person and suitable local support.";
+const anxietyPastoralCareNote =
+  "Anxiety is not a sign that you have failed spiritually. Scripture can accompany you through worry and distress, but this plan is not a substitute for appropriate pastoral, medical, or mental-health care. If anxiety is persistent, severe, or leaves you feeling unsafe or unable to cope, contact a trusted person and suitable local support.";
+
+const griefPastoralCareNote =
+  "Grief is not a sign that you have failed spiritually, and it does not follow a fixed timetable. Scripture can accompany you in sorrow, but this plan is not a substitute for appropriate personal, pastoral, medical, or mental-health support. If you feel unsafe or unable to cope, contact a trusted person and suitable local support.";
+
+const carePlanPastoralNote = anxietyPastoralCareNote;
 
 function guidedDevotional({
   title,
@@ -411,13 +416,13 @@ function guidedDevotional({
   });
 }
 
-function withPastoralCareNote(plan: BibleReadingPlan): BibleReadingPlan {
+function withPastoralCareNote(plan: BibleReadingPlan, careNote: string): BibleReadingPlan {
   return {
     ...plan,
-    careNote: plan.careNote || carePlanPastoralNote,
+    careNote: plan.careNote || careNote,
     days: plan.days.map((day) => ({
       ...day,
-      careNote: day.careNote || carePlanPastoralNote
+      careNote: day.careNote || careNote
     }))
   };
 }
@@ -3493,7 +3498,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, receive my lament and help me trust Your steadfast love.",
       gentleAction: "Write one honest 'How long?' prayer to God.",
       studyMethod: "SOAP",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Psalm 23:1-6": guidedDevotional({
       title: "Comfort from the Shepherd",
@@ -3504,7 +3509,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, restore my soul and walk with me through every valley.",
       gentleAction: "Read one line of Psalm 23 aloud as a prayer for today's grief.",
       studyMethod: "Meditation",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Psalm 34:17-22": guidedDevotional({
       title: "Near the brokenhearted",
@@ -3515,7 +3520,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, be near to me in brokenness and save me with Your mercy.",
       gentleAction: "Place your hand over your heart and pray, 'Lord, be near here.'",
       studyMethod: "OIA",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Psalm 42:5-11": guidedDevotional({
       title: "Hope in God",
@@ -3526,7 +3531,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, help me hope in You while my soul is still unsettled.",
       gentleAction: "Speak one gentle truth from this Psalm to your own soul.",
       studyMethod: "Meditation",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Psalm 46:1-7": guidedDevotional({
       title: "God is refuge",
@@ -3537,7 +3542,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "God, be my refuge and strength today. Teach me to trust Your presence more than the noise around me.",
       gentleAction: "Repeat, 'God is our refuge and strength,' slowly three times.",
       studyMethod: "COMA",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Psalm 73:23-28": guidedDevotional({
       title: "God is my portion",
@@ -3548,7 +3553,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, hold me by Your hand and be the strength of my heart.",
       gentleAction: "Name one question you cannot resolve and one truth about God you can hold.",
       studyMethod: "Inductive",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Isaiah 40:27-31": guidedDevotional({
       title: "Strength renewed",
@@ -3559,7 +3564,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Everlasting God, renew my strength as I wait for You.",
       gentleAction: "Take one slow breath and ask God for strength for the next faithful step.",
       studyMethod: "SOAP",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Isaiah 43:1-7": guidedDevotional({
       title: "Called by name",
@@ -3570,7 +3575,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Redeeming Lord, help me trust Your presence and love in the deep waters.",
       gentleAction: "Write your name beside the phrase, 'You are Mine,' as a reminder of belonging.",
       studyMethod: "OIA",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Lamentations 3:19-26": guidedDevotional({
       title: "Mercies each morning",
@@ -3581,7 +3586,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Faithful God, meet me with mercy today and teach me to wait for You.",
       gentleAction: "At the start of the day, name one mercy however small.",
       studyMethod: "Meditation",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Matthew 5:1-12": guidedDevotional({
       title: "Blessed are those who mourn",
@@ -3592,7 +3597,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord Jesus, meet my mourning with the comfort of Your kingdom.",
       gentleAction: "Let the words 'they will be comforted' become a short prayer today.",
       studyMethod: "COMA",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "John 11:32-44": guidedDevotional({
       title: "Jesus wept",
@@ -3603,7 +3608,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord Jesus, meet me in grief, strengthen my hope, and keep me near the resurrection life that is in You.",
       gentleAction: "Tell Jesus plainly what makes you weep, trusting that He is not unmoved.",
       studyMethod: "OIA",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Romans 8:18-25": guidedDevotional({
       title: "Future glory",
@@ -3614,7 +3619,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, help me wait with hope for the redemption You have promised.",
       gentleAction: "Name one present groan and one future hope from this passage.",
       studyMethod: "Inductive",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "2 Corinthians 1:3-7": guidedDevotional({
       title: "God of all comfort",
@@ -3625,7 +3630,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Father of mercies, comfort me and make me gentle with others in pain.",
       gentleAction: "Receive comfort today before trying to explain or fix everything.",
       studyMethod: "SOAP",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     }),
     "Revelation 21:1-5": guidedDevotional({
       title: "Every tear wiped away",
@@ -3636,7 +3641,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       prayer: "Lord, keep my hope fixed on the day when You wipe every tear away.",
       gentleAction: "Hold one grief before God and say, 'This will not have the last word.'",
       studyMethod: "Meditation",
-      careNote: carePlanPastoralNote
+      careNote: griefPastoralCareNote
     })
   },
   "grief-comfort": {
@@ -3969,7 +3974,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["John 14:25-27", "John", 14, "My peace I give"],
     ["Philippians 4:4-9", "Philippians", 4, "Peace that guards"],
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"]
-  ], "Care"))),
+  ], "Care")), anxietyPastoralCareNote),
   planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
     ["John 1:9-13", "John", 1, "Received as God's children", guidedDevotional({
       title: "Received before you perform",
@@ -4153,7 +4158,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         observationQuestion: "What has God done through His Son that the law could not do?",
         reflectionQuestion: "Where are you carrying guilt or shame? How does Romans 8:1 direct you to look to Christ?",
         prayer: "Father, help me stand in Christ's mercy and walk by the Spirit.",
-        gentleAction: "Pause when shame rises today and answer it with Romans 8:1.",
+        gentleAction: "When guilt or shame rises, read Romans 8:1 again. Ask whether you need to receive Christ's assurance, confess honestly, make an appropriate repair, or seek trusted support.",
         studyMethod: "SOAP"
       })],
       ["Matthew 6:5-13", "Matthew", 6, "Prayer and relationship with God", guidedDevotional({
@@ -4282,7 +4287,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8:18-25", "Romans", 8, "Future glory"],
     ["2 Corinthians 1:3-7", "2 Corinthians", 1, "God of all comfort"],
     ["Revelation 21:1-5", "Revelation", 21, "Every tear wiped away"]
-  ], "Care"))),
+  ], "Care")), griefPastoralCareNote),
   withPastoralCareNote(withCuratedDevotionals(planFromReferences("fourteen-days-anxiety-trust", "14 Days on Anxiety and Trust", "A two-week path for worry, fear, peace, and dependence on God.", [
     ["Psalm 23:1-4", "Psalms", 23, "The Shepherd is near"],
     ["Psalm 27:1-5", "Psalms", 27, "The Lord is my light"],
@@ -4298,7 +4303,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Colossians 3:12-17", "Colossians", 3, "Let peace rule"],
     ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares"],
     ["1 John 4:13-19", "1 John", 4, "Perfect love"]
-  ], "Care"))),
+  ], "Care")), anxietyPastoralCareNote),
   withCuratedDevotionals(planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
     ["Matthew 21", "Matthew", 21, "Palm Sunday"],
     ["Matthew 22", "Matthew", 22, "Questions and teaching"],
@@ -4488,7 +4493,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Lord, receive my lament and help me trust Your steadfast love in Your time.",
         gentleAction: "Write one honest sentence of lament to God.",
         studyMethod: "SOAP",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })],
       ["Psalm 34:17-22", "Psalms", 34, "Near the brokenhearted", guidedDevotional({
         title: "The Lord is near",
@@ -4499,7 +4504,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Lord, be near to me in brokenness and save me with Your mercy.",
         gentleAction: "Read verse 18 slowly and let it name God's nearness.",
         studyMethod: "Lectio Divina",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })],
       ["Psalm 42:5-11", "Psalms", 42, "Hope in God", guidedDevotional({
         title: "Speak hope to the downcast soul",
@@ -4510,7 +4515,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Lord, help me hope in You while my soul is still unsettled.",
         gentleAction: "Choose one truth about God to repeat when grief feels loud.",
         studyMethod: "OIA",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })],
       ["Isaiah 40:27-31", "Isaiah", 40, "Strength renewed", guidedDevotional({
         title: "The weary are not forgotten",
@@ -4521,7 +4526,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Everlasting God, renew my strength as I wait for You.",
         gentleAction: "Rest from one unnecessary demand today if you are able.",
         studyMethod: "COMA",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })],
       ["John 11:32-44", "John", 11, "Jesus wept", guidedDevotional({
         title: "Tears and resurrection hope",
@@ -4532,7 +4537,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Lord Jesus, meet me in grief and keep me near the resurrection life that is in You.",
         gentleAction: "If helpful, tell a trusted person one specific way grief is affecting you today.",
         studyMethod: "Inductive",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })],
       ["2 Corinthians 1:3-7", "2 Corinthians", 1, "God of all comfort", guidedDevotional({
         title: "Comfort received and shared",
@@ -4543,7 +4548,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Father of mercies, comfort me and make me gentle with others in pain.",
         gentleAction: "Receive care today before trying to be strong for everyone else.",
         studyMethod: "SOAP",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })],
       ["Revelation 21:1-5", "Revelation", 21, "Every tear wiped away", guidedDevotional({
         title: "The final comfort",
@@ -4554,13 +4559,13 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
         prayer: "Lord, keep my hope fixed on the day when You wipe every tear away.",
         gentleAction: "Let today's hope be small and honest: name one thing God will make new.",
         studyMethod: "Lectio Divina",
-        careNote: carePlanPastoralNote
+        careNote: griefPastoralCareNote
       })]
     ], "Care"),
     purpose: "To give sorrow a faithful place to speak, lament, receive comfort, and wait for the God who will make all things new.",
     bestFor: "Readers grieving loss, carrying sadness, or needing gentle Scripture without rushed emotional resolution.",
     estimatedTime: "7-12 minutes",
-    careNote: carePlanPastoralNote
+    careNote: griefPastoralCareNote
   },
   withCuratedDevotionals(planFromReferences("beginner-bible", "Beginner Bible Reading Plan", "A friendly first path through major Bible themes and stories.", [
     ["Genesis 1", "Genesis", 1],

@@ -2016,6 +2016,146 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
     prayer: "Lord, come near, renew what is broken, and make me receptive to Your word.",
     gentleAction: "Pray, 'Speak, Lord; I am listening,' before reading Scripture again.",
     studyMethod: "OIA"
+  }),
+  "Jeremiah 2-5": guidedDevotional({
+    title: "Broken cisterns",
+    context: "Jeremiah begins by bringing the Lord's covenant case against Judah for forsaking Him and chasing worthless gods.",
+    body: "The image of broken cisterns is painfully clear: God's people have left the fountain of living waters for things that cannot hold water. Jeremiah exposes spiritual adultery, injustice, and stubborn refusal to return, yet the call to repent still sounds.",
+    observationQuestion: "What images does Jeremiah use for Judah's unfaithfulness?",
+    reflectionQuestion: "What broken cistern are you tempted to trust for life, comfort, or security?",
+    prayer: "Lord, turn me from empty substitutes and draw me back to You, the fountain of living waters.",
+    gentleAction: "Name one empty substitute and answer it with a prayer of return.",
+    studyMethod: "COMA"
+  }),
+  "Jeremiah 6-9": guidedDevotional({
+    title: "Peace when there is no peace",
+    context: "Jeremiah warns of coming disaster, shallow healing, rejected correction, and grief over Judah's sin.",
+    body: "False prophets say 'peace' while wounds remain untreated. Jeremiah shows that God is not interested in soothing language that avoids repentance. These chapters invite honest grief, humble correction, and a deeper boasting only in knowing the Lord.",
+    observationQuestion: "What false assurances are exposed, and what does Jeremiah say is worth boasting in?",
+    reflectionQuestion: "Where do you need honest healing rather than words that merely soothe?",
+    prayer: "Lord, heal what is truly wounded and teach me to boast only in knowing You.",
+    gentleAction: "Ask God to show one wound or sin that needs truthful attention.",
+    studyMethod: "SOAP"
+  }),
+  "Jeremiah 10-13": guidedDevotional({
+    title: "The living God and stubborn hearts",
+    context: "Jeremiah contrasts idols with the living God and uses vivid signs to expose Judah's pride and covenant unfaithfulness.",
+    body: "Idols must be carried, but the living God made the heavens and the earth. Judah's problem is not lack of religious objects; it is a stubborn heart that will not listen. The prophet's signs show how pride ruins what was meant to cling close to the Lord.",
+    observationQuestion: "How does Jeremiah contrast idols with the Lord, and what does the ruined waistband picture?",
+    reflectionQuestion: "Where does pride keep you from clinging closely to the Lord?",
+    prayer: "Living God, humble my stubborn heart and keep me close to You.",
+    gentleAction: "Pause before defending yourself and ask whether pride is speaking.",
+    studyMethod: "OIA"
+  }),
+  "Jeremiah 14-17": guidedDevotional({
+    title: "The heart and the fountain",
+    context: "Jeremiah laments drought and judgment, warns against false prophecy, and contrasts cursed trust in man with blessed trust in the Lord.",
+    body: "Jeremiah gives one of Scripture's clearest diagnoses of the human heart: deceitful and desperately sick. But the passage also offers a better root system: the one who trusts the Lord is like a tree by water. Judgment exposes, but trust returns to the fountain of living water.",
+    observationQuestion: "What does Jeremiah say about the heart, trust, and the Lord as fountain?",
+    reflectionQuestion: "Where are you relying on human strength instead of rooting trust in the Lord?",
+    prayer: "Lord, search my heart and root my trust in You like a tree by water.",
+    gentleAction: "Pray Jeremiah 17:7-8 over one anxious or self-reliant place.",
+    studyMethod: "Meditation"
+  }),
+  "Jeremiah 18-21": guidedDevotional({
+    title: "Clay in the Potter's hands",
+    context: "The Lord sends Jeremiah to the potter's house and continues warning Judah through signs and confrontation.",
+    body: "The potter image humbles human pride without making God careless. The Lord has authority to reshape, judge, and relent according to His righteous purposes. Judah resists the word, but the image still calls for yieldedness in the hands of the Potter.",
+    observationQuestion: "What does the potter's house teach Jeremiah about the Lord's authority?",
+    reflectionQuestion: "Where do you need to become pliable rather than resistant before God's word?",
+    prayer: "Lord, You are the Potter. Make my heart yielded and responsive in Your hands.",
+    gentleAction: "Pray over one area of resistance: 'Shape this according to Your will.'",
+    studyMethod: "COMA"
+  }),
+  "Jeremiah 22-25": guidedDevotional({
+    title: "Justice, shepherds, and the righteous Branch",
+    context: "Jeremiah confronts kings and leaders, announces judgment, and promises a righteous Branch from David's line.",
+    body: "Bad shepherds scatter and exploit, but the Lord promises a righteous King who will reign wisely and execute justice. Jeremiah's warnings are severe because leadership, justice, and worship matter. Hope comes not through corrupt rulers improving themselves, but through the Lord raising the righteous Branch.",
+    observationQuestion: "What does the Lord condemn in Judah's leaders, and what future King does He promise?",
+    reflectionQuestion: "How does the promise of the righteous Branch correct your hopes for human leadership?",
+    prayer: "Righteous Branch, rule with justice and make me faithful under Your kingship.",
+    gentleAction: "Pray for leaders to act with justice and for your own influence to serve others.",
+    studyMethod: "Biblical theology"
+  }),
+  "Jeremiah 26-29": guidedDevotional({
+    title: "Faithfulness in exile",
+    context: "Jeremiah faces danger for speaking God's word and later writes to exiles, calling them to seek the welfare of the city.",
+    body: "Jeremiah 29 is often quoted for comfort, but it sits inside exile, discipline, and patient waiting. God's good plans do not remove the call to faithful presence. The exiles are to build, plant, pray, and seek the city's welfare while trusting God's promised future.",
+    observationQuestion: "What does Jeremiah tell the exiles to do while they wait?",
+    reflectionQuestion: "Where is God calling you to faithful presence rather than quick escape?",
+    prayer: "Lord, help me seek faithfulness where You have placed me while trusting Your future.",
+    gentleAction: "Pray for the welfare of your city, workplace, school, or neighbourhood.",
+    studyMethod: "OIA"
+  }),
+  "Jeremiah 30-33": guidedDevotional({
+    title: "A new covenant promised",
+    context: "These chapters gather promises of restoration, return, healing, Davidic hope, and the new covenant written on the heart.",
+    body: "Jeremiah's book is not only judgment. Here the Lord promises restoration that reaches deeper than return from exile: a new covenant, forgiven sin, and God's law written on hearts. This hope finds its fulfillment in Christ, who brings covenant mercy by His blood.",
+    observationQuestion: "What restoration promises does the Lord give, especially about the new covenant?",
+    reflectionQuestion: "How does forgiveness and a changed heart deepen your hope beyond outward improvement?",
+    prayer: "Lord, write Your word on my heart and keep me resting in Your covenant mercy.",
+    gentleAction: "Thank God specifically for forgiveness and ask for inner renewal.",
+    studyMethod: "SOAP"
+  }),
+  "Jeremiah 34-37": guidedDevotional({
+    title: "Partial obedience is not covenant faithfulness",
+    context: "Judah's leaders make and break a covenant to free servants, while Jeremiah continues warning amid political pressure.",
+    body: "These chapters show the danger of temporary obedience that collapses when pressure changes. The people release servants, then take them back. Jeremiah exposes faithfulness that is only convenient, reminding us that covenant obedience must reach beyond public gestures.",
+    observationQuestion: "What covenant action is reversed, and what does that reveal?",
+    reflectionQuestion: "Where might your obedience be temporary, convenient, or dependent on circumstances?",
+    prayer: "Lord, make my obedience sincere and steady, not merely convenient.",
+    gentleAction: "Follow through on one faithful commitment you are tempted to reverse.",
+    studyMethod: "COMA"
+  }),
+  "Jeremiah 38-41": guidedDevotional({
+    title: "Truth in the pit",
+    context: "Jeremiah is thrown into a cistern, rescued, and later witnesses the fall of Jerusalem and its aftermath.",
+    body: "Jeremiah's faithfulness does not protect him from suffering. He is lowered into mud for speaking truth, yet the Lord preserves him. The fall of Jerusalem confirms that rejected truth does not become false; God's word stands even when ignored.",
+    observationQuestion: "How is Jeremiah treated, and what happens to Jerusalem?",
+    reflectionQuestion: "Where do you need courage to stay truthful even when truth is unwanted?",
+    prayer: "Lord, keep me faithful to Your word when obedience feels costly or lonely.",
+    gentleAction: "Pray for someone who is suffering because they have told the truth.",
+    studyMethod: "OIA"
+  }),
+  "Jeremiah 42-45": guidedDevotional({
+    title: "Asking without listening",
+    context: "The remnant asks Jeremiah to seek the Lord, but they reject the answer and flee toward Egypt.",
+    body: "It is possible to ask for God's guidance while already deciding not to obey. The remnant wants confirmation, not surrender. These chapters warn against religious language that masks unbelief and call for listening that is ready to obey.",
+    observationQuestion: "What do the people ask Jeremiah to do, and how do they respond to God's answer?",
+    reflectionQuestion: "Where are you asking God for guidance while holding obedience at arm's length?",
+    prayer: "Lord, make me willing to obey before I ask You to speak.",
+    gentleAction: "Before seeking guidance, pray, 'Make me willing to hear and obey.'",
+    studyMethod: "SOAP"
+  }),
+  "Jeremiah 46-49": guidedDevotional({
+    title: "The Lord judges the nations",
+    context: "Jeremiah speaks oracles against surrounding nations, showing that the Lord's rule extends beyond Judah.",
+    body: "Judah's God is not a tribal deity. The Lord judges pride, violence, false security, and idolatry among the nations. These chapters are sobering, but they also remind us that no empire, army, or border sits outside God's moral rule.",
+    observationQuestion: "What patterns of pride, security, or judgment appear among the nations?",
+    reflectionQuestion: "How should God's rule over nations shape your prayer for the world?",
+    prayer: "Lord of the nations, humble pride, restrain evil, and bring peoples under Your righteous mercy.",
+    gentleAction: "Pray for justice and mercy in one nation facing conflict or corruption.",
+    studyMethod: "Inductive"
+  }),
+  "Jeremiah 50-52; Lamentations 1": guidedDevotional({
+    title: "Babylon falls, Jerusalem weeps",
+    context: "Jeremiah ends with judgment on Babylon and the fall of Jerusalem, then Lamentations begins with grief over the ruined city.",
+    body: "The proud oppressor is judged, but Jerusalem's grief is not skipped. Scripture gives space for both justice and lament. The fall of Babylon says evil will not last forever; Lamentations 1 teaches God's people to tell the truth about sorrow.",
+    observationQuestion: "What happens to Babylon and Jerusalem, and how does Lamentations describe the city?",
+    reflectionQuestion: "Where do you need to hold together hope for justice and honest lament?",
+    prayer: "Lord, judge evil rightly and teach me to bring sorrow honestly before You.",
+    gentleAction: "Write one sentence of lament without rushing to solve it.",
+    studyMethod: "COMA"
+  }),
+  "Lamentations 2-5": guidedDevotional({
+    title: "Mercies in the ruins",
+    context: "Lamentations grieves Jerusalem's destruction, confesses sin, and reaches for hope in the Lord's steadfast love.",
+    body: "Lamentations is not tidy comfort. It teaches prayer from inside devastation. The famous words about new mercies come surrounded by grief, which makes them deeper rather than thinner. Hope is not denial; it is turning toward the Lord whose steadfast love has not ended.",
+    observationQuestion: "What grief, confession, and hope are voiced in these chapters?",
+    reflectionQuestion: "Where do you need to pray honestly while still holding to the Lord's mercies?",
+    prayer: "Lord, great is Your faithfulness. Meet me with mercy in places that still feel ruined.",
+    gentleAction: "Pray Lamentations 3:22-24 slowly, without pretending grief is gone.",
+    studyMethod: "Meditation"
   })
 };
 

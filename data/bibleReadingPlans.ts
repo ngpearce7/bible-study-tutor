@@ -1856,6 +1856,169 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   })
 };
 
+const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras> = {
+  "Isaiah 1-5": guidedDevotional({
+    title: "The Holy One calls His people back",
+    context: "Isaiah opens by exposing Judah's rebellion, empty worship, social injustice, and the Lord's call to cleansing and repentance.",
+    body: "Isaiah begins with a wound diagnosis. God's people have religious activity, but their hearts and public life are far from Him. Yet judgment is not the only word: the Holy One calls them to reason together, be cleansed, and learn to do good.",
+    observationQuestion: "What sins does the Lord expose, and what return does He invite?",
+    reflectionQuestion: "Where might outward religion need to become repentance, justice, and renewed obedience?",
+    prayer: "Holy Lord, cleanse what is false in me and teach me to do good before You.",
+    gentleAction: "Choose one practical act of justice, mercy, or repentance today.",
+    studyMethod: "COMA"
+  }),
+  "Isaiah 6-10": guidedDevotional({
+    title: "Holy, holy, holy",
+    context: "Isaiah sees the Lord's holiness, is cleansed, and is sent into a hard ministry amid judgment and promise.",
+    body: "The prophet's calling begins with worship and cleansing. Isaiah is undone before the Holy One, yet grace touches his guilt. These chapters also hold a promised child, Immanuel hope, and warnings against fear-driven alliances.",
+    observationQuestion: "What does Isaiah see, confess, receive, and hear?",
+    reflectionQuestion: "How should God's holiness and grace reshape your readiness to obey?",
+    prayer: "Holy Lord, cleanse my lips and make me willing to go where You send.",
+    gentleAction: "Pray Isaiah's words, 'Here am I. Send me,' over one faithful step.",
+    studyMethod: "SOAP"
+  }),
+  "Isaiah 11-15": guidedDevotional({
+    title: "The righteous Branch",
+    context: "Isaiah promises a Spirit-filled ruler from Jesse's line, then turns to songs of salvation and oracles over the nations.",
+    body: "Judgment over proud nations is real, but it is not the whole horizon. Isaiah sees a righteous King who will rule with justice and bring peace beyond human ability. God's salvation becomes a song because His rule is both holy and hopeful.",
+    observationQuestion: "What kind of ruler is promised, and what future peace is described?",
+    reflectionQuestion: "Where do you need hope in Christ's righteous reign rather than trust in human power?",
+    prayer: "Righteous King, rule with wisdom, justice, and peace in me and in Your world.",
+    gentleAction: "Pray for one place where Christ's justice and peace are needed.",
+    studyMethod: "Biblical theology"
+  }),
+  "Isaiah 16-19": guidedDevotional({
+    title: "Mercy beyond borders",
+    context: "Isaiah speaks oracles concerning Moab, Damascus, Cush, and Egypt, showing the Lord's authority over all nations.",
+    body: "The prophets are not only interested in Israel's private spirituality. The Lord rules over nations, pride, fear, oppression, and false worship. Even Egypt's oracle contains surprising hope that former enemies may know and worship the Lord.",
+    observationQuestion: "What judgments are named, and what surprising hope appears for Egypt?",
+    reflectionQuestion: "How does God's concern for the nations enlarge your prayers and expectations?",
+    prayer: "Lord of all nations, humble pride, heal enemies, and draw peoples to worship You.",
+    gentleAction: "Pray for a nation or people group beyond your own.",
+    studyMethod: "OIA"
+  }),
+  "Isaiah 20-23": guidedDevotional({
+    title: "When human security fails",
+    context: "Isaiah gives signs and oracles against nations and cities that trust power, wealth, alliances, or reputation.",
+    body: "These chapters unsettle false security. Egypt, Cush, Babylon, Edom, Arabia, Jerusalem, and Tyre all show that human strength cannot become ultimate refuge. The Lord exposes what people trust so they might return to Him as true security.",
+    observationQuestion: "What sources of security are exposed as fragile in these chapters?",
+    reflectionQuestion: "What earthly security are you tempted to treat as stronger than the Lord?",
+    prayer: "Lord, loosen my trust in fragile things and teach me to find refuge in You.",
+    gentleAction: "Name one false security and answer it with a truth about God.",
+    studyMethod: "COMA"
+  }),
+  "Isaiah 24-27": guidedDevotional({
+    title: "Judgment and the feast of salvation",
+    context: "Isaiah widens the view to worldwide judgment, songs of trust, and the Lord's promised feast where death is swallowed up.",
+    body: "Isaiah does not minimize judgment, but he also gives a breathtaking vision of salvation. The Lord will swallow up death, wipe away tears, and provide a feast for all peoples. Hope is not escape from holiness; it is salvation through the holy God who reigns.",
+    observationQuestion: "What judgment is described, and what salvation does the Lord promise?",
+    reflectionQuestion: "Which promise in these chapters strengthens your hope beyond present trouble?",
+    prayer: "Lord, keep my hope fixed on Your victory over death and Your promised salvation.",
+    gentleAction: "Carry Isaiah 25:8 as a sentence of hope today.",
+    studyMethod: "Meditation"
+  }),
+  "Isaiah 28-31": guidedDevotional({
+    title: "A sure foundation",
+    context: "Isaiah confronts pride, false refuge, empty counsel, and reliance on Egypt rather than quiet trust in the Lord.",
+    body: "The Lord exposes lies that people use as shelter. Against unstable refuge, He promises a precious cornerstone, a sure foundation. The call is not frantic self-rescue but returning, rest, quietness, and trust in the Lord.",
+    observationQuestion: "What false refuges are exposed, and what true foundation is promised?",
+    reflectionQuestion: "Where are you tempted to seek frantic rescue rather than quiet trust?",
+    prayer: "Lord, be my sure foundation and teach me the strength of quiet trust.",
+    gentleAction: "Before acting from panic, pause and pray Isaiah 30:15 in your own words.",
+    studyMethod: "SOAP"
+  }),
+  "Isaiah 32-35": guidedDevotional({
+    title: "The wilderness will blossom",
+    context: "Isaiah looks toward righteous rule, the Spirit poured out, judgment on evil, and restoration pictured as a blossoming wilderness.",
+    body: "The prophets often move from devastation to restoration. Isaiah promises a future where righteousness brings peace, the weak are strengthened, and the redeemed return with singing. The Lord's salvation renews both people and creation.",
+    observationQuestion: "What changes when righteousness, the Spirit, and redemption are described?",
+    reflectionQuestion: "Where do you need courage from the promise that the Lord will renew what is barren?",
+    prayer: "Lord, strengthen weak hands, steady fearful hearts, and make barren places blossom by Your grace.",
+    gentleAction: "Encourage one weary person with a hope rooted in God's promise.",
+    studyMethod: "OIA"
+  }),
+  "Isaiah 36-39": guidedDevotional({
+    title: "Trust under threat",
+    context: "Jerusalem faces Assyrian intimidation, Hezekiah prays, the Lord delivers, and later Hezekiah stumbles through pride.",
+    body: "The Assyrian threat is loud, public, and frightening, but Hezekiah brings the letter before the Lord. Deliverance comes by God's zeal, not Judah's strength. Yet the later pride with Babylon warns that yesterday's faithfulness does not remove today's need for humility.",
+    observationQuestion: "How does Hezekiah respond to threat, and where does he later fail?",
+    reflectionQuestion: "What threat needs to be spread before the Lord, and what pride needs watching?",
+    prayer: "Lord, teach me to bring threats to You and remain humble after mercy.",
+    gentleAction: "Write one pressure as a prayer and place it before God.",
+    studyMethod: "COMA"
+  }),
+  "Isaiah 40-43": guidedDevotional({
+    title: "Comfort for weary people",
+    context: "Isaiah announces comfort, the greatness of God, the servant of the Lord, and redemption through waters and fire.",
+    body: "After judgment, the Lord speaks comfort. He is Creator, Shepherd, incomparable King, and Redeemer. His people are weak, but He gives strength; they pass through waters and fire, but they are called by name and belong to Him.",
+    observationQuestion: "What names, actions, and promises reveal God's comfort and greatness?",
+    reflectionQuestion: "Which promise do you most need as a weary or fearful person today?",
+    prayer: "Lord, renew my strength and help me remember that I am Yours.",
+    gentleAction: "Read Isaiah 43:1 slowly and insert your name as a reminder of belonging.",
+    studyMethod: "Meditation"
+  }),
+  "Isaiah 44-47": guidedDevotional({
+    title: "No other God",
+    context: "Isaiah contrasts the living Lord with powerless idols and announces God's sovereign purpose through Cyrus.",
+    body: "Idols are exposed as human-made and unable to save. The Lord alone creates, redeems, names the future, and carries His purposes forward. These chapters invite worshipful confidence in the God who is not managed by human hands.",
+    observationQuestion: "How are idols described, and how is the Lord described differently?",
+    reflectionQuestion: "What modern idol promises control, comfort, or identity but cannot save?",
+    prayer: "Lord, turn my heart from lifeless idols to You, the living Redeemer.",
+    gentleAction: "Name one false source of trust and consciously refuse its claim today.",
+    studyMethod: "Inductive"
+  }),
+  "Isaiah 48-51": guidedDevotional({
+    title: "Listen to the Redeemer",
+    context: "The Lord confronts stubbornness, calls His people to listen, and reveals His servant as light to the nations.",
+    body: "God's redemption includes correction. He calls His people out of stubbornness and into attentive trust. The servant's mission reaches beyond Israel to the nations, showing that God's salvation is larger than His people's small expectations.",
+    observationQuestion: "What does the Lord ask His people to hear, remember, and trust?",
+    reflectionQuestion: "Where might stubbornness be keeping you from listening to the Lord's redeeming word?",
+    prayer: "Redeemer, open my ears and make me responsive to Your voice.",
+    gentleAction: "Pause before one decision and ask, 'Am I listening or resisting?'",
+    studyMethod: "OIA"
+  }),
+  "Isaiah 52-55": guidedDevotional({
+    title: "The Servant and the invitation",
+    context: "Isaiah announces good news, describes the suffering Servant, and invites the thirsty to come and receive mercy.",
+    body: "These chapters stand near the heart of Isaiah's hope. The Servant is pierced for transgressions and bears iniquity, yet His work leads to peace and healing. Because of Him, the invitation goes out freely: come, listen, seek the Lord, receive mercy.",
+    observationQuestion: "What does the Servant suffer, and what invitation follows in Isaiah 55?",
+    reflectionQuestion: "How does the Servant's costly mercy make the free invitation more beautiful?",
+    prayer: "Lord Jesus, thank You for bearing sin and inviting the thirsty to come.",
+    gentleAction: "Answer Isaiah 55:1 in prayer: tell the Lord where you are thirsty.",
+    studyMethod: "SOAP"
+  }),
+  "Isaiah 56-59": guidedDevotional({
+    title: "A house of prayer and a need for rescue",
+    context: "Isaiah speaks of welcome for outsiders, true fasting, justice, sin, and the Lord's own arm bringing salvation.",
+    body: "The Lord's salvation creates a people marked by worship, justice, mercy, and truth. Yet Isaiah also exposes deep sin: hands, words, and paths are corrupt. The hope is that the Lord Himself sees, acts, and brings redemption.",
+    observationQuestion: "What kind of worship and justice does the Lord desire, and what sin does He expose?",
+    reflectionQuestion: "Where should worship become mercy, justice, and truthful living?",
+    prayer: "Lord, make my worship true and rescue what sin has made crooked.",
+    gentleAction: "Practice one concrete mercy that matches your prayers.",
+    studyMethod: "COMA"
+  }),
+  "Isaiah 60-63": guidedDevotional({
+    title: "Glory, good news, and the anointed one",
+    context: "Isaiah looks toward Zion's glory, the anointed messenger of good news, and the Lord's final victory.",
+    body: "Light rises where darkness covered the people. The anointed one brings good news to the poor, comfort to mourners, and freedom to captives. Jesus later takes Isaiah 61 upon His own lips, showing that this hope finds its center in Him.",
+    observationQuestion: "What images of light, restoration, good news, and justice appear?",
+    reflectionQuestion: "Where do you need Christ's good news to bring restoration rather than mere optimism?",
+    prayer: "Anointed Savior, bring good news, freedom, comfort, and righteousness where I am poor and needy.",
+    gentleAction: "Read Isaiah 61:1-3 and name the promise you most need today.",
+    studyMethod: "Biblical theology"
+  }),
+  "Isaiah 64-66; Jeremiah 1": guidedDevotional({
+    title: "Longing, judgment, and a prophet called",
+    context: "Isaiah ends with longing for God to act, warnings of judgment, new creation hope, and Jeremiah begins with a prophet set apart.",
+    body: "The transition from Isaiah to Jeremiah keeps the prophetic tension alive: longing for God, exposure of sin, promised renewal, and a servant called to speak God's word. Jeremiah's call reminds us that God's word continues to confront and heal through reluctant messengers.",
+    observationQuestion: "What longings and warnings close Isaiah, and what does God say to Jeremiah?",
+    reflectionQuestion: "Where do you need both longing for renewal and courage to receive God's confronting word?",
+    prayer: "Lord, come near, renew what is broken, and make me receptive to Your word.",
+    gentleAction: "Pray, 'Speak, Lord; I am listening,' before reading Scripture again.",
+    studyMethod: "OIA"
+  })
+};
+
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-life-of-jesus": lifeOfJesusDevotionals,
   "life-of-jesus": lifeOfJesusDevotionals,
@@ -1867,6 +2030,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "chronological-overview": chronologicalOverviewDevotionals,
   "acts-early-church": actsEarlyChurchDevotionals,
   "pauls-letters-overview": paulsLettersOverviewDevotionals,
+  "major-prophets-overview": majorProphetsOverviewDevotionals,
   "seven-days-prayer": {
     "Matthew 6:5-13": devotional(
       "Pray to your Father",
@@ -3188,7 +3352,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   oneChapterPerDayPlan("proverbs-31", "Proverbs in 31 Days", "Read one chapter of Proverbs each day.", "Proverbs", 31, "Wisdom"),
   buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels"),
   buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study"),
-  buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"),
+  withCuratedDevotionals(buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview")),
   withCuratedDevotionals(buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament")),
   withCuratedDevotionals(buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament")),
   withCuratedDevotionals(planFromReferences("life-of-david", "Life of David", "Trace David's calling, courage, failure, repentance, and worship.", [

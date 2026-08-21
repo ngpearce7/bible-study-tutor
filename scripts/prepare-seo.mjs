@@ -3578,8 +3578,6 @@ const generatedJournalExamplesByPath = {
 };
 
 mkdirSync(publicDir, { recursive: true });
-copyFileSync(join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "Ionicons.ttf"), join(publicDir, "ionicons.ttf"));
-copyFileSync(join(process.cwd(), "node_modules", "@expo", "vector-icons", "build", "vendor", "react-native-vector-icons", "Fonts", "MaterialCommunityIcons.ttf"), join(publicDir, "material-community-icons.ttf"));
 copyFileSync(join(process.cwd(), "assets", "icon.png"), join(publicDir, "icon.png"));
 copyFileSync(join(process.cwd(), "assets", "favicon.png"), join(publicDir, "favicon.png"));
 copyFileSync(join(process.cwd(), "assets", "apple-touch-icon.png"), join(publicDir, "apple-touch-icon.png"));

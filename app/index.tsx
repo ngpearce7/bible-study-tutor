@@ -1055,22 +1055,24 @@ export default function Home() {
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     let cancelled = false;
-
-    Ionicons.loadFont()
-      .then(async () => {
-        const browserFonts = typeof document !== "undefined" ? document.fonts : null;
-        if (browserFonts?.load) {
-          await browserFonts.load("16px ionicons").catch(() => undefined);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setIconFontReady(true);
-        }
-      });
+    const timer = window.setTimeout(() => {
+      Ionicons.loadFont()
+        .then(async () => {
+          const browserFonts = typeof document !== "undefined" ? document.fonts : null;
+          if (browserFonts?.load) {
+            await browserFonts.load("16px ionicons").catch(() => undefined);
+          }
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setIconFontReady(true);
+          }
+        });
+    }, 250);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, []);
 

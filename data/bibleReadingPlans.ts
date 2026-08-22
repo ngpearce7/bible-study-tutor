@@ -3488,7 +3488,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "seven-days-peace": {
     "Psalm 4:6-8": guidedDevotional({
       title: "Sleep in the Lord's care",
-      context: "David speaks to God while many are asking who will show them good. His confidence rests in the Lord's face, joy, safety, and care.",
+      context: "Psalm 4 is a Davidic evening prayer spoken under pressure, where public anxiety asks who will show any good. David's confidence rests in the Lord hearing, lifting the light of His face, giving deeper joy than abundance, and making His servant dwell in safety.",
       body: "Psalm 4 does not promise that every outward pressure has disappeared by bedtime. It shows a heart learning to rest because the Lord Himself gives safety. Peace here is not denial; it is trust that can lie down under God's care even before every circumstance changes.",
       observationQuestion: "What does David ask from the Lord, and what allows him to lie down in peace?",
       reflectionQuestion: "What concern is keeping your heart awake before God?",
@@ -4614,7 +4614,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Psalm 46:1-7", "Psalms", 46, "God is refuge", guidedDevotional({
         title: "Refuge when things shake",
-        context: "The Psalm names instability in creation and nations, then anchors hope in God's presence with His people.",
+        context: "Psalm 46 is a communal Song of Zion that names instability in creation and nations, then anchors hope in the Lord of hosts who is with His people. The refuge language is not a promise that trouble is imaginary, but a confession that God's presence is stronger than what shakes.",
         body: "This passage does not ask you to pretend life is quiet. It teaches that God is refuge and strength in trouble. Peace here is not denial; it is being held by the God who is present when circumstances feel loud.",
         observationQuestion: "What shaking does the Psalm describe, and what does it say about God?",
         reflectionQuestion: "What feels loud today, and what is truer about God than that noise?",

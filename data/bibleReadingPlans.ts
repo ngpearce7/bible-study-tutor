@@ -2744,7 +2744,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "prayer-dependence": {
     "Matthew 6:9-13": guidedDevotional({
       title: "Pray as a child of the Father",
-      context: "Jesus teaches His disciples to pray with God first: His name, His kingdom, and His will, then daily needs, forgiveness, and deliverance.",
+      context: "Jesus teaches the Lord's Prayer within the Sermon on the Mount, where hidden devotion before the Father is contrasted with religious performance. The prayer begins with God's name, kingdom, and will before bringing daily bread, forgiveness, temptation, and deliverance to Him.",
       body: "The Lord's Prayer trains dependence without performance. It begins with the Father, not with frantic need. Daily bread, forgiveness, and rescue are brought into relationship with the One whose name is holy and whose kingdom is coming.",
       observationQuestion: "What requests are directed toward God first, and what needs are then brought to Him?",
       reflectionQuestion: "Which phrase of the Lord's Prayer most needs to shape your dependence today?",
@@ -2754,7 +2754,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Luke 11:5-13": guidedDevotional({
       title: "Ask the generous Father",
-      context: "After teaching prayer, Jesus encourages persistence by pointing to human asking and the Father's greater goodness.",
+      context: "After teaching His disciples to pray, Jesus uses a midnight request and parent-child comparison to encourage persistence. The point is not that God is reluctant, but that the Father is better than flawed human givers and gives the Holy Spirit to those who ask.",
       body: "The heart of this passage is not that God is reluctant and must be worn down. Jesus points beyond imperfect human generosity to the Father's goodness, especially His gift of the Holy Spirit. Dependence grows when you ask from trust rather than suspicion.",
       observationQuestion: "What does Jesus say the Father gives, and how does He compare the Father to human parents?",
       reflectionQuestion: "Where are you hesitant to ask because you doubt the Father's goodness?",
@@ -2764,7 +2764,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 23:1-6": guidedDevotional({
       title: "The Lord provides",
-      context: "David confesses the Lord as Shepherd across rest, restoration, guidance, danger, provision, mercy, and dwelling with God.",
+      context: "Psalm 23 is David's confession of the Lord as Shepherd, not a promise that need or danger will never appear. The Shepherd leads, restores, guides, comforts, provides, and keeps His people near from green pastures through the valley and toward dwelling with Him.",
       body: "Psalm 23 turns dependence into worship. David's confidence is not that need never appears, but that the Shepherd meets him in every season. The Lord's care is personal, steady, and generous enough for green pastures, dark valleys, and the house of the Lord.",
       observationQuestion: "What does the Shepherd provide or do across this Psalm?",
       reflectionQuestion: "Which need can you bring to the Shepherd instead of managing alone?",
@@ -2774,7 +2774,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46:1-11": guidedDevotional({
       title: "Be still before the God who reigns",
-      context: "Psalm 46 names trouble, shaking, conflict, and noise, but repeats that God is refuge and present with His people.",
+      context: "Psalm 46 is a Korahite Song of Zion that names shaking creation, raging nations, and human striving. Its repeated confidence is that the Lord of hosts is with His people. Being still is a summons to cease striving before God's rule, not a denial of trouble.",
       body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Dependence becomes worship when pressure is brought before the God who reigns.",
       observationQuestion: "What trouble is named, and what is repeated about God?",
       reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
@@ -2784,7 +2784,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Philippians 4:4-7": guidedDevotional({
       title: "Pray with thanksgiving",
-      context: "Paul writes from hardship and calls believers to rejoice, be gentle, and bring requests to God with thanksgiving.",
+      context: "Paul writes Philippians from hardship and addresses a community learning joy, gentleness, unity, and endurance in Christ. The call to pray with thanksgiving is not a demand for effortless calm; it is an invitation to bring real requests to God so His peace guards hearts and minds in Christ.",
       body: "Thanksgiving does not erase need; it remembers God's faithfulness while need is being named. The promised peace guards hearts and minds in Christ, not apart from Him. Dependence means bringing requests to God rather than letting them rule unspoken.",
       observationQuestion: "What does Paul tell believers to do with their requests?",
       reflectionQuestion: "What request can you bring to God today with honest need and real thanksgiving?",
@@ -2794,7 +2794,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "James 1:5-8": guidedDevotional({
       title: "Ask God for wisdom",
-      context: "James writes about trials and steadfastness, then invites those who lack wisdom to ask the generous God.",
+      context: "James writes to scattered believers facing trials and teaches that steadfastness grows through testing. In that pressure, wisdom is needed for faithful endurance, so James invites anyone lacking wisdom to ask the generous God rather than react from divided trust.",
       body: "This is dependence in decision-making: not pretending to know, not wavering between self-rule and trust, but asking the Lord for wisdom to endure faithfully. God is not stingy with wisdom. He gives generously to those who come to Him.",
       observationQuestion: "What does James say to do when wisdom is lacking?",
       reflectionQuestion: "Where do you need wisdom more than control?",
@@ -2804,7 +2804,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "1 Peter 5:6-11": guidedDevotional({
       title: "Cast your cares",
-      context: "Peter speaks to humbled believers under pressure, calling them to cast anxieties on God while remaining watchful and hopeful.",
+      context: "Peter writes to believers under pressure and calls them to humble themselves under God's mighty hand. Casting anxieties on God sits beside sober watchfulness and hope in the God of all grace, so dependence is neither panic nor passivity but trust under His care.",
       body: "Dependence does not make you careless; the same passage calls for sober watchfulness. You can be alert without being ruled by fear because God cares for you, and the God of all grace will restore, confirm, strengthen, and establish His people.",
       observationQuestion: "What does Peter connect with humility, watchfulness, suffering, and God's care?",
       reflectionQuestion: "What care needs to be cast on God rather than carried as though it belongs to you alone?",
@@ -3100,7 +3100,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "romans-road": {
     "Romans 1": guidedDevotional({
       title: "Human need before God",
-      context: "Romans opens with the gospel of God concerning His Son, then shows why humanity needs that gospel.",
+      context: "Romans opens with the gospel of God concerning His Son, promised beforehand and declared in power through the resurrection. Paul then begins to show why humanity needs that gospel: created people exchange God's truth for lies and worship created things rather than the Creator.",
       body: "Paul does not begin with a shallow problem. He shows that the human heart exchanges the truth of God for lies and worships created things rather than the Creator. The gospel is good news because it meets a real need: people need rescue, righteousness, and mercy before God.",
       observationQuestion: "What exchanges does Paul describe in this chapter?",
       reflectionQuestion: "Where does this chapter expose the danger of worshiping created things instead of the Creator?",
@@ -3110,7 +3110,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 3": guidedDevotional({
       title: "Righteousness through faith",
-      context: "After showing that both Jews and Gentiles are under sin, Paul announces God's righteousness revealed through faith in Jesus Christ.",
+      context: "Romans 3 gathers Paul's argument that both Jews and Gentiles are under sin and unable to boast before God. Into that honest diagnosis, Paul announces God's righteousness through faith in Jesus Christ, justification by grace, and redemption in Christ.",
       body: "Romans 3 brings honest diagnosis and glorious grace together. All have sinned and fall short of God's glory, yet God justifies by His grace through the redemption in Christ Jesus. The gospel does not minimize sin; it reveals God's righteous mercy in Christ.",
       observationQuestion: "What does Paul say about all people, and what does God provide through Christ?",
       reflectionQuestion: "How does grace become more precious when sin is named honestly?",
@@ -3120,7 +3120,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 5": guidedDevotional({
       title: "Peace with God",
-      context: "Paul explains what follows from justification by faith and contrasts Adam's trespass with Christ's gracious gift.",
+      context: "Romans 5 follows Paul's teaching that Abraham was justified by faith, then explains what justification brings: peace with God, access to grace, hope, and love poured out by the Spirit. Paul also contrasts Adam's trespass with Christ's greater gracious gift.",
       body: "The gospel gives more than a fresh start; it gives peace with God through Jesus Christ. God's love is shown in Christ dying for sinners, not for people who had already made themselves worthy. Grace is stronger than the ruin sin brought.",
       observationQuestion: "What blessings does Paul connect with being justified by faith?",
       reflectionQuestion: "Where do you need peace with God to steady your heart today?",
@@ -3130,7 +3130,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 6": guidedDevotional({
       title: "Alive to God",
-      context: "Paul answers the question of whether grace means continuing in sin and points believers to union with Christ's death and resurrection.",
+      context: "Romans 6 answers the question of whether grace means continuing in sin. Paul points believers to union with Christ in His death and resurrection, showing that grace does not leave people enslaved but calls them to live as those alive to God.",
       body: "Grace does not leave believers enslaved to sin. Those united to Christ are to consider themselves dead to sin and alive to God. New life is not self-improvement with religious language; it is resurrection-shaped belonging to Christ.",
       observationQuestion: "What does Paul say has happened to believers in relation to Christ's death and life?",
       reflectionQuestion: "What old slavery needs to hear that you belong to Christ now?",
@@ -3140,7 +3140,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 8": guidedDevotional({
       title: "Life in the Spirit",
-      context: "Romans 8 describes no condemnation, life by the Spirit, adoption, suffering, hope, intercession, and God's inseparable love.",
+      context: "Romans 8 follows Paul's description of the struggle with sin and opens with no condemnation for those in Christ. The chapter moves through life by the Spirit, adoption, suffering and hope, intercession, God's purpose, and inseparable love in Christ.",
       body: "The gospel brings assurance deep enough for real struggle. There is no condemnation in Christ, the Spirit bears witness that believers are God's children, and nothing can separate God's people from His love in Christ Jesus. Hope does not deny suffering; it holds suffering inside God's saving purpose.",
       observationQuestion: "What assurances does Paul give to those who are in Christ?",
       reflectionQuestion: "Which promise in Romans 8 most needs to answer fear, shame, or suffering today?",
@@ -3150,7 +3150,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 10": guidedDevotional({
       title: "Call on the Lord",
-      context: "Paul speaks of righteousness by faith, confessing Jesus as Lord, believing God raised Him, and calling on Him.",
+      context: "Romans 10 sits within Paul's grief and hope for Israel and his contrast between pursuing righteousness by law and receiving righteousness by faith. The word is near: confess Jesus as Lord, believe God raised Him, and call on Him.",
       body: "The gospel is not hidden behind impossible achievement. Paul says the word is near: confess with your mouth that Jesus is Lord and believe in your heart that God raised Him from the dead. Salvation rests on Christ and is received by faith that calls on Him.",
       observationQuestion: "What does Paul say about confessing, believing, and calling on the Lord?",
       reflectionQuestion: "Where do you need to trust Jesus as Lord rather than lean on your own righteousness or control?",
@@ -3160,7 +3160,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 12": guidedDevotional({
       title: "A life of mercy",
-      context: "After unfolding God's mercy in Christ, Paul calls believers to offer themselves to God and live transformed lives.",
+      context: "Romans 12 turns from Paul's extended exposition of God's mercy in Christ to the shape of a transformed life. Believers offer themselves to God, resist conformity to the age, discern His will, and live out humble, practical love in the body of Christ.",
       body: "Romans Road does not end with information. Because of God's mercies, believers offer themselves to God, resist being conformed to the world, and learn transformed love. The gospel creates worship, humility, service, patience, hospitality, peace, and practical love.",
       observationQuestion: "What kinds of transformed living does Paul describe?",
       reflectionQuestion: "Where should God's mercy become visible in your ordinary life?",
@@ -3172,7 +3172,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "wisdom-decisions": {
     "Proverbs 1:1-7": guidedDevotional({
       title: "Begin with the fear of the Lord",
-      context: "Proverbs opens by naming its purpose and placing the fear of the Lord at the beginning of knowledge.",
+      context: "Proverbs opens by naming its purpose: wisdom, instruction, understanding, righteousness, justice, prudence, and discretion. The fear of the Lord is the beginning of knowledge, so wise decisions begin with reverence and teachability before God, not technique alone.",
       body: "Wise decisions do not begin with technique alone. They begin with reverence for the Lord, humility, and willingness to receive instruction. The fool refuses wisdom because pride will not listen, but the wise become teachable before God.",
       observationQuestion: "What does Proverbs say its wisdom is for?",
       reflectionQuestion: "Where do you need reverence and teachability before making a decision?",
@@ -3182,7 +3182,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Proverbs 2:1-11": guidedDevotional({
       title: "Search for wisdom",
-      context: "Proverbs 2 describes wisdom as both a gift from the Lord and something to seek diligently.",
+      context: "Proverbs 2 addresses wisdom as both God's gift and a diligent pursuit. The learner is told to receive, treasure, call out, seek, and search, while remembering that the Lord gives wisdom and guards the path of those who walk uprightly.",
       body: "Decision-making wisdom is not passive. The Lord gives wisdom, and the wise receive, treasure, call out, seek, and search. This keeps us dependent and engaged: we ask God while also paying careful attention to His ways.",
       observationQuestion: "What actions does the passage call for, and what does the Lord promise to give?",
       reflectionQuestion: "What decision needs patient seeking rather than a rushed answer?",
@@ -3202,7 +3202,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Proverbs 16:1-9": guidedDevotional({
       title: "Commit your way",
-      context: "Proverbs 16 holds human plans and the Lord's sovereign direction together.",
+      context: "Proverbs 16 gathers sayings about plans, motives, speech, justice, kingship, humility, and the Lord's sovereign direction. It neither forbids planning nor lets human plans become ultimate; wisdom commits work to the Lord while receiving His right to establish steps.",
       body: "Wisdom neither refuses planning nor pretends plans control everything. A person may make plans, weigh motives, and commit work to the Lord, but the Lord establishes steps. This gives freedom to plan humbly and walk dependently.",
       observationQuestion: "What does the passage say belongs to people, and what belongs to the Lord?",
       reflectionQuestion: "What plan needs to be committed to the Lord with humility?",
@@ -3212,7 +3212,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "James 1:5-8": guidedDevotional({
       title: "Ask God for wisdom",
-      context: "James speaks to believers under trial and invites anyone lacking wisdom to ask the generous God.",
+      context: "James speaks to believers facing trials and teaches that testing can produce steadfastness. In that setting, wisdom is not abstract advice but faithful discernment under pressure, received from the generous God by a heart that trusts Him rather than wavering.",
       body: "Wisdom is needed when pressure makes reactions quick and trust thin. James points to God, who gives generously without reproach. Asking for wisdom is not weakness; it is faith turning toward the One who knows the faithful path.",
       observationQuestion: "What does James say God is like toward those who ask?",
       reflectionQuestion: "Where do you need to ask before reacting?",
@@ -3232,7 +3232,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 25:4-10": guidedDevotional({
       title: "Teach me Your paths",
-      context: "David asks the Lord to make His ways known, lead him in truth, remember mercy, and guide the humble.",
+      context: "Psalm 25 is a Davidic prayer that joins guidance with trust, confession, mercy, covenant love, and humility. David asks the Lord to make His ways known and lead him in truth, showing that biblical guidance is relational formation, not merely getting an answer.",
       body: "Wisdom for decisions is ultimately a request to be led by the Lord. Psalm 25 joins guidance with mercy, humility, covenant love, and truth. The prayer is not only, 'Show me what to do,' but 'Teach me Your paths.'",
       observationQuestion: "What does David ask the Lord to teach, lead, remember, and do?",
       reflectionQuestion: "What decision needs to become a prayer for God's path, not only God's answer?",

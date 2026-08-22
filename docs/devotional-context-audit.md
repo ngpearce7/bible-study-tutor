@@ -124,7 +124,19 @@ The previous context-padding mechanism has been removed from `data/bibleReadingP
 
 The affected inventory contained 239 guided-devotional rows across 13 plans: Major Prophets Overview, Acts and the Early Church, Paul's Letters Overview, Life of David, Life of Moses, 14 Days on the Life of Jesus, 14 Days on Faith, 14 Days on Grief and Comfort, Holy Week / Passion Week, Advent readings, Easter / Resurrection readings, Life of Jesus, and Chronological Bible Overview. These rows were expanded directly in source data with passage-specific setting rather than with a shared suffix.
 
-Validation now fails if the deleted padding symbol or sentence reappears, if guided devotionals fall below the context threshold, or if a large repeated context suffix suggests boilerplate padding has returned. The duplicate-context report permits explicitly allowlisted reuse only for the same passage where the same curated devotional is intentionally shared across plans.
+Validation now fails if the deleted padding symbol or sentence reappears, if guided devotionals fall below the context threshold, if a large repeated context suffix suggests boilerplate padding has returned, or if any complete guided devotional repeats the exact same context text. Shared passages that appear in multiple plans now receive plan-specific context wording where needed instead of relying on duplicate context reuse.
+
+## Independent Audit Follow-up
+
+An independent runtime audit after the first padding-removal pass found that the automated checks were green but several complete guided devotionals still read like replacement boilerplate. This follow-up corrected those source-level issues without weakening validation, adding filler text, or reclassifying devotionals.
+
+Changes made in response:
+
+- Rewrote repeated source-context families in Major Prophets Overview, Acts and the Early Church, Life of David, Life of Moses, 14 Days on the Life of Jesus, 14 Days on Faith, 14 Days on Grief and Comfort, Holy Week / Passion Week, Advent readings, Easter / Resurrection readings, Life of Jesus, and Chronological Bible Overview.
+- Replaced the flagged Psalm 46 grief-plan override with wording that preserves the psalm's Zion/nations setting instead of using a generic grief-comfort template.
+- Added explicit plan-specific context overrides for repeated passages that legitimately appear across multiple plans, including Life of Jesus, Holy Week, Advent, Easter, Chronological Bible Overview, and Anxiety and Peace. These are applied as a final built-in-plan content safeguard so runtime content remains unique.
+- Tightened `scripts/validate-reading-plans.mjs` so duplicate complete guided-devotional contexts are blocking errors. The old same-reference duplicate allowance was removed.
+- Confirmed the known audit phrases are absent from `data`, `scripts`, `docs`, `app`, and `components`.
 
 ## Reviewed In This Pass
 
@@ -443,7 +455,7 @@ Validation now fails if the deleted padding symbol or sentence reappears, if gui
 
 The following areas still need future review before claiming every possible reading experience has been audited:
 
-- 0 guidance-bearing days currently have no context field, and 601 have context below the 160-character review threshold. The remaining flags are short-context items in complete guided devotionals, so the next pass should focus on fuller source-backed context for those entries.
+- 0 guidance-bearing days currently have no context field, and 0 complete guided devotionals are below the 160-character review threshold.
 - Future unique devotional writing for long whole-Bible plans, if those plans ever move beyond generated book-section guidance.
 - Future custom plans created by users, which are outside built-in editorial control.
 

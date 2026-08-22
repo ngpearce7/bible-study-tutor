@@ -83,34 +83,6 @@ const contextReviewRows = [];
 const duplicateContextRows = [];
 const contextTextsByNormalizedValue = new Map();
 const contextSuffixesByValue = new Map();
-const explicitSharedContextAllowlist = new Set([
-  "Luke 2",
-  "Matthew 3",
-  "Matthew 4",
-  "Matthew 5",
-  "Mark 2",
-  "Luke 15",
-  "John 11",
-  "John 13",
-  "John 17",
-  "Matthew 26",
-  "John 19",
-  "John 20",
-  "Genesis 12",
-  "Exodus 12",
-  "1 Samuel 16",
-  "2 Samuel 7",
-  "Isaiah 53",
-  "Acts 2",
-  "Acts 4",
-  "Matthew 6:25-34",
-  "Matthew 11:28-30",
-  "John 14:25-27",
-  "Philippians 4:4-9",
-  "Romans 8",
-  "1 Peter 5:6-11",
-  "Revelation 21"
-]);
 const carePlanIds = new Set(["anxiety-peace", "grief-comfort", "fourteen-days-anxiety-trust", "fourteen-days-grief-comfort"]);
 const generatedSectionGuidancePlanIds = new Set([
   "new-testament-90",
@@ -665,11 +637,8 @@ function checkRepeatedContexts() {
   for (const [context, rows] of contextTextsByNormalizedValue) {
     if (rows.length < 2) continue;
     const references = new Set(rows.map((row) => row.reference));
-    const referencesAreAllowlisted = [...references].every((reference) => explicitSharedContextAllowlist.has(reference));
     duplicateContextRows.push({ type: "full-context", count: rows.length, sample: context, rows });
-    if (references.size > 1 || !referencesAreAllowlisted) {
-      errors.push(`Duplicate guided-devotional context appears ${rows.length} times across ${[...references].join(", ")}.`);
-    }
+    errors.push(`Duplicate guided-devotional context appears ${rows.length} times across ${[...references].join(", ")}.`);
   }
 
   for (const [suffix, rows] of contextSuffixesByValue) {

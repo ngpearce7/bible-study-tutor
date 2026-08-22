@@ -4196,7 +4196,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   planFromReferences("identity-in-christ", "Identity in Christ", "Seven readings to help you remember who you are because of Christ.", [
     ["John 1:9-13", "John", 1, "Received as God's children", guidedDevotional({
       title: "Received before you perform",
-      context: "John introduces Jesus as the true Light who came into the world. Not everyone received Him, but those who did were given the right to become children of God.",
+      context: "John opens by presenting Jesus as the true Light and eternal Word who came into the world He made. Some reject Him, but those who receive Him and believe in His name are given the right to become children of God, born not by human status or effort but by God.",
       body: "This passage begins identity with reception, not achievement. Belonging to God is not something you climb toward by religious effort; it is a gift given through Christ. Before productivity, approval, failure, or family history speaks over you, Scripture says that those who receive the Son are born of God.",
       observationQuestion: "What does John say is given to those who receive Christ and believe in His name?",
       reflectionQuestion: "What false measure of identity does this passage gently correct for you?",
@@ -4206,7 +4206,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Romans 8:1-4", "Romans", 8, "No condemnation", guidedDevotional({
       title: "No condemnation in Christ",
-      context: "Paul has just described the struggle with sin and now announces what God has done through Christ and the Spirit.",
+      context: "Romans 8 follows Paul's description of sin's struggle and the law's inability to rescue. The chapter begins by announcing what God has done in Christ and by the Spirit: condemnation has been answered, sin has been judged in the Son, and believers now walk in new life.",
       body: "The Christian life does not begin under a cloud of accusation. There is now no condemnation for those who are in Christ Jesus because God has acted through His Son where the law could not rescue us. This is not denial of sin; it is confidence that Christ has dealt with sin so that life can now be walked by the Spirit.",
       observationQuestion: "What has God done through His Son that the law could not do?",
       reflectionQuestion: "Where do you most need to hear 'no condemnation' today?",
@@ -4216,7 +4216,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["2 Corinthians 5:17-21", "2 Corinthians", 5, "New creation", guidedDevotional({
       title: "Made new for reconciliation",
-      context: "Paul describes the ministry of reconciliation that flows from Christ's death and resurrection.",
+      context: "Paul writes as an apostle whose ministry is shaped by Christ's death and resurrection. In this section, reconciliation is not a vague fresh start; God reconciles sinners to Himself through Christ and entrusts His people with a message of reconciliation.",
       body: "In Christ, new creation is not merely a private feeling. God reconciles us to Himself and then gives us a ministry of reconciliation. Your identity is both received and sent: loved by God, made new by grace, and invited to become a witness of that grace in ordinary relationships.",
       observationQuestion: "What does Paul say God has done for us in Christ, and what has He entrusted to us?",
       reflectionQuestion: "What would it look like to live today as someone reconciled to God?",
@@ -4226,7 +4226,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ", guidedDevotional({
       title: "Clothed with Christ",
-      context: "Paul is explaining how faith in Christ makes believers children of God and joins them together as heirs of the promise.",
+      context: "In Galatians 3, Paul argues that believers are children of God through faith in Christ rather than through law-based status. Baptism language pictures being clothed with Christ, and the promise to Abraham gathers diverse believers into one family in Him.",
       body: "Believers have been clothed with Christ. Before the world sees your gifts, background, weakness, status, or mistakes, God sees you in His Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
       observationQuestion: "What identity words does Paul use for those who belong to Christ?",
       reflectionQuestion: "Which lesser label has been louder than your identity in Christ?",
@@ -4236,7 +4236,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Ephesians 1:3-10", "Ephesians", 1, "Blessed and chosen", guidedDevotional({
       title: "Blessed in Christ",
-      context: "Paul opens Ephesians with a long blessing that traces salvation to God's grace, purpose, and work in Christ.",
+      context: "Paul opens Ephesians with a long sentence of blessing that traces salvation to the Father's purpose, the Son's redemption, and God's lavish grace. Identity here is received in Christ: chosen, adopted, redeemed, forgiven, and gathered into God's plan for all things.",
       body: "Ephesians lifts your eyes from self-definition to God's gracious purpose. In Christ, believers are blessed, chosen, adopted, redeemed, and forgiven. These words are not decorations; they are anchors. Your identity is grounded in God's will, God's grace, and God's plan to bring all things together in Christ.",
       observationQuestion: "What blessings does Paul say believers have in Christ?",
       reflectionQuestion: "Which word in this passage gives your heart the strongest anchor today?",
@@ -4246,7 +4246,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Colossians 3:1-4", "Colossians", 3, "Hidden with Christ", guidedDevotional({
       title: "Hidden with Christ",
-      context: "Paul calls believers who have been raised with Christ to seek the things above and set their minds where Christ is.",
+      context: "Colossians 3 follows Paul's warning against empty religion and his insistence that believers are united with Christ. Because they have been raised with Him, they are called to seek things above, set their minds where Christ reigns, and live from a life hidden with Him.",
       body: "Being hidden with Christ is not escape from ordinary life. Because believers have been raised with Christ, they learn to seek what belongs to Him and set their minds where He reigns. Your life is hidden with Christ in God, so earthly pressures no longer get the final word. Hiddenness means safety, new direction, and future hope when Christ appears in glory.",
       observationQuestion: "What does Paul say believers should seek and set their minds on?",
       reflectionQuestion: "What earthly concern needs to be re-ordered by seeking Christ and setting your mind on things above?",
@@ -4256,7 +4256,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["1 Peter 2:9-10", "1 Peter", 2, "A chosen people", guidedDevotional({
       title: "Chosen to declare His praise",
-      context: "Peter writes to believers who are scattered and pressured, reminding them who they are together in God's mercy.",
+      context: "Peter writes to scattered believers experiencing pressure and social displacement. He uses Old Testament identity language for the church as a chosen people, royal priesthood, holy nation, and God's possession, grounding their purpose in God's mercy and praise.",
       body: "Peter gives identity in plural form: a chosen people, a royal priesthood, a holy nation, God's own possession. You are not saved into isolation. You belong to God and to His people, so that your life can declare the mercy that brought you out of darkness into light.",
       observationQuestion: "What names does Peter give God's people, and what purpose does he attach to them?",
       reflectionQuestion: "How can your life quietly declare God's mercy today?",
@@ -4268,7 +4268,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   planFromReferences("abiding-in-christ", "Abiding in Christ", "A gentle week of readings about remaining with Jesus and bearing fruit from Him.", [
     ["John 15:1-8", "John", 15, "Remain in Me", guidedDevotional({
       title: "Fruit from closeness",
-      context: "On the night before the cross, Jesus teaches His disciples that He is the true vine and they are branches.",
+      context: "John 15 belongs to Jesus' Farewell Discourse on the night before the cross. As He prepares His disciples for His departure, He calls Himself the true vine and them the branches, teaching that fruitfulness comes from remaining in Him and receiving His words.",
       body: "Jesus does not call His disciples to produce fruit by anxious striving. He calls them to remain in Him. Branches bear fruit because they stay connected to the vine. Begin with dependence: receive His word, stay near, and let obedience grow from communion rather than pressure.",
       observationQuestion: "What does Jesus say branches can and cannot do apart from the vine?",
       reflectionQuestion: "Where are you tempted to produce fruit without remaining close to Christ?",
@@ -4278,7 +4278,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Psalm 1:1-3", "Psalms", 1, "Planted by streams", guidedDevotional({
       title: "Planted where life flows",
-      context: "Psalm 1 contrasts two paths and describes the blessed person as one who delights in the Lord's instruction.",
+      context: "Psalm 1 opens the Psalter by contrasting the way of the righteous with the way of the wicked. The blessed life is pictured as delighting in the Lord's instruction and being planted like a tree by streams of water, fruitful because it is rooted in God's word.",
       body: "Psalm 1 describes a life rooted in God's instruction like a tree planted by streams of water. This is not hurried spirituality. It is a settled life, nourished over time. Abiding often looks ordinary: returning to Scripture, refusing the wrong path, and staying where God gives life.",
       observationQuestion: "What does the blessed person avoid, and what do they delight in?",
       reflectionQuestion: "What stream of God's word do you need to stay near today?",
@@ -4288,7 +4288,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Psalm 27:4-8", "Psalms", 27, "Dwell with the Lord", guidedDevotional({
       title: "One thing",
-      context: "David speaks from desire and need, longing to dwell with the Lord, behold His beauty, and seek Him.",
+      context: "Psalm 27 is a Davidic prayer that moves between confidence, danger, desire, and seeking the Lord's face. In verses 4-8, the central longing is not first escape from pressure but nearness to the Lord: dwelling with Him, beholding His beauty, and seeking His face.",
       body: "David's desire is beautifully focused: to dwell in the house of the Lord and seek Him. Abiding is not adding more spiritual noise; it is learning to seek one necessary thing. In pressure or distraction, God invites you to turn your face toward Him again.",
       observationQuestion: "What is the 'one thing' David asks of the Lord?",
       reflectionQuestion: "What would it mean to seek the Lord as your 'one thing' today?",
@@ -4298,7 +4298,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Matthew 11:25-30", "Matthew", 11, "Come to Me", guidedDevotional({
       title: "Rest for your soul",
-      context: "Jesus reveals the Father and then invites the weary and burdened to come to Him.",
+      context: "Matthew 11 has just contrasted proud unbelief with the Father's gracious revelation of the Son to the humble. Jesus then invites the weary and burdened to come to Him, take His yoke, and learn from His gentle and humble heart. His rest is discipleship with Him.",
       body: "Jesus' invitation is personal and gentle: come to Me. He does not ignore weariness; He names it and offers rest. Abiding in Christ includes bringing your burdens honestly to Him and learning His way. His yoke is not the crushing weight of self-salvation, but the restful obedience of walking with Him.",
       observationQuestion: "Who does Jesus invite, and what does He promise to give?",
       reflectionQuestion: "What burden do you need to bring to Jesus rather than carry alone?",
@@ -4308,7 +4308,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Luke 10:38-42", "Luke", 10, "Sit at Jesus' feet", guidedDevotional({
       title: "The necessary thing",
-      context: "Jesus visits the home of Martha and Mary. Martha serves anxiously while Mary sits at Jesus' feet listening to His word.",
+      context: "Luke places this home scene after Jesus' teaching about loving God and neighbor. Martha's service is real, but anxiety and distraction overtake her, while Mary sits at Jesus' feet as a disciple listening to His word. The necessary thing is receiving from Christ before activity.",
       body: "Martha's service mattered, but her worry crowded out attentiveness to Jesus. Mary shows a posture of receiving before doing. This passage does not shame faithful work; it reorders it. Abiding means letting Jesus have your attention before your activity takes over.",
       observationQuestion: "What is Martha troubled by, and what does Jesus commend in Mary?",
       reflectionQuestion: "What good activity might be crowding out attention to Jesus?",
@@ -4318,7 +4318,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["Colossians 2:6-7", "Colossians", 2, "Rooted and built up", guidedDevotional({
       title: "Continue as you received",
-      context: "Paul urges believers who received Christ to continue walking in Him, rooted and built up in faith.",
+      context: "In Colossians 2, Paul warns believers not to be captured by empty teaching or human tradition. The answer is not novelty but continuing in the Christ they received: rooted, built up, established in the faith, and overflowing with thankfulness.",
       body: "The Christian life grows by the same grace that began it. You are rooted, built up, strengthened, and overflowing with thankfulness as you keep walking in Him. Abiding is steady continuation, not constant reinvention.",
       observationQuestion: "What images does Paul use to describe continuing in Christ?",
       reflectionQuestion: "Where do you need to continue in simple trust rather than start over in anxiety?",
@@ -4328,7 +4328,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     })],
     ["1 John 2:24-28", "1 John", 2, "Abide in Him", guidedDevotional({
       title: "Let the word remain",
-      context: "John calls believers to let what they heard from the beginning remain in them so they remain in the Son and the Father.",
+      context: "John writes to believers facing deception about Christ and urges them to let the apostolic message they heard from the beginning remain in them. Abiding is anchored in the truth about the Son and the Father, leading to confidence rather than drift.",
       body: "Staying close to Christ is not vague spirituality; it is holding fast to the truth about the Son and the Father. As His word remains in you, you are invited to remain in Him with confidence. Abiding is personal, but it is also anchored in the truth God has spoken.",
       observationQuestion: "What does John say should remain in believers?",
       reflectionQuestion: "What truth about Christ do you need to let remain in you today?",
@@ -4341,7 +4341,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ...planFromReferences("seven-days-new-believers", "7 Days for New Believers", "A friendly first week for understanding Jesus, grace, faith, prayer, new life, the Spirit, and following Christ with His people.", [
       ["John 1:1-14", "John", 1, "Who Jesus is and why He came", guidedDevotional({
         title: "The Word became flesh",
-        context: "John opens his Gospel by showing that Jesus is not merely a teacher. He is the eternal Word who became flesh and made God known.",
+        context: "John opens his Gospel before creation, identifying Jesus as the eternal Word who was with God and was God. The Word becomes flesh, brings light into darkness, gives new birth to those who receive Him, and makes the Father known in grace and truth.",
         body: "Christian faith begins with Jesus Himself. He is the light who enters darkness and the Son who reveals the Father. New life is not built on vague spirituality, but on receiving the One who came full of grace and truth.",
         observationQuestion: "What does John say about who Jesus is and what He came to reveal?",
         reflectionQuestion: "Which truth about Jesus in this passage most strengthens or challenges your understanding of Him today?",
@@ -4351,7 +4351,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["1 Corinthians 15:1-8", "1 Corinthians", 15, "The cross and resurrection", guidedDevotional({
         title: "The gospel of first importance",
-        context: "Paul reminds the Corinthians of the gospel he preached: Christ died for sins, was buried, was raised, and appeared to witnesses.",
+        context: "Paul writes to the Corinthians to remind them of the gospel they received and in which they stand. Christ's death for sins, burial, resurrection on the third day, and appearances to witnesses are matters of first importance, not optional extras for mature believers only.",
         body: "The cross and resurrection are not advanced topics for later; they are the foundation. Jesus' death deals with sin, and His resurrection announces living hope. Faith rests on what Christ has done, not on your ability to earn God's acceptance.",
         observationQuestion: "What events does Paul call central to the gospel?",
         reflectionQuestion: "How does Christ's finished work steady you more than religious performance?",
@@ -4361,7 +4361,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Ephesians 2:1-10", "Ephesians", 2, "Saved by grace through faith", guidedDevotional({
         title: "Grace, not earning",
-        context: "Paul contrasts spiritual death with God's mercy and explains that salvation is by grace through faith, not by works.",
+        context: "Ephesians 2 moves from spiritual death to God's rich mercy and saving grace. Paul insists salvation is by grace through faith, not works, then immediately says believers are created in Christ for good works. Grace is the root; obedient life is the fruit.",
         body: "This passage protects new believers from both pride and despair. Salvation is God's gift, received by faith, not a wage earned by performance. Good works matter, but they flow from grace; they are not the basis of being saved.",
         observationQuestion: "What does Paul say salvation is, and what does he say it is not?",
         reflectionQuestion: "When are you tempted to measure God's acceptance by your performance? How do verses 8-9 answer that temptation?",
@@ -4371,7 +4371,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Romans 8:1-4", "Romans", 8, "New life and assurance in Christ", guidedDevotional({
         title: "No condemnation",
-        context: "After describing the struggle with sin, Paul announces the assurance believers have in Christ and the Spirit's new way of life.",
+        context: "Romans 8 follows Paul's account of sin's struggle and opens with assurance for those in Christ Jesus. God has dealt with sin through His Son, and the Spirit now leads believers into a new way of life. Assurance begins with Christ's work before personal progress.",
         body: "New life begins under the word 'no condemnation.' This does not make sin unimportant; it means Christ has answered condemnation so the Spirit can lead believers into life. Assurance looks to Christ before it looks at your progress.",
         observationQuestion: "What has God done through His Son that the law could not do?",
         reflectionQuestion: "Where are you carrying guilt or shame? How does Romans 8:1 direct you to look to Christ?",
@@ -4381,7 +4381,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Matthew 6:5-13", "Matthew", 6, "Prayer and relationship with God", guidedDevotional({
         title: "Pray to your Father",
-        context: "Jesus teaches disciples to pray simply before the Father, not as a public display of spirituality.",
+        context: "Jesus teaches this prayer in the Sermon on the Mount, contrasting hidden devotion before the Father with religious performance for human praise. The Lord's Prayer trains new disciples to begin with God's name, kingdom, and will, then bring daily needs, forgiveness, and deliverance.",
         body: "Prayer is relationship before it is technique. Jesus teaches you to come to the Father with worship, dependence, confession, and trust. You do not need impressive words to begin; you need the Father who hears.",
         observationQuestion: "What needs does Jesus teach His disciples to bring to the Father?",
         reflectionQuestion: "Which line of the Lord's Prayer helps you begin praying today?",
@@ -4391,7 +4391,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Galatians 5:16-25", "Galatians", 5, "Life through the Holy Spirit", guidedDevotional({
         title: "Walk by the Spirit",
-        context: "Paul contrasts the works of the flesh with the fruit of the Spirit as he teaches believers how freedom in Christ becomes a changed life.",
+        context: "Galatians 5 follows Paul's defense of freedom in Christ. That freedom is not self-rule but life by the Spirit, where the works of the flesh are resisted and the Spirit bears fruit in love, joy, peace, patience, holiness, and self-control.",
         body: "The Christian life is not self-improvement by sheer willpower. Believers are called to walk by the Spirit. The fruit listed here grows from God's work in us, shaping love, joy, peace, patience, and holiness over time.",
         observationQuestion: "What fruit does Paul say the Spirit produces?",
         reflectionQuestion: "Which fruit of the Spirit do you want to ask God to grow in you?",
@@ -4401,7 +4401,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Acts 2:42-47", "Acts", 2, "Following Jesus with His people", guidedDevotional({
         title: "A shared life of faith",
-        context: "After Pentecost, Luke describes the early believers' ordinary pattern of teaching, fellowship, breaking bread, prayer, generosity, and worship.",
+        context: "Acts 2 follows Pentecost, Peter's sermon, and the response of those who received the word about the risen Christ. Luke then summarizes the early believers' shared life: apostolic teaching, fellowship, breaking bread, prayer, generosity, worship, and witness.",
         body: "Jesus saves people into a family, not isolation. The church is not the basis of salvation, but it is one of God's gifts for growth, care, teaching, prayer, and shared witness. Following Jesus becomes a shared life of grace.",
         observationQuestion: "What practices shaped the first believers' life together?",
         reflectionQuestion: "What small step could help you follow Jesus with His people?",

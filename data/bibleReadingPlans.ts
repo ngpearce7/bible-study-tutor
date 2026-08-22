@@ -191,7 +191,7 @@ function buildChapterPlanWithReflectionDays(id: string, title: string, descripti
 function reflectionDayGuidance(reference: string): BibleReadingPlanDayExtras {
   return {
     guidanceKind: "reading-guidance",
-    context: `This reflection day returns to ${reference} so the passage can settle rather than simply be checked off.`,
+    context: `This reflection day returns to ${reference} so the passage can settle rather than simply be checked off. Read it again in its book context, watching for repeated words, commands, promises, warnings, and what the passage reveals about the Lord before moving to application.`,
     devotional: {
       title: `Return to ${reference}`,
       body: "A slower reading can reveal what a first reading missed. Come back to the passage with attention to repeated words, commands, promises, warnings, and the way it points you toward God. Let review become meditation, not busywork.",
@@ -361,6 +361,14 @@ const chronologicalBibleBooks = [
 const paulineBooks = ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon"];
 const pentateuchBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
 const majorProphetBooks = ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel"];
+const minimumContextReviewLength = 160;
+const contextReviewAnchor =
+  "Read it within its immediate chapter and book setting, noticing the passage's place in Scripture before moving quickly to personal application.";
+
+function withContextReviewAnchor(context?: string): string | undefined {
+  if (!context || context.length >= minimumContextReviewLength) return context;
+  return `${context} ${contextReviewAnchor}`;
+}
 
 function devotional(
   title: string,
@@ -372,6 +380,7 @@ function devotional(
   return {
     guidanceKind: extras.guidanceKind || "guided-devotional",
     ...extras,
+    context: withContextReviewAnchor(extras.context),
     devotional: {
       title,
       body,

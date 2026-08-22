@@ -3830,7 +3830,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} belongs to the Torah, where Scripture lays foundations for creation, covenant, rescue, holiness, wilderness faith, and life with the Lord. Read this section slowly, asking how God's character and covenant purposes are being revealed before rushing to application.`,
       `What foundation for knowing the Lord is being laid as ${book} begins?`,
       "Lord, ground my faith in Your character, Your promises, and Your covenant mercy.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} stands within the Torah, the opening five-book foundation of Scripture. These books establish creation, promise, covenant, rescue from bondage, worship, holiness, and life before the Lord. Read the opening section as foundation for the Bible's larger story.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (historicalBookSet.has(book)) {
@@ -3839,7 +3842,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} tells part of Israel's lived history with the Lord. Watch for faithfulness and failure, leadership and worship, judgment and mercy. These chapters are not merely examples to imitate or avoid; they show how God's purposes continue through real people and real consequences.`,
       `What does ${book} show about the Lord's faithfulness in the middle of human faithfulness and failure?`,
       "Lord, teach me to read history with humility, repentance, and trust in Your purposes.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} belongs to the historical books, where Israel's life in the land, leadership, worship, failure, judgment, and mercy unfold in real events. Read this book as part of God's covenant dealings rather than as isolated moral examples.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (wisdomBookSet.has(book)) {
@@ -3848,7 +3854,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} trains the heart as well as the mind. Read for worship, honest prayer, wisdom, limits, longing, and faithful living before God. Let the passage shape what you love, fear, ask, confess, and practice.`,
       `What desire, prayer, or wisdom is ${book} forming in you today?`,
       "Lord, shape my heart with wisdom, worship, and honest prayer.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} stands among Scripture's wisdom and worship books, where prayer, praise, lament, desire, suffering, limits, and practical discernment are brought before God. Read slowly, allowing the genre to shape worship and wisdom before immediate application.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (prophetBookSet.has(book)) {
@@ -3857,7 +3866,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} speaks into covenant unfaithfulness, injustice, judgment, mercy, and hope. Prophetic books are not mainly prediction puzzles; they call God's people to hear His word, return to Him, and trust His promised restoration.`,
       `What warning, promise, or hope should be heard clearly as ${book} begins?`,
       "Lord, give me ears to hear Your word with repentance, reverence, and hope.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} belongs to the prophetic witness, where the Lord addresses covenant unfaithfulness, injustice, idolatry, judgment, mercy, and future hope. Read the opening section as God's word to His people before turning it into private prediction or general advice.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (gospelBookSet.has(book)) {
@@ -3866,7 +3878,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} presents the life, teaching, death, and resurrection of Jesus. Read with your eyes on who He is, what He reveals about the Father, how He brings the kingdom, and how He calls people to trust and follow Him.`,
       `What does ${book} reveal about Jesus that should shape your faith today?`,
       "Lord Jesus, help me see You clearly and follow You faithfully.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} is one of the four Gospels, presenting Jesus' identity, teaching, kingdom mission, death, and resurrection. Read this book with attention to its own portrait of Christ, while remembering that every episode serves the larger witness to who Jesus is.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (book === "Acts") {
@@ -3875,7 +3890,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       "Acts shows the risen Jesus continuing His mission by the Spirit through His witnesses. Watch how prayer, courage, suffering, preaching, repentance, and community form the early church as the gospel moves outward.",
       "How does Acts show the Spirit empowering witness to Jesus?",
       "Risen Lord, make me faithful by Your Spirit in ordinary witness and love.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: "Acts follows Luke's Gospel and shows the risen Jesus continuing His mission by the Holy Spirit through His witnesses. The gospel moves from Jerusalem toward the nations through preaching, prayer, suffering, repentance, and Spirit-formed community.",
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (paulineBookSet.has(book)) {
@@ -3884,7 +3902,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} is part of Paul's apostolic teaching for churches and believers. Look for how gospel truth leads into worship, identity, holiness, unity, endurance, and love. Keep grace as the root, not merely behavior as the goal.`,
       `How does ${book} connect what God has done in Christ with how believers now live?`,
       "Lord, let Your grace take root in my belief, worship, relationships, and obedience.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} belongs to Paul's apostolic letters, written to churches or coworkers with gospel truth for real belief, worship, holiness, endurance, and shared life. Read commands and encouragements from the foundation of grace in Christ, not as detached religious advice.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (generalEpistleBookSet.has(book)) {
@@ -3893,7 +3914,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `${book} helps believers endure, discern truth, love faithfully, and live as God's people. Read for both comfort and correction, remembering that Christian obedience grows from belonging to the Lord.`,
       `What comfort or correction does ${book} bring to faithful discipleship?`,
       "Lord, strengthen me to receive Your word and live faithfully as one who belongs to You.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: `${book} belongs to the General Epistles, writings that strengthen believers in endurance, truth, holiness, love, discernment, and hope. Read its correction and comfort as words for God's people learning to remain faithful under pressure.`,
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   if (book === "Revelation") {
@@ -3902,7 +3926,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       "Revelation unveils Jesus Christ as the slain and risen Lamb who reigns, judges evil, keeps His people, and brings all things to their appointed end. Read with worship and endurance rather than speculation.",
       "How does Revelation call you to worship, endurance, and hope in Christ?",
       "Lord Jesus, keep my hope fixed on Your victory and coming renewal.",
-      { guidanceKind: "reading-guidance" }
+      {
+        context: "Revelation is an apocalyptic and prophetic witness to Jesus Christ, the slain and risen Lamb who reigns, judges evil, keeps His people, and brings creation to renewal. Read its images with worship, endurance, and hope rather than speculation.",
+        guidanceKind: "reading-guidance"
+      }
     );
   }
   return devotional(
@@ -3910,7 +3937,10 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
     `${book} begins a new section in this reading plan. Pause before moving quickly and ask where this book sits in the wider story of Scripture, what it reveals about God, and how it calls His people to trust, worship, repentance, or obedience.`,
     `What does this new section reveal about the Lord and His purposes?`,
     "Lord, help me read this section with attention, humility, and faith.",
-    { guidanceKind: "reading-guidance" }
+    {
+      context: `${book} begins a new section in this reading plan, so it is worth pausing before moving quickly into details. Ask where this book sits in Scripture's larger story and how it reveals the Lord's character, purposes, promises, warnings, and mercy.`,
+      guidanceKind: "reading-guidance"
+    }
   );
 }
 

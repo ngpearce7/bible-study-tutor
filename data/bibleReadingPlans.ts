@@ -4111,7 +4111,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ...planFromReferences("seven-days-prayer", "7 Days of Prayer", "A one-week path for learning prayer as relationship, trust, worship, lament, confession, and dependence.", [
       ["Matthew 6:5-13", "Matthew", 6, "Pray to your Father", guidedDevotional({
         title: "Pray before the Father who sees",
-        context: "Jesus is teaching His disciples in the Sermon on the Mount. He contrasts prayer performed for attention with prayer offered to the Father.",
+        context: "Jesus is teaching His disciples in the Sermon on the Mount, where true righteousness is lived before the Father rather than for human applause. He contrasts prayer performed for attention with prayer offered to the Father who sees in secret, then gives a pattern that begins with God's name, kingdom, and will.",
         body: "The Lord's Prayer begins with God: His name, kingdom, and will. Only then does it teach us to ask for bread, forgiveness, and deliverance. Prayer is not religious performance; it is dependent children coming to the Father who sees.",
         observationQuestion: "What comes first in Jesus' pattern of prayer?",
         reflectionQuestion: "Where might prayer become simpler and more Father-centered for you?",
@@ -4121,7 +4121,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Luke 11:1-13", "Luke", 11, "Ask the generous Father", guidedDevotional({
         title: "Ask, seek, and knock",
-        context: "After Jesus prays, His disciples ask Him to teach them. He answers with a pattern and a picture of the Father's generosity.",
+        context: "Luke places this teaching after Jesus Himself has been praying, prompting His disciples to ask for instruction. Jesus gives a prayer pattern, then uses friendship and fatherly giving to encourage persistence. The passage climaxes with the Father's generous gift of the Holy Spirit.",
         body: "Jesus encourages persistence, not because God is reluctant, but because the Father is good. Prayer grows as trust grows. The greatest gift named here is the Holy Spirit, so our asking is held within God's wise and generous care.",
         observationQuestion: "What reasons does Jesus give for continuing to ask?",
         reflectionQuestion: "Where do you need to trust the Father's goodness rather than suspect His heart?",
@@ -4131,7 +4131,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Psalm 23:1-6", "Psalms", 23, "Pray from trust", guidedDevotional({
         title: "Let trust become prayer",
-        context: "David describes the Lord as Shepherd. The Psalm moves through rest, guidance, danger, provision, mercy, and dwelling with God.",
+        context: "Psalm 23 is a Davidic psalm of trust that describes the Lord as Shepherd and generous host. It moves through rest, restoration, guidance, danger, provision, mercy, and dwelling with God. Prayer from this psalm is not denial of the valley, but confidence in the Shepherd's presence.",
         body: "Psalm 23 gives prayer words when you need to be led. The Shepherd restores and protects His people, even in the valley. You can pray from need without panic because the Lord's care is personal and present.",
         observationQuestion: "What actions does the Shepherd take in this Psalm?",
         reflectionQuestion: "Which line gives words to your prayer today?",
@@ -4161,7 +4161,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["James 5:13-18", "James", 5, "Pray in every season", guidedDevotional({
         title: "Prayer for the whole life",
-        context: "James closes his letter by placing prayer in suffering, cheerfulness, sickness, confession, restoration, and ordinary human weakness.",
+        context: "James closes a letter about whole-life faith by placing prayer in suffering, cheerfulness, sickness, confession, restoration, and ordinary human weakness. Elijah is named as an example of a righteous person's prayer, not to turn prayer into control, but to encourage faithful dependence on God.",
         body: "Prayer is not reserved for one mood. James invites God's people to pray when suffering, sing when cheerful, confess when needed, and ask for help together. Faithful prayer trusts God without trying to control Him.",
         observationQuestion: "How many different situations for prayer does James mention?",
         reflectionQuestion: "What season are you in, and what kind of prayer does James invite?",
@@ -4171,7 +4171,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["1 John 5:13-15", "1 John", 5, "Ask according to His will", guidedDevotional({
         title: "Confidence under God's will",
-        context: "John writes so believers may know they have eternal life in the Son. Confidence in prayer rests inside that assurance.",
+        context: "John writes so believers may know they have eternal life in the Son of God. His words about prayer sit inside that assurance and are shaped by asking according to God's will. The confidence is real, but it is not a blank cheque detached from God's character and purposes.",
         body: "John does not promise that every request will be granted on our terms. He teaches confidence that God hears His children as they ask according to His will. Prayer is bold and humble at the same time.",
         observationQuestion: "What kind of confidence does John describe?",
         reflectionQuestion: "What request needs to be brought under God's will with trust?",

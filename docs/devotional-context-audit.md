@@ -278,18 +278,63 @@ Reference links:
   - Changed fields: `gentleAction`
   - Theological review need: Low to medium, because prophetic promise and judgment passages need ongoing care.
 
+### Generated Long-Plan Batch
+
+- Bible in 1 Year / 30 Days / 90 Days / 6 Months
+  - Verdict: Improved plan-level guidance
+  - Issue: These plans use generated chapter portions and book-section guidance rather than unique daily devotionals. Plan metadata now more clearly distinguishes gentle, strong, intensive, and overview reading rhythms so users know how to approach the material without expecting every day to be a close devotional exposition.
+  - Changed fields: `purpose`, `bestFor`, `pace`, `estimatedTime`, `coverage`, `rhythm`
+  - Theological review need: Low for metadata; medium for future full day-by-day devotional expansion if added later.
+- Old and New Testament Daily Pairing / Bible in 1 Year Chronological
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing metadata already explains the paired and broad chronological approaches without implying a strict scholarly chronology or forcing artificial connections between daily portions.
+  - Changed fields: None
+  - Theological review need: Low
+- New Testament in 1 Year / Psalms and Proverbs in 1 Year
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Reflection-day guidance is generic but appropriate: it encourages repeated reading, observation, prayer, and meditation rather than adding unsupported claims.
+  - Changed fields: None
+  - Theological review need: Low
+- Psalms in 30 Days / Proverbs in 31 Days / Gospels in 40 Days / Torah in 50 Days
+  - Verdict: Improved plan-level guidance
+  - Issue: Metadata now gives better genre-aware expectations: Psalms as prayer, Proverbs as wisdom rather than mechanical promises, Gospels as sustained attention on Jesus, and Torah as covenant foundation before application.
+  - Changed fields: `purpose`, `bestFor`, `pace`, `estimatedTime`, `rhythm`
+  - Theological review need: Low
+- Old Testament Overview / New Testament Overview / Bible Overview in 60 Days
+  - Verdict: Improved plan-level guidance
+  - Issue: Metadata now explains these as orientation plans and encourages questions for later deeper study, rather than presenting the summaries as exhaustive treatment.
+  - Changed fields: `purpose`, `bestFor`, `pace`, `estimatedTime`, `rhythm`
+  - Theological review need: Low
+
+### Foundational Book and Prayer Plans
+
+- 21 Days in John
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries keep John's Gospel centered on Jesus' identity, signs, death, resurrection, belief, and life without flattening the Gospel into general inspiration.
+  - Changed fields: None
+  - Theological review need: Low
+- Romans in 16 Days
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries preserve Romans' flow from gospel, sin, justification, union with Christ, Spirit-led life, mercy, worship, ethics, welcome, and mission.
+  - Changed fields: None
+  - Theological review need: Low
+- Psalms for Prayer
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing grouped Psalm entries are appropriately prayer-shaped and include lament, confession, trust, justice, worship, and hope.
+  - Changed fields: None
+  - Theological review need: Low
+- New Testament in 90 Days
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: This generated plan uses book-section guidance. The guidance for Gospels, Acts, Paul's letters, General Epistles, and Revelation is theologically appropriate for a broad reading plan.
+  - Changed fields: None
+  - Theological review need: Low
+
 ## Pending Full Review
 
-The following areas still need plan-by-plan source-backed review before claiming the whole library has been audited:
+The following areas still need future review before claiming every possible reading experience has been audited:
 
-- Long whole-Bible plans and generated chapter-range plans.
-- Old Testament overview plans.
-- New Testament overview plans.
-- Psalms and Proverbs in 1 Year.
-- New Testament in 1 Year.
-- Bible in 365 Days / chronological / Old-New variants.
-- Medium overview plans with generated or broad devotional entries.
-- All topical plans not listed above.
+- Future unique devotional writing for long whole-Bible plans, if those plans ever move beyond generated book-section guidance.
+- Future custom plans created by users, which are outside built-in editorial control.
 
 ## Editorial Rules To Preserve
 

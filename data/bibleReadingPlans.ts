@@ -3835,7 +3835,15 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
   withCuratedDevotionals(oneChapterPerDayPlan("romans-16", "Romans in 16 Days", "Move slowly through Paul's letter one chapter at a time.", "Romans", 16)),
   withCuratedDevotionals(buildChapterPlan("psalms-prayer", "Psalms for Prayer", "Twenty-one Psalms chosen to shape prayer, trust, confession, and worship.", ["Psalms"], 21, "Prayer")),
   withBookSectionGuidance(buildChapterPlan("new-testament-90", "New Testament in 90 Days", "Read through the New Testament in steady daily portions.", NEW_TESTAMENT_BOOKS, 90, "New Testament")),
-  withBookSectionGuidance(buildChapterPlan("bible-365", "Bible in 1 Year", "A simple chapter-by-chapter path through every book of the Bible.", wholeBibleBooks, 365)),
+  withBookSectionGuidance({
+    ...buildChapterPlan("bible-365", "Bible in 1 Year", "A simple chapter-by-chapter path through every book of the Bible.", wholeBibleBooks, 365),
+    purpose: "To build a steady year-long rhythm through the whole Bible while keeping each book within the larger story of creation, covenant, Christ, church, and new creation.",
+    bestFor: "Readers who want a simple whole-Bible habit without jumping between testaments each day.",
+    pace: "Gentle long-term rhythm",
+    estimatedTime: "15-30 minutes",
+    coverage: "A chapter-by-chapter journey from Genesis to Revelation across one year.",
+    rhythm: "Read the daily portion, notice where the current book sits in Scripture's story, pray briefly, then mark the day complete."
+  }),
   withBookSectionGuidance({
     ...buildChapterPlan("bible-1-year-chronological", "Bible in 1 Year Chronological", "Read the Bible in a broad historical flow over one year.", chronologicalBibleBooks, 365),
     purpose: "To help you follow the Bible story in a roughly historical order from creation, the patriarchs, Israel, exile, Jesus, the church, and new creation.",
@@ -3874,14 +3882,70 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     estimatedTime: "5-10 minutes",
     coverage: "Psalms and Proverbs with reflection readings across the year."
   }),
-  withBookSectionGuidance(buildChapterPlan("bible-30", "Bible in 30 Days", "A fast overview pace through the whole Bible.", wholeBibleBooks, 30)),
-  withBookSectionGuidance(buildChapterPlan("bible-90", "Bible in 90 Days", "A strong three-month path through the whole Bible.", wholeBibleBooks, 90)),
-  withBookSectionGuidance(buildChapterPlan("bible-overview-60", "Bible Overview in 60 Days", "A two-month overview of the Bible's major movements.", wholeBibleBooks, 60, "Overview")),
-  withBookSectionGuidance(buildChapterPlan("new-testament-30", "New Testament in 30 Days", "Read the New Testament in one month.", NEW_TESTAMENT_BOOKS, 30, "New Testament")),
-  withBookSectionGuidance(buildChapterPlan("psalms-30", "Psalms in 30 Days", "Pray and reflect through the Psalms in a month.", ["Psalms"], 30, "Prayer")),
-  withBookSectionGuidance(oneChapterPerDayPlan("proverbs-31", "Proverbs in 31 Days", "Read one chapter of Proverbs each day.", "Proverbs", 31, "Wisdom")),
-  withBookSectionGuidance(buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels")),
-  withBookSectionGuidance(buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study")),
+  withBookSectionGuidance({
+    ...buildChapterPlan("bible-30", "Bible in 30 Days", "A fast overview pace through the whole Bible.", wholeBibleBooks, 30),
+    purpose: "To give an intensive, big-picture sweep of Scripture rather than a slow devotional pace.",
+    bestFor: "Experienced readers or short focused seasons where overview matters more than detail.",
+    pace: "Intensive daily readings",
+    estimatedTime: "45-75 minutes",
+    rhythm: "Read for the broad movement of the story, note one major theme, pray briefly, then return later for deeper study."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("bible-90", "Bible in 90 Days", "A strong three-month path through the whole Bible.", wholeBibleBooks, 90),
+    purpose: "To move through the whole Bible in a focused season while still leaving room to notice repeated themes and book transitions.",
+    bestFor: "Readers who want strong momentum and can set aside a meaningful daily reading window.",
+    pace: "Strong daily readings",
+    estimatedTime: "30-50 minutes",
+    rhythm: "Read attentively for the passage flow, note one repeated theme, pray, then mark the day complete."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("bible-overview-60", "Bible Overview in 60 Days", "A two-month overview of the Bible's major movements.", wholeBibleBooks, 60, "Overview"),
+    purpose: "To help readers see the Bible's main storyline and major movements before choosing books for slower study.",
+    bestFor: "Readers wanting orientation to the whole Bible without beginning with a full-year plan.",
+    pace: "Intensive overview readings",
+    estimatedTime: "35-60 minutes",
+    rhythm: "Read for orientation, notice the book or covenant setting, and write one question for future deeper study."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("new-testament-30", "New Testament in 30 Days", "Read the New Testament in one month.", NEW_TESTAMENT_BOOKS, 30, "New Testament"),
+    purpose: "To move quickly through Jesus' life, the early church, the letters, and Revelation while keeping Christ central.",
+    bestFor: "Readers wanting a concentrated month in the New Testament.",
+    pace: "Steady daily readings",
+    estimatedTime: "20-35 minutes",
+    rhythm: "Read the daily portion, ask what it reveals about Christ and His people, pray, then mark the day complete."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("psalms-30", "Psalms in 30 Days", "Pray and reflect through the Psalms in a month.", ["Psalms"], 30, "Prayer"),
+    purpose: "To let the Psalms train honest prayer, praise, lament, confession, trust, and hope.",
+    bestFor: "Prayer, worship, lament, and learning to bring the whole heart before God.",
+    pace: "Steady daily readings",
+    estimatedTime: "15-30 minutes",
+    rhythm: "Read slowly, choose one line to pray back to God, and let the Psalm give words to worship or lament."
+  }),
+  withBookSectionGuidance({
+    ...oneChapterPerDayPlan("proverbs-31", "Proverbs in 31 Days", "Read one chapter of Proverbs each day.", "Proverbs", 31, "Wisdom"),
+    purpose: "To read Proverbs as wisdom formation, not as mechanical guarantees detached from the fear of the Lord.",
+    bestFor: "Daily wisdom, speech, relationships, work, money, humility, and discernment.",
+    pace: "Short daily readings",
+    estimatedTime: "5-10 minutes",
+    rhythm: "Read one chapter, choose one proverb to carry, and ask how wisdom should shape one concrete decision."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("gospels-40", "Gospels in 40 Days", "Read Matthew, Mark, Luke, and John in forty days.", gospelBooks, 40, "Gospels"),
+    purpose: "To keep sustained attention on Jesus' identity, kingdom, teaching, compassion, death, and resurrection.",
+    bestFor: "Readers wanting to know Jesus more clearly through all four Gospel witnesses.",
+    pace: "Steady daily readings",
+    estimatedTime: "15-25 minutes",
+    rhythm: "Read with your eyes on Jesus, note what He reveals about the Father and the kingdom, then respond in prayer."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("torah-pentateuch-50", "Torah / Pentateuch in 50 Days", "Read Genesis through Deuteronomy in a steady fifty-day path.", pentateuchBooks, 50, "Book study"),
+    purpose: "To lay foundations in creation, covenant, promise, exodus, holiness, wilderness faith, and life with the Lord.",
+    bestFor: "Readers wanting Old Testament foundations before moving into history, wisdom, prophets, and the New Testament.",
+    pace: "Steady daily readings",
+    estimatedTime: "20-35 minutes",
+    rhythm: "Read for God's character and covenant purposes before rushing to personal application."
+  }),
   withBookSectionGuidance(withCuratedDevotionals(buildChapterPlan("major-prophets-overview", "Major Prophets Overview", "A manageable overview through Isaiah, Jeremiah, Lamentations, Ezekiel, and Daniel.", majorProphetBooks, 45, "Overview"))),
   withCuratedDevotionals(buildChapterPlan("acts-early-church", "Acts and the Early Church", "Follow the birth and spread of the early church through Acts.", ["Acts"], 28, "New Testament")),
   withCuratedDevotionals(buildChapterPlan("pauls-letters-overview", "Paul's Letters Overview", "A guided overview through Paul's letters to churches and co-workers.", paulineBooks, 45, "New Testament")),
@@ -4621,8 +4685,22 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ["Romans 8", "Romans", 8],
     ["Revelation 21", "Revelation", 21]
   ], "Overview")),
-  withBookSectionGuidance(buildChapterPlan("old-testament-overview", "Old Testament Overview in 60 Days", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview")),
-  withBookSectionGuidance(buildChapterPlan("new-testament-overview", "New Testament Overview", "A broad chapter-by-chapter overview of the New Testament.", NEW_TESTAMENT_BOOKS, 30, "Overview"))
+  withBookSectionGuidance({
+    ...buildChapterPlan("old-testament-overview", "Old Testament Overview in 60 Days", "A broad chapter-by-chapter overview of the Old Testament.", OLD_TESTAMENT_BOOKS, 60, "Overview"),
+    purpose: "To help readers follow the Old Testament's major movements of creation, covenant, promise, kingdom, exile, wisdom, prophecy, judgment, and hope.",
+    bestFor: "Readers who want Old Testament orientation before detailed book study.",
+    pace: "Intensive overview readings",
+    estimatedTime: "30-50 minutes",
+    rhythm: "Read for the movement of the book, notice covenant setting and repeated themes, then write one question for later study."
+  }),
+  withBookSectionGuidance({
+    ...buildChapterPlan("new-testament-overview", "New Testament Overview", "A broad chapter-by-chapter overview of the New Testament.", NEW_TESTAMENT_BOOKS, 30, "Overview"),
+    purpose: "To help readers see the New Testament's flow from Jesus' ministry to the church's witness, apostolic teaching, and final hope.",
+    bestFor: "Readers who want a broad New Testament orientation before slower study.",
+    pace: "Steady daily readings",
+    estimatedTime: "20-35 minutes",
+    rhythm: "Read for how each section bears witness to Christ, forms His people, and calls for faithful response."
+  })
 ];
 
 export const bibleReadingPlans = builtInBibleReadingPlans;

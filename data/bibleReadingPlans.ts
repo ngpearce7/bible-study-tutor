@@ -2488,7 +2488,7 @@ const psalmsPrayerDevotionals = withContexts(devotionalEntries([
   "Psalm 144-150": "The Psalter closes with rescue, royal hope, creation praise, and a final crescendo of hallelujahs. These Psalms gather the whole book's movement from lament and trust into praise. The ending calls every breath to worship the Lord."
 });
 
-const beginnerBibleDevotionals = devotionalEntries([
+const beginnerBibleDevotionals = withContexts(devotionalEntries([
   ["Genesis 1", "The God who creates", "The Bible begins with God, not with us. Genesis 1 shows the Lord creating, ordering, blessing, and making humanity in His image. This gives the whole story its foundation: life belongs to God and is made for His glory.", "How does seeing God as Creator reshape your sense of dignity, purpose, and worship?", "Creator God, teach me to receive life as Your gift and live for Your glory."],
   ["Genesis 12", "Promise and blessing", "God calls Abram and promises land, offspring, and blessing for the nations. The Bible's story of redemption begins to narrow through one family so blessing can widen to the world.", "How does God's promise to Abram show both personal calling and global mercy?", "Lord, help me trust You as the God who keeps promise and blesses the nations in Christ."],
   ["Exodus 3", "The God who sees and sends", "At the burning bush, the Lord reveals His name, hears His people's cries, and sends Moses. Deliverance begins with God's compassion and covenant faithfulness.", "Where do you need to trust that God sees suffering and is able to act?", "Lord, You see and hear. Help me trust Your faithful presence."],
@@ -2499,7 +2499,18 @@ const beginnerBibleDevotionals = devotionalEntries([
   ["Romans 8", "No condemnation, no separation", "Romans 8 gathers the assurance of the Christian life: no condemnation in Christ, life by the Spirit, hope in suffering, and no separation from God's love.", "Which assurance in Romans 8 do you need to hold today?", "Lord, help me rest in Your Spirit's life and Your inseparable love."],
   ["Ephesians 2", "Saved by grace", "Paul describes spiritual death, God's mercy, salvation by grace through faith, and a new people made in Christ. Good works flow from grace; they do not purchase it.", "How does this chapter keep grace first and obedience in its right place?", "God of mercy, thank You for saving by grace and making me alive in Christ."],
   ["Revelation 21", "God makes all things new", "The Bible's story ends with God dwelling with His people, wiping away tears, and making all things new. Christian hope is not escape from creation but restored life with God.", "What part of this final hope strengthens you today?", "Lord, keep my hope fixed on the day You make all things new."]
-]);
+]), {
+  "Genesis 1": "Genesis 1 opens the Bible with God as Creator, speaking, ordering, blessing, and declaring His creation good. Humanity appears as male and female in God's image, given dignity and vocation under His rule. This first reading sets the Bible's story in worship before application.",
+  "Genesis 12": "Genesis 12 comes after creation, fall, flood, and Babel. God calls Abram by grace and promises land, offspring, blessing, and blessing for all families of the earth. The passage begins the covenant line through which Scripture's rescue story will unfold.",
+  "Exodus 3": "Exodus 3 stands after Israel's slavery in Egypt and Moses' exile in Midian. At the burning bush, the Lord reveals His holiness, His covenant name, and His compassion for His oppressed people. Deliverance begins with God's seeing, hearing, remembering, and sending.",
+  "Psalm 23": "Psalm 23 is a Davidic psalm of trust that pictures the Lord as Shepherd and host. Its comfort is not the absence of danger, because the valley and enemies remain present, but the Lord's guiding, restoring, protecting, and welcoming care.",
+  "Isaiah 53": "Isaiah 53 belongs within Isaiah's Servant Songs, where the Servant suffers, is rejected, bears sin, and brings peace to many. Christians read this passage in light of Jesus' death and resurrection, while keeping Isaiah's first setting of promised restoration in view.",
+  "Luke 2": "Luke 2 places Jesus' birth within real history under Caesar Augustus, but the announcement comes first to shepherds. The chapter joins humility and glory: the Savior, Christ the Lord, is born in David's city, and God's salvation comes near to ordinary people.",
+  "John 3": "John 3 records Jesus' conversation with Nicodemus, a teacher of Israel, about new birth, the Spirit, and believing in the Son. The famous promise of God's love comes within a passage that also speaks honestly about human darkness and the need for life from above.",
+  "Romans 8": "Romans 8 follows Paul's explanation of sin, law, justification, and union with Christ. It gathers the assurance of life in the Spirit: no condemnation, adoption, suffering with hope, Spirit-helped weakness, and God's inseparable love in Christ.",
+  "Ephesians 2": "Ephesians 2 moves from spiritual death to God's mercy, then from personal salvation to a reconciled new people in Christ. Grace through faith is the foundation, and good works are the fruit God prepares. The chapter keeps rescue and community together.",
+  "Revelation 21": "Revelation 21 comes after judgment and the defeat of evil, showing the new heaven and new earth where God dwells with His people. The final hope is not vague escape, but renewed creation, wiped tears, holiness, and life with God forever."
+});
 
 const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "john-21": johnGospelDevotionals,

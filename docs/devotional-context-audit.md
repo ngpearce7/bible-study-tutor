@@ -18,16 +18,21 @@ Current inventory:
 - Missing Notice / Reflect / Pray / Next step / Study deeper fields from complete guided devotional days: 0
 - Care-plan days missing approved care notes: 0
 - Shared-devotional collisions detected by the runtime validator: 0
-- This pass completed a focused theological/context audit for the highest-risk passages named in the review brief, especially anxiety, peace, grief, and comfort passages that are easy to overgeneralize.
+- Generic automatic context padding: removed
+- Individually rewritten context rows from the removed padding inventory: 239
+- Unique source contexts rewritten: 208
+- This pass completed a focused theological/context audit for the highest-risk passages named in the review brief and removed the former generic context-padding workaround.
 
-The current validator distinguishes complete guided devotionals from lighter generated reading guidance. Because the full library is large, this document distinguishes between reviewed entries, generated entries, and entries protected by the shared context safeguard. Passing the audit gate means no user-facing devotional context is missing or unusually thin; it does not mean every generated day has received a bespoke source-backed commentary review.
+The current validator distinguishes complete guided devotionals from lighter generated reading guidance. Passing the audit gate means no user-facing devotional context is missing or unusually thin, and no context is automatically repaired at runtime. It does not mean every generated reading-guidance day has received a bespoke source-backed commentary review.
 
 Current completion gate:
 
 - Plans with no missing or short context flags: 48
 - Plans still pending context review or expansion: 0 for threshold-blocking context flags
 - Exact day-level context review rows: 0
+- Generic context-padding rows remaining: 0
 - To list every day-level row, run `npm run plans:audit -- --context-review`.
+- The exact inventory of the 239 formerly padded rows is recorded in `docs/devotional-context-inventory.json`.
 
 ## Runtime Per-Plan Inventory
 
@@ -113,11 +118,13 @@ Reference links:
 - https://www.biblegateway.com/passage/?search=Proverbs+3%3A5&version=NET
 - https://www.stepbible.org/?q=version%3DTNotes%7Creference%3DGal.3.26-Gal.3.29
 
-## Automated Context Safeguard
+## Removed Padding Mechanism
 
-This pass also added a builder-level safeguard to `devotional(...)`: if a guided devotional context is shorter than the review threshold, the app appends a neutral Scripture-setting reminder about reading the passage in its immediate chapter and book context before moving to application. This prevents short, thin context lines from reaching users or future audit reports.
+The previous context-padding mechanism has been removed from `data/bibleReadingPlans.ts`. The deleted generic sentence is not appended by the devotional builder, and contexts are now validated exactly as stored in the reading-plan data.
 
-The repeated reflection-day helper was also expanded so long annual plans now give fuller guidance when a user revisits a passage. These automated safeguards are intentionally modest; they improve the user-facing floor for all plans, but they are not a substitute for future bespoke editorial review where a plan deserves deeper passage-by-passage treatment.
+The affected inventory contained 239 guided-devotional rows across 13 plans: Major Prophets Overview, Acts and the Early Church, Paul's Letters Overview, Life of David, Life of Moses, 14 Days on the Life of Jesus, 14 Days on Faith, 14 Days on Grief and Comfort, Holy Week / Passion Week, Advent readings, Easter / Resurrection readings, Life of Jesus, and Chronological Bible Overview. These rows were expanded directly in source data with passage-specific setting rather than with a shared suffix.
+
+Validation now fails if the deleted padding symbol or sentence reappears, if guided devotionals fall below the context threshold, or if a large repeated context suffix suggests boilerplate padding has returned. The duplicate-context report permits explicitly allowlisted reuse only for the same passage where the same curated devotional is intentionally shared across plans.
 
 ## Reviewed In This Pass
 
@@ -125,9 +132,10 @@ The repeated reflection-day helper was also expanded so long annual plans now gi
 
 - Passages: Psalm 46:1-11 and Psalm 46:1-7
 - Verdict: Improved
-- Issue: The wording was pastorally useful, but the context field was missing in shared helpers. This could let "be still" read as a generic relaxation technique.
-- Changed fields: Added `context` to shared Psalm 46 helpers.
-- Theological review need: Low. The current wording now identifies Psalm 46 as a communal Song of Zion and frames stillness as ceasing striving before God's rule.
+- Issue: The shared "be still" devotional needed fuller Zion/nations framing so it could not be read as a private relaxation technique, passive avoidance, or a claim that the reader should stop acting because everything depends on God.
+- Changed fields: `context`, devotional body, reflection prompt, and prayer in `psalm46StillBeforeGodDevotional`.
+- Consumers checked: `Psalms for Prayer` and `14 Days on Grief and Comfort` use the shared Psalm 46 devotional. `14 Days on Anxiety and Trust` retains its already-improved plan-specific Psalm 46 devotional.
+- Theological review need: Low. The current wording identifies Psalm 46 as a Korahite Song of Zion, names cosmic instability and hostile nations, and derives comfort from God's presence with His city and His rule over the nations.
 
 ### 14 Days on Anxiety and Trust
 

@@ -361,14 +361,6 @@ const chronologicalBibleBooks = [
 const paulineBooks = ["Romans", "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon"];
 const pentateuchBooks = ["Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy"];
 const majorProphetBooks = ["Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel"];
-const minimumContextReviewLength = 160;
-const contextReviewAnchor =
-  "Read it within its immediate chapter and book setting, noticing the passage's place in Scripture before moving quickly to personal application.";
-
-function withContextReviewAnchor(context?: string): string | undefined {
-  if (!context || context.length >= minimumContextReviewLength) return context;
-  return `${context} ${contextReviewAnchor}`;
-}
 
 function devotional(
   title: string,
@@ -380,7 +372,6 @@ function devotional(
   return {
     guidanceKind: extras.guidanceKind || "guided-devotional",
     ...extras,
-    context: withContextReviewAnchor(extras.context),
     devotional: {
       title,
       body,
@@ -444,11 +435,11 @@ function withPastoralCareNote(plan: BibleReadingPlan, careNote: string): BibleRe
 
 const psalm46StillBeforeGodDevotional = devotional(
   "Be still before the God who reigns",
-  "Psalm 46 does not pretend the world is calm. The earth gives way, nations rage, and kingdoms totter, yet God is present with His people as refuge, strength, and help. The call to be still is not passive avoidance; it is a summons to stop striving as though everything rests on you, and to know that the Lord is exalted over every shaking thing.",
-  "Where are you carrying pressure as though God is absent, hurried, or unable to help?",
-  "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
+  "Psalm 46 does not pretend the world is calm. The earth gives way, nations rage, and kingdoms totter, yet the Lord of hosts is present with His city and rules over the nations. The call to be still is a summons to cease rebellious striving and acknowledge that God will be exalted in the earth.",
+  "What fear, conflict, or false security needs to be answered by the Lord's presence and rule?",
+  "Lord of hosts, help me know that You are present with Your people and exalted over the nations.",
   {
-    context: "Psalm 46 is a Korahite Song of Zion. It pictures earth-shaking chaos and raging nations, yet God dwells with and defends His city. The command to be still is a summons to cease striving and recognize His rule, not merely a private relaxation technique."
+    context: "Psalm 46 is a Korahite Song of Zion. It pictures cosmic instability, hostile nations, God present with His city, and the Lord's rule over the whole earth. The command to be still, or cease, is not a private relaxation technique or passive avoidance; it summons all striving powers to acknowledge God's exalted reign."
   }
 );
 
@@ -467,7 +458,7 @@ type CuratedDevotionalMap = Record<string, Record<string, BibleReadingPlanDayExt
 const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Luke 2": guidedDevotional({
     title: "The Savior is born",
-    context: "Luke places Jesus' birth in ordinary history: a census, Bethlehem, a manger, and shepherds keeping watch.",
+    context: "Luke places Jesus' birth in ordinary history: a census, Bethlehem, a manger, and shepherds keeping watch. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Luke 2.",
     body: "The promised Savior comes with deep humility. Heaven announces Him as Savior, Christ, and Lord, yet the sign is a baby lying in a manger. This passage invites you to see God's glory in the humility of Christ and to receive the good news with worship rather than mere sentiment.",
     observationQuestion: "What titles are given to Jesus, and what sign are the shepherds told to look for?",
     reflectionQuestion: "Where do you need to receive Christ's humble nearness as good news today?",
@@ -477,7 +468,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 3": guidedDevotional({
     title: "The beloved Son",
-    context: "Jesus comes to John at the Jordan, where people are confessing sin and being baptized.",
+    context: "Jesus comes to John at the Jordan, where people are confessing sin and being baptized. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Matthew 3.",
     body: "Jesus has no sin to confess, yet He stands with His people in the waters. The Father delights in Him, and the Spirit rests upon Him. Before Jesus' public ministry unfolds, the passage shows who He is: the beloved Son who fulfills righteousness and acts in the pleasure of the Father.",
     observationQuestion: "What does Jesus say about His baptism, and what does the Father say about Him?",
     reflectionQuestion: "How does the Father's delight in the Son steady your view of Jesus' mission?",
@@ -487,7 +478,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 4": guidedDevotional({
     title: "Faithful in temptation",
-    context: "After His baptism, Jesus is led by the Spirit into the wilderness and tempted by the devil.",
+    context: "After His baptism, Jesus is led by the Spirit into the wilderness and tempted by the devil. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Matthew 4.",
     body: "Jesus answers temptation with Scripture and faithful dependence on the Father. Where Israel failed in the wilderness, the Son remains obedient. He refuses to use His identity for self-protection, spectacle, or false worship. His victory teaches you to trust God's Word when pressure tries to bend your desires.",
     observationQuestion: "What does each temptation offer, and how does Jesus answer it?",
     reflectionQuestion: "Where do you need Scripture to reorder desire, fear, or ambition?",
@@ -497,7 +488,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 5": guidedDevotional({
     title: "Kingdom life",
-    context: "Matthew 5 begins the Sermon on the Mount, where Jesus teaches His disciples the character of kingdom life.",
+    context: "Matthew 5 begins the Sermon on the Mount, where Jesus teaches His disciples the character of kingdom life. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Matthew 5.",
     body: "Jesus does not describe a shallow spirituality. He blesses the poor in spirit, the meek, the merciful, and the persecuted, then calls His people to visible righteousness from the heart. The passage presses beyond appearance and into a life formed by the King Himself.",
     observationQuestion: "What kind of people does Jesus call blessed, and what kind of righteousness does He describe?",
     reflectionQuestion: "Which part of Jesus' kingdom teaching exposes an area that needs His formation?",
@@ -507,7 +498,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Mark 2": guidedDevotional({
     title: "Authority and mercy",
-    context: "Mark gathers scenes where Jesus forgives, heals, calls Levi, eats with sinners, and teaches about Sabbath mercy.",
+    context: "Mark gathers scenes where Jesus forgives, heals, calls Levi, eats with sinners, and teaches about Sabbath mercy. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Mark 2.",
     body: "Jesus' authority is not cold power; it is mercy that restores. He forgives sins, calls the unlikely, and challenges religious hardness. The chapter asks you to see Him as the Son of Man with authority to forgive and as the Physician who comes for the sick.",
     observationQuestion: "How do people respond to Jesus' authority and mercy in this chapter?",
     reflectionQuestion: "Where do you need to come to Jesus honestly as one who needs mercy?",
@@ -517,7 +508,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Luke 15": guidedDevotional({
     title: "The Father's joy",
-    context: "Jesus tells these parables in response to grumbling that He welcomes sinners and eats with them.",
+    context: "Jesus tells these parables in response to grumbling that He welcomes sinners and eats with them. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Luke 15.",
     body: "The lost sheep, lost coin, and lost son reveal the joy of God in restoring the lost. Jesus does not minimize sin, but He magnifies grace. The elder brother's resentment warns against hearts that resent mercy while standing close to the house.",
     observationQuestion: "What is lost, what is found, and what joy follows in each parable?",
     reflectionQuestion: "Do you most need to return, rejoice, or repent of resentment today?",
@@ -527,7 +518,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 6": guidedDevotional({
     title: "The bread of life",
-    context: "After feeding the crowd, Jesus teaches that the sign points beyond bread to Himself.",
+    context: "After feeding the crowd, Jesus teaches that the sign points beyond bread to Himself. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 6.",
     body: "Jesus does not merely provide bread; He is the Bread of Life. The crowd wants another sign and another meal, but Jesus calls them to come to Him and believe. The passage turns appetite into invitation: lasting life is found in Christ Himself.",
     observationQuestion: "How does Jesus move the crowd from physical bread to Himself?",
     reflectionQuestion: "Where are you seeking gifts from Jesus while needing to come to Jesus Himself?",
@@ -537,7 +528,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 10": guidedDevotional({
     title: "The Good Shepherd",
-    context: "Jesus uses shepherd imagery to describe His relationship to His sheep and His coming death.",
+    context: "Jesus uses shepherd imagery to describe His relationship to His sheep and His coming death. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 10.",
     body: "The Good Shepherd knows His sheep, calls them by name, protects them, and lays down His life for them. This is not vague comfort; it is costly care. Jesus' sheep are safe because their Shepherd gives Himself for them and holds them in His hand.",
     observationQuestion: "What does Jesus say the Good Shepherd does for His sheep?",
     reflectionQuestion: "Which promise of the Shepherd do you most need to trust today?",
@@ -547,7 +538,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 11": guidedDevotional({
     title: "Resurrection and life",
-    context: "Lazarus has died, and Jesus meets Martha and Mary in grief before going to the tomb.",
+    context: "Lazarus has died, and Jesus meets Martha and Mary in grief before going to the tomb. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 11.",
     body: "Jesus reveals Himself as the resurrection and the life while also weeping with those who grieve. His tears show real compassion; His command at the tomb shows real authority. Hope in this passage is not an idea but a Person standing before death.",
     observationQuestion: "What does Jesus say about Himself, and how does He respond to grief?",
     reflectionQuestion: "Where do you need to trust both the compassion and authority of Jesus?",
@@ -557,7 +548,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 13": guidedDevotional({
     title: "Servant love",
-    context: "During the last supper, Jesus washes His disciples' feet before teaching them to love one another.",
+    context: "During the last supper, Jesus washes His disciples' feet before teaching them to love one another. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 13.",
     body: "Jesus knows His hour has come, yet He stoops to serve. The Lord and Teacher takes the servant's place, showing love that cleanses and humbles. His command to love one another is grounded in His own costly, lowly love.",
     observationQuestion: "What does Jesus know, what does He do, and what command does He give?",
     reflectionQuestion: "Where is Jesus' servant love calling you away from pride or self-protection?",
@@ -567,7 +558,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 17": guidedDevotional({
     title: "Jesus prays for His people",
-    context: "Before the cross, Jesus prays to the Father for His disciples and for those who will believe through their word.",
+    context: "Before the cross, Jesus prays to the Father for His disciples and for those who will believe through their word. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 17.",
     body: "Jesus prays for glory, eternal life, protection, sanctification, unity, and love. His people are not left to themselves; they are carried in the prayer of the Son to the Father. The passage lets you listen to the heart of Christ for those who belong to Him.",
     observationQuestion: "What does Jesus ask the Father to do for His people?",
     reflectionQuestion: "Which part of Jesus' prayer gives you courage or correction today?",
@@ -577,7 +568,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 26": guidedDevotional({
     title: "Obedience in sorrow",
-    context: "Matthew 26 moves through betrayal, Passover, Gethsemane, arrest, and denial.",
+    context: "Matthew 26 moves through betrayal, Passover, Gethsemane, arrest, and denial. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Matthew 26.",
     body: "In Gethsemane, Jesus is deeply sorrowful and yet wholly submitted to the Father. His obedience is not detached or easy; it is costly faithfulness under the weight of the coming cross. The passage invites reverent attention to the Savior who says, 'Your will be done.'",
     observationQuestion: "What sorrow, weakness, betrayal, and obedience appear in this chapter?",
     reflectionQuestion: "How does Jesus' costly obedience reshape the way you pray in hardship?",
@@ -587,7 +578,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 19": guidedDevotional({
     title: "It is finished",
-    context: "John records Jesus' trial, crucifixion, death, and burial with repeated attention to Scripture being fulfilled.",
+    context: "John records Jesus' trial, crucifixion, death, and burial with repeated attention to Scripture being fulfilled. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 19.",
     body: "Jesus is mocked as king, lifted up on the cross, and yet remains sovereign in His suffering. His words 'It is finished' announce completion, not defeat. The Lamb gives Himself fully, fulfilling Scripture and accomplishing the work the Father gave Him to do.",
     observationQuestion: "What details show both Jesus' suffering and the fulfillment of Scripture?",
     reflectionQuestion: "What changes when you receive the cross as finished work rather than unfinished striving?",
@@ -597,7 +588,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 20": guidedDevotional({
     title: "The risen Lord",
-    context: "John 20 moves from the empty tomb to Jesus appearing to Mary, the disciples, and Thomas.",
+    context: "John 20 moves from the empty tomb to Jesus appearing to Mary, the disciples, and Thomas. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in John 20.",
     body: "The resurrection turns grief into witness, fear into peace, and doubt into confession. Jesus is not merely remembered; He is risen and present with His people. Thomas' confession, 'My Lord and my God,' gives the fitting response to the risen Christ.",
     observationQuestion: "How do Mary, the disciples, and Thomas respond as they encounter the risen Jesus?",
     reflectionQuestion: "Where do you need the risen Lord to turn fear, grief, or doubt into faith?",
@@ -610,7 +601,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const holyWeekDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Matthew 21": guidedDevotional({
     title: "The King comes humbly",
-    context: "Jesus enters Jerusalem as crowds shout Hosanna, then He enters the temple and confronts fruitless religion.",
+    context: "Jesus enters Jerusalem as crowds shout Hosanna, then He enters the temple and confronts fruitless religion. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Matthew 21.",
     body: "Holy Week begins with Jesus openly receiving royal praise, but His kingship is humble, prophetic, and searching. He comes not as a ruler who flatters religious appearances, but as the promised King who exposes what is barren and calls His people to true worship.",
     observationQuestion: "What do the crowds say about Jesus, and what does Jesus confront after entering Jerusalem?",
     reflectionQuestion: "Where might you welcome Jesus publicly while resisting His searching authority privately?",
@@ -620,7 +611,7 @@ const holyWeekDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 22": guidedDevotional({
     title: "Love God and neighbor",
-    context: "Religious leaders test Jesus with questions, and He answers with wisdom about kingdom invitation, allegiance, resurrection, and the greatest commandment.",
+    context: "Religious leaders test Jesus with questions, and He answers with wisdom about kingdom invitation, allegiance, resurrection, and the greatest commandment. Read this Gospel scene as witness to Jesus' identity, kingdom, compassion, obedience, death, and resurrection as the evangelist presents them in Matthew 22.",
     body: "Jesus is not trapped by hostile questions. He reveals the heart of faithful life: love the Lord with all your heart, soul, and mind, and love your neighbor as yourself. In the shadow of the cross, Jesus shows that true obedience is ordered by love.",
     observationQuestion: "What questions are brought to Jesus, and how does He redirect attention to God?",
     reflectionQuestion: "Where does love for God or neighbor need to become more than an idea today?",
@@ -638,7 +629,7 @@ const holyWeekDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Genesis 3": guidedDevotional({
     title: "Promise in the fall",
-    context: "Human rebellion brings shame, judgment, and exile, yet God speaks a promise of defeat for the serpent.",
+    context: "Human rebellion brings shame, judgment, and exile, yet God speaks a promise of defeat for the serpent. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Genesis 3.",
     body: "Advent begins where the need for rescue begins. The promise of the woman's offspring does not erase the seriousness of sin, but it plants hope inside judgment. The coming of Christ answers a problem deeper than disappointment: humanity needs a Redeemer.",
     observationQuestion: "What is broken by sin, and what promise does God speak?",
     reflectionQuestion: "How does the first promise of rescue deepen your view of why Christ came?",
@@ -648,7 +639,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Genesis 12": guidedDevotional({
     title: "Blessing for the nations",
-    context: "God calls Abram and promises land, descendants, blessing, and blessing for all families of the earth.",
+    context: "God calls Abram and promises land, descendants, blessing, and blessing for all families of the earth. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Genesis 12.",
     body: "The hope of Christ is not narrow or accidental. God promises blessing through Abraham that will reach the nations. Advent remembers that Jesus comes as the promised seed through whom God's blessing spreads beyond one family to people from every people and place.",
     observationQuestion: "What does God promise Abram, and who will be blessed through him?",
     reflectionQuestion: "How does God's promise to bless the nations enlarge your worship of Christ?",
@@ -658,7 +649,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Isaiah 7": guidedDevotional({
     title: "God with us",
-    context: "In a time of political fear, Isaiah gives the sign of Immanuel: God with us.",
+    context: "In a time of political fear, Isaiah gives the sign of Immanuel: God with us. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Isaiah 7.",
     body: "Isaiah 7 speaks into fear and unbelief. The sign of Immanuel becomes part of the long hope that God will be with His people in a decisive way. Advent is not simply comfort in the abstract; it is the wonder that God draws near in Christ.",
     observationQuestion: "What fear surrounds the passage, and what sign is given?",
     reflectionQuestion: "Where do you need the promise of God with us to confront fear or unbelief?",
@@ -668,7 +659,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Isaiah 9": guidedDevotional({
     title: "A child who reigns",
-    context: "Isaiah promises light for people in darkness and a child whose government and peace will not end.",
+    context: "Isaiah promises light for people in darkness and a child whose government and peace will not end. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Isaiah 9.",
     body: "The promised child is more than a symbol of hope. He bears royal names and brings righteous peace. Advent holds together tenderness and majesty: a child is born, a Son is given, and the government rests on His shoulders.",
     observationQuestion: "What darkness is answered, and what names are given to the promised child?",
     reflectionQuestion: "Which name of the promised King do you most need to trust today?",
@@ -678,7 +669,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Isaiah 11": guidedDevotional({
     title: "The righteous Branch",
-    context: "Isaiah looks for a shoot from Jesse's line, filled with the Spirit and ruling with righteousness.",
+    context: "Isaiah looks for a shoot from Jesse's line, filled with the Spirit and ruling with righteousness. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Isaiah 11.",
     body: "The Messiah brings wisdom, justice, and peace that reaches beyond what human rulers can produce. Isaiah's vision is not mere moral improvement; it is creation renewed under the righteous reign of the Lord's anointed King.",
     observationQuestion: "What does the Spirit give the coming King, and what kind of reign follows?",
     reflectionQuestion: "Where do you long for Christ's righteous peace to make things new?",
@@ -688,7 +679,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Micah 5": guidedDevotional({
     title: "Ruler from Bethlehem",
-    context: "Micah promises a ruler from Bethlehem whose origins are ancient and whose greatness reaches to the ends of the earth.",
+    context: "Micah promises a ruler from Bethlehem whose origins are ancient and whose greatness reaches to the ends of the earth. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Micah 5.",
     body: "God's promised ruler comes from a small place, yet His rule is everlasting and His care is shepherd-like. Advent teaches you to look for God's saving work where the world may not think to look: in humility, promise, and faithful shepherding.",
     observationQuestion: "What does Micah say about the ruler's origin, rule, and shepherding care?",
     reflectionQuestion: "How does Bethlehem's smallness help you recognize God's way of working?",
@@ -698,7 +689,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Luke 1": guidedDevotional({
     title: "Mercy remembered",
-    context: "Luke 1 announces the births of John and Jesus, and Mary praises God for remembering His mercy.",
+    context: "Luke 1 announces the births of John and Jesus, and Mary praises God for remembering His mercy. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Luke 1.",
     body: "The coming of Jesus is not an isolated miracle. It is God's faithfulness to His promises, His mercy to the humble, and His saving help for His people. Mary's song teaches Advent worship to remember God's character and promises.",
     observationQuestion: "What does Mary say God has done, and what kind of people receive His mercy?",
     reflectionQuestion: "Where do you need to remember that God keeps His promises with mercy?",
@@ -709,7 +700,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Luke 2": lifeOfJesusDevotionals["Luke 2"],
   "Matthew 1": guidedDevotional({
     title: "Jesus saves His people",
-    context: "Matthew traces Jesus' genealogy and records the angel's word to Joseph about Mary's child.",
+    context: "Matthew traces Jesus' genealogy and records the angel's word to Joseph about Mary's child. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Matthew 1.",
     body: "Jesus' name declares His mission: He will save His people from their sins. Matthew also names Him Immanuel, God with us. Advent joy is therefore not vague cheer; it is salvation from sin and God's presence with His people in the Son.",
     observationQuestion: "What names or titles are given to Jesus, and what do they reveal?",
     reflectionQuestion: "How does Jesus' mission to save from sin shape your Advent hope?",
@@ -719,7 +710,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 2": guidedDevotional({
     title: "Worship the newborn King",
-    context: "Magi seek Jesus, Herod resists Him, and God protects the child through warning and flight.",
+    context: "Magi seek Jesus, Herod resists Him, and God protects the child through warning and flight. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Matthew 2.",
     body: "Matthew 2 contrasts worship and opposition. The nations begin to come to the King, while earthly power feels threatened by Him. The chapter reminds you that Christ's coming calls for costly worship and that God's preserving hand is active even amid danger.",
     observationQuestion: "How do the Magi and Herod respond differently to the birth of Jesus?",
     reflectionQuestion: "Where does Christ's kingship call for worship rather than control?",
@@ -729,7 +720,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "John 1": guidedDevotional({
     title: "The Word became flesh",
-    context: "John begins before creation and announces that the eternal Word became flesh and dwelt among us.",
+    context: "John begins before creation and announces that the eternal Word became flesh and dwelt among us. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through John 1.",
     body: "The child in the manger is the eternal Word through whom all things were made. John holds together glory and nearness: the Word became flesh, full of grace and truth. Advent worship bows before the mystery that God the Son truly came among us.",
     observationQuestion: "What does John say about the Word before describing His becoming flesh?",
     reflectionQuestion: "Where do you need to receive Christ's grace and truth today?",
@@ -739,7 +730,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Galatians 4": guidedDevotional({
     title: "Sent in the fullness of time",
-    context: "Paul explains that God sent His Son to redeem those under the law so they might receive adoption.",
+    context: "Paul explains that God sent His Son to redeem those under the law so they might receive adoption. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Galatians 4.",
     body: "Christmas is timed by God's wisdom and aimed at redemption and adoption. The Son is sent so slaves become children and the Spirit teaches them to cry, 'Abba, Father.' Advent hope reaches into identity: in Christ, you are received as God's child.",
     observationQuestion: "Why does Paul say God sent His Son, and what status is given to believers?",
     reflectionQuestion: "Where do you need to live as an adopted child rather than a spiritual orphan?",
@@ -749,7 +740,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Philippians 2": guidedDevotional({
     title: "The humility of Christ",
-    context: "Paul calls believers to humility by pointing to Christ's descent, obedience, death, and exaltation.",
+    context: "Paul calls believers to humility by pointing to Christ's descent, obedience, death, and exaltation. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Philippians 2.",
     body: "The incarnation reveals not only that Christ came, but how He came: in humility, servanthood, and obedience to death. The Father exalts Him, and every knee will bow. Advent worship should produce humble love, not merely seasonal feeling.",
     observationQuestion: "What movement do you see from Christ's humility to His exaltation?",
     reflectionQuestion: "Where should Christ's humility reshape your attitude toward others?",
@@ -759,7 +750,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Revelation 22": guidedDevotional({
     title: "Come, Lord Jesus",
-    context: "The Bible ends with the river of life, the tree of life, and the promise that Jesus is coming soon.",
+    context: "The Bible ends with the river of life, the tree of life, and the promise that Jesus is coming soon. This reading contributes to Advent hope by tracing promise, judgment, covenant, incarnation, redemption, or final renewal in the Bible's story through Revelation 22.",
     body: "Advent looks back to Christ's first coming and forward to His return. The final prayer, 'Come, Lord Jesus,' gathers longing, hope, and worship. The One who came in humility will come again, and His people will see His face.",
     observationQuestion: "What future hope is described, and what promise does Jesus give?",
     reflectionQuestion: "How does longing for Christ's return shape the way you wait now?",
@@ -772,7 +763,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Isaiah 53": guidedDevotional({
     title: "Wounded for our transgressions",
-    context: "Isaiah speaks of the suffering Servant who bears sin, is pierced, and yet sees life beyond His suffering.",
+    context: "Isaiah speaks of the suffering Servant who bears sin, is pierced, and yet sees life beyond His suffering. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Isaiah 53.",
     body: "Isaiah 53 prepares you to see the cross as substitution, not tragedy alone. The Servant suffers for His people, bears their iniquity, and brings peace through His wounds. Easter hope begins with the costly mercy of the suffering Servant.",
     observationQuestion: "What does the Servant suffer, and for whom does He suffer?",
     reflectionQuestion: "How does Christ bearing sin change the way you bring guilt or shame to God?",
@@ -782,7 +773,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Matthew 28": guidedDevotional({
     title: "He has risen",
-    context: "Women come to the tomb, hear the angel's announcement, meet the risen Jesus, and receive a commission.",
+    context: "Women come to the tomb, hear the angel's announcement, meet the risen Jesus, and receive a commission. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Matthew 28.",
     body: "The resurrection is announced with clarity: He is not here; He has risen. Fear gives way to worship and mission. The risen Jesus sends His disciples with authority, presence, and a command to make disciples of all nations.",
     observationQuestion: "What message is given at the tomb, and what command does Jesus give His disciples?",
     reflectionQuestion: "Where should resurrection hope turn fear into worship or witness?",
@@ -792,7 +783,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Mark 16": guidedDevotional({
     title: "Alarm and announcement",
-    context: "The women come to anoint Jesus and find the stone rolled away and the tomb empty.",
+    context: "The women come to anoint Jesus and find the stone rolled away and the tomb empty. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Mark 16.",
     body: "Mark's resurrection account confronts human fear with divine announcement. The crucified Jesus is risen, and His followers are called to go and tell. The passage does not ask you to manufacture confidence; it asks you to hear the announcement and respond.",
     observationQuestion: "What do the women expect, what do they find, and what message are they given?",
     reflectionQuestion: "What fear needs to be answered by the announcement that Jesus is risen?",
@@ -802,7 +793,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Luke 24": guidedDevotional({
     title: "Opened eyes and burning hearts",
-    context: "Luke 24 moves from the empty tomb to the Emmaus road and Jesus opening the Scriptures to His disciples.",
+    context: "Luke 24 moves from the empty tomb to the Emmaus road and Jesus opening the Scriptures to His disciples. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Luke 24.",
     body: "The risen Jesus teaches His followers to understand His death and resurrection from the Scriptures. Their hearts burn as He opens the Word, and their eyes are opened to know Him. Resurrection faith is anchored in Scripture and fellowship with the living Christ.",
     observationQuestion: "How does Jesus explain His suffering and glory to the disciples?",
     reflectionQuestion: "Where do you need Christ to open the Scriptures and renew your hope?",
@@ -813,7 +804,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "John 20": lifeOfJesusDevotionals["John 20"],
   "John 21": guidedDevotional({
     title: "Restored and sent",
-    context: "The risen Jesus meets His disciples by the sea, provides breakfast, and restores Peter.",
+    context: "The risen Jesus meets His disciples by the sea, provides breakfast, and restores Peter. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in John 21.",
     body: "Jesus restores Peter not by ignoring his failure, but by drawing love and calling from him again. The risen Lord feeds, forgives, and commissions. Easter grace restores failed disciples into renewed love and faithful service.",
     observationQuestion: "How does Jesus care for the disciples and restore Peter?",
     reflectionQuestion: "Where do you need the risen Jesus to restore love after failure?",
@@ -823,7 +814,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 2": guidedDevotional({
     title: "The risen Christ proclaimed",
-    context: "At Pentecost, Peter proclaims that God raised Jesus and made Him both Lord and Christ.",
+    context: "At Pentecost, Peter proclaims that God raised Jesus and made Him both Lord and Christ. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 2.",
     body: "The resurrection becomes public proclamation. Peter announces that the crucified Jesus is risen, exalted, and reigning. The right response is repentance, faith, baptism, and life among God's people under the gift of the Spirit.",
     observationQuestion: "What does Peter say God has done with Jesus?",
     reflectionQuestion: "How should Jesus' resurrection and lordship shape your repentance and witness?",
@@ -833,7 +824,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 4": guidedDevotional({
     title: "No other name",
-    context: "Peter and John testify before leaders after healing a man in Jesus' name.",
+    context: "Peter and John testify before leaders after healing a man in Jesus' name. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 4.",
     body: "The apostles do not present Jesus as one spiritual option among many. The rejected stone has become the cornerstone, and salvation is found in no other name. Resurrection confidence produces humble boldness before opposition.",
     observationQuestion: "What claims are made about Jesus' name and salvation?",
     reflectionQuestion: "Where do you need Spirit-given courage to hold fast to Christ?",
@@ -843,7 +834,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Romans 6": guidedDevotional({
     title: "Raised to new life",
-    context: "Paul explains that believers are united with Christ in His death and resurrection.",
+    context: "Paul explains that believers are united with Christ in His death and resurrection. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Romans 6.",
     body: "The resurrection is not only something to believe about Jesus; it is the life believers share in Him. United to Christ, you are no longer to live as a slave to sin. Easter power means walking in newness of life.",
     observationQuestion: "What does Paul say happened to believers with Christ?",
     reflectionQuestion: "What would it look like to walk in newness of life today?",
@@ -853,7 +844,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Romans 8": guidedDevotional({
     title: "Life in the Spirit",
-    context: "Romans 8 describes life in Christ, the Spirit's work, present suffering, future glory, and God's inseparable love.",
+    context: "Romans 8 describes life in Christ, the Spirit's work, present suffering, future glory, and God's inseparable love. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Romans 8.",
     body: "Because of Christ, there is no condemnation for those who are in Him. The Spirit gives life, helps weakness, and anchors hope as believers wait for glory. Resurrection hope does not erase suffering, but it assures you that nothing can separate you from God's love in Christ.",
     observationQuestion: "What does Romans 8 say the Spirit does for those who belong to Christ?",
     reflectionQuestion: "Which promise in this chapter needs to steady your hope today?",
@@ -863,7 +854,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "1 Corinthians 15": guidedDevotional({
     title: "If Christ has been raised",
-    context: "Paul defends the resurrection and explains why Christ's resurrection is central to Christian hope.",
+    context: "Paul defends the resurrection and explains why Christ's resurrection is central to Christian hope. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in 1 Corinthians 15.",
     body: "Paul makes the resurrection essential, not optional. If Christ is not raised, faith is empty; but Christ has been raised, the firstfruits of those who sleep. This hope gives courage for steadfast, meaningful labor in the Lord.",
     observationQuestion: "What consequences does Paul name if Christ is not raised, and what hope follows because He is raised?",
     reflectionQuestion: "How does resurrection hope make faithfulness worth it today?",
@@ -873,7 +864,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "1 Peter 1": guidedDevotional({
     title: "Born again to living hope",
-    context: "Peter writes to suffering believers and begins with praise for new birth through Jesus' resurrection.",
+    context: "Peter writes to suffering believers and begins with praise for new birth through Jesus' resurrection. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in 1 Peter 1.",
     body: "The resurrection gives believers a living hope and an imperishable inheritance. Trials are real, but they are not ultimate. Faith is refined, Christ is loved though unseen, and salvation is guarded by God's power.",
     observationQuestion: "What blessings flow from the resurrection of Jesus in this passage?",
     reflectionQuestion: "Where do you need living hope to steady you in trial or uncertainty?",
@@ -883,7 +874,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Revelation 1": guidedDevotional({
     title: "The Living One",
-    context: "John sees the risen and glorified Christ, who declares that He was dead and is alive forevermore.",
+    context: "John sees the risen and glorified Christ, who declares that He was dead and is alive forevermore. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Revelation 1.",
     body: "The risen Jesus is not fragile or distant. He is the Living One, holding authority over death and Hades. Easter hope matures into awe: the crucified and risen Christ reigns in glory and speaks to His churches.",
     observationQuestion: "How is Jesus described in John's vision?",
     reflectionQuestion: "How does seeing Jesus as the Living One reshape fear of death or uncertainty?",
@@ -893,7 +884,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Revelation 21": guidedDevotional({
     title: "Every tear wiped away",
-    context: "John sees the new heaven and new earth, where God dwells with His people and makes all things new.",
+    context: "John sees the new heaven and new earth, where God dwells with His people and makes all things new. This reading connects Easter hope to sin-bearing, resurrection witness, union with Christ, endurance, and final renewal as Scripture presents them in Revelation 21.",
     body: "Resurrection hope ends in renewal. Death, mourning, crying, and pain do not have the final word. The God who raised Jesus will make all things new and dwell with His people forever.",
     observationQuestion: "What former things pass away, and what does God promise to make new?",
     reflectionQuestion: "Which sorrow needs to be held in the light of God's promised renewal?",
@@ -906,7 +897,7 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "1 Samuel 16": guidedDevotional({
     title: "The Lord looks at the heart",
-    context: "Samuel is sent to Bethlehem to anoint the king God has chosen from Jesse's sons.",
+    context: "Samuel is sent to Bethlehem to anoint the king God has chosen from Jesse's sons. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 1 Samuel 16.",
     body: "David's story begins with God's seeing. The impressive sons pass before Samuel, but the Lord is not bound by outward appearance. David is chosen by grace and prepared by the Spirit. This passage teaches that God's purposes are not measured by human visibility or status.",
     observationQuestion: "What does the Lord tell Samuel about outward appearance and the heart?",
     reflectionQuestion: "Where are you tempted to measure yourself or others by what people can see?",
@@ -916,7 +907,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "1 Samuel 17": guidedDevotional({
     title: "Courage rooted in the Lord",
-    context: "David faces Goliath while Israel's army is afraid and Saul's armor does not fit him.",
+    context: "David faces Goliath while Israel's army is afraid and Saul's armor does not fit him. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 1 Samuel 17.",
     body: "David's courage is not confidence in himself. He remembers the Lord's past deliverance and trusts that the battle belongs to Him. The passage is not mainly about becoming a hero; it points to faith that sees the Lord as greater than the enemy.",
     observationQuestion: "What does David say about the Lord before facing Goliath?",
     reflectionQuestion: "What fear needs to be placed under the truth that the battle belongs to the Lord?",
@@ -926,7 +917,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "1 Samuel 18": guidedDevotional({
     title: "Faithfulness under jealousy",
-    context: "David succeeds, Jonathan loves him, and Saul grows jealous and afraid.",
+    context: "David succeeds, Jonathan loves him, and Saul grows jealous and afraid. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 1 Samuel 18.",
     body: "David's rise exposes Saul's insecurity. Jealousy turns Saul against the one God is blessing, while Jonathan responds with covenant love. The chapter invites you to notice how the heart responds when God blesses another person.",
     observationQuestion: "How do Saul and Jonathan respond differently to David?",
     reflectionQuestion: "Where do you need to resist jealousy and practice covenant love or contentment?",
@@ -936,7 +927,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "1 Samuel 24": guidedDevotional({
     title: "Mercy in the cave",
-    context: "David has an opportunity to kill Saul, but he refuses to seize the throne by violence.",
+    context: "David has an opportunity to kill Saul, but he refuses to seize the throne by violence. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 1 Samuel 24.",
     body: "David trusts God's timing enough to show mercy when revenge is available. He does not deny Saul's wrongdoing, but he refuses to take judgment into his own hands. The passage teaches restraint, reverence, and patient trust under injustice.",
     observationQuestion: "What opportunity does David have, and why does he refuse to take it?",
     reflectionQuestion: "Where are you tempted to force an outcome instead of trusting God's timing?",
@@ -946,7 +937,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "2 Samuel 5": guidedDevotional({
     title: "Shepherding God's people",
-    context: "David is made king over Israel, and the people name his call to shepherd and lead them.",
+    context: "David is made king over Israel, and the people name his call to shepherd and lead them. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 2 Samuel 5.",
     body: "David's kingship is described in shepherd language. Authority is not given for self-importance but for faithful care. David's reign points beyond itself to the greater Son of David, Jesus, whose rule perfectly shepherds God's people.",
     observationQuestion: "What reasons do the tribes give for coming to David as king?",
     reflectionQuestion: "How should responsibility be shaped by shepherd-like care rather than status?",
@@ -956,7 +947,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "2 Samuel 6": guidedDevotional({
     title: "Reverent joy",
-    context: "David brings the ark toward Jerusalem, and the chapter holds together holy reverence and public joy.",
+    context: "David brings the ark toward Jerusalem, and the chapter holds together holy reverence and public joy. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 2 Samuel 6.",
     body: "The ark reminds Israel that God's presence is holy, not manageable. David's worship becomes joyful, embodied, and humble, yet the chapter warns against treating the Lord casually. True worship holds reverence and gladness together.",
     observationQuestion: "What moments in the chapter reveal both holiness and joy?",
     reflectionQuestion: "Does your worship need deeper reverence, freer joy, or both?",
@@ -966,7 +957,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "2 Samuel 7": guidedDevotional({
     title: "God builds the house",
-    context: "David wants to build a house for the Lord, but God promises to build David's house instead.",
+    context: "David wants to build a house for the Lord, but God promises to build David's house instead. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 2 Samuel 7.",
     body: "Grace reverses David's plan. David wants to do something great for God, but God gives a covenant promise that reaches forward to an everlasting kingdom. This promise finds its fulfillment in Christ, the Son of David whose throne endures forever.",
     observationQuestion: "What does David want to build, and what does God promise to build?",
     reflectionQuestion: "Where do you need to receive God's promise before trying to prove yourself by service?",
@@ -976,7 +967,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "2 Samuel 11": guidedDevotional({
     title: "The danger of hidden sin",
-    context: "David remains in Jerusalem, takes Bathsheba, and arranges Uriah's death to cover his sin.",
+    context: "David remains in Jerusalem, takes Bathsheba, and arranges Uriah's death to cover his sin. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 2 Samuel 11.",
     body: "This chapter does not excuse David. Power, desire, deceit, and violence are exposed with painful clarity. Scripture tells the truth about human sin so that repentance is possible and so that hope rests in God's mercy, not in human heroes.",
     observationQuestion: "What steps does David take as sin deepens and spreads?",
     reflectionQuestion: "What warning does this chapter give about secrecy, power, or unchecked desire?",
@@ -986,7 +977,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "2 Samuel 12": guidedDevotional({
     title: "Mercy through confrontation",
-    context: "Nathan confronts David with a parable, and David is brought to confession.",
+    context: "Nathan confronts David with a parable, and David is brought to confession. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 2 Samuel 12.",
     body: "God's mercy sometimes comes through painful truth. Nathan's confrontation exposes David's sin and breaks through self-deception. The chapter shows both real consequences and real forgiveness, teaching you not to confuse grace with pretending sin is small.",
     observationQuestion: "How does Nathan expose David's sin, and how does David respond?",
     reflectionQuestion: "Where might you need to receive correction as a mercy from God?",
@@ -996,7 +987,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Psalm 51": guidedDevotional({
     title: "A broken and contrite heart",
-    context: "Psalm 51 gives David's prayer of repentance after Nathan confronts him about Bathsheba.",
+    context: "Psalm 51 gives David's prayer of repentance after Nathan confronts him about Bathsheba. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in Psalm 51.",
     body: "David does not bargain or minimize. He appeals to God's steadfast love, confesses sin, asks for cleansing, and longs for a renewed heart. Repentance is not despair; it is returning to the God whose mercy can create clean hearts.",
     observationQuestion: "What does David ask God to wash, create, restore, and renew?",
     reflectionQuestion: "What would honest repentance sound like in your own words today?",
@@ -1006,7 +997,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Psalm 23": guidedDevotional({
     title: "The Shepherd who restores",
-    context: "David, once a shepherd and later king, prays of the Lord as his Shepherd.",
+    context: "David, once a shepherd and later king, prays of the Lord as his Shepherd. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in Psalm 23.",
     body: "Psalm 23 is personal trust in the Lord's care. The Shepherd provides, restores, leads, protects, prepares a table, and brings His people home. David's best shepherding points beyond himself to the Lord who shepherds perfectly.",
     observationQuestion: "What does the Lord do as Shepherd in this Psalm?",
     reflectionQuestion: "Which shepherding action of the Lord do you most need today?",
@@ -1016,7 +1007,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "1 Kings 2": guidedDevotional({
     title: "A final charge",
-    context: "Near death, David charges Solomon to walk faithfully before the Lord as king.",
+    context: "Near death, David charges Solomon to walk faithfully before the Lord as king. This scene belongs to Israel's monarchy story, where David's calling, courage, sin, repentance, and worship are held under God's covenant purposes in 1 Kings 2.",
     body: "David's final words mix wisdom, unfinished consequences, and a call to covenant faithfulness. His life has shown both grace and failure. The chapter reminds you that legacy is not image management; it is a call to walk before the Lord with faithful obedience.",
     observationQuestion: "What does David urge Solomon to keep and follow?",
     reflectionQuestion: "What kind of faithfulness do you want to pass on through your words and life?",
@@ -1029,7 +1020,7 @@ const lifeOfDavidDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Exodus 2": guidedDevotional({
     title: "Preserved before he knows",
-    context: "Moses is born under Pharaoh's threat, hidden by faith, drawn from the water, and later flees after killing an Egyptian.",
+    context: "Moses is born under Pharaoh's threat, hidden by faith, drawn from the water, and later flees after killing an Egyptian. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 2.",
     body: "Moses' life begins under danger, but God's preserving hand is already at work before Moses understands it. The chapter also tells the truth about Moses' flawed zeal and exile. God's calling grows in a real, complicated life, not a polished biography.",
     observationQuestion: "How is Moses preserved, and what events lead him into exile?",
     reflectionQuestion: "Where can you look back and see God's preserving mercy before you understood it?",
@@ -1039,7 +1030,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 3": guidedDevotional({
     title: "The God who sees and sends",
-    context: "At the burning bush, the Lord reveals His holiness, His name, His compassion, and His call for Moses.",
+    context: "At the burning bush, the Lord reveals His holiness, His name, His compassion, and His call for Moses. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 3.",
     body: "God does not call Moses because Moses feels ready. He calls because He has seen His people's affliction and will be with the one He sends. The holy God draws near with compassion and reveals Himself as the faithful I AM.",
     observationQuestion: "What does God say He has seen, heard, and come down to do?",
     reflectionQuestion: "Where do you need to trust God's presence more than your readiness?",
@@ -1049,7 +1040,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 12": guidedDevotional({
     title: "Deliverance by the lamb",
-    context: "The Passover marks Israel's deliverance from judgment and slavery through the blood of the lamb.",
+    context: "The Passover marks Israel's deliverance from judgment and slavery through the blood of the lamb. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 12.",
     body: "Passover teaches that deliverance comes by God's provision, not Israel's strength. The lamb's blood marks rescue from judgment and begins a new identity as a redeemed people. Christians rightly see this pattern fulfilled in Christ, our Passover Lamb.",
     observationQuestion: "What are the Israelites told to do, and what does the blood signify?",
     reflectionQuestion: "How does deliverance by sacrifice deepen your gratitude for Christ?",
@@ -1059,7 +1050,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 14": guidedDevotional({
     title: "Stand firm and see salvation",
-    context: "Israel is trapped between Pharaoh's army and the sea, and the Lord delivers them through the waters.",
+    context: "Israel is trapped between Pharaoh's army and the sea, and the Lord delivers them through the waters. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 14.",
     body: "Israel cannot save itself. The Lord fights for His people and makes a way where there is none. This chapter teaches faith at the edge of impossibility: stand firm, see the salvation of the Lord, and follow where He opens the way.",
     observationQuestion: "What are Israel, Moses, and the Lord each doing in this chapter?",
     reflectionQuestion: "When fear rises quickly, what might it look like to turn your attention toward the Lord's salvation?",
@@ -1069,7 +1060,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 16": guidedDevotional({
     title: "Daily bread in the wilderness",
-    context: "Israel grumbles in the wilderness, and the Lord provides manna day by day.",
+    context: "Israel grumbles in the wilderness, and the Lord provides manna day by day. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 16.",
     body: "The manna trains Israel in daily dependence. God gives enough for each day and exposes the impulse to hoard or distrust. Wilderness provision is not only about food; it is about learning that life is sustained by the Lord.",
     observationQuestion: "What instructions does God give about gathering manna?",
     reflectionQuestion: "Where do you need to receive today's provision instead of trying to secure tomorrow by anxiety?",
@@ -1079,7 +1070,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 19": guidedDevotional({
     title: "A treasured people",
-    context: "At Sinai, God reminds Israel of deliverance and calls them to covenant faithfulness.",
+    context: "At Sinai, God reminds Israel of deliverance and calls them to covenant faithfulness. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 19.",
     body: "Before commands are given, God reminds Israel what He has done: He carried them on eagles' wings and brought them to Himself. Obedience is meant to flow from redemption and belonging. Israel is called to be a treasured possession and holy nation.",
     observationQuestion: "What does God say He has done for Israel before calling them to obey?",
     reflectionQuestion: "How does belonging to God change the way you think about obedience?",
@@ -1089,7 +1080,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 20": guidedDevotional({
     title: "Words for a redeemed people",
-    context: "God gives the Ten Commandments after declaring that He brought Israel out of slavery.",
+    context: "God gives the Ten Commandments after declaring that He brought Israel out of slavery. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 20.",
     body: "The commandments begin with grace: 'I am the LORD your God, who brought you out.' God's law reveals His character and forms His redeemed people. It is not a ladder into salvation, but instruction for life under the Lord who saves.",
     observationQuestion: "How does God introduce Himself before giving the commandments?",
     reflectionQuestion: "Which commandment reveals an area where love for God or neighbor needs attention?",
@@ -1099,7 +1090,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 32": guidedDevotional({
     title: "The danger of false gods",
-    context: "While Moses is on the mountain, Israel makes the golden calf and worships what their hands have made.",
+    context: "While Moses is on the mountain, Israel makes the golden calf and worships what their hands have made. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 32.",
     body: "Idolatry often begins when waiting feels too hard. Israel wants something visible and controllable, but the result is spiritual ruin. Moses' intercession shows the seriousness of sin and the need for mercy from the covenant Lord.",
     observationQuestion: "What leads Israel toward the golden calf, and how does Moses respond?",
     reflectionQuestion: "What visible or controllable thing are you tempted to trust instead of the Lord?",
@@ -1109,7 +1100,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Exodus 33": guidedDevotional({
     title: "If Your presence will not go",
-    context: "After Israel's sin, Moses pleads for God's presence to go with His people.",
+    context: "After Israel's sin, Moses pleads for God's presence to go with His people. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Exodus 33.",
     body: "Moses understands that the promised land without God's presence would not be enough. The true gift is God Himself with His people. This chapter teaches longing for the Lord above success, destination, or visible blessing.",
     observationQuestion: "What does Moses ask God for, and why is God's presence essential?",
     reflectionQuestion: "Where are you tempted to want God's gifts more than God's presence?",
@@ -1119,7 +1110,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Numbers 13": guidedDevotional({
     title: "Seeing by faith",
-    context: "The spies see the land's fruitfulness and its dangers, but most interpret the future through fear.",
+    context: "The spies see the land's fruitfulness and its dangers, but most interpret the future through fear. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Numbers 13.",
     body: "The same land produces two kinds of reports: fear without faith, and faith that remembers the Lord's promise. This passage does not deny real obstacles. It asks whether those obstacles will be interpreted apart from God's faithfulness.",
     observationQuestion: "What do the spies agree about, and where do their conclusions differ?",
     reflectionQuestion: "Where are you interpreting a real obstacle as though God has not spoken?",
@@ -1129,7 +1120,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Numbers 20": guidedDevotional({
     title: "Leadership under pressure",
-    context: "The people quarrel for water, and Moses strikes the rock instead of speaking to it as the Lord commanded.",
+    context: "The people quarrel for water, and Moses strikes the rock instead of speaking to it as the Lord commanded. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Numbers 20.",
     body: "Moses' failure is sobering because it happens under pressure and after years of leadership. The passage warns that frustration can distort obedience and misrepresent God's holiness. Even faithful servants need humble dependence on the Lord.",
     observationQuestion: "What does God command Moses to do, and what does Moses actually do?",
     reflectionQuestion: "Where does pressure tempt you to act from frustration rather than trust?",
@@ -1139,7 +1130,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Deuteronomy 34": guidedDevotional({
     title: "The Lord's faithful servant",
-    context: "Moses sees the land from a distance, dies, and is remembered as the prophet whom the Lord knew face to face.",
+    context: "Moses sees the land from a distance, dies, and is remembered as the prophet whom the Lord knew face to face. This passage sits within the exodus and wilderness story, where the Lord delivers, commands, provides, judges, and remains holy among His covenant people in Deuteronomy 34.",
     body: "Moses' story ends with both consequence and grace. He does not enter the land, yet the Lord Himself shows it to him and honors him as His servant. The chapter leaves you longing for the greater Prophet like Moses, fulfilled in Christ.",
     observationQuestion: "How is Moses remembered, and what remains unresolved at the end of his life?",
     reflectionQuestion: "How does Moses' ending teach humility, hope, and trust in God's larger story?",
@@ -1152,7 +1143,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Genesis 1": guidedDevotional({
     title: "The God who creates",
-    context: "Genesis opens the Bible with God creating by His word, ordering the world, and making humanity in His image.",
+    context: "Genesis opens the Bible with God creating by His word, ordering the world, and making humanity in His image. This reading marks a major movement in the Bible's unfolding story, from creation and covenant through Christ, Spirit-empowered witness, and new creation in Genesis 1.",
     body: "The Bible story begins with God, not with human effort or confusion. Creation is good because it comes from Him, and humanity has dignity because people are made in His image. This first chapter gives the whole story its foundation: the world belongs to the Lord.",
     observationQuestion: "What does God create, bless, and call good in this chapter?",
     reflectionQuestion: "How does beginning with God as Creator reshape the way you see yourself and the world?",
@@ -1164,7 +1155,7 @@ const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   "Exodus 12": lifeOfMosesDevotionals["Exodus 12"],
   "Joshua 1": guidedDevotional({
     title: "Courage for the next step",
-    context: "After Moses' death, Joshua is called to lead Israel into the land God promised.",
+    context: "After Moses' death, Joshua is called to lead Israel into the land God promised. This reading marks a major movement in the Bible's unfolding story, from creation and covenant through Christ, Spirit-empowered witness, and new creation in Joshua 1.",
     body: "Joshua's courage is grounded in God's presence and promise, not in Joshua's natural confidence. The Lord calls him to meditate on the law and walk in obedience. At a major transition point, the path forward is faithfulness to the God who goes with His people.",
     observationQuestion: "What promises and commands does the Lord give Joshua?",
     reflectionQuestion: "What next step requires courage grounded in God's presence rather than self-confidence?",
@@ -1185,7 +1176,7 @@ const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
 const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Acts 1": guidedDevotional({
     title: "Witnesses by the Spirit",
-    context: "The risen Jesus teaches His apostles, promises the Holy Spirit, ascends, and prepares them for witness.",
+    context: "The risen Jesus teaches His apostles, promises the Holy Spirit, ascends, and prepares them for witness. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 1.",
     body: "Acts begins with the risen Christ still leading His people. The mission does not rest on human energy; Jesus promises power from the Holy Spirit and sends His witnesses outward. Waiting and witness belong together because the church moves by Christ's command and Spirit's power.",
     observationQuestion: "What does Jesus promise, and what mission does He give His witnesses?",
     reflectionQuestion: "Where do you need to wait on the Lord rather than rush ahead in your own strength?",
@@ -1196,7 +1187,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Acts 2": easterDevotionals["Acts 2"],
   "Acts 3": guidedDevotional({
     title: "In the name of Jesus",
-    context: "Peter and John meet a lame man at the temple gate, and he is healed in Jesus' name.",
+    context: "Peter and John meet a lame man at the temple gate, and he is healed in Jesus' name. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 3.",
     body: "The healing points beyond the miracle itself to the risen Jesus. Peter refuses personal credit and calls people to repentance and restoration. The church's mercy and message belong together: Jesus is alive, powerful, and worthy of trust.",
     observationQuestion: "How does Peter explain the healing and point attention away from himself?",
     reflectionQuestion: "Where might a gift, mercy, or answered prayer need to point back to Jesus?",
@@ -1207,7 +1198,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Acts 4": easterDevotionals["Acts 4"],
   "Acts 5": guidedDevotional({
     title: "Holiness and bold witness",
-    context: "Acts 5 includes the judgment of Ananias and Sapphira, signs among the people, opposition, and renewed apostolic witness.",
+    context: "Acts 5 includes the judgment of Ananias and Sapphira, signs among the people, opposition, and renewed apostolic witness. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 5.",
     body: "The early church is marked by both grace and holiness. God is not a tool for reputation, and the apostles are not silenced by pressure. The chapter holds together reverent fear, healing mercy, suffering for Christ, and joy in His name.",
     observationQuestion: "What forms of fear, opposition, and boldness appear in this chapter?",
     reflectionQuestion: "Where do you need honesty before God and courage before people?",
@@ -1217,7 +1208,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 6": guidedDevotional({
     title: "Serving without neglecting the Word",
-    context: "A practical need in the church leads to Spirit-filled servants being appointed, and Stephen's witness begins.",
+    context: "A practical need in the church leads to Spirit-filled servants being appointed, and Stephen's witness begins. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 6.",
     body: "Growth brings real needs and possible tension. The apostles do not treat practical care as unspiritual, nor do they neglect prayer and the Word. The church needs wise, Spirit-filled service so both mercy and ministry remain healthy.",
     observationQuestion: "What problem arises, and how does the church respond?",
     reflectionQuestion: "Where does faithful service require wisdom, fairness, and spiritual maturity?",
@@ -1227,7 +1218,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 7": guidedDevotional({
     title: "Faithful witness under pressure",
-    context: "Stephen retells Israel's story, exposes resistance to God, and dies while seeing the exalted Christ.",
+    context: "Stephen retells Israel's story, exposes resistance to God, and dies while seeing the exalted Christ. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 7.",
     body: "Stephen's speech shows that God's presence and purposes have never been confined to one building or controlled by human opposition. His death is tragic, but not meaningless; he bears witness to the Son of Man standing at God's right hand.",
     observationQuestion: "How does Stephen use Israel's history to confront his hearers?",
     reflectionQuestion: "What would faithfulness look like when truth is costly?",
@@ -1237,7 +1228,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 8": guidedDevotional({
     title: "The gospel spreads through scattering",
-    context: "Persecution scatters believers, Philip preaches in Samaria, and an Ethiopian official receives the gospel.",
+    context: "Persecution scatters believers, Philip preaches in Samaria, and an Ethiopian official receives the gospel. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 8.",
     body: "Opposition cannot cage the Word of God. The gospel moves to Samaria and to an Ethiopian seeker through Scripture, Spirit-led witness, and the good news of Jesus. God gathers people across old boundaries and personal distance.",
     observationQuestion: "How does the gospel spread, and who receives it in this chapter?",
     reflectionQuestion: "Where might God use disruption or an unexpected conversation for witness?",
@@ -1247,7 +1238,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 9": guidedDevotional({
     title: "Grace meets an enemy",
-    context: "Saul persecutes the church until the risen Jesus confronts him on the road to Damascus.",
+    context: "Saul persecutes the church until the risen Jesus confronts him on the road to Damascus. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 9.",
     body: "Saul is not seeking Jesus when Jesus stops him. His conversion displays sovereign mercy: an enemy becomes a chosen instrument. Ananias' obedience also matters, showing costly welcome toward someone he had reason to fear.",
     observationQuestion: "What does Jesus say to Saul, and how does Ananias respond to Jesus' command?",
     reflectionQuestion: "How does Saul's conversion enlarge your view of grace for unlikely people?",
@@ -1257,7 +1248,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 10": guidedDevotional({
     title: "God shows no partiality",
-    context: "Peter is sent to Cornelius, and Gentiles receive the Holy Spirit as the gospel crosses another boundary.",
+    context: "Peter is sent to Cornelius, and Gentiles receive the Holy Spirit as the gospel crosses another boundary. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 10.",
     body: "God teaches Peter that the good news of Jesus is not confined by ethnic boundary or religious habit. Cornelius' household hears of Christ's life, death, resurrection, and forgiveness, and the Spirit confirms God's welcome of Gentile believers.",
     observationQuestion: "What does Peter learn, and what does he proclaim about Jesus?",
     reflectionQuestion: "Where might your assumptions be narrower than God's welcome in Christ?",
@@ -1267,7 +1258,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 11": guidedDevotional({
     title: "Grace recognized",
-    context: "Peter explains Gentile inclusion, and the church in Antioch grows through scattered believers and faithful teaching.",
+    context: "Peter explains Gentile inclusion, and the church in Antioch grows through scattered believers and faithful teaching. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 11.",
     body: "The Jerusalem believers learn to recognize God's grace where they did not expect it. Antioch becomes a place of teaching, generosity, and the name Christian. The chapter calls the church to discern God's work and respond with gladness.",
     observationQuestion: "How do believers respond when they hear what God did among the Gentiles?",
     reflectionQuestion: "Where do you need to recognize and rejoice in grace beyond familiar places?",
@@ -1277,7 +1268,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 12": guidedDevotional({
     title: "Prayer and deliverance",
-    context: "James is killed, Peter is imprisoned, and the church prays while God delivers Peter.",
+    context: "James is killed, Peter is imprisoned, and the church prays while God delivers Peter. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 12.",
     body: "Acts 12 does not give a simple formula: James dies, Peter is rescued, and Herod is judged. The church prays in weakness, and God rules over prison doors and proud kings. Faith trusts God's sovereignty even when outcomes differ.",
     observationQuestion: "What different outcomes appear in this chapter, and how does the church respond?",
     reflectionQuestion: "How can you pray faithfully while leaving outcomes in God's hands?",
@@ -1287,7 +1278,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 13": guidedDevotional({
     title: "Sent by the Spirit",
-    context: "The church in Antioch sends Barnabas and Saul, and Paul proclaims Jesus from Israel's story.",
+    context: "The church in Antioch sends Barnabas and Saul, and Paul proclaims Jesus from Israel's story. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 13.",
     body: "Mission begins in worship, fasting, and the Spirit's sending. Paul's sermon shows that Jesus is the promised Savior, raised from the dead, and the source of forgiveness. The gospel goes out because God keeps His promises.",
     observationQuestion: "How are Barnabas and Saul sent, and how does Paul connect Jesus to Israel's story?",
     reflectionQuestion: "Where does mission need to begin with worship and dependence rather than strategy alone?",
@@ -1297,7 +1288,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 14": guidedDevotional({
     title: "Strengthened through trials",
-    context: "Paul and Barnabas preach, suffer opposition, and strengthen new disciples before returning to Antioch.",
+    context: "Paul and Barnabas preach, suffer opposition, and strengthen new disciples before returning to Antioch. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 14.",
     body: "The gospel bears fruit amid misunderstanding, praise, violence, and perseverance. Paul and Barnabas do not promise ease; they strengthen believers to continue in faith through many tribulations. The kingdom advances through faithful endurance.",
     observationQuestion: "What opposition and encouragement appear as Paul and Barnabas travel?",
     reflectionQuestion: "Where do you need strengthening to continue in faith rather than chase ease?",
@@ -1307,7 +1298,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 15": guidedDevotional({
     title: "Grace for the nations",
-    context: "The Jerusalem council addresses whether Gentile believers must take on the law of Moses to be saved.",
+    context: "The Jerusalem council addresses whether Gentile believers must take on the law of Moses to be saved. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 15.",
     body: "The church protects the truth that salvation is by the grace of the Lord Jesus. The council also seeks wise love between Jewish and Gentile believers. Gospel clarity and communal care belong together.",
     observationQuestion: "What question is debated, and what conclusion is reached about grace?",
     reflectionQuestion: "Where do you need to protect grace while practicing love toward others?",
@@ -1317,7 +1308,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 16": guidedDevotional({
     title: "The gospel opens hearts",
-    context: "Paul's team is led to Macedonia, Lydia believes, a slave girl is freed, and a jailer is saved.",
+    context: "Paul's team is led to Macedonia, Lydia believes, a slave girl is freed, and a jailer is saved. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 16.",
     body: "Acts 16 shows many kinds of gospel openings: a businesswoman by a river, a captive girl in spiritual bondage, and a jailer in crisis. The Lord opens hearts, breaks chains, and creates household joy through Christ.",
     observationQuestion: "Who receives mercy in this chapter, and how does God work in each situation?",
     reflectionQuestion: "How does this chapter expand your expectation of where God may be working?",
@@ -1327,7 +1318,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 17": guidedDevotional({
     title: "Reasoning from Scripture and creation",
-    context: "Paul reasons in synagogues and speaks in Athens, proclaiming the Creator and the risen Judge.",
+    context: "Paul reasons in synagogues and speaks in Athens, proclaiming the Creator and the risen Judge. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 17.",
     body: "Paul adapts his approach without changing the message. With Jews he reasons from Scripture; in Athens he begins with creation and idolatry, then proclaims repentance and resurrection. Faithful witness listens carefully and points clearly to Christ.",
     observationQuestion: "How does Paul's approach differ in Thessalonica, Berea, and Athens?",
     reflectionQuestion: "Where do you need both careful listening and clear witness?",
@@ -1337,7 +1328,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 18": guidedDevotional({
     title: "Do not be afraid",
-    context: "Paul ministers in Corinth, receives encouragement from the Lord, and later Apollos is taught more accurately.",
+    context: "Paul ministers in Corinth, receives encouragement from the Lord, and later Apollos is taught more accurately. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 18.",
     body: "The Lord strengthens Paul in a hard city: do not be afraid, keep speaking, for I am with you. The chapter also shows humble teaching through Priscilla and Aquila helping Apollos. Gospel ministry needs courage, patience, and teachability.",
     observationQuestion: "How does the Lord encourage Paul, and how is Apollos helped?",
     reflectionQuestion: "Where do you need courage to keep speaking or humility to keep learning?",
@@ -1347,7 +1338,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 19": guidedDevotional({
     title: "The Word grows in power",
-    context: "In Ephesus, the gospel confronts incomplete understanding, spiritual counterfeits, magic, and economic idolatry.",
+    context: "In Ephesus, the gospel confronts incomplete understanding, spiritual counterfeits, magic, and economic idolatry. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 19.",
     body: "The Word of the Lord grows and prevails as people confess, turn from false power, and abandon costly idols. The gospel does not merely add Jesus to existing loyalties; it challenges rival powers and reorders worship.",
     observationQuestion: "What false powers or rival loyalties are exposed in Ephesus?",
     reflectionQuestion: "What costly loyalty might the gospel call you to surrender?",
@@ -1357,7 +1348,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 20": guidedDevotional({
     title: "Shepherding with tears",
-    context: "Paul encourages believers, raises Eutychus, and gives farewell counsel to the Ephesian elders.",
+    context: "Paul encourages believers, raises Eutychus, and gives farewell counsel to the Ephesian elders. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 20.",
     body: "Paul's ministry is marked by humility, tears, teaching, warning, and generosity. He entrusts the elders to God and to the word of His grace. Leadership in the church is not image or control; it is watchful care under Christ.",
     observationQuestion: "What does Paul say about his ministry and the elders' responsibility?",
     reflectionQuestion: "Where does faithful care require humility, warning, or generosity?",
@@ -1367,7 +1358,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 21": guidedDevotional({
     title: "Ready for the name of Jesus",
-    context: "Paul travels toward Jerusalem despite warnings and is arrested after unrest in the temple.",
+    context: "Paul travels toward Jerusalem despite warnings and is arrested after unrest in the temple. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 21.",
     body: "Paul is not careless, but he is surrendered. He is ready to suffer for the name of the Lord Jesus. The chapter also shows how quickly misunderstanding can turn into conflict, making Paul's steady allegiance to Christ stand out.",
     observationQuestion: "What warnings does Paul receive, and how does he respond?",
     reflectionQuestion: "Where does allegiance to Jesus need to outrank comfort or reputation?",
@@ -1377,7 +1368,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 22": guidedDevotional({
     title: "A testimony of mercy",
-    context: "Paul tells his conversion story to a hostile crowd in Jerusalem.",
+    context: "Paul tells his conversion story to a hostile crowd in Jerusalem. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 22.",
     body: "Paul's testimony is not self-promotion; it is witness to the mercy and calling of Jesus. He tells how the risen Lord interrupted him, forgave him, and sent him. Personal story becomes faithful witness when Christ is the center.",
     observationQuestion: "What parts of Paul's story highlight Jesus' mercy and calling?",
     reflectionQuestion: "How could you tell your story in a way that makes Christ, not yourself, central?",
@@ -1387,7 +1378,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 23": guidedDevotional({
     title: "Take courage",
-    context: "Paul faces division, danger, and a plot against his life, but the Lord stands by him.",
+    context: "Paul faces division, danger, and a plot against his life, but the Lord stands by him. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 23.",
     body: "The Lord's word to Paul is tender and purposeful: take courage. Human plotting is real, yet God's purpose carries Paul forward toward Rome. The chapter encourages trust when circumstances look chaotic but Christ has not left His servant.",
     observationQuestion: "What danger surrounds Paul, and what does the Lord say to him?",
     reflectionQuestion: "Where do you need to hear Christ's courage-giving presence today?",
@@ -1397,7 +1388,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 24": guidedDevotional({
     title: "Faithfulness while waiting",
-    context: "Paul gives his defense before Felix and remains imprisoned while Felix delays justice.",
+    context: "Paul gives his defense before Felix and remains imprisoned while Felix delays justice. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 24.",
     body: "Paul speaks about faith in Christ, resurrection hope, righteousness, self-control, and coming judgment. Felix delays, but Paul remains faithful. The chapter teaches patient witness when people are interested but unwilling to surrender.",
     observationQuestion: "What does Paul speak about, and how does Felix respond?",
     reflectionQuestion: "Where do you need patience when someone delays responding to truth?",
@@ -1407,7 +1398,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 25": guidedDevotional({
     title: "Appeal and providence",
-    context: "Paul stands before Festus, appeals to Caesar, and continues moving toward Rome through legal proceedings.",
+    context: "Paul stands before Festus, appeals to Caesar, and continues moving toward Rome through legal proceedings. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 25.",
     body: "Acts 25 may feel procedural, but providence often works through ordinary systems and delays. Paul's appeal is not escape from mission; it becomes the road toward Rome. God can use slow, tangled circumstances for His purposes.",
     observationQuestion: "What legal decisions move Paul's case forward?",
     reflectionQuestion: "Where might God be working through a slow process you would not have chosen?",
@@ -1417,7 +1408,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 26": guidedDevotional({
     title: "Almost persuaded",
-    context: "Paul testifies before Agrippa, retelling his calling and proclaiming Christ's suffering and resurrection.",
+    context: "Paul testifies before Agrippa, retelling his calling and proclaiming Christ's suffering and resurrection. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 26.",
     body: "Paul speaks with respect and boldness. His defense becomes proclamation: Christ suffered, rose, and brings light to Jews and Gentiles. Agrippa's response is close but unresolved, reminding you that hearing the gospel still calls for response.",
     observationQuestion: "How does Paul describe his commission and the message about Christ?",
     reflectionQuestion: "Where do you need to move from almost persuaded to obedient trust?",
@@ -1427,7 +1418,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 27": guidedDevotional({
     title: "God's promise in the storm",
-    context: "Paul sails toward Rome, the ship is caught in a violent storm, and God promises preservation.",
+    context: "Paul sails toward Rome, the ship is caught in a violent storm, and God promises preservation. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 27.",
     body: "The storm is severe, but God's promise stands. Paul becomes a calm witness of trust in the middle of danger, urging courage because he believes God. Faith does not deny the storm; it holds fast to the God who speaks in it.",
     observationQuestion: "What does God promise Paul, and how does Paul encourage the others?",
     reflectionQuestion: "What storm needs to be answered by trust in God's word rather than panic?",
@@ -1437,7 +1428,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 28": guidedDevotional({
     title: "The kingdom unhindered",
-    context: "Paul reaches Rome, ministers on Malta, and proclaims the kingdom of God and Jesus Christ under house arrest.",
+    context: "Paul reaches Rome, ministers on Malta, and proclaims the kingdom of God and Jesus Christ under house arrest. Luke presents this moment as part of the risen Jesus' continuing work through the Spirit, carrying witness, repentance, and gospel mission forward in Acts 28.",
     body: "Acts ends with Paul confined but the Word unhindered. The gospel has moved from Jerusalem toward Rome, and Christ's kingdom is still being proclaimed. The ending is open because the mission continues through the Spirit-empowered witness of the church.",
     observationQuestion: "How does Acts describe Paul's final ministry in Rome?",
     reflectionQuestion: "Where do you need to remember that God's Word is not chained by your limitations?",
@@ -1450,7 +1441,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
 const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Romans 1-2": guidedDevotional({
     title: "The gospel and human need",
-    context: "Romans opens with Paul's eagerness to preach the gospel, then exposes Gentile and Jewish need before God.",
+    context: "Romans opens with Paul's eagerness to preach the gospel, then exposes Gentile and Jewish need before God. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 1-2.",
     body: "Paul begins with the power of the gospel before showing why every person needs it. Human sin is not limited to obvious rebellion; it includes suppressing truth, judging others, and relying on religious privilege. The good news shines because the need is universal.",
     observationQuestion: "What does Paul say about the gospel, and what kinds of human sin does he expose?",
     reflectionQuestion: "Where do you need the gospel to confront both obvious sin and quiet self-righteousness?",
@@ -1460,7 +1451,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 3-4": guidedDevotional({
     title: "Justified by faith",
-    context: "Paul explains that all have sinned and that righteousness comes through faith in Christ, using Abraham as a witness.",
+    context: "Paul explains that all have sinned and that righteousness comes through faith in Christ, using Abraham as a witness. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 3-4.",
     body: "Romans 3-4 moves from the closing of every mouth to the gift of justification. God is just and the justifier of the one who has faith in Jesus. Abraham's example shows that faith receives God's promise rather than earning standing by works.",
     observationQuestion: "What does Paul say about sin, righteousness, faith, and boasting?",
     reflectionQuestion: "Where do you still try to establish your standing before God by performance?",
@@ -1470,7 +1461,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 5-6": guidedDevotional({
     title: "Peace and newness of life",
-    context: "Paul connects justification with peace, hope, union with Christ, and freedom from slavery to sin.",
+    context: "Paul connects justification with peace, hope, union with Christ, and freedom from slavery to sin. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 5-6.",
     body: "Grace is not thin forgiveness. Through Christ, believers have peace with God, hope in suffering, and participation in His death and resurrection. Romans 6 refuses the idea that grace makes sin safe; grace brings new life under Christ's lordship.",
     observationQuestion: "What gifts flow from justification, and what does Paul say about union with Christ?",
     reflectionQuestion: "What would it look like to live today as someone united to Christ in new life?",
@@ -1480,7 +1471,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 7-8": guidedDevotional({
     title: "No condemnation in Christ",
-    context: "Paul names the struggle with sin and then announces life, assurance, help, and hope in the Spirit.",
+    context: "Paul names the struggle with sin and then announces life, assurance, help, and hope in the Spirit. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 7-8.",
     body: "Romans 8 answers the distress of Romans 7 with Christ and the Spirit. There is no condemnation for those in Christ Jesus. The Spirit gives life, helps weakness, anchors hope in future glory, and assures believers that nothing can separate them from God's love.",
     observationQuestion: "What does Romans 8 say the Spirit does for believers?",
     reflectionQuestion: "Which promise from Romans 8 needs to answer shame, weakness, or fear today?",
@@ -1490,7 +1481,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 9-10": guidedDevotional({
     title: "Mercy and the preached word",
-    context: "Paul grieves for Israel and reflects on God's mercy, human response, and the nearness of the word of faith.",
+    context: "Paul grieves for Israel and reflects on God's mercy, human response, and the nearness of the word of faith. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 9-10.",
     body: "These chapters are weighty because Paul holds together sorrow, God's sovereign mercy, and the call to believe and confess Christ. The gospel is not hidden far away; Christ is proclaimed, and everyone who calls on the name of the Lord will be saved.",
     observationQuestion: "What does Paul grieve, and what does he say about calling on the Lord?",
     reflectionQuestion: "How do mercy, prayer, and proclamation belong together in your concern for others?",
@@ -1500,7 +1491,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 11-12": guidedDevotional({
     title: "Mercy that becomes worship",
-    context: "Paul moves from God's mercy in His saving purposes to the call to present our bodies as living sacrifices.",
+    context: "Paul moves from God's mercy in His saving purposes to the call to present our bodies as living sacrifices. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 11-12.",
     body: "Doctrine becomes doxology, and doxology becomes embodied worship. After marveling at God's wisdom and mercy, Paul calls believers to offer their lives to God and be transformed by renewed minds. Mercy is meant to reshape ordinary life.",
     observationQuestion: "How does Paul move from worship to practical obedience?",
     reflectionQuestion: "What part of your ordinary life needs to become worship in response to mercy?",
@@ -1510,7 +1501,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 13-14": guidedDevotional({
     title: "Love in ordinary tensions",
-    context: "Paul addresses civic responsibility, love as fulfilling the law, and patient welcome among believers with different consciences.",
+    context: "Paul addresses civic responsibility, love as fulfilling the law, and patient welcome among believers with different consciences. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 13-14.",
     body: "Christian obedience touches public life, private conduct, and community disagreements. Paul calls believers to wakefulness, love, and humility with one another. The strong and weak must not despise or judge, because each belongs to the Lord.",
     observationQuestion: "What commands does Paul give about love, conduct, and judging one another?",
     reflectionQuestion: "Where do you need to practice love rather than contempt in a disagreement?",
@@ -1520,7 +1511,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Romans 15-16": guidedDevotional({
     title: "Welcome and mission",
-    context: "Paul closes Romans by calling believers to welcome one another, hope in Scripture, and participate in gospel mission.",
+    context: "Paul closes Romans by calling believers to welcome one another, hope in Scripture, and participate in gospel mission. In Romans, Paul is unfolding the gospel's logic of sin, grace, faith, Israel, mercy, and embodied worship; follow that argument through Romans 15-16.",
     body: "The God of endurance and encouragement forms a people of hope. Paul wants Jews and Gentiles to glorify God together in Christ, and he names many co-workers in mission. The gospel creates welcome, worship, and shared labor.",
     observationQuestion: "What does Paul pray for, and how does he describe his mission and co-workers?",
     reflectionQuestion: "How might hope in Christ make you more welcoming and mission-minded?",
@@ -1530,7 +1521,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 1-2": guidedDevotional({
     title: "Christ crucified, God's wisdom",
-    context: "Paul addresses a divided church by centering them on the cross and the wisdom revealed by the Spirit.",
+    context: "Paul addresses a divided church by centering them on the cross and the wisdom revealed by the Spirit. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 1-2.",
     body: "The Corinthians are tempted by status, eloquence, and party spirit. Paul responds with Christ crucified, the wisdom and power of God. The cross humbles boasting and teaches the church to measure wisdom by God's revelation rather than cultural applause.",
     observationQuestion: "What divisions or boasts does Paul confront, and how does he center the cross?",
     reflectionQuestion: "Where are you tempted to seek impressive spirituality instead of cruciform wisdom?",
@@ -1540,7 +1531,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 3-4": guidedDevotional({
     title: "Servants, not celebrities",
-    context: "Paul confronts spiritual immaturity, leader factions, and pride in the Corinthian church.",
+    context: "Paul confronts spiritual immaturity, leader factions, and pride in the Corinthian church. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 3-4.",
     body: "Paul refuses celebrity Christianity. Leaders are servants, God gives the growth, and the church belongs to Him. The passage challenges pride that compares people, claims status, or forgets that every gift is received.",
     observationQuestion: "How does Paul describe leaders, the church, and God's role in growth?",
     reflectionQuestion: "Where do comparison or personality loyalties need to give way to humility before God?",
@@ -1550,7 +1541,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 5-6": guidedDevotional({
     title: "Holiness with costly grace",
-    context: "Paul addresses serious sin, church discipline, lawsuits, sexual immorality, and the believer's body as belonging to Christ.",
+    context: "Paul addresses serious sin, church discipline, lawsuits, sexual immorality, and the believer's body as belonging to Christ. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 5-6.",
     body: "Grace does not make holiness optional. Paul calls the church to take sin seriously because believers belong to Christ and are temples of the Holy Spirit. The passage is firm because redemption is precious: you were bought with a price.",
     observationQuestion: "What reasons does Paul give for taking sin and the body seriously?",
     reflectionQuestion: "Where does belonging to Christ need to reshape your choices with your body or relationships?",
@@ -1560,7 +1551,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 7-8": guidedDevotional({
     title: "Love in freedom and calling",
-    context: "Paul gives pastoral counsel about marriage, singleness, calling, conscience, and food offered to idols.",
+    context: "Paul gives pastoral counsel about marriage, singleness, calling, conscience, and food offered to idols. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 7-8.",
     body: "Paul applies the gospel to complex personal situations without reducing wisdom to slogans. Whether married, single, free, or constrained, believers belong to the Lord. Knowledge must be governed by love, because freedom that wounds a brother or sister is not mature freedom.",
     observationQuestion: "What does Paul say about calling, devotion to the Lord, knowledge, and love?",
     reflectionQuestion: "Where should love guide the way you use freedom or knowledge?",
@@ -1570,7 +1561,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 9-10": guidedDevotional({
     title: "Freedom that serves",
-    context: "Paul describes surrendering rights for the gospel and warns from Israel's wilderness failures.",
+    context: "Paul describes surrendering rights for the gospel and warns from Israel's wilderness failures. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 9-10.",
     body: "Christian freedom is not self-indulgence. Paul gives up rights to serve the gospel, disciplines himself, and warns against idolatry and presumption. The goal is God's glory and the good of others, not the maximum exercise of personal liberty.",
     observationQuestion: "What rights does Paul surrender, and what warnings does he draw from Israel's story?",
     reflectionQuestion: "Where might love for the gospel call you to limit a freedom willingly?",
@@ -1580,7 +1571,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 11-12": guidedDevotional({
     title: "One body, many gifts",
-    context: "Paul addresses worship disorder, the Lord's Supper, spiritual gifts, and the unity of Christ's body.",
+    context: "Paul addresses worship disorder, the Lord's Supper, spiritual gifts, and the unity of Christ's body. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 11-12.",
     body: "The Corinthians need to learn that worship and gifts are not stages for self-display. The Lord's Supper calls for discernment and care, and spiritual gifts are given for the common good. The Spirit forms one body with many members.",
     observationQuestion: "How does Paul connect worship, the body, gifts, and care for others?",
     reflectionQuestion: "Where do your gifts need to be used for the common good rather than self-importance?",
@@ -1590,7 +1581,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 13-14": guidedDevotional({
     title: "Love builds up",
-    context: "Paul places love at the center of spiritual maturity and then applies it to gathered worship.",
+    context: "Paul places love at the center of spiritual maturity and then applies it to gathered worship. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 13-14.",
     body: "Spiritual gifts without love become noise. Love is patient, kind, humble, enduring, and committed to building others up. Paul does not oppose gifts; he orders them under love so the church is strengthened rather than confused.",
     observationQuestion: "What does love look like, and how should it shape gathered worship?",
     reflectionQuestion: "Where does your speech or service need to become more loving and upbuilding?",
@@ -1600,7 +1591,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Corinthians 15-16": guidedDevotional({
     title: "Resurrection and steadfastness",
-    context: "Paul defends the resurrection, then closes with practical instructions and affection for fellow workers.",
+    context: "Paul defends the resurrection, then closes with practical instructions and affection for fellow workers. In 1 Corinthians, Paul pastors a divided and gifted church by bringing its pride, worship, bodies, and hope under the cross through 1 Corinthians 15-16.",
     body: "The resurrection is the foundation for steadfast faithfulness. Because Christ has been raised, labor in the Lord is not in vain. Paul moves from future hope to present endurance, generosity, courage, love, and partnership.",
     observationQuestion: "What does Paul say follows if Christ has been raised?",
     reflectionQuestion: "How does resurrection hope make today's ordinary faithfulness worth it?",
@@ -1610,7 +1601,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 1-2": guidedDevotional({
     title: "Comfort and costly forgiveness",
-    context: "Paul begins with the God of all comfort, explains affliction, and urges restored love toward a repentant offender.",
+    context: "Paul begins with the God of all comfort, explains affliction, and urges restored love toward a repentant offender. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 1-2.",
     body: "Paul does not hide suffering. Comfort comes from God and then moves through His people to others. The church must also practice forgiveness and restoration where repentance is real, so sorrow does not become despair.",
     observationQuestion: "How does comfort move from God to Paul and then to others?",
     reflectionQuestion: "Where might received comfort need to become shared comfort or forgiving love?",
@@ -1620,7 +1611,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 3-4": guidedDevotional({
     title: "Treasure in jars of clay",
-    context: "Paul contrasts old and new covenant ministry and describes weakness as the setting for God's surpassing power.",
+    context: "Paul contrasts old and new covenant ministry and describes weakness as the setting for God's surpassing power. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 3-4.",
     body: "New covenant ministry is marked by the Spirit, unveiled sight of Christ's glory, and perseverance in weakness. The treasure is not the messenger's impressiveness but the gospel of Christ. Fragile jars of clay make God's power clearer.",
     observationQuestion: "What contrasts does Paul make between veil and glory, weakness and power?",
     reflectionQuestion: "When weakness feels discouraging, how does this passage invite you to trust God's power?",
@@ -1630,7 +1621,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 5-6": guidedDevotional({
     title: "New creation and reconciliation",
-    context: "Paul speaks of resurrection hope, pleasing Christ, new creation, reconciliation, and faithful ministry under hardship.",
+    context: "Paul speaks of resurrection hope, pleasing Christ, new creation, reconciliation, and faithful ministry under hardship. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 5-6.",
     body: "In Christ, new creation has begun. Believers are reconciled to God and entrusted with a message of reconciliation. This calling is carried in real hardship, but it is strengthened by the love of Christ and the promise of life beyond death.",
     observationQuestion: "What does Paul say Christ's love does, and what ministry is entrusted to believers?",
     reflectionQuestion: "Where should reconciliation with God reshape the way you relate to others?",
@@ -1640,7 +1631,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 7-8": guidedDevotional({
     title: "Godly grief and generous grace",
-    context: "Paul rejoices over repentance and then points to the Macedonians' generous giving by God's grace.",
+    context: "Paul rejoices over repentance and then points to the Macedonians' generous giving by God's grace. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 7-8.",
     body: "Godly grief leads to repentance without regret, not shame that crushes. Grace also produces generosity that surprises worldly expectations. Paul roots giving in Christ Himself, who became poor so that His people might become rich in grace.",
     observationQuestion: "What fruit comes from godly grief, and what motivates generous giving?",
     reflectionQuestion: "Where do you need repentance that leads to life or generosity shaped by grace?",
@@ -1650,7 +1641,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 9-10": guidedDevotional({
     title: "Cheerful giving and humble strength",
-    context: "Paul continues teaching about generosity, then defends ministry with spiritual rather than worldly weapons.",
+    context: "Paul continues teaching about generosity, then defends ministry with spiritual rather than worldly weapons. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 9-10.",
     body: "God loves cheerful giving because generosity reflects trust in His provision. Paul also refuses worldly boasting, reminding the church that spiritual strength is not measured by appearances. The gospel forms open hands and humbled confidence.",
     observationQuestion: "What does Paul say about sowing, giving, boasting, and spiritual weapons?",
     reflectionQuestion: "Where do you need either open-handed generosity or freedom from appearance-based boasting?",
@@ -1660,7 +1651,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 11-12": guidedDevotional({
     title: "Power made perfect in weakness",
-    context: "Paul warns against false apostles and describes boasting only in weakness because Christ's grace is sufficient.",
+    context: "Paul warns against false apostles and describes boasting only in weakness because Christ's grace is sufficient. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 11-12.",
     body: "Paul's weakness is not a branding strategy; it is where Christ's power is displayed. He refuses impressive spiritual performance that leads people away from sincere devotion to Christ. The thorn remains, but grace is sufficient.",
     observationQuestion: "What does Paul fear for the church, and what does the Lord say about weakness?",
     reflectionQuestion: "What weakness could become a place to rely more deeply on Christ's sufficient grace?",
@@ -1670,7 +1661,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Corinthians 13; Galatians 1": guidedDevotional({
     title: "Examine yourselves, hold fast to grace",
-    context: "Paul closes 2 Corinthians with a call to self-examination, then opens Galatians defending the one true gospel.",
+    context: "Paul closes 2 Corinthians with a call to self-examination, then opens Galatians defending the one true gospel. In 2 Corinthians, Paul's suffering, apostolic ministry, reconciliation, generosity, and weakness form the pastoral setting for 2 Corinthians 13; Galatians 1.",
     body: "These chapters hold together sober self-examination and fierce gospel clarity. Paul wants believers to test whether they are in the faith, but he also refuses any distorted gospel that adds to Christ. Healthy faith is honest before God and anchored in grace.",
     observationQuestion: "What does Paul urge the Corinthians to examine, and what warning does he give the Galatians?",
     reflectionQuestion: "Where do you need both honest self-examination and renewed confidence in the gospel of grace?",
@@ -1680,7 +1671,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Galatians 2-3": guidedDevotional({
     title: "Crucified with Christ",
-    context: "Paul defends justification by faith and confronts any return to law-based acceptance before God.",
+    context: "Paul defends justification by faith and confronts any return to law-based acceptance before God. In Galatians, Paul defends the gospel of grace against law-based identity and shows Spirit-shaped freedom in Galatians 2-3.",
     body: "Paul insists that sinners are justified through faith in Christ, not works of the law. The Christian life is not self-salvation dressed in religious language; it is union with Christ. You live by faith in the Son of God, who loved you and gave Himself for you.",
     observationQuestion: "What does Paul say about justification, faith, the law, and Christ's giving of Himself?",
     reflectionQuestion: "Where are you tempted to rebuild a performance-based standing before God?",
@@ -1690,7 +1681,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Galatians 4-5": guidedDevotional({
     title: "Freedom through the Spirit",
-    context: "Paul describes adoption in Christ and calls believers to stand firm in freedom and walk by the Spirit.",
+    context: "Paul describes adoption in Christ and calls believers to stand firm in freedom and walk by the Spirit. In Galatians, Paul defends the gospel of grace against law-based identity and shows Spirit-shaped freedom in Galatians 4-5.",
     body: "The gospel makes slaves into children who cry, 'Abba, Father.' Freedom in Christ is not permission for self-indulgence; it is life by the Spirit, expressed through love. The fruit of the Spirit shows what freedom grows into over time.",
     observationQuestion: "What does Paul say about adoption, freedom, love, and the Spirit's fruit?",
     reflectionQuestion: "Where should freedom in Christ become love rather than self-protection or self-indulgence?",
@@ -1700,7 +1691,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Galatians 6; Ephesians 1": guidedDevotional({
     title: "Boasting in the cross, blessed in Christ",
-    context: "Galatians closes with cross-shaped boasting, and Ephesians opens with praise for every spiritual blessing in Christ.",
+    context: "Galatians closes with cross-shaped boasting, and Ephesians opens with praise for every spiritual blessing in Christ. In Galatians, Paul defends the gospel of grace against law-based identity and shows Spirit-shaped freedom in Galatians 6; Ephesians 1.",
     body: "Paul ends Galatians refusing to boast except in the cross, then begins Ephesians blessing God for grace planned, accomplished, and sealed in Christ. The Christian's identity is not self-made. It is received in Christ and marked by His cross.",
     observationQuestion: "What does Paul boast in, and what blessings does he name in Christ?",
     reflectionQuestion: "Which blessing in Christ needs to become more real to your sense of identity?",
@@ -1710,7 +1701,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Ephesians 2-3": guidedDevotional({
     title: "Grace creates one new people",
-    context: "Paul explains salvation by grace and the mystery of Jews and Gentiles made one in Christ.",
+    context: "Paul explains salvation by grace and the mystery of Jews and Gentiles made one in Christ. In Ephesians, God's saving purpose in Christ creates a new people whose unity, holiness, and spiritual endurance shape Ephesians 2-3.",
     body: "Ephesians 2 begins with death and mercy, then moves to reconciliation. Grace saves individuals and creates a new people, breaking down hostility through the cross. Paul's prayer in chapter 3 asks that believers would know Christ's love beyond knowledge.",
     observationQuestion: "What does God do by grace, and what dividing wall has Christ broken down?",
     reflectionQuestion: "How should grace make you humbler before God and more welcoming toward others?",
@@ -1720,7 +1711,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Ephesians 4-5": guidedDevotional({
     title: "Walk worthy in love and light",
-    context: "Paul moves from doctrine to the church's shared life, calling believers to unity, maturity, holiness, love, and light.",
+    context: "Paul moves from doctrine to the church's shared life, calling believers to unity, maturity, holiness, love, and light. In Ephesians, God's saving purpose in Christ creates a new people whose unity, holiness, and spiritual endurance shape Ephesians 4-5.",
     body: "The gospel creates a new walk. Believers put off the old self and put on the new, speaking truth, forgiving as God forgave them, walking in love, and walking as children of light. Doctrine becomes visible in habits, speech, purity, and relationships.",
     observationQuestion: "What old patterns are to be put off, and what new patterns are to be put on?",
     reflectionQuestion: "Which part of your walk needs to better match the grace you have received?",
@@ -1730,7 +1721,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Ephesians 6; Philippians 1": guidedDevotional({
     title: "Stand firm, live worthy",
-    context: "Ephesians ends with spiritual warfare and prayer, while Philippians begins with gospel partnership and courage.",
+    context: "Ephesians ends with spiritual warfare and prayer, while Philippians begins with gospel partnership and courage. In Ephesians, God's saving purpose in Christ creates a new people whose unity, holiness, and spiritual endurance shape Ephesians 6; Philippians 1.",
     body: "Paul calls believers to stand in the Lord's strength, clothed with God's armor and dependent in prayer. Philippians then shows gospel partnership marked by affection, discernment, and courage. The Christian life is not passive; it stands firm and lives worthy of the gospel.",
     observationQuestion: "What resources does God give for standing firm, and what does Paul pray for in Philippians?",
     reflectionQuestion: "Where do you need strength to stand firm and love to grow in discernment?",
@@ -1740,7 +1731,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Philippians 2-3": guidedDevotional({
     title: "The mind of Christ",
-    context: "Paul points to Christ's humility and exaltation, then counts everything loss because of the surpassing worth of knowing Him.",
+    context: "Paul points to Christ's humility and exaltation, then counts everything loss because of the surpassing worth of knowing Him. In Philippians, joy, humility, partnership, and perseverance in Christ frame Paul's counsel through Philippians 2-3.",
     body: "Christ's humility is the pattern for the church's life together. Paul then shows the same gospel logic personally: status and achievement are loss compared with knowing Christ. The Christian presses on because Christ has made them His own.",
     observationQuestion: "What does Christ's humility look like, and what does Paul count as loss?",
     reflectionQuestion: "Where does the mind of Christ confront pride, rivalry, or misplaced confidence?",
@@ -1750,7 +1741,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Philippians 4; Colossians 1": guidedDevotional({
     title: "Peace and the preeminence of Christ",
-    context: "Philippians closes with peace, contentment, and generosity, while Colossians opens with the supremacy of Christ.",
+    context: "Philippians closes with peace, contentment, and generosity, while Colossians opens with the supremacy of Christ. In Philippians, joy, humility, partnership, and perseverance in Christ frame Paul's counsel through Philippians 4; Colossians 1.",
     body: "Paul's peace is not detached from Christ's greatness. Philippians calls anxious hearts to prayer and contentment; Colossians shows the Son as image of God, Creator, Sustainer, Redeemer, and Head of the church. Peace grows as the heart is anchored in Christ's preeminence.",
     observationQuestion: "What does Paul say about prayer, contentment, and the supremacy of Christ?",
     reflectionQuestion: "Which concern needs to be brought under the greatness and nearness of Christ?",
@@ -1760,7 +1751,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Colossians 2-3": guidedDevotional({
     title: "Rooted in Christ, raised with Christ",
-    context: "Paul warns against empty teaching and calls believers to live from their union with Christ.",
+    context: "Paul warns against empty teaching and calls believers to live from their union with Christ. In Colossians, Christ's supremacy and sufficiency guard the church from rival spiritual claims and shape new life in Colossians 2-3.",
     body: "Colossians roots maturity in Christ Himself. Believers are filled in Him, buried and raised with Him, and called to set their minds above because their life is hidden with Christ in God. New life then becomes visible in putting off sin and putting on love.",
     observationQuestion: "What does Paul say believers have in Christ, and what are they called to put off and put on?",
     reflectionQuestion: "Where should being raised with Christ change your attention, desires, or relationships?",
@@ -1770,7 +1761,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Colossians 4; 1 Thessalonians 1": guidedDevotional({
     title: "Prayerful witness and visible faith",
-    context: "Colossians closes with prayerful, gracious speech, and 1 Thessalonians opens by celebrating faith, love, and hope.",
+    context: "Colossians closes with prayerful, gracious speech, and 1 Thessalonians opens by celebrating faith, love, and hope. In Colossians, Christ's supremacy and sufficiency guard the church from rival spiritual claims and shape new life in Colossians 4; 1 Thessalonians 1.",
     body: "Paul joins witness and character. Believers are to pray for open doors, speak with grace, and live in such a way that faith, love, and hope become visible. The gospel rings out through ordinary communities shaped by Christ.",
     observationQuestion: "What does Paul ask believers to pray for, and what does he celebrate in the Thessalonians?",
     reflectionQuestion: "How could your speech or daily faith make Christ more visible this week?",
@@ -1780,7 +1771,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Thessalonians 2-3": guidedDevotional({
     title: "Gentle care and steadfast faith",
-    context: "Paul recalls his gentle, honest ministry among the Thessalonians and his concern for their endurance.",
+    context: "Paul recalls his gentle, honest ministry among the Thessalonians and his concern for their endurance. In the Thessalonian letters, Paul encourages a young church in faith, holiness, work, endurance, and hope in Christ's return through 1 Thessalonians 2-3.",
     body: "Gospel ministry is both truthful and tender. Paul compares his care to a nursing mother and an encouraging father, then rejoices that the believers stand firm. Christian encouragement is not vague positivity; it helps faith endure under pressure.",
     observationQuestion: "What images does Paul use for his care, and what does he desire for their faith?",
     reflectionQuestion: "Who needs your truthful, gentle encouragement to stand firm?",
@@ -1790,7 +1781,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Thessalonians 4-5": guidedDevotional({
     title: "Holiness, hope, and watchfulness",
-    context: "Paul teaches about holiness, brotherly love, resurrection hope, the day of the Lord, and life together.",
+    context: "Paul teaches about holiness, brotherly love, resurrection hope, the day of the Lord, and life together. In the Thessalonian letters, Paul encourages a young church in faith, holiness, work, endurance, and hope in Christ's return through 1 Thessalonians 4-5.",
     body: "The hope of Christ's return shapes present holiness. Paul comforts grief with resurrection promise and calls the church to watchfulness, encouragement, prayer, gratitude, and discernment. Future hope should make ordinary faithfulness steadier.",
     observationQuestion: "What does Paul teach about holiness, grief, Christ's return, and life together?",
     reflectionQuestion: "How should resurrection hope change the way you grieve, encourage, or pursue holiness?",
@@ -1800,7 +1791,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Thessalonians 1-2": guidedDevotional({
     title: "Steady hope under confusion",
-    context: "Paul comforts suffering believers and corrects confusion about the day of the Lord.",
+    context: "Paul comforts suffering believers and corrects confusion about the day of the Lord. In the Thessalonian letters, Paul encourages a young church in faith, holiness, work, endurance, and hope in Christ's return through 2 Thessalonians 1-2.",
     body: "The Thessalonians face affliction and unsettling claims, but Paul anchors them in God's righteous judgment, Christ's glory, and the truth they received. Hope does not need speculation to survive; it needs steadfast trust in the Lord who will set things right.",
     observationQuestion: "What comfort and correction does Paul give to suffering and unsettled believers?",
     reflectionQuestion: "Where do you need steady hope rather than anxious speculation?",
@@ -1810,7 +1801,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Thessalonians 3; 1 Timothy 1": guidedDevotional({
     title: "Faithful order and abundant mercy",
-    context: "Paul calls for prayer, ordered work, and perseverance, then opens 1 Timothy by celebrating mercy to sinners.",
+    context: "Paul calls for prayer, ordered work, and perseverance, then opens 1 Timothy by celebrating mercy to sinners. In the Thessalonian letters, Paul encourages a young church in faith, holiness, work, endurance, and hope in Christ's return through 2 Thessalonians 3; 1 Timothy 1.",
     body: "Paul cares about both church order and gospel mercy. The Lord is faithful to establish and guard His people, and Christ came into the world to save sinners. Ordered discipleship must never forget the mercy that rescued Paul and rescues us.",
     observationQuestion: "What does Paul ask believers to pray for, and how does he describe Christ's mercy in 1 Timothy?",
     reflectionQuestion: "Where do you need both disciplined faithfulness and fresh gratitude for mercy?",
@@ -1820,7 +1811,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Timothy 2-3": guidedDevotional({
     title: "Prayer and faithful leadership",
-    context: "Paul gives instructions about prayer, godliness, and qualifications for overseers and deacons.",
+    context: "Paul gives instructions about prayer, godliness, and qualifications for overseers and deacons. In the Pastoral Letters, Paul instructs Timothy about sound teaching, church order, godliness, endurance, and faithful ministry in 1 Timothy 2-3.",
     body: "The church's life is to be shaped by prayer, peaceable godliness, and trustworthy leadership. Paul grounds the church's hope in the one mediator, Christ Jesus, who gave Himself as a ransom. Leadership matters because the church belongs to the living God.",
     observationQuestion: "What does Paul teach about prayer, Christ as mediator, and church leadership?",
     reflectionQuestion: "How can you pray more faithfully for leaders and for people to know Christ?",
@@ -1830,7 +1821,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Timothy 4-5": guidedDevotional({
     title: "Train for godliness, care for people",
-    context: "Paul warns against false teaching, urges Timothy toward godliness, and gives practical care instructions for the church.",
+    context: "Paul warns against false teaching, urges Timothy toward godliness, and gives practical care instructions for the church. In the Pastoral Letters, Paul instructs Timothy about sound teaching, church order, godliness, endurance, and faithful ministry in 1 Timothy 4-5.",
     body: "Godliness is trained over time through Scripture, teaching, example, and perseverance. Paul also shows that doctrine must produce practical care, especially for vulnerable people. Truth and tenderness are not enemies in a healthy church.",
     observationQuestion: "What is Timothy told to train, teach, model, and care for?",
     reflectionQuestion: "What small training habit in godliness would be faithful for you right now?",
@@ -1840,7 +1831,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "1 Timothy 6; 2 Timothy 1": guidedDevotional({
     title: "Contentment and courage",
-    context: "Paul warns about greed and calls Timothy to fight the good fight, then urges him not to be ashamed of the gospel.",
+    context: "Paul warns about greed and calls Timothy to fight the good fight, then urges him not to be ashamed of the gospel. In the Pastoral Letters, Paul instructs Timothy about sound teaching, church order, godliness, endurance, and faithful ministry in 1 Timothy 6; 2 Timothy 1.",
     body: "Contentment guards the heart from the love of money, and courage guards witness from shame. Paul calls Timothy to hold eternal life, guard the good deposit, and rely on God's power. Faithfulness requires both loosened hands and strengthened courage.",
     observationQuestion: "What dangers and commands does Paul name around wealth, witness, and guarding the gospel?",
     reflectionQuestion: "Where do you need contentment with earthly things and courage in gospel witness?",
@@ -1850,7 +1841,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Timothy 2-3": guidedDevotional({
     title: "Endure and continue in Scripture",
-    context: "Paul calls Timothy to endure as a faithful worker and continue in the Scriptures that make one wise for salvation.",
+    context: "Paul calls Timothy to endure as a faithful worker and continue in the Scriptures that make one wise for salvation. In the Pastoral Letters, Paul instructs Timothy about sound teaching, church order, godliness, endurance, and faithful ministry in 2 Timothy 2-3.",
     body: "Faithful ministry is not glamorous. It includes endurance, careful handling of the Word, fleeing sin, gentle correction, and continuing in Scripture. The Word equips God's servant for every good work because it is breathed out by God.",
     observationQuestion: "What images and commands does Paul use for faithful endurance and Scripture-shaped ministry?",
     reflectionQuestion: "Where do you need to continue steadily rather than chase something new?",
@@ -1860,7 +1851,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "2 Timothy 4; Titus 1": guidedDevotional({
     title: "Finish faithfully, appoint faithfully",
-    context: "Paul charges Timothy to preach the Word and finishes with personal reflections, while Titus is told to appoint qualified elders.",
+    context: "Paul charges Timothy to preach the Word and finishes with personal reflections, while Titus is told to appoint qualified elders. In the Pastoral Letters, Paul instructs Timothy about sound teaching, church order, godliness, endurance, and faithful ministry in 2 Timothy 4; Titus 1.",
     body: "Paul's final charge is sober and hopeful: preach the Word, endure, fulfill your ministry. His own race is nearly complete. Titus 1 reminds the church that faithful teaching and qualified leadership protect God's people from empty talk and error.",
     observationQuestion: "What charge does Paul give Timothy, and what qualities matter for elders in Titus?",
     reflectionQuestion: "What would faithful finishing look like in the responsibility God has given you?",
@@ -1870,7 +1861,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Titus 2": guidedDevotional({
     title: "Grace trains us",
-    context: "Paul describes sound teaching across generations and explains that God's grace trains believers for godly living.",
+    context: "Paul describes sound teaching across generations and explains that God's grace trains believers for godly living. In Titus, grace trains God's people in sound teaching and visible good works within the church's public witness in Titus 2.",
     body: "Grace is not only pardon; it is a teacher. The grace of God has appeared in Christ, bringing salvation and training believers to renounce ungodliness while waiting for blessed hope. Good works flow from a people redeemed by Christ.",
     observationQuestion: "What does grace train believers to renounce, pursue, and wait for?",
     reflectionQuestion: "Where is grace training you toward a more self-controlled, upright, and godly life?",
@@ -1880,7 +1871,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Titus 3": guidedDevotional({
     title: "Saved by mercy",
-    context: "Paul calls believers to gentle public conduct and grounds salvation in God's mercy, not works.",
+    context: "Paul calls believers to gentle public conduct and grounds salvation in God's mercy, not works. In Titus, grace trains God's people in sound teaching and visible good works within the church's public witness in Titus 3.",
     body: "Titus 3 joins humility toward others with memory of mercy. Believers should not be quarrelsome or harsh because they too were rescued by God's kindness. Salvation comes through mercy, renewal by the Spirit, and justification by grace.",
     observationQuestion: "What conduct does Paul command, and how does he describe God's saving mercy?",
     reflectionQuestion: "How should remembering mercy make you gentler toward others?",
@@ -1890,7 +1881,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Philemon 1": guidedDevotional({
     title: "The gospel reshapes relationships",
-    context: "Paul appeals to Philemon to receive Onesimus no longer merely as a slave, but as a beloved brother.",
+    context: "Paul appeals to Philemon to receive Onesimus no longer merely as a slave, but as a beloved brother. In Philemon, Paul applies the gospel to reconciliation, brotherhood, and costly love within a real household situation in Philemon 1.",
     body: "Philemon is personal, but not small. Paul applies the gospel to a strained and costly relationship, appealing through love rather than coercion. In Christ, reconciliation must become visible in how believers receive one another.",
     observationQuestion: "How does Paul describe Onesimus, and what does he ask Philemon to do?",
     reflectionQuestion: "Where might the gospel require costly welcome, forgiveness, or restored relationship?",
@@ -1903,7 +1894,7 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
 const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   "Isaiah 1-5": guidedDevotional({
     title: "The Holy One calls His people back",
-    context: "Isaiah opens by exposing Judah's rebellion, empty worship, social injustice, and the Lord's call to cleansing and repentance.",
+    context: "Isaiah opens by exposing Judah's rebellion, empty worship, social injustice, and the Lord's call to cleansing and repentance. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 1-5.",
     body: "Isaiah begins with a wound diagnosis. God's people have religious activity, but their hearts and public life are far from Him. Yet judgment is not the only word: the Holy One calls them to reason together, be cleansed, and learn to do good.",
     observationQuestion: "What sins does the Lord expose, and what return does He invite?",
     reflectionQuestion: "Where might outward religion need to become repentance, justice, and renewed obedience?",
@@ -1913,7 +1904,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 6-10": guidedDevotional({
     title: "Holy, holy, holy",
-    context: "Isaiah sees the Lord's holiness, is cleansed, and is sent into a hard ministry amid judgment and promise.",
+    context: "Isaiah sees the Lord's holiness, is cleansed, and is sent into a hard ministry amid judgment and promise. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 6-10.",
     body: "The prophet's calling begins with worship and cleansing. Isaiah is undone before the Holy One, yet grace touches his guilt. These chapters also hold a promised child, Immanuel hope, and warnings against fear-driven alliances.",
     observationQuestion: "What does Isaiah see, confess, receive, and hear?",
     reflectionQuestion: "How should God's holiness and grace reshape your readiness to obey?",
@@ -1923,7 +1914,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 11-15": guidedDevotional({
     title: "The righteous Branch",
-    context: "Isaiah promises a Spirit-filled ruler from Jesse's line, then turns to songs of salvation and oracles over the nations.",
+    context: "Isaiah promises a Spirit-filled ruler from Jesse's line, then turns to songs of salvation and oracles over the nations. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 11-15.",
     body: "Judgment over proud nations is real, but it is not the whole horizon. Isaiah sees a righteous King who will rule with justice and bring peace beyond human ability. God's salvation becomes a song because His rule is both holy and hopeful.",
     observationQuestion: "What kind of ruler is promised, and what future peace is described?",
     reflectionQuestion: "Where do you need hope in Christ's righteous reign rather than trust in human power?",
@@ -1933,7 +1924,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 16-19": guidedDevotional({
     title: "Mercy beyond borders",
-    context: "Isaiah speaks oracles concerning Moab, Damascus, Cush, and Egypt, showing the Lord's authority over all nations.",
+    context: "Isaiah speaks oracles concerning Moab, Damascus, Cush, and Egypt, showing the Lord's authority over all nations. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 16-19.",
     body: "The prophets are not only interested in Israel's private spirituality. The Lord rules over nations, pride, fear, oppression, and false worship. Even Egypt's oracle contains surprising hope that former enemies may know and worship the Lord.",
     observationQuestion: "What judgments are named, and what surprising hope appears for Egypt?",
     reflectionQuestion: "How does God's concern for the nations enlarge your prayers and expectations?",
@@ -1943,7 +1934,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 20-23": guidedDevotional({
     title: "When human security fails",
-    context: "Isaiah gives signs and oracles against nations and cities that trust power, wealth, alliances, or reputation.",
+    context: "Isaiah gives signs and oracles against nations and cities that trust power, wealth, alliances, or reputation. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 20-23.",
     body: "These chapters unsettle false security. Egypt, Cush, Babylon, Edom, Arabia, Jerusalem, and Tyre all show that human strength cannot become ultimate refuge. The Lord exposes what people trust so they might return to Him as true security.",
     observationQuestion: "What sources of security are exposed as fragile in these chapters?",
     reflectionQuestion: "What earthly security are you tempted to treat as stronger than the Lord?",
@@ -1953,7 +1944,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 24-27": guidedDevotional({
     title: "Judgment and the feast of salvation",
-    context: "Isaiah widens the view to worldwide judgment, songs of trust, and the Lord's promised feast where death is swallowed up.",
+    context: "Isaiah widens the view to worldwide judgment, songs of trust, and the Lord's promised feast where death is swallowed up. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 24-27.",
     body: "Isaiah does not minimize judgment, but he also gives a breathtaking vision of salvation. The Lord will swallow up death, wipe away tears, and provide a feast for all peoples. Hope is not escape from holiness; it is salvation through the holy God who reigns.",
     observationQuestion: "What judgment is described, and what salvation does the Lord promise?",
     reflectionQuestion: "Which promise in these chapters strengthens your hope beyond present trouble?",
@@ -1963,7 +1954,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 28-31": guidedDevotional({
     title: "A sure foundation",
-    context: "Isaiah confronts pride, false refuge, empty counsel, and reliance on Egypt rather than quiet trust in the Lord.",
+    context: "Isaiah confronts pride, false refuge, empty counsel, and reliance on Egypt rather than quiet trust in the Lord. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 28-31.",
     body: "The Lord exposes lies that people use as shelter. Against unstable refuge, He promises a precious cornerstone, a sure foundation. The call is not frantic self-rescue but returning, rest, quietness, and trust in the Lord.",
     observationQuestion: "What false refuges are exposed, and what true foundation is promised?",
     reflectionQuestion: "Where are you tempted to seek frantic rescue rather than quiet trust?",
@@ -1973,7 +1964,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 32-35": guidedDevotional({
     title: "The wilderness will blossom",
-    context: "Isaiah looks toward righteous rule, the Spirit poured out, judgment on evil, and restoration pictured as a blossoming wilderness.",
+    context: "Isaiah looks toward righteous rule, the Spirit poured out, judgment on evil, and restoration pictured as a blossoming wilderness. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 32-35.",
     body: "The prophets often move from devastation to restoration. Isaiah promises a future where righteousness brings peace, the weak are strengthened, and the redeemed return with singing. The Lord's salvation renews both people and creation.",
     observationQuestion: "What changes when righteousness, the Spirit, and redemption are described?",
     reflectionQuestion: "Where do you need courage from the promise that the Lord will renew what is barren?",
@@ -1983,7 +1974,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 36-39": guidedDevotional({
     title: "Trust under threat",
-    context: "Jerusalem faces Assyrian intimidation, Hezekiah prays, the Lord delivers, and later Hezekiah stumbles through pride.",
+    context: "Jerusalem faces Assyrian intimidation, Hezekiah prays, the Lord delivers, and later Hezekiah stumbles through pride. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 36-39.",
     body: "The Assyrian threat is loud, public, and frightening, but Hezekiah brings the letter before the Lord. Deliverance comes by God's zeal, not Judah's strength. Yet the later pride with Babylon warns that yesterday's faithfulness does not remove today's need for humility.",
     observationQuestion: "How does Hezekiah respond to threat, and where does he later fail?",
     reflectionQuestion: "What threat needs to be spread before the Lord, and what pride needs watching?",
@@ -1993,7 +1984,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 40-43": guidedDevotional({
     title: "Comfort for weary people",
-    context: "Isaiah announces comfort, the greatness of God, the servant of the Lord, and redemption through waters and fire.",
+    context: "Isaiah announces comfort, the greatness of God, the servant of the Lord, and redemption through waters and fire. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 40-43.",
     body: "After judgment, the Lord speaks comfort. He is Creator, Shepherd, incomparable King, and Redeemer. His people are weak, but He gives strength; they pass through waters and fire, but they are called by name and belong to Him.",
     observationQuestion: "What names, actions, and promises reveal God's comfort and greatness?",
     reflectionQuestion: "Which promise do you most need as a weary or fearful person today?",
@@ -2003,7 +1994,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 44-47": guidedDevotional({
     title: "No other God",
-    context: "Isaiah contrasts the living Lord with powerless idols and announces God's sovereign purpose through Cyrus.",
+    context: "Isaiah contrasts the living Lord with powerless idols and announces God's sovereign purpose through Cyrus. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 44-47.",
     body: "Idols are exposed as human-made and unable to save. The Lord alone creates, redeems, names the future, and carries His purposes forward. These chapters invite worshipful confidence in the God who is not managed by human hands.",
     observationQuestion: "How are idols described, and how is the Lord described differently?",
     reflectionQuestion: "What modern idol promises control, comfort, or identity but cannot save?",
@@ -2013,7 +2004,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 48-51": guidedDevotional({
     title: "Listen to the Redeemer",
-    context: "The Lord confronts stubbornness, calls His people to listen, and reveals His servant as light to the nations.",
+    context: "The Lord confronts stubbornness, calls His people to listen, and reveals His servant as light to the nations. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 48-51.",
     body: "God's redemption includes correction. He calls His people out of stubbornness and into attentive trust. The servant's mission reaches beyond Israel to the nations, showing that God's salvation is larger than His people's small expectations.",
     observationQuestion: "What does the Lord ask His people to hear, remember, and trust?",
     reflectionQuestion: "Where might stubbornness be keeping you from listening to the Lord's redeeming word?",
@@ -2023,7 +2014,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 52-55": guidedDevotional({
     title: "The Servant and the invitation",
-    context: "Isaiah announces good news, describes the suffering Servant, and invites the thirsty to come and receive mercy.",
+    context: "Isaiah announces good news, describes the suffering Servant, and invites the thirsty to come and receive mercy. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 52-55.",
     body: "These chapters stand near the heart of Isaiah's hope. The Servant is pierced for transgressions and bears iniquity, yet His work leads to peace and healing. Because of Him, the invitation goes out freely: come, listen, seek the Lord, receive mercy.",
     observationQuestion: "What does the Servant suffer, and what invitation follows in Isaiah 55?",
     reflectionQuestion: "How does the Servant's costly mercy make the free invitation more beautiful?",
@@ -2033,7 +2024,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 56-59": guidedDevotional({
     title: "A house of prayer and a need for rescue",
-    context: "Isaiah speaks of welcome for outsiders, true fasting, justice, sin, and the Lord's own arm bringing salvation.",
+    context: "Isaiah speaks of welcome for outsiders, true fasting, justice, sin, and the Lord's own arm bringing salvation. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 56-59.",
     body: "The Lord's salvation creates a people marked by worship, justice, mercy, and truth. Yet Isaiah also exposes deep sin: hands, words, and paths are corrupt. The hope is that the Lord Himself sees, acts, and brings redemption.",
     observationQuestion: "What kind of worship and justice does the Lord desire, and what sin does He expose?",
     reflectionQuestion: "Where should worship become mercy, justice, and truthful living?",
@@ -2043,7 +2034,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 60-63": guidedDevotional({
     title: "Glory, good news, and the anointed one",
-    context: "Isaiah looks toward Zion's glory, the anointed messenger of good news, and the Lord's final victory.",
+    context: "Isaiah looks toward Zion's glory, the anointed messenger of good news, and the Lord's final victory. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 60-63.",
     body: "Light rises where darkness covered the people. The anointed one brings good news to the poor, comfort to mourners, and freedom to captives. Jesus later takes Isaiah 61 upon His own lips, showing that this hope finds its center in Him.",
     observationQuestion: "What images of light, restoration, good news, and justice appear?",
     reflectionQuestion: "Where do you need Christ's good news to bring restoration rather than mere optimism?",
@@ -2053,7 +2044,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Isaiah 64-66; Jeremiah 1": guidedDevotional({
     title: "Longing, judgment, and a prophet called",
-    context: "Isaiah ends with longing for God to act, warnings of judgment, new creation hope, and Jeremiah begins with a prophet set apart.",
+    context: "Isaiah ends with longing for God to act, warnings of judgment, new creation hope, and Jeremiah begins with a prophet set apart. Keep Isaiah's Judah-and-Zion setting in view: holy judgment, failed trust, servant hope, and promised restoration are being proclaimed through Isaiah 64-66; Jeremiah 1.",
     body: "The transition from Isaiah to Jeremiah keeps the prophetic tension alive: longing for God, exposure of sin, promised renewal, and a servant called to speak God's word. Jeremiah's call reminds us that God's word continues to confront and heal through reluctant messengers.",
     observationQuestion: "What longings and warnings close Isaiah, and what does God say to Jeremiah?",
     reflectionQuestion: "Where do you need both longing for renewal and courage to receive God's confronting word?",
@@ -2063,7 +2054,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 2-5": guidedDevotional({
     title: "Broken cisterns",
-    context: "Jeremiah begins by bringing the Lord's covenant case against Judah for forsaking Him and chasing worthless gods.",
+    context: "Jeremiah begins by bringing the Lord's covenant case against Judah for forsaking Him and chasing worthless gods. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 2-5.",
     body: "The image of broken cisterns is painfully clear: God's people have left the fountain of living waters for things that cannot hold water. Jeremiah exposes spiritual adultery, injustice, and stubborn refusal to return, yet the call to repent still sounds.",
     observationQuestion: "What images does Jeremiah use for Judah's unfaithfulness?",
     reflectionQuestion: "What broken cistern are you tempted to trust for life, comfort, or security?",
@@ -2073,7 +2064,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 6-9": guidedDevotional({
     title: "Peace when there is no peace",
-    context: "Jeremiah warns of coming disaster, shallow healing, rejected correction, and grief over Judah's sin.",
+    context: "Jeremiah warns of coming disaster, shallow healing, rejected correction, and grief over Judah's sin. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 6-9.",
     body: "False prophets say 'peace' while wounds remain untreated. Jeremiah shows that God is not interested in soothing language that avoids repentance. These chapters invite honest grief, humble correction, and a deeper boasting only in knowing the Lord.",
     observationQuestion: "What false assurances are exposed, and what does Jeremiah say is worth boasting in?",
     reflectionQuestion: "Where do you need honest healing rather than words that merely soothe?",
@@ -2083,7 +2074,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 10-13": guidedDevotional({
     title: "The living God and stubborn hearts",
-    context: "Jeremiah contrasts idols with the living God and uses vivid signs to expose Judah's pride and covenant unfaithfulness.",
+    context: "Jeremiah contrasts idols with the living God and uses vivid signs to expose Judah's pride and covenant unfaithfulness. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 10-13.",
     body: "Idols must be carried, but the living God made the heavens and the earth. Judah's problem is not lack of religious objects; it is a stubborn heart that will not listen. The prophet's signs show how pride ruins what was meant to cling close to the Lord.",
     observationQuestion: "How does Jeremiah contrast idols with the Lord, and what does the ruined waistband picture?",
     reflectionQuestion: "Where does pride keep you from clinging closely to the Lord?",
@@ -2093,7 +2084,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 14-17": guidedDevotional({
     title: "The heart and the fountain",
-    context: "Jeremiah laments drought and judgment, warns against false prophecy, and contrasts cursed trust in man with blessed trust in the Lord.",
+    context: "Jeremiah laments drought and judgment, warns against false prophecy, and contrasts cursed trust in man with blessed trust in the Lord. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 14-17.",
     body: "Jeremiah gives one of Scripture's clearest diagnoses of the human heart: deceitful and desperately sick. But the passage also offers a better root system: the one who trusts the Lord is like a tree by water. Judgment exposes, but trust returns to the fountain of living water.",
     observationQuestion: "What does Jeremiah say about the heart, trust, and the Lord as fountain?",
     reflectionQuestion: "Where are you relying on human strength instead of rooting trust in the Lord?",
@@ -2103,7 +2094,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 18-21": guidedDevotional({
     title: "Clay in the Potter's hands",
-    context: "The Lord sends Jeremiah to the potter's house and continues warning Judah through signs and confrontation.",
+    context: "The Lord sends Jeremiah to the potter's house and continues warning Judah through signs and confrontation. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 18-21.",
     body: "The potter image humbles human pride without making God careless. The Lord has authority to reshape, judge, and relent according to His righteous purposes. Judah resists the word, but the image still calls for yieldedness in the hands of the Potter.",
     observationQuestion: "What does the potter's house teach Jeremiah about the Lord's authority?",
     reflectionQuestion: "Where do you need to become pliable rather than resistant before God's word?",
@@ -2113,7 +2104,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 22-25": guidedDevotional({
     title: "Justice, shepherds, and the righteous Branch",
-    context: "Jeremiah confronts kings and leaders, announces judgment, and promises a righteous Branch from David's line.",
+    context: "Jeremiah confronts kings and leaders, announces judgment, and promises a righteous Branch from David's line. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 22-25.",
     body: "Bad shepherds scatter and exploit, but the Lord promises a righteous King who will reign wisely and execute justice. Jeremiah's warnings are severe because leadership, justice, and worship matter. Hope comes not through corrupt rulers improving themselves, but through the Lord raising the righteous Branch.",
     observationQuestion: "What does the Lord condemn in Judah's leaders, and what future King does He promise?",
     reflectionQuestion: "How does the promise of the righteous Branch correct your hopes for human leadership?",
@@ -2123,7 +2114,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 26-29": guidedDevotional({
     title: "Faithfulness in exile",
-    context: "Jeremiah faces danger for speaking God's word and later writes to exiles, calling them to seek the welfare of the city.",
+    context: "Jeremiah faces danger for speaking God's word and later writes to exiles, calling them to seek the welfare of the city. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 26-29.",
     body: "Jeremiah 29 is often quoted for comfort, but it sits inside exile, discipline, and patient waiting. God's good plans do not remove the call to faithful presence. The exiles are to build, plant, pray, and seek the city's welfare while trusting God's promised future.",
     observationQuestion: "What does Jeremiah tell the exiles to do while they wait?",
     reflectionQuestion: "Where is God calling you to faithful presence rather than quick escape?",
@@ -2133,7 +2124,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 30-33": guidedDevotional({
     title: "A new covenant promised",
-    context: "These chapters gather promises of restoration, return, healing, Davidic hope, and the new covenant written on the heart.",
+    context: "These chapters gather promises of restoration, return, healing, Davidic hope, and the new covenant written on the heart. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 30-33.",
     body: "Jeremiah's book is not only judgment. Here the Lord promises restoration that reaches deeper than return from exile: a new covenant, forgiven sin, and God's law written on hearts. This hope finds its fulfillment in Christ, who brings covenant mercy by His blood.",
     observationQuestion: "What restoration promises does the Lord give, especially about the new covenant?",
     reflectionQuestion: "How does forgiveness and a changed heart deepen your hope beyond outward improvement?",
@@ -2143,7 +2134,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 34-37": guidedDevotional({
     title: "Partial obedience is not covenant faithfulness",
-    context: "Judah's leaders make and break a covenant to free servants, while Jeremiah continues warning amid political pressure.",
+    context: "Judah's leaders make and break a covenant to free servants, while Jeremiah continues warning amid political pressure. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 34-37.",
     body: "These chapters show the danger of temporary obedience that collapses when pressure changes. The people release servants, then take them back. Jeremiah exposes faithfulness that is only convenient, reminding us that covenant obedience must reach beyond public gestures.",
     observationQuestion: "What covenant action is reversed, and what does that reveal?",
     reflectionQuestion: "Where might your obedience be temporary, convenient, or dependent on circumstances?",
@@ -2153,7 +2144,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 38-41": guidedDevotional({
     title: "Truth in the pit",
-    context: "Jeremiah is thrown into a cistern, rescued, and later witnesses the fall of Jerusalem and its aftermath.",
+    context: "Jeremiah is thrown into a cistern, rescued, and later witnesses the fall of Jerusalem and its aftermath. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 38-41.",
     body: "Jeremiah's faithfulness does not protect him from suffering. He is lowered into mud for speaking truth, yet the Lord preserves him. The fall of Jerusalem confirms that rejected truth does not become false; God's word stands even when ignored.",
     observationQuestion: "How is Jeremiah treated, and what happens to Jerusalem?",
     reflectionQuestion: "Where do you need courage to stay truthful even when truth is unwanted?",
@@ -2163,7 +2154,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 42-45": guidedDevotional({
     title: "Asking without listening",
-    context: "The remnant asks Jeremiah to seek the Lord, but they reject the answer and flee toward Egypt.",
+    context: "The remnant asks Jeremiah to seek the Lord, but they reject the answer and flee toward Egypt. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 42-45.",
     body: "It is possible to ask for God's guidance while already deciding not to obey. The remnant wants confirmation, not surrender. These chapters warn against religious language that masks unbelief and call for listening that is ready to obey.",
     observationQuestion: "What do the people ask Jeremiah to do, and how do they respond to God's answer?",
     reflectionQuestion: "Where are you asking God for guidance while holding obedience at arm's length?",
@@ -2173,7 +2164,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 46-49": guidedDevotional({
     title: "The Lord judges the nations",
-    context: "Jeremiah speaks oracles against surrounding nations, showing that the Lord's rule extends beyond Judah.",
+    context: "Jeremiah speaks oracles against surrounding nations, showing that the Lord's rule extends beyond Judah. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 46-49.",
     body: "Judah's God is not a tribal deity. The Lord judges pride, violence, false security, and idolatry among the nations. These chapters are sobering, but they also remind us that no empire, army, or border sits outside God's moral rule.",
     observationQuestion: "What patterns of pride, security, or judgment appear among the nations?",
     reflectionQuestion: "How should God's rule over nations shape your prayer for the world?",
@@ -2183,7 +2174,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Jeremiah 50-52; Lamentations 1": guidedDevotional({
     title: "Babylon falls, Jerusalem weeps",
-    context: "Jeremiah ends with judgment on Babylon and the fall of Jerusalem, then Lamentations begins with grief over the ruined city.",
+    context: "Jeremiah ends with judgment on Babylon and the fall of Jerusalem, then Lamentations begins with grief over the ruined city. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 50-52; Lamentations 1.",
     body: "The proud oppressor is judged, but Jerusalem's grief is not skipped. Scripture gives space for both justice and lament. The fall of Babylon says evil will not last forever; Lamentations 1 teaches God's people to tell the truth about sorrow.",
     observationQuestion: "What happens to Babylon and Jerusalem, and how does Lamentations describe the city?",
     reflectionQuestion: "Where do you need to hold together hope for justice and honest lament?",
@@ -2193,7 +2184,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Lamentations 2-5": guidedDevotional({
     title: "Mercies in the ruins",
-    context: "Lamentations grieves Jerusalem's destruction, confesses sin, and reaches for hope in the Lord's steadfast love.",
+    context: "Lamentations grieves Jerusalem's destruction, confesses sin, and reaches for hope in the Lord's steadfast love. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Lamentations 2-5.",
     body: "Lamentations is not tidy comfort. It teaches prayer from inside devastation. The famous words about new mercies come surrounded by grief, which makes them deeper rather than thinner. Hope is not denial; it is turning toward the Lord whose steadfast love has not ended.",
     observationQuestion: "What grief, confession, and hope are voiced in these chapters?",
     reflectionQuestion: "Where do you need to pray honestly while still holding to the Lord's mercies?",
@@ -2203,7 +2194,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 1-4": guidedDevotional({
     title: "Glory in exile",
-    context: "Ezekiel is among the exiles by the Chebar canal when he sees the glory of the Lord and receives a difficult prophetic calling.",
+    context: "Ezekiel is among the exiles by the Chebar canal when he sees the glory of the Lord and receives a difficult prophetic calling. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 1-4.",
     body: "Ezekiel begins outside the land, but not outside God's reach. The vision of glory shows that the Lord is not trapped in Jerusalem or defeated by exile. Ezekiel's calling is weighty: he must speak God's word whether people listen or refuse.",
     observationQuestion: "What does Ezekiel see, hear, eat, and act out in these opening chapters?",
     reflectionQuestion: "Where do you need to remember that the Lord's glory is not limited by your location or circumstances?",
@@ -2213,7 +2204,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 5-8": guidedDevotional({
     title: "When worship is corrupted",
-    context: "Ezekiel acts out Jerusalem's judgment, prophesies against idolatry, and is shown hidden abominations in the temple.",
+    context: "Ezekiel acts out Jerusalem's judgment, prophesies against idolatry, and is shown hidden abominations in the temple. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 5-8.",
     body: "These chapters are severe because Israel's worship has been corrupted at the center. The Lord sees what is public and what is hidden. Judgment is not random anger; it exposes idolatry that has replaced covenant faithfulness.",
     observationQuestion: "What sins are named, and where are they taking place?",
     reflectionQuestion: "What hidden loyalties might compete with sincere worship of the Lord?",
@@ -2223,7 +2214,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 9-12": guidedDevotional({
     title: "The word stands",
-    context: "Ezekiel sees judgment on Jerusalem, the glory departing, and signs that exile is truly coming.",
+    context: "Ezekiel sees judgment on Jerusalem, the glory departing, and signs that exile is truly coming. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 9-12.",
     body: "The departure of glory is devastating. It shows that the real tragedy is not only political collapse but the loss of God's holy presence among a rebellious people. Yet the Lord's word still stands when people dismiss it as delayed or unlikely.",
     observationQuestion: "How do people respond to Ezekiel's warnings, and what does the Lord say about His word?",
     reflectionQuestion: "Where have you been tempted to treat God's warnings or promises as distant and unreal?",
@@ -2233,7 +2224,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 13-16": guidedDevotional({
     title: "False comfort and covenant grief",
-    context: "The Lord rebukes false prophets, exposes idolatry, and describes Jerusalem's covenant unfaithfulness in painful detail.",
+    context: "The Lord rebukes false prophets, exposes idolatry, and describes Jerusalem's covenant unfaithfulness in painful detail. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 13-16.",
     body: "False comfort can sound kind while keeping people from repentance. Ezekiel confronts spiritual leaders who heal wounds lightly and a city that has forgotten grace. The imagery is confronting, but its point is covenant grief: the Lord had loved and rescued His people, and they turned from Him.",
     observationQuestion: "What kinds of false security are exposed in these chapters?",
     reflectionQuestion: "Where do you need the Lord's truthful mercy more than shallow reassurance?",
@@ -2243,7 +2234,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 17-20": guidedDevotional({
     title: "Grace remembered, rebellion exposed",
-    context: "Ezekiel uses parables and history to show Jerusalem's rebellion while holding out the Lord's future promise.",
+    context: "Ezekiel uses parables and history to show Jerusalem's rebellion while holding out the Lord's future promise. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 17-20.",
     body: "The Lord remembers Israel's story more truly than Israel does. He exposes repeated rebellion, but He also promises a tender sprig that He Himself will plant. Responsibility matters, history matters, and grace is still the Lord's work from beginning to end.",
     observationQuestion: "What does Ezekiel say about responsibility, history, and the Lord's promised future?",
     reflectionQuestion: "Where do you need to remember grace honestly without excusing rebellion?",
@@ -2253,7 +2244,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 21-24": guidedDevotional({
     title: "The end of false security",
-    context: "Ezekiel announces the sword, exposes corrupt leadership and worship, and marks Jerusalem's siege with painful signs.",
+    context: "Ezekiel announces the sword, exposes corrupt leadership and worship, and marks Jerusalem's siege with painful signs. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 21-24.",
     body: "These chapters refuse to let false security survive. Kings, priests, prophets, and people are all weighed by the Lord's holiness. Ezekiel's personal sorrow also shows that judgment is not an abstract idea; sin tears through real lives.",
     observationQuestion: "What people, institutions, and false hopes are judged in these chapters?",
     reflectionQuestion: "What security would collapse if it were not anchored in the Lord?",
@@ -2263,7 +2254,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 25-28": guidedDevotional({
     title: "Pride among the nations",
-    context: "The Lord speaks judgment against surrounding nations, especially Tyre, for pride, violence, and rejoicing over Judah's fall.",
+    context: "The Lord speaks judgment against surrounding nations, especially Tyre, for pride, violence, and rejoicing over Judah's fall. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 25-28.",
     body: "Ezekiel widens the view from Jerusalem to the nations. The Lord rules over every people, economy, ruler, and boast. Pride may look secure for a season, but no nation can exalt itself above the God who made the seas and the coastlands.",
     observationQuestion: "What attitudes and actions are condemned among the surrounding nations?",
     reflectionQuestion: "Where do pride, success, or comparison quietly shape your sense of security?",
@@ -2273,7 +2264,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 29-32": guidedDevotional({
     title: "Egypt brought low",
-    context: "Ezekiel announces judgment on Egypt and Pharaoh, using images of monsters, trees, and descent to the grave.",
+    context: "Ezekiel announces judgment on Egypt and Pharaoh, using images of monsters, trees, and descent to the grave. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 29-32.",
     body: "Egypt represents impressive power that cannot finally save. Pharaoh's boast is answered by the Lord's sovereignty. The passage teaches that political strength, military confidence, and ancient prestige all bow before the One who judges nations justly.",
     observationQuestion: "What images does Ezekiel use to describe Egypt's pride and downfall?",
     reflectionQuestion: "What impressive power are you tempted to fear or trust more than the Lord?",
@@ -2283,7 +2274,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 33-36": guidedDevotional({
     title: "Watchman, shepherd, new heart",
-    context: "Ezekiel is renewed as watchman, Israel's shepherds are judged, and the Lord promises cleansing, a new heart, and His Spirit.",
+    context: "Ezekiel is renewed as watchman, Israel's shepherds are judged, and the Lord promises cleansing, a new heart, and His Spirit. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 33-36.",
     body: "After judgment, restoration begins with the Lord's own name and mercy. Bad shepherds are confronted, scattered sheep are sought, and hard hearts are promised renewal. Hope rests not in Israel improving itself, but in the Lord giving His people a new heart and Spirit.",
     observationQuestion: "What does the Lord promise to do for His people in these chapters?",
     reflectionQuestion: "Where do you need more than self-improvement: a heart renewed by God?",
@@ -2293,7 +2284,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 37-40": guidedDevotional({
     title: "Dry bones and returning hope",
-    context: "Ezekiel sees dry bones raised, the people reunited under one shepherd, enemies defeated, and a restored temple vision beginning.",
+    context: "Ezekiel sees dry bones raised, the people reunited under one shepherd, enemies defeated, and a restored temple vision beginning. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 37-40.",
     body: "The valley of dry bones is not optimism; it is resurrection-like hope created by God's Spirit and word. The Lord can bring life where there is no human possibility. The restored temple vision then turns hope toward His dwelling presence.",
     observationQuestion: "How does life come to the dry bones, and what future does the Lord promise?",
     reflectionQuestion: "Where do you need hope that depends on God's Spirit rather than your strength?",
@@ -2303,7 +2294,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 41-44": guidedDevotional({
     title: "A holy dwelling",
-    context: "Ezekiel continues the temple vision, sees the Lord's glory return, and hears instructions about holiness and worship.",
+    context: "Ezekiel continues the temple vision, sees the Lord's glory return, and hears instructions about holiness and worship. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 41-44.",
     body: "The measurements can feel slow, but they teach order, holiness, and reverence. Restoration is not merely getting land back; it is the return of the Lord's glory. His people are called to live around His presence with renewed awe.",
     observationQuestion: "What details emphasize holiness, order, and the return of the Lord's glory?",
     reflectionQuestion: "How might reverence for God's presence reshape ordinary parts of your life?",
@@ -2313,7 +2304,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 45-48": guidedDevotional({
     title: "The Lord is there",
-    context: "Ezekiel's vision concludes with restored worship, renewed land, a life-giving river, and a city named for the Lord's presence.",
+    context: "Ezekiel's vision concludes with restored worship, renewed land, a life-giving river, and a city named for the Lord's presence. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 45-48.",
     body: "Ezekiel ends not with exile but with presence. The river flowing from the temple brings life wherever it goes, and the final name of the city is the deepest promise: the Lord is there. Restoration is finally about dwelling with Him.",
     observationQuestion: "What signs of restored worship, justice, life, and presence appear in these chapters?",
     reflectionQuestion: "Where do you long to know, in a settled way, that the Lord is there?",
@@ -2323,7 +2314,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Daniel 1-4": guidedDevotional({
     title: "Faithful in exile",
-    context: "Daniel and his friends serve in Babylon while remaining faithful, interpreting dreams, facing the furnace, and seeing a proud king humbled.",
+    context: "Daniel and his friends serve in Babylon while remaining faithful, interpreting dreams, facing the furnace, and seeing a proud king humbled. Keep Daniel's exile setting in view: faithful witness under foreign empires and God's rule over kingdoms shape the scenes and visions in Daniel 1-4.",
     body: "Daniel shows faithfulness under pressure without pretending exile is easy. The Lord gives wisdom, preserves His servants, and humbles kings. Even in Babylon, no ruler has the final word over those who belong to God.",
     observationQuestion: "How do Daniel and his friends remain faithful, and how does the Lord act?",
     reflectionQuestion: "Where do you need quiet courage to remain faithful in a pressured environment?",
@@ -2333,7 +2324,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Daniel 5-8": guidedDevotional({
     title: "Kingdoms weighed and passing",
-    context: "Daniel interprets Babylon's fall, survives the lions' den, and receives visions of kingdoms that rise and pass away.",
+    context: "Daniel interprets Babylon's fall, survives the lions' den, and receives visions of kingdoms that rise and pass away. Keep Daniel's exile setting in view: faithful witness under foreign empires and God's rule over kingdoms shape the scenes and visions in Daniel 5-8.",
     body: "Earthly kingdoms can look overwhelming, but Daniel insists they are accountable to God. Proud rulers are weighed, faithful prayer is tested, and beastly powers do not last forever. The Ancient of Days reigns when history looks unstable.",
     observationQuestion: "What do these chapters reveal about rulers, kingdoms, prayer, and God's authority?",
     reflectionQuestion: "What current fear becomes smaller when you remember that earthly kingdoms pass away?",
@@ -2343,7 +2334,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Daniel 9-12": guidedDevotional({
     title: "Hope beyond exile",
-    context: "Daniel prays confession over Israel's exile and receives visions of conflict, endurance, and final resurrection hope.",
+    context: "Daniel prays confession over Israel's exile and receives visions of conflict, endurance, and final resurrection hope. Keep Daniel's exile setting in view: faithful witness under foreign empires and God's rule over kingdoms shape the scenes and visions in Daniel 9-12.",
     body: "Daniel's hope is deeply prayerful. He does not treat prophecy as curiosity, but responds with confession, humility, and trust. The final visions are difficult, yet they lift the reader toward endurance and resurrection: the Lord has not lost control of history.",
     observationQuestion: "How does Daniel pray, and what hope is given to God's people in the final chapters?",
     reflectionQuestion: "Where do you need endurance that is rooted in confession, mercy, and resurrection hope?",
@@ -2835,7 +2826,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 37:3-7": guidedDevotional({
       title: "Trust and wait",
-      context: "Psalm 37 teaches God's people how to respond when the wicked seem to prosper and outcomes feel delayed.",
+      context: "Psalm 37 teaches God's people how to respond when the wicked seem to prosper and outcomes feel delayed. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Psalm 37:3-7.",
       body: "Trust is joined with concrete faithfulness: dwell, do good, delight in the Lord, commit your way, be still, and wait. Faith is not frantic control. It is patient confidence that the Lord sees and acts rightly.",
       observationQuestion: "What active commands does the Psalm give to someone learning to trust?",
       reflectionQuestion: "Where do you need to practice trust by waiting faithfully rather than forcing an outcome?",
@@ -2855,7 +2846,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Matthew 8:5-13": guidedDevotional({
       title: "Great faith",
-      context: "A centurion comes to Jesus for his servant, recognizing Jesus' authority even from a distance.",
+      context: "A centurion comes to Jesus for his servant, recognizing Jesus' authority even from a distance. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Matthew 8:5-13.",
       body: "The centurion trusts Jesus' word because he sees Jesus' authority. Jesus marvels at this faith because it understands who He is. Faith is not confidence in technique; it is confidence in the authority and mercy of Christ.",
       observationQuestion: "What does the centurion understand about authority, and how does Jesus respond?",
       reflectionQuestion: "Where do you need to trust the authority of Jesus' word today?",
@@ -2865,7 +2856,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Mark 9:20-27": guidedDevotional({
       title: "Help my unbelief",
-      context: "A desperate father brings his son to Jesus after years of suffering and mixed hope.",
+      context: "A desperate father brings his son to Jesus after years of suffering and mixed hope. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Mark 9:20-27.",
       body: "The father's cry is honest: 'I believe; help my unbelief.' Jesus does not require polished confidence before mercy is given. This passage gives weak faith words to bring both trust and struggle to Christ.",
       observationQuestion: "What does the father confess to Jesus, and what does Jesus do?",
       reflectionQuestion: "Where can you honestly say, 'I believe; help my unbelief'?",
@@ -2885,7 +2876,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 4:18-25": guidedDevotional({
       title: "Faith credited",
-      context: "Paul reflects on Abraham's faith to show that righteousness is counted by grace, not achieved by works.",
+      context: "Paul reflects on Abraham's faith to show that righteousness is counted by grace, not achieved by works. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Romans 4:18-25.",
       body: "Abraham trusts the God who gives life to the dead, and Paul points believers to Jesus, delivered for our trespasses and raised for our justification. Saving faith looks away from self-earning and toward the God who raises the dead.",
       observationQuestion: "How does Paul connect Abraham's faith with faith in Jesus?",
       reflectionQuestion: "How does Christ's death and resurrection strengthen your confidence before God?",
@@ -2895,7 +2886,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 5:1-5": guidedDevotional({
       title: "Justified by faith",
-      context: "Paul describes the results of being justified by faith: peace, access, hope, endurance, and God's poured-out love.",
+      context: "Paul describes the results of being justified by faith: peace, access, hope, endurance, and God's poured-out love. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Romans 5:1-5.",
       body: "Because believers are justified by faith, they have peace with God through Jesus Christ. Even suffering is not meaningless, because God uses it to form endurance, character, and hope. This hope does not shame us because God's love has been poured into our hearts.",
       observationQuestion: "What blessings flow from being justified by faith?",
       reflectionQuestion: "Where do you need peace with God to steady you in suffering?",
@@ -2905,7 +2896,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Galatians 2:19-21": guidedDevotional({
       title: "Live by faith",
-      context: "Paul explains life in Christ as crucified with Christ and now lived by faith in the Son of God.",
+      context: "Paul explains life in Christ as crucified with Christ and now lived by faith in the Son of God. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Galatians 2:19-21.",
       body: "Faith is deeply personal here: daily life is lived from union with Christ and His self-giving love. Paul does not set aside grace by trying to build righteousness apart from Christ. The believer's life is shaped by the Son of God who loved and gave Himself.",
       observationQuestion: "What does Paul say happened to him, and how does he now live?",
       reflectionQuestion: "What part of today needs to be lived by faith in the Son of God who loves you?",
@@ -2915,7 +2906,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Ephesians 2:8-10": guidedDevotional({
       title: "Saved by grace",
-      context: "Paul makes the order clear: salvation is God's gracious gift, and good works flow from His workmanship.",
+      context: "Paul makes the order clear: salvation is God's gracious gift, and good works flow from His workmanship. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Ephesians 2:8-10.",
       body: "Salvation is by grace through faith, not works, so no one may boast. Yet grace also creates a new life prepared for good works. Faith receives God's gift before it walks in God's workmanship.",
       observationQuestion: "What does Paul say salvation is, and what does he say good works are?",
       reflectionQuestion: "Where do you need to receive grace before trying to prove yourself?",
@@ -2925,7 +2916,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Hebrews 10:35-39": guidedDevotional({
       title: "Do not shrink back",
-      context: "Hebrews encourages weary believers to endure because God's promise is sure and the coming One will come.",
+      context: "Hebrews encourages weary believers to endure because God's promise is sure and the coming One will come. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in Hebrews 10:35-39.",
       body: "Faith keeps moving toward the coming One rather than shrinking back under pressure. This passage encourages confidence rooted in God's faithfulness, not in easy circumstances. Endurance grows when the promise of God feels more solid than the pressure to retreat.",
       observationQuestion: "What does the passage say believers need, and what promise is given?",
       reflectionQuestion: "Where are you tempted to shrink back instead of endure in faith?",
@@ -2945,7 +2936,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "James 2:14-18": guidedDevotional({
       title: "Faith made visible",
-      context: "James challenges empty claims of faith that do not become mercy toward people in need.",
+      context: "James challenges empty claims of faith that do not become mercy toward people in need. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in James 2:14-18.",
       body: "James does not oppose Paul; he opposes claims that never become love. Genuine faith shows itself in mercy and obedience. Works do not replace faith, but living faith refuses to leave a neighbor uncared for.",
       observationQuestion: "What example does James use to expose empty faith?",
       reflectionQuestion: "How might faith become visible in love or mercy today?",
@@ -2955,7 +2946,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "1 Peter 1:3-9": guidedDevotional({
       title: "Faith through trials",
-      context: "Peter blesses God for new birth into living hope while acknowledging grief in various trials.",
+      context: "Peter blesses God for new birth into living hope while acknowledging grief in various trials. This reading defines faith by God's character, promise, and saving action in its own biblical setting rather than by vague optimism in 1 Peter 1:3-9.",
       body: "Trials grieve believers, but tested faith is precious because it looks toward Christ and the salvation to be revealed. Faith holds joy and grief together in hope. The resurrection of Jesus gives suffering a future it cannot destroy.",
       observationQuestion: "What hope does Peter name, and how does he describe tested faith?",
       reflectionQuestion: "What trial needs to be held in the living hope of Christ's resurrection?",
@@ -3614,7 +3605,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-grief-comfort": {
     "Psalm 13:1-6": guidedDevotional({
       title: "Lament with trust",
-      context: "Psalm 13 is a short lament where David brings repeated 'How long?' questions before the Lord.",
+      context: "Psalm 13 is a short lament where David brings repeated 'How long?' questions before the Lord. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Psalm 13:1-6.",
       body: "Psalm 13 gives grief honest words. David does not rush past sorrow, yet he turns toward God's steadfast love. Biblical lament brings pain into relationship with God and waits for His salvation without pretending the ache is small.",
       observationQuestion: "What questions does David ask, and where does the Psalm turn?",
       reflectionQuestion: "What honest sorrow can you bring to God without pretending it is small?",
@@ -3625,7 +3616,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 23:1-6": guidedDevotional({
       title: "Comfort from the Shepherd",
-      context: "Psalm 23 traces the Shepherd's care through rest, restoration, guidance, danger, provision, mercy, and home.",
+      context: "Psalm 23 traces the Shepherd's care through rest, restoration, guidance, danger, provision, mercy, and home. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Psalm 23:1-6.",
       body: "Psalm 23 comforts by showing the Lord's personal care in every part of the way. Even in the valley, the Shepherd is present. Grief is not walked alone; goodness and mercy still follow because the Shepherd remains faithful.",
       observationQuestion: "What does the Shepherd provide across the whole Psalm?",
       reflectionQuestion: "Where do you need the Shepherd's presence in grief today?",
@@ -3636,7 +3627,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 34:17-22": guidedDevotional({
       title: "Near the brokenhearted",
-      context: "Psalm 34 names affliction, brokenheartedness, and the Lord's nearness and rescue.",
+      context: "Psalm 34 names affliction, brokenheartedness, and the Lord's nearness and rescue. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Psalm 34:17-22.",
       body: "Psalm 34 does not say the righteous avoid affliction. It says the Lord hears, is near to the brokenhearted, and saves the crushed in spirit. Comfort begins with God's nearness to real pain, not with pressure to be fine.",
       observationQuestion: "What does the Lord do for the brokenhearted and crushed in spirit?",
       reflectionQuestion: "Where do you need to believe that the Lord is near, not distant?",
@@ -3647,7 +3638,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 42:5-11": guidedDevotional({
       title: "Hope in God",
-      context: "Psalm 42 speaks to a downcast soul while remembering God and longing for renewed praise.",
+      context: "Psalm 42 speaks to a downcast soul while remembering God and longing for renewed praise. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Psalm 42:5-11.",
       body: "The Psalmist speaks to a downcast soul rather than shaming it. He remembers God, names turmoil, and calls the soul to hope again. Grief may keep speaking, but faith also learns to speak back with patience and hope.",
       observationQuestion: "What does the Psalmist say to his own soul?",
       reflectionQuestion: "Where does your downcast soul need hope in God to speak louder than turmoil today?",
@@ -3658,7 +3649,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46:1-7": guidedDevotional({
       title: "God is refuge",
-      context: "Psalm 46 names trouble, fear, shaking, and nations in uproar, yet confesses God as refuge and present help.",
+      context: "Psalm 46 names trouble, fear, shaking, and nations in uproar, yet confesses God as refuge and present help. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Psalm 46:1-7.",
       body: "This Psalm does not pretend the world is quiet. Its comfort is that God is refuge, strength, and present help in trouble. Grief can feel like the earth giving way, but the Lord of hosts remains with His people.",
       observationQuestion: "What instability is described, and what is confessed about God?",
       reflectionQuestion: "What trouble feels loud today, and what does this Psalm say is truer than that trouble?",
@@ -3669,7 +3660,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 73:23-28": guidedDevotional({
       title: "God is my portion",
-      context: "Psalm 73 moves from confusion and envy into renewed nearness to God.",
+      context: "Psalm 73 moves from confusion and envy into renewed nearness to God. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Psalm 73:23-28.",
       body: "The Psalmist discovers that even when heart and flesh fail, God is the strength of the heart and portion forever. Comfort rests in having God Himself, not in having every question resolved. Nearness to God becomes the good that grief cannot finally take away.",
       observationQuestion: "What does the Psalmist say about God when heart and flesh fail?",
       reflectionQuestion: "What loss or confusion needs the promise that God is your portion?",
@@ -3680,7 +3671,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Isaiah 40:27-31": guidedDevotional({
       title: "Strength renewed",
-      context: "Isaiah speaks to weary people who wonder if their way is hidden from the Lord.",
+      context: "Isaiah speaks to weary people who wonder if their way is hidden from the Lord. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Isaiah 40:27-31.",
       body: "God does not grow faint, and He gives power to the weary. Waiting on Him is not empty delay; it is dependence on the everlasting God. The weary are not scolded for needing strength; they are invited to receive it from Him.",
       observationQuestion: "What does Isaiah say about God's strength and the weary?",
       reflectionQuestion: "Where are you weary enough to need strength that only God can give?",
@@ -3691,7 +3682,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Isaiah 43:1-7": guidedDevotional({
       title: "Called by name",
-      context: "The Lord comforts His people with redemption, belonging, and promised presence through waters and fire.",
+      context: "The Lord comforts His people with redemption, belonging, and promised presence through waters and fire. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Isaiah 43:1-7.",
       body: "Isaiah 43 comforts with belonging: 'I have called you by name; you are Mine.' Waters and fire are named, but God's presence is promised through them. The Lord's redeeming love is stronger than the threatening flood.",
       observationQuestion: "What does God say about belonging, waters, fire, and His presence?",
       reflectionQuestion: "What water or fire do you need to face with the words, 'You are Mine'?",
@@ -3702,7 +3693,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Lamentations 3:19-26": guidedDevotional({
       title: "Mercies each morning",
-      context: "Lamentations remembers affliction and bitterness, then turns toward God's steadfast love, mercy, and faithfulness.",
+      context: "Lamentations remembers affliction and bitterness, then turns toward God's steadfast love, mercy, and faithfulness. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Lamentations 3:19-26.",
       body: "Hope appears in the middle of remembered pain, not after it is erased. The turning point is God's steadfast love, mercy, and faithfulness. Waiting quietly for the Lord is possible because His compassion is not exhausted.",
       observationQuestion: "What painful memories are named, and what truths does the writer call to mind?",
       reflectionQuestion: "What sorrow needs to be held together with the truth that His mercies are new?",
@@ -3713,7 +3704,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Matthew 5:1-12": guidedDevotional({
       title: "Blessed are those who mourn",
-      context: "Jesus opens the Sermon on the Mount by announcing kingdom blessing to the poor in spirit, mourners, the meek, and others.",
+      context: "Jesus opens the Sermon on the Mount by announcing kingdom blessing to the poor in spirit, mourners, the meek, and others. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Matthew 5:1-12.",
       body: "Jesus does not call mourners blessed because grief feels good, but because the kingdom of heaven belongs to those who receive God's comfort. Mourning is not outside His blessing. In Christ, sorrow is seen by God and held in hope.",
       observationQuestion: "Who does Jesus call blessed, and what promises are attached?",
       reflectionQuestion: "Where do you need Jesus' promise of comfort for mourners?",
@@ -3724,7 +3715,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "John 11:32-44": guidedDevotional({
       title: "Jesus wept",
-      context: "At Lazarus' tomb, Jesus meets grief with tears, prayer, authority, and resurrection power.",
+      context: "At Lazarus' tomb, Jesus meets grief with tears, prayer, authority, and resurrection power. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in John 11:32-44.",
       body: "Jesus reveals both compassion and authority. He weeps with those who weep, and He calls the dead man out. Christian comfort does not choose between tears and resurrection hope; Jesus brings both together.",
       observationQuestion: "How does Jesus respond emotionally and actively at the tomb?",
       reflectionQuestion: "What grief needs the compassion of Jesus and the hope of His resurrection power?",
@@ -3735,7 +3726,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 8:18-25": guidedDevotional({
       title: "Future glory",
-      context: "Paul places present suffering within the larger hope of creation's renewal and the redemption to come.",
+      context: "Paul places present suffering within the larger hope of creation's renewal and the redemption to come. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Romans 8:18-25.",
       body: "Creation groans, believers groan, and yet hope waits for redemption. Comfort does not deny pain; it gives pain a horizon because God will complete His work. Christian hope is patient because future glory is not fragile.",
       observationQuestion: "What groaning and what hope does Paul describe?",
       reflectionQuestion: "What present suffering needs to be held in the hope of future glory?",
@@ -3746,7 +3737,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "2 Corinthians 1:3-7": guidedDevotional({
       title: "God of all comfort",
-      context: "Paul praises the Father of mercies and God of all comfort in the middle of affliction.",
+      context: "Paul praises the Father of mercies and God of all comfort in the middle of affliction. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in 2 Corinthians 1:3-7.",
       body: "God comforts us in affliction so that comfort can overflow to others. Suffering is not good in itself, but God's mercy is active in it and can make us instruments of His comfort. Comfort received from God can become gentleness toward another.",
       observationQuestion: "How does Paul describe God, affliction, comfort, and sharing comfort?",
       reflectionQuestion: "Where have you received comfort that may one day help you comfort another?",
@@ -3757,7 +3748,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Revelation 21:1-5": guidedDevotional({
       title: "Every tear wiped away",
-      context: "Revelation 21 looks to new creation, God dwelling with His people, and the end of death, mourning, crying, and pain.",
+      context: "Revelation 21 looks to new creation, God dwelling with His people, and the end of death, mourning, crying, and pain. This reading speaks comfort from lament, covenant hope, Christ's compassion, or resurrection promise without pretending sorrow disappears quickly in Revelation 21:1-5.",
       body: "This promise does not trivialize today's sorrow; it assures you that sorrow will not have the last word. God Himself will wipe every tear away and make all things new. Grief is held inside a story that ends with God's presence and restoration.",
       observationQuestion: "What does John see, and what does God promise to remove and make new?",
       reflectionQuestion: "What tear needs to be held before the God who will make all things new?",

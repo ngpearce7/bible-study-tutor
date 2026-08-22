@@ -49,9 +49,19 @@ const { bibleReadingPlanDayKey, normalizeBibleReadingPlanProgress } = require(pr
 const { followBibleReadingPlanState, completeBibleReadingPlanDayState, stopFollowingBibleReadingPlanState } = require(actionsPath);
 
 const showContextReview = process.argv.includes("--context-review");
+const showDuplicateContexts = process.argv.includes("--duplicate-contexts");
 const errors = [];
 const warnings = [];
 const CONTEXT_REVIEW_THRESHOLD = 160;
+const DELETED_CONTEXT_ANCHOR = [
+  ["Read it within its immediate", "chapter and book setting"].join(" "),
+  ["noticing the passage's place in Scripture", "before moving quickly to personal application."].join(" ")
+].join(", ");
+const deletedContextSymbols = [
+  ["withContextReview", "Anchor"].join(""),
+  ["minimumContextReview", "Length"].join(""),
+  ["contextReview", "Anchor"].join("")
+];
 const inventory = {
   builtInPlans: 0,
   totalDays: 0,
@@ -70,6 +80,37 @@ const inventory = {
 };
 const planInventories = [];
 const contextReviewRows = [];
+const duplicateContextRows = [];
+const contextTextsByNormalizedValue = new Map();
+const contextSuffixesByValue = new Map();
+const explicitSharedContextAllowlist = new Set([
+  "Luke 2",
+  "Matthew 3",
+  "Matthew 4",
+  "Matthew 5",
+  "Mark 2",
+  "Luke 15",
+  "John 11",
+  "John 13",
+  "John 17",
+  "Matthew 26",
+  "John 19",
+  "John 20",
+  "Genesis 12",
+  "Exodus 12",
+  "1 Samuel 16",
+  "2 Samuel 7",
+  "Isaiah 53",
+  "Acts 2",
+  "Acts 4",
+  "Matthew 6:25-34",
+  "Matthew 11:28-30",
+  "John 14:25-27",
+  "Philippians 4:4-9",
+  "Romans 8",
+  "1 Peter 5:6-11",
+  "Revelation 21"
+]);
 const carePlanIds = new Set(["anxiety-peace", "grief-comfort", "fourteen-days-anxiety-trust", "fourteen-days-grief-comfort"]);
 const generatedSectionGuidancePlanIds = new Set([
   "new-testament-90",
@@ -169,6 +210,12 @@ function hasDevotional(day) {
 
 function normalized(value) {
   return String(value || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function contextSuffix(value) {
+  const text = String(value || "").trim().replace(/\s+/g, " ");
+  if (text.length < 140) return "";
+  return text.slice(-140).toLowerCase();
 }
 
 function textFieldsFor(day) {
@@ -350,6 +397,20 @@ function checkPlan(plan) {
         status: "short",
         length: String(day.context).trim().length
       });
+    }
+
+    if (guidanceKind === "guided-devotional" && hasText(day.context)) {
+      const normalizedContext = normalized(day.context);
+      const contextRows = contextTextsByNormalizedValue.get(normalizedContext) || [];
+      contextRows.push({ planId: plan.id, planTitle: plan.title, day: day.day, reference: day.reference });
+      contextTextsByNormalizedValue.set(normalizedContext, contextRows);
+
+      const suffix = contextSuffix(day.context);
+      if (suffix) {
+        const suffixRows = contextSuffixesByValue.get(suffix) || [];
+        suffixRows.push({ planId: plan.id, planTitle: plan.title, day: day.day, reference: day.reference });
+        contextSuffixesByValue.set(suffix, suffixRows);
+      }
     }
 
     if (guidanceKind === "guided-devotional") {
@@ -592,6 +653,48 @@ function printContextReviewTable() {
   }
 }
 
+function checkDeletedContextPaddingSource() {
+  const source = fs.readFileSync(path.join(repoRoot, "data/bibleReadingPlans.ts"), "utf8");
+  if (source.includes(DELETED_CONTEXT_ANCHOR)) errors.push("Source still contains the deleted generic context anchor sentence.");
+  for (const symbol of deletedContextSymbols) {
+    if (source.includes(symbol)) errors.push(`Source still contains deleted context-padding symbol: ${symbol}.`);
+  }
+}
+
+function checkRepeatedContexts() {
+  for (const [context, rows] of contextTextsByNormalizedValue) {
+    if (rows.length < 2) continue;
+    const references = new Set(rows.map((row) => row.reference));
+    const referencesAreAllowlisted = [...references].every((reference) => explicitSharedContextAllowlist.has(reference));
+    duplicateContextRows.push({ type: "full-context", count: rows.length, sample: context, rows });
+    if (references.size > 1 || !referencesAreAllowlisted) {
+      errors.push(`Duplicate guided-devotional context appears ${rows.length} times across ${[...references].join(", ")}.`);
+    }
+  }
+
+  for (const [suffix, rows] of contextSuffixesByValue) {
+    if (rows.length < 6) continue;
+    duplicateContextRows.push({ type: "substantial-suffix", count: rows.length, sample: suffix, rows });
+    errors.push(`Suspicious repeated guided-devotional context suffix appears ${rows.length} times. Sample suffix: "${suffix}"`);
+  }
+}
+
+function printDuplicateContextReport() {
+  if (!showDuplicateContexts) return;
+  console.log("\nDuplicate context report:");
+  if (!duplicateContextRows.length) {
+    console.log("No duplicate full contexts or repeated substantial suffixes detected.");
+    return;
+  }
+  for (const row of duplicateContextRows) {
+    console.log(`\n${row.type}: ${row.count}`);
+    console.log(row.sample);
+    for (const usage of row.rows) {
+      console.log(`- ${usage.planTitle} day ${usage.day}: ${usage.reference}`);
+    }
+  }
+}
+
 const seenIds = new Set();
 const devotionalBodiesByText = new Map();
 for (const plan of bibleReadingPlans) {
@@ -612,8 +715,10 @@ for (const plan of bibleReadingPlans) {
     }
   }
 }
+checkDeletedContextPaddingSource();
 checkPsalm46MergeRegression();
 checkPreviewAndPlanActions();
+checkRepeatedContexts();
 
 console.log(`Checked ${bibleReadingPlans.length} Bible reading plans.`);
 console.log("\nRuntime inventory:");
@@ -633,6 +738,7 @@ console.log(`- Care-plan days missing approved care notes: ${inventory.carePlanD
 console.log(`- Shared-devotional collisions detected: ${inventory.sharedDevotionalCollisionsDetected}`);
 printPlanInventoryTable();
 printContextReviewTable();
+printDuplicateContextReport();
 if (!showContextReview && contextReviewRows.length) {
   console.log(`\nRun npm run plans:audit -- --context-review to list ${contextReviewRows.length} exact context-review rows.`);
 }

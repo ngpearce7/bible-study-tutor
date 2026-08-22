@@ -67,6 +67,7 @@ const inventory = {
   carePlanDaysMissingCareNote: 0,
   sharedDevotionalCollisionsDetected: 0
 };
+const planInventories = [];
 const carePlanIds = new Set(["anxiety-peace", "grief-comfort", "fourteen-days-anxiety-trust", "fourteen-days-grief-comfort"]);
 const generatedSectionGuidancePlanIds = new Set([
   "new-testament-90",
@@ -267,11 +268,22 @@ function checkEditorialWarnings(plan, day) {
 }
 
 function checkPlan(plan) {
+  const planInventory = {
+    id: plan.id || "(missing id)",
+    title: plan.title || "(missing title)",
+    days: Array.isArray(plan.days) ? plan.days.length : 0,
+    guidedDevotionalDays: 0,
+    readingGuidanceDays: 0,
+    unclassifiedGuidanceDays: 0,
+    contextsMissing: 0,
+    contextsBelowThreshold: 0
+  };
   if (!hasText(plan.id)) errors.push("Plan missing id.");
   if (!hasText(plan.title)) pushIssue(errors, plan, null, "missing title.");
   if (!hasText(plan.description)) pushIssue(errors, plan, null, "missing description.");
   if (!Array.isArray(plan.days) || plan.days.length === 0) {
     pushIssue(errors, plan, null, "has no days.");
+    planInventories.push(planInventory);
     return;
   }
 
@@ -297,15 +309,28 @@ function checkPlan(plan) {
     }
 
     const guidanceKind = guidanceKindFor(day);
-    if (guidanceKind === "guided-devotional") inventory.guidedDevotionalDays += 1;
-    if (guidanceKind === "reading-guidance") inventory.readingGuidanceDays += 1;
+    if (guidanceKind === "guided-devotional") {
+      inventory.guidedDevotionalDays += 1;
+      planInventory.guidedDevotionalDays += 1;
+    }
+    if (guidanceKind === "reading-guidance") {
+      inventory.readingGuidanceDays += 1;
+      planInventory.readingGuidanceDays += 1;
+    }
     if (guidanceKind === "unclassified") {
       inventory.unclassifiedGuidanceDays += 1;
+      planInventory.unclassifiedGuidanceDays += 1;
       pushIssue(errors, plan, day, "has devotional/guidance fields but no explicit guidanceKind.");
     }
 
-    if (guidanceKind && !hasText(day.context)) inventory.contextsMissing += 1;
-    if (guidanceKind && hasText(day.context) && String(day.context).trim().length < CONTEXT_REVIEW_THRESHOLD) inventory.contextsBelowThreshold += 1;
+    if (guidanceKind && !hasText(day.context)) {
+      inventory.contextsMissing += 1;
+      planInventory.contextsMissing += 1;
+    }
+    if (guidanceKind && hasText(day.context) && String(day.context).trim().length < CONTEXT_REVIEW_THRESHOLD) {
+      inventory.contextsBelowThreshold += 1;
+      planInventory.contextsBelowThreshold += 1;
+    }
 
     if (guidanceKind === "guided-devotional") {
       if (requireGuidedField(plan, day, "Context", day.context)) inventory.contextsMissing += 0;
@@ -378,11 +403,13 @@ function checkPlan(plan) {
   }
   if (prayerPlanIds.has(plan.id)) {
     const prayerText = normalized(plan.days.map((day) => day.prayer || day.prayerPrompt || "").join(" "));
-    if (!prayerText) return;
-    const rangeWords = ["praise", "thank", "confess", "lament", "depend", "trust", "will", "ask", "bring", "receive", "cast"];
-    const found = rangeWords.filter((word) => prayerText.includes(word)).length;
-    if (found < 3) pushIssue(warnings, plan, null, "prayer-focused plan may need a broader range of prayer language.");
+    if (prayerText) {
+      const rangeWords = ["praise", "thank", "confess", "lament", "depend", "trust", "will", "ask", "bring", "receive", "cast"];
+      const found = rangeWords.filter((word) => prayerText.includes(word)).length;
+      if (found < 3) pushIssue(warnings, plan, null, "prayer-focused plan may need a broader range of prayer language.");
+    }
   }
+  planInventories.push(planInventory);
 }
 
 function checkPreviewAndPlanActions() {
@@ -521,6 +548,18 @@ function checkPsalm46MergeRegression() {
   }
 }
 
+function printPlanInventoryTable() {
+  console.log("\nPer-plan runtime inventory:");
+  console.log("| Plan | Days | Guided | Reading guidance | Missing context | Short context | Unclassified |");
+  console.log("| --- | ---: | ---: | ---: | ---: | ---: | ---: |");
+  for (const row of planInventories) {
+    const title = String(row.title).replaceAll("|", "\\|");
+    console.log(
+      `| ${title} | ${row.days} | ${row.guidedDevotionalDays} | ${row.readingGuidanceDays} | ${row.contextsMissing} | ${row.contextsBelowThreshold} | ${row.unclassifiedGuidanceDays} |`
+    );
+  }
+}
+
 const seenIds = new Set();
 const devotionalBodiesByText = new Map();
 for (const plan of bibleReadingPlans) {
@@ -560,6 +599,7 @@ console.log(`- Missing Next-step fields: ${inventory.nextStepMissing}`);
 console.log(`- Missing Study-deeper fields: ${inventory.studyDeeperMissing}`);
 console.log(`- Care-plan days missing approved care notes: ${inventory.carePlanDaysMissingCareNote}`);
 console.log(`- Shared-devotional collisions detected: ${inventory.sharedDevotionalCollisionsDetected}`);
+printPlanInventoryTable();
 
 if (warnings.length) {
   console.log(`\nWarnings (${warnings.length}):`);

@@ -2348,7 +2348,19 @@ function devotionalEntries(entries: Array<[string, string, string, string, strin
   return Object.fromEntries(entries.map(([reference, title, body, reflection, prayer]) => [reference, devotional(title, body, reflection, prayer, { guidanceKind })]));
 }
 
-const johnGospelDevotionals = devotionalEntries([
+function withContexts(
+  devotionals: Record<string, BibleReadingPlanDayExtras>,
+  contexts: Record<string, string>
+): Record<string, BibleReadingPlanDayExtras> {
+  return Object.fromEntries(
+    Object.entries(devotionals).map(([reference, extras]) => [
+      reference,
+      contexts[reference] ? { ...extras, context: contexts[reference] } : extras
+    ])
+  );
+}
+
+const johnGospelDevotionals = withContexts(devotionalEntries([
   ["John 1", "The Word became flesh", "John opens by showing that Jesus is eternal, divine, Creator, Light, and the Word made flesh. The chapter does not present Jesus as merely a teacher; He is the Son who reveals the Father and brings grace and truth.", "Which truth about Jesus in John 1 most needs to shape your worship today?", "Lord Jesus, help me receive Your light, grace, and truth."],
   ["John 2", "Glory revealed in signs", "Jesus' first sign at Cana and His cleansing of the temple both reveal His authority. He brings joy, fulfills what old symbols pointed toward, and claims the right to reorder worship around Himself.", "Where do you need Jesus to reorder shallow religion into true worship?", "Lord Jesus, purify my worship and teach me to trust Your glory."],
   ["John 3", "Born from above", "Nicodemus learns that religious knowledge cannot replace new birth. The Son is lifted up so that believing sinners may receive eternal life, not condemnation, through God's love.", "What would it mean to receive salvation as new birth rather than self-improvement?", "Father, thank You for loving the world by giving Your Son."],
@@ -2370,7 +2382,29 @@ const johnGospelDevotionals = devotionalEntries([
   ["John 19", "It is finished", "John shows Jesus crucified as the true King and sacrificial Savior. His finished work is not defeat; it is the completion of the saving work the Father gave Him.", "What burden do you need to bring under Jesus' words, 'It is finished'?", "Lord Jesus, thank You for finishing the work of salvation at the cross."],
   ["John 20", "Believe and have life", "The risen Jesus appears to Mary, the disciples, and Thomas. John states his purpose clearly: these things are written so readers may believe and have life in Jesus' name.", "How does the risen Christ invite you from doubt or grief into faith?", "Risen Lord, deepen my faith and life in Your name."],
   ["John 21", "Restored to follow", "Jesus meets failed disciples with breakfast, restoration, and a renewed call to follow. Peter's failure is not the end of his discipleship because Jesus restores and sends him.", "Where do you need to receive Jesus' restoration and follow Him again?", "Lord Jesus, restore my love and help me follow You faithfully."]
-]);
+]), {
+  "John 1": "John opens with a theological prologue before the narrative ministry begins. The chapter presents Jesus as the eternal Word, Creator, Light, and Son who reveals the Father. John immediately ties belief, witness, grace, truth, and the incarnation together.",
+  "John 2": "John 2 begins the book's signs at Cana and then moves to Jesus cleansing the temple in Jerusalem. Both scenes reveal Jesus' glory and authority over old covenant symbols. The chapter points forward to His death and resurrection as the true temple.",
+  "John 3": "Nicodemus comes to Jesus as a respected Jewish teacher, yet Jesus says entrance into God's kingdom requires birth from above. The chapter joins new birth, the Spirit's work, the lifted-up Son, and God's love for the world. Salvation is received by faith, not status.",
+  "John 4": "Jesus crosses social and religious boundaries by speaking with a Samaritan woman. The chapter contrasts old hostilities with the gift of living water and worship in spirit and truth. Her witness also prepares a wider Samaritan response to Jesus as Savior.",
+  "John 5": "A Sabbath healing leads into one of John's major discourses about Jesus' authority. Jesus presents His work as the Father's work and speaks of life, judgment, resurrection, and witness. The issue is not merely healing, but whether people honor the Son.",
+  "John 6": "John 6 follows the feeding of the crowd and Jesus walking on the sea with the Bread of Life discourse. The crowd wants provision, but Jesus presses deeper toward faith in Himself. The chapter separates temporary satisfaction from receiving the Son given for life.",
+  "John 7": "Jesus teaches during the Feast of Tabernacles while public opinion about Him is divided. The feast setting highlights water, light, and hope, and Jesus invites the thirsty to come to Him. The chapter shows how His identity exposes shallow judgments.",
+  "John 8": "John 8 continues the conflict over Jesus' identity, testimony, and relationship to the Father. Jesus calls hearers to abide in His word and tells them true freedom comes through the Son. The chapter confronts false confidence while offering truth that liberates.",
+  "John 9": "Jesus heals a man born blind, and the sign becomes a trial of spiritual sight. The healed man moves toward clearer confession while the religious leaders harden in resistance. John uses physical sight to reveal the deeper question of recognizing Jesus.",
+  "John 10": "Jesus speaks as the door and the good Shepherd in contrast to false or harmful shepherds. The chapter draws on Old Testament shepherd imagery and emphasizes His knowledge, protection, sacrifice, and authority. His sheep are secure because He gives His life.",
+  "John 11": "The raising of Lazarus stands near the turning point toward Jesus' death. Jesus delays, weeps, speaks with Martha, and reveals Himself as resurrection and life before raising Lazarus. The sign offers real hope without minimizing grief or death.",
+  "John 12": "John 12 closes the public ministry as Jesus' hour approaches. Mary's anointing, the triumphal entry, and Jesus' teaching about the grain of wheat all point toward the cross. Glory in John is revealed through Jesus' self-giving death.",
+  "John 13": "John 13 begins the farewell section on the night before the cross. Jesus washes His disciples' feet, identifies betrayal, and gives the new command to love one another. The scene roots Christian service and love in His own humble, cleansing work.",
+  "John 14": "Jesus speaks to troubled disciples during the farewell discourse. He comforts them with the Father's house, His unique way to the Father, the coming Spirit, and His peace. The chapter prepares believers for His departure without leaving them orphaned.",
+  "John 15": "John 15 continues the farewell discourse with the image of the true vine. Jesus calls His disciples to remain in Him, receive His words, keep His commands, and bear fruit in love. Fruitfulness is rooted in union and dependence, not detached effort.",
+  "John 16": "Jesus prepares His disciples for sorrow, opposition, and the Spirit's witness after His departure. He does not deny their grief, but promises the Spirit's help and joy beyond the coming anguish. The chapter ends with courage grounded in His victory.",
+  "John 17": "John 17 records Jesus' prayer before His arrest. He prays for the Father's glory, His disciples' protection and holiness, and future believers' unity and witness. The prayer lets readers hear what Jesus desires for His people before the cross.",
+  "John 18": "John 18 moves from Jesus' arrest to questioning before Jewish leaders and Pilate. Peter's denial is set beside Jesus' steady testimony about His kingdom. The chapter shows the true King apparently judged by human powers while remaining in control.",
+  "John 19": "John 19 presents the crucifixion with repeated emphasis on Jesus as King and on Scripture being fulfilled. His death is not accidental failure but the completion of the work given by the Father. The chapter invites faith in the finished saving work of Christ.",
+  "John 20": "John 20 narrates the empty tomb and resurrection appearances to Mary, the disciples, and Thomas. The chapter names John's purpose: written testimony so readers may believe Jesus is the Christ and have life in His name. Doubt is met by the risen Lord.",
+  "John 21": "John 21 functions as an epilogue after the stated purpose of the Gospel. Jesus provides for His disciples, restores Peter after denial, and renews the call to follow. The chapter shows that resurrection grace sends restored disciples into faithful service."
+});
 
 const romansDevotionals = devotionalEntries([
   ["Romans 1", "The gospel of God", "Paul introduces the gospel as God's promised good news about His Son. Human sin is serious, but the letter begins with the righteousness of God revealed through faith.", "How does beginning with God's good news about His Son steady the way you read Romans?", "Father, help me receive the gospel as Your good news about Your Son."],

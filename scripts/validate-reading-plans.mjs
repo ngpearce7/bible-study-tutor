@@ -48,6 +48,7 @@ const { bibleReadingPlans, getBibleReadingPlanDetails } = require(plansPath);
 const { bibleReadingPlanDayKey, normalizeBibleReadingPlanProgress } = require(progressPath);
 const { followBibleReadingPlanState, completeBibleReadingPlanDayState, stopFollowingBibleReadingPlanState } = require(actionsPath);
 
+const showContextReview = process.argv.includes("--context-review");
 const errors = [];
 const warnings = [];
 const CONTEXT_REVIEW_THRESHOLD = 160;
@@ -68,6 +69,7 @@ const inventory = {
   sharedDevotionalCollisionsDetected: 0
 };
 const planInventories = [];
+const contextReviewRows = [];
 const carePlanIds = new Set(["anxiety-peace", "grief-comfort", "fourteen-days-anxiety-trust", "fourteen-days-grief-comfort"]);
 const generatedSectionGuidancePlanIds = new Set([
   "new-testament-90",
@@ -326,10 +328,28 @@ function checkPlan(plan) {
     if (guidanceKind && !hasText(day.context)) {
       inventory.contextsMissing += 1;
       planInventory.contextsMissing += 1;
+      contextReviewRows.push({
+        planId: plan.id,
+        planTitle: plan.title,
+        day: day.day,
+        reference: day.reference,
+        guidanceKind,
+        status: "missing",
+        length: 0
+      });
     }
     if (guidanceKind && hasText(day.context) && String(day.context).trim().length < CONTEXT_REVIEW_THRESHOLD) {
       inventory.contextsBelowThreshold += 1;
       planInventory.contextsBelowThreshold += 1;
+      contextReviewRows.push({
+        planId: plan.id,
+        planTitle: plan.title,
+        day: day.day,
+        reference: day.reference,
+        guidanceKind,
+        status: "short",
+        length: String(day.context).trim().length
+      });
     }
 
     if (guidanceKind === "guided-devotional") {
@@ -560,6 +580,18 @@ function printPlanInventoryTable() {
   }
 }
 
+function printContextReviewTable() {
+  if (!showContextReview) return;
+  console.log("\nContext review rows:");
+  console.log("| Plan | Day | Reference | Type | Issue | Length |");
+  console.log("| --- | ---: | --- | --- | --- | ---: |");
+  for (const row of contextReviewRows) {
+    const title = String(row.planTitle).replaceAll("|", "\\|");
+    const reference = String(row.reference).replaceAll("|", "\\|");
+    console.log(`| ${title} | ${row.day} | ${reference} | ${row.guidanceKind} | ${row.status} | ${row.length} |`);
+  }
+}
+
 const seenIds = new Set();
 const devotionalBodiesByText = new Map();
 for (const plan of bibleReadingPlans) {
@@ -600,6 +632,10 @@ console.log(`- Missing Study-deeper fields: ${inventory.studyDeeperMissing}`);
 console.log(`- Care-plan days missing approved care notes: ${inventory.carePlanDaysMissingCareNote}`);
 console.log(`- Shared-devotional collisions detected: ${inventory.sharedDevotionalCollisionsDetected}`);
 printPlanInventoryTable();
+printContextReviewTable();
+if (!showContextReview && contextReviewRows.length) {
+  console.log(`\nRun npm run plans:audit -- --context-review to list ${contextReviewRows.length} exact context-review rows.`);
+}
 
 if (warnings.length) {
   console.log(`\nWarnings (${warnings.length}):`);

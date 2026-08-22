@@ -968,6 +968,7 @@ export default function Home() {
   const [activeBiblePlanSelectedPlanId, setActiveBiblePlanSelectedPlanId] = useState("");
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
   const [expandedBiblePlanPreviews, setExpandedBiblePlanPreviews] = useState<Record<string, boolean>>({});
+  const biblePlanPreviewToggleRefs = useRef<Record<string, { focus?: () => void } | null>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>(DEFAULT_OPEN_BIBLE_PLAN_SECTIONS);
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
   const [completedBiblePlansOpen, setCompletedBiblePlansOpen] = useState(false);
@@ -8526,6 +8527,7 @@ export default function Home() {
                 const planDetails = getBibleReadingPlanDetails(plan);
                 const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 0;
                 const previewOpen = !!expandedBiblePlanPreviews[plan.id];
+                const previewContentId = `complete-day-preview-${plan.id.replace(/[^A-Za-z0-9_-]/g, "-")}`;
                 const visiblePlanDays = visibleRows > 0 ? plan.days.slice(0, visibleRows) : [];
                 const planStarted = completedCount > 0;
                 const planComplete = plan.days.length > 0 && completedCount >= plan.days.length;
@@ -8632,17 +8634,27 @@ export default function Home() {
                           {planDetails.previewDay ? (
                             <View style={styles.planSampleList}>
                               <Pressable
+                                ref={(node) => {
+                                  biblePlanPreviewToggleRefs.current[plan.id] = node;
+                                }}
                                 accessibilityRole="button"
                                 accessibilityLabel={`${previewOpen ? "Hide" : "Preview"} ${plan.title} day ${planDetails.previewDay.day}, ${planDetails.previewDay.reference}`}
                                 accessibilityState={{ expanded: previewOpen }}
-                                onPress={() => setExpandedBiblePlanPreviews((current) => ({ ...current, [plan.id]: !previewOpen }))}
+                                aria-expanded={previewOpen}
+                                aria-controls={previewContentId}
+                                onPress={() => {
+                                  setExpandedBiblePlanPreviews((current) => ({ ...current, [plan.id]: !previewOpen }));
+                                  if (previewOpen && Platform.OS === "web") {
+                                    requestAnimationFrame(() => biblePlanPreviewToggleRefs.current[plan.id]?.focus?.());
+                                  }
+                                }}
                                 style={[styles.readerBookmarkExpandButton, styles.planViewAllButton, plansDarkMode && styles.homeDarkResumeButton]}
                               >
                                 <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>{previewOpen ? "Hide complete day" : "Preview a complete day"}</Text>
                                 <Ionicons name={previewOpen ? "chevron-up-outline" : "reader-outline"} size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
                               </Pressable>
                               {previewOpen ? (
-                                <View style={[styles.planSampleReading, styles.planPreviewDayBox, phoneLayout && styles.phonePlanPreviewDayBox, plansDarkMode && styles.plansDarkDayRow]}>
+                                <View nativeID={previewContentId} style={[styles.planSampleReading, styles.planPreviewDayBox, phoneLayout && styles.phonePlanPreviewDayBox, plansDarkMode && styles.plansDarkDayRow]}>
                                   <Text style={[styles.planDayBadge, styles.compactPlanDayBadge, plansDarkMode && styles.plansDarkDayBadge]}>{planDetails.previewDay.day}</Text>
                                   <View style={[styles.planDayCopy, phoneLayout && styles.phonePlanPreviewCopy]}>
                                     <Text style={[styles.planDayTitle, phoneLayout && styles.phonePlanPreviewTitle, plansDarkMode && styles.accountDarkTitle]}>{planDetails.previewDay.title}</Text>

@@ -166,6 +166,12 @@ const discouragedPhrases = [
   "if you truly trust god",
   "choose one practice of"
 ];
+const forbiddenPsalm46PersonalStrivingPhrases = [
+  ["stop striving as if", "everything", "rests on you"].join(" "),
+  ["stop striving as though", "everything", "rests on you"].join(" "),
+  ["ceasing anxious striving", "before god's rule"].join(" "),
+  ["cease striving", "before god's rule"].join(" ")
+];
 
 function pushIssue(collection, plan, day, message) {
   const prefix = day ? `${plan.id} day ${day.day}` : plan.id;
@@ -202,6 +208,50 @@ function textFieldsFor(day) {
     ["study deeper", day.studyMethod],
     ["care note", day.careNote]
   ].filter(([, value]) => hasText(value));
+}
+
+function coversPsalm4610(day) {
+  const reference = normalized(day.reference);
+  return (
+    reference === "psalm 46" ||
+    reference === "psalm 46:1-11" ||
+    reference === "psalm 46-52"
+  );
+}
+
+function checkPsalm46Theology(plan, day) {
+  const reference = normalized(day.reference);
+  if (!reference.includes("psalm 46")) return;
+
+  for (const [label, value] of textFieldsFor(day)) {
+    const fieldText = normalized(value);
+    for (const phrase of forbiddenPsalm46PersonalStrivingPhrases) {
+      if (fieldText.includes(phrase)) {
+        pushIssue(errors, plan, day, `${label} contains forbidden Psalm 46 personal-striving wording: "${phrase}".`);
+      }
+    }
+  }
+
+  if (guidanceKindFor(day) !== "guided-devotional" || !coversPsalm4610(day)) return;
+
+  const context = normalized(day.context);
+  const hasCosmicNationalSetting =
+    context.includes("creation") &&
+    context.includes("nations") &&
+    (context.includes("city") || context.includes("zion")) &&
+    (context.includes("warfare") || context.includes("war"));
+  if (!hasCosmicNationalSetting) {
+    pushIssue(errors, plan, day, "Psalm 46:10 guided devotional context must retain creation/nations/city/warfare setting.");
+  }
+  if (!context.includes("hostile nations")) {
+    pushIssue(errors, plan, day, "Psalm 46:10 guided devotional context must state the likely hostile-nations interpretation.");
+  }
+  if (!context.includes("judah")) {
+    pushIssue(errors, plan, day, "Psalm 46:10 guided devotional context must acknowledge the alternative Judah interpretation.");
+  }
+  if (!context.includes("exalt")) {
+    pushIssue(errors, plan, day, "Psalm 46:10 guided devotional context must culminate in God's exaltation.");
+  }
 }
 
 function dayHasGuidedFields(day) {
@@ -404,6 +454,7 @@ function checkPlan(plan) {
       if (hasCompletePreview(day)) completePreviewDayCount += 1;
       if (day.devotional && !hasDevotional(day)) pushIssue(errors, plan, day, "has incomplete devotional title/body.");
       checkEditorialWarnings(plan, day);
+      checkPsalm46Theology(plan, day);
     }
 
     const reflectText = normalized(day.reflectionQuestion || day.reflectionPrompt);
@@ -630,6 +681,10 @@ function checkDeletedContextPaddingSource() {
   if (source.includes(DELETED_CONTEXT_ANCHOR)) errors.push("Source still contains the deleted generic context anchor sentence.");
   for (const symbol of deletedContextSymbols) {
     if (source.includes(symbol)) errors.push(`Source still contains deleted context-padding symbol: ${symbol}.`);
+  }
+  const normalizedSource = normalized(source);
+  for (const phrase of forbiddenPsalm46PersonalStrivingPhrases) {
+    if (normalizedSource.includes(phrase)) errors.push(`Source still contains forbidden Psalm 46 personal-striving wording: "${phrase}".`);
   }
 }
 

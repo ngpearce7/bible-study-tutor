@@ -439,7 +439,10 @@ const psalm46StillBeforeGodDevotional = devotional(
   "What fear, conflict, or false security needs to be answered by the Lord's presence and rule?",
   "Lord of hosts, help me know that You are present with Your people and exalted over the nations.",
   {
-    context: "Psalm 46 is a Korahite Song of Zion. It pictures cosmic instability, hostile nations, God present with His city, and the Lord's rule over the whole earth. In verse 10, 'be still' or 'cease' most likely rebukes the hostile nations, though some interpreters hear reassurance to Judah. Either way, the emphasis is God's universal rule and exaltation, not private relaxation or passivity."
+    context: "Psalm 46 is a Korahite Song of Zion. It pictures creation shaking, hostile nations raging, God present with His city, and the Lord bringing warfare to an end. In verse 10, 'be still' or 'cease' most likely rebukes the hostile nations, though some interpreters hear reassurance to Judah. Either way, the emphasis is God's universal rule and exaltation, not private relaxation or passivity.",
+    observationQuestion: "What trouble is named, and what repeated assurance does the Psalm give about God?",
+    gentleAction: "Read verses 7, 10, and 11 slowly, then write the repeated assurance that anchors this Psalm.",
+    studyMethod: "COMA"
   }
 );
 
@@ -2449,7 +2452,7 @@ const psalmsPrayerDevotionals = withContexts(devotionalEntries([
   ["Psalm 25-31", "Teach me Your ways", "These Psalms repeatedly ask for guidance, forgiveness, protection, and courage. They train believers to bring shame, fear, waiting, and trust into God's presence.", "Where do you need to pray, 'Teach me Your paths'?", "Lord, guide me in Your truth and keep me waiting with courage."],
   ["Psalm 32-38", "Confession and mercy", "This section gives words for confession, forgiveness, praise, and physical or emotional distress. The Lord's mercy is not thin; it meets real guilt and real weakness.", "What needs to be confessed or received under God's steadfast love?", "Merciful Lord, forgive, restore, and surround me with Your steadfast love."],
   ["Psalm 39-45", "Hope while waiting", "These Psalms hold mortality, waiting, sorrow, rescue, and royal hope together. They teach patience that looks beyond self to the Lord's faithful deliverance.", "Where do you need to wait without losing hope in the Lord?", "Lord, put a new song in my mouth and keep my hope in You."],
-  ["Psalm 46-52", "God is our refuge", "Psalm 46 anchors this section in God's presence amid shaking. The following Psalms praise His kingship and confront evil, deceit, and misplaced confidence.", "What false security needs to give way to God as refuge?", "Lord Almighty, still my striving and be my refuge."],
+  ["Psalm 46-52", "God is our refuge", "Psalm 46 anchors this section in God's presence amid shaking. The following Psalms praise His kingship and confront evil, deceit, and misplaced confidence.", "What false security needs to give way to God as refuge?", "Lord Almighty, be my refuge and teach me to rest under Your reign."],
   ["Psalm 53-59", "Prayer under pressure", "These Psalms pray amid corruption, betrayal, danger, and pursuit. They show that faith can speak plainly to God when human help feels unreliable.", "What pressure do you need to bring to God without polishing the words?", "Lord, hear me under pressure and keep me faithful."],
   ["Psalm 60-66", "Rescue and praise", "This section moves from defeat and need to confidence, blessing, and praise. Prayer remembers that deliverance belongs to God and turns answered prayer into worship.", "Where has the Lord carried you, corrected you, or heard you?", "Lord, let Your rescue lead me into grateful praise."],
   ["Psalm 67-73", "Blessing, justice, and nearness", "These Psalms ask God to bless the nations, defend the needy, and steady the heart when the wicked prosper. Psalm 73 brings the believer back to the nearness of God.", "Where do you need to say, 'But as for me, it is good to be near God'?", "Lord, be my portion and steady my heart when life feels uneven."],
@@ -2825,12 +2828,12 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46:1-11": guidedDevotional({
       title: "Be still before the God who reigns",
-      context: "Psalm 46 is a Korahite Song of Zion that names shaking creation, raging nations, and human striving. Its repeated confidence is that the Lord of hosts is with His people. Being still is a summons to cease striving before God's rule, not a denial of trouble.",
-      body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Dependence becomes worship when pressure is brought before the God who reigns.",
+      context: "Psalm 46 is a Korahite Song of Zion. It portrays creation convulsing and nations raging, yet the Lord of hosts remains present with His city and brings warfare to an end. In verse 10, 'be still' or 'cease' most likely rebukes the hostile nations, although some interpreters understand it as reassurance to Judah. In either reading, prayer responds to God's universal rule and exaltation.",
+      body: "Dependence in Psalm 46 is grounded in who God is amid real upheaval. God confronts hostile powers, remains with His people, and will be exalted among the nations. Prayer does not require pretending that conflict is quiet; it confesses that the Lord of hosts reigns within circumstances His people cannot control.",
       observationQuestion: "What trouble is named, and what is repeated about God?",
-      reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
-      prayer: "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
-      gentleAction: "Sit quietly for one minute and repeat, 'The Lord is with us.'",
+      reflectionQuestion: "Where does conflict or instability make God's rule difficult to see? What assurance from this Psalm can shape your prayer?",
+      prayer: "Lord of hosts, teach me to pray from confidence in Your presence, rule, and final exaltation.",
+      gentleAction: "Read verses 7, 10, and 11 slowly, then turn one unsettled situation into a prayer of trust.",
       studyMethod: "COMA"
     }),
     "Philippians 4:4-7": guidedDevotional({
@@ -3355,12 +3358,12 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46": guidedDevotional({
       title: "Be still before the God who reigns",
-      context: "Psalm 46 is a Korahite Song of Zion. It names trouble, shaking creation, and raging nations, but repeats that the Lord of hosts is with His people. The call to be still is a summons to cease striving before God's rule, not merely a private relaxation technique.",
-      body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Prayer can become worship when pressure is brought before the God who reigns.",
+      context: "Psalm 46 is a Korahite Song of Zion. It describes shaking creation, raging nations, God's presence with His city, and the Lord bringing warfare to an end. The command to 'be still' or 'cease' most likely addresses the hostile nations, though some interpreters hear reassurance to Judah. The Psalm's central assurance is that the Lord of hosts is with His people and will be exalted throughout the earth.",
+      body: "The Psalm does not create peace by asking the reader to manufacture inner quiet. It directs attention to the God who remains present, confronts hostile powers, and rules over the nations. Worship grows as God's people recognize that upheaval does not overturn His presence or His purposes.",
       observationQuestion: "What trouble is named, and what is repeated about God?",
-      reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
-      prayer: "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
-      gentleAction: "Sit quietly for one minute and repeat, 'The Lord is with us.'",
+      reflectionQuestion: "Which image or repeated assurance in Psalm 46 most clearly directs your attention to God's presence and rule?",
+      prayer: "Lord of hosts, teach me to worship You as present with Your people and exalted over the nations.",
+      gentleAction: "Read Psalm 46 slowly, then write the repeated assurance that most helps you attend to God's rule.",
       studyMethod: "COMA"
     }),
     "Psalm 51": guidedDevotional({
@@ -4206,16 +4209,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeg
         gentleAction: "Choose one phrase from Psalm 23 and carry it into the next hour.",
         studyMethod: "Lectio Divina"
       })],
-      ["Psalm 46:1-11", "Psalms", 46, "Be still before God", guidedDevotional({
-        title: "Be still before the God who reigns",
-        context: "Psalm 46 is a Korahite Song of Zion. It names trouble, shaking creation, and raging nations, but repeats that the Lord of hosts is with His people. Prayer learns stillness here by ceasing anxious striving before God's rule, not by pretending the world is already quiet.",
-        body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Prayer can become worship when pressure is brought before the God who reigns.",
-        observationQuestion: "What trouble is named, and what is repeated about God?",
-        reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
-        prayer: "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
-        gentleAction: "Sit quietly for one minute and repeat, 'The Lord is with us.'",
-        studyMethod: "COMA"
-      })],
+      ["Psalm 46:1-11", "Psalms", 46, "Be still before God", psalm46StillBeforeGodDevotional],
       ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving", guidedDevotional({
         title: "Bring requests with thanksgiving",
         context: "Paul writes from prison to a beloved church and has just urged Euodia and Syntyche toward unity. He calls the church to rejoice in the Lord, show gentleness, and bring requests to God with thanksgiving. The peace promised is God's guard in Christ, not a reward for perfect calm.",

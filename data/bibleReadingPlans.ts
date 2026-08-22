@@ -2443,38 +2443,56 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
       "Pray to your Father",
       "Jesus warns against prayer that performs for people and teaches prayer that rests before the Father. The Lord's Prayer begins with God's name, kingdom, and will before turning to daily bread, forgiveness, and deliverance. Prayer is not a display of spirituality; it is childlike dependence on the Father who sees.",
       "Where does your prayer need to become simpler, more honest, and more Father-centered?",
-      "Father, teach me to pray for Your name, Your kingdom, and today's needed grace."
+      "Father, teach me to pray for Your name, Your kingdom, and today's needed grace.",
+      {
+        context: "Jesus is teaching His disciples in the Sermon on the Mount. He contrasts public religious performance with prayer offered to the Father who sees in secret. The Lord's Prayer begins with God's name, kingdom, and will before daily needs are named."
+      }
     ),
     "Luke 11:1-13": devotional(
       "Teach us to pray",
       "The disciples ask Jesus to teach them to pray, and He answers with both a pattern and encouragement to ask. The Father is not reluctant or careless; He gives what is good, especially the Holy Spirit. Prayer grows when you trust the Father's goodness more than your own words.",
       "What do you need to ask the Father for with renewed trust in His goodness?",
-      "Father, teach me to ask, seek, and knock as one who trusts Your heart."
+      "Father, teach me to ask, seek, and knock as one who trusts Your heart.",
+      {
+        context: "After Jesus prays, His disciples ask Him to teach them to pray. He gives a pattern of prayer and then encourages persistence by contrasting imperfect human giving with the Father's greater goodness. The passage climaxes with the Father's gift of the Holy Spirit."
+      }
     ),
     "Psalm 23:1-6": devotional(
       "Pray from trust",
       "Psalm 23 gives prayer the language of trust. The Lord shepherds, restores, guides, protects, provides, and surrounds His people with goodness and mercy. You can pray from need without panic because the Shepherd knows how to care for His sheep.",
       "Which line of Psalm 23 gives words to your prayer today?",
-      "Lord, my Shepherd, lead me, restore me, and keep me near You."
+      "Lord, my Shepherd, lead me, restore me, and keep me near You.",
+      {
+        context: "Psalm 23 is a Davidic psalm using shepherd and host imagery for the Lord's personal care. It moves through rest, restoration, guidance, danger, provision, mercy, and dwelling with God. Prayer from this psalm is trust in the Shepherd's presence, not denial of valleys."
+      }
     ),
     "Psalm 46:1-11": psalm46StillBeforeGodDevotional,
     "Philippians 4:4-7": devotional(
       "Pray with thanksgiving",
       "Paul calls anxious hearts to bring requests to God with thanksgiving. Thanksgiving does not pretend needs are small; it remembers God's faithfulness while naming them. The peace that follows is God's guard over the heart and mind in Christ.",
       "What anxious request can you bring to God with thanksgiving today?",
-      "Lord, receive my requests and guard my heart and mind in Christ."
+      "Lord, receive my requests and guard my heart and mind in Christ.",
+      {
+        context: "Paul writes from prison to a beloved church and has just urged Euodia and Syntyche toward unity. He calls the church to rejoice in the Lord, show gentleness, and bring requests to God with thanksgiving. The peace promised is God's guard in Christ, not a reward for perfect calm."
+      }
     ),
     "James 5:13-18": devotional(
       "Pray in every season",
       "James places prayer in suffering, cheerfulness, sickness, confession, and restoration. Prayer is not reserved for one emotional state; it belongs to the whole life of faith. The example of Elijah reminds you that God works through ordinary human prayer offered in trust.",
       "What season are you in, and what kind of prayer does James invite from you?",
-      "Lord, teach me to turn to You in suffering, joy, weakness, confession, and hope."
+      "Lord, teach me to turn to You in suffering, joy, weakness, confession, and hope.",
+      {
+        context: "James closes his letter by placing prayer in suffering, cheerfulness, sickness, confession, restoration, and ordinary human weakness. The example of Elijah is given to encourage faithful prayer, not to make prayer a technique for controlling God."
+      }
     ),
     "1 John 5:13-15": devotional(
       "Ask with confidence",
       "John grounds confidence in eternal life given through the Son and in asking according to God's will. This is not confidence that every desire will be granted on our terms, but confidence that God hears His children and is faithful to His will.",
       "What request needs to be brought under God's will with confidence that He hears?",
-      "Father, help me ask with trust, humility, and confidence in Your will."
+      "Father, help me ask with trust, humility, and confidence in Your will.",
+      {
+        context: "John writes so believers may know they have eternal life in the Son. Prayer confidence rests inside that assurance and is shaped by asking according to God's will. The passage teaches bold humility, not a blank cheque for every desire."
+      }
     )
   },
   "fourteen-days-anxiety-trust": {
@@ -3196,7 +3214,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46": guidedDevotional({
       title: "Be still before the God who reigns",
-      context: "Psalm 46 names trouble, shaking, conflict, and noise, but repeats that God is refuge and present with His people.",
+      context: "Psalm 46 is a Korahite Song of Zion. It names trouble, shaking creation, and raging nations, but repeats that the Lord of hosts is with His people. The call to be still is a summons to cease striving before God's rule, not merely a private relaxation technique.",
       body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Prayer can become worship when pressure is brought before the God who reigns.",
       observationQuestion: "What trouble is named, and what is repeated about God?",
       reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
@@ -3216,7 +3234,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 91": guidedDevotional({
       title: "Dwelling in refuge",
-      context: "Psalm 91 speaks of dwelling in the shelter of the Most High and trusting Him as refuge and fortress.",
+      context: "Psalm 91 speaks in poetic, wisdom-like confidence about the safety of those who dwell under the Most High's shelter. Its refuge language invites trust and nearness to God without denying that faithful people may still suffer. The psalm should not be used as a formula for a trouble-free life.",
       body: "The Psalm's safety language invites nearness and trust in the Lord. It is not a tool for demanding a trouble-free life; it is a call to dwell with God as refuge. The safest place is belonging to Him.",
       observationQuestion: "What refuge images does the Psalm use for God's care?",
       reflectionQuestion: "Where are you tempted to seek shelter somewhere other than the Lord?",
@@ -3258,7 +3276,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Proverbs 3": guidedDevotional({
       title: "Trust the Lord",
-      context: "Proverbs 3 joins trust, acknowledging the Lord, humility, generosity, and receiving His correction.",
+      context: "Proverbs 3 is parental wisdom instruction, not a formula for guaranteed outcomes. Trusting the Lord means relying on Him rather than leaning on unaided human understanding, while acknowledging Him in the whole path. The chapter also joins guidance with humility, generosity, and fatherly correction.",
       body: "Wisdom does not lean on self-reliance while asking God to bless the result. It trusts the Lord with all the heart and acknowledges Him in the way itself. Even correction is part of His fatherly love.",
       observationQuestion: "What does this chapter say about trust, understanding, and correction?",
       reflectionQuestion: "Where are you leaning on your own understanding?",

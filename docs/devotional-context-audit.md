@@ -197,6 +197,54 @@ Reference links:
   - Changed fields: None
   - Theological review need: Low
 
+### Lighter Topical and Seasonal Batch
+
+- 7 Days of Prayer
+  - Verdict: Improved
+  - Issue: Older entries used the simpler devotional helper and lacked explicit context fields. Added concise context for the Lord's Prayer, Luke 11, Psalm 23, Philippians 4, James 5, and 1 John 5.
+  - Changed fields: `context`
+  - Theological review need: Low
+- 10 Days in the Psalms
+  - Verdict: Improved in selected entries
+  - Issue: Psalm 46 and Psalm 91 needed the same interpretive safeguards as the care plans.
+  - Changed fields: `context`
+  - Theological review need: Medium for Psalm 91, because it is often used as a trouble-free guarantee.
+- 14 Days in Proverbs
+  - Verdict: Improved in selected entries
+  - Issue: Proverbs 3 needed clearer wisdom-genre framing so guidance language is not treated as a mechanical promise.
+  - Changed fields: `context`
+  - Theological review need: Low to medium
+- 7 Days for New Believers
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries already keep salvation grounded in Christ, grace, faith, the Spirit, and Christian community.
+  - Changed fields: None
+  - Theological review need: Low
+- Life of Jesus / 14 Days on the Life of Jesus
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries already place Jesus' birth, baptism, temptation, teaching, miracles, death, and resurrection in context.
+  - Changed fields: None
+  - Theological review need: Low
+- Romans Road
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries preserve sin, grace, faith, union with Christ, and whole-life response without reducing the gospel to a formula.
+  - Changed fields: None
+  - Theological review need: Low
+- Holy Week / Passion Week
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries are appropriately focused on Jesus' kingship, love, prayer, cross, and resurrection.
+  - Changed fields: None
+  - Theological review need: Low
+- Advent readings
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries trace promise, incarnation, redemption, adoption, humility, and Christ's return with adequate biblical-theological framing.
+  - Changed fields: None
+  - Theological review need: Low
+- Easter / Resurrection readings
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries keep resurrection hope tied to Christ's death, resurrection, witness, union with Christ, and final renewal.
+  - Changed fields: None
+  - Theological review need: Low
+
 ## Pending Full Review
 
 The following areas still need plan-by-plan source-backed review before claiming the whole library has been audited:

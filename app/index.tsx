@@ -6707,12 +6707,17 @@ export default function Home() {
 
     return (
       <View style={[styles.planDayDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
-        <View style={styles.planDayDevotionalToolbar}>
-          {renderDevotionalTextSizeControl(darkMode)}
-        </View>
+        {!planDay.context && (
+          <View style={styles.planDayDevotionalToolbar}>
+            {renderDevotionalTextSizeControl(darkMode)}
+          </View>
+        )}
         {!!planDay.context && (
           <View style={styles.planDayPromptRow}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+            <View style={styles.planDayPromptHeaderRow}>
+              <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+              {renderDevotionalTextSizeControl(darkMode)}
+            </View>
             <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.context}</Text>
           </View>
         )}
@@ -19367,6 +19372,14 @@ const styles = StyleSheet.create({
   },
   planDayPromptRow: {
     gap: 2
+  },
+  planDayPromptHeaderRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between",
+    position: "relative",
+    zIndex: 80
   },
   planDayCareNoteBox: {
     backgroundColor: "#fff4ea",

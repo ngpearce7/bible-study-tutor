@@ -302,12 +302,17 @@ export function BibleReaderPassage({
               </Text>
               {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.careNote) && (
                 <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
-                  <View style={styles.planDayDevotionalToolbar}>
-                    {devotionalTextSizeControl}
-                  </View>
+                  {!activeReadingPlanDay.context && (
+                    <View style={styles.planDayDevotionalToolbar}>
+                      {devotionalTextSizeControl}
+                    </View>
+                  )}
                   {!!activeReadingPlanDay.context && (
                     <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+                      <View style={styles.planDayPromptHeaderRow}>
+                        <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+                        {devotionalTextSizeControl}
+                      </View>
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>
                     </View>
                   )}

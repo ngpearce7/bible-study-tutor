@@ -6707,6 +6707,9 @@ export default function Home() {
 
     return (
       <View style={[styles.planDayDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+        <View style={styles.planDayDevotionalToolbar}>
+          {renderDevotionalTextSizeControl(darkMode)}
+        </View>
         {!!planDay.context && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
@@ -6720,7 +6723,6 @@ export default function Home() {
                 <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
                 <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{planDay.devotional.title}</Text>
               </View>
-              {renderDevotionalTextSizeControl(darkMode)}
             </View>
             <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
           </>
@@ -19213,6 +19215,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     position: "relative",
     zIndex: 60
+  },
+  planDayDevotionalToolbar: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 2,
+    position: "relative",
+    zIndex: 80
   },
   planDayDevotionalTitleRow: {
     alignItems: "center",

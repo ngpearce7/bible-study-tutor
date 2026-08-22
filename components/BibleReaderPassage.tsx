@@ -302,6 +302,9 @@ export function BibleReaderPassage({
               </Text>
               {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.careNote) && (
                 <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                  <View style={styles.planDayDevotionalToolbar}>
+                    {devotionalTextSizeControl}
+                  </View>
                   {!!activeReadingPlanDay.context && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
@@ -315,7 +318,6 @@ export function BibleReaderPassage({
                           <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
                           <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
                         </View>
-                        {devotionalTextSizeControl}
                       </View>
                       <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
                     </>

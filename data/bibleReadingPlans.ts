@@ -435,11 +435,11 @@ function withPastoralCareNote(plan: BibleReadingPlan, careNote: string): BibleRe
 
 const psalm46StillBeforeGodDevotional = devotional(
   "Be still before the God who reigns",
-  "Psalm 46 does not pretend the world is calm. The earth gives way, nations rage, and kingdoms totter, yet the Lord of hosts is present with His city and rules over the nations. The call to be still is a summons to cease rebellious striving and acknowledge that God will be exalted in the earth.",
+  "Psalm 46 does not pretend the world is calm. The earth gives way, nations rage, and kingdoms totter, yet the Lord of hosts is present with His city and rules over the nations. The call to be still, or cease, most likely rebukes hostile nations, while God's people hear the Lord's universal rule and exaltation.",
   "What fear, conflict, or false security needs to be answered by the Lord's presence and rule?",
   "Lord of hosts, help me know that You are present with Your people and exalted over the nations.",
   {
-    context: "Psalm 46 is a Korahite Song of Zion. It pictures cosmic instability, hostile nations, God present with His city, and the Lord's rule over the whole earth. The command to be still, or cease, is not a private relaxation technique or passive avoidance; it summons all striving powers to acknowledge God's exalted reign."
+    context: "Psalm 46 is a Korahite Song of Zion. It pictures cosmic instability, hostile nations, God present with His city, and the Lord's rule over the whole earth. In verse 10, 'be still' or 'cease' most likely rebukes the hostile nations, though some interpreters hear reassurance to Judah. Either way, the emphasis is God's universal rule and exaltation, not private relaxation or passivity."
   }
 );
 
@@ -2661,10 +2661,10 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46:1-11": guidedDevotional({
       title: "God is refuge and ruler",
-      context: "Psalm 46 is a Korahite Song of Zion. It pictures earth-shaking chaos and raging nations, yet God dwells with and defends His city. The closing command to be still, or cease, summons the nations and God's people to stop striving and recognize His rule.",
+      context: "Psalm 46 is a Korahite Song of Zion. It portrays creation convulsing and nations raging, yet God remains present with His city and brings warfare to an end. In verse 10, 'be still' or 'cease' most likely rebukes the hostile nations, although some interpreters understand it as reassurance to Judah. In either reading, the climax is God's universal rule and exaltation.",
       body: "'Be still' is not primarily a technique for creating private inner calm. In a world of conflict and upheaval, it calls striving and opposition to cease before the God who will be exalted. An anxious reader can take comfort not in an ability to make life quiet, but in the Lord who remains with His people and rules over what is shaking.",
       observationQuestion: "What disturbances does the Psalm name, what does God do, and which assurance is repeated?",
-      reflectionQuestion: "Which situation are you trying to master as though its outcome depends entirely on you? How does this Psalm redirect you to God's presence and rule?",
+      reflectionQuestion: "Where does conflict or instability make God's rule difficult to see? How do the Psalm's repeated assurances reshape your response?",
       prayer: "Lord of hosts, be my refuge when life feels unstable. Help me entrust what I cannot rule to the One who is exalted over all.",
       gentleAction: "Read verses 1, 7, 10, and 11 slowly, then name one unsettled situation you are entrusting to God.",
       studyMethod: "COMA",
@@ -2727,12 +2727,12 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "John 14:25-27": guidedDevotional({
       title: "Peace from Jesus",
-      context: "These words belong to Jesus' Farewell Discourse on the night before His crucifixion. The disciples are troubled because He is going away, and Jesus promises the Holy Spirit will teach them and bring His words to remembrance. His peace is a farewell gift grounded in His continuing presence by the Spirit.",
+      context: "These words belong to Jesus' Farewell Discourse on the night before His crucifixion. The disciples are troubled because He is going away, and Jesus promises that the Holy Spirit will teach them and bring His words to remembrance. That promise is first addressed to the disciples who will bear witness to Jesus after His departure. Believers now receive and live in Jesus' peace through the apostolic word and the Spirit's continuing ministry.",
       body: "Jesus' peace is not the world's promise of easy circumstances, but the settled gift of His presence, word, and Spirit. Troubled hearts are invited to trust Him because He remains faithful. His peace is received, not manufactured.",
       observationQuestion: "What does Jesus promise, and how is His peace different from the world's peace?",
       reflectionQuestion: "What trouble needs to be brought under the peace Jesus gives?",
       prayer: "Lord Jesus, give me Your peace and keep my heart from being ruled by fear.",
-      gentleAction: "Pause once and ask the Spirit to remind you of Jesus' words.",
+      gentleAction: "Read Jesus' words in verses 25-27 again, and ask the Spirit to help you remember, trust, and live by what Jesus has said.",
       studyMethod: "Inductive",
       careNote: carePlanPastoralNote
     }),

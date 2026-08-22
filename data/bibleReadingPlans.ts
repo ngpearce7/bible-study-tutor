@@ -431,14 +431,20 @@ const psalm46StillBeforeGodDevotional = devotional(
   "Be still before the God who reigns",
   "Psalm 46 does not pretend the world is calm. The earth gives way, nations rage, and kingdoms totter, yet God is present with His people as refuge, strength, and help. The call to be still is not passive avoidance; it is a summons to stop striving as though everything rests on you, and to know that the Lord is exalted over every shaking thing.",
   "Where are you carrying pressure as though God is absent, hurried, or unable to help?",
-  "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted."
+  "Lord Almighty, quiet my striving and help me know that You are present, faithful, and exalted.",
+  {
+    context: "Psalm 46 is a Korahite Song of Zion. It pictures earth-shaking chaos and raging nations, yet God dwells with and defends His city. The command to be still is a summons to cease striving and recognize His rule, not merely a private relaxation technique."
+  }
 );
 
 const psalm46RefugeDevotional = devotional(
   "God is refuge in the shaking",
   "Psalm 46 names real instability: trouble, fear, noise, conflict, and upheaval. Its comfort is not that trouble disappears, but that God is with His people in the midst of it. Read the Psalm slowly and notice the repeated confidence: the Lord is refuge, the Lord is with us, and the Lord will be exalted.",
   "What trouble feels loud today, and what does this Psalm say is truer than that trouble?",
-  "God, be my refuge and strength today. Teach me to trust Your presence more than the noise around me."
+  "God, be my refuge and strength today. Teach me to trust Your presence more than the noise around me.",
+  {
+    context: "Psalm 46 is a communal song of confidence, not a denial that trouble exists. It names shaking creation and unstable nations, then repeats the deeper assurance that the Lord of hosts is with His people. Refuge rests in God's presence and rule."
+  }
 );
 
 type CuratedDevotionalMap = Record<string, Record<string, BibleReadingPlanDayExtras>>;
@@ -2474,7 +2480,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-anxiety-trust": {
     "Psalm 23:1-4": guidedDevotional({
       title: "The Shepherd is near",
-      context: "Psalm 23 begins with the Lord as Shepherd and includes both restful places and the valley of deep darkness.",
+      context: "Psalm 23 is a Davidic psalm using shepherd imagery for the Lord's provision, guidance, and protection. In verses 1-4 the speaker moves from testimony about God to direct address in the valley of deep darkness. The comfort rests on the Shepherd's presence, not on the absence of danger.",
       body: "David can walk through the valley because the Shepherd is with him. This passage does not deny dark places or promise instant relief; it teaches you to locate comfort in God's presence, guidance, and care while you pass through them.",
       observationQuestion: "What does the Shepherd do, and where is He present?",
       reflectionQuestion: "Where do you need to remember that the Lord is with you, not merely watching from far away?",
@@ -2485,7 +2491,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 27:1-5": guidedDevotional({
       title: "Light when fear rises",
-      context: "David names enemies and trouble, but he begins by naming the Lord as light, salvation, and stronghold.",
+      context: "Psalm 27 begins with Davidic confidence in the Lord amid enemies and danger, then turns toward prayer for God's presence. Verses 1-5 move from fearless trust to the one desire to dwell with the Lord and seek Him. The shelter imagery is covenant worship and protection language, not a promise that trouble never comes.",
       body: "Fear is answered first by who God is. David's desire to dwell with the Lord is not escape; it is the deepest safety he knows when pressure surrounds him. The passage invites fearful hearts to seek the Lord before fear takes the lead.",
       observationQuestion: "What names does David use for the Lord before describing trouble?",
       reflectionQuestion: "Which fear needs to be answered today by who the Lord is?",
@@ -2496,7 +2502,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 46:1-11": guidedDevotional({
       title: "God is refuge and ruler",
-      context: "Psalm 46 is a communal song of confidence. Creation shakes, nations rage, and kingdoms fall, yet God is refuge, is present with His people, and brings wars to an end. The closing command to be still, or cease, declares His rule among the nations.",
+      context: "Psalm 46 is a Korahite Song of Zion. It pictures earth-shaking chaos and raging nations, yet God dwells with and defends His city. The closing command to be still, or cease, summons the nations and God's people to stop striving and recognize His rule.",
       body: "'Be still' is not primarily a technique for creating private inner calm. In a world of conflict and upheaval, it calls striving and opposition to cease before the God who will be exalted. An anxious reader can take comfort not in an ability to make life quiet, but in the Lord who remains with His people and rules over what is shaking.",
       observationQuestion: "What disturbances does the Psalm name, what does God do, and which assurance is repeated?",
       reflectionQuestion: "Which situation are you trying to master as though its outcome depends entirely on you? How does this Psalm redirect you to God's presence and rule?",
@@ -2507,7 +2513,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 91:1-4": guidedDevotional({
       title: "Shelter under His wings",
-      context: "Psalm 91 speaks of dwelling in the shelter of the Most High and trusting the Lord as refuge and fortress.",
+      context: "Psalm 91 speaks in poetic, wisdom-like confidence about the safety of those who dwell under the Most High's shelter. The opening verses use refuge, fortress, wings, and shield imagery to describe God's protection. The psalm invites trust without denying that faithful people may still suffer.",
       body: "The image of wings invites nearness and dependence, not a demand that hardship cannot touch us. The safest place is belonging to the Lord. When fear looks for another refuge, this Psalm calls the heart back to trusting God Himself.",
       observationQuestion: "What shelter and refuge images does the Psalm use?",
       reflectionQuestion: "Where are you tempted to seek shelter in control rather than in God Himself?",
@@ -2551,7 +2557,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Matthew 11:28-30": guidedDevotional({
       title: "Rest under Jesus' yoke",
-      context: "Jesus invites the weary and burdened to come to Him, take His yoke, and learn from His gentle and humble heart.",
+      context: "In Matthew 11 Jesus has just spoken of the Father revealing the Son to the humble rather than the self-sufficient. He invites the weary and burdened to come to Him, take His yoke, and learn from His gentle and humble heart. The rest He gives is discipleship under the gentle Messiah, not escape from all responsibility.",
       body: "Jesus invites the weary to Himself, not merely to a calmer mindset. His rest comes through belonging to Him and learning His gentle way. The yoke of Christ is not crushing self-rescue; it is the restful obedience of walking with the Savior.",
       observationQuestion: "Who does Jesus invite, and what does He say about His heart and yoke?",
       reflectionQuestion: "What burden do you need to bring honestly to Jesus rather than keep carrying alone?",
@@ -2562,7 +2568,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "John 14:25-27": guidedDevotional({
       title: "Peace from Jesus",
-      context: "Jesus prepares His disciples for His departure, promising the Spirit and giving His peace.",
+      context: "These words belong to Jesus' Farewell Discourse on the night before His crucifixion. The disciples are troubled because He is going away, and Jesus promises the Holy Spirit will teach them and bring His words to remembrance. His peace is a farewell gift grounded in His continuing presence by the Spirit.",
       body: "Jesus' peace is not the world's promise of easy circumstances, but the settled gift of His presence, word, and Spirit. Troubled hearts are invited to trust Him because He remains faithful. His peace is received, not manufactured.",
       observationQuestion: "What does Jesus promise, and how is His peace different from the world's peace?",
       reflectionQuestion: "What trouble needs to be brought under the peace Jesus gives?",
@@ -2573,7 +2579,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Romans 8:31-39": guidedDevotional({
       title: "Nothing can separate",
-      context: "Paul asks a series of questions so believers will feel the strength of God's saving love in Christ.",
+      context: "Romans 8 concludes Paul's argument that those in Christ are no longer condemned and are led by the Spirit as God's children. Paul speaks to believers who still suffer, groan, and wait for glory. The passage assures them that no accusation, hardship, power, or death can separate them from God's love in Christ.",
       body: "Suffering is named honestly, but it cannot separate God's people from Christ. Assurance rests not in your grip on God, but in His saving love shown through His Son. Fear is answered by the love that holds through every named threat.",
       observationQuestion: "What threats does Paul name, and what conclusion does he reach?",
       reflectionQuestion: "Which accusation, fear, or suffering needs to hear that nothing can separate you from Christ's love?",
@@ -2606,7 +2612,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "1 Peter 5:6-11": guidedDevotional({
       title: "Cast your cares on Him",
-      context: "Peter joins humility, casting anxieties on God, watchfulness, suffering, and hope in the God of all grace.",
+      context: "Peter writes to scattered Christians facing social pressure and suffering. After instructing elders and the community in humility, he calls believers to humble themselves under God, cast anxieties on Him, and resist the devil together. The promise is God's final restoration after suffering, not a denial that suffering is real.",
       body: "Casting anxieties on God is not denial; it is a humble act of trust because He cares for you. The passage also calls for alertness, so peace is not carelessness. You can be watchful without being ruled by fear.",
       observationQuestion: "What does Peter connect with humility, anxiety, watchfulness, and God's care?",
       reflectionQuestion: "What care do you need to hand to God because He cares for you?",
@@ -3384,7 +3390,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Psalm 23:1-4": guidedDevotional({
       title: "Peace with the Shepherd",
-      context: "David describes the Lord as Shepherd who provides, restores, leads, and stays near even in the valley of deep darkness.",
+      context: "Psalm 23 is a Davidic psalm using shepherd imagery for the Lord's provision, guidance, and protection. The opening verses include green pastures and the valley of deep darkness, so the peace described is not fragile comfort in easy places only. It rests on the Shepherd who remains with His sheep.",
       body: "The green pastures and quiet waters come from the Shepherd's presence and leading. Even the valley is not faced alone. Peace is not the absence of shadows; it is the nearness of the Lord who restores and guides His people.",
       observationQuestion: "What does the Shepherd do for His sheep in these verses?",
       reflectionQuestion: "Where do you need to follow the Shepherd into peace rather than force peace for yourself?",
@@ -3394,7 +3400,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Isaiah 26:3-4": guidedDevotional({
       title: "Perfect peace",
-      context: "Isaiah calls God's people to trust the Lord forever because He is the everlasting Rock.",
+      context: "Isaiah 26 is a song of trust within Isaiah's vision of judgment and restoration. The peace described belongs to the righteous people who trust the Lord while waiting for His vindication. It is not first a private calm technique, but a confession that lasting security rests in the everlasting Rock.",
       body: "Perfect peace is tied to a mind stayed on God because it trusts Him. The foundation is not a technique, mood, or personality type; it is the Lord Himself. Peace grows as attention and trust are re-centered on Him.",
       observationQuestion: "What connection does Isaiah make between mind, trust, peace, and the Lord?",
       reflectionQuestion: "What thought needs to be stayed on God rather than carried alone?",
@@ -3404,7 +3410,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Matthew 6:25-34": guidedDevotional({
       title: "The Father knows",
-      context: "In the Sermon on the Mount, Jesus speaks to worry by pointing to the Father's care, creation's witness, and the priority of God's kingdom.",
+      context: "These words are part of the Sermon on the Mount and follow Jesus' warning that no one can serve both God and money. Jesus speaks to disciples tempted to be consumed by food, clothing, and tomorrow's needs. He calls them to seek the Father's kingdom first while facing each day's real trouble.",
       body: "Jesus does not mock human need. He names food, drink, clothing, and tomorrow, then brings them under the Father's knowledge and care. Birds and lilies become witnesses that life is not secured by anxious striving. The call is to seek first God's kingdom and receive today's grace for today's trouble.",
       observationQuestion: "What examples does Jesus use to show the Father's care?",
       reflectionQuestion: "What need does your Father already know before you can solve it?",
@@ -3414,7 +3420,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "John 14:25-27": guidedDevotional({
       title: "Peace Jesus gives",
-      context: "Jesus speaks to His disciples before the cross, promising the Spirit and giving peace in the middle of coming trouble.",
+      context: "Jesus speaks these words in the Farewell Discourse before the cross. The disciples are troubled by His departure, and He promises the Spirit will teach them and remind them of His words. His peace is not worldly ease, but His own gift to troubled disciples.",
       body: "Jesus gives peace to disciples who are about to face confusion and loss. His peace is tied to His word and the Spirit's help. It is not dependent on outward calm; it rests on the presence and promise of Christ.",
       observationQuestion: "What does Jesus promise, and how is His peace different from the world's peace?",
       reflectionQuestion: "What trouble needs to be brought beneath Jesus' words, 'My peace I give to you'?",
@@ -3424,7 +3430,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Philippians 4:4-9": guidedDevotional({
       title: "Peace that guards",
-      context: "Paul writes from hardship and teaches joy, gentleness, prayer, thanksgiving, disciplined thought, and faithful practice.",
+      context: "Paul writes from prison to a beloved church and has just urged Euodia and Syntyche toward unity. These commands are given to the community: rejoice in the Lord, show gentleness, pray with thanksgiving, think on what is true, and practice what they received. The peace of God guards believers in Christ as they live this shared pattern.",
       body: "God's peace guards the heart and mind in Christ, and the God of peace is with His people as they walk in what they have received. Peace is not detached from prayer or practice; it is received as worries are brought to God and minds are trained toward what is true and worthy.",
       observationQuestion: "What commands does Paul give before and after describing God's peace?",
       reflectionQuestion: "What request, thought, or practice needs to be brought under God's peace today?",
@@ -3434,7 +3440,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Colossians 3:12-17": guidedDevotional({
       title: "Peace ruling together",
-      context: "Paul describes the life of God's chosen people as they put on compassion, forgiveness, love, peace, gratitude, and the word of Christ.",
+      context: "Paul writes to a church whose life is now hidden with Christ and shaped by the new self. After calling them to put off old practices, he tells God's chosen, holy, beloved people to put on compassion, forgiveness, love, peace, and thankfulness. The passage is communal Christian formation, not merely private mood management.",
       body: "Colossians shows that peace is not merely private calm. It rules among people who forgive, love, give thanks, and let Christ's word dwell richly. The peace of Christ shapes relationships, words, worship, and ordinary community life.",
       observationQuestion: "What virtues and practices surround the command to let Christ's peace rule?",
       reflectionQuestion: "Where does Christ's peace need to govern your words or relationships today?",
@@ -4385,7 +4391,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ...planFromReferences("anxiety-peace", "Anxiety and Peace", "Gentle Scripture readings for worry, fear, trust, and the peace Christ gives.", [
       ["Psalm 23:1-4", "Psalms", 23, "The Shepherd's care", guidedDevotional({
         title: "The Shepherd is with you",
-        context: "David speaks of the Lord as Shepherd, including both restful places and the valley of deep darkness.",
+        context: "Psalm 23 is a Davidic psalm using shepherd imagery for the Lord's provision, guidance, and protection. The opening verses include both restful places and the valley of deep darkness. Comfort rests on the Shepherd's presence with His sheep, not on pretending the valley is harmless.",
         body: "Psalm 23 does not shame fearful sheep. It gives them a Shepherd. The comfort is not that every valley disappears immediately, but that the Lord is present, leading, restoring, and guarding His people as they walk.",
         observationQuestion: "What does the Shepherd do for His sheep in these verses?",
         reflectionQuestion: "Where do you need to remember that the Lord is with you, not far away?",
@@ -4407,7 +4413,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Isaiah 26:3-4", "Isaiah", 26, "Peace held by trust", guidedDevotional({
         title: "A mind stayed on the Lord",
-        context: "Isaiah calls God's people to trust the Lord as the everlasting Rock.",
+        context: "Isaiah 26 is a song of trust within Isaiah's vision of judgment and restoration. The peace described belongs to the people who trust the Lord while waiting for His vindication. It is not first a private calm technique, but a confession that lasting security rests in the everlasting Rock.",
         body: "Perfect peace is connected to trust in God, not to perfect control over circumstances. This is not positive thinking. It is steady attention to the Lord's character when anxious thoughts pull in many directions.",
         observationQuestion: "What reason does Isaiah give for trusting the Lord?",
         reflectionQuestion: "What thought needs to be re-anchored in the everlasting Rock?",
@@ -4418,7 +4424,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Matthew 6:25-34", "Matthew", 6, "Today's grace", guidedDevotional({
         title: "The Father knows",
-        context: "Jesus teaches His disciples about worry, the Father's care, and seeking God's kingdom.",
+        context: "These words are part of the Sermon on the Mount and follow Jesus' warning that no one can serve both God and money. Jesus speaks to disciples tempted to be consumed by food, clothing, and tomorrow's needs. He calls them to seek the Father's kingdom first while facing each day's real trouble.",
         body: "Jesus does not mock anxious people. He points them to the Father's care and calls them away from trying to live tomorrow before it arrives. Today's trouble is met with today's grace, not with guilt for feeling concern.",
         observationQuestion: "What examples does Jesus use to show the Father's care?",
         reflectionQuestion: "What tomorrow are you trying to carry today?",
@@ -4429,7 +4435,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Matthew 11:28-30", "Matthew", 11, "Rest with Jesus", guidedDevotional({
         title: "Come to Me",
-        context: "Jesus invites the weary and burdened to come to Him, learn from Him, and receive rest.",
+        context: "In Matthew 11 Jesus has just spoken of the Father revealing the Son to the humble rather than the self-sufficient. He invites the weary and burdened to come to Him, take His yoke, and learn from His gentle and humble heart. The rest He gives is discipleship under the gentle Messiah, not escape from all responsibility.",
         body: "Jesus does not tell the weary to hide their weariness. He invites them to Himself. His rest is not self-rescue; it is learning His gentle way while carrying life with Him rather than alone.",
         observationQuestion: "What does Jesus invite weary people to do?",
         reflectionQuestion: "What burden do you need to bring honestly to Jesus?",
@@ -4440,7 +4446,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["John 14:25-27", "John", 14, "Peace from Jesus", guidedDevotional({
         title: "Peace unlike the world",
-        context: "Jesus prepares His disciples for His departure and promises the Spirit's help and His own peace.",
+        context: "Jesus speaks these words in the Farewell Discourse before the cross. The disciples are troubled by His departure, and He promises the Spirit will teach them and remind them of His words. His peace is not worldly ease, but His own gift to troubled disciples.",
         body: "Jesus gives peace to troubled disciples before every hard thing is removed. His peace is tied to His word, His presence, and the Spirit's work. It is not a guarantee of easy circumstances, but a gift from the faithful Lord.",
         observationQuestion: "What does Jesus promise, and what does He command?",
         reflectionQuestion: "Where do you need peace that is grounded in Christ rather than circumstances?",
@@ -4451,7 +4457,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Philippians 4:4-9", "Philippians", 4, "Peace that guards", guidedDevotional({
         title: "Requests brought to God",
-        context: "Paul writes to believers about rejoicing, gentleness, prayer, thanksgiving, thought, practice, and God's peace.",
+        context: "Paul writes from prison to a beloved church and has just urged Euodia and Syntyche toward unity. These commands are given to the community: rejoice in the Lord, show gentleness, pray with thanksgiving, think on what is true, and practice what they received. The peace of God guards believers in Christ as they live this shared pattern.",
         body: "Paul does not say anxious feelings prove weak faith. He gives anxiety somewhere to go: to God in prayer with thanksgiving. God's peace guards hearts and minds in Christ while believers keep practicing what is true and good.",
         observationQuestion: "What actions does Paul place around anxiety and peace?",
         reflectionQuestion: "What request can become prayer instead of circling worry?",
@@ -4462,7 +4468,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["1 Peter 5:6-11", "1 Peter", 5, "Cast your cares", guidedDevotional({
         title: "He cares for you",
-        context: "Peter writes to suffering believers, calling them to humility, watchfulness, and hope in the God of all grace.",
+        context: "Peter writes to scattered Christians facing social pressure and suffering. After instructing elders and the community in humility, he calls believers to humble themselves under God, cast anxieties on Him, and resist the devil together. The promise is God's final restoration after suffering, not a denial that suffering is real.",
         body: "Casting anxieties on God is not denial. It is humble trust because He cares for you. Peter also names suffering and alertness, so this passage holds tenderness and strength together without promising instant relief.",
         observationQuestion: "Why does Peter say believers can cast anxieties on God?",
         reflectionQuestion: "Which care can you name before God and entrust to Him today?",
@@ -4490,7 +4496,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
     ...planFromReferences("grief-comfort", "Grief and Comfort", "Gentle passages for lament, comfort, patient hope, and God's nearness in sorrow.", [
       ["Psalm 13:1-6", "Psalms", 13, "Bring sorrow to God", guidedDevotional({
         title: "How long, O Lord?",
-        context: "Psalm 13 is a lament. David brings unanswered pain to God and still turns toward steadfast love.",
+        context: "Psalm 13 is a Davidic lament moving from repeated 'How long?' questions to petition and trust. It gives grief truthful speech before God rather than rushing it into resolution. The final trust grows within lament, not by pretending sorrow is gone.",
         body: "This Psalm gives grief permission to speak honestly. Faith does not have to rush past 'How long?' The movement toward trust is real, but it does not erase the ache. Biblical lament brings sorrow into relationship with God.",
         observationQuestion: "What honest questions does David bring to God?",
         reflectionQuestion: "What sorrow can you bring to God without pretending it is small?",
@@ -4501,7 +4507,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Psalm 34:17-22", "Psalms", 34, "Near the brokenhearted", guidedDevotional({
         title: "The Lord is near",
-        context: "Psalm 34 speaks of affliction, brokenheartedness, and the Lord's nearness and rescue.",
+        context: "Psalm 34 is an acrostic wisdom psalm tied to David's deliverance. These verses speak generally of the Lord's nearness to the righteous and His care for the brokenhearted. They comfort sufferers without promising a pain-free life; the psalm holds affliction and deliverance together.",
         body: "The Psalm does not say God's people avoid affliction. It says the Lord hears and is near to the brokenhearted. Comfort begins with God's presence in real pain, not with a demand that pain disappear quickly.",
         observationQuestion: "What does the Lord do for the brokenhearted and afflicted?",
         reflectionQuestion: "Where do you need to believe that the Lord is near, not distant?",
@@ -4512,7 +4518,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Psalm 42:5-11", "Psalms", 42, "Hope in God", guidedDevotional({
         title: "Speak hope to the downcast soul",
-        context: "Psalm 42 speaks to a soul that is downcast and in turmoil while remembering God.",
+        context: "Psalm 42 is a Korahite lament from a worshiper longing for God while feeling far from the sanctuary. The refrain addresses the soul directly: 'Why are you downcast?' and calls it to hope in God. The passage names spiritual thirst and turmoil while still turning toward praise.",
         body: "The Psalmist does not scold sadness away. He speaks to his soul and calls it toward hope while turmoil remains. Grief may keep speaking, and faith may need to answer again and again with remembrance of God.",
         observationQuestion: "What words or images show the Psalmist's inner turmoil?",
         reflectionQuestion: "Where does your downcast soul need hope in God to speak louder than grief today?",
@@ -4523,7 +4529,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Isaiah 40:27-31", "Isaiah", 40, "Strength renewed", guidedDevotional({
         title: "The weary are not forgotten",
-        context: "Isaiah speaks to weary people who wonder if their way is hidden from the Lord.",
+        context: "Isaiah 40 opens the comfort section addressed to weary exiles who wonder whether their way is hidden from the Lord. The prophet contrasts human weakness with the Creator's inexhaustible strength. Waiting on the Lord is covenant trust in His renewing power, not a guarantee that fatigue instantly vanishes.",
         body: "God does not shame His weary people. He reminds them that He is everlasting, wise, and generous with strength. Waiting on the Lord is not a timetable for grief; it is dependence on the God whose compassion does not run out.",
         observationQuestion: "What does Isaiah say about God's strength and understanding?",
         reflectionQuestion: "Where are you weary enough to need strength only God can give?",
@@ -4534,7 +4540,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["John 11:32-44", "John", 11, "Jesus wept", guidedDevotional({
         title: "Tears and resurrection hope",
-        context: "Jesus comes to Lazarus' tomb. He meets Mary and Martha in grief before raising Lazarus.",
+        context: "John 11 narrates Jesus at Lazarus's tomb before His own death and resurrection. Mary and Martha grieve, and Jesus is deeply moved even though He will raise Lazarus. The sign reveals Jesus as resurrection and life while honoring the real sorrow of death.",
         body: "Jesus' tears matter. He does not stand outside grief with cold answers; He enters the sorrow of those He loves. At the same time, He is the resurrection and the life. Christian comfort holds tears and hope together without forcing one to cancel the other.",
         observationQuestion: "How does Jesus respond before He calls Lazarus from the tomb?",
         reflectionQuestion: "What grief needs both the compassion of Jesus and the hope of His life?",
@@ -4545,7 +4551,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["2 Corinthians 1:3-7", "2 Corinthians", 1, "God of all comfort", guidedDevotional({
         title: "Comfort received and shared",
-        context: "Paul blesses the Father of mercies, who comforts His people in affliction and makes them able to comfort others.",
+        context: "Paul opens 2 Corinthians by blessing God for comfort received in affliction. His suffering and comfort are tied to apostolic ministry and shared with the church. The passage teaches that God's comfort equips believers to comfort others, not that faithful people avoid affliction.",
         body: "Suffering is not good in itself, and Paul does not pretend it is. Yet God's mercy is active in affliction. Comfort received from Him can one day become gentle comfort offered to someone else, without minimizing their pain.",
         observationQuestion: "What names does Paul use for God in this passage?",
         reflectionQuestion: "Where do you need to receive comfort before trying to explain anything?",
@@ -4556,7 +4562,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Revelation 21:1-5", "Revelation", 21, "Every tear wiped away", guidedDevotional({
         title: "The final comfort",
-        context: "John sees the new heaven and new earth, where God dwells with His people and makes all things new.",
+        context: "Revelation 21 follows visions of judgment with the new heaven and new earth. John sees God dwelling with His people and finally removing death, mourning, crying, and pain. This is future consummation hope, not a denial of present grief.",
         body: "Revelation does not trivialize present grief. It gives grief a final horizon: God Himself will wipe away every tear. Present comfort is real, but final restoration is still ahead. Sorrow will not have the last word.",
         observationQuestion: "What does God promise will be gone in the new creation?",
         reflectionQuestion: "What tear needs to be held before the God who will make all things new?",

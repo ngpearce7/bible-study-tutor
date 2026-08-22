@@ -20,6 +20,7 @@ Sources consulted or cross-checked in this pass:
 
 - Biblical text in context using the app's assigned passages and surrounding chapters.
 - NET Bible notes for Psalm 23, Psalm 46, Isaiah 26, Matthew 6, John 14, Philippians 4, Isaiah 41, and related cross references.
+- NET Bible notes and STEP Bible notes for John 15, Galatians 3, Colossians 3, Proverbs 3, and related cross references.
 - Bible Gateway passage context for Matthew 6:25-34 and Philippians 4:4-9.
 - Public pastoral/scholarly commentary for Matthew 6:25-34 via Biblical Scholarship.
 
@@ -33,6 +34,11 @@ Reference links:
 - https://classic.net.bible.org/passage.php?passage=Phi+4%3A4-9
 - https://classic.net.bible.org/passage.php/passage.php?passage=isa+41%3A8-20
 - https://biblicalscholarship.wordpress.com/2020/08/07/commentary-on-matthew-625-34/
+- https://classic.net.bible.org/passage.php?passage=joh+15%3A1-5
+- https://classic.net.bible.org/verse.php?book=Gal&chapter=3&tab=commentaries&verse=26
+- https://classic.net.bible.org/verse.php?book=Col&chapter=3&tab=commentaries&theme=wiki&verse=3
+- https://www.biblegateway.com/passage/?search=Proverbs+3%3A5&version=NET
+- https://www.stepbible.org/?q=version%3DTNotes%7Creference%3DGal.3.26-Gal.3.29
 
 ## Reviewed In This Pass
 
@@ -163,6 +169,34 @@ Reference links:
   - Changed fields: `context`
   - Theological review need: Low
 
+### Prayer, Faith, Wisdom, Identity, and Abiding Batch
+
+- 7 Days of Prayer / Prayer and Dependence
+  - Verdict: Improved in selected entries
+  - Issue: Psalm 46 and Philippians 4 needed the same safeguards used in the anxiety plans: Psalm 46 is not a relaxation technique, and Philippians 4 is communal prayer and practice in Christ rather than a reward for perfect calm.
+  - Changed fields: `context`
+  - Theological review need: Low
+- 14 Days on Faith
+  - Verdict: Improved in selected entries
+  - Issue: Genesis 15, Habakkuk 3, John 20, and Hebrews 11 needed stronger setting so faith is not framed as vague optimism or pressure to "believe harder."
+  - Changed fields: `context`
+  - Theological review need: Low
+- 14 Days on Wisdom / Wisdom for Decisions
+  - Verdict: Improved in selected entries
+  - Issue: Proverbs 3 needed clearer wisdom-genre framing so "He will make your paths straight" is not read as a mechanical guarantee. Colossians 3 needed stronger communal formation framing.
+  - Changed fields: `context`
+  - Theological review need: Low to medium for Proverbs passages, because wisdom literature is often over-promised.
+- Identity in Christ
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing material already names union with Christ, adoption, no condemnation, new creation, and communal identity with sufficient care for a first pass.
+  - Changed fields: None
+  - Theological review need: Low
+- Abiding in Christ
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing material already keeps John 15 tied to dependence on Christ and avoids fruitfulness by anxious striving.
+  - Changed fields: None
+  - Theological review need: Low
+
 ## Pending Full Review
 
 The following areas still need plan-by-plan source-backed review before claiming the whole library has been audited:
@@ -186,4 +220,3 @@ The following areas still need plan-by-plan source-backed review before claiming
 - Do not use Psalm 46:10 as a simple relaxation slogan.
 - Do not shame anxiety or grief as spiritual failure.
 - Keep Christ-centered application tethered to the passage's actual argument.
-

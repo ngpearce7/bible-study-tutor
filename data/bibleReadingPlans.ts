@@ -2708,7 +2708,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
   "fourteen-days-faith": {
     "Genesis 15:1-6": guidedDevotional({
       title: "Believed the Lord",
-      context: "Abram receives God's promise while the visible evidence still looks impossible.",
+      context: "Genesis 15 comes after Abram has received God's call and promise, yet he still has no child of promise. The Lord answers Abram's honest question by reaffirming His covenant promise and showing him the stars. Abram's faith is trust in the God who speaks, not vague optimism about circumstances.",
       body: "Abram's faith is not vague optimism; he believes the Lord who speaks. Scripture says this trust was counted to him as righteousness, pointing forward to the grace God gives through faith. Faith begins by taking God at His word even when sight has not caught up.",
       observationQuestion: "What does God promise Abram, and how does Abram respond?",
       reflectionQuestion: "What promise of God needs to become weightier than what you can presently see?",
@@ -2728,7 +2728,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Habakkuk 3:17-19": guidedDevotional({
       title: "Rejoice when it is hard",
-      context: "Habakkuk ends with worship after wrestling honestly with injustice, waiting, and fear.",
+      context: "Habakkuk ends with worship after the prophet has wrestled honestly with injustice, judgment, waiting, and fear. The failed crops and empty stalls describe covenant-level devastation, not a minor inconvenience. His joy is anchored in the Lord Himself when visible supports are stripped away.",
       body: "Habakkuk's faith does not depend on visible abundance. Even if fields, flocks, and harvests fail, he rejoices in the Lord and takes strength in God. This is not denial of loss; it is worship anchored in God when supports are stripped away.",
       observationQuestion: "What losses does Habakkuk name, and where does he locate joy and strength?",
       reflectionQuestion: "What circumstance is testing whether your joy is anchored in God Himself?",
@@ -2758,7 +2758,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "John 20:24-31": guidedDevotional({
       title: "Blessed are those who believe",
-      context: "Thomas moves from doubt to worship when he encounters the risen Christ.",
+      context: "John 20 records resurrection appearances and then states the Gospel's purpose: that readers may believe Jesus is the Christ, the Son of God. Thomas moves from absence and doubt to worship when he encounters the risen Christ. The blessing extends to later believers who trust the apostolic witness.",
       body: "John writes so readers may believe that Jesus is the Christ, the Son of God, and have life in His name. Faith rests on the witness to the risen Lord. Doubt is not answered by vague comfort, but by the crucified and risen Jesus.",
       observationQuestion: "What confession does Thomas make, and why does John say he wrote these things?",
       reflectionQuestion: "How might Thomas' confession help you bring doubt or hesitation honestly to the risen Jesus?",
@@ -2818,7 +2818,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Hebrews 11:1-6": guidedDevotional({
       title: "Faith and pleasing God",
-      context: "Hebrews describes faith through assurance, conviction, and examples of people who drew near to God.",
+      context: "Hebrews 11 follows a call not to shrink back but to endure by faith. The chapter describes faith through assurance, conviction, and examples of people who trusted God's unseen promise. Faith is not wishful thinking; it is persevering trust in the God who exists and rewards those who seek Him.",
       body: "Faith is assurance and conviction rooted in God's unseen reality. Abel, Enoch, and all who draw near to God show that faith believes He exists and rewards those who seek Him. Faith is relational trust in God Himself.",
       observationQuestion: "How does Hebrews describe faith, and what must those who draw near believe?",
       reflectionQuestion: "What unseen promise of God needs your trust today?",
@@ -2900,7 +2900,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Proverbs 3:5-12": guidedDevotional({
       title: "Trust the Lord",
-      context: "Proverbs 3 joins trust, humility, obedience, generosity, and receiving the Lord's correction.",
+      context: "Proverbs 3 is parental wisdom instruction, not a formula for guaranteed outcomes. Trusting the Lord means relying on Him rather than leaning on unaided human understanding, while acknowledging Him in the whole path. The section also joins guidance with humility, generosity, and fatherly correction.",
       body: "Wisdom is not leaning on your own understanding while asking God to bless your plan. It is trusting the Lord with all your heart, acknowledging Him, and receiving His correction as love. The wise path is relational before it is strategic.",
       observationQuestion: "What does this passage contrast with leaning on your own understanding?",
       reflectionQuestion: "Where are you tempted to trust your own understanding more than the Lord?",
@@ -2970,7 +2970,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Colossians 3:12-17": guidedDevotional({
       title: "Wise community life",
-      context: "Paul describes the life of God's chosen people as they put on compassion, forgiveness, love, peace, gratitude, and the word of Christ.",
+      context: "Paul writes to a church whose life is now hidden with Christ and shaped by the new self. After calling them to put off old practices, he tells God's chosen, holy, beloved people to put on compassion, forgiveness, love, peace, and thankfulness. Wisdom here is communal Christian formation, not only private decision-making.",
       body: "Wisdom is not only private decision-making. It is seen in the way believers bear with one another, forgive, let peace rule, and let Christ's word dwell richly. A wise life is a word-shaped, thankful, love-clothed life among other people.",
       observationQuestion: "What practices does Paul call God's people to put on or let rule among them?",
       reflectionQuestion: "Where does wisdom need to shape your words or relationships today?",
@@ -3084,7 +3084,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Proverbs 3:5-12": guidedDevotional({
       title: "Trust the Lord",
-      context: "Proverbs 3 joins trust, acknowledging the Lord, humility, honouring God, and receiving His correction.",
+      context: "Proverbs 3 is parental wisdom instruction, not a formula for guaranteed outcomes. Trusting the Lord means relying on Him rather than leaning on unaided human understanding, while acknowledging Him in the whole path. The section also joins guidance with humility, honouring God, and fatherly correction.",
       body: "Trusting the Lord is not asking Him to bless a plan already ruled by self-reliance. Wisdom acknowledges Him in the way itself. Even correction is part of His fatherly love, shaping decisions that are less proud and more faithful.",
       observationQuestion: "What does this passage contrast with leaning on your own understanding?",
       reflectionQuestion: "Where are you tempted to trust your own understanding more than the Lord?",
@@ -3114,7 +3114,7 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Colossians 3:12-17": guidedDevotional({
       title: "Wisdom in community",
-      context: "Paul describes the life of God's chosen people through compassion, forgiveness, love, peace, gratitude, and the word of Christ.",
+      context: "Paul writes to a church whose life is now hidden with Christ and shaped by the new self. After calling them to put off old practices, he tells God's chosen, holy, beloved people to put on compassion, forgiveness, love, peace, and thankfulness. The decision-making wisdom here is relational and communal.",
       body: "Many decisions are not made in isolation. Christ's peace, word, and love shape how believers choose together and relate to one another. Wisdom listens for what grows gratitude, forgiveness, truth, and love rather than what merely protects preference.",
       observationQuestion: "What practices does Paul describe for God's people together?",
       reflectionQuestion: "How should love, peace, or gratitude shape the decision before you?",
@@ -3929,7 +3929,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Psalm 46:1-11", "Psalms", 46, "Be still before God", guidedDevotional({
         title: "Be still before the God who reigns",
-        context: "Psalm 46 names trouble, shaking, conflict, and noise, but repeats that God is refuge and present with His people.",
+        context: "Psalm 46 is a Korahite Song of Zion. It names trouble, shaking creation, and raging nations, but repeats that the Lord of hosts is with His people. Prayer learns stillness here by ceasing anxious striving before God's rule, not by pretending the world is already quiet.",
         body: "The command to be still is not denial or passivity. It is a summons to stop striving as if everything rests on you and to know that the Lord is exalted. Prayer can become worship when pressure is brought before the God who reigns.",
         observationQuestion: "What trouble is named, and what is repeated about God?",
         reflectionQuestion: "Where are you carrying pressure as though God is absent or unable to help?",
@@ -3939,7 +3939,7 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = [
       })],
       ["Philippians 4:4-7", "Philippians", 4, "Pray with thanksgiving", guidedDevotional({
         title: "Bring requests with thanksgiving",
-        context: "Paul writes from hardship and calls the church to rejoice, gentleness, prayer, thanksgiving, and peace in Christ.",
+        context: "Paul writes from prison to a beloved church and has just urged Euodia and Syntyche toward unity. He calls the church to rejoice in the Lord, show gentleness, and bring requests to God with thanksgiving. The peace promised is God's guard in Christ, not a reward for perfect calm.",
         body: "Thanksgiving does not pretend needs are small. It remembers God's faithfulness while bringing real requests to Him. The promised peace is God's guard over the heart and mind in Christ, not a reward for perfect calm.",
         observationQuestion: "What does Paul tell believers to do with their requests?",
         reflectionQuestion: "What anxious request can you bring to God with thanksgiving?",

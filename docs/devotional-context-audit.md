@@ -245,6 +245,39 @@ Reference links:
   - Changed fields: None
   - Theological review need: Low
 
+### Larger Book and Overview Batch
+
+- Life of David
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries already avoid "be the hero" moralism and frame David through grace, covenant, repentance, shepherding, and the greater Son of David.
+  - Changed fields: None
+  - Theological review need: Low
+- Life of Moses
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries already handle Passover, Sinai, wilderness provision, leadership failure, and Moses' ending with covenant and Christ-centered care.
+  - Changed fields: None
+  - Theological review need: Low
+- Chronological Bible overview
+  - Verdict: Improved in selected entries
+  - Issue: Joshua 1 and the reused Abraham/David/Servant/Pentecost entries read responsibly. A beginner Genesis 12 prayer was tightened so Abram's covenant promise is not treated as a direct private guarantee.
+  - Changed fields: `prayer` in the beginner-plan Genesis 12 entry reused by overview-style reading.
+  - Theological review need: Low
+- Acts and the Early Church
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries keep Acts tied to the risen Christ, Spirit-empowered witness, Gentile inclusion, grace, suffering, mission, and the Word advancing.
+  - Changed fields: None
+  - Theological review need: Low
+- Paul's Letters Overview
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Existing entries preserve gospel logic, union with Christ, church holiness, conscience, suffering, and practical obedience without reducing Paul's letters to slogans.
+  - Changed fields: None
+  - Theological review need: Low
+- Major Prophets Overview
+  - Verdict: Improved in selected entries
+  - Issue: The prophetic material is generally strong on judgment, restoration, covenant, justice, and Christ-centered hope. Isaiah 43 application was tightened to avoid making an exile/restoration promise sound like a private fill-in-the-blank guarantee. A Daniel action line was also smoothed.
+  - Changed fields: `gentleAction`
+  - Theological review need: Low to medium, because prophetic promise and judgment passages need ongoing care.
+
 ## Pending Full Review
 
 The following areas still need plan-by-plan source-backed review before claiming the whole library has been audited:
@@ -252,12 +285,11 @@ The following areas still need plan-by-plan source-backed review before claiming
 - Long whole-Bible plans and generated chapter-range plans.
 - Old Testament overview plans.
 - New Testament overview plans.
-- Major Prophets Overview.
 - Psalms and Proverbs in 1 Year.
 - New Testament in 1 Year.
 - Bible in 365 Days / chronological / Old-New variants.
 - Medium overview plans with generated or broad devotional entries.
-- All lighter topical plans not listed above.
+- All topical plans not listed above.
 
 ## Editorial Rules To Preserve
 

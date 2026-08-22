@@ -1983,7 +1983,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
     observationQuestion: "What names, actions, and promises reveal God's comfort and greatness?",
     reflectionQuestion: "Which promise do you most need as a weary or fearful person today?",
     prayer: "Lord, renew my strength and help me remember that I am Yours.",
-    gentleAction: "Read Isaiah 43:1 slowly and insert your name as a reminder of belonging.",
+    gentleAction: "Read Isaiah 43:1 slowly as God's covenant comfort, then thank Him for belonging to Him in Christ.",
     studyMethod: "Meditation"
   }),
   "Isaiah 44-47": guidedDevotional({
@@ -2323,7 +2323,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
     observationQuestion: "What do these chapters reveal about rulers, kingdoms, prayer, and God's authority?",
     reflectionQuestion: "What current fear becomes smaller when you remember that earthly kingdoms pass away?",
     prayer: "Ancient of Days, steady my heart under Your everlasting rule.",
-    gentleAction: "Pray Daniel 6:10-like faithfulness into one pressure you face today.",
+    gentleAction: "Pray for Daniel-like faithfulness in one pressure you face today.",
     studyMethod: "Biblical theology"
   }),
   "Daniel 9-12": guidedDevotional({
@@ -2411,7 +2411,7 @@ const psalmsPrayerDevotionals = devotionalEntries([
 
 const beginnerBibleDevotionals = devotionalEntries([
   ["Genesis 1", "The God who creates", "The Bible begins with God, not with us. Genesis 1 shows the Lord creating, ordering, blessing, and making humanity in His image. This gives the whole story its foundation: life belongs to God and is made for His glory.", "How does seeing God as Creator reshape your sense of dignity, purpose, and worship?", "Creator God, teach me to receive life as Your gift and live for Your glory."],
-  ["Genesis 12", "Promise and blessing", "God calls Abram and promises land, offspring, and blessing for the nations. The Bible's story of redemption begins to narrow through one family so blessing can widen to the world.", "How does God's promise to Abram show both personal calling and global mercy?", "Lord, help me trust Your promises and live as a blessing to others."],
+  ["Genesis 12", "Promise and blessing", "God calls Abram and promises land, offspring, and blessing for the nations. The Bible's story of redemption begins to narrow through one family so blessing can widen to the world.", "How does God's promise to Abram show both personal calling and global mercy?", "Lord, help me trust You as the God who keeps promise and blesses the nations in Christ."],
   ["Exodus 3", "The God who sees and sends", "At the burning bush, the Lord reveals His name, hears His people's cries, and sends Moses. Deliverance begins with God's compassion and covenant faithfulness.", "Where do you need to trust that God sees suffering and is able to act?", "Lord, You see and hear. Help me trust Your faithful presence."],
   ["Psalm 23", "The Lord shepherds", "Psalm 23 gives a simple and deep picture of God's personal care. The Lord leads, restores, protects, provides, and brings His people home.", "Which action of the Shepherd do you most need today?", "Lord, shepherd me and keep me close to Your care."],
   ["Isaiah 53", "The suffering Servant", "Isaiah points to the Servant who bears grief, sin, rejection, and judgment for others. Christians see this fulfilled in Jesus' suffering and saving work.", "How does the Servant's suffering deepen your gratitude for God's mercy in Christ?", "Lord Jesus, thank You for bearing sin and bringing peace."],

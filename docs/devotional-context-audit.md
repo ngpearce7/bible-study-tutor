@@ -329,6 +329,19 @@ Reference links:
   - Changed fields: None
   - Theological review need: Low
 
+### Consistency Sweep
+
+- Divine-pronoun preference
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: A targeted scan checked lines where God, Lord, Jesus, Christ, Father, Spirit, Shepherd, King, Lamb, or similar divine titles appear near lowercase `he`, `him`, or `his`. The remaining hits refer to human subjects such as Abram, David, Moses, Peter, Paul, or Solomon, or to quoted/indirect human context.
+  - Changed fields: None
+  - Theological review need: Low
+- Placeholder and generic-risk phrases
+  - Verdict: Reviewed in this pass; no source text changes required
+  - Issue: Checked for known previous problem phrases such as "insert your name," "this chapter is the plan reading," "only verses," and duplicate reference display patterns. No remaining built-in devotional wording required code changes in this pass.
+  - Changed fields: None
+  - Theological review need: Low
+
 ## Pending Full Review
 
 The following areas still need future review before claiming every possible reading experience has been audited:

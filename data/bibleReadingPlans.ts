@@ -23,6 +23,7 @@ export type BibleReadingPlanDay = {
   gentleAction?: string;
   studyMethod?: string;
   careNote?: string;
+  guidanceKind?: "guided-devotional" | "reading-guidance";
 };
 
 export type BibleReadingPlan = {
@@ -109,6 +110,7 @@ type BibleReadingPlanDayExtras = Pick<
   | "gentleAction"
   | "studyMethod"
   | "careNote"
+  | "guidanceKind"
 >;
 
 function buildDay(
@@ -188,6 +190,7 @@ function buildChapterPlanWithReflectionDays(id: string, title: string, descripti
 
 function reflectionDayGuidance(reference: string): BibleReadingPlanDayExtras {
   return {
+    guidanceKind: "reading-guidance",
     context: `This reflection day returns to ${reference} so the passage can settle rather than simply be checked off.`,
     devotional: {
       title: `Return to ${reference}`,
@@ -334,13 +337,15 @@ export function getBibleReadingPlanDetails(plan: BibleReadingPlan) {
 
 function hasCompleteDayPreview(day: BibleReadingPlanDay) {
   return !!(
+    day.guidanceKind === "guided-devotional" &&
     day.context &&
     day.devotional?.title &&
     day.devotional.body &&
     day.observationQuestion &&
     (day.reflectionQuestion || day.reflectionPrompt) &&
     (day.prayer || day.prayerPrompt) &&
-    day.gentleAction
+    day.gentleAction &&
+    day.studyMethod
   );
 }
 
@@ -365,6 +370,7 @@ function devotional(
   extras: Omit<BibleReadingPlanDayExtras, "devotional" | "reflectionPrompt" | "prayerPrompt"> = {}
 ): BibleReadingPlanDayExtras {
   return {
+    guidanceKind: extras.guidanceKind || "guided-devotional",
     ...extras,
     devotional: {
       title,
@@ -2338,8 +2344,8 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   })
 };
 
-function devotionalEntries(entries: Array<[string, string, string, string, string]>): Record<string, BibleReadingPlanDayExtras> {
-  return Object.fromEntries(entries.map(([reference, title, body, reflection, prayer]) => [reference, devotional(title, body, reflection, prayer)]));
+function devotionalEntries(entries: Array<[string, string, string, string, string]>, guidanceKind: BibleReadingPlanDay["guidanceKind"] = "reading-guidance"): Record<string, BibleReadingPlanDayExtras> {
+  return Object.fromEntries(entries.map(([reference, title, body, reflection, prayer]) => [reference, devotional(title, body, reflection, prayer, { guidanceKind })]));
 }
 
 const johnGospelDevotionals = devotionalEntries([
@@ -3720,7 +3726,7 @@ function withCuratedDevotionals(plan: BibleReadingPlan): BibleReadingPlan {
     ...plan,
     days: plan.days.map((day) => ({
       ...day,
-      ...(day.devotional ? {} : curatedDevotionals[day.reference] || {})
+      ...(curatedDevotionals[day.reference] || {})
     }))
   };
 }
@@ -3739,7 +3745,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Beginning ${book}`,
       `${book} belongs to the Torah, where Scripture lays foundations for creation, covenant, rescue, holiness, wilderness faith, and life with the Lord. Read this section slowly, asking how God's character and covenant purposes are being revealed before rushing to application.`,
       `What foundation for knowing the Lord is being laid as ${book} begins?`,
-      "Lord, ground my faith in Your character, Your promises, and Your covenant mercy."
+      "Lord, ground my faith in Your character, Your promises, and Your covenant mercy.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (historicalBookSet.has(book)) {
@@ -3747,7 +3754,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Entering ${book}`,
       `${book} tells part of Israel's lived history with the Lord. Watch for faithfulness and failure, leadership and worship, judgment and mercy. These chapters are not merely examples to imitate or avoid; they show how God's purposes continue through real people and real consequences.`,
       `What does ${book} show about the Lord's faithfulness in the middle of human faithfulness and failure?`,
-      "Lord, teach me to read history with humility, repentance, and trust in Your purposes."
+      "Lord, teach me to read history with humility, repentance, and trust in Your purposes.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (wisdomBookSet.has(book)) {
@@ -3755,7 +3763,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Learning prayer and wisdom in ${book}`,
       `${book} trains the heart as well as the mind. Read for worship, honest prayer, wisdom, limits, longing, and faithful living before God. Let the passage shape what you love, fear, ask, confess, and practice.`,
       `What desire, prayer, or wisdom is ${book} forming in you today?`,
-      "Lord, shape my heart with wisdom, worship, and honest prayer."
+      "Lord, shape my heart with wisdom, worship, and honest prayer.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (prophetBookSet.has(book)) {
@@ -3763,7 +3772,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Listening to ${book}`,
       `${book} speaks into covenant unfaithfulness, injustice, judgment, mercy, and hope. Prophetic books are not mainly prediction puzzles; they call God's people to hear His word, return to Him, and trust His promised restoration.`,
       `What warning, promise, or hope should be heard clearly as ${book} begins?`,
-      "Lord, give me ears to hear Your word with repentance, reverence, and hope."
+      "Lord, give me ears to hear Your word with repentance, reverence, and hope.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (gospelBookSet.has(book)) {
@@ -3771,7 +3781,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Following Jesus in ${book}`,
       `${book} presents the life, teaching, death, and resurrection of Jesus. Read with your eyes on who He is, what He reveals about the Father, how He brings the kingdom, and how He calls people to trust and follow Him.`,
       `What does ${book} reveal about Jesus that should shape your faith today?`,
-      "Lord Jesus, help me see You clearly and follow You faithfully."
+      "Lord Jesus, help me see You clearly and follow You faithfully.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (book === "Acts") {
@@ -3779,7 +3790,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       "The risen Christ at work",
       "Acts shows the risen Jesus continuing His mission by the Spirit through His witnesses. Watch how prayer, courage, suffering, preaching, repentance, and community form the early church as the gospel moves outward.",
       "How does Acts show the Spirit empowering witness to Jesus?",
-      "Risen Lord, make me faithful by Your Spirit in ordinary witness and love."
+      "Risen Lord, make me faithful by Your Spirit in ordinary witness and love.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (paulineBookSet.has(book)) {
@@ -3787,7 +3799,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Reading ${book} as gospel-shaped instruction`,
       `${book} is part of Paul's apostolic teaching for churches and believers. Look for how gospel truth leads into worship, identity, holiness, unity, endurance, and love. Keep grace as the root, not merely behavior as the goal.`,
       `How does ${book} connect what God has done in Christ with how believers now live?`,
-      "Lord, let Your grace take root in my belief, worship, relationships, and obedience."
+      "Lord, let Your grace take root in my belief, worship, relationships, and obedience.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (generalEpistleBookSet.has(book)) {
@@ -3795,7 +3808,8 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       `Receiving ${book}`,
       `${book} helps believers endure, discern truth, love faithfully, and live as God's people. Read for both comfort and correction, remembering that Christian obedience grows from belonging to the Lord.`,
       `What comfort or correction does ${book} bring to faithful discipleship?`,
-      "Lord, strengthen me to receive Your word and live faithfully as one who belongs to You."
+      "Lord, strengthen me to receive Your word and live faithfully as one who belongs to You.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   if (book === "Revelation") {
@@ -3803,14 +3817,16 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
       "The Lamb reigns",
       "Revelation unveils Jesus Christ as the slain and risen Lamb who reigns, judges evil, keeps His people, and brings all things to their appointed end. Read with worship and endurance rather than speculation.",
       "How does Revelation call you to worship, endurance, and hope in Christ?",
-      "Lord Jesus, keep my hope fixed on Your victory and coming renewal."
+      "Lord Jesus, keep my hope fixed on Your victory and coming renewal.",
+      { guidanceKind: "reading-guidance" }
     );
   }
   return devotional(
     `Beginning ${book}`,
     `${book} begins a new section in this reading plan. Pause before moving quickly and ask where this book sits in the wider story of Scripture, what it reveals about God, and how it calls His people to trust, worship, repentance, or obedience.`,
     `What does this new section reveal about the Lord and His purposes?`,
-    "Lord, help me read this section with attention, humility, and faith."
+    "Lord, help me read this section with attention, humility, and faith.",
+    { guidanceKind: "reading-guidance" }
   );
 }
 

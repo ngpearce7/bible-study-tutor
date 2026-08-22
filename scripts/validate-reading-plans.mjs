@@ -50,12 +50,23 @@ const { followBibleReadingPlanState, completeBibleReadingPlanDayState, stopFollo
 
 const errors = [];
 const warnings = [];
-const flagshipPlanIds = new Set([
-  "seven-days-new-believers",
-  "seven-days-prayer",
-  "anxiety-peace",
-  "grief-comfort"
-]);
+const CONTEXT_REVIEW_THRESHOLD = 160;
+const inventory = {
+  builtInPlans: 0,
+  totalDays: 0,
+  guidedDevotionalDays: 0,
+  readingGuidanceDays: 0,
+  unclassifiedGuidanceDays: 0,
+  contextsMissing: 0,
+  contextsBelowThreshold: 0,
+  noticeMissing: 0,
+  reflectMissing: 0,
+  prayMissing: 0,
+  nextStepMissing: 0,
+  studyDeeperMissing: 0,
+  carePlanDaysMissingCareNote: 0,
+  sharedDevotionalCollisionsDetected: 0
+};
 const carePlanIds = new Set(["anxiety-peace", "grief-comfort", "fourteen-days-anxiety-trust", "fourteen-days-grief-comfort"]);
 const generatedSectionGuidancePlanIds = new Set([
   "new-testament-90",
@@ -188,10 +199,29 @@ function dayHasGuidedFields(day) {
 
 function hasCompletePreview(day) {
   return !!(
+    day.guidanceKind === "guided-devotional" &&
+    hasText(day.context) &&
     hasDevotional(day) &&
+    hasText(day.observationQuestion) &&
     (hasText(day.reflectionQuestion) || hasText(day.reflectionPrompt)) &&
-    (hasText(day.prayer) || hasText(day.prayerPrompt))
+    (hasText(day.prayer) || hasText(day.prayerPrompt)) &&
+    hasText(day.gentleAction) &&
+    hasText(day.studyMethod)
   );
+}
+
+function guidanceKindFor(day) {
+  if (day.guidanceKind === "guided-devotional" || day.guidanceKind === "reading-guidance") return day.guidanceKind;
+  if (dayHasGuidedFields(day)) return "unclassified";
+  return "";
+}
+
+function requireGuidedField(plan, day, fieldLabel, value) {
+  if (!hasText(value)) {
+    pushIssue(errors, plan, day, `complete guided devotional missing ${fieldLabel}.`);
+    return true;
+  }
+  return false;
 }
 
 function checkQuestion(collection, plan, day, label, value) {
@@ -252,6 +282,7 @@ function checkPlan(plan) {
   let completePreviewDayCount = 0;
   const usesGeneratedSectionGuidance = generatedSectionGuidancePlanIds.has(plan.id);
   for (const day of plan.days) {
+    inventory.totalDays += 1;
     if (!Number.isInteger(day.day) || day.day < 1) pushIssue(errors, plan, day, "has an invalid day number.");
     if (seenDays.has(day.day)) pushIssue(errors, plan, day, "duplicates another day number.");
     seenDays.add(day.day);
@@ -265,12 +296,35 @@ function checkPlan(plan) {
       pushIssue(warnings, plan, day, "is a reflection day without devotional guidance.");
     }
 
-    if (dayHasGuidedFields(day)) {
-      guidedDayCount += 1;
+    const guidanceKind = guidanceKindFor(day);
+    if (guidanceKind === "guided-devotional") inventory.guidedDevotionalDays += 1;
+    if (guidanceKind === "reading-guidance") inventory.readingGuidanceDays += 1;
+    if (guidanceKind === "unclassified") {
+      inventory.unclassifiedGuidanceDays += 1;
+      pushIssue(errors, plan, day, "has devotional/guidance fields but no explicit guidanceKind.");
+    }
+
+    if (guidanceKind && !hasText(day.context)) inventory.contextsMissing += 1;
+    if (guidanceKind && hasText(day.context) && String(day.context).trim().length < CONTEXT_REVIEW_THRESHOLD) inventory.contextsBelowThreshold += 1;
+
+    if (guidanceKind === "guided-devotional") {
+      if (requireGuidedField(plan, day, "Context", day.context)) inventory.contextsMissing += 0;
+      if (!hasDevotional(day)) pushIssue(errors, plan, day, "complete guided devotional missing devotional title/body.");
+      if (requireGuidedField(plan, day, "Notice", day.observationQuestion)) inventory.noticeMissing += 1;
+      if (requireGuidedField(plan, day, "Reflect", day.reflectionQuestion || day.reflectionPrompt)) inventory.reflectMissing += 1;
+      if (requireGuidedField(plan, day, "Pray", day.prayer || day.prayerPrompt)) inventory.prayMissing += 1;
+      if (requireGuidedField(plan, day, "Next step", day.gentleAction)) inventory.nextStepMissing += 1;
+      if (requireGuidedField(plan, day, "Study deeper", day.studyMethod)) inventory.studyDeeperMissing += 1;
+    }
+
+    if (guidanceKind === "reading-guidance" && hasCompletePreview(day)) {
+      pushIssue(errors, plan, day, "reading guidance should not be treated as a complete guided devotional preview.");
+    }
+
+    if (guidanceKind && dayHasGuidedFields(day)) {
+      if (guidanceKind === "guided-devotional") guidedDayCount += 1;
       if (hasCompletePreview(day)) completePreviewDayCount += 1;
       if (day.devotional && !hasDevotional(day)) pushIssue(errors, plan, day, "has incomplete devotional title/body.");
-      if (hasDevotional(day) && !hasText(day.reflectionQuestion) && !hasText(day.reflectionPrompt)) pushIssue(errors, plan, day, "devotional day missing reflection question.");
-      if (hasDevotional(day) && !hasText(day.prayer) && !hasText(day.prayerPrompt)) pushIssue(errors, plan, day, "devotional day missing prayer.");
       checkEditorialWarnings(plan, day);
     }
 
@@ -292,17 +346,8 @@ function checkPlan(plan) {
       }
     }
 
-    if (flagshipPlanIds.has(plan.id)) {
-      if (!hasText(day.context)) pushIssue(errors, plan, day, "flagship day missing context.");
-      if (!hasDevotional(day)) pushIssue(errors, plan, day, "flagship day missing devotional title/body.");
-      if (!hasText(day.observationQuestion)) pushIssue(errors, plan, day, "flagship day missing observation question.");
-      if (!hasText(day.reflectionQuestion) && !hasText(day.reflectionPrompt)) pushIssue(errors, plan, day, "flagship day missing reflection question.");
-      if (!hasText(day.prayer) && !hasText(day.prayerPrompt)) pushIssue(errors, plan, day, "flagship day missing prayer.");
-      if (!hasText(day.gentleAction)) pushIssue(errors, plan, day, "flagship day missing gentle action.");
-      if (!hasText(day.studyMethod)) pushIssue(errors, plan, day, "flagship day missing study method.");
-    }
-
     if (carePlanIds.has(plan.id) && !hasText(day.careNote)) {
+      inventory.carePlanDaysMissingCareNote += 1;
       pushIssue(warnings, plan, day, "care plan day does not include a pastoral care note.");
     }
   }
@@ -365,8 +410,8 @@ function checkPreviewAndPlanActions() {
   }
 
   for (const plan of bibleReadingPlans) {
-    const hasGuidance = plan.days.some(dayHasGuidedFields);
-    if (!hasGuidance) continue;
+    const hasGuidedDevotional = plan.days.some((day) => day.guidanceKind === "guided-devotional");
+    if (!hasGuidedDevotional) continue;
     const previewDay = getBibleReadingPlanDetails(plan).previewDay;
     if (!previewDay || !hasCompletePreview(previewDay)) {
       pushIssue(errors, plan, null, "devotional plan does not expose a complete day preview.");
@@ -423,9 +468,63 @@ function checkPreviewAndPlanActions() {
   }
 }
 
+function planById(id) {
+  return bibleReadingPlans.find((plan) => plan.id === id);
+}
+
+function dayByNumber(plan, dayNumber) {
+  return plan?.days.find((day) => day.day === dayNumber);
+}
+
+function checkPsalm46MergeRegression() {
+  const anxietyPlan = planById("fourteen-days-anxiety-trust");
+  const anxietyDay = dayByNumber(anxietyPlan, 3);
+  if (!anxietyPlan || !anxietyDay) {
+    errors.push("Regression: Anxiety and Trust day 3 could not be found.");
+    return;
+  }
+  const expectedAnxietyFields = [
+    ["Context", anxietyDay.context],
+    ["Devotional title", anxietyDay.devotional?.title],
+    ["Devotional body", anxietyDay.devotional?.body],
+    ["Notice", anxietyDay.observationQuestion],
+    ["Reflect", anxietyDay.reflectionQuestion || anxietyDay.reflectionPrompt],
+    ["Pray", anxietyDay.prayer || anxietyDay.prayerPrompt],
+    ["Next step", anxietyDay.gentleAction],
+    ["Study deeper", anxietyDay.studyMethod],
+    ["Care note", anxietyDay.careNote]
+  ];
+  for (const [label, value] of expectedAnxietyFields) {
+    if (!hasText(value)) errors.push(`Regression: Anxiety and Trust day 3 missing ${label}.`);
+  }
+  if (anxietyDay.reference !== "Psalm 46:1-11" || anxietyDay.readerBook !== "Psalms" || anxietyDay.readerChapter !== 46) {
+    errors.push("Regression: Anxiety and Trust day 3 lost its base Psalm 46 reader/reference fields.");
+  }
+  if (anxietyDay.devotional?.title !== "God is refuge and ruler") {
+    errors.push("Regression: Anxiety and Trust day 3 did not receive the plan-specific Psalm 46 devotional override.");
+  }
+  if (!normalized(anxietyDay.context).includes("song of zion") || !normalized(anxietyDay.context).includes("nations")) {
+    errors.push("Regression: Anxiety and Trust Psalm 46 context is missing Zion/nations interpretive framing.");
+  }
+
+  const griefPlan = planById("fourteen-days-grief-comfort");
+  const griefDay = griefPlan?.days.find((day) => day.reference === "Psalm 46:1-7");
+  if (!griefPlan || !griefDay) {
+    errors.push("Regression: Grief and Comfort Psalm 46 reading could not be found.");
+    return;
+  }
+  if (!hasText(griefDay.context) || !hasDevotional(griefDay) || !hasText(griefDay.careNote)) {
+    errors.push("Regression: Grief and Comfort Psalm 46 should retain complete curated guidance and care note.");
+  }
+  if (griefDay.reference !== "Psalm 46:1-7" || griefDay.readerBook !== "Psalms" || griefDay.readerChapter !== 46) {
+    errors.push("Regression: Grief and Comfort Psalm 46 lost base reader/reference fields.");
+  }
+}
+
 const seenIds = new Set();
 const devotionalBodiesByText = new Map();
 for (const plan of bibleReadingPlans) {
+  inventory.builtInPlans += 1;
   if (seenIds.has(plan.id)) errors.push(`${plan.id}: duplicate plan id.`);
   seenIds.add(plan.id);
   checkPlan(plan);
@@ -435,15 +534,32 @@ for (const plan of bibleReadingPlans) {
     if (!body || body.length < 80) continue;
     const existing = devotionalBodiesByText.get(body);
     if (existing && existing.planId !== plan.id && !intentionalDevotionalReusePlanIds.has(existing.planId)) {
+      inventory.sharedDevotionalCollisionsDetected += 1;
       pushIssue(warnings, plan, day, `devotional body matches ${existing.planId} day ${existing.day}.`);
     } else {
       devotionalBodiesByText.set(body, { planId: plan.id, day: day.day });
     }
   }
 }
+checkPsalm46MergeRegression();
 checkPreviewAndPlanActions();
 
 console.log(`Checked ${bibleReadingPlans.length} Bible reading plans.`);
+console.log("\nRuntime inventory:");
+console.log(`- Built-in plans: ${inventory.builtInPlans}`);
+console.log(`- Total reading-plan days: ${inventory.totalDays}`);
+console.log(`- Complete guided devotional days: ${inventory.guidedDevotionalDays}`);
+console.log(`- Generated/reading-guidance days: ${inventory.readingGuidanceDays}`);
+console.log(`- Unclassified guidance days: ${inventory.unclassifiedGuidanceDays}`);
+console.log(`- Contexts missing: ${inventory.contextsMissing}`);
+console.log(`- Contexts below ${CONTEXT_REVIEW_THRESHOLD} characters: ${inventory.contextsBelowThreshold}`);
+console.log(`- Missing Notice fields: ${inventory.noticeMissing}`);
+console.log(`- Missing Reflect fields: ${inventory.reflectMissing}`);
+console.log(`- Missing Pray fields: ${inventory.prayMissing}`);
+console.log(`- Missing Next-step fields: ${inventory.nextStepMissing}`);
+console.log(`- Missing Study-deeper fields: ${inventory.studyDeeperMissing}`);
+console.log(`- Care-plan days missing approved care notes: ${inventory.carePlanDaysMissingCareNote}`);
+console.log(`- Shared-devotional collisions detected: ${inventory.sharedDevotionalCollisionsDetected}`);
 
 if (warnings.length) {
   console.log(`\nWarnings (${warnings.length}):`);

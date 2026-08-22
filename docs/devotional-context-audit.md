@@ -9,10 +9,18 @@ This audit covers the built-in Bible reading-plan devotional material in `data/b
 Current inventory:
 
 - Built-in reading plans: 48
-- Plan days with devotional or devotional-adjacent material: approximately 1,180
+- Total reading-plan days: 2,980
+- Complete guided devotional days: 366
+- Generated/reading-guidance days: 814
+- Unclassified guidance days: 0
+- Contexts missing from guidance-bearing days: 525
+- Contexts below the 160-character review threshold: 608
+- Missing Notice / Reflect / Pray / Next step / Study deeper fields from complete guided devotional days: 0
+- Care-plan days missing approved care notes: 0
+- Shared-devotional collisions detected by the runtime validator: 0
 - This pass completed a focused theological/context audit for the highest-risk passages named in the review brief, especially anxiety, peace, grief, and comfort passages that are easy to overgeneralize.
 
-Because the full library is large, this document distinguishes between reviewed entries and pending entries. Anything not listed under "Reviewed in this pass" should be treated as pending a full source-backed editorial review.
+The current validator distinguishes complete guided devotionals from lighter generated reading guidance. Because the full library is large, this document distinguishes between reviewed entries and pending entries. Anything not listed under "Reviewed in this pass" should be treated as pending a full source-backed editorial review.
 
 ## Source Approach
 
@@ -346,6 +354,7 @@ Reference links:
 
 The following areas still need future review before claiming every possible reading experience has been audited:
 
+- 525 guidance-bearing days currently have no context field, and 608 have context below the 160-character review threshold. These are now classified as generated/reading guidance rather than complete guided devotionals, so they are no longer miscounted as fully reviewed devotional previews.
 - Future unique devotional writing for long whole-Bible plans, if those plans ever move beyond generated book-section guidance.
 - Future custom plans created by users, which are outside built-in editorial control.
 

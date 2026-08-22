@@ -32,6 +32,7 @@ type BibleReaderPassageProps = {
   matchesActiveReadingPlanDay: boolean;
   activeReadingPlanDay?: {
     reference: string;
+    guidanceKind?: "guided-devotional" | "reading-guidance";
     context?: string;
     devotional?: {
       title: string;
@@ -310,7 +311,9 @@ export function BibleReaderPassage({
                   {!!activeReadingPlanDay.context && (
                     <View style={styles.planDayPromptRow}>
                       <View style={styles.planDayPromptHeaderRow}>
-                        <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+                        <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>
+                          {activeReadingPlanDay.guidanceKind === "reading-guidance" ? "Reading guidance" : "Context"}
+                        </Text>
                         {devotionalTextSizeControl}
                       </View>
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>

@@ -52,6 +52,8 @@ type BibleReaderPassageProps = {
   activeReadingPlanDayCompleted?: boolean;
   devotionalTextSize?: DevotionalTextSize;
   onDevotionalTextSizeChange?: (size: DevotionalTextSize) => void;
+  onAcknowledgeCareNote?: (careNote: string) => void;
+  shouldShowCareNote?: (careNote?: string) => boolean;
   planReadingMode?: boolean;
   planReadingCanMovePrevious?: boolean;
   planReadingCanMoveNext?: boolean;
@@ -100,6 +102,8 @@ export function BibleReaderPassage({
   activeReadingPlanDayCompleted,
   devotionalTextSize = "normal",
   onDevotionalTextSizeChange,
+  onAcknowledgeCareNote,
+  shouldShowCareNote,
   planReadingMode,
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
@@ -147,6 +151,10 @@ export function BibleReaderPassage({
 
   const planReadingHasMultipleParts = !!planReadingMode && (!!planReadingCanMovePrevious || !!planReadingCanMoveNext || !!planReadingChunkLabel);
   const showExitPlanReadingButton = !!planReadingMode;
+  const visibleActiveCareNote =
+    activeReadingPlanDay?.careNote && (shouldShowCareNote ? shouldShowCareNote(activeReadingPlanDay.careNote) : true)
+      ? activeReadingPlanDay.careNote
+      : "";
   const exitPlanReadingLabel = phoneLayout ? "Cancel" : "Cancel reading";
   const exitPlanReadingAccessibilityLabel = "Cancel focused plan reading";
   const activeReadingPlanLabel = activeReadingPlanDay
@@ -301,7 +309,7 @@ export function BibleReaderPassage({
                   ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                   : ""}
               </Text>
-              {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.careNote) && (
+              {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || visibleActiveCareNote) && (
                 <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
                   {!activeReadingPlanDay.context && (
                     <View style={styles.planDayDevotionalToolbar}>
@@ -360,10 +368,21 @@ export function BibleReaderPassage({
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
                     </View>
                   )}
-                  {!!activeReadingPlanDay.careNote && (
+                  {!!visibleActiveCareNote && (
                     <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.careNote}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{visibleActiveCareNote}</Text>
+                      {!!onAcknowledgeCareNote && (
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel="Acknowledge this care note"
+                          onPress={() => onAcknowledgeCareNote(visibleActiveCareNote)}
+                          style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
+                        >
+                          <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                          <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
+                        </Pressable>
+                      )}
                     </View>
                   )}
                 </View>

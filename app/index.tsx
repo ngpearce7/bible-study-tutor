@@ -5,7 +5,7 @@ import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, cr
 import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
-import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
+import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
@@ -949,6 +949,7 @@ export default function Home() {
   const [customBibleReadingPlans, setCustomBibleReadingPlans] = useState<BibleReadingPlan[]>([]);
   const [bibleReadingPlanStartDates, setBibleReadingPlanStartDates] = useState<Record<string, string>>({});
   const [bibleReadingPlanCompletionDates, setBibleReadingPlanCompletionDates] = useState<Record<string, string>>({});
+  const [acknowledgedBibleReadingCareNotes, setAcknowledgedBibleReadingCareNotes] = useState<string[]>([]);
   const [storedBibleReadingPlanProgress, setStoredBibleReadingPlanProgress] = useState<StoredBibleReadingPlanProgress | null>(null);
   const [storedBibleReadingPlanProgressHydrated, setStoredBibleReadingPlanProgressHydrated] = useState(false);
   const [devotionalTextSize, setDevotionalTextSize] = useState<DevotionalTextSize>("normal");
@@ -1273,9 +1274,11 @@ export default function Home() {
           const normalizedCompletedDays = normalizedProgress.completedDays;
           const normalizedStartDates = normalizedProgress.startDates || {};
           const normalizedCompletionDates = normalizedProgress.completedPlanDates || {};
+          const normalizedAcknowledgedCareNotes = normalizedProgress.acknowledgedCareNotes || [];
           setCustomBibleReadingPlans(storedPlans);
           setFollowedBibleReadingPlanIds(normalizedFollowedPlanIds);
           setBibleReadingPlanCompletionDates(normalizedCompletionDates);
+          setAcknowledgedBibleReadingCareNotes(normalizedAcknowledgedCareNotes);
           if (availablePlans.some((plan) => plan.id === normalizedActivePlanId)) {
             const backfilledStartDates = normalizedFollowedPlanIds.reduce<Record<string, string>>((dates, planId) => {
               if (!dates[planId]) dates[planId] = localDateKey();
@@ -1291,6 +1294,7 @@ export default function Home() {
                 customPlans: storedPlans,
                 startDates: backfilledStartDates,
                 completedPlanDates: normalizedCompletionDates,
+                acknowledgedCareNotes: normalizedAcknowledgedCareNotes,
                 updatedAt: normalizedProgress.updatedAt || Date.now()
               }).catch(() => undefined);
             }
@@ -2523,6 +2527,7 @@ export default function Home() {
       setCustomBibleReadingPlans(progress.customPlans);
       setBibleReadingPlanStartDates(progress.startDates || {});
       setBibleReadingPlanCompletionDates(progress.completedPlanDates || {});
+      setAcknowledgedBibleReadingCareNotes(progress.acknowledgedCareNotes || []);
       saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
       setStoredBibleReadingPlanProgress(progress);
     } else {
@@ -5383,13 +5388,39 @@ export default function Home() {
     customPlans = customBibleReadingPlans,
     startDates = bibleReadingPlanStartDates,
     followedPlanIds = followedBibleReadingPlanIds,
-    completedPlanDates = bibleReadingPlanCompletionDates
+    completedPlanDates = bibleReadingPlanCompletionDates,
+    acknowledgedCareNotes = acknowledgedBibleReadingCareNotes
   ) {
-    const progress = currentBibleReadingPlanProgress(activePlanId, completedDays, customPlans, startDates, followedPlanIds, completedPlanDates);
+    const progress = currentBibleReadingPlanProgress(activePlanId, completedDays, customPlans, startDates, followedPlanIds, completedPlanDates, acknowledgedCareNotes);
     setStoredBibleReadingPlanProgress(progress);
     setStoredBibleReadingPlanProgressHydrated(true);
     saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
     persistBibleReaderState({ readingPlanProgress: progress });
+  }
+
+  function shouldShowBibleReadingCareNote(careNote?: string) {
+    if (!careNote) return false;
+    const key = bibleReadingCareNoteKey(careNote);
+    return !!key && !acknowledgedBibleReadingCareNotes.includes(key);
+  }
+
+  function acknowledgeBibleReadingCareNote(careNote: string) {
+    const key = bibleReadingCareNoteKey(careNote);
+    if (!key) return;
+    setAcknowledgedBibleReadingCareNotes((current) => {
+      if (current.includes(key)) return current;
+      const next = [...current, key].slice(-20);
+      persistBibleReadingPlanProgress(
+        selectedBibleReadingPlanId || activeBibleReadingPlanId,
+        completedBibleReadingPlanDays,
+        customBibleReadingPlans,
+        bibleReadingPlanStartDates,
+        followedBibleReadingPlanIds,
+        bibleReadingPlanCompletionDates,
+        next
+      );
+      return next;
+    });
   }
 
   function selectBibleReadingPlan(planId: string) {
@@ -6375,7 +6406,8 @@ export default function Home() {
     customPlans = customBibleReadingPlans,
     startDates = bibleReadingPlanStartDates,
     followedPlanIds = followedBibleReadingPlanIds,
-    completedPlanDates = bibleReadingPlanCompletionDates
+    completedPlanDates = bibleReadingPlanCompletionDates,
+    acknowledgedCareNotes = acknowledgedBibleReadingCareNotes
   ): StoredBibleReadingPlanProgress {
     return normalizeBibleReadingPlanProgress({
       activePlanId,
@@ -6384,6 +6416,7 @@ export default function Home() {
       customPlans,
       startDates,
       completedPlanDates,
+      acknowledgedCareNotes,
       updatedAt: Date.now()
     }) || { ...emptyBibleReadingPlanProgress(), updatedAt: Date.now() };
   }
@@ -6702,7 +6735,8 @@ export default function Home() {
   };
 
   const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean) => {
-    if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !planDay.careNote) return null;
+    const visibleCareNote = shouldShowBibleReadingCareNote(planDay.careNote) ? planDay.careNote : "";
+    if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !visibleCareNote) return null;
     const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
 
     return (
@@ -6762,10 +6796,19 @@ export default function Home() {
             <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
           </View>
         )}
-        {!!planDay.careNote && (
+        {!!visibleCareNote && (
           <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.careNote}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{visibleCareNote}</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Acknowledge this care note"
+              onPress={() => acknowledgeBibleReadingCareNote(visibleCareNote)}
+              style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
+            >
+              <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
+            </Pressable>
           </View>
         )}
       </View>
@@ -8249,6 +8292,8 @@ export default function Home() {
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
               devotionalTextSize={devotionalTextSize}
               onDevotionalTextSizeChange={setRememberedDevotionalTextSize}
+              onAcknowledgeCareNote={acknowledgeBibleReadingCareNote}
+              shouldShowCareNote={shouldShowBibleReadingCareNote}
               planReadingMode={readerPlanReadingActive}
               planReadingCanMovePrevious={readerPlanCanMovePrevious}
               planReadingCanMoveNext={readerPlanCanMoveNext}
@@ -8684,11 +8729,22 @@ export default function Home() {
                                       ["Pray", planDetails.previewDay.prayer || planDetails.previewDay.prayerPrompt],
                                       ["Next step", planDetails.previewDay.gentleAction],
                                       ["Study deeper", planDetails.previewDay.studyMethod],
-                                      ["Care note", planDetails.previewDay.careNote]
+                                      ["Care note", shouldShowBibleReadingCareNote(planDetails.previewDay.careNote) ? planDetails.previewDay.careNote : ""]
                                     ].filter(([, value]) => !!value).map(([label, value]) => (
                                       <View key={label} style={[styles.planPreviewSection, label === "Care note" && styles.planDayCareNoteBox, label === "Care note" && plansDarkMode && styles.planDayCareNoteBoxDark]}>
                                         <Text style={[styles.planDetailLabel, plansDarkMode && styles.studyDarkAccentText]}>{label}</Text>
                                         <Text style={[styles.planDetailText, plansDarkMode && styles.accountDarkMutedText]}>{value}</Text>
+                                        {label === "Care note" ? (
+                                          <Pressable
+                                            accessibilityRole="button"
+                                            accessibilityLabel="Acknowledge this care note"
+                                            onPress={() => acknowledgeBibleReadingCareNote(String(value))}
+                                            style={[styles.careNoteAcknowledgeButton, plansDarkMode && styles.homeDarkResumeButton]}
+                                          >
+                                            <Ionicons name="checkmark-circle-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                            <Text style={[styles.careNoteAcknowledgeText, plansDarkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
+                                          </Pressable>
+                                        ) : null}
                                       </View>
                                     ))}
                                   </View>
@@ -19393,6 +19449,23 @@ const styles = StyleSheet.create({
   planDayCareNoteBoxDark: {
     backgroundColor: "rgba(233, 183, 106, 0.08)",
     borderColor: "rgba(233, 183, 106, 0.24)"
+  },
+  careNoteAcknowledgeButton: {
+    alignItems: "center",
+    alignSelf: "flex-start",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 5,
+    marginTop: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6
+  },
+  careNoteAcknowledgeText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "900"
   },
   planDayPromptLabel: {
     color: colors.coral,

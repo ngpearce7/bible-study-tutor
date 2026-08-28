@@ -6,6 +6,7 @@ export const MAX_STORED_BIBLE_READING_PLAN_IDS = 60;
 export const MAX_CUSTOM_BIBLE_READING_PLANS = 30;
 export const MAX_CUSTOM_BIBLE_READING_PLAN_DAYS = 400;
 export const MAX_COMPLETED_BIBLE_READING_PLAN_DAYS = 5000;
+export const MAX_ACKNOWLEDGED_BIBLE_READING_CARE_NOTES = 20;
 
 export type StoredBibleReadingPlanProgress = {
   activePlanId: string;
@@ -14,6 +15,7 @@ export type StoredBibleReadingPlanProgress = {
   customPlans: BibleReadingPlan[];
   startDates?: Record<string, string>;
   completedPlanDates?: Record<string, string>;
+  acknowledgedCareNotes?: string[];
   updatedAt?: number;
 };
 
@@ -22,7 +24,11 @@ export function bibleReadingPlanDayKey(planId: string, day: number) {
 }
 
 export function emptyBibleReadingPlanProgress(): StoredBibleReadingPlanProgress {
-  return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {}, completedPlanDates: {} };
+  return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {}, completedPlanDates: {}, acknowledgedCareNotes: [] };
+}
+
+export function bibleReadingCareNoteKey(careNote: string) {
+  return careNote.trim().replace(/\s+/g, " ").toLowerCase().slice(0, 220);
 }
 
 export function normalizeBibleReadingPlanId(planId: string) {
@@ -87,6 +93,13 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
         return map;
       }, {})
     : {};
+  const acknowledgedCareNotes = Array.from(new Set(
+    Array.isArray(source.acknowledgedCareNotes)
+      ? source.acknowledgedCareNotes
+          .map((key) => bibleReadingCareNoteKey(String(key)))
+          .filter(Boolean)
+      : []
+  )).slice(0, MAX_ACKNOWLEDGED_BIBLE_READING_CARE_NOTES);
   const normalized: StoredBibleReadingPlanProgress = {
     activePlanId: normalizedActivePlanId,
     followedPlanIds: normalizedFollowedPlanIds,
@@ -94,6 +107,7 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
     customPlans,
     startDates,
     completedPlanDates,
+    acknowledgedCareNotes,
     updatedAt: Number.isFinite(Number(source.updatedAt)) ? Number(source.updatedAt) : Date.now()
   };
   return hasBibleReadingPlanProgress(normalized) ? normalized : null;
@@ -106,7 +120,8 @@ export function hasBibleReadingPlanProgress(progress?: StoredBibleReadingPlanPro
     progress?.completedDays.length ||
     progress?.customPlans.length ||
     Object.keys(progress?.startDates || {}).length ||
-    Object.keys(progress?.completedPlanDates || {}).length
+    Object.keys(progress?.completedPlanDates || {}).length ||
+    !!progress?.acknowledgedCareNotes?.length
   );
 }
 

@@ -244,6 +244,7 @@ export const saveBibleReaderState = mutation({
         })),
         startDates: v.optional(v.record(v.string(), v.string())),
         completedPlanDates: v.optional(v.record(v.string(), v.string())),
+        acknowledgedCareNotes: v.optional(v.array(v.string())),
         updatedAt: v.optional(v.number())
       }))
     })
@@ -601,6 +602,7 @@ function cleanBibleReaderState(state: {
     }>;
     startDates?: Record<string, string>;
     completedPlanDates?: Record<string, string>;
+    acknowledgedCareNotes?: string[];
     updatedAt?: number;
   };
 }) {
@@ -717,6 +719,10 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
       if (cleanPlanId && /^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) map[cleanPlanId] = cleanDate;
       return map;
     }, {});
+  const acknowledgedCareNotes = Array.from(new Set((progress.acknowledgedCareNotes || [])
+    .map((key) => clampText(key, 220).trim().toLowerCase())
+    .filter(Boolean)))
+    .slice(0, 20);
 
   return {
     activePlanId: normalizedActivePlanId,
@@ -725,6 +731,7 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
     customPlans,
     startDates,
     completedPlanDates,
+    acknowledgedCareNotes,
     updatedAt: Number.isFinite(Number(progress.updatedAt)) ? Math.max(0, Number(progress.updatedAt)) : Date.now()
   };
 }

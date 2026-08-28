@@ -242,8 +242,7 @@ export function BibleReaderPassage({
                   styles.readerVerseRow,
                   phoneLayout && styles.phoneReaderVerseRow,
                   darkMode && styles.bibleDarkVerseRow,
-                  selected && styles.selectedReaderVerseRow,
-                  phoneLayout && selected && styles.phoneSelectedReaderVerseRow
+                  selected && styles.selectedReaderVerseRow
                 ]}
               >
                 <Text style={[styles.readerVerseNumber, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>

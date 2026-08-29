@@ -244,6 +244,7 @@ export const saveBibleReaderState = mutation({
         })),
         startDates: v.optional(v.record(v.string(), v.string())),
         completedPlanDates: v.optional(v.record(v.string(), v.string())),
+        completionCounts: v.optional(v.record(v.string(), v.number())),
         acknowledgedCareNotes: v.optional(v.array(v.string())),
         updatedAt: v.optional(v.number())
       }))
@@ -602,6 +603,7 @@ function cleanBibleReaderState(state: {
     }>;
     startDates?: Record<string, string>;
     completedPlanDates?: Record<string, string>;
+    completionCounts?: Record<string, number>;
     acknowledgedCareNotes?: string[];
     updatedAt?: number;
   };
@@ -719,6 +721,17 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
       if (cleanPlanId && /^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) map[cleanPlanId] = cleanDate;
       return map;
     }, {});
+  const completionCounts = Object.entries(progress.completionCounts || {})
+    .slice(0, 60)
+    .reduce<Record<string, number>>((map, [planId, count]) => {
+      const cleanPlanId = clampText(planId, 80);
+      const cleanCount = Math.max(0, Math.min(999, Math.round(Number(count) || 0)));
+      if (cleanPlanId && cleanCount > 0) map[cleanPlanId] = cleanCount;
+      return map;
+    }, {});
+  Object.keys(completedPlanDates).forEach((planId) => {
+    if (!completionCounts[planId]) completionCounts[planId] = 1;
+  });
   const acknowledgedCareNotes = Array.from(new Set((progress.acknowledgedCareNotes || [])
     .map((key) => clampText(key, 220).trim().toLowerCase())
     .filter(Boolean)))
@@ -731,6 +744,7 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
     customPlans,
     startDates,
     completedPlanDates,
+    completionCounts,
     acknowledgedCareNotes,
     updatedAt: Number.isFinite(Number(progress.updatedAt)) ? Math.max(0, Number(progress.updatedAt)) : Date.now()
   };

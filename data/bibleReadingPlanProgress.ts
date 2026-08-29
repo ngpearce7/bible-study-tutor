@@ -7,6 +7,7 @@ export const MAX_CUSTOM_BIBLE_READING_PLANS = 30;
 export const MAX_CUSTOM_BIBLE_READING_PLAN_DAYS = 400;
 export const MAX_COMPLETED_BIBLE_READING_PLAN_DAYS = 5000;
 export const MAX_ACKNOWLEDGED_BIBLE_READING_CARE_NOTES = 20;
+export const MAX_BIBLE_READING_PLAN_COMPLETION_COUNT = 999;
 
 export type StoredBibleReadingPlanProgress = {
   activePlanId: string;
@@ -15,6 +16,7 @@ export type StoredBibleReadingPlanProgress = {
   customPlans: BibleReadingPlan[];
   startDates?: Record<string, string>;
   completedPlanDates?: Record<string, string>;
+  completionCounts?: Record<string, number>;
   acknowledgedCareNotes?: string[];
   updatedAt?: number;
 };
@@ -24,7 +26,7 @@ export function bibleReadingPlanDayKey(planId: string, day: number) {
 }
 
 export function emptyBibleReadingPlanProgress(): StoredBibleReadingPlanProgress {
-  return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {}, completedPlanDates: {}, acknowledgedCareNotes: [] };
+  return { activePlanId: "", followedPlanIds: [], completedDays: [], customPlans: [], startDates: {}, completedPlanDates: {}, completionCounts: {}, acknowledgedCareNotes: [] };
 }
 
 export function bibleReadingCareNoteKey(careNote: string) {
@@ -93,6 +95,17 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
         return map;
       }, {})
     : {};
+  const completionCounts = source.completionCounts && typeof source.completionCounts === "object" && !Array.isArray(source.completionCounts)
+    ? Object.entries(source.completionCounts).slice(0, 60).reduce<Record<string, number>>((map, [planId, count]) => {
+        const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
+        const normalizedCount = Math.max(0, Math.min(MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, Math.round(Number(count) || 0)));
+        if (normalizedPlanId && validPlanIds.has(normalizedPlanId) && normalizedCount > 0) map[normalizedPlanId] = normalizedCount;
+        return map;
+      }, {})
+    : {};
+  Object.keys(completedPlanDates).forEach((planId) => {
+    if (!completionCounts[planId]) completionCounts[planId] = 1;
+  });
   const acknowledgedCareNotes = Array.from(new Set(
     Array.isArray(source.acknowledgedCareNotes)
       ? source.acknowledgedCareNotes
@@ -107,6 +120,7 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
     customPlans,
     startDates,
     completedPlanDates,
+    completionCounts,
     acknowledgedCareNotes,
     updatedAt: Number.isFinite(Number(source.updatedAt)) ? Number(source.updatedAt) : Date.now()
   };
@@ -121,6 +135,7 @@ export function hasBibleReadingPlanProgress(progress?: StoredBibleReadingPlanPro
     progress?.customPlans.length ||
     Object.keys(progress?.startDates || {}).length ||
     Object.keys(progress?.completedPlanDates || {}).length ||
+    Object.keys(progress?.completionCounts || {}).length ||
     !!progress?.acknowledgedCareNotes?.length
   );
 }

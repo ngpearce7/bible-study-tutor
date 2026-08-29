@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import {
   MAX_ACKNOWLEDGED_BIBLE_READING_CARE_NOTES,
+  MAX_BIBLE_READING_PLAN_COMPLETION_COUNT,
   MAX_CUSTOM_BIBLE_READING_PLANS,
   MAX_STORED_BIBLE_READING_PLAN_IDS,
   emptyBibleReadingPlanProgress,
@@ -169,6 +170,11 @@ export async function saveStoredBibleReadingPlanProgress(progress: StoredBibleRe
     customPlans: progress.customPlans.slice(0, MAX_CUSTOM_BIBLE_READING_PLANS),
     startDates: progress.startDates || {},
     completedPlanDates: progress.completedPlanDates || {},
+    completionCounts: Object.entries(progress.completionCounts || {}).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS).reduce<Record<string, number>>((map, [planId, count]) => {
+      const normalizedCount = Math.max(0, Math.min(MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, Math.round(Number(count) || 0)));
+      if (planId && normalizedCount > 0) map[planId] = normalizedCount;
+      return map;
+    }, {}),
     acknowledgedCareNotes: Array.from(new Set(progress.acknowledgedCareNotes || [])).slice(0, MAX_ACKNOWLEDGED_BIBLE_READING_CARE_NOTES),
     updatedAt: progress.updatedAt || Date.now()
   }));

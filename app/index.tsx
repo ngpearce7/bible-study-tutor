@@ -5,7 +5,7 @@ import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, cr
 import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
-import { MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
+import { MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
@@ -649,6 +649,13 @@ function formatPlanDayRelativeDate(dateKey: string) {
   return formatPlanDayDate(dateKey);
 }
 
+function formatBibleReadingPlanCompletionCount(count: number) {
+  const normalized = Math.max(0, Math.round(Number(count) || 0));
+  if (normalized <= 1) return "Completed once";
+  if (normalized === 2) return "Completed twice";
+  return `Completed ${normalized} times`;
+}
+
 export default function Home() {
   const { width, height } = useWindowDimensions();
   const ensureProfile = useMutation(api.study.ensureProfile);
@@ -949,6 +956,7 @@ export default function Home() {
   const [customBibleReadingPlans, setCustomBibleReadingPlans] = useState<BibleReadingPlan[]>([]);
   const [bibleReadingPlanStartDates, setBibleReadingPlanStartDates] = useState<Record<string, string>>({});
   const [bibleReadingPlanCompletionDates, setBibleReadingPlanCompletionDates] = useState<Record<string, string>>({});
+  const [bibleReadingPlanCompletionCounts, setBibleReadingPlanCompletionCounts] = useState<Record<string, number>>({});
   const [acknowledgedBibleReadingCareNotes, setAcknowledgedBibleReadingCareNotes] = useState<string[]>([]);
   const [storedBibleReadingPlanProgress, setStoredBibleReadingPlanProgress] = useState<StoredBibleReadingPlanProgress | null>(null);
   const [storedBibleReadingPlanProgressHydrated, setStoredBibleReadingPlanProgressHydrated] = useState(false);
@@ -1274,10 +1282,12 @@ export default function Home() {
           const normalizedCompletedDays = normalizedProgress.completedDays;
           const normalizedStartDates = normalizedProgress.startDates || {};
           const normalizedCompletionDates = normalizedProgress.completedPlanDates || {};
+          const normalizedCompletionCounts = normalizedProgress.completionCounts || {};
           const normalizedAcknowledgedCareNotes = normalizedProgress.acknowledgedCareNotes || [];
           setCustomBibleReadingPlans(storedPlans);
           setFollowedBibleReadingPlanIds(normalizedFollowedPlanIds);
           setBibleReadingPlanCompletionDates(normalizedCompletionDates);
+          setBibleReadingPlanCompletionCounts(normalizedCompletionCounts);
           setAcknowledgedBibleReadingCareNotes(normalizedAcknowledgedCareNotes);
           if (availablePlans.some((plan) => plan.id === normalizedActivePlanId)) {
             const backfilledStartDates = normalizedFollowedPlanIds.reduce<Record<string, string>>((dates, planId) => {
@@ -1294,6 +1304,7 @@ export default function Home() {
                 customPlans: storedPlans,
                 startDates: backfilledStartDates,
                 completedPlanDates: normalizedCompletionDates,
+                completionCounts: normalizedCompletionCounts,
                 acknowledgedCareNotes: normalizedAcknowledgedCareNotes,
                 updatedAt: normalizedProgress.updatedAt || Date.now()
               }).catch(() => undefined);
@@ -2527,6 +2538,7 @@ export default function Home() {
       setCustomBibleReadingPlans(progress.customPlans);
       setBibleReadingPlanStartDates(progress.startDates || {});
       setBibleReadingPlanCompletionDates(progress.completedPlanDates || {});
+      setBibleReadingPlanCompletionCounts(progress.completionCounts || {});
       setAcknowledgedBibleReadingCareNotes(progress.acknowledgedCareNotes || []);
       saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
       setStoredBibleReadingPlanProgress(progress);
@@ -5389,9 +5401,10 @@ export default function Home() {
     startDates = bibleReadingPlanStartDates,
     followedPlanIds = followedBibleReadingPlanIds,
     completedPlanDates = bibleReadingPlanCompletionDates,
+    completionCounts = bibleReadingPlanCompletionCounts,
     acknowledgedCareNotes = acknowledgedBibleReadingCareNotes
   ) {
-    const progress = currentBibleReadingPlanProgress(activePlanId, completedDays, customPlans, startDates, followedPlanIds, completedPlanDates, acknowledgedCareNotes);
+    const progress = currentBibleReadingPlanProgress(activePlanId, completedDays, customPlans, startDates, followedPlanIds, completedPlanDates, completionCounts, acknowledgedCareNotes);
     setStoredBibleReadingPlanProgress(progress);
     setStoredBibleReadingPlanProgressHydrated(true);
     saveStoredBibleReadingPlanProgress(progress).catch(() => undefined);
@@ -5417,6 +5430,7 @@ export default function Home() {
         bibleReadingPlanStartDates,
         followedBibleReadingPlanIds,
         bibleReadingPlanCompletionDates,
+        bibleReadingPlanCompletionCounts,
         next
       );
       return next;
@@ -5519,6 +5533,13 @@ export default function Home() {
     setBiblePlanStatus(`${plan.title} restarted from Day 1.`);
     persistBibleReadingPlanProgress(plan.id, nextCompletedDays, customBibleReadingPlans, nextStartDates, nextFollowedPlanIds, nextCompletionDates);
     trackUsage("bible_reading_plan_restarted", { reference: plan.id, tab: "plans" });
+  }
+
+  function incrementBibleReadingPlanCompletionCount(planId: string) {
+    return {
+      ...bibleReadingPlanCompletionCounts,
+      [planId]: Math.min(MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, Math.max(0, Math.round(Number(bibleReadingPlanCompletionCounts[planId]) || 0)) + 1)
+    };
   }
 
   function requestRestartBibleReadingPlan(planId: string) {
@@ -5704,12 +5725,20 @@ export default function Home() {
     }
     const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
     if (!nextState) return;
+    const wasPlanComplete = !!plan && plan.days.length > 0 && plan.days.every((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
+    const planJustCompleted = !!plan && !nextState.nextIncomplete && !wasPlanComplete;
     const nextCompletionDates =
       plan && !nextState.nextIncomplete
         ? { ...bibleReadingPlanCompletionDates, [planId]: bibleReadingPlanCompletionDates[planId] || localDateKey() }
         : bibleReadingPlanCompletionDates;
+    const nextCompletionCounts = planJustCompleted
+      ? incrementBibleReadingPlanCompletionCount(planId)
+      : bibleReadingPlanCompletionCounts;
     if (nextCompletionDates !== bibleReadingPlanCompletionDates) {
       setBibleReadingPlanCompletionDates(nextCompletionDates);
+    }
+    if (nextCompletionCounts !== bibleReadingPlanCompletionCounts) {
+      setBibleReadingPlanCompletionCounts(nextCompletionCounts);
     }
     if (activeBiblePlanSelectedPlanId === planId) {
       setRememberedPlanSelectedDay(planId, nextState.nextIncomplete?.day || 0);
@@ -5722,7 +5751,7 @@ export default function Home() {
     setCompletedBibleReadingPlanDays((current) => {
       const currentState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: current });
       const next = currentState?.completedDays || current;
-      persistBibleReadingPlanProgress(planId, next, customBibleReadingPlans, bibleReadingPlanStartDates, followedBibleReadingPlanIds, nextCompletionDates);
+      persistBibleReadingPlanProgress(planId, next, customBibleReadingPlans, bibleReadingPlanStartDates, followedBibleReadingPlanIds, nextCompletionDates, nextCompletionCounts);
       return next;
     });
     const nextStatus = nextState.nextIncomplete
@@ -5866,9 +5895,12 @@ export default function Home() {
     const nextCompletionDates = { ...bibleReadingPlanCompletionDates };
     delete nextCompletionDates[planId];
     setBibleReadingPlanCompletionDates(nextCompletionDates);
+    const nextCompletionCounts = { ...bibleReadingPlanCompletionCounts };
+    delete nextCompletionCounts[planId];
+    setBibleReadingPlanCompletionCounts(nextCompletionCounts);
     setPendingBiblePlanDeleteId("");
     setCustomBiblePlanStatus("Custom plan deleted.");
-    persistBibleReadingPlanProgress(nextState.activePlanId, nextState.completedDays, nextState.customPlans, nextState.startDates, nextState.followedPlanIds, nextCompletionDates);
+    persistBibleReadingPlanProgress(nextState.activePlanId, nextState.completedDays, nextState.customPlans, nextState.startDates, nextState.followedPlanIds, nextCompletionDates, nextCompletionCounts);
   }
 
   function studyBibleReadingPlanDay(planDay: BibleReadingPlanDay) {
@@ -6407,6 +6439,7 @@ export default function Home() {
     startDates = bibleReadingPlanStartDates,
     followedPlanIds = followedBibleReadingPlanIds,
     completedPlanDates = bibleReadingPlanCompletionDates,
+    completionCounts = bibleReadingPlanCompletionCounts,
     acknowledgedCareNotes = acknowledgedBibleReadingCareNotes
   ): StoredBibleReadingPlanProgress {
     return normalizeBibleReadingPlanProgress({
@@ -6416,6 +6449,7 @@ export default function Home() {
       customPlans,
       startDates,
       completedPlanDates,
+      completionCounts,
       acknowledgedCareNotes,
       updatedAt: Date.now()
     }) || { ...emptyBibleReadingPlanProgress(), updatedAt: Date.now() };
@@ -6988,6 +7022,8 @@ export default function Home() {
     const firstDay = plan.days[0];
     const completedDateKey = bibleReadingPlanCompletionDates[plan.id] || "";
     const completedDateLabel = completedDateKey ? formatPlanDayDate(completedDateKey) : "";
+    const completionCount = bibleReadingPlanCompletionCounts[plan.id] || (completedDateKey ? 1 : 0);
+    const completionCountLabel = completionCount ? formatBibleReadingPlanCompletionCount(completionCount) : "";
 
     return (
       <View key={plan.id} style={[styles.completedReadingPlanCard, phoneLayout && styles.phoneCompletedReadingPlanCard, plansDarkMode && styles.accountDarkSection]}>
@@ -6995,7 +7031,11 @@ export default function Home() {
           <View style={styles.journalTitleBlock}>
             <Text style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>{plan.title}</Text>
             <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>
-              {`${plan.days.length} ${plan.days.length === 1 ? "reading" : "readings"} complete${completedDateLabel ? ` · completed ${completedDateLabel}` : ""}`}
+              {[
+                `${plan.days.length} ${plan.days.length === 1 ? "reading" : "readings"} complete`,
+                completedDateLabel ? `last completed ${completedDateLabel}` : "",
+                completionCountLabel
+              ].filter(Boolean).join(" · ")}
             </Text>
           </View>
           <View style={styles.completedReadingPlanStatus}>
@@ -8585,6 +8625,8 @@ export default function Home() {
                 const planComplete = plan.days.length > 0 && completedCount >= plan.days.length;
                 const lastCompletedDateKey = bibleReadingPlanCompletionDates[plan.id] || "";
                 const lastCompletedDateLabel = lastCompletedDateKey ? formatPlanDayDate(lastCompletedDateKey) : "";
+                const completionCount = bibleReadingPlanCompletionCounts[plan.id] || (lastCompletedDateKey ? 1 : 0);
+                const completionCountLabel = completionCount ? formatBibleReadingPlanCompletionCount(completionCount) : "";
                 return (
                   <Card key={plan.id} style={[styles.planPageCard, expanded && styles.expandedBrowsePlanCard, phoneLayout && styles.phonePlanPageCard, plansDarkMode && styles.accountDarkMainCard]}>
                     <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
@@ -8598,7 +8640,10 @@ export default function Home() {
                         </Text>
                         {planComplete ? (
                           <Text style={[styles.planPageMetaText, styles.planLastCompletedText, plansDarkMode && styles.accountDarkMutedText]}>
-                            Last completed: {lastCompletedDateLabel || "date not recorded"}
+                            {[
+                              `Last completed: ${lastCompletedDateLabel || "date not recorded"}`,
+                              completionCountLabel
+                            ].filter(Boolean).join(" · ")}
                           </Text>
                         ) : planStarted ? (
                           <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>

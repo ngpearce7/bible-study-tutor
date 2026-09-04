@@ -50,7 +50,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
 
   const links = [
     ["/?tab=bible", "Open the Bible reader", "Read Scripture, follow reading plans, and print selected passages."],
-    ["/?tab=study", "Start a guided study", "Use SOAP, OIA, inductive study, word study, and other guided methods."],
+    ["/?tab=study", "Start a guided study", "Use SOAP, OIA, Inductive Study, Lectio Divina, READ, HEAR, or COMA."],
     ["/bible-study-methods", "Choose a study method", "Compare Bible study methods before beginning a passage."],
     ["/printable-bible-study-worksheets", "Print a worksheet", "Prepare a paper worksheet for personal study, church groups, or youth groups."],
     ["/bible-study-app-for-churches", "For churches", "See ways churches and small groups can use Bible Study Tutor responsibly."],

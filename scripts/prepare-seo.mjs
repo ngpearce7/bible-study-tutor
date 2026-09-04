@@ -58,7 +58,7 @@ const seoPages = [
         items: [
           "Reading Scripture by book and chapter.",
           "Following Bible reading plans without confusing them with guided study plans.",
-          "Studying a selected passage with methods such as SOAP, OIA, Inductive Study, and word study.",
+          "Studying a selected passage with guided methods such as SOAP, OIA, and Inductive Study, with additional method guides for approaches such as word study.",
           "Saving notes, highlights, bookmarks, meditations, and journal entries.",
           "Reviewing memory verses and printing worksheets or memory cards.",
           "Sharing private encouragements with trusted friends or circles."
@@ -82,7 +82,7 @@ const seoPages = [
     intro: "Bible Study Tutor is built around a simple Scripture-first rhythm: read the Bible, slow down with a guided method, save what matters, remember Scripture, and use printable worksheets when paper helps.",
     sections: [
       ["Open Scripture", "Start in the Bible reader, choose a passage, search for a word or theme, or continue a Bible reading plan from where you left off."],
-      ["Study with a method", "Send a passage into Study and choose a guided method such as SOAP, OIA, Inductive Study, Lectio Divina, READ, verse mapping, or word study."],
+      ["Study with a method", "Send a passage into Study and choose an available guided method such as SOAP, OIA, Inductive Study, Lectio Divina, READ, HEAR, or COMA. The site also includes careful educational guides for approaches such as word study."],
       ["Save and return", "Keep notes, highlights, bookmarks, meditations, memory verses, and journal entries together so your study can grow over time."],
       ["Print when helpful", "Print Bible study worksheets or memory cards for small groups, church classes, youth groups, or personal pen-and-paper study."],
       ["Continue across devices", "A free account helps save reading progress, memory review, journal entries, and preferences across desktop and mobile."]
@@ -301,13 +301,13 @@ const seoPages = [
     path: "/bible-study-methods",
     file: "bible-study-methods.html",
     title: "Bible Study Methods | SOAP, OIA, Inductive, Lectio Divina and READ",
-    description: "Learn and practise Bible study methods including SOAP, OIA, Inductive Study, Lectio Divina, READ, verse mapping, character study, and prayerful reflection.",
-    heading: "Guided Bible study methods",
-    intro: "Bible Study Tutor gives structure without making study feel complicated. Choose a method, read the passage, answer one step at a time, and save your study to the journal.",
+    description: "Learn Bible study methods including SOAP, OIA, Inductive Study, Lectio Divina, READ, word study, verse mapping, character study, and prayerful reflection.",
+    heading: "Bible study methods and guides",
+    intro: "Bible Study Tutor includes guided in-app methods and educational method guides. Choose an available guided method to answer one step at a time, or use a guide on this site to practise another approach with the Bible reader.",
     sections: [
       ["Start with the passage", "Every method should serve careful reading of Scripture. Choose the passage first, then use the method to slow down, notice details, understand context, and respond faithfully."],
       ["Simple daily methods", "SOAP and OIA are useful when you want a clear rhythm for a short passage: read, observe, understand, apply, and pray."],
-      ["Deeper study methods", "Use Inductive Study, verse mapping, character study, word study, and cross-reference study when you want to examine structure, themes, repeated words, people, and related passages more deeply."],
+      ["Deeper study methods", "Use the guided Inductive Study in the app when you want to examine a passage closely. The site’s educational guides explain verse mapping, character study, word study, and cross-reference study without presenting them as selectable in-app workflows."],
       ["Reflective methods", "Use Lectio Divina, READ, and prayerful reflection when you want to meditate slowly on Scripture and turn the passage into prayer."],
       ["Save or print the study", "After studying, save the notes to your journal or print a worksheet for personal study, small groups, Bible classes, or youth groups."]
     ],
@@ -854,25 +854,36 @@ const seoPages = [
   {
     path: "/bible-study-methods/word-study",
     file: "bible-study-methods/word-study.html",
-    title: "Bible Word Study Method | Study Key Words in Scripture",
-    description: "Learn a careful Bible word study method with an example, safeguards, checklist, and printable worksheet option so key words stay anchored in context.",
-    heading: "Bible word study method",
-    intro: "A Bible word study helps you pay attention to important words in a passage while keeping the meaning anchored in context, author, genre, and the wider message of Scripture.",
+    title: "How to Do a Bible Word Study | Step-by-Step Method",
+    description: "Learn how to do a Bible word study step by step, with a worked example, careful comparisons, common mistakes, and safeguards that keep each word anchored in context.",
+    heading: "How to do a Bible word study: step-by-step method",
+    intro: "A Bible word study examines how an important word contributes to a passage without pulling it away from its sentence, author, genre, or place in Scripture. For example, studying “peace” in John 14:27 begins with Jesus comforting troubled disciples, not with a list of every possible meaning of peace.",
+    showHowToSteps: true,
+    includeFaqSchema: true,
     sections: [
-      ["Start with the passage", "Choose a word that carries weight in the text, then read the whole paragraph or chapter before studying the word by itself. Ask what the author is saying before asking how one word sounds in isolation."],
-      ["Look for repeated use", "Notice where the word appears nearby, how the author uses it, and whether related words or phrases develop the same idea. Repetition often shows emphasis, contrast, or movement in the argument."],
-      ["Compare carefully", "Compare the word in nearby passages first, then related passages by the same author, then the wider Bible. Do not assume every occurrence has the exact same shade of meaning."],
-      ["Return to the main point", "A word study should help you understand the passage better, not pull the word away from what the passage is saying. Finish by restating the passage in context and writing a faithful response."]
+      ["Tools you need", "Begin with the passage itself, a way to record observations, and cross references if they help you follow the author’s use of the word. Read the paragraph or chapter more than once before consulting outside resources."],
+      ["Tools you do not need", "You do not need specialist software or knowledge of Greek or Hebrew to begin. Original-language tools can be useful, but they are optional and must not override the sentence, grammar, and context."],
+      ["Compare in the right order", "Look first at the immediate passage, then the same book and author, and only then at related passages elsewhere in Scripture. Each comparison should clarify the main passage rather than replace it."],
+      ["Return to the passage", "Finish by stating how the word contributes to the author’s main point. A faithful word study explains the passage more clearly and leads to a response shaped by what the text actually says."]
     ],
-    cta: "Start a word study",
+    cta: "Choose a passage for word study",
     related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/printable-bible-study-worksheets"],
     schemaType: "HowTo",
     howToSteps: [
-      "Read the passage and surrounding paragraph before isolating the word.",
-      "Write the word, reference, immediate context, and why the word matters.",
-      "Look for repeated use in the same passage, book, or author.",
-      "Compare related passages carefully without forcing every occurrence to mean the same thing.",
-      "Summarize how the word clarifies the passage and write one prayerful response."
+      "Choose an important or repeated word in a specific Bible passage.",
+      "Read the whole paragraph or chapter and summarize its main point before isolating the word.",
+      "Write the word, reference, sentence, speaker or author, audience, and reason the word matters.",
+      "Notice repetition, contrasts, commands, promises, grammar, and nearby ideas that shape the word in context.",
+      "Compare how the same book or author uses the word in nearby passages.",
+      "Use cross references or optional original-language tools carefully, without importing every possible definition into the verse.",
+      "Explain in one or two sentences how the word clarifies the main passage.",
+      "Write one prayer, belief, or action that responds to the passage rather than to the word in isolation."
+    ],
+    faq: [
+      ["What is a word study in the Bible?", "A Bible word study examines how an important or repeated word contributes to the meaning of a particular passage, then compares related uses without ignoring context."],
+      ["How do I do a Bible word study?", "Choose a word in a passage, read the surrounding context, record how the sentence and author use it, compare related passages carefully, and finish by explaining the passage’s main point."],
+      ["Do I need Greek or Hebrew for a Bible word study?", "No. Careful reading, context, repetition, and cross references are enough to begin. Original-language tools are optional and should be used humbly because a dictionary entry does not determine a word’s meaning by itself."],
+      ["What is the biggest mistake in a Bible word study?", "The biggest mistake is separating a word from its sentence and assuming every occurrence or dictionary definition has the same meaning. Context and grammar must guide the study."]
     ],
     extraBlocks: [
       {
@@ -900,23 +911,24 @@ const seoPages = [
         ]
       },
       {
-        type: "checklist",
-        title: "Methodological safeguards",
-        intro: "These safeguards keep a word study from becoming detached from Scripture.",
-        items: [
-          "Do not treat a dictionary entry as the meaning of every verse.",
-          "Do not build a doctrine from one word without reading the whole passage.",
-          "Do not assume English word connections always reflect the original-language wording.",
-          "Do not use cross references to escape a difficult context.",
-          "Let the passage’s grammar, flow, and authorial purpose control the study."
+        type: "table",
+        title: "Common word study mistakes",
+        intro: "These corrections keep a word study from becoming detached from Scripture.",
+        headers: ["Mistake", "Better approach"],
+        rows: [
+          ["Dictionary dumping", "Use only the sense that fits the sentence and passage."],
+          ["The root fallacy", "Do not assume a word’s history or parts determine its meaning in this verse."],
+          ["Treating every occurrence identically", "Let each author, sentence, and genre shape the word’s meaning."],
+          ["Ignoring grammar", "Read the whole phrase and notice how the word functions in the sentence."],
+          ["Proof-texting", "Understand the immediate passage before gathering wider cross references."]
         ]
       },
       {
         type: "cta",
-        title: "Print a word study worksheet",
-        intro: "If you prefer pen and paper, select a passage in Bible Study Tutor, choose a word study approach, and print a worksheet with room for context, repeated words, comparisons, summary, and prayer.",
+        title: "Choose a passage for your word study",
+        intro: "Open the Bible reader, choose a short passage, and use the steps and checklist on this page to study an important word. Bible Study Tutor does not currently include a dedicated guided word-study workflow.",
         href: "/?tab=bible",
-        label: "Print a worksheet"
+        label: "Open the Bible reader"
       }
     ]
   },
@@ -1115,7 +1127,7 @@ const seoPages = [
     intro: "Bible Study Tutor brings reading, study, memory, journaling, and simple community rhythms together in one free app.",
     sections: [
       ["Read and search Scripture", "Navigate by book and chapter, search exact words or themes, follow Bible reading plans, and send selected verses into Study."],
-      ["Study with structure", "Use guided methods such as SOAP, OIA, Inductive Study, word study, verse mapping, topical study, and Lectio Divina."],
+      ["Study with structure", "Use guided methods such as SOAP, OIA, Inductive Study, Lectio Divina, READ, HEAR, and COMA, or follow the site’s educational guides for other study approaches."],
       ["Save what matters", "Highlight verses, add notes, bookmark passages, save studies to your journal, and return to previous reflections by date or Scripture."],
       ["Memorize and review", "Save memory verses and practise them in three simple steps with blanks, hints, review dates, collections, and printable cards."],
       ["Print for paper study", "Create printable worksheets and memory cards for personal study, small groups, youth groups, church classes, and people who prefer handwriting."]
@@ -1182,7 +1194,7 @@ const seoPages = [
         items: [
           "Bible reading by book and chapter.",
           "Bible search and selected passage study.",
-          "Guided methods such as SOAP, OIA, Inductive Study, word study, and Lectio Divina.",
+          "Guided methods such as SOAP, OIA, Inductive Study, Lectio Divina, READ, HEAR, and COMA.",
           "Journal entries, highlights, bookmarks, and notes.",
           "Memory verse review, collections, and printable cards.",
           "Printable Bible study worksheets for personal or group use."
@@ -2057,7 +2069,7 @@ const seoPages = [
     faq: [
       ["Can a church use Bible Study Tutor for free?", "Yes. Bible Study Tutor is designed to be free for individuals, churches, small groups, youth groups, and Bible classes."],
       ["Does Bible Study Tutor replace a church’s discipleship ministry?", "No. It is a practical tool to support Bible reading, guided study, journaling, memory verses, and printed handouts. It should serve local church discipleship rather than replace it."],
-      ["Can leaders print worksheets for group discussion?", "Yes. Leaders can select a passage and print worksheets for methods such as SOAP, OIA, Inductive Study, or word study."],
+      ["Can leaders print worksheets for group discussion?", "Yes. In the web app, leaders can select a passage and print worksheets using available guided methods such as SOAP, OIA, or Inductive Study."],
       ["Is there a public social feed?", "No. Bible Study Tutor is designed around private friends and circles for trusted encouragement, not a public timeline."],
       ["What private information is avoided in public analytics?", "Public analytics should not include journal text, study answers, notes, names, email addresses, Scripture search text, or community encouragement content."]
     ],
@@ -2229,43 +2241,61 @@ const seoPages = [
   {
     path: "/how-to-start-a-bible-reading-plan",
     file: "how-to-start-a-bible-reading-plan.html",
-    title: "How to Start a Bible Reading Plan | Simple Scripture Reading Rhythm",
-    description: "Learn how to start a Bible reading plan with a realistic pace, daily reading rhythm, progress tracking, catch-up options, and guided study when needed.",
-    heading: "How to start a Bible reading plan",
-    intro: "A Bible reading plan works best when it is simple enough to return to and flexible enough for real life. Bible Study Tutor helps you choose a plan, open the next reading, and keep progress clear.",
+    title: "How to Start a Bible Reading Plan and Build a Lasting Rhythm",
+    description: "Learn how to create your own Bible reading plan or choose a beginner plan, set a realistic pace, handle missed days, and build a Scripture reading rhythm that lasts.",
+    heading: "How to start a Bible reading plan and build a rhythm that lasts",
+    intro: "A Bible reading plan works best when it has a clear purpose, a realistic daily portion, and room for ordinary interruptions. You can choose a built-in plan in Bible Study Tutor or create your own plan from a list of Bible passages, then track each day as you read.",
+    showHowToSteps: true,
+    includeFaqSchema: true,
     sections: [
-      ["Choose a realistic plan", "Start with a plan that fits your season. A short plan can build rhythm, while a longer plan can help you move through larger parts of Scripture."],
-      ["Read the next passage", "Open the current reading in the Bible reader, read the selected passage, and mark the plan day complete when you finish."],
-      ["Slow down when needed", "If a passage raises questions or needs more reflection, send it to Study and use SOAP, OIA, Inductive Study, or another guided method."],
-      ["Catch up without confusion", "If you miss a day, Bible Study Tutor can help you return to the missed reading or shift the plan forward so the rhythm stays clear."]
+      ["Begin with a purpose", "Decide whether you want to meet Jesus in a Gospel, understand one Bible book, trace a theme, establish a short daily habit, or read through a larger part of Scripture. The goal should shape the passages and pace."],
+      ["Choose or create the plan", "Use a built-in short, medium, or long plan, or create a custom plan by entering a title and one Bible reference per day. A custom plan is useful for a church series, book study, or personal reading pathway."],
+      ["Keep reading and deeper study distinct", "Read the day’s passage first. When a section needs closer attention, send it to SOAP, OIA, Inductive Study, or another available guided method rather than expecting every daily reading to become a long study."],
+      ["Use a gracious catch-up rule", "If you miss several days, continue with the first incomplete reading or use Catch me up to move the remaining dates forward. Avoid doubling every missed reading if that turns the plan into pressure."]
     ],
     cta: "Open reading plans",
     related: ["/bible-reading-plan-app", "/how-it-works", "/bible-study-methods/soap", "/bible-study-journal"],
     schemaType: "HowTo",
     howToSteps: [
-      "Choose a Bible reading plan with a pace you can realistically keep.",
-      "Open the next reading in the Bible reader.",
-      "Read the passage and mark the plan day complete.",
-      "Send difficult or meaningful passages into guided study.",
-      "Return the next day or use catch-up tools if you fall behind."
+      "Choose one clear goal, such as reading a Gospel, studying a book, or building a daily Scripture habit.",
+      "Select a book or theme that serves that goal and read enough context to avoid collecting disconnected verses.",
+      "Choose a realistic length such as 7, 30, or 90 days, or one year.",
+      "Set a daily reading size you can usually complete without rushing.",
+      "Choose a catch-up rule before you begin: resume with the first incomplete reading or move the remaining dates forward.",
+      "Decide which readings need deeper study and which can remain attentive reading and prayer.",
+      "Review the plan weekly and adjust the pace if it is producing pressure instead of steady engagement with Scripture."
     ],
     faq: [
-      ["What is the easiest Bible reading plan to start with?", "A short plan is often best because it helps build rhythm without overwhelming the reader."],
-      ["What if I miss a day?", "You can return to the missed reading or use catch-up tools to shift the plan forward."],
-      ["Can I read ahead?", "Yes, but the app helps keep missed readings clear so the plan does not become confusing."],
-      ["Should I study every reading deeply?", "Not always. Some days may be simple reading, while other passages are worth sending into guided study."]
+      ["How do I create my own Bible reading plan?", "Choose a goal and duration, list one Bible passage for each day, and decide how you will handle missed readings. In Bible Study Tutor, open Plans, choose Create custom plan, add a title, and enter one Bible reference per line."],
+      ["What is a good Bible reading plan for beginners?", "A focused seven-day plan through key Gospel passages is a manageable place to begin. It introduces Jesus’ identity, teaching, compassion, death, and resurrection without requiring several chapters each day."],
+      ["What should I do when I miss several days?", "Resume with the first incomplete reading instead of trying to repay a debt. In Bible Study Tutor, you can also use Catch me up to move the remaining plan dates forward."],
+      ["Should I study every reading deeply?", "Not necessarily. Read each passage attentively, but reserve deeper guided study for passages that raise questions, carry the main theme, or need slower reflection."]
     ],
     extraBlocks: [
       {
+        type: "table",
+        title: "Choose a realistic Bible reading plan length",
+        intro: "Daily time is only a rough guide because passage length and reading pace vary. Begin with a pace you can sustain and adjust it when needed.",
+        headers: ["Plan length", "Best suited to", "Typical daily rhythm"],
+        rows: [
+          ["7 days", "Beginners, one theme, or restarting a habit", "One short passage · about 5–10 minutes"],
+          ["30 days", "One book, a Gospel overview, or a monthly theme", "One passage or chapter · about 10–15 minutes"],
+          ["90 days", "A larger section of Scripture or a steady seasonal plan", "One to three chapters · about 15–25 minutes"],
+          ["One year", "The whole Bible or another broad reading goal", "Several chapters · about 15–30 minutes"]
+        ]
+      },
+      {
         type: "example",
-        title: "Example first week rhythm",
-        intro: "A realistic reading plan leaves room for attention, prayer, and ordinary life.",
+        title: "Complete beginner example: a 7-day Gospel starter",
+        intro: "This example can be entered as a custom plan. Read the whole passage before focusing on one detail, and use the surrounding chapter whenever the immediate context is unclear.",
         items: [
-          ["Day 1", "Open the first reading and mark it complete after reading."],
-          ["Day 2", "Read the next passage and write one short journal note."],
-          ["Day 3", "Send a meaningful passage into SOAP or OIA."],
-          ["Day 4", "Save one verse to Memory if it should stay with you."],
-          ["Day 5", "Catch up if needed, or continue with the next reading."]
+          ["Day 1 · John 1:1-18", "Meet Jesus as the eternal Word who became flesh and makes the Father known."],
+          ["Day 2 · Mark 1:14-20", "Notice Jesus’ announcement of God’s kingdom and His call to repent, believe, and follow."],
+          ["Day 3 · Mark 2:1-12", "See Jesus respond to faith, forgive sins, and heal with divine authority."],
+          ["Day 4 · Luke 15:1-7", "Observe why Jesus welcomes sinners and how heaven responds when one repents."],
+          ["Day 5 · John 10:11-18", "Listen to Jesus describe Himself as the good Shepherd who knows His sheep and lays down His life."],
+          ["Day 6 · Mark 15:33-39", "Read the crucifixion carefully and notice the centurion’s response to Jesus’ death."],
+          ["Day 7 · John 20:1-18", "Finish with the empty tomb, the risen Jesus, and Mary Magdalene’s witness."]
         ]
       },
       {
@@ -3034,9 +3064,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Start studying Ephesians",
-        intro: "Open Ephesians in Bible Study Tutor and use word study prompts to trace identity, grace, and gospel-shaped living.",
-        href: "/?tab=study&method=word-study&passage=Ephesians%204%3A1-6",
-        label: "Start an Ephesians study"
+        intro: "Open Ephesians 4:1-6 with OIA in Bible Study Tutor, or use the word-study guide on this site to trace repeated language carefully.",
+        href: "/?tab=study&method=oia&passage=Ephesians%204%3A1-6",
+        label: "Study Ephesians with OIA"
       }
     ]
   },
@@ -3636,6 +3666,18 @@ function buildSeoPage(page, baseUrl) {
     .map((path) => seoPages.find((candidate) => candidate.path === path))
     .filter(Boolean);
   const pageExtraBlocks = withGeneratedJournalExample(page);
+  const leadHowToBlock = page.showHowToSteps && page.howToSteps?.length
+    ? buildVisibleHowToSteps(page)
+    : "";
+  const pageSpecificStyles = pageExtraBlocks.some((block) => block.type === "table")
+    ? `<style>
+      .table-wrap { margin-top: 14px; overflow-x: auto; }
+      .comparison-table { border-collapse: collapse; min-width: 620px; width: 100%; }
+      .comparison-table th, .comparison-table td { border: 1px solid var(--line); line-height: 1.55; padding: 13px 14px; text-align: left; vertical-align: top; }
+      .comparison-table th { background: #f2eadc; color: var(--olive); font-size: 14px; }
+      .comparison-table td { background: #fffaf2; color: var(--muted); }
+    </style>`
+    : "";
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
     .join("\n");
@@ -3750,7 +3792,7 @@ function buildSeoPage(page, baseUrl) {
       .site-footer { border-top: 1px solid var(--line); color: var(--muted); }
       .site-footer .shell { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; padding-bottom: 26px; padding-top: 18px; }
       .site-footer a { color: var(--olive); font-weight: 800; }
-    </style>
+    </style>${pageSpecificStyles}
   </head>
   <body>
     <header class="site-header">
@@ -3776,7 +3818,7 @@ function buildSeoPage(page, baseUrl) {
         <div class="eyebrow">Bible Study Tutor</div>
         <h1 id="page-heading">${escapeHtml(page.heading)}</h1>
         <p class="intro">${escapeHtml(page.intro)}</p>
-      </section>
+      </section>${leadHowToBlock}
       <div class="grid">${sections}</div>
       ${extraBlocks}
       ${faqBlock}
@@ -3829,6 +3871,27 @@ function buildExtraSeoBlock(block) {
       </section>`;
   }
 
+  if (block.type === "table") {
+    const headers = (block.headers || [])
+      .map((header) => `<th scope="col">${escapeHtml(header)}</th>`)
+      .join("");
+    const rows = (block.rows || [])
+      .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+      .join("\n          ");
+    return `<section class="extra-block" aria-labelledby="${slugifyForId(block.title)}">
+        <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
+        ${intro}
+        <div class="table-wrap" tabindex="0" role="region" aria-label="${escapeHtml(block.title)}">
+          <table class="comparison-table">
+            <thead><tr>${headers}</tr></thead>
+            <tbody>
+          ${rows}
+            </tbody>
+          </table>
+        </div>
+      </section>`;
+  }
+
   if (block.type === "journalExample") {
     const notes = (block.notes || [])
       .map(([title, body]) => `<article class="journal-note"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`)
@@ -3865,6 +3928,18 @@ function buildExtraSeoBlock(block) {
   }
 
   return "";
+}
+
+function buildVisibleHowToSteps(page) {
+  const items = page.howToSteps
+    .map((step) => `<li>${escapeHtml(step)}</li>`)
+    .join("\n          ");
+  return `<section class="extra-block" aria-labelledby="step-by-step-heading">
+        <h2 id="step-by-step-heading">Step-by-step process</h2>
+        <ol>
+          ${items}
+        </ol>
+      </section>`;
 }
 
 function withGeneratedJournalExample(page) {
@@ -3959,6 +4034,21 @@ function buildSeoStructuredData(page, canonical, appUrl) {
   }
 
   if (page.schemaType === "HowTo" && page.howToSteps?.length) {
+    const faqSchema = page.includeFaqSchema && page.faq?.length
+      ? [{
+          "@type": "FAQPage",
+          name: `${page.heading} questions`,
+          url: canonical,
+          mainEntity: page.faq.map(([question, answer]) => ({
+            "@type": "Question",
+            name: question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: answer
+            }
+          }))
+        }]
+      : [];
     return {
       "@context": "https://schema.org",
       "@graph": [
@@ -3973,7 +4063,8 @@ function buildSeoStructuredData(page, canonical, appUrl) {
             position: index + 1,
             text: step
           }))
-        }
+        },
+        ...faqSchema
       ]
     };
   }
@@ -4030,7 +4121,6 @@ function methodIdForSeoPage(page) {
     oia: "oia",
     "lectio-divina": "lectio",
     "verse-mapping": "verse-mapping",
-    "word-study": "word-study",
     "topical-study": "topical-study",
     "character-study": "character-study",
     "cross-reference-study": "cross-reference-study"
@@ -4055,7 +4145,7 @@ function getAppEntryQuery(page) {
     "/how-to-study-mark": ["oia", "Mark 10:45"],
     "/how-to-study-luke": ["character-study", "Luke 19:1-10"],
     "/how-to-study-acts": ["inductive", "Acts 1:8"],
-    "/how-to-study-ephesians": ["word-study", "Ephesians 4:1-6"],
+    "/how-to-study-ephesians": ["oia", "Ephesians 4:1-6"],
     "/how-to-study-philippians": ["soap", "Philippians 4:4-9"],
     "/how-to-study-james": ["oia", "James 1:2-8"]
   };
@@ -4065,6 +4155,7 @@ function getAppEntryQuery(page) {
     return `tab=study&method=${methodId}&passage=${encodeURIComponent(passage)}`;
   }
   if (page.path === "/bible-study-methods") return "tab=methods";
+  if (page.path === "/bible-study-methods/word-study") return "tab=bible";
   if (page.path.startsWith("/bible-study-methods/")) {
     const methodSlug = page.path.split("/").filter(Boolean).pop() || "";
     const methodMap = {
@@ -4073,7 +4164,6 @@ function getAppEntryQuery(page) {
       oia: "oia",
       "lectio-divina": "lectio",
       "verse-mapping": "verse-mapping",
-      "word-study": "word-study",
       "topical-study": "topical-study",
       "character-study": "character-study",
       "cross-reference-study": "cross-reference-study"
@@ -4093,6 +4183,7 @@ function getAppEntryQuery(page) {
 
 function getStandardCtaLabel(page) {
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
+  if (page.path === "/bible-study-methods/word-study") return "Open the Bible reader";
   if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "Start a guided study";
   if (value.includes("reading plan")) return "Open reading plans";
   if (page.path === "/bible-study-methods" || value.includes("method")) return "Choose a study method";

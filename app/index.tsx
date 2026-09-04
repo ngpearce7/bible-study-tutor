@@ -178,6 +178,13 @@ function formatInlineList(items: string[]) {
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
 
+function formatWeeklyRhythmArea(value: unknown) {
+  const label = String(value || "").trim();
+  if (!label) return "";
+  if (label.toLowerCase() === "bible reading") return "Bible reading";
+  return label.charAt(0).toLowerCase() + label.slice(1);
+}
+
 type TabErrorBoundaryProps = {
   children: ReactNode;
   fallback: ReactNode;
@@ -1714,18 +1721,19 @@ export default function Home() {
     if (activeDays <= 0) return `${friendlyName}, begin gently with one reading, study, or memory review this week.`;
 
     const parts = [
-      [weeklyRhythm.planReadingsCompleted, "completed plan reading"],
-      [weeklyRhythm.chaptersRead, "chapter marked read"],
+      [weeklyRhythm.planReadingsCompleted, "plan reading"],
+      [weeklyRhythm.chaptersRead, "chapter"],
       [weeklyRhythm.memoryReviews, "memory review"],
       [weeklyRhythm.studiesCompleted, "guided study"],
       [weeklyRhythm.worksheetsPrinted + weeklyRhythm.memoryCardsPrinted, "printable resource"],
-      [weeklyRhythm.encouragementsShared, "encouragement shared"]
+      [weeklyRhythm.encouragementsShared, "encouragement"]
     ]
       .map(([count, label]) => ({ count: Number(count || 0), label: String(label) }))
       .filter((item) => item.count > 0)
       .map((item) => `${item.count} ${item.label}${item.count === 1 ? "" : "s"}`);
-    const detail = parts.length ? ` You ${formatInlineList(parts)}.` : "";
-    const strongest = weeklyRhythm.strongestArea ? ` Your strongest rhythm has been ${String(weeklyRhythm.strongestArea).toLowerCase()}.` : "";
+    const detail = parts.length ? ` You completed ${formatInlineList(parts)}.` : "";
+    const strongestArea = formatWeeklyRhythmArea(weeklyRhythm.strongestArea);
+    const strongest = strongestArea ? ` Your strongest rhythm was ${strongestArea}.` : "";
     return `This week, ${friendlyName}, you met with Scripture on ${activeDays} day${activeDays === 1 ? "" : "s"}.${detail}${strongest} Keep going gently.`;
   }, [friendlyName, weeklyRhythm]);
   const accountIdentityLabel = profile?.authUsername

@@ -2270,6 +2270,11 @@ export default function Home() {
     return () => clearTimeout(timeout);
   }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout]);
 
+  useEffect(() => () => {
+    if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
+    memoryBlankVisibilityTimerRef.current = null;
+  }, [activeMemoryVerseId, memoryPracticeLevel, tab]);
+
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     if (tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1 || !memoryPracticeAllCorrect) return;
@@ -2315,6 +2320,7 @@ export default function Home() {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
     if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
     memoryBlankVisibilityTimerRef.current = setTimeout(() => {
+      memoryBlankVisibilityTimerRef.current = null;
       const input = memoryBlankInputRefs.current[index] as any;
       if (!input?.measureInWindow) {
         return;
@@ -2326,15 +2332,42 @@ export default function Home() {
             : 0;
         const keyboardSafeBottom =
           visualViewportHeight > 0 && visualViewportHeight < layoutHeight - 80
-            ? visualViewportHeight - 82
+            ? visualViewportHeight - 24
             : layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
-        const inputBottom = y + inputHeight + 72;
+        const inputBottom = y + inputHeight;
         const hiddenAmount = inputBottom - keyboardSafeBottom;
-        if (hiddenAmount > 120) {
-          scrollMemoryPracticeBy(Math.min(90, hiddenAmount - 76), false);
+        if (hiddenAmount > 8) {
+          scrollMemoryPracticeBy(Math.min(64, hiddenAmount + 8), false);
         }
       });
     }, delay);
+  }
+
+  function focusMemoryBlankWithRowCheck(currentIndex: number, nextIndex: number) {
+    const currentInput = memoryBlankInputRefs.current[currentIndex] as any;
+    const nextInput = memoryBlankInputRefs.current[nextIndex] as any;
+
+    const focusNext = (crossesRow: boolean) => {
+      nextInput?.focus?.();
+      if (phoneLayout) {
+        if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
+        memoryBlankVisibilityTimerRef.current = null;
+        if (crossesRow) ensureMemoryBlankVisible(nextIndex, 360);
+        return;
+      }
+      ensureMemoryBlankVisible(nextIndex, 180);
+    };
+
+    if (!phoneLayout || !currentInput?.measureInWindow || !nextInput?.measureInWindow) {
+      focusNext(true);
+      return;
+    }
+
+    currentInput.measureInWindow((_currentX: number, currentY: number) => {
+      nextInput.measureInWindow((_nextX: number, nextY: number) => {
+        focusNext(Math.abs(nextY - currentY) > 8);
+      });
+    });
   }
 
   useEffect(() => {
@@ -5013,12 +5046,13 @@ export default function Home() {
 
     if (nextToken) {
       setTimeout(() => {
-        memoryBlankInputRefs.current[nextToken.index]?.focus();
-        ensureMemoryBlankVisible(nextToken.index, phoneLayout ? 620 : 180);
+        focusMemoryBlankWithRowCheck(index, nextToken.index);
       }, phoneLayout ? 120 : 80);
       return;
     }
 
+    if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
+    memoryBlankVisibilityTimerRef.current = null;
     Keyboard.dismiss();
     setTimeout(() => scrollMemoryPracticeBy(150), 140);
   }

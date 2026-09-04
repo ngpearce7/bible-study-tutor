@@ -11,6 +11,7 @@
     "convex": "convex dev",
     "desktop": "npm run web:export && npx electron electron/main.cjs",
     "seo:prepare": "node scripts/prepare-seo.mjs",
+    "seo:validate": "npm run seo:prepare && node scripts/validate-seo.mjs",
     "web:export": "npm run seo:prepare && HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo export --platform web",
     "serve:dist": "python3 -m http.server 8088 --directory dist",
     "typecheck": "tsc --noEmit",

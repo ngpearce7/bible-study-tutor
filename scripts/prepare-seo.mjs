@@ -242,7 +242,7 @@ const seoPages = [
       ["Print from desktop or mobile", "Open the worksheet preview, then use your browser print or save-as-PDF controls. On a phone, use the browser share or print option to send it to a printer or save it."]
     ],
     cta: "Start with the Bible reader",
-    related: ["/bible-study-app-with-printable-worksheets", "/printable-soap-bible-study-worksheet", "/printable-inductive-bible-study-worksheet", "/bible-study-for-small-groups"],
+    related: ["/printable-bible-word-study-worksheet", "/bible-study-app-with-printable-worksheets", "/printable-soap-bible-study-worksheet", "/printable-inductive-bible-study-worksheet", "/bible-study-for-small-groups"],
     schemaType: "FAQPage",
     faq: [
       ["Are the Bible study worksheets free?", "Yes. Bible Study Tutor includes printable worksheets as part of the free app experience."],
@@ -319,7 +319,7 @@ const seoPages = [
       ["Can Bible study methods be printed?", "Yes. You can print worksheets using guided methods so the same passage can be studied on paper."]
     ],
     cta: "Choose a study method",
-    related: ["/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive", "/bible-study-methods/oia", "/printable-bible-study-worksheets"],
+    related: ["/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive", "/bible-study-methods/oia", "/printable-bible-word-study-worksheet", "/printable-bible-study-worksheets"],
     extraBlocks: [
       {
         type: "previews",
@@ -678,7 +678,7 @@ const seoPages = [
       ["Why OIA works well", "OIA is simple enough for beginners and strong enough for repeated use, because it slows the reader down before moving toward response."]
     ],
     cta: "Practise OIA",
-    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/inductive", "/bible-study-methods/soap", "/printable-bible-study-worksheets"],
+    related: ["/how-to-study-a-bible-passage", "/bible-study-methods/inductive", "/bible-study-methods/soap", "/printable-bible-word-study-worksheet", "/printable-bible-study-worksheets"],
     schemaType: "HowTo",
     howToSteps: [
       "Choose a short passage and read it slowly.",
@@ -802,7 +802,7 @@ const seoPages = [
       ["Respond with clarity", "Summarize what the verse teaches, write a prayer, and note one way to remember or apply the passage."]
     ],
     cta: "Try verse mapping",
-    related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/printable-bible-study-journal", "/bible-study-methods/inductive"],
+    related: ["/bible-study-methods/word-study", "/printable-bible-word-study-worksheet", "/bible-study-methods/cross-reference-study", "/printable-bible-study-journal", "/bible-study-methods/inductive"],
     schemaType: "HowTo",
     howToSteps: [
       "Choose one verse or a short passage.",
@@ -867,7 +867,7 @@ const seoPages = [
       ["Return to the passage", "Finish by stating how the word contributes to the author’s main point. A faithful word study explains the passage more clearly and leads to a response shaped by what the text actually says."]
     ],
     cta: "Choose a passage for word study",
-    related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/printable-bible-study-worksheets"],
+    related: ["/printable-bible-word-study-worksheet", "/bible-study-methods/verse-mapping", "/bible-study-methods/cross-reference-study", "/bible-study-methods/inductive", "/printable-bible-study-worksheets"],
     schemaType: "HowTo",
     howToSteps: [
       "Choose an important or repeated word in a specific Bible passage.",
@@ -925,10 +925,89 @@ const seoPages = [
       },
       {
         type: "cta",
-        title: "Choose a passage for your word study",
-        intro: "Open the Bible reader, choose a short passage, and use the steps and checklist on this page to study an important word. Bible Study Tutor does not currently include a dedicated guided word-study workflow.",
-        href: "/?tab=bible",
-        label: "Open the Bible reader"
+        title: "Print the word-study worksheet",
+        intro: "Use the dedicated printable companion to record context, repetition, careful comparisons, a faithful summary, and a response. Bible Study Tutor does not currently include a dedicated guided word-study workflow.",
+        href: "/printable-bible-word-study-worksheet",
+        label: "Open the printable worksheet",
+        secondaryHref: "/?tab=bible",
+        secondaryLabel: "Choose a Bible passage"
+      }
+    ]
+  },
+  {
+    path: "/printable-bible-word-study-worksheet",
+    file: "printable-bible-word-study-worksheet.html",
+    title: "Printable Bible Word Study Worksheet | Free Study Guide",
+    description: "Print a free Bible word-study worksheet with space for passage context, repeated words, careful comparisons, optional tool notes, a faithful summary, and prayerful response.",
+    heading: "Printable Bible word-study worksheet",
+    intro: "This free browser-printable worksheet helps you examine one important word while keeping the whole passage in view. It is a standalone companion to the word-study guide, not a claim that the app includes a dedicated guided word-study workflow.",
+    sections: [
+      ["Begin with the passage", "Choose a short passage and read the surrounding paragraph or chapter before filling in the word boxes. Write the passage’s main point first so the selected word remains under the author’s argument."],
+      ["Work from near to far", "Notice the sentence, grammar, repetition, and nearby use before comparing the same author or wider Scripture. Cross references should clarify the main passage rather than replace it."],
+      ["Use language tools carefully", "Greek or Hebrew tools are optional. If you use them, record only insights that fit the grammar and context; do not import every dictionary definition or build meaning from a word’s root alone."],
+      ["Print from a browser", "Use the Print worksheet button below, then choose a printer or Save as PDF. The app’s generated worksheets are available in the web app; this standalone page can also be printed directly from a desktop or mobile browser."]
+    ],
+    cta: "Print the word-study worksheet",
+    primaryHref: "#printable-bible-word-study-worksheet",
+    primaryLabel: "Go to the printable worksheet",
+    related: ["/bible-study-methods/word-study", "/printable-bible-study-worksheets", "/bible-study-methods/inductive", "/bible-study-methods/verse-mapping"],
+    schemaType: "FAQPage",
+    faq: [
+      ["Is this Bible word-study worksheet free?", "Yes. You can print this worksheet from your browser or save it as a PDF without creating an account."],
+      ["What should a Bible word-study worksheet include?", "It should record the passage and its main point, the selected word in its sentence, nearby repetition, careful comparisons, optional tool notes, a contextual summary, and a faithful response."],
+      ["Do I need Greek or Hebrew to use the worksheet?", "No. You can begin with careful reading, context, repetition, grammar in your translation, and cross references. Original-language tools are optional and must remain accountable to the passage."],
+      ["Can I use this worksheet with a Bible study group?", "Yes. Each person can complete the context and observation sections before discussing comparisons, the passage’s main point, and a shared prayer or application."],
+      ["Does Bible Study Tutor have a guided word-study tool?", "Not currently. This printable worksheet and the accompanying method guide support a manual word study, while the app offers other guided methods such as SOAP, OIA, and Inductive Study."]
+    ],
+    extraBlocks: [
+      {
+        type: "worksheet",
+        title: "Printable Bible word-study worksheet",
+        eyebrow: "Bible Study Tutor · Word study",
+        intro: "Print this blank worksheet and work through one word in one passage. Keep your Bible open so every note can be checked against the text.",
+        meta: ["Passage", "Translation", "Focus word", "Date"],
+        sections: [
+          { title: "1. Read the whole passage", prompt: "What is the main point of the paragraph or chapter before you isolate the word?", lines: 4 },
+          { title: "2. See the word in its sentence", prompt: "Copy the phrase containing the word. Who is speaking or writing, to whom, and how does the word function here?", lines: 5 },
+          { title: "3. Notice the immediate context", prompt: "Record repetition, contrasts, commands, promises, connecting words, and nearby ideas that shape its meaning.", lines: 5 },
+          { title: "4. Compare the same book or author", prompt: "List the closest useful occurrences. Note similarities and differences instead of forcing every use to mean the same thing.", lines: 5 },
+          { title: "5. Check wider Scripture carefully", prompt: "Which cross references genuinely clarify this passage? Write their context as well as their references.", lines: 5 },
+          { title: "6. Optional language-tool notes", prompt: "If you used a lexicon or original-language tool, which observation fits this sentence and grammar? Leave blank if no tool was needed.", lines: 4 },
+          { title: "7. Return to the passage", prompt: "In one or two sentences, how does this word help explain the author’s main point?", lines: 4 },
+          { title: "8. Respond faithfully", prompt: "Write one prayer, belief, or action shaped by the passage—not by the word in isolation.", lines: 4 }
+        ]
+      },
+      {
+        type: "example",
+        title: "Completed example: peace in John 14:27",
+        intro: "This condensed example shows the kind of reasoning the blank worksheet is designed to capture.",
+        items: [
+          ["Passage context", "Jesus is comforting troubled disciples before the cross and speaking about His departure, the Father, and the promised Holy Spirit."],
+          ["Word in its sentence", "Peace is repeated and contrasted with what the world gives, so the sentence itself rules out a merely circumstantial calm."],
+          ["Careful comparison", "John 16:33 can clarify peace within Jesus’ farewell teaching; Philippians 4:6-7 is related but should not replace John’s immediate context."],
+          ["Faithful summary", "Jesus gives His disciples a peace grounded in Himself and His continuing care, so fear does not have to rule their hearts."]
+        ]
+      },
+      {
+        type: "checklist",
+        title: "Context safeguards",
+        intro: "Check these before treating the worksheet as complete.",
+        items: [
+          "I can state the passage’s main point without relying on the selected word alone.",
+          "I did not paste every dictionary definition into the verse.",
+          "I did not assume the word’s root determines its meaning here.",
+          "I recorded differences as well as similarities across passages.",
+          "My response follows the passage’s meaning rather than a detached word association."
+        ]
+      },
+      {
+        type: "cta",
+        title: "Learn the method before you print",
+        intro: "Read the step-by-step word-study guide for a fuller explanation of context, comparisons, language tools, and common mistakes.",
+        href: "/bible-study-methods/word-study",
+        label: "Read the word-study guide",
+        secondaryHref: "/?tab=bible",
+        secondaryLabel: "Open the Bible reader"
       }
     ]
   },
@@ -2053,27 +2132,73 @@ const seoPages = [
   {
     path: "/bible-study-app-for-churches",
     file: "bible-study-app-for-churches.html",
-    title: "Bible Study App for Churches | Free Scripture Tools for Discipleship",
-    description: "A free Bible study app churches can use for Scripture reading, guided study, printable worksheets, memory verses, journaling, private encouragement, and reading plans.",
-    heading: "A free Bible study app for churches",
-    intro: "Bible Study Tutor is built to serve the church by keeping Scripture study free, practical, and accessible on desktop, mobile, and paper. It helps leaders point people back to the Bible without adding a paid platform or public social feed.",
+    title: "Free Bible Study App for Churches and Small Groups",
+    description: "See how churches and small groups can use free Bible reading, guided study, browser-printable worksheets, memory tools, and private circles—with clear product and privacy limits.",
+    heading: "Free Bible study app for churches and small groups",
+    intro: "Bible Study Tutor helps leaders prepare Scripture-centred sessions while giving each person a simple way to read, study, remember, and respond. The core app is intended to remain free, works in desktop and mobile browsers, and keeps community sharing away from a public social feed.",
     sections: [
-      ["No paid barrier", "The core app is intended to remain free so churches can recommend it without asking people to pay for basic Bible study tools, reading plans, memory verses, or printable worksheets."],
-      ["Useful in different settings", "Use it for personal discipleship, small groups, youth groups, Bible classes, sermon follow-up, pastoral care follow-up, new believer pathways, or printed study sheets."],
-      ["Digital and printable", "Some people study best on a phone or laptop; others prefer paper. Bible Study Tutor supports both by pairing guided study tools with printable worksheets and memory cards."],
-      ["Careful community design", "Private encouragements, friends, and circles are designed to support real relationships without becoming another public feed, popularity system, or social media replacement."]
+      ["Useful for ordinary group study", "A leader can choose a passage, use an available guided method such as SOAP, OIA, or Inductive Study, prepare discussion prompts, and print a worksheet from the web app. Members can continue with reading plans, notes, memory verses, and journals during the week."],
+      ["What this is not", "Bible Study Tutor is not a church management system, attendance or scheduling tool, public social network, or church-leader dashboard for monitoring members’ private studies. It should support local discipleship rather than replace teaching, pastoral care, or accountable relationships."],
+      ["Accounts and privacy boundaries", "People can explore Scripture and print from the browser without creating an account. Signing in is needed for cross-device sync and private community features. Notes and journals are not public; a person must intentionally share an encouragement with an accepted friend or invite-only circle."],
+      ["Translations and printing", "The app currently offers BSB, WEB, and KJV, and availability may change. Generated worksheets and memory cards are printable from the web app using browser print or Save as PDF; native mobile printing is not currently offered."]
     ],
-    cta: "Open Bible Study Tutor",
-    related: ["/free-bible-study-app", "/bible-study-for-small-groups", "/printable-bible-study-worksheets", "/bible-reading-plan-app", "/about"],
+    cta: "Prepare your next group passage",
+    primaryHref: "/?tab=bible",
+    primaryLabel: "Prepare your next group passage",
+    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheet-for-small-groups", "/printable-bible-word-study-worksheet", "/printable-bible-study-worksheets", "/free-bible-study-app"],
     schemaType: "FAQPage",
     faq: [
-      ["Can a church use Bible Study Tutor for free?", "Yes. Bible Study Tutor is designed to be free for individuals, churches, small groups, youth groups, and Bible classes."],
-      ["Does Bible Study Tutor replace a church’s discipleship ministry?", "No. It is a practical tool to support Bible reading, guided study, journaling, memory verses, and printed handouts. It should serve local church discipleship rather than replace it."],
-      ["Can leaders print worksheets for group discussion?", "Yes. In the web app, leaders can select a passage and print worksheets using available guided methods such as SOAP, OIA, or Inductive Study."],
-      ["Is there a public social feed?", "No. Bible Study Tutor is designed around private friends and circles for trusted encouragement, not a public timeline."],
-      ["What private information is avoided in public analytics?", "Public analytics should not include journal text, study answers, notes, names, email addresses, Scripture search text, or community encouragement content."]
+      ["Can churches and small groups use Bible Study Tutor for free?", "Yes. The core Bible reading, guided study, journal, memory, plan, and web-printing tools are intended to remain free for individuals, churches, and small groups."],
+      ["Do group members need an account?", "No account is needed to explore Scripture or use browser-printable resources. A free sign-in is needed to sync saved work across devices or use private friend and circle features."],
+      ["Can a leader monitor members’ private Bible studies?", "No. Bible Study Tutor does not provide church leaders with a member-monitoring dashboard. Notes, study answers, and journal entries are not exposed to a group leader."],
+      ["Which Bible translations are available?", "The app currently offers the Berean Standard Bible, World English Bible, and King James Version. Translation availability may change, so leaders should verify the displayed translation and attribution for their setting."],
+      ["Can leaders print worksheets for a group?", "Yes. In the web app, leaders can choose a passage and print worksheets using available guided methods such as SOAP, OIA, or Inductive Study. This page also includes a printable leader session sheet."],
+      ["Does Bible Study Tutor have a public group feed?", "No. Community sharing is limited to accepted friends and invite-only circles. People choose what encouragement to share; private notes and journal entries are not automatically posted."],
+      ["What does public analytics avoid?", "Public analytics records broad page and feature events and is designed not to include journal text, study answers, notes, names, email addresses, Scripture search text, or community encouragement content."]
     ],
     extraBlocks: [
+      {
+        type: "list",
+        title: "A 30–45 minute small-group session",
+        intro: "This simple rhythm leaves room for the passage to lead the conversation.",
+        items: [
+          "Read · 4 minutes: read the passage aloud, then allow a short quiet rereading.",
+          "Observe · 6 minutes: ask what people notice before explaining or applying it.",
+          "Discuss · 8–23 minutes: trace the author’s main point, context, questions, and important details.",
+          "Apply · 5 minutes: invite one specific response grounded in the passage.",
+          "Pray · 5 minutes: pray from the text and for the responses named by the group.",
+          "Follow up · 2 minutes: choose one reading, memory verse, or action for the week."
+        ]
+      },
+      {
+        type: "checklist",
+        title: "15-minute leader setup",
+        intro: "Prepare the essentials before adding extra material.",
+        items: [
+          "Choose one passage short enough to read twice and discuss carefully.",
+          "Read its surrounding context and write the main point in one sentence.",
+          "Choose one available method or a short set of observation, meaning, and application prompts.",
+          "Decide whether the group will use the app, a browser-printed worksheet, or both.",
+          "Prepare one opening observation question and one text-shaped application question.",
+          "Choose a prayer response and one simple follow-up rhythm for the week."
+        ]
+      },
+      {
+        type: "worksheet",
+        title: "Printable leader session sheet",
+        eyebrow: "Bible Study Tutor · Small-group leader",
+        intro: "Print this one-session outline after choosing the passage and method. Adjust the timing to the needs of your group.",
+        meta: ["Group", "Date", "Passage", "Method"],
+        sections: [
+          { title: "Leader preparation", prompt: "Main point of the passage and one context note the group needs", lines: 4 },
+          { title: "Read · 4 minutes", items: ["Read the passage aloud.", "Pause for quiet rereading."], lines: 1 },
+          { title: "Observe · 6 minutes", prompt: "What words, actions, contrasts, commands, promises, or questions do we notice?", lines: 3 },
+          { title: "Discuss · 8–23 minutes", prompt: "What is the author’s main point in context? What question needs careful attention?", lines: 4 },
+          { title: "Apply · 5 minutes", prompt: "What specific belief, repentance, obedience, encouragement, or act of love follows from this passage?", lines: 3 },
+          { title: "Pray · 5 minutes", prompt: "Prayer shaped by the passage", lines: 3 },
+          { title: "Follow up · 2 minutes", prompt: "One reading, memory verse, or action for the coming week", lines: 2 }
+        ]
+      },
       {
         type: "list",
         title: "Practical church use cases",
@@ -2095,7 +2220,7 @@ const seoPages = [
           "Friends and circles are private spaces for trusted encouragement.",
           "Public analytics are intended to measure app usage patterns, not private journal text, notes, answers, emails, names, or community content.",
           "A free account helps sync saved study data across devices, but people can still explore the app before creating one.",
-          "Bible translation choices are shaped by legal access and the desire to keep the app free."
+          "The app currently offers BSB, WEB, and KJV; leaders should verify the displayed translation and attribution for their setting."
         ]
       },
       {
@@ -2111,10 +2236,10 @@ const seoPages = [
       },
       {
         type: "cta",
-        title: "Try it with your next group passage",
-        intro: "Choose a passage, open the Bible reader, and print a worksheet or start a guided study before your next small group or Bible class.",
+        title: "Prepare your next group passage",
+        intro: "Choose a passage in the Bible reader, then use an available guided method or browser-printable worksheet before your next small group or Bible class.",
         href: "/?tab=bible",
-        label: "Open the Bible reader"
+        label: "Prepare a group passage"
       }
     ]
   },
@@ -3669,14 +3794,54 @@ function buildSeoPage(page, baseUrl) {
   const leadHowToBlock = page.showHowToSteps && page.howToSteps?.length
     ? buildVisibleHowToSteps(page)
     : "";
-  const pageSpecificStyles = pageExtraBlocks.some((block) => block.type === "table")
-    ? `<style>
+  const tableStyles = pageExtraBlocks.some((block) => block.type === "table")
+    ? `
       .table-wrap { margin-top: 14px; overflow-x: auto; }
       .comparison-table { border-collapse: collapse; min-width: 620px; width: 100%; }
       .comparison-table th, .comparison-table td { border: 1px solid var(--line); line-height: 1.55; padding: 13px 14px; text-align: left; vertical-align: top; }
       .comparison-table th { background: #f2eadc; color: var(--olive); font-size: 14px; }
       .comparison-table td { background: #fffaf2; color: var(--muted); }
-    </style>`
+    `
+    : "";
+  const worksheetStyles = pageExtraBlocks.some((block) => block.type === "worksheet")
+    ? `
+      .printable-resource { padding: 0; }
+      .print-controls { align-items: center; background: #f2eadc; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; padding: 18px 20px; }
+      .print-controls-copy { max-width: 650px; }
+      .print-controls-copy h2 { margin-bottom: 6px; }
+      .print-controls .button { border: 0; cursor: pointer; font: inherit; }
+      .print-sheet { background: #fffdf8; padding: clamp(22px, 4vw, 42px); }
+      .print-sheet-header { border-bottom: 3px double var(--line); margin-bottom: 20px; padding-bottom: 16px; }
+      .print-sheet-header .eyebrow { margin-bottom: 8px; }
+      .print-sheet-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(28px, 5vw, 42px); line-height: 1.05; margin-bottom: 8px; }
+      .worksheet-meta { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
+      .worksheet-meta-field { color: var(--olive); font-size: 13px; font-weight: 900; }
+      .worksheet-blank { border-bottom: 1px solid #bbaa96; display: block; height: 24px; margin-top: 3px; }
+      .worksheet-section { border: 1px solid var(--line); border-radius: 12px; break-inside: avoid; margin-top: 12px; padding: 14px; }
+      .worksheet-section h3 { color: var(--olive); font-size: 16px; margin: 0 0 5px; }
+      .worksheet-section p { font-size: 14px; }
+      .worksheet-section ul { color: var(--muted); line-height: 1.5; margin: 8px 0 0; padding-left: 20px; }
+      .worksheet-line { border-bottom: 1px solid #cfc0ad; height: 25px; }
+      .worksheet-footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; margin-top: 18px; padding-top: 8px; text-align: center; }
+      @media (max-width: 640px) { .worksheet-meta { grid-template-columns: 1fr; } .print-controls { align-items: stretch; } .print-controls .button { justify-content: center; width: 100%; } }
+      @media print {
+        @page { margin: 9mm; }
+        body { background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .site-header, .site-footer { display: none !important; }
+        main.shell { max-width: none; padding: 0; }
+        main.shell > * { display: none !important; }
+        main.shell > .printable-resource { display: block !important; }
+        .printable-resource { border: 0; margin: 0; }
+        .print-controls { display: none; }
+        .print-sheet { padding: 0; }
+        .print-sheet-header h2 { font-size: 28px; }
+        .worksheet-section { break-inside: avoid; page-break-inside: avoid; padding: 10px 12px; }
+        .worksheet-line { height: 20px; }
+      }
+    `
+    : "";
+  const pageSpecificStyles = tableStyles || worksheetStyles
+    ? `<style>${tableStyles}${worksheetStyles}</style>`
     : "";
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
@@ -3888,6 +4053,41 @@ function buildExtraSeoBlock(block) {
           ${rows}
             </tbody>
           </table>
+        </div>
+      </section>`;
+  }
+
+  if (block.type === "worksheet") {
+    const meta = (block.meta || [])
+      .map((label) => `<div class="worksheet-meta-field">${escapeHtml(label)}<span class="worksheet-blank" aria-hidden="true"></span></div>`)
+      .join("\n          ");
+    const worksheetSections = (block.sections || [])
+      .map((section) => {
+        const prompt = section.prompt ? `<p>${escapeHtml(section.prompt)}</p>` : "";
+        const items = section.items?.length
+          ? `<ul>${section.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          : "";
+        const lines = Array.from({ length: Math.max(0, Math.min(8, section.lines || 0)) }, () => '<div class="worksheet-line"></div>').join("");
+        return `<section class="worksheet-section"><h3>${escapeHtml(section.title)}</h3>${prompt}${items}${lines}</section>`;
+      })
+      .join("\n        ");
+    return `<section class="extra-block printable-resource" id="${slugifyForId(block.title)}" aria-labelledby="${slugifyForId(block.title)}-heading">
+        <div class="print-controls">
+          <div class="print-controls-copy">
+            <h2 id="${slugifyForId(block.title)}-heading">${escapeHtml(block.title)}</h2>
+            ${intro}
+          </div>
+          <button class="button" type="button" onclick="window.print()">Print worksheet</button>
+        </div>
+        <div class="print-sheet">
+          <header class="print-sheet-header">
+            <div class="eyebrow">${escapeHtml(block.eyebrow || "Bible Study Tutor worksheet")}</div>
+            <h2>${escapeHtml(block.title)}</h2>
+            <p>${escapeHtml(block.intro || "")}</p>
+          </header>
+          <div class="worksheet-meta">${meta}</div>
+          ${worksheetSections}
+          <footer class="worksheet-footer">Free printable resource from Bible Study Tutor · biblestudytutor.org</footer>
         </div>
       </section>`;
   }
@@ -4129,6 +4329,7 @@ function methodIdForSeoPage(page) {
 }
 
 function getCtaHref(page, appUrl) {
+  if (page.primaryHref) return page.primaryHref;
   const query = getAppEntryQuery(page);
   if (!query) return appUrl;
   return appUrl.includes("?") ? `${appUrl}&${query}` : `${appUrl}?${query}`;
@@ -4182,6 +4383,7 @@ function getAppEntryQuery(page) {
 }
 
 function getStandardCtaLabel(page) {
+  if (page.primaryLabel) return page.primaryLabel;
   const value = `${page.path} ${page.cta} ${page.title}`.toLowerCase();
   if (page.path === "/bible-study-methods/word-study") return "Open the Bible reader";
   if (value.includes("feature") || value.includes("about") || value.includes("free bible study app")) return "Start a guided study";

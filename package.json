@@ -19,8 +19,9 @@
     "convex:validate": "node scripts/validate-convex-phase-two.mjs",
     "performance:validate": "node scripts/validate-performance-phase-three.mjs",
     "observability:validate": "node scripts/validate-observability-phase-four.mjs",
+    "study:validate": "node scripts/validate-study-phase-a.mjs",
     "build:validate": "node scripts/validate-build.mjs",
-    "verify": "npm run typecheck && npm run plans:audit && npm run convex:validate && npm run performance:validate && npm run observability:validate && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate"
+    "verify": "npm run typecheck && npm run plans:audit && npm run convex:validate && npm run performance:validate && npm run observability:validate && npm run study:validate && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate"
   },
   "dependencies": {
     "@auth/core": "^0.37.0",

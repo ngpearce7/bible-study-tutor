@@ -164,6 +164,7 @@ export const saveSession = mutation({
     methodId: v.string(),
     methodName: v.string(),
     shareNote: v.optional(v.string()),
+    skippedStepTitles: v.optional(v.array(v.string())),
     passageMarkups: v.optional(v.array(passageMarkup)),
     minutes: v.number(),
     localDayKey: v.optional(v.string()),
@@ -200,6 +201,7 @@ export const saveSession = mutation({
       methodId: clampText(args.methodId, 80),
       methodName: clampText(args.methodName, 120),
       shareNote: clampOptionalText(args.shareNote, 1200),
+      skippedStepTitles: cleanStepTitles(args.skippedStepTitles),
       passageMarkups: cleanPassageMarkups(args.passageMarkups),
       minutes: clampNumber(args.minutes, 0, 600),
       coachingMoments: cleanCoachingMoments(args.coachingMoments),
@@ -243,6 +245,8 @@ export const saveDraft = mutation({
     passageMarkups: v.optional(v.array(passageMarkup)),
     methodId: v.string(),
     methodName: v.string(),
+    shareNote: v.optional(v.string()),
+    skippedStepTitles: v.optional(v.array(v.string())),
     stepIndex: v.number(),
     answers: v.array(
       v.object({
@@ -270,6 +274,8 @@ export const saveDraft = mutation({
       passageMarkups: cleanPassageMarkups(args.passageMarkups),
       methodId: clampText(args.methodId, 80),
       methodName: clampText(args.methodName, 120),
+      shareNote: clampOptionalText(args.shareNote, 1200),
+      skippedStepTitles: cleanStepTitles(args.skippedStepTitles),
       stepIndex: clampNumber(args.stepIndex, 0, 20),
       answers: cleanAnswers(args.answers)
     };
@@ -289,6 +295,8 @@ export const saveDraft = mutation({
         translationName: cleaned.translationName,
         passageMarkups: cleaned.passageMarkups,
         methodName: cleaned.methodName,
+        shareNote: cleaned.shareNote,
+        skippedStepTitles: cleaned.skippedStepTitles,
         stepIndex: cleaned.stepIndex,
         answers: cleaned.answers,
         updatedAt: now
@@ -647,6 +655,12 @@ function cleanAnswers(answers: { stepTitle: string; answer: string }[]) {
     stepTitle: clampText(item.stepTitle, 120),
     answer: clampText(item.answer, 12000)
   }));
+}
+
+function cleanStepTitles(stepTitles: string[] | undefined) {
+  if (!stepTitles?.length) return undefined;
+  const cleaned = Array.from(new Set(stepTitles.map((title) => clampText(title, 120)).filter(Boolean))).slice(0, 20);
+  return cleaned.length ? cleaned : undefined;
 }
 
 function cleanCoachingMoments(

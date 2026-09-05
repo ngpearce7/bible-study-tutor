@@ -265,6 +265,10 @@ type RhythmGraceSuccess = {
   restoredCount: number;
 };
 
+type PendingStudyTransition = {
+  description: string;
+};
+
 class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundaryState> {
   state: TabErrorBoundaryState = { hasError: false };
 
@@ -434,6 +438,85 @@ type PassageMarkupRecord = {
   reference: string;
   verse: number;
 };
+type StudyRecoveryDraft = {
+  version: 1;
+  profileId: string;
+  studyKey: string;
+  passage: string;
+  methodId: string;
+  stepIndex: number;
+  answers: AnswerMap;
+  passageMarkups: PassageMarkupRecord[];
+  shareNote: string;
+  skippedStepTitles: string[];
+  updatedAt: number;
+};
+
+function studyRecoveryStorageKey(profileId: string, currentStudyKey: string) {
+  return `bible-study-tutor-study-recovery-${profileId}-${currentStudyKey}`;
+}
+
+function readStudyRecoveryDraft(profileId: string, currentStudyKey: string): StudyRecoveryDraft | null {
+  const stored = safeGetLocalStorageValue(studyRecoveryStorageKey(profileId, currentStudyKey));
+  if (!stored) return null;
+
+  try {
+    const parsed = JSON.parse(stored);
+    if (
+      parsed?.version !== 1 ||
+      parsed?.profileId !== profileId ||
+      parsed?.studyKey !== currentStudyKey ||
+      typeof parsed?.passage !== "string" ||
+      typeof parsed?.methodId !== "string" ||
+      !Number.isFinite(parsed?.stepIndex) ||
+      !parsed?.answers ||
+      typeof parsed.answers !== "object" ||
+      !Array.isArray(parsed?.passageMarkups) ||
+      typeof parsed?.updatedAt !== "number"
+    ) return null;
+
+    return {
+      version: 1,
+      profileId,
+      studyKey: currentStudyKey,
+      passage: parsed.passage.slice(0, 160),
+      methodId: parsed.methodId.slice(0, 80),
+      stepIndex: Math.max(0, Math.min(20, Math.round(parsed.stepIndex))),
+      answers: Object.entries(parsed.answers).slice(0, 20).reduce<AnswerMap>((map, [key, value]) => {
+        if (typeof value === "string") map[key] = value.slice(0, 12000);
+        return map;
+      }, {}),
+      passageMarkups: parsed.passageMarkups.slice(0, 300),
+      shareNote: typeof parsed?.shareNote === "string" ? parsed.shareNote.slice(0, 1200) : "",
+      skippedStepTitles: Array.isArray(parsed?.skippedStepTitles)
+        ? parsed.skippedStepTitles.filter((title: unknown): title is string => typeof title === "string").slice(0, 20)
+        : [],
+      updatedAt: parsed.updatedAt
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveStudyRecoveryDraft(draft: StudyRecoveryDraft) {
+  safeSetLocalStorageValue(studyRecoveryStorageKey(draft.profileId, draft.studyKey), JSON.stringify(draft));
+}
+
+function clearStudyRecoveryDraft(profileId: string, currentStudyKey: string, savedThrough?: number) {
+  if (savedThrough) {
+    const latest = readStudyRecoveryDraft(profileId, currentStudyKey);
+    if (latest && latest.updatedAt > savedThrough) return;
+  }
+  safeRemoveLocalStorageValue(studyRecoveryStorageKey(profileId, currentStudyKey));
+}
+
+function formatStudySavedTime(timestamp: number) {
+  try {
+    return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(timestamp);
+  } catch {
+    return "just now";
+  }
+}
 type HighlightJournalEntry = {
   id: string;
   passage: string;
@@ -800,6 +883,10 @@ export default function Home() {
   const [studyFocusMode, setStudyFocusMode] = useState(false);
   const [studyFocusModeHydrated, setStudyFocusModeHydrated] = useState(false);
   const [answers, setAnswers] = useState<AnswerMap>({});
+  const [skippedStudySteps, setSkippedStudySteps] = useState<Record<string, boolean>>({});
+  const [pendingStudyTransition, setPendingStudyTransition] = useState<PendingStudyTransition | null>(null);
+  const [isSavingStudyDraft, setIsSavingStudyDraft] = useState(false);
+  const [isCompletingStudy, setIsCompletingStudy] = useState(false);
   const [answerSelection, setAnswerSelection] = useState({ start: 0, end: 0 });
   const [lastAnswerSelection, setLastAnswerSelection] = useState({ start: 0, end: 0 });
   const [detectedScriptureReference, setDetectedScriptureReference] = useState("");
@@ -1094,6 +1181,10 @@ export default function Home() {
   const pendingBibleReaderStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedDraftRevisionRef = useRef(0);
   const isHydratingDraftRef = useRef(false);
+  const suppressStudyDraftSaveRef = useRef(false);
+  const pendingStudyTransitionActionRef = useRef<(() => void) | null>(null);
+  const studyDraftSavePromiseRef = useRef<Promise<unknown> | null>(null);
+  const studyDraftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasReadInitialUrlRef = useRef(false);
   const skipInitialUrlSyncRef = useRef(true);
 
@@ -1598,6 +1689,7 @@ export default function Home() {
     loadedDraftRevisionRef.current = 0;
     setLoadedDraftKey("");
     setAnswers({});
+    setSkippedStudySteps({});
     setShareNote("");
     setPassageMarkups({});
     setPassageMarkupNotes({});
@@ -1668,7 +1760,7 @@ export default function Home() {
   const shouldLoadCommunityConnections = COMMUNITY_CIRCLES_ENABLED && profileMatchesActiveState && isAuthenticated && (tab === "accountability" || tab === "study");
   const shouldLoadAccountDeletionRequest = profileMatchesActiveState && tab === "account";
   const shouldLoadAdminDetails = profileMatchesActiveState && tab === "admin";
-  const shouldLoadCurrentStudyDraft = profileMatchesActiveState && tab === "study";
+  const shouldLoadCurrentStudyDraft = profileMatchesActiveState && (tab === "study" || !!loadedDraftKey);
   const shouldRenderJournal = tab === "journal";
   const shouldRenderMemoryHistory = tab === "memory" && memoryView === "history";
   const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
@@ -1865,7 +1957,6 @@ export default function Home() {
   const recommendedMethod = methods.find((item) => item.id === selectedMethodRecommendation.methodId) || methods[0];
   const step = method.steps[stepIndex];
   const answerKey = `${method.id}:${stepIndex}`;
-  const progress = Math.min(100, ((stepIndex + (answers[answerKey]?.trim() ? 1 : 0)) / method.steps.length) * 100);
   const currentStudyKey = studyKey(passage, method.id);
   const answeredSteps = method.steps
     .map((item, index) => ({
@@ -1879,6 +1970,19 @@ export default function Home() {
     answer: answers[`${method.id}:${index}`] || ""
   }));
   const hasStudyWork = sessionAnswers.some((item) => item.answer.trim());
+  const skippedStepTitles = useMemo(() => method.steps
+    .filter((item, index) => item.responseType === "text" && skippedStudySteps[`${method.id}:${index}`] && !answers[`${method.id}:${index}`]?.trim())
+    .map((item) => item.title), [answers, method, skippedStudySteps]);
+  const writingStepCount = method.steps.filter((item) => item.responseType === "text").length;
+  const completedWritingStepCount = sessionAnswers.filter((item) => item.answer.trim()).length;
+  const hasStudySubstance = hasStudyWork || Object.keys(passageMarkups).length > 0;
+  const hasStudyContent = hasStudySubstance || !!shareNote.trim();
+  const completedStudyStepCount = method.steps.filter((item, index) =>
+    item.responseType === "none"
+      ? index < stepIndex || studyPhase !== "study"
+      : !!answers[`${method.id}:${index}`]?.trim()
+  ).length;
+  const progress = Math.min(100, (completedStudyStepCount / method.steps.length) * 100);
   const studyPassageReference = passageText?.reference || passage;
   const studyContextReference = useMemo(() => buildStudyContextReference(studyPassageReference), [studyPassageReference]);
   const studyHelps = useMemo(() => buildStudyHelpLinks(passageText?.reference || passage, bibleTranslation), [bibleTranslation, passage, passageText?.reference]);
@@ -1887,7 +1991,7 @@ export default function Home() {
       ? step.nextLabel || "I am ready for the next step"
       : stepIndex === method.steps.length - 1
         ? "Review study"
-        : "Save and continue";
+        : "Continue";
   const parsedPassage = parsePassageQuery(passageQuery);
   const latestCheckin = checkins?.[0];
   const backendReady = profileMatchesActiveState;
@@ -1946,7 +2050,6 @@ export default function Home() {
     : profile?.authEmail
       ? `${personalDisplayName} (${profile.authEmail})`
       : personalDisplayName;
-  const suggestedShareNote = buildShareNote(method, answers, passageText?.reference || passage);
   const activeCheckinPartner = checkinPartners.find((item) => item.id === activeCheckinPartnerId);
   const effectivePartner = activeCheckinPartner?.name || partner;
   const visibleCheckins = (checkins || []).slice(0, recentCheckinsExpanded ? 8 : 3);
@@ -2824,14 +2927,35 @@ export default function Home() {
     if (savedDraft === undefined) return;
 
     const draftRevision = savedDraft ? ((savedDraft as any).updatedAt || 0) : 0;
+    const recoveryDraft = activeProfileId ? readStudyRecoveryDraft(String(activeProfileId), currentStudyKey) : null;
     const sameStudyAlreadyLoaded = loadedDraftKey === currentStudyKey;
     if (sameStudyAlreadyLoaded && draftRevision > 0 && draftRevision <= loadedDraftRevisionRef.current) return;
+
+    if (recoveryDraft && recoveryDraft.updatedAt > draftRevision) {
+      isHydratingDraftRef.current = false;
+      setAnswers(recoveryDraft.answers);
+      setPassageMarkups(markupRecordsToMap(recoveryDraft.passageMarkups));
+      setPassageMarkupNotes(markupRecordsToNoteMap(recoveryDraft.passageMarkups));
+      setSkippedStudySteps(method.steps.reduce<Record<string, boolean>>((map, item, index) => {
+        if (recoveryDraft.skippedStepTitles.includes(item.title)) map[`${method.id}:${index}`] = true;
+        return map;
+      }, {}));
+      setSelectedVerseKeys([]);
+      setStepIndex(Math.min(recoveryDraft.stepIndex, Math.max(0, method.steps.length - 1)));
+      setStudyPhase("study");
+      loadedDraftRevisionRef.current = recoveryDraft.updatedAt;
+      setLoadedDraftKey(currentStudyKey);
+      setSaveStatus("Recovered unsaved work from this device. Saving when connected...");
+      setShareNote(recoveryDraft.shareNote);
+      return;
+    }
 
     if (!savedDraft) {
       if (sameStudyAlreadyLoaded) return;
       loadedDraftRevisionRef.current = 0;
       isHydratingDraftRef.current = true;
       setAnswers({});
+      setSkippedStudySteps({});
       setPassageMarkups({});
       setPassageMarkupNotes({});
       setSelectedVerseKeys([]);
@@ -2849,6 +2973,10 @@ export default function Home() {
     });
     isHydratingDraftRef.current = true;
     setAnswers(restoredAnswers);
+    setSkippedStudySteps(method.steps.reduce<Record<string, boolean>>((map, item, index) => {
+      if ((savedDraft.skippedStepTitles || []).includes(item.title)) map[`${method.id}:${index}`] = true;
+      return map;
+    }, {}));
     setPassageMarkups(markupRecordsToMap(savedDraft.passageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(savedDraft.passageMarkups || []));
     setSelectedVerseKeys([]);
@@ -2857,8 +2985,8 @@ export default function Home() {
     loadedDraftRevisionRef.current = draftRevision;
     setLoadedDraftKey(currentStudyKey);
     setSaveStatus(`Welcome back${firstName ? `, ${firstName}` : ""}. Your draft is restored.`);
-    setShareNote(buildShareNote(method, restoredAnswers, savedDraft.passageReference || savedDraft.passage));
-  }, [currentStudyKey, firstName, loadedDraftKey, method, savedDraft]);
+    setShareNote(savedDraft.shareNote || "");
+  }, [activeProfileId, currentStudyKey, firstName, loadedDraftKey, method, savedDraft]);
 
   useEffect(() => {
     setDetectedScriptureReference("");
@@ -3104,51 +3232,144 @@ export default function Home() {
   }, [passageText?.verses, selectedVerseKeys]);
 
   useEffect(() => {
-    if (!activeProfileId || loadedDraftKey !== currentStudyKey) return;
+    if (loadedDraftKey !== currentStudyKey || suppressStudyDraftSaveRef.current) return;
     if (isHydratingDraftRef.current) {
       isHydratingDraftRef.current = false;
       return;
     }
+    if (!hasStudyContent) return;
 
-    const draftAnswers = method.steps.map((item, index) => ({
-      stepTitle: item.title,
-      answer: answers[`${method.id}:${index}`] || ""
-    }));
-
-    if (!draftAnswers.some((item) => item.answer.trim()) && passageMarkupRecords.length === 0) return;
-
-    setSaveStatus("Saving draft...");
-    const timeout = setTimeout(() => {
-      saveDraft({
-        profileId: activeProfileId,
+    const recoveryUpdatedAt = Date.now();
+    if (activeProfileId) {
+      saveStudyRecoveryDraft({
+        version: 1,
+        profileId: String(activeProfileId),
+        studyKey: currentStudyKey,
         passage: passage.trim() || "Selected passage",
-        passageReference: passageText?.reference,
-        passageText: passageText?.text,
-        translationName: passageText?.translation_name,
-        passageMarkups: passageMarkupRecords,
         methodId: method.id,
-        methodName: method.name,
         stepIndex,
-        answers: draftAnswers
-      })
-        .then(() => setSaveStatus(`Draft saved${firstName ? ` for ${firstName}` : ""}`))
-        .catch(() => setSaveStatus("Draft could not be saved"));
-    }, 650);
+        answers,
+        passageMarkups: passageMarkupRecords,
+        shareNote,
+        skippedStepTitles,
+        updatedAt: recoveryUpdatedAt
+      });
+    }
 
-    return () => clearTimeout(timeout);
-  }, [answers, currentStudyKey, loadedDraftKey, method.id, method.name, method.steps, passage, passageMarkupRecords, passageText, activeProfileId, saveDraft, stepIndex]);
+    setSaveStatus(activeProfileId ? "Saving draft..." : "Changes are kept on this screen until saving reconnects.");
+    const timeout = setTimeout(() => {
+      studyDraftSaveTimerRef.current = null;
+      void saveCurrentStudyDraft(recoveryUpdatedAt);
+    }, 650);
+    studyDraftSaveTimerRef.current = timeout;
+
+    return () => {
+      clearTimeout(timeout);
+      if (studyDraftSaveTimerRef.current === timeout) studyDraftSaveTimerRef.current = null;
+    };
+  }, [answers, currentStudyKey, hasStudyContent, loadedDraftKey, method.id, passage, passageMarkupRecords, passageText, shareNote, skippedStepTitles, activeProfileId, stepIndex]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined") return;
+    const shouldWarn = hasStudyContent && (
+      isSavingStudyDraft ||
+      saveStatus === "Saving draft..." ||
+      saveStatus.startsWith("Could not sync") ||
+      saveStatus.startsWith("Changes are kept")
+    );
+    if (!shouldWarn) return;
+
+    const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, [hasStudyContent, isSavingStudyDraft, saveStatus]);
+
+  async function saveCurrentStudyDraft(recoveryUpdatedAt = Date.now()) {
+    if (!hasStudyContent) return true;
+
+    const recoveryDraft: StudyRecoveryDraft | null = activeProfileId
+      ? {
+          version: 1,
+          profileId: String(activeProfileId),
+          studyKey: currentStudyKey,
+          passage: passage.trim() || "Selected passage",
+          methodId: method.id,
+          stepIndex,
+          answers,
+          passageMarkups: passageMarkupRecords,
+          shareNote,
+          skippedStepTitles,
+          updatedAt: recoveryUpdatedAt
+        }
+      : null;
+    if (recoveryDraft) saveStudyRecoveryDraft(recoveryDraft);
+
+    if (!activeProfileId) {
+      setSaveStatus("Changes are kept on this screen until saving reconnects.");
+      return false;
+    }
+
+    setIsSavingStudyDraft(true);
+    setSaveStatus("Saving draft...");
+    const savePromise = saveDraft({
+      profileId: activeProfileId,
+      passage: passage.trim() || "Selected passage",
+      passageReference: passageText?.reference,
+      passageText: passageText?.text,
+      translationName: passageText?.translation_name,
+      passageMarkups: passageMarkupRecords,
+      methodId: method.id,
+      methodName: method.name,
+      shareNote: shareNote.trim() || undefined,
+      skippedStepTitles: skippedStepTitles.length ? skippedStepTitles : undefined,
+      stepIndex,
+      answers: sessionAnswers
+    });
+    studyDraftSavePromiseRef.current = savePromise;
+
+    try {
+      await savePromise;
+      loadedDraftRevisionRef.current = Date.now();
+      clearStudyRecoveryDraft(String(activeProfileId), currentStudyKey, recoveryUpdatedAt);
+      const newerRecovery = readStudyRecoveryDraft(String(activeProfileId), currentStudyKey);
+      if (!newerRecovery || newerRecovery.updatedAt <= recoveryUpdatedAt) {
+        setSaveStatus(`Draft saved at ${formatStudySavedTime(recoveryUpdatedAt)}`);
+      }
+      return true;
+    } catch {
+      setSaveStatus(Platform.OS === "web"
+        ? "Could not sync yet. Your latest changes are saved on this device; retry when connected."
+        : "Could not sync yet. Your writing is still on this screen; retry when connected.");
+      return false;
+    } finally {
+      if (studyDraftSavePromiseRef.current === savePromise) {
+        studyDraftSavePromiseRef.current = null;
+        setIsSavingStudyDraft(false);
+      }
+    }
+  }
 
   async function completeSession() {
+    if (isCompletingStudy) return;
     if (!activeProfileId) {
       setSaveStatus("Profile is still loading. Try again in a moment.");
       return;
     }
-    if (!hasStudyWork) {
-      setSaveStatus("Write at least one response before saving.");
+    if (!hasStudySubstance) {
+      setSaveStatus("Write at least one response or save a passage highlight before completing this study.");
       return;
     }
 
-    const finalShareNote = (shareNote.trim() || suggestedShareNote).trim();
+    suppressStudyDraftSaveRef.current = true;
+    setIsCompletingStudy(true);
+    if (studyDraftSaveTimerRef.current) clearTimeout(studyDraftSaveTimerRef.current);
+    studyDraftSaveTimerRef.current = null;
+    if (studyDraftSavePromiseRef.current) await studyDraftSavePromiseRef.current.catch(() => undefined);
+
+    const finalShareNote = shareNote.trim();
     setSaveStatus("Saving completed study...");
     let savedSessionId: any = null;
 
@@ -3160,12 +3381,15 @@ export default function Home() {
         methodId: method.id,
         methodName: method.name,
         shareNote: finalShareNote || undefined,
+        skippedStepTitles: skippedStepTitles.length ? skippedStepTitles : undefined,
         passageMarkups: passageMarkupRecords,
         minutes: Math.max(5, sessionAnswers.filter((item) => item.answer.trim()).length * 6),
         answers: sessionAnswers
       });
     } catch {
-      setSaveStatus("Could not save. Check that Convex is running, then try again.");
+      suppressStudyDraftSaveRef.current = false;
+      setIsCompletingStudy(false);
+      setSaveStatus("We could not save your study. Your writing is still here—check your connection and try again.");
       return;
     }
 
@@ -3181,6 +3405,7 @@ export default function Home() {
       method.steps.forEach((_, index) => delete nextAnswers[`${method.id}:${index}`]);
       return nextAnswers;
     });
+    setSkippedStudySteps({});
     setRememberedStudyStepIndex(0);
     setShareNote("");
     setPassageMarkups({});
@@ -3188,6 +3413,9 @@ export default function Home() {
     setSelectedVerseKeys([]);
     setStudyPhase("saved");
     setLoadedDraftKey("");
+    clearStudyRecoveryDraft(String(activeProfileId), currentStudyKey);
+    suppressStudyDraftSaveRef.current = false;
+    setIsCompletingStudy(false);
     setSaveStatus(`Completed and saved${firstName ? `, ${firstName}` : ""}`);
     trackUsage("study_completed", { reference: passageText?.reference || passage, methodId: method.id, methodName: method.name, translation: passageText?.translation_name, tab: "study" });
     trackPublicAnalytics({ eventType: "study_completed", source: "study", ctaTarget: "/?tab=study", methodId: method.id });
@@ -3201,6 +3429,8 @@ export default function Home() {
       stepIndex: draft.stepIndex,
       answers: draft.answers,
       passageMarkups: draft.passageMarkups,
+      shareNote: draft.shareNote,
+      skippedStepTitles: draft.skippedStepTitles,
       status: "Restored saved draft"
     });
   }
@@ -3221,6 +3451,8 @@ export default function Home() {
       stepIndex: firstAnsweredStep,
       answers: session.answers,
       passageMarkups: session.passageMarkups,
+      shareNote: session.shareNote,
+      skippedStepTitles: session.skippedStepTitles,
       status: "Loaded past study notes"
     });
   }
@@ -3245,6 +3477,8 @@ export default function Home() {
     stepIndex: nextStepIndex,
     answers: nextAnswers,
     passageMarkups: nextPassageMarkups,
+    shareNote: nextShareNote,
+    skippedStepTitles: nextSkippedStepTitles,
     status
   }: {
     passage: string;
@@ -3252,6 +3486,8 @@ export default function Home() {
     stepIndex: number;
     answers: { stepTitle: string; answer: string }[];
     passageMarkups?: PassageMarkupRecord[];
+    shareNote?: string;
+    skippedStepTitles?: string[];
     status: string;
   }) {
     const restoredAnswers: AnswerMap = {};
@@ -3265,20 +3501,41 @@ export default function Home() {
     setStudyPhase("study");
     setSavedStudySummary(null);
     setAnswers(restoredAnswers);
+    const nextMethod = methods.find((item) => item.id === nextMethodId) || methods[0];
+    setSkippedStudySteps(nextMethod.steps.reduce<Record<string, boolean>>((map, item, index) => {
+      if ((nextSkippedStepTitles || []).includes(item.title)) map[`${nextMethodId}:${index}`] = true;
+      return map;
+    }, {}));
     setPassageMarkups(markupRecordsToMap(nextPassageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(nextPassageMarkups || []));
     setSelectedVerseKeys([]);
     setLoadedDraftKey(studyKey(nextPassage, nextMethodId));
     setSaveStatus(status);
-    setShareNote(buildShareNote(methods.find((item) => item.id === nextMethodId) || methods[0], restoredAnswers, nextPassage));
+    setShareNote(nextShareNote || "");
     setTab("study");
   }
 
   function continueStudy() {
+    if (step.responseType === "text" && !answers[answerKey]?.trim()) {
+      setSaveStatus("Write a response, or choose Skip for now.");
+      return;
+    }
+    setSkippedStudySteps((current) => ({ ...current, [answerKey]: false }));
     if (stepIndex < method.steps.length - 1) {
       goToStudyStep(stepIndex + 1);
     } else {
-      setShareNote((current) => current || suggestedShareNote);
+      setStudyPhase("review");
+      scrollStudyStepIntoView();
+    }
+  }
+
+  function skipCurrentStudyStep() {
+    if (step.responseType !== "text" || answers[answerKey]?.trim()) return;
+    setSkippedStudySteps((current) => ({ ...current, [answerKey]: true }));
+    setSaveStatus(`${step.title} skipped for now. You can return before saving.`);
+    if (stepIndex < method.steps.length - 1) {
+      goToStudyStep(stepIndex + 1);
+    } else {
       setStudyPhase("review");
       scrollStudyStepIntoView();
     }
@@ -3306,64 +3563,117 @@ export default function Home() {
     setSelectedVerseKeys([]);
   }
 
-  function switchMethod(nextMethodId: string) {
-    if (nextMethodId === method.id) return;
-    trackPublicAnalytics({ eventType: "method_selected", source: "study_method_switcher", ctaTarget: `/?tab=study&method=${nextMethodId}`, methodId: nextMethodId });
-    setRememberedStudyMethod(nextMethodId, 0);
-    setStudyPhase("study");
-    setSavedStudySummary(null);
+  function requestStudyTransition(description: string, action: () => void) {
+    if (!hasStudyContent || studyPhase === "saved") {
+      action();
+      return;
+    }
+    pendingStudyTransitionActionRef.current = action;
+    setPendingStudyTransition({ description });
+  }
+
+  function runPendingStudyTransition() {
+    const action = pendingStudyTransitionActionRef.current;
+    pendingStudyTransitionActionRef.current = null;
+    setPendingStudyTransition(null);
+    action?.();
+  }
+
+  function cancelPendingStudyTransition() {
+    pendingStudyTransitionActionRef.current = null;
+    setPendingStudyTransition(null);
+    setPassageQuery(passage);
+  }
+
+  async function keepDraftAndContinueStudyTransition() {
+    if (studyDraftSaveTimerRef.current) clearTimeout(studyDraftSaveTimerRef.current);
+    studyDraftSaveTimerRef.current = null;
+    const saved = await saveCurrentStudyDraft();
+    if (saved) runPendingStudyTransition();
+  }
+
+  async function discardAndContinueStudyTransition() {
+    suppressStudyDraftSaveRef.current = true;
+    if (studyDraftSaveTimerRef.current) clearTimeout(studyDraftSaveTimerRef.current);
+    studyDraftSaveTimerRef.current = null;
+    const pendingSave = studyDraftSavePromiseRef.current;
+    const pendingDraftId = pendingSave ? await pendingSave.catch(() => null) : null;
+    const draftId = savedDraft?._id || pendingDraftId;
+    if (activeProfileId && draftId) {
+      await deleteDraftMutation({ profileId: activeProfileId, draftId: draftId as any }).catch(() => undefined);
+    }
+    if (activeProfileId) clearStudyRecoveryDraft(String(activeProfileId), currentStudyKey);
+    runPendingStudyTransition();
+    suppressStudyDraftSaveRef.current = false;
+  }
+
+  function clearStudyWorkspace() {
     setAnswers({});
+    setSkippedStudySteps({});
     setShareNote("");
     resetPassageMarkup();
-    setLoadedDraftKey("");
-    setSaveStatus("Not saved yet");
+  }
+
+  function switchMethod(nextMethodId: string) {
+    if (nextMethodId === method.id) return;
+    const nextMethod = methods.find((item) => item.id === nextMethodId) || methods[0];
+    requestStudyTransition(`switch to ${nextMethod.name}`, () => {
+      trackPublicAnalytics({ eventType: "method_selected", source: "study_method_switcher", ctaTarget: `/?tab=study&method=${nextMethodId}`, methodId: nextMethodId });
+      setRememberedStudyMethod(nextMethodId, 0);
+      setStudyPhase("study");
+      setSavedStudySummary(null);
+      clearStudyWorkspace();
+      setLoadedDraftKey("");
+      setSaveStatus("Not saved yet");
+    });
   }
 
   function startMethodExample(nextMethodId: string) {
     const nextMethod = methods.find((item) => item.id === nextMethodId) || methods[0];
     const examplePassage = nextMethod.detail?.examplePassage || buildPassagePresets(nextMethod.id)[0] || "Psalm 23";
 
-    setRememberedStudyMethod(nextMethod.id, 0);
-    setPassage(examplePassage);
-    setPassageQuery(examplePassage);
-    setStudyPhase("study");
-    setSavedStudySummary(null);
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setLoadedDraftKey("");
-    setSaveStatus(`Example loaded: ${examplePassage}`);
-    setActiveMethodInfoId("");
-    setTab("study");
+    requestStudyTransition(`open the ${nextMethod.short} example`, () => {
+      setRememberedStudyMethod(nextMethod.id, 0);
+      setPassage(examplePassage);
+      setPassageQuery(examplePassage);
+      setStudyPhase("study");
+      setSavedStudySummary(null);
+      clearStudyWorkspace();
+      setLoadedDraftKey("");
+      setSaveStatus(`Example loaded: ${examplePassage}`);
+      setActiveMethodInfoId("");
+      setTab("study");
+    });
   }
 
   function resetCurrentStudy() {
     const lastStudiedPassage = passageText?.reference || passage.trim() || passageQuery.trim() || "Psalm 23";
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setPassage(lastStudiedPassage);
-    setPassageQuery(lastStudiedPassage);
-    setRememberedStudyFocusMode(false);
-    setRememberedStudyStepIndex(0);
-    setStudyPhase("study");
-    setSavedStudySummary(null);
-    setLoadedDraftKey("");
-    setSaveStatus("Fresh study started");
+    requestStudyTransition("start over with this passage", () => {
+      clearStudyWorkspace();
+      setPassage(lastStudiedPassage);
+      setPassageQuery(lastStudiedPassage);
+      setRememberedStudyFocusMode(false);
+      setRememberedStudyStepIndex(0);
+      setStudyPhase("study");
+      setSavedStudySummary(null);
+      setLoadedDraftKey("");
+      setSaveStatus("Fresh study started");
+    });
   }
 
   function applyPassageQuery(nextPassage = parsedPassage.reference) {
     if (!nextPassage.trim()) return;
-    setPassage(nextPassage);
-    setPassageQuery(nextPassage);
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setRememberedStudyStepIndex(0);
-    setStudyPhase("study");
-    setSavedStudySummary(null);
-    setLoadedDraftKey("");
-    setSaveStatus("Not saved yet");
+    if (nextPassage.trim() === passage.trim()) return;
+    requestStudyTransition(`change the passage to ${nextPassage}`, () => {
+      setPassage(nextPassage);
+      setPassageQuery(nextPassage);
+      clearStudyWorkspace();
+      setRememberedStudyStepIndex(0);
+      setStudyPhase("study");
+      setSavedStudySummary(null);
+      setLoadedDraftKey("");
+      setSaveStatus("Not saved yet");
+    });
   }
 
   function addCheckinPartner() {
@@ -4163,7 +4473,7 @@ export default function Home() {
   }
 
   async function shareStudyInsight(noteOverride?: string) {
-    const insight = (noteOverride || shareNote || suggestedShareNote).trim();
+    const insight = (noteOverride || shareNote).trim();
     if (!insight) {
       setShareInsightStatus("Write an insight first.");
       return;
@@ -4199,7 +4509,7 @@ export default function Home() {
   }
 
   async function postStudyInsightToCommunity(noteOverride?: string) {
-    const insight = (noteOverride || shareNote || suggestedShareNote).trim();
+    const insight = (noteOverride || shareNote).trim();
     if (!insight) {
       setShareInsightStatus("Write an insight first.");
       return;
@@ -4544,6 +4854,7 @@ export default function Home() {
 
   function updateAnswerWithScriptureDetection(value: string, plainText?: string) {
     setAnswers({ ...answers, [answerKey]: value });
+    setSkippedStudySteps((current) => current[answerKey] ? { ...current, [answerKey]: false } : current);
     const detected = findTypedScriptureReferenceMatch(plainText || value);
     setDetectedScriptureReference(detected?.reference || "");
     setDetectedScriptureTypedReference(detected?.typed || "");
@@ -6179,17 +6490,17 @@ export default function Home() {
   }
 
   function studyBibleReadingPlanDay(planDay: BibleReadingPlanDay) {
-    setPassage(planDay.studyReference);
-    setPassageQuery(planDay.studyReference);
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setRememberedStudyStepIndex(0);
-    setStudyPhase("study");
-    setLoadedDraftKey("");
-    setSaveStatus(`${planDay.reference} loaded from Bible reading plan`);
-    setTab("study");
-    trackUsage("bible_reading_plan_studied", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+    requestStudyTransition(`study ${planDay.reference} from the reading plan`, () => {
+      setPassage(planDay.studyReference);
+      setPassageQuery(planDay.studyReference);
+      clearStudyWorkspace();
+      setRememberedStudyStepIndex(0);
+      setStudyPhase("study");
+      setLoadedDraftKey("");
+      setSaveStatus(`${planDay.reference} loaded from Bible reading plan`);
+      setTab("study");
+      trackUsage("bible_reading_plan_studied", { reference: planDay.reference, tab: "bible", book: planDay.readerBook, chapter: planDay.readerChapter });
+    });
   }
 
   function dismissBibleSearchInput() {
@@ -6295,15 +6606,16 @@ export default function Home() {
 
   function studyBibleSearchResult(result: BibleSearchResult) {
     const reference = `${result.book} ${result.chapter}:${result.verse}`;
-    setPassage(reference);
-    setPassageQuery(reference);
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setRememberedStudyStepIndex(0);
-    setStudyPhase("study");
-    setSaveStatus("Loaded from Bible search");
-    setTab("study");
+    requestStudyTransition(`study ${reference} from Bible search`, () => {
+      setPassage(reference);
+      setPassageQuery(reference);
+      clearStudyWorkspace();
+      setRememberedStudyStepIndex(0);
+      setStudyPhase("study");
+      setSaveStatus("Loaded from Bible search");
+      setLoadedDraftKey("");
+      setTab("study");
+    });
   }
 
   function buildBibleBookmark(verses: number[] = []): StoredBibleBookmark {
@@ -6446,18 +6758,18 @@ export default function Home() {
 
   function openReaderChapterInStudy() {
     const studyReference = readerPlanReadingActive && readerPlanReading?.reference ? readerPlanReading.reference : readerStudyReference;
-    setPassage(studyReference);
-    setPassageQuery(studyReference);
-    setAnswers({});
-    setShareNote("");
-    resetPassageMarkup();
-    setRememberedStudyStepIndex(0);
-    setStudyPhase("study");
-    setSavedStudySummary(null);
-    setLoadedDraftKey("");
-    setSaveStatus(selectedReaderVerses.length ? "Selected verses loaded from Bible reader" : "Chapter loaded from Bible reader");
-    clearReaderSelection();
-    setTab("study");
+    requestStudyTransition(`study ${studyReference} from the Bible reader`, () => {
+      setPassage(studyReference);
+      setPassageQuery(studyReference);
+      clearStudyWorkspace();
+      setRememberedStudyStepIndex(0);
+      setStudyPhase("study");
+      setSavedStudySummary(null);
+      setLoadedDraftKey("");
+      setSaveStatus(selectedReaderVerses.length ? "Selected verses loaded from Bible reader" : "Chapter loaded from Bible reader");
+      clearReaderSelection();
+      setTab("study");
+    });
   }
 
   function clearReaderSelection() {
@@ -6874,7 +7186,7 @@ export default function Home() {
           <Text style={styles.instructionKicker}>Do this now</Text>
           <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
         </View>
-        <Pressable onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
+        <Pressable accessibilityRole="button" accessibilityLabel={instructionsCollapsed ? "Show study instructions" : "Hide study instructions"} accessibilityState={{ expanded: !instructionsCollapsed }} onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
           <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
           <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Show more" : "Hide"}</Text>
         </Pressable>
@@ -6885,7 +7197,7 @@ export default function Home() {
           <View style={styles.checklist}>
             {step.checklist.map((item) => (
               <View key={item} style={styles.checkItem}>
-                <Ionicons name="checkmark-circle-outline" size={18} color={colors.olive} />
+                <Ionicons name="ellipse-outline" size={15} color={colors.olive} />
                 <Text style={[styles.checkText, studyDarkMode && styles.accountDarkMutedText]}>{item}</Text>
               </View>
             ))}
@@ -7746,8 +8058,11 @@ export default function Home() {
               {studyMethodPickerOpen && (
                 <View style={[styles.compactMethodMenu, studyDarkMode && styles.accountDarkInsetBox]}>
                   {methods.map((item) => (
-                    <Pressable
-                      key={item.id}
+                      <Pressable
+                        key={item.id}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${item.name} study method`}
+                        accessibilityState={{ selected: method.id === item.id }}
                       onPress={() => {
                         switchMethod(item.id);
                         setStudyMethodPickerOpen(false);
@@ -7786,26 +8101,33 @@ export default function Home() {
                 <View style={[styles.studyProgressStrip, phoneLayout && styles.phoneStudyProgressStrip]}>
                   {method.steps.map((item, index) => {
                     const stepAnswered = !!answers[`${method.id}:${index}`]?.trim();
+                    const stepRead = item.responseType === "none" && (index < stepIndex || studyPhase !== "study");
+                    const stepSkipped = item.responseType === "text" && !stepAnswered && !!skippedStudySteps[`${method.id}:${index}`];
+                    const stepCompleted = stepAnswered || stepRead;
                     const active = index === stepIndex;
+                    const stepStatus = active ? "current" : stepCompleted ? "completed" : stepSkipped ? "skipped" : "not completed";
                     return (
                       <Pressable
                         key={item.title}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Step ${index + 1}, ${item.title}, ${stepStatus}`}
+                        accessibilityState={{ selected: active }}
                         onPress={() => goToStudyStep(index)}
-                        style={[styles.studyProgressPill, studyDarkMode && styles.studyDarkProgressPill, stepAnswered && styles.completedStudyProgressPill, studyDarkMode && stepAnswered && styles.studyDarkCompletedProgressPill, active && styles.activeStudyProgressPill]}
+                        style={[styles.studyProgressPill, studyDarkMode && styles.studyDarkProgressPill, stepCompleted && styles.completedStudyProgressPill, studyDarkMode && stepCompleted && styles.studyDarkCompletedProgressPill, stepSkipped && styles.skippedStudyProgressPill, active && styles.activeStudyProgressPill]}
                       >
                         <Text
                           style={[
                             styles.studyProgressNumber,
                             studyDarkMode && styles.studyDarkProgressNumber,
-                            stepAnswered && styles.completedStudyProgressNumber,
-                            studyDarkMode && stepAnswered && styles.studyDarkCompletedProgressNumber,
+                            stepCompleted && styles.completedStudyProgressNumber,
+                            studyDarkMode && stepCompleted && styles.studyDarkCompletedProgressNumber,
                             active && styles.activeStudyProgressNumber,
                             studyDarkMode && active && styles.studyDarkActiveProgressNumber
                           ]}
                         >
                           {index + 1}
                         </Text>
-                        <Text style={[styles.studyProgressText, studyDarkMode && styles.accountDarkMutedText, stepAnswered && styles.completedStudyProgressText, studyDarkMode && stepAnswered && styles.accountDarkTitle, active && styles.activeStudyProgressText]} numberOfLines={1}>
+                        <Text style={[styles.studyProgressText, studyDarkMode && styles.accountDarkMutedText, stepCompleted && styles.completedStudyProgressText, studyDarkMode && stepCompleted && styles.accountDarkTitle, stepSkipped && styles.skippedStudyProgressText, active && styles.activeStudyProgressText]} numberOfLines={1}>
                           {item.title}
                         </Text>
                       </Pressable>
@@ -7826,6 +8148,9 @@ export default function Home() {
                     {BIBLE_TRANSLATIONS.map((translation) => (
                       <Pressable
                         key={translation.id}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${translation.label} Bible translation`}
+                        accessibilityState={{ selected: bibleTranslation === translation.id }}
                         onPress={() => {
                           setBibleTranslation(translation.id);
                           saveStoredBibleTranslation(translation.id).catch(() => undefined);
@@ -7855,6 +8180,9 @@ export default function Home() {
                             return (
                               <View key={key}>
                                 <Pressable
+                                  accessibilityRole="button"
+                                  accessibilityLabel={`${selected ? "Deselect" : "Select"} ${verse.book_name} ${verse.chapter}:${verse.verse}`}
+                                  accessibilityState={{ selected }}
                                   onPress={() => toggleVerseSelection(key)}
                                   style={[
                                     styles.verseRow,
@@ -8196,26 +8524,38 @@ export default function Home() {
                   <Eyebrow>Review before saving</Eyebrow>
                   <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{passageText?.reference || passage}</Text>
                   <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{method.name}</Text>
+                  <Text accessibilityLiveRegion="polite" aria-live="polite" style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>
+                    {completedWritingStepCount === writingStepCount
+                      ? `All ${writingStepCount} writing steps are complete.`
+                      : `${completedWritingStepCount} of ${writingStepCount} writing steps completed. Review unfinished steps before saving if you wish.`}
+                  </Text>
                   <View style={styles.reviewAnswers}>
-                    {sessionAnswers
-                      .filter((item) => item.answer.trim())
-                      .map((item) => (
-                        <View key={item.stepTitle} style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
-                          <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>{item.stepTitle}</Text>
-                          <FormattedNoteText styles={styles} text={item.answer} darkMode={studyDarkMode} />
+                    {method.steps.map((methodStep, index) => {
+                      if (methodStep.responseType === "none") return null;
+                      const answer = answers[`${method.id}:${index}`] || "";
+                      return (
+                        <View key={methodStep.title} style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
+                          <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>{methodStep.title}</Text>
+                          {answer.trim()
+                            ? <FormattedNoteText styles={styles} text={answer} darkMode={studyDarkMode} />
+                            : <Text style={[styles.skippedReviewText, studyDarkMode && styles.accountDarkMutedText]}>
+                                {skippedStudySteps[`${method.id}:${index}`] ? "Skipped for now" : "Not completed"}
+                              </Text>}
                         </View>
-                      ))}
+                      );
+                    })}
                   </View>
                   <View style={[styles.shareInsightBox, studyDarkMode && styles.accountDarkSection]}>
                     <View style={styles.feedbackHeader}>
                       <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
                       <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
                     </View>
+                    <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Write a separate note here only if you want to share it. Your study responses stay private unless you deliberately share them.</Text>
                     <TextInput
                       multiline
                       value={shareNote}
                       onChangeText={setShareNote}
-                      placeholder={suggestedShareNote || "Today I noticed..."}
+                      placeholder="Write a separate insight to share (optional)."
                       placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
                       style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
                     />
@@ -8224,7 +8564,7 @@ export default function Home() {
                   </View>
                   <View style={styles.buttonRow}>
                     <AppButton label="Back to edit" variant="secondary" onPress={() => setStudyPhase("study")} />
-                    <AppButton label="Save study" onPress={completeSession} />
+                    <AppButton label={isCompletingStudy ? "Saving study..." : "Save study"} onPress={completeSession} />
                   </View>
                 </View>
               ) : (
@@ -8331,7 +8671,6 @@ export default function Home() {
                             </View>
                           )}
                           <View style={styles.responseFooter}>
-                            <Text style={styles.saveStatus}>{saveStatus}</Text>
                             <Text style={styles.saveStatus}>{(answers[answerKey] || "").trim().split(/\s+/).filter(Boolean).length} words</Text>
                           </View>
                         </View>
@@ -8342,12 +8681,12 @@ export default function Home() {
                             <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
                             <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
                           </View>
-                          <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>End with one honest note you could bring to a partner or group.</Text>
+                          <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Optional: write a separate note only if you want to share it. Your study response is not copied here automatically.</Text>
                           <TextInput
                             multiline
                             value={shareNote}
                             onChangeText={setShareNote}
-                            placeholder={suggestedShareNote || "Today I noticed..."}
+                            placeholder="Write a separate insight to share (optional)."
                             placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
                             style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
                           />
@@ -8370,11 +8709,20 @@ export default function Home() {
                       <View style={[styles.hiddenBackButtonSpace, phoneLayout && styles.studyStepBackButton]} />
                     )}
                     <AppButton
-                      label={phoneLayout && continueLabel === "Save and continue" ? "Save + continue" : continueLabel}
+                      label={continueLabel}
                       onPress={continueStudy}
                       style={phoneLayout && styles.studyStepContinueButton}
                       labelStyle={phoneLayout && styles.studyStepButtonLabel}
                     />
+                    {step.responseType === "text" && !answers[answerKey]?.trim() && (
+                      <AppButton
+                        label="Skip for now"
+                        variant="secondary"
+                        onPress={skipCurrentStudyStep}
+                        style={[phoneLayout && styles.studyStepFreshButton, studyDarkMode && styles.homeDarkResumeButton]}
+                        labelStyle={[phoneLayout && styles.studyStepButtonLabel, studyDarkMode && styles.homeDarkResumeButtonText]}
+                      />
+                    )}
                     <AppButton
                       label="Fresh start"
                       variant="secondary"
@@ -8382,6 +8730,16 @@ export default function Home() {
                       style={[phoneLayout && styles.studyStepFreshButton, studyDarkMode && styles.homeDarkResumeButton]}
                       labelStyle={[phoneLayout && styles.studyStepButtonLabel, studyDarkMode && styles.homeDarkResumeButtonText]}
                     />
+                  </View>
+                  <View style={styles.studySaveStatusRow}>
+                    <Text accessibilityLiveRegion="polite" aria-live="polite" style={[styles.saveStatus, studyDarkMode && styles.accountDarkMutedText]}>
+                      {isSavingStudyDraft ? "Saving draft..." : saveStatus}
+                    </Text>
+                    {saveStatus.startsWith("Could not sync") && (
+                      <Pressable accessibilityRole="button" accessibilityLabel="Retry saving study draft" onPress={() => void saveCurrentStudyDraft()} style={[styles.studySaveRetryButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                        <Text style={[styles.studySaveRetryText, studyDarkMode && styles.homeDarkResumeButtonText]}>Retry save</Text>
+                      </Pressable>
+                    )}
                   </View>
                 </View>
               )}
@@ -10995,6 +11353,37 @@ export default function Home() {
           </View>
         );
       })()}
+      {pendingStudyTransition && (
+        <View {...modalAccessibilityProps("Protect unfinished study")} style={styles.printOptionsOverlay}>
+          <Pressable style={[styles.printOptionsScrim, studyDarkMode && styles.printDarkOptionsScrim]} onPress={cancelPendingStudyTransition} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, studyDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, studyDarkMode && styles.accountDarkTitle]}>Keep your current study?</Text>
+                <Text style={[styles.printOptionsSubtitle, studyDarkMode && styles.accountDarkMutedText]}>
+                  You are about to {pendingStudyTransition.description}.
+                </Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Cancel study change" onPress={cancelPendingStudyTransition} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={studyDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+            <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>
+              Keep your answers, highlights, skipped steps, and optional sharing note as a draft, or discard this study before continuing.
+            </Text>
+            {saveStatus.startsWith("Could not sync") && (
+              <Text accessibilityLiveRegion="assertive" aria-live="assertive" style={styles.warningText}>{saveStatus}</Text>
+            )}
+            <View style={styles.printOptionsActions}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Cancel study change" onPress={cancelPendingStudyTransition} style={[styles.printOptionsCancelButton, studyDarkMode && styles.printDarkCancelButton]}>
+                <Text style={[styles.printOptionsCancelText, studyDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+              </Pressable>
+              <AppButton label="Discard study" variant="secondary" onPress={() => void discardAndContinueStudyTransition()} style={studyDarkMode && styles.homeDarkResumeButton} labelStyle={studyDarkMode && styles.homeDarkResumeButtonText} />
+              <ResumeButton label={isSavingStudyDraft ? "Saving draft..." : "Keep draft & continue"} icon="save-outline" onPress={() => void keepDraftAndContinueStudyTransition()} variant="primary" style={phoneLayout && styles.phonePrintOpenButton} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+            </View>
+          </View>
+        </View>
+      )}
       {pendingRhythmGracePrompt && (
         <View {...modalAccessibilityProps("Daily rhythm grace")} style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={dismissRhythmGracePrompt} />
@@ -14139,22 +14528,6 @@ function buildStudyInsightShareMessage({
   return [`Bible study insight`, `Passage: ${passageReference}`, `Method: ${methodName}`, "", insight.trim()].join("\n");
 }
 
-function buildShareNote(method: (typeof methods)[number], answers: AnswerMap, passageReference: string) {
-  const finalAnsweredStep = method.steps
-    .map((item, index) => ({
-      title: item.title,
-      answer: answers[`${method.id}:${index}`] || ""
-    }))
-    .filter((item) => item.answer.trim())
-    .at(-1);
-
-  if (!finalAnsweredStep) return "";
-
-  const cleaned = stripNoteFormatting(finalAnsweredStep.answer).trim().replace(/\s+/g, " ");
-  const clipped = cleaned.length > 150 ? `${cleaned.slice(0, 147).trim()}...` : cleaned;
-  return `${passageReference}: ${clipped}`;
-}
-
 function stripNoteFormatting(text: string) {
   return text
     .replace(/<li[^>]*>/gi, "- ")
@@ -16590,6 +16963,10 @@ const styles = StyleSheet.create({
   completedStudyProgressPill: {
     backgroundColor: colors.sage
   },
+  skippedStudyProgressPill: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line
+  },
   activeStudyProgressPill: {
     backgroundColor: colors.oliveDark,
     borderColor: colors.oliveDark
@@ -16621,6 +16998,10 @@ const styles = StyleSheet.create({
   },
   completedStudyProgressText: {
     color: colors.oliveDark
+  },
+  skippedStudyProgressText: {
+    color: colors.coral,
+    fontStyle: "italic"
   },
   activeStudyProgressText: {
     color: "white"
@@ -17105,6 +17486,28 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 12,
     fontWeight: "700"
+  },
+  studySaveStatusRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    justifyContent: "space-between",
+    marginTop: 10
+  },
+  studySaveRetryButton: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 34,
+    paddingHorizontal: 12,
+    justifyContent: "center"
+  },
+  studySaveRetryText: {
+    color: colors.oliveDark,
+    fontSize: 12,
+    fontWeight: "800"
   },
   warningText: {
     color: colors.coral,
@@ -19009,6 +19412,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     marginBottom: 5
   },
+  skippedReviewText: {
+    color: colors.muted,
+    fontSize: 14,
+    fontStyle: "italic",
+    lineHeight: 20
+  },
   stepTitle: {
     color: colors.ink,
     fontSize: 20,
@@ -19256,7 +19665,7 @@ const styles = StyleSheet.create({
     gap: 10
   },
   studyStepButtonRow: {
-    flexWrap: "nowrap",
+    flexWrap: "wrap",
     gap: 6,
     width: "100%"
   },

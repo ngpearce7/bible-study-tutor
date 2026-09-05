@@ -267,7 +267,10 @@ class TabErrorBoundary extends Component<TabErrorBoundaryProps, TabErrorBoundary
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error("Bible Study Tutor section failed to render", error, info.componentStack);
+    if (__DEV__) console.error("Bible Study Tutor section failed to render", error, info.componentStack);
+    import("@/data/reliabilityMetrics")
+      .then(({ trackReliabilityMetric }) => trackReliabilityMetric({ kind: "client_error", provider: "app", operation: "unhandled", outcome: "error", errorCode: "unknown" }))
+      .catch(() => undefined);
   }
 
   componentDidUpdate(previousProps: TabErrorBoundaryProps) {
@@ -1126,6 +1129,21 @@ export default function Home() {
   useEffect(() => {
     if (Platform.OS !== "web") return;
     setLayoutReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    let cleanup: (() => void) | undefined;
+    let mounted = true;
+    import("@/data/reliabilityMetrics")
+      .then((module) => {
+        if (mounted) cleanup = module.installPrivacySafeErrorReporting();
+      })
+      .catch(() => undefined);
+    return () => {
+      mounted = false;
+      cleanup?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -3607,7 +3625,11 @@ export default function Home() {
 
   function trackUsage(eventType: string, details: { reference?: string; methodId?: string; methodName?: string; translation?: string; tab?: string; book?: string; chapter?: number } = {}) {
     if (!activeProfileId) return;
-    recordUsage({ profileId: activeProfileId, eventType, localDayKey: localDateKey(), ...details }).catch(() => undefined);
+    const startedAt = Date.now();
+    const { methodId, translation, tab, book } = details;
+    recordUsage({ profileId: activeProfileId, eventType, localDayKey: localDateKey(), methodId, translation, tab, book })
+      .then(() => import("@/data/reliabilityMetrics").then(({ trackReliabilityMetric }) => trackReliabilityMetric({ kind: "provider_request", provider: "convex", operation: "mutation", outcome: "success", durationMs: Date.now() - startedAt })))
+      .catch(() => import("@/data/reliabilityMetrics").then(({ trackReliabilityMetric }) => trackReliabilityMetric({ kind: "provider_request", provider: "convex", operation: "mutation", outcome: "error", errorCode: "unknown", durationMs: Date.now() - startedAt })).catch(() => undefined));
   }
 
   function dismissRhythmGracePrompt() {

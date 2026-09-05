@@ -3,7 +3,7 @@ export type LegalSectionContent = {
   body: string;
 };
 
-export const LEGAL_LAST_UPDATED = "June 20, 2026";
+export const LEGAL_LAST_UPDATED = "September 5, 2026";
 
 export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   {
@@ -40,7 +40,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Admin insights and feedback",
-    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, popular bookmarked verses, popular memory verses, search terms, app share counts, QR-code arrivals, feature usage, blocked security events, account suspension status, and admin review notes. These insights are used to improve the app and keep it helpful and safe."
+    body: "Administrators may view feedback you submit and limited app insights such as account/profile counts, recent activity types, broad Bible-book and feature usage, app share counts, public-page actions, provider reliability, blocked security events, account suspension status, and admin review notes. Analytics do not intentionally record Scripture search text, exact passage references, study answers, journal text, notes, prayers, names, email addresses, stack traces, or full request URLs. Anonymous, session-only identifiers may be used to understand movement between public pages and broad actions."
   },
   {
     title: "Study coaching",
@@ -52,7 +52,7 @@ export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Data retention and deletion",
-    body: "We keep account and study data while your account is active or while it is needed to operate the app. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, drafts, encouragements, and shared friend or circle posts. Editing or deleting a shared post updates or removes it inside the app, but it cannot control content already copied, screenshotted, remembered, or shared outside the app. To request account deletion or broader data removal, contact support@biblestudytutor.org."
+    body: "We keep account and study data while your account is active or while it is needed to operate the app. Raw signed-in usage events are scheduled for deletion after 30 days, and raw public analytics and reliability events after 14 days. Privacy-safe daily totals may be retained for up to 400 days. You can delete many items inside the app, including journal entries, memory verses, bookmarks, notes, drafts, encouragements, and shared friend or circle posts. Editing or deleting a shared post updates or removes it inside the app, but it cannot control content already copied, screenshotted, remembered, or shared outside the app. To request account deletion or broader data removal, contact support@biblestudytutor.org."
   },
   {
     title: "Access, correction, deletion, and complaints",

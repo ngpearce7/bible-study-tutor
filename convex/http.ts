@@ -7,7 +7,7 @@ const http = httpRouter();
 
 auth.addHttpRoutes(http);
 
-const publicAnalyticsEventTypes = new Set([
+const publicAnalyticsEventTypeValues = [
   "public_page_view",
   "seo_cta_clicked",
   "start_study_clicked",
@@ -20,7 +20,9 @@ const publicAnalyticsEventTypes = new Set([
   "account_creation_started",
   "study_completed",
   "app_shared"
-]);
+] as const;
+type PublicAnalyticsEventType = typeof publicAnalyticsEventTypeValues[number];
+const publicAnalyticsEventTypes = new Set<string>(publicAnalyticsEventTypeValues);
 
 const allowedAnalyticsOrigins = new Set([
   "https://biblestudytutor.org",
@@ -28,6 +30,11 @@ const allowedAnalyticsOrigins = new Set([
   "http://localhost:8090",
   "http://127.0.0.1:8090"
 ]);
+const reliabilityKinds = new Set(["client_error", "provider_request"]);
+const reliabilityProviders = new Set(["app", "bible-api", "helloao-bsb", "bolls", "cross-reference-assets", "convex"]);
+const reliabilityOperations = new Set(["unhandled", "passage", "search", "asset", "mutation"]);
+const reliabilityOutcomes = new Set(["success", "error", "timeout"]);
+const reliabilityErrorCodes = new Set(["network", "http_4xx", "http_5xx", "timeout", "unknown"]);
 
 function analyticsCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") || "";
@@ -107,14 +114,64 @@ http.route({
       return new Response(JSON.stringify({ ok: false }), { status: 400, headers });
     }
 
-    await ctx.runMutation((internal as any).insights.recordPublicAnalytics, {
-      eventType,
+    const funnelId = cleanAnalyticsText(payload.funnelId, 64);
+    await ctx.runMutation(internal.insights.recordPublicAnalytics, {
+      eventType: eventType as PublicAnalyticsEventType,
       pagePath: cleanPublicPath(payload.pagePath),
       source: cleanAnalyticsText(payload.source, 80),
       ctaTarget: cleanAnalyticsText(payload.ctaTarget, 120),
-      methodId: cleanAnalyticsText(payload.methodId, 80)
+      methodId: cleanAnalyticsText(payload.methodId, 80),
+      funnelId: funnelId && /^[A-Za-z0-9-]{16,64}$/.test(funnelId) ? funnelId : undefined
     });
 
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  })
+});
+
+http.route({
+  path: "/reliability",
+  method: "OPTIONS",
+  handler: httpAction(async (_ctx, req) => {
+    if (!isAllowedAnalyticsOrigin(req)) return new Response(null, { status: 403, headers: analyticsCorsHeaders(req) });
+    return new Response(null, { status: 204, headers: analyticsCorsHeaders(req) });
+  })
+});
+
+http.route({
+  path: "/reliability",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const headers = analyticsCorsHeaders(req);
+    if (!isAllowedAnalyticsOrigin(req)) return new Response(JSON.stringify({ ok: false }), { status: 403, headers });
+
+    let payload: Record<string, unknown> = {};
+    try {
+      const raw = await req.text();
+      if (raw.length > 600) throw new Error("Payload too large");
+      payload = raw ? JSON.parse(raw) : {};
+    } catch {
+      return new Response(JSON.stringify({ ok: false }), { status: 400, headers });
+    }
+
+    const kind = cleanAnalyticsText(payload.kind, 30);
+    const provider = cleanAnalyticsText(payload.provider, 40);
+    const operation = cleanAnalyticsText(payload.operation, 40);
+    const outcome = cleanAnalyticsText(payload.outcome, 20);
+    const errorCode = cleanAnalyticsText(payload.errorCode, 20);
+    if (!kind || !reliabilityKinds.has(kind) || !provider || !reliabilityProviders.has(provider) || !operation || !reliabilityOperations.has(operation) || !outcome || !reliabilityOutcomes.has(outcome) || (errorCode && !reliabilityErrorCodes.has(errorCode))) {
+      return new Response(JSON.stringify({ ok: false }), { status: 400, headers });
+    }
+
+    const rawDuration = typeof payload.durationMs === "number" && Number.isFinite(payload.durationMs) ? payload.durationMs : undefined;
+    await ctx.runMutation(internal.insights.recordReliabilityMetric, {
+      kind: kind as "client_error" | "provider_request",
+      surface: cleanAnalyticsText(payload.surface, 40),
+      provider,
+      operation,
+      outcome: outcome as "success" | "error" | "timeout",
+      durationMs: rawDuration === undefined ? undefined : Math.min(30_000, Math.max(0, Math.round(rawDuration / 50) * 50)),
+      errorCode: errorCode as "network" | "http_4xx" | "http_5xx" | "timeout" | "unknown" | undefined
+    });
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
   })
 });

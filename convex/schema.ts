@@ -402,11 +402,26 @@ export default defineSchema({
     tab: v.optional(v.string()),
     book: v.optional(v.string()),
     chapter: v.optional(v.number()),
-    createdAt: v.number()
+    createdAt: v.number(),
+    expiresAt: v.optional(v.number())
   })
     .index("by_profile_created", ["profileId", "createdAt"])
     .index("by_event_type_created", ["eventType", "createdAt"])
-    .index("by_created", ["createdAt"]),
+    .index("by_created", ["createdAt"])
+    .index("by_expires_at", ["expiresAt"]),
+  usageAnalyticsDaily: defineTable({
+    dayKey: v.string(),
+    dimensionKey: v.string(),
+    eventType: v.string(),
+    methodId: v.optional(v.string()),
+    translation: v.optional(v.string()),
+    tab: v.optional(v.string()),
+    book: v.optional(v.string()),
+    count: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_dimension_key", ["dimensionKey"])
+    .index("by_day_key", ["dayKey"]),
   publicAnalyticsEvents: defineTable({
     eventType: v.union(
       v.literal("public_page_view"),
@@ -426,11 +441,75 @@ export default defineSchema({
     source: v.optional(v.string()),
     ctaTarget: v.optional(v.string()),
     methodId: v.optional(v.string()),
-    createdAt: v.number()
+    funnelId: v.optional(v.string()),
+    createdAt: v.number(),
+    expiresAt: v.optional(v.number())
   })
     .index("by_created", ["createdAt"])
     .index("by_event_type_created", ["eventType", "createdAt"])
-    .index("by_page_path_created", ["pagePath", "createdAt"]),
+    .index("by_page_path_created", ["pagePath", "createdAt"])
+    .index("by_expires_at", ["expiresAt"]),
+  publicAnalyticsDaily: defineTable({
+    dayKey: v.string(),
+    dimensionKey: v.string(),
+    eventType: v.union(
+      v.literal("public_page_view"),
+      v.literal("seo_cta_clicked"),
+      v.literal("start_study_clicked"),
+      v.literal("bible_reader_opened"),
+      v.literal("plans_opened"),
+      v.literal("memory_opened"),
+      v.literal("method_selected"),
+      v.literal("method_page_cta_clicked"),
+      v.literal("worksheet_cta_clicked"),
+      v.literal("account_creation_started"),
+      v.literal("study_completed"),
+      v.literal("app_shared")
+    ),
+    pagePath: v.optional(v.string()),
+    source: v.optional(v.string()),
+    ctaTarget: v.optional(v.string()),
+    methodId: v.optional(v.string()),
+    count: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_dimension_key", ["dimensionKey"])
+    .index("by_day_key", ["dayKey"]),
+  reliabilityEvents: defineTable({
+    kind: v.union(v.literal("client_error"), v.literal("provider_request")),
+    surface: v.optional(v.string()),
+    provider: v.string(),
+    operation: v.string(),
+    outcome: v.union(v.literal("success"), v.literal("error"), v.literal("timeout")),
+    durationMs: v.optional(v.number()),
+    errorCode: v.optional(v.union(v.literal("network"), v.literal("http_4xx"), v.literal("http_5xx"), v.literal("timeout"), v.literal("unknown"))),
+    createdAt: v.number(),
+    expiresAt: v.number()
+  })
+    .index("by_created", ["createdAt"])
+    .index("by_expires_at", ["expiresAt"])
+    .index("by_provider_created", ["provider", "createdAt"]),
+  reliabilityDaily: defineTable({
+    dayKey: v.string(),
+    dimensionKey: v.string(),
+    kind: v.union(v.literal("client_error"), v.literal("provider_request")),
+    surface: v.optional(v.string()),
+    provider: v.string(),
+    operation: v.string(),
+    outcome: v.union(v.literal("success"), v.literal("error"), v.literal("timeout")),
+    errorCode: v.optional(v.union(v.literal("network"), v.literal("http_4xx"), v.literal("http_5xx"), v.literal("timeout"), v.literal("unknown"))),
+    count: v.number(),
+    durationCount: v.number(),
+    durationSumMs: v.number(),
+    durationLt250: v.number(),
+    durationLt1000: v.number(),
+    durationLt3000: v.number(),
+    durationLt8000: v.number(),
+    durationGte8000: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_dimension_key", ["dimensionKey"])
+    .index("by_day_key", ["dayKey"]),
   adminNotificationState: defineTable({
     key: v.string(),
     profileId: v.optional(v.id("profiles")),

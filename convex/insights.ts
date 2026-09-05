@@ -24,6 +24,32 @@ const publicAnalyticsEventType = v.union(
   v.literal("study_completed"),
   v.literal("app_shared")
 );
+const reliabilityKind = v.union(v.literal("client_error"), v.literal("provider_request"));
+const reliabilityOutcome = v.union(v.literal("success"), v.literal("error"), v.literal("timeout"));
+const reliabilityErrorCode = v.union(v.literal("network"), v.literal("http_4xx"), v.literal("http_5xx"), v.literal("timeout"), v.literal("unknown"));
+const RAW_USAGE_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+const RAW_PUBLIC_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
+const RAW_RELIABILITY_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
+const usageEventTypes = new Set([
+  "app_shared", "bible_reading_plan_caught_up", "bible_reading_plan_created", "bible_reading_plan_day_completed",
+  "bible_reading_plan_day_uncompleted", "bible_reading_plan_opened", "bible_reading_plan_restarted", "bible_reading_plan_selected",
+  "bible_reading_plan_stopped", "bible_reading_plan_studied", "bible_search", "bookmark_saved", "chapter_read", "checkin_saved",
+  "community_circle_created", "community_circle_joined", "community_friend_invited", "feedback_sent", "memory_cards_doc_downloaded",
+  "memory_cards_printed", "memory_collection_created", "memory_saved", "rhythm_restored", "study_completed", "study_insight_posted",
+  "worksheet_printed"
+]);
+const usageMethodIds = new Set(["oia", "soap", "inductive", "lectio", "read", "hear", "coma"]);
+const usageTranslations = new Set(["bsb", "web", "kjv", "BSB", "WEB", "KJV", "Berean Standard Bible", "World English Bible", "King James Version"]);
+const usageTabs = new Set(["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"]);
+const usageBooks = new Set([
+  "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
+  "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job", "Psalm", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon",
+  "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk",
+  "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians",
+  "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon",
+  "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"
+]);
+const publicAnalyticsSources = new Set(["seo_page", "seo_cta", "home_hero", "home_glance", "main_menu", "study", "bible", "study_method_switcher", "share_button", "copy_link", "email", "username"]);
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 const adminUserRowValidator = v.object({
   profileId: v.id("profiles"),
@@ -138,18 +164,22 @@ export const recordUsage = mutation({
 
     const createdAt = Date.now();
     const eventType = clampText(args.eventType, 80);
+    if (!usageEventTypes.has(eventType)) return null;
+    const methodId = allowedDimension(args.methodId, usageMethodIds);
+    const translation = allowedDimension(args.translation, usageTranslations);
+    const tab = allowedDimension(args.tab, usageTabs);
+    const book = allowedDimension(args.book, usageBooks);
     const eventId = await ctx.db.insert("usageEvents", {
       profileId: args.profileId,
       eventType,
-      reference: clampOptionalText(args.reference, 160),
-      methodId: clampOptionalText(args.methodId, 80),
-      methodName: clampOptionalText(args.methodName, 120),
-      translation: clampOptionalText(args.translation, 120),
-      tab: clampOptionalText(args.tab, 80),
-      book: clampOptionalText(args.book, 80),
-      chapter: clampNumber(args.chapter, 0, 200),
-      createdAt
+      methodId,
+      translation,
+      tab,
+      book,
+      createdAt,
+      expiresAt: createdAt + RAW_USAGE_RETENTION_MS
     });
+    await incrementUsageDaily(ctx, { eventType, methodId, translation, tab, book, createdAt });
     if (countsTowardStudyRhythm(eventType)) {
       await recordStudyActivity(ctx, {
         profileId: args.profileId,
@@ -168,7 +198,8 @@ export const recordPublicAnalytics = internalMutation({
     pagePath: v.optional(v.string()),
     source: v.optional(v.string()),
     ctaTarget: v.optional(v.string()),
-    methodId: v.optional(v.string())
+    methodId: v.optional(v.string()),
+    funnelId: v.optional(v.string())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
@@ -178,14 +209,86 @@ export const recordPublicAnalytics = internalMutation({
       return null;
     }
 
-    return await ctx.db.insert("publicAnalyticsEvents", {
+    const createdAt = Date.now();
+    const event = {
       eventType: args.eventType,
       pagePath: sanitizePublicPath(args.pagePath),
-      source: clampOptionalText(args.source, 80),
-      ctaTarget: clampOptionalText(args.ctaTarget, 120),
-      methodId: clampOptionalText(args.methodId, 80),
-      createdAt: Date.now()
+      source: allowedDimension(args.source, publicAnalyticsSources),
+      ctaTarget: sanitizeCtaTarget(args.ctaTarget),
+      methodId: allowedDimension(args.methodId, usageMethodIds),
+      funnelId: sanitizeFunnelId(args.funnelId),
+      createdAt
+    };
+    const eventId = await ctx.db.insert("publicAnalyticsEvents", {
+      ...event,
+      expiresAt: createdAt + RAW_PUBLIC_RETENTION_MS
     });
+    await incrementPublicDaily(ctx, event);
+    return eventId;
+  }
+});
+
+export const recordReliabilityMetric = internalMutation({
+  args: {
+    kind: reliabilityKind,
+    surface: v.optional(v.string()),
+    provider: v.string(),
+    operation: v.string(),
+    outcome: reliabilityOutcome,
+    durationMs: v.optional(v.number()),
+    errorCode: v.optional(reliabilityErrorCode)
+  },
+  returns: v.union(v.null(), v.id("reliabilityEvents")),
+  handler: async (ctx, args) => {
+    const oneMinuteAgo = Date.now() - 60 * 1000;
+    const recent = await ctx.db.query("reliabilityEvents").withIndex("by_created").order("desc").take(600);
+    if (recent.length >= 600 && recent[recent.length - 1]?.createdAt >= oneMinuteAgo) return null;
+
+    const createdAt = Date.now();
+    const durationMs = clampNumber(args.durationMs, 0, 30_000);
+    const event = {
+      kind: args.kind,
+      surface: clampOptionalText(args.surface, 40),
+      provider: clampText(args.provider, 40),
+      operation: clampText(args.operation, 40),
+      outcome: args.outcome,
+      durationMs,
+      errorCode: args.errorCode,
+      createdAt
+    };
+    const eventId = await ctx.db.insert("reliabilityEvents", {
+      ...event,
+      expiresAt: createdAt + RAW_RELIABILITY_RETENTION_MS
+    });
+    await incrementReliabilityDaily(ctx, event);
+    return eventId;
+  }
+});
+
+export const pruneExpiredTelemetry = internalMutation({
+  args: {},
+  returns: v.object({ deleted: v.number(), continuationScheduled: v.boolean() }),
+  handler: async (ctx) => {
+    const now = Date.now();
+    const batchSize = 100;
+    const aggregateCutoff = utcDayKey(now - 400 * 24 * 60 * 60 * 1000);
+    const [usageByExpiry, legacyUsage, publicByExpiry, legacyPublic, reliability, usageDaily, publicDaily, reliabilityDaily] = await Promise.all([
+      ctx.db.query("usageEvents").withIndex("by_expires_at", (q) => q.gte("expiresAt", 0).lte("expiresAt", now)).take(batchSize),
+      ctx.db.query("usageEvents").withIndex("by_created", (q) => q.lt("createdAt", now - RAW_USAGE_RETENTION_MS)).take(batchSize),
+      ctx.db.query("publicAnalyticsEvents").withIndex("by_expires_at", (q) => q.gte("expiresAt", 0).lte("expiresAt", now)).take(batchSize),
+      ctx.db.query("publicAnalyticsEvents").withIndex("by_created", (q) => q.lt("createdAt", now - RAW_PUBLIC_RETENTION_MS)).take(batchSize),
+      ctx.db.query("reliabilityEvents").withIndex("by_expires_at", (q) => q.lte("expiresAt", now)).take(batchSize),
+      ctx.db.query("usageAnalyticsDaily").withIndex("by_day_key", (q) => q.lt("dayKey", aggregateCutoff)).take(batchSize),
+      ctx.db.query("publicAnalyticsDaily").withIndex("by_day_key", (q) => q.lt("dayKey", aggregateCutoff)).take(batchSize),
+      ctx.db.query("reliabilityDaily").withIndex("by_day_key", (q) => q.lt("dayKey", aggregateCutoff)).take(batchSize)
+    ]);
+    const rows = [...usageByExpiry, ...legacyUsage, ...publicByExpiry, ...legacyPublic, ...reliability, ...usageDaily, ...publicDaily, ...reliabilityDaily];
+    const uniqueRows = Array.from(new Map(rows.map((row) => [String(row._id), row])).values());
+    await deleteDocuments(ctx, uniqueRows);
+    const continuationScheduled = [usageByExpiry, legacyUsage, publicByExpiry, legacyPublic, reliability, usageDaily, publicDaily, reliabilityDaily]
+      .some((batch) => batch.length === batchSize);
+    if (continuationScheduled) await ctx.scheduler.runAfter(1_000, internal.insights.pruneExpiredTelemetry, {});
+    return { deleted: uniqueRows.length, continuationScheduled };
   }
 });
 
@@ -261,21 +364,25 @@ export const adminOverview = query({
   handler: async (ctx) => {
     if (!(await isAdmin(ctx))) return null;
 
-    const [events, publicEvents, feedback, profiles, studyStats, deletionRequests, securityEvents] = await Promise.all([
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const sevenDayKey = utcDayKey(sevenDaysAgo);
+    const [events, publicEvents, usageDaily, publicDaily, reliabilityDaily, feedback, profiles, studyStats, deletionRequests, securityEvents] = await Promise.all([
       ctx.db.query("usageEvents").withIndex("by_created").order("desc").take(500),
-      ctx.db.query("publicAnalyticsEvents").withIndex("by_created").order("desc").take(500),
+      ctx.db.query("publicAnalyticsEvents").withIndex("by_created", (q) => q.gte("createdAt", sevenDaysAgo)).order("desc").take(5000),
+      ctx.db.query("usageAnalyticsDaily").withIndex("by_day_key", (q) => q.gte("dayKey", sevenDayKey)).take(5000),
+      ctx.db.query("publicAnalyticsDaily").withIndex("by_day_key", (q) => q.gte("dayKey", sevenDayKey)).take(5000),
+      ctx.db.query("reliabilityDaily").withIndex("by_day_key", (q) => q.gte("dayKey", sevenDayKey)).take(5000),
       ctx.db.query("feedback").withIndex("by_created").order("desc").take(50),
       ctx.db.query("profiles").withIndex("by_updated_at").order("desc").take(2000),
       ctx.db.query("studyStats").take(2000),
       ctx.db.query("accountDeletionRequests").withIndex("by_status_requested", (q) => q.eq("status", "pending")).order("asc").take(25),
       ctx.db.query("securityEvents").withIndex("by_created").order("desc").take(20)
     ]);
-    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
     const studyProfileIds = new Set(studyStats.filter((item) => item.sessionCount > 0).map((item) => item.profileId));
-    const shareEvents = events.filter((item) => item.eventType === "app_shared");
-    const recentPublicEvents = publicEvents.filter((item) => item.createdAt >= sevenDaysAgo);
+    const shareEvents = usageDaily.filter((item) => item.eventType === "app_shared");
+    const recentPublicEvents = publicEvents;
     const recentSecurityEvents = securityEvents.filter((item) => item.createdAt >= sevenDaysAgo);
     const profileLookup = new Map(profiles.map((profile) => [profile._id, profile]));
     const securityEventRows = [];
@@ -304,26 +411,28 @@ export const adminOverview = query({
         activeProfiles7d: activeProfileIds.size,
         profilesWithStudies: studyProfileIds.size,
         events: events.length,
-        publicEvents: publicEvents.length,
-        publicPageViews7d: recentPublicEvents.filter((item) => item.eventType === "public_page_view").length,
-        publicConversions7d: recentPublicEvents.filter((item) => item.eventType !== "public_page_view").length,
+        publicEvents: sumCounts(publicDaily),
+        publicPageViews7d: sumCounts(publicDaily.filter((item) => item.eventType === "public_page_view")),
+        publicConversions7d: sumCounts(publicDaily.filter((item) => item.eventType !== "public_page_view")),
         feedback: feedback.length,
         newFeedback: feedback.filter((item) => item.status === "new").length,
-        appShares: shareEvents.length,
+        appShares: sumCounts(shareEvents),
         pendingDeletionRequests: deletionRequests.length,
         securityEvents24h: securityEvents.filter((item) => item.createdAt >= oneDayAgo).length,
         securityEvents7d: recentSecurityEvents.length,
         suspendedProfiles: profiles.filter((profile) => !!profile.suspendedAt).length
       },
-      topBookmarked: topCounts(events.filter((item) => item.eventType === "bookmark_saved").map((item) => item.reference).filter(isString), 8),
-      topMemory: topCounts(events.filter((item) => item.eventType === "memory_saved").map((item) => item.reference).filter(isString), 8),
-      topMethods: topCounts(events.filter((item) => item.eventType === "study_completed").map((item) => item.methodName).filter(isString), 8),
-      topSearches: topCounts(events.filter((item) => item.eventType === "bible_search").map((item) => item.reference).filter(isString), 8),
-      shareSources: topCounts(shareEvents.map((item) => item.reference).filter(isString), 8),
-      eventBreakdown: topCounts(events.map((item) => item.eventType).filter(isString), 10),
-      publicEventBreakdown: topCounts(publicEvents.map((item) => item.eventType).filter(isString), 10),
-      topPublicPages: topCounts(publicEvents.filter((item) => item.eventType === "public_page_view").map((item) => item.pagePath).filter(isString), 8),
-      topPublicCtas: topCounts(publicEvents.filter((item) => item.eventType !== "public_page_view").map((item) => item.ctaTarget || item.source || item.eventType).filter(isString), 8),
+      topBookmarked: topAggregateCounts(usageDaily.filter((item) => item.eventType === "bookmark_saved"), (item) => item.book, 8),
+      topMemory: topAggregateCounts(usageDaily.filter((item) => item.eventType === "memory_saved"), (item) => item.book, 8),
+      topMethods: topAggregateCounts(usageDaily.filter((item) => item.eventType === "study_completed"), (item) => item.methodId, 8),
+      topSearches: topAggregateCounts(usageDaily.filter((item) => item.eventType === "bible_search"), (item) => [item.translation, item.book || "all books"].filter(Boolean).join(" · "), 8),
+      shareSources: topAggregateCounts(shareEvents, (item) => item.tab, 8),
+      eventBreakdown: topAggregateCounts(usageDaily, (item) => item.eventType, 10),
+      publicEventBreakdown: topAggregateCounts(publicDaily, (item) => item.eventType, 10),
+      topPublicPages: topAggregateCounts(publicDaily.filter((item) => item.eventType === "public_page_view"), (item) => item.pagePath, 8),
+      topPublicCtas: topAggregateCounts(publicDaily.filter((item) => item.eventType !== "public_page_view"), (item) => item.ctaTarget || item.source || item.eventType, 8),
+      publicFunnel: buildPublicFunnel(recentPublicEvents),
+      reliability: buildReliabilityOverview(reliabilityDaily),
       feedbackByCategory: topCounts(feedback.map((item) => item.category).filter(isString), 8),
       feedbackByStatus: topCounts(feedback.map((item) => item.status).filter(isString), 8),
       securityByType: topCounts(recentSecurityEvents.map((item) => securityEventGroup(item.eventType, item.details)).filter(isString), 8),
@@ -331,8 +440,8 @@ export const adminOverview = query({
       recentEvents: events.slice(0, 12).map((item) => ({
         _id: item._id,
         eventType: item.eventType,
-        reference: item.reference,
-        methodName: item.methodName,
+        book: item.book,
+        methodId: item.methodId,
         tab: item.tab,
         createdAt: item.createdAt
       })),
@@ -506,7 +615,8 @@ export const adminUserDetail = query({
         .map((item) => ({
           _id: item._id,
           eventType: item.eventType,
-          reference: item.reference,
+          book: item.book,
+          methodId: item.methodId,
           tab: item.tab,
           createdAt: item.createdAt
         })),
@@ -803,6 +913,223 @@ function topCounts(values: string[], limit: number) {
     .map(([label, count]) => ({ label, count }));
 }
 
+function sumCounts(items: Array<{ count: number }>) {
+  return items.reduce((total, item) => total + item.count, 0);
+}
+
+function topAggregateCounts<T extends { count: number }>(items: T[], labelFor: (item: T) => string | undefined, limit: number) {
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    const label = labelFor(item);
+    if (label) counts.set(label, (counts.get(label) || 0) + item.count);
+  }
+  return Array.from(counts.entries()).sort((a, b) => b[1] - a[1]).slice(0, limit).map(([label, count]) => ({ label, count }));
+}
+
+function buildPublicFunnel(events: Doc<"publicAnalyticsEvents">[]) {
+  const stages = {
+    views: new Set<string>(),
+    ctaActions: new Set<string>(),
+    accountStarts: new Set<string>(),
+    studies: new Set<string>()
+  };
+  for (const event of events) {
+    if (!event.funnelId) continue;
+    if (event.eventType === "public_page_view") stages.views.add(event.funnelId);
+    if (["seo_cta_clicked", "start_study_clicked", "method_page_cta_clicked", "worksheet_cta_clicked"].includes(event.eventType)) stages.ctaActions.add(event.funnelId);
+    if (event.eventType === "account_creation_started") stages.accountStarts.add(event.funnelId);
+    if (event.eventType === "study_completed") stages.studies.add(event.funnelId);
+  }
+  const percent = (part: number, whole: number) => whole ? Math.round((part / whole) * 1000) / 10 : 0;
+  return {
+    views: stages.views.size,
+    ctaActions: stages.ctaActions.size,
+    accountStarts: stages.accountStarts.size,
+    studies: stages.studies.size,
+    viewToCtaPercent: percent(stages.ctaActions.size, stages.views.size),
+    ctaToStudyPercent: percent(stages.studies.size, stages.ctaActions.size)
+  };
+}
+
+function buildReliabilityOverview(rows: Doc<"reliabilityDaily">[]) {
+  const providers = new Map<string, {
+    provider: string;
+    operation: string;
+    requests: number;
+    successes: number;
+    errors: number;
+    durationCount: number;
+    durationLt250: number;
+    durationLt1000: number;
+    durationLt3000: number;
+    durationLt8000: number;
+    durationGte8000: number;
+  }>();
+  let clientErrors7d = 0;
+  for (const row of rows) {
+    if (row.kind === "client_error") {
+      clientErrors7d += row.count;
+      continue;
+    }
+    const key = `${row.provider}|${row.operation}`;
+    const item = providers.get(key) || { provider: row.provider, operation: row.operation, requests: 0, successes: 0, errors: 0, durationCount: 0, durationLt250: 0, durationLt1000: 0, durationLt3000: 0, durationLt8000: 0, durationGte8000: 0 };
+    item.requests += row.count;
+    if (row.outcome === "success") item.successes += row.count;
+    else item.errors += row.count;
+    item.durationCount += row.durationCount;
+    item.durationLt250 += row.durationLt250;
+    item.durationLt1000 += row.durationLt1000;
+    item.durationLt3000 += row.durationLt3000;
+    item.durationLt8000 += row.durationLt8000;
+    item.durationGte8000 += row.durationGte8000;
+    providers.set(key, item);
+  }
+  const providerRows = Array.from(providers.values()).map((item) => ({
+    provider: item.provider,
+    operation: item.operation,
+    requests: item.requests,
+    successRate: item.requests ? Math.round((item.successes / item.requests) * 1000) / 10 : 0,
+    p50Ms: histogramPercentile(item, 0.5),
+    p95Ms: histogramPercentile(item, 0.95)
+  })).sort((a, b) => b.requests - a.requests);
+  return {
+    totalRequests7d: providerRows.reduce((total, item) => total + item.requests, 0),
+    errors7d: Array.from(providers.values()).reduce((total, item) => total + item.errors, 0),
+    clientErrors7d,
+    providers: providerRows.slice(0, 12)
+  };
+}
+
+function histogramPercentile(item: { durationCount: number; durationLt250: number; durationLt1000: number; durationLt3000: number; durationLt8000: number; durationGte8000: number }, percentile: number) {
+  if (!item.durationCount) return 0;
+  const target = Math.ceil(item.durationCount * percentile);
+  let cumulative = item.durationLt250;
+  if (cumulative >= target) return 250;
+  cumulative += item.durationLt1000;
+  if (cumulative >= target) return 1_000;
+  cumulative += item.durationLt3000;
+  if (cumulative >= target) return 3_000;
+  cumulative += item.durationLt8000;
+  if (cumulative >= target) return 8_000;
+  return 8_000;
+}
+
+function utcDayKey(timestamp: number) {
+  return new Date(timestamp).toISOString().slice(0, 10);
+}
+
+function analyticsDimensionKey(dayKey: string, values: Array<string | undefined>) {
+  return JSON.stringify([dayKey, ...values.map((value) => value || null)]).slice(0, 500);
+}
+
+function allowedDimension(value: string | undefined, allowed: Set<string>) {
+  const cleaned = clampOptionalText(value, 80);
+  return cleaned && allowed.has(cleaned) ? cleaned : undefined;
+}
+
+async function incrementUsageDaily(
+  ctx: MutationCtx,
+  event: { eventType: string; methodId?: string; translation?: string; tab?: string; book?: string; createdAt: number }
+) {
+  const dayKey = utcDayKey(event.createdAt);
+  const dimensionKey = analyticsDimensionKey(dayKey, [event.eventType, event.methodId, event.translation, event.tab, event.book]);
+  const existing = await ctx.db.query("usageAnalyticsDaily").withIndex("by_dimension_key", (q) => q.eq("dimensionKey", dimensionKey)).unique();
+  if (existing) {
+    await ctx.db.patch(existing._id, { count: existing.count + 1, updatedAt: event.createdAt });
+    return;
+  }
+  await ctx.db.insert("usageAnalyticsDaily", {
+    dayKey,
+    dimensionKey,
+    eventType: event.eventType,
+    methodId: event.methodId,
+    translation: event.translation,
+    tab: event.tab,
+    book: event.book,
+    count: 1,
+    updatedAt: event.createdAt
+  });
+}
+
+async function incrementPublicDaily(
+  ctx: MutationCtx,
+  event: { eventType: Doc<"publicAnalyticsEvents">["eventType"]; pagePath?: string; source?: string; ctaTarget?: string; methodId?: string; createdAt: number }
+) {
+  const dayKey = utcDayKey(event.createdAt);
+  const dimensionKey = analyticsDimensionKey(dayKey, [event.eventType, event.pagePath, event.source, event.ctaTarget, event.methodId]);
+  const existing = await ctx.db.query("publicAnalyticsDaily").withIndex("by_dimension_key", (q) => q.eq("dimensionKey", dimensionKey)).unique();
+  if (existing) {
+    await ctx.db.patch(existing._id, { count: existing.count + 1, updatedAt: event.createdAt });
+    return;
+  }
+  await ctx.db.insert("publicAnalyticsDaily", {
+    dayKey,
+    dimensionKey,
+    eventType: event.eventType,
+    pagePath: event.pagePath,
+    source: event.source,
+    ctaTarget: event.ctaTarget,
+    methodId: event.methodId,
+    count: 1,
+    updatedAt: event.createdAt
+  });
+}
+
+async function incrementReliabilityDaily(
+  ctx: MutationCtx,
+  event: {
+    kind: "client_error" | "provider_request";
+    surface?: string;
+    provider: string;
+    operation: string;
+    outcome: "success" | "error" | "timeout";
+    durationMs?: number;
+    errorCode?: "network" | "http_4xx" | "http_5xx" | "timeout" | "unknown";
+    createdAt: number;
+  }
+) {
+  const dayKey = utcDayKey(event.createdAt);
+  const dimensionKey = analyticsDimensionKey(dayKey, [event.kind, event.surface, event.provider, event.operation, event.outcome, event.errorCode]);
+  const duration = event.durationMs;
+  const increments = {
+    count: 1,
+    durationCount: duration === undefined ? 0 : 1,
+    durationSumMs: duration || 0,
+    durationLt250: duration !== undefined && duration < 250 ? 1 : 0,
+    durationLt1000: duration !== undefined && duration >= 250 && duration < 1_000 ? 1 : 0,
+    durationLt3000: duration !== undefined && duration >= 1_000 && duration < 3_000 ? 1 : 0,
+    durationLt8000: duration !== undefined && duration >= 3_000 && duration < 8_000 ? 1 : 0,
+    durationGte8000: duration !== undefined && duration >= 8_000 ? 1 : 0
+  };
+  const existing = await ctx.db.query("reliabilityDaily").withIndex("by_dimension_key", (q) => q.eq("dimensionKey", dimensionKey)).unique();
+  if (existing) {
+    await ctx.db.patch(existing._id, {
+      count: existing.count + increments.count,
+      durationCount: existing.durationCount + increments.durationCount,
+      durationSumMs: existing.durationSumMs + increments.durationSumMs,
+      durationLt250: existing.durationLt250 + increments.durationLt250,
+      durationLt1000: existing.durationLt1000 + increments.durationLt1000,
+      durationLt3000: existing.durationLt3000 + increments.durationLt3000,
+      durationLt8000: existing.durationLt8000 + increments.durationLt8000,
+      durationGte8000: existing.durationGte8000 + increments.durationGte8000,
+      updatedAt: event.createdAt
+    });
+    return;
+  }
+  await ctx.db.insert("reliabilityDaily", {
+    dayKey,
+    dimensionKey,
+    kind: event.kind,
+    surface: event.surface,
+    provider: event.provider,
+    operation: event.operation,
+    outcome: event.outcome,
+    errorCode: event.errorCode,
+    ...increments,
+    updatedAt: event.createdAt
+  });
+}
+
 function incrementProfileStats(
   profileStats: Map<string, { studies: number; drafts: number; checkins: number; memoryVerses: number; feedback: number; events: number; lastActiveAt: number }>,
   items: { profileId: Id<"profiles">; [key: string]: unknown }[],
@@ -848,6 +1175,24 @@ function sanitizePublicPath(value: string | undefined) {
     }
     const query = safeParams.toString();
     return `${url.pathname || "/"}${query ? `?${query}` : ""}`.slice(0, 160);
+  } catch {
+    return undefined;
+  }
+}
+
+function sanitizeFunnelId(value: string | undefined) {
+  const cleaned = clampText(value, 64);
+  return /^[A-Za-z0-9-]{16,64}$/.test(cleaned) ? cleaned : undefined;
+}
+
+function sanitizeCtaTarget(value: string | undefined) {
+  const cleaned = clampOptionalText(value, 160);
+  if (!cleaned) return undefined;
+  if (cleaned.startsWith("/")) return sanitizePublicPath(cleaned);
+  try {
+    const url = new URL(cleaned);
+    if (!["biblestudytutor.org", "www.biblestudytutor.org"].includes(url.hostname)) return undefined;
+    return sanitizePublicPath(`${url.pathname}${url.search}`);
   } catch {
     return undefined;
   }

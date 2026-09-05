@@ -34,7 +34,7 @@ export type BiblePlanReadingChunk = {
 };
 
 export async function fetchBibleApiPassage(reference: string, translation: BibleApiTranslationId, signal: AbortSignal): Promise<BiblePassage> {
-  const response = await fetchWithTimeout(`https://bible-api.com/${encodeURIComponent(reference)}?translation=${translation}`, { signal });
+  const response = await fetchWithTimeout(`https://bible-api.com/${encodeURIComponent(reference)}?translation=${translation}`, { signal }, undefined, { provider: "bible-api", operation: "passage" });
   if (!response.ok) throw new Error("Passage not found");
   const data = (await response.json()) as BiblePassage;
   const verses = data.verses?.map((verse) => ({
@@ -53,7 +53,7 @@ export async function fetchBsbPassage(reference: string, signal: AbortSignal): P
   const parsed = parseBsbPassageReference(reference);
   if (!parsed) throw new Error("BSB needs a chapter reference");
 
-  const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${parsed.bookId}/${parsed.chapter}.json`, { signal });
+  const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${parsed.bookId}/${parsed.chapter}.json`, { signal }, undefined, { provider: "helloao-bsb", operation: "passage" });
   if (!response.ok) throw new Error("BSB passage not found");
 
   const data = await response.json();

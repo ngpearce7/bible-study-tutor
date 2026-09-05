@@ -74,7 +74,7 @@ async function fetchIndexedBibleSearchResults(
     params.set("book", scope === "old" ? "ot" : "nt");
   }
 
-  const response = await fetchWithTimeout(`https://bolls.life/v2/find/${bibleSearchTranslationId(translation)}?${params.toString()}`, { signal });
+  const response = await fetchWithTimeout(`https://bolls.life/v2/find/${bibleSearchTranslationId(translation)}?${params.toString()}`, { signal }, undefined, { provider: "bolls", operation: "search" });
   if (!response.ok) throw new Error("Bible search failed");
   const data = await response.json();
   const rawResults = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
@@ -131,7 +131,7 @@ async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: 
   const bookId = BSB_BOOK_IDS[normalizeBibleBookName(book)];
   if (!bookId) return [];
 
-  const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${bookId}/${chapter}.json`, { signal });
+  const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${bookId}/${chapter}.json`, { signal }, undefined, { provider: "helloao-bsb", operation: "search" });
   if (!response.ok) return [];
 
   const data = await response.json();

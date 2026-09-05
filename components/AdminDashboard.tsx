@@ -27,6 +27,13 @@ export type AdminStats = {
   topMethods: { label: string; count: number }[];
   topSearches: { label: string; count: number }[];
   shareSources: { label: string; count: number }[];
+  publicFunnel?: { views: number; ctaActions: number; accountStarts: number; studies: number; viewToCtaPercent: number; ctaToStudyPercent: number };
+  reliability?: {
+    totalRequests7d: number;
+    errors7d: number;
+    clientErrors7d: number;
+    providers: { provider: string; operation: string; requests: number; successRate: number; p50Ms: number; p95Ms: number }[];
+  };
   eventBreakdown: { label: string; count: number }[];
   publicEventBreakdown?: { label: string; count: number }[];
   topPublicPages?: { label: string; count: number }[];
@@ -47,8 +54,8 @@ export type AdminStats = {
   recentEvents: {
     _id: string;
     eventType: string;
-    reference?: string;
-    methodName?: string;
+    book?: string;
+    methodId?: string;
     tab?: string;
     createdAt: number;
   }[];
@@ -150,7 +157,7 @@ export const AdminDashboard = memo(function AdminDashboard({
     <View style={darkMode && styles.accountDarkLayout}>
       <Eyebrow>Administrator</Eyebrow>
       <Text style={[styles.title, darkMode && styles.accountDarkTitle]}>Admin insights</Text>
-      <Text style={[styles.titleSupport, darkMode && styles.accountDarkMutedText]}>A fuller view of genuine app activity, feedback, and the passages people are returning to.</Text>
+      <Text style={[styles.titleSupport, darkMode && styles.accountDarkMutedText]}>A privacy-safe view of app activity, feedback, conversion health, and reliability.</Text>
 
       <View style={[styles.adminDashboardGrid, phoneLayout && styles.phoneAdminDashboardGrid]}>
         <MetricComponent value={adminStats.totals.activeProfiles7d} label="active 7d" labelLines={2} style={[styles.adminDashboardMetric, darkMode && styles.accountDarkSection]} valueStyle={darkMode && styles.accountDarkTitle} labelStyle={[styles.adminDashboardMetricLabel, darkMode && styles.accountDarkMutedText]} />
@@ -217,19 +224,37 @@ export const AdminDashboard = memo(function AdminDashboard({
 
       <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
-          <AdminCountList styles={styles} title="Top bookmarked verses" items={adminStats.topBookmarked} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminCountList styles={styles} title="Books bookmarked" items={adminStats.topBookmarked} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
-          <AdminCountList styles={styles} title="Top memory verses" items={adminStats.topMemory} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminCountList styles={styles} title="Books saved to memory" items={adminStats.topMemory} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <AdminCountList styles={styles} title="Top study methods" items={adminStats.topMethods} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
-          <AdminCountList styles={styles} title="Bible searches" items={adminStats.topSearches} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminCountList styles={styles} title="Bible search scope" items={adminStats.topSearches} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <AdminCountList styles={styles} title="App shares" items={adminStats.shareSources || []} phoneLayout={phoneLayout} darkMode={darkMode} />
+        </Card>
+      </View>
+
+      <View style={[styles.adminSectionGrid, compactLayout && styles.stackedLayout, phoneLayout && styles.phoneAdminSectionGrid]}>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Anonymous public funnel · 7d</Text>
+          <AdminCountList styles={styles} title="Unique browser sessions" items={[
+            { label: "Public page views", count: adminStats.publicFunnel?.views || 0 },
+            { label: "CTA actions", count: adminStats.publicFunnel?.ctaActions || 0 },
+            { label: "Account starts", count: adminStats.publicFunnel?.accountStarts || 0 },
+            { label: "Studies completed", count: adminStats.publicFunnel?.studies || 0 }
+          ]} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>View → CTA: {adminStats.publicFunnel?.viewToCtaPercent || 0}% · CTA → study: {adminStats.publicFunnel?.ctaToStudyPercent || 0}%</Text>
+        </Card>
+        <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
+          <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Provider reliability · 7d</Text>
+          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>{adminStats.reliability?.totalRequests7d || 0} requests · {adminStats.reliability?.errors7d || 0} failures · {adminStats.reliability?.clientErrors7d || 0} client errors</Text>
+          <AdminReliabilityList styles={styles} rows={adminStats.reliability?.providers || []} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
       </View>
 
@@ -304,6 +329,24 @@ function AdminCountList({ styles, title, items, phoneLayout = false, darkMode = 
         ))
       )}
       {phoneLayout && safeItems.length > visibleItems.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing top {visibleItems.length} of {safeItems.length}.</Text>}
+    </View>
+  );
+}
+
+function AdminReliabilityList({ styles, rows, phoneLayout = false, darkMode = false }: { styles: any; rows: NonNullable<AdminStats["reliability"]>["providers"]; phoneLayout?: boolean; darkMode?: boolean }) {
+  const visibleRows = phoneLayout ? rows.slice(0, 4) : rows;
+  if (!visibleRows.length) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No reliability data yet.</Text>;
+  return (
+    <View style={styles.adminCountList}>
+      {visibleRows.map((row) => (
+        <View key={`${row.provider}-${row.operation}`} style={[styles.adminCountRow, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminCountRow]}>
+          <View>
+            <Text numberOfLines={1} style={[styles.adminCountLabel, darkMode && styles.accountDarkText]}>{row.provider} · {row.operation}</Text>
+            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{row.requests} requests · {row.successRate}% success</Text>
+          </View>
+          <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>p50 ≤{row.p50Ms}ms · p95 ≤{row.p95Ms}ms</Text>
+        </View>
+      ))}
     </View>
   );
 }
@@ -926,7 +969,7 @@ function AdminEventList({ styles, events, phoneLayout = false, darkMode = false 
             <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{prettyAdminEvent(event.eventType)}</Text>
             <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(event.createdAt)}</Text>
           </View>
-          <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{event.reference || event.methodName || event.tab || "App activity"}</Text>
+          <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{event.book || event.methodId || event.tab || "App activity"}</Text>
         </View>
       ))}
       {phoneLayout && events.length > visibleEvents.length && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>Showing latest {visibleEvents.length} of {events.length}.</Text>}

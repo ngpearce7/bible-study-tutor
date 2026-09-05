@@ -4286,9 +4286,19 @@ function buildAnalyticsSnippet(page, ctaHref) {
         var pagePath = ${JSON.stringify(page.path)};
         var ctaTarget = ${JSON.stringify(ctaHref)};
         var methodId = ${JSON.stringify(methodIdForSeoPage(page))};
+        var funnelStorageKey = "bst-public-funnel-v1";
+        function funnelId() {
+          try {
+            var existing = sessionStorage.getItem(funnelStorageKey);
+            if (existing && /^[A-Za-z0-9-]{16,64}$/.test(existing)) return existing;
+            var value = self.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+            sessionStorage.setItem(funnelStorageKey, value);
+            return value;
+          } catch (error) { return undefined; }
+        }
         function track(eventType, source) {
           try {
-            var payload = JSON.stringify({ eventType: eventType, pagePath: pagePath, ctaTarget: ctaTarget, methodId: methodId || undefined, source: source });
+            var payload = JSON.stringify({ eventType: eventType, pagePath: pagePath, ctaTarget: ctaTarget, methodId: methodId || undefined, source: source, funnelId: funnelId() });
             if (navigator.sendBeacon) {
               navigator.sendBeacon(endpoint, new Blob([payload], { type: "text/plain" }));
               return;

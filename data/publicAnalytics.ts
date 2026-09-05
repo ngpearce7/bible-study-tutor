@@ -28,6 +28,7 @@ const configuredConvexUrl = process.env.EXPO_PUBLIC_CONVEX_URL || "";
 const analyticsBaseUrl =
   configuredSiteUrl ||
   (configuredConvexUrl.endsWith(".convex.cloud") ? configuredConvexUrl.replace(".convex.cloud", ".convex.site") : "");
+const FUNNEL_STORAGE_KEY = "bst-public-funnel-v1";
 
 export function trackPublicAnalytics(event: PublicAnalyticsEvent) {
   if (!ANALYTICS_ENABLED || Platform.OS !== "web" || !analyticsBaseUrl || typeof fetch === "undefined") return;
@@ -45,10 +46,26 @@ export function trackPublicAnalytics(event: PublicAnalyticsEvent) {
       pagePath: safePagePath,
       source: event.source,
       ctaTarget: event.ctaTarget,
-      methodId: event.methodId
+      methodId: event.methodId,
+      funnelId: publicFunnelId()
     }),
     keepalive: true
   }).catch(() => undefined);
+}
+
+function publicFunnelId() {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const existing = window.sessionStorage.getItem(FUNNEL_STORAGE_KEY);
+    if (existing && /^[A-Za-z0-9-]{16,64}$/.test(existing)) return existing;
+    const value = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+      ? crypto.randomUUID()
+      : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    window.sessionStorage.setItem(FUNNEL_STORAGE_KEY, value);
+    return value;
+  } catch {
+    return undefined;
+  }
 }
 
 function currentPublicPath() {

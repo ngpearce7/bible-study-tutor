@@ -17091,9 +17091,10 @@ const styles = StyleSheet.create({
   },
   phoneStudyGuidedTopRow: {
     alignItems: "stretch",
-    flexDirection: "column",
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
-    paddingRight: 96
+    paddingRight: 0
   },
   studyGuidedDescriptionRow: {
     width: "100%"
@@ -17107,6 +17108,7 @@ const styles = StyleSheet.create({
     paddingRight: 0
   },
   phoneStudyGuidedTitleBlock: {
+    flexBasis: "100%",
     flex: 0,
     width: "100%"
   },
@@ -17125,17 +17127,18 @@ const styles = StyleSheet.create({
   },
   phoneStudyHeaderControls: {
     alignItems: "flex-start",
-    flexDirection: "column",
+    flex: 1,
+    flexDirection: "row",
     maxWidth: "100%",
-    width: "100%"
+    minWidth: 0,
+    width: "auto"
   },
   studyFocusHeaderToggle: {
     flexShrink: 0
   },
   phoneStudyFocusHeaderToggle: {
-    position: "absolute",
-    right: 12,
-    top: 12
+    alignSelf: "flex-start",
+    position: "relative"
   },
   compactMethodPicker: {
     alignItems: "center",

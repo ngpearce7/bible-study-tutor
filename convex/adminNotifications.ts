@@ -8,6 +8,7 @@ export const sendFirstUserRegisteredEmail = internalAction({
     profileId: v.string(),
     registeredAt: v.number()
   },
+  returns: v.any(),
   handler: async (_ctx, args) => {
     const apiKey = process.env.RESEND_API_KEY;
     const adminEmail = firstEmail(process.env.ADMIN_EMAILS || "");

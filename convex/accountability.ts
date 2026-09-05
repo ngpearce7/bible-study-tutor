@@ -3,6 +3,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { action, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertProfileCanWrite, enforceRecentLimit } from "./security";
+import { recordStudyActivity } from "./statisticsModel";
 import { v } from "convex/values";
 
 const memoryMilestoneGoalIds = new Set([
@@ -41,6 +42,41 @@ const bibleBookmark = v.object({
   note: v.optional(v.string()),
   createdAt: v.string()
 });
+const customBibleReadingPlanDay = v.object({
+  day: v.number(),
+  title: v.string(),
+  reference: v.string(),
+  readerBook: v.string(),
+  readerChapter: v.number(),
+  studyReference: v.string()
+});
+const customBibleReadingPlan = v.object({
+  id: v.string(),
+  title: v.string(),
+  description: v.string(),
+  source: v.literal("custom"),
+  category: v.optional(v.string()),
+  days: v.array(customBibleReadingPlanDay)
+});
+const bibleReadingPlanProgress = v.object({
+  activePlanId: v.string(),
+  followedPlanIds: v.optional(v.array(v.string())),
+  completedDays: v.array(v.string()),
+  customPlans: v.array(customBibleReadingPlan),
+  startDates: v.optional(v.record(v.string(), v.string())),
+  completedPlanDates: v.optional(v.record(v.string(), v.string())),
+  completionCounts: v.optional(v.record(v.string(), v.number())),
+  acknowledgedCareNotes: v.optional(v.array(v.string())),
+  updatedAt: v.optional(v.number())
+});
+const syncedBibleReaderState = v.object({
+  translation: v.optional(bibleTranslation),
+  position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
+  history: v.optional(v.array(bibleReaderHistoryItem)),
+  readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
+  bookmarks: v.optional(v.array(bibleBookmark)),
+  readingPlanProgress: v.optional(bibleReadingPlanProgress)
+});
 
 function usernameFromCredential(value?: string) {
   const email = (value || "").trim().toLowerCase();
@@ -60,6 +96,7 @@ export const savePlan = mutation({
     accountabilityPartner: v.string(),
     preferredMethodId: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -83,6 +120,7 @@ export const saveAccountSettings = mutation({
     preferredMethodId: v.optional(v.string()),
     appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark")))
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -149,6 +187,7 @@ export const saveScriptureInsertSettings = mutation({
       referencePosition: v.union(v.literal("front"), v.literal("end"))
     })
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -173,6 +212,7 @@ export const saveUiPreference = mutation({
     key: v.string(),
     value: v.union(v.boolean(), v.string(), v.array(v.string()))
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -200,6 +240,7 @@ export const saveMemoryMilestoneGoals = mutation({
     profileId: v.id("profiles"),
     goalIds: v.array(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -217,53 +258,122 @@ export const saveMemoryMilestoneGoals = mutation({
 export const saveBibleReaderState = mutation({
   args: {
     profileId: v.id("profiles"),
-    state: v.object({
-      translation: v.optional(bibleTranslation),
-      position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
-      history: v.optional(v.array(bibleReaderHistoryItem)),
-      readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
-      bookmarks: v.optional(v.array(bibleBookmark)),
-      readingPlanProgress: v.optional(v.object({
-        activePlanId: v.string(),
-        followedPlanIds: v.optional(v.array(v.string())),
-        completedDays: v.array(v.string()),
-        customPlans: v.array(v.object({
-          id: v.string(),
-          title: v.string(),
-          description: v.string(),
-          source: v.literal("custom"),
-          category: v.optional(v.string()),
-          days: v.array(v.object({
-            day: v.number(),
-            title: v.string(),
-            reference: v.string(),
-            readerBook: v.string(),
-            readerChapter: v.number(),
-            studyReference: v.string()
-          }))
-        })),
-        startDates: v.optional(v.record(v.string(), v.string())),
-        completedPlanDates: v.optional(v.record(v.string(), v.string())),
-        completionCounts: v.optional(v.record(v.string(), v.number())),
-        acknowledgedCareNotes: v.optional(v.array(v.string())),
-        updatedAt: v.optional(v.number())
-      }))
-    })
+    state: syncedBibleReaderState,
+    revision: v.optional(v.number())
   },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
 
     const cleanedState = cleanBibleReaderState(args.state);
-    const existingReaderState = (profile as any).bibleReaderState;
-    if (!cleanedState.readingPlanProgress && existingReaderState?.readingPlanProgress) {
-      cleanedState.readingPlanProgress = existingReaderState.readingPlanProgress;
-    }
+    const existing = await ctx.db
+      .query("bibleReaderStates")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .unique();
+    const requestedRevision = Math.max(0, Math.round(args.revision ?? 0));
+    const revision = Math.max((existing?.revision ?? 0) + 1, requestedRevision);
+    const now = Date.now();
+    const has = (key: keyof typeof args.state) => Object.prototype.hasOwnProperty.call(args.state, key);
+    const includesBookmarks = has("bookmarks");
+    const includesPlans = has("readingPlanProgress");
 
-    await ctx.db.patch(args.profileId, {
-      bibleReaderState: cleanedState,
-      updatedAt: Date.now()
-    });
+    const corePatch = {
+      translation: has("translation") ? cleanedState.translation : existing?.translation,
+      position: has("position") ? cleanedState.position : existing?.position,
+      history: has("history") ? cleanedState.history : existing?.history,
+      readChapters: has("readChapters") ? cleanedState.readChapters : existing?.readChapters,
+      activePlanId: includesPlans ? cleanedState.readingPlanProgress?.activePlanId : existing?.activePlanId,
+      followedPlanIds: includesPlans ? cleanedState.readingPlanProgress?.followedPlanIds : existing?.followedPlanIds,
+      startDates: includesPlans ? cleanedState.readingPlanProgress?.startDates : existing?.startDates,
+      completedPlanDates: includesPlans ? cleanedState.readingPlanProgress?.completedPlanDates : existing?.completedPlanDates,
+      completionCounts: includesPlans ? cleanedState.readingPlanProgress?.completionCounts : existing?.completionCounts,
+      acknowledgedCareNotes: includesPlans ? cleanedState.readingPlanProgress?.acknowledgedCareNotes : existing?.acknowledgedCareNotes,
+      bookmarksMigrated: includesBookmarks ? true : existing?.bookmarksMigrated,
+      plansMigrated: includesPlans ? true : existing?.plansMigrated,
+      revision,
+      updatedAt: now
+    };
+    if (existing) await ctx.db.patch(existing._id, corePatch);
+    else await ctx.db.insert("bibleReaderStates", { profileId: args.profileId, ...corePatch });
+
+    if (includesBookmarks) {
+      await syncBibleBookmarks(ctx, args.profileId, cleanedState.bookmarks, now);
+    }
+    if (includesPlans && cleanedState.readingPlanProgress) {
+      await syncCustomPlans(ctx, args.profileId, cleanedState.readingPlanProgress.customPlans, now);
+      await syncPlanCompletions(ctx, args.profileId, cleanedState.readingPlanProgress.completedDays, now);
+    }
+    if ((includesBookmarks || existing?.bookmarksMigrated) && (includesPlans || existing?.plansMigrated)) {
+      await ctx.db.patch(args.profileId, { bibleReaderState: undefined, updatedAt: now });
+    }
+    return true;
+  }
+});
+
+export const bibleReaderState = query({
+  args: { profileId: v.id("profiles") },
+  returns: v.union(v.null(), syncedBibleReaderState),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const normalized = await ctx.db
+      .query("bibleReaderStates")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .unique();
+    if (!normalized) return profile.bibleReaderState ?? null;
+
+    const legacy = profile.bibleReaderState;
+    const [bookmarkRows, planRows, completionRows] = await Promise.all([
+      normalized.bookmarksMigrated
+        ? ctx.db.query("bibleBookmarks").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(30)
+        : Promise.resolve([]),
+      normalized.plansMigrated
+        ? ctx.db.query("customBibleReadingPlans").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(30)
+        : Promise.resolve([]),
+      normalized.plansMigrated
+        ? ctx.db.query("bibleReadingPlanCompletions").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(60)
+        : Promise.resolve([])
+    ]);
+    const completedDays = completionRows.flatMap((row) => row.completedDays.map((day) => `${row.planId}:${day}`));
+    return {
+      translation: normalized.translation ?? legacy?.translation,
+      position: normalized.position ?? legacy?.position,
+      history: normalized.history ?? legacy?.history,
+      readChapters: normalized.readChapters ?? legacy?.readChapters,
+      bookmarks: normalized.bookmarksMigrated
+        ? bookmarkRows.map((row) => ({
+            id: row.bookmarkId,
+            book: row.book,
+            chapter: row.chapter,
+            startVerse: row.startVerse,
+            endVerse: row.endVerse,
+            reference: row.reference,
+            bookmarked: row.bookmarked,
+            note: row.note,
+            createdAt: row.createdAt
+          }))
+        : legacy?.bookmarks,
+      readingPlanProgress: normalized.plansMigrated
+        ? {
+            activePlanId: normalized.activePlanId || "",
+            followedPlanIds: normalized.followedPlanIds || [],
+            completedDays,
+            customPlans: planRows.map((row) => ({
+              id: row.planId,
+              title: row.title,
+              description: row.description,
+              source: "custom" as const,
+              category: row.category,
+              days: row.days
+            })),
+            startDates: normalized.startDates || {},
+            completedPlanDates: normalized.completedPlanDates || {},
+            completionCounts: normalized.completionCounts || {},
+            acknowledgedCareNotes: normalized.acknowledgedCareNotes || [],
+            updatedAt: normalized.updatedAt
+          }
+        : legacy?.readingPlanProgress
+    };
   }
 });
 
@@ -273,6 +383,7 @@ export const changePassword = action({
     currentPassword: v.string(),
     newPassword: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const authUserId = await getAuthUserId(ctx);
     if (!authUserId) throw new Error("Sign in before changing your password.");
@@ -302,8 +413,10 @@ export const saveCheckin = mutation({
     profileId: v.id("profiles"),
     mood: v.string(),
     note: v.string(),
-    sentAt: v.optional(v.number())
+    sentAt: v.optional(v.number()),
+    localDayKey: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -314,13 +427,21 @@ export const saveCheckin = mutation({
       .take(30);
     await enforceRecentLimit(ctx, args.profileId, recentCheckins, "createdAt", { max: 30, windowMs: 24 * 60 * 60 * 1000, label: "Encouragement" });
 
-    return await ctx.db.insert("checkins", {
+    const createdAt = Date.now();
+    const checkinId = await ctx.db.insert("checkins", {
       profileId: args.profileId,
       mood: clampText(args.mood, 80),
       note: clampText(args.note, 4000),
       sentAt: args.sentAt,
-      createdAt: Date.now()
+      createdAt
     });
+    await recordStudyActivity(ctx, {
+      profileId: args.profileId,
+      timestamp: createdAt,
+      localDayKey: args.localDayKey,
+      increments: { encouragementsShared: 1 }
+    });
+    return checkinId;
   }
 });
 
@@ -328,6 +449,7 @@ export const profile = query({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     const authUserId = await getAuthUserId(ctx);
@@ -344,9 +466,10 @@ export const profile = query({
       authAccounts[0];
     const passwordAccount = authAccounts.find((account) => account.provider === "password");
     const username = usernameFromCredential(passwordAccount?.providerAccountId || authUser?.email);
+    const { bibleReaderState: _legacyBibleReaderState, ...profileSummary } = profile;
 
     return {
-      ...profile,
+      ...profileSummary,
       authEmail: visibleAuthEmail(authUser?.email),
       authName: authUser?.name,
       authProvider: preferredAuthAccount?.provider,
@@ -362,6 +485,7 @@ export const recentCheckins = query({
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -380,7 +504,10 @@ export const recentCheckins = query({
 
     const enriched = [];
     for (const checkin of checkins) {
-      const sharedPosts = profilePosts.filter((post) => post.checkinId === checkin._id);
+      const sharedPosts = await ctx.db
+        .query("communityPosts")
+        .withIndex("by_checkin_id", (q) => q.eq("checkinId", checkin._id))
+        .take(20);
       const sharedTo = [];
       const allReactions = [];
       for (const post of sharedPosts) {
@@ -477,6 +604,7 @@ export const deleteCheckin = mutation({
     profileId: v.id("profiles"),
     checkinId: v.id("checkins")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -484,11 +612,10 @@ export const deleteCheckin = mutation({
     const checkin = await ctx.db.get(args.checkinId);
     if (!checkin || checkin.profileId !== args.profileId) return false;
 
-    const sharedPosts = (await ctx.db
+    const sharedPosts = await ctx.db
       .query("communityPosts")
-      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
-      .order("desc")
-      .take(200)).filter((post) => post.checkinId === args.checkinId);
+      .withIndex("by_checkin_id", (q) => q.eq("checkinId", args.checkinId))
+      .take(200);
     for (const post of sharedPosts) {
       const reactions = await ctx.db
         .query("communityReactions")
@@ -510,6 +637,7 @@ export const updateCheckin = mutation({
     checkinId: v.id("checkins"),
     note: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -521,11 +649,10 @@ export const updateCheckin = mutation({
       note: nextNote
     });
 
-    const sharedPosts = (await ctx.db
+    const sharedPosts = await ctx.db
       .query("communityPosts")
-      .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
-      .order("desc")
-      .take(200)).filter((post) => post.checkinId === args.checkinId);
+      .withIndex("by_checkin_id", (q) => q.eq("checkinId", args.checkinId))
+      .take(200);
     for (const post of sharedPosts) {
       await ctx.db.patch(post._id, {
         note: clampText(nextNote, 1200)
@@ -550,6 +677,88 @@ function reactionSummary(reactions: Doc<"communityReactions">[]) {
     praying: reactions.filter((reaction) => reaction.reaction === "praying").length,
     encouraged: reactions.filter((reaction) => reaction.reaction === "encouraged").length
   };
+}
+
+async function syncBibleBookmarks(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  bookmarks: ReturnType<typeof cleanBibleReaderState>["bookmarks"],
+  now: number
+) {
+  const existing = await ctx.db.query("bibleBookmarks").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(31);
+  const desiredIds = new Set(bookmarks.map((bookmark) => bookmark.id));
+  for (const row of existing) {
+    if (!desiredIds.has(row.bookmarkId)) await ctx.db.delete(row._id);
+  }
+  for (const bookmark of bookmarks) {
+    const row = existing.find((item) => item.bookmarkId === bookmark.id);
+    const value = {
+      book: bookmark.book,
+      chapter: bookmark.chapter,
+      startVerse: bookmark.startVerse,
+      endVerse: bookmark.endVerse,
+      reference: bookmark.reference,
+      bookmarked: bookmark.bookmarked,
+      note: bookmark.note,
+      createdAt: bookmark.createdAt,
+      updatedAt: now
+    };
+    if (row) await ctx.db.patch(row._id, value);
+    else await ctx.db.insert("bibleBookmarks", { profileId, bookmarkId: bookmark.id, ...value });
+  }
+}
+
+async function syncCustomPlans(
+  ctx: MutationCtx,
+  profileId: Id<"profiles">,
+  plans: NonNullable<ReturnType<typeof cleanBibleReaderState>["readingPlanProgress"]>["customPlans"],
+  now: number
+) {
+  const existing = await ctx.db.query("customBibleReadingPlans").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(31);
+  const desiredIds = new Set(plans.map((plan) => plan.id));
+  for (const row of existing) {
+    if (!desiredIds.has(row.planId)) await ctx.db.delete(row._id);
+  }
+  for (const plan of plans) {
+    const row = existing.find((item) => item.planId === plan.id);
+    const value = {
+      title: plan.title,
+      description: plan.description,
+      source: "custom" as const,
+      category: plan.category,
+      days: plan.days,
+      updatedAt: now
+    };
+    if (row) await ctx.db.patch(row._id, value);
+    else await ctx.db.insert("customBibleReadingPlans", { profileId, planId: plan.id, ...value });
+  }
+}
+
+async function syncPlanCompletions(ctx: MutationCtx, profileId: Id<"profiles">, completionKeys: string[], now: number) {
+  const byPlan = new Map<string, number[]>();
+  for (const completionKey of completionKeys) {
+    const separator = completionKey.lastIndexOf(":");
+    if (separator <= 0) continue;
+    const planId = completionKey.slice(0, separator);
+    const day = Math.round(Number(completionKey.slice(separator + 1)) || 0);
+    if (!planId || day < 1 || day > 400) continue;
+    byPlan.set(planId, [...(byPlan.get(planId) || []), day]);
+  }
+  const existing = await ctx.db.query("bibleReadingPlanCompletions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(61);
+  for (const row of existing) {
+    if (!byPlan.has(row.planId)) await ctx.db.delete(row._id);
+  }
+  for (const [planId, days] of byPlan) {
+    const completedDays = Array.from(new Set(days)).sort((left, right) => left - right);
+    const row = existing.find((item) => item.planId === planId);
+    if (row) {
+      if (JSON.stringify(row.completedDays) !== JSON.stringify(completedDays)) {
+        await ctx.db.patch(row._id, { completedDays, updatedAt: now });
+      }
+    } else {
+      await ctx.db.insert("bibleReadingPlanCompletions", { profileId, planId, completedDays, updatedAt: now });
+    }
+  }
 }
 
 function cleanBibleReaderState(state: {

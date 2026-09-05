@@ -87,6 +87,7 @@ const SUSPENSION_REASONS = [
 export const AdminDashboard = memo(function AdminDashboard({
   adminStats,
   adminUsers,
+  adminUsersCanLoadMore,
   adminUserDetail,
   adminAuditLog,
   adminMaintenanceStatus,
@@ -102,6 +103,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   onCancelDeletion,
   onCleanupLocalProfiles,
   onMarkFeedbackStatus,
+  onLoadMoreAdminUsers,
   onOpenAccount,
   onSelectProfile,
   onSelectRegion,
@@ -110,6 +112,7 @@ export const AdminDashboard = memo(function AdminDashboard({
 }: {
   adminStats: AdminStats | null;
   adminUsers: any[];
+  adminUsersCanLoadMore: boolean;
   adminUserDetail: any;
   adminAuditLog: any[];
   adminMaintenanceStatus: string;
@@ -124,7 +127,8 @@ export const AdminDashboard = memo(function AdminDashboard({
   onApproveDeletion: (requestId: any) => void;
   onCancelDeletion: (requestId: any) => void;
   onCleanupLocalProfiles: () => void;
-  onMarkFeedbackStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>;
+  onMarkFeedbackStatus: (args: { feedbackId: any; status: "new" | "reviewed" | "actioned" | "ignored" }) => Promise<unknown>;
+  onLoadMoreAdminUsers: () => void;
   onOpenAccount: () => void;
   onSelectProfile: (profileId: any) => void;
   onSelectRegion: (region: string) => void;
@@ -179,7 +183,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
           </View>
           <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
-          <AdminUserDirectory styles={styles} users={adminUsers} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} onSelect={onSelectProfile} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminUserDirectory styles={styles} users={adminUsers} canLoadMore={adminUsersCanLoadMore} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} onSelect={onSelectProfile} onLoadMore={onLoadMoreAdminUsers} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <View style={styles.feedbackHeader}>
@@ -377,7 +381,7 @@ function AdminReachMap({ styles, activeUsers, selectedRegion, onSelectRegion, ph
   );
 }
 
-function AdminFeedbackList({ styles, feedback, onMarkStatus, phoneLayout = false, darkMode = false }: { styles: any; feedback: any[]; onMarkStatus: (args: { feedbackId: any; status: string }) => Promise<unknown>; phoneLayout?: boolean; darkMode?: boolean }) {
+function AdminFeedbackList({ styles, feedback, onMarkStatus, phoneLayout = false, darkMode = false }: { styles: any; feedback: any[]; onMarkStatus: (args: { feedbackId: any; status: "new" | "reviewed" | "actioned" | "ignored" }) => Promise<unknown>; phoneLayout?: boolean; darkMode?: boolean }) {
   if (feedback.length === 0) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No feedback yet.</Text>;
   const visibleFeedback = phoneLayout ? feedback.slice(0, 3) : feedback;
 
@@ -392,7 +396,7 @@ function AdminFeedbackList({ styles, feedback, onMarkStatus, phoneLayout = false
           <Text style={[styles.helpFaqAnswer, darkMode && styles.accountDarkText]}>{item.message}</Text>
           <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{formatAdminDate(item.createdAt)}{item.tab ? ` · ${item.tab}` : ""}</Text>
           <View style={styles.feedbackCategoryRow}>
-            {["reviewed", "actioned", "ignored"].map((status) => (
+            {(["reviewed", "actioned", "ignored"] as const).map((status) => (
               <Pressable key={status} onPress={() => onMarkStatus({ feedbackId: item._id, status }).catch(() => undefined)} style={[styles.feedbackCategoryChip, darkMode && styles.helpDarkCategoryChip]}>
                 <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{status}</Text>
               </Pressable>
@@ -408,9 +412,11 @@ function AdminFeedbackList({ styles, feedback, onMarkStatus, phoneLayout = false
 function AdminUserDirectory({
   styles,
   users,
+  canLoadMore,
   selectedProfileId,
   maintenanceStatus,
   onSelect,
+  onLoadMore,
   onCleanupLocalProfiles,
   onSetSuspension,
   phoneLayout = false,
@@ -418,9 +424,11 @@ function AdminUserDirectory({
 }: {
   styles: any;
   users: any[];
+  canLoadMore: boolean;
   selectedProfileId: any;
   maintenanceStatus: string;
   onSelect: (profileId: any) => void;
+  onLoadMore: () => void;
   onCleanupLocalProfiles: () => void;
   onSetSuspension: (args: { profileId: any; suspended: boolean; reason?: string }) => void;
   phoneLayout?: boolean;
@@ -562,9 +570,15 @@ function AdminUserDirectory({
         </Pressable>
       ))}
 
-      {visibleCount < filteredUsers.length && (
-        <Pressable onPress={() => setVisibleCount((count) => count + 15)} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}>
-          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Show 15 more</Text>
+      {(visibleCount < filteredUsers.length || canLoadMore) && (
+        <Pressable
+          onPress={() => {
+            if (visibleCount < filteredUsers.length) setVisibleCount((count) => count + 15);
+            else onLoadMore();
+          }}
+          style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}
+        >
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Load 15 more</Text>
           <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>
       )}

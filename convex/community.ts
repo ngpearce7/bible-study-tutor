@@ -1,9 +1,11 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertCollectionLimit, assertProfileCanWrite, enforceRecentLimit } from "./security";
 import { v } from "convex/values";
+import { paginationOptsValidator, paginationResultValidator } from "convex/server";
 
 const reactionValidator = v.union(v.literal("amen"), v.literal("praying"), v.literal("encouraged"));
 
@@ -11,6 +13,7 @@ export const myFriends = query({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
 
@@ -51,6 +54,7 @@ export const inviteFriendByEmail = mutation({
     profileId: v.id("profiles"),
     email: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -79,6 +83,7 @@ export const ensureFriendCode = mutation({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -101,6 +106,7 @@ export const inviteFriendByCode = mutation({
     profileId: v.id("profiles"),
     friendCode: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -169,6 +175,7 @@ export const acceptFriend = mutation({
     profileId: v.id("profiles"),
     friendId: v.id("communityFriends")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -184,6 +191,7 @@ export const removeFriend = mutation({
     profileId: v.id("profiles"),
     friendId: v.id("communityFriends")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -201,6 +209,7 @@ export const myCircles = query({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
     const authUserId = await getRequiredAuthUserId(ctx);
@@ -237,6 +246,7 @@ export const feed = query({
     friendId: v.optional(v.id("communityFriends")),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeSignedInProfile(ctx, args.profileId);
     const limit = Math.min(args.limit ?? 12, 30);
@@ -251,36 +261,45 @@ export const feed = query({
         .take(limit);
     } else if (args.friendId) {
       const friendProfileId = await authorizeAcceptedFriend(ctx, args.profileId, args.friendId);
-      const outgoing = (await ctx.db
+      const outgoing = await ctx.db
         .query("communityPosts")
-        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
+        .withIndex("by_profile_and_recipient_profile_and_created", (q) =>
+          q.eq("profileId", args.profileId).eq("recipientProfileId", friendProfileId)
+        )
         .order("desc")
-        .take(80)).filter((post) => post.recipientProfileId === friendProfileId);
-      const incoming = (await ctx.db
+        .take(limit);
+      const incoming = await ctx.db
         .query("communityPosts")
-        .withIndex("by_recipient_profile_created", (q) => q.eq("recipientProfileId", args.profileId))
+        .withIndex("by_recipient_profile_and_profile_and_created", (q) =>
+          q.eq("recipientProfileId", args.profileId).eq("profileId", friendProfileId)
+        )
         .order("desc")
-        .take(80)).filter((post) => post.profileId === friendProfileId);
+        .take(limit);
       posts = [...outgoing, ...incoming].sort((a, b) => b.createdAt - a.createdAt).slice(0, limit);
     } else {
       return [];
     }
 
-    const enriched = [];
-    for (const post of posts) {
-      const reactions = await ctx.db
-        .query("communityReactions")
-        .withIndex("by_post", (q) => q.eq("postId", post._id))
-        .take(200);
-      enriched.push({
-        ...post,
-        reactions: reactionSummary(reactions),
-        myReactions: reactions.filter((reaction) => reaction.profileId === args.profileId).map((reaction) => reaction.reaction),
-        canRemove: post.profileId === args.profileId
-      });
-    }
+    return await enrichPosts(ctx, posts, args.profileId);
+  }
+});
 
-    return enriched;
+export const circleFeedPage = query({
+  args: {
+    profileId: v.id("profiles"),
+    circleId: v.id("communityCircles"),
+    paginationOpts: paginationOptsValidator
+  },
+  returns: paginationResultValidator(v.any()),
+  handler: async (ctx, args) => {
+    await authorizeSignedInProfile(ctx, args.profileId);
+    await authorizeCircleMember(ctx, args.circleId, args.profileId);
+    const page = await ctx.db
+      .query("communityPosts")
+      .withIndex("by_circle_created", (q) => q.eq("circleId", args.circleId))
+      .order("desc")
+      .paginate(args.paginationOpts);
+    return { ...page, page: await enrichPosts(ctx, page.page, args.profileId) };
   }
 });
 
@@ -289,6 +308,7 @@ export const createCircle = mutation({
     profileId: v.id("profiles"),
     name: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -328,6 +348,7 @@ export const joinCircle = mutation({
     profileId: v.id("profiles"),
     inviteCode: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -370,6 +391,7 @@ export const shareCheckin = mutation({
     note: v.string(),
     passageReference: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -400,6 +422,7 @@ export const shareInsight = mutation({
     note: v.string(),
     passageReference: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -421,6 +444,7 @@ export const reactToPost = mutation({
     postId: v.id("communityPosts"),
     reaction: reactionValidator
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -462,6 +486,7 @@ export const removePost = mutation({
     profileId: v.id("profiles"),
     postId: v.id("communityPosts")
   },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -470,14 +495,20 @@ export const removePost = mutation({
     await authorizePostViewer(ctx, post, args.profileId);
     if (post.profileId !== args.profileId) throw new Error("Only the person who shared this encouragement can remove it.");
 
-    const reactions = await ctx.db
-      .query("communityReactions")
-      .withIndex("by_post", (q) => q.eq("postId", args.postId))
-      .take(200);
-    for (const reaction of reactions) {
-      await ctx.db.delete(reaction._id);
+    const existingJob = await findActivePostCleanupJob(ctx, args.postId);
+    if (!existingJob) {
+      const now = Date.now();
+      const jobId = await ctx.db.insert("cleanupJobs", {
+        kind: "post",
+        profileId: args.profileId,
+        postId: args.postId,
+        phase: "reactions",
+        status: "pending",
+        createdAt: now,
+        updatedAt: now
+      });
+      await ctx.scheduler.runAfter(0, internal.insights.runCleanupJob, { jobId });
     }
-    await ctx.db.delete(args.postId);
     return true;
   }
 });
@@ -488,6 +519,7 @@ export const updatePost = mutation({
     postId: v.id("communityPosts"),
     note: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -513,6 +545,7 @@ export const leaveCircle = mutation({
     profileId: v.id("profiles"),
     circleId: v.id("communityCircles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -532,6 +565,7 @@ export const deleteCircle = mutation({
     profileId: v.id("profiles"),
     circleId: v.id("communityCircles")
   },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -542,33 +576,62 @@ export const deleteCircle = mutation({
     const isOwner = membership.role === "owner" || circle.ownerProfileId === args.profileId || circle.ownerAuthUserId === authUserId;
     if (!isOwner) throw new Error("Only the circle owner can delete this circle.");
 
-    const posts = await ctx.db
-      .query("communityPosts")
-      .withIndex("by_circle_created", (q) => q.eq("circleId", args.circleId))
-      .take(200);
-    for (const post of posts) {
-      const reactions = await ctx.db
-        .query("communityReactions")
-        .withIndex("by_post", (q) => q.eq("postId", post._id))
-        .take(200);
-      for (const reaction of reactions) {
-        await ctx.db.delete(reaction._id);
-      }
-      await ctx.db.delete(post._id);
+    const existingJob = await findActiveCircleCleanupJob(ctx, args.circleId);
+    if (!existingJob) {
+      const now = Date.now();
+      const jobId = await ctx.db.insert("cleanupJobs", {
+        kind: "circle",
+        profileId: args.profileId,
+        circleId: args.circleId,
+        phase: "posts",
+        status: "pending",
+        createdAt: now,
+        updatedAt: now
+      });
+      await ctx.scheduler.runAfter(0, internal.insights.runCleanupJob, { jobId });
     }
-
-    const members = await ctx.db
-      .query("communityMembers")
-      .withIndex("by_circle", (q) => q.eq("circleId", args.circleId))
-      .take(200);
-    for (const member of members) {
-      await ctx.db.delete(member._id);
-    }
-
-    await ctx.db.delete(args.circleId);
     return true;
   }
 });
+
+async function findActivePostCleanupJob(ctx: MutationCtx, postId: Id<"communityPosts">) {
+  const pending = await ctx.db
+    .query("cleanupJobs")
+    .withIndex("by_post_and_status", (q) => q.eq("postId", postId).eq("status", "pending"))
+    .first();
+  if (pending) return pending;
+  return await ctx.db
+    .query("cleanupJobs")
+    .withIndex("by_post_and_status", (q) => q.eq("postId", postId).eq("status", "running"))
+    .first();
+}
+
+async function findActiveCircleCleanupJob(ctx: MutationCtx, circleId: Id<"communityCircles">) {
+  const pending = await ctx.db
+    .query("cleanupJobs")
+    .withIndex("by_circle_and_status", (q) => q.eq("circleId", circleId).eq("status", "pending"))
+    .first();
+  if (pending) return pending;
+  return await ctx.db
+    .query("cleanupJobs")
+    .withIndex("by_circle_and_status", (q) => q.eq("circleId", circleId).eq("status", "running"))
+    .first();
+}
+
+async function enrichPosts(ctx: QueryCtx, posts: Doc<"communityPosts">[], profileId: Id<"profiles">) {
+  return await Promise.all(posts.map(async (post) => {
+    const reactions = await ctx.db
+      .query("communityReactions")
+      .withIndex("by_post", (q) => q.eq("postId", post._id))
+      .take(200);
+    return {
+      ...post,
+      reactions: reactionSummary(reactions),
+      myReactions: reactions.filter((reaction) => reaction.profileId === profileId).map((reaction) => reaction.reaction),
+      canRemove: post.profileId === profileId
+    };
+  }));
+}
 
 async function authorizeSignedInProfile(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
   const profile = await ctx.db.get(profileId);

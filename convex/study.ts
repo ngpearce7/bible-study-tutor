@@ -4,6 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertProfileCanWrite, enforceRecentLimit } from "./security";
+import { adjustStudyTotals, recordStudyActivity } from "./statisticsModel";
 import { v } from "convex/values";
 
 const passageMarkup = v.object({
@@ -32,6 +33,7 @@ export const ensureProfile = mutation({
     clientKey: v.optional(v.string()),
     displayName: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const authUserId = await getAuthUserId(ctx);
     const now = Date.now();
@@ -164,6 +166,7 @@ export const saveSession = mutation({
     shareNote: v.optional(v.string()),
     passageMarkups: v.optional(v.array(passageMarkup)),
     minutes: v.number(),
+    localDayKey: v.optional(v.string()),
     coachingMoments: v.optional(
       v.array(
         v.object({
@@ -181,6 +184,7 @@ export const saveSession = mutation({
       })
     )
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -202,9 +206,18 @@ export const saveSession = mutation({
       answers: cleanAnswers(args.answers)
     };
 
+    const completedAt = Date.now();
     const sessionId = await ctx.db.insert("sessions", {
       ...cleaned,
-      completedAt: Date.now()
+      completedAt
+    });
+    await recordStudyActivity(ctx, {
+      profileId: args.profileId,
+      timestamp: completedAt,
+      localDayKey: args.localDayKey,
+      increments: { studiesCompleted: 1 },
+      sessionDelta: 1,
+      minuteDelta: cleaned.minutes
     });
 
     const draft = await ctx.db
@@ -238,6 +251,7 @@ export const saveDraft = mutation({
       })
     )
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -296,6 +310,7 @@ export const draftForPassage = query({
     passage: v.string(),
     methodId: v.string()
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -313,6 +328,7 @@ export const recentDrafts = query({
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -329,6 +345,7 @@ export const deleteDraft = mutation({
     profileId: v.id("profiles"),
     draftId: v.id("drafts")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -345,6 +362,7 @@ export const deleteSession = mutation({
     profileId: v.id("profiles"),
     sessionId: v.id("sessions")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -352,6 +370,7 @@ export const deleteSession = mutation({
     if (!session || session.profileId !== args.profileId) return false;
 
     await ctx.db.delete(args.sessionId);
+    await adjustStudyTotals(ctx, args.profileId, { sessionDelta: -1, minuteDelta: -session.minutes });
     return true;
   }
 });
@@ -363,6 +382,7 @@ export const scheduleStudyReview = mutation({
     preset: v.optional(reviewPreset),
     customDays: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -386,6 +406,7 @@ export const completeStudyReview = mutation({
     sessionId: v.id("sessions"),
     reviewNote: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -406,6 +427,7 @@ export const recentSessions = query({
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -422,6 +444,7 @@ export const dueStudyReviews = query({
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -440,61 +463,44 @@ export const stats = query({
     profileId: v.id("profiles"),
     timezoneOffsetMinutes: v.optional(v.number())
   },
+  returns: v.object({
+    sessionCount: v.number(),
+    minutes: v.number(),
+    currentStreak: v.number(),
+    bestStreak: v.number(),
+    migrationStatus: v.union(v.literal("pending"), v.literal("backfilling"), v.literal("ready")),
+    weeklyRhythm: v.object({
+      activeDays: v.number(),
+      planReadingsCompleted: v.number(),
+      chaptersRead: v.number(),
+      studiesCompleted: v.number(),
+      memoryReviews: v.number(),
+      memoryMeditations: v.number(),
+      memorySaved: v.number(),
+      worksheetsPrinted: v.number(),
+      memoryCardsPrinted: v.number(),
+      encouragementsShared: v.number(),
+      bookmarksSaved: v.number(),
+      strongestArea: v.string()
+    }),
+    rhythmGrace: v.union(v.null(), v.object({ missedDate: v.string(), latestActivityDate: v.string() }))
+  }),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
-
-    const [sessions, checkins, memoryVerses, memoryHistory, usageEvents] = await Promise.all([
-      ctx.db
-      .query("sessions")
-      .withIndex("by_profile_completed", (q) => q.eq("profileId", args.profileId))
-        .collect(),
-      ctx.db
-        .query("checkins")
-        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
-        .collect(),
-      ctx.db
-        .query("memoryVerses")
-        .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
-        .collect(),
-      ctx.db
-        .query("memoryHistory")
-        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
-        .collect(),
-      ctx.db
-        .query("usageEvents")
-        .withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId))
-        .collect()
+    const [aggregate, dailyRows] = await Promise.all([
+      ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).unique(),
+      ctx.db.query("studyDailyStats").withIndex("by_profile_and_day_key", (q) => q.eq("profileId", args.profileId)).order("desc").take(400)
     ]);
-
-    const timezoneOffsetMinutes = args.timezoneOffsetMinutes ?? 0;
-    const activityTimestamps = [
-      ...sessions.map((session) => session.completedAt),
-      ...checkins.map((checkin) => checkin.createdAt),
-      ...memoryVerses.flatMap((verse) => [verse.createdAt, verse.lastReviewedAt].filter(isNumber)),
-      ...memoryHistory
-        .filter((event) => event.event === "added" || event.event === "reviewed" || event.event === "meditated")
-        .map((event) => event.createdAt),
-      ...usageEvents.filter((event) => countsTowardScriptureRhythm(event.eventType)).map((event) => event.createdAt)
-    ];
-
-    const dates = Array.from(new Set(activityTimestamps.map((timestamp) => dayKey(timestamp, timezoneOffsetMinutes)))).sort();
-
-    const rhythm = currentStreak(dates, timezoneOffsetMinutes);
-    const weeklyRhythm = buildWeeklyRhythmSummary({
-      sessions,
-      checkins,
-      memoryVerses,
-      memoryHistory,
-      usageEvents,
-      activeDates: dates,
-      timezoneOffsetMinutes
-    });
+    const dates = dailyRows.map((row) => row.dayKey).sort();
+    const rhythm = currentStreak(dates, args.timezoneOffsetMinutes ?? 0);
+    const weeklyRhythm = buildIncrementalWeeklyRhythmSummary(dailyRows, args.timezoneOffsetMinutes ?? 0);
 
     return {
-      sessionCount: sessions.length,
-      minutes: sessions.reduce((total, session) => total + session.minutes, 0),
+      sessionCount: aggregate?.sessionCount ?? 0,
+      minutes: aggregate?.minutes ?? 0,
       currentStreak: rhythm.current,
-      bestStreak: Math.max(bestStreak(dates), rhythm.current),
+      bestStreak: Math.max(aggregate?.bestStreak ?? 0, bestStreak(dates), rhythm.current),
+      migrationStatus: aggregate?.migrationStatus ?? "pending",
       weeklyRhythm,
       rhythmGrace: rhythm.graceUsed
         ? {
@@ -505,6 +511,60 @@ export const stats = query({
     };
   }
 });
+
+function buildIncrementalWeeklyRhythmSummary(
+  rows: Array<{
+    dayKey: string;
+    studiesCompleted: number;
+    planReadingsCompleted: number;
+    planReadingsOpened: number;
+    chaptersRead: number;
+    bibleSearches: number;
+    memoryReviews: number;
+    memoryMeditations: number;
+    memorySaved: number;
+    worksheetsPrinted: number;
+    memoryCardsPrinted: number;
+    encouragementsShared: number;
+    bookmarksSaved: number;
+  }>,
+  timezoneOffsetMinutes: number
+) {
+  const today = dayKey(Date.now(), timezoneOffsetMinutes);
+  const weekStart = addDaysToDateKey(today, -6);
+  const week = rows.filter((row) => row.dayKey >= weekStart && row.dayKey <= today);
+  const total = (key: Exclude<keyof (typeof rows)[number], "dayKey">) => week.reduce((sum, row) => sum + row[key], 0);
+  const planReadingsCompleted = total("planReadingsCompleted");
+  const chaptersRead = total("chaptersRead");
+  const studiesCompleted = total("studiesCompleted");
+  const memoryReviews = total("memoryReviews");
+  const memoryMeditations = total("memoryMeditations");
+  const memorySaved = total("memorySaved");
+  const worksheetsPrinted = total("worksheetsPrinted");
+  const memoryCardsPrinted = total("memoryCardsPrinted");
+  const encouragementsShared = total("encouragementsShared");
+  const bookmarksSaved = total("bookmarksSaved");
+  const areaScores = [
+    { area: "Bible reading", score: planReadingsCompleted + total("planReadingsOpened") + chaptersRead + total("bibleSearches") },
+    { area: "Memory", score: memoryReviews + memoryMeditations + memorySaved + memoryCardsPrinted },
+    { area: "Guided study", score: studiesCompleted + worksheetsPrinted },
+    { area: "Encouragement", score: encouragementsShared + bookmarksSaved }
+  ].sort((left, right) => right.score - left.score);
+  return {
+    activeDays: week.length,
+    planReadingsCompleted,
+    chaptersRead,
+    studiesCompleted,
+    memoryReviews,
+    memoryMeditations,
+    memorySaved,
+    worksheetsPrinted,
+    memoryCardsPrinted,
+    encouragementsShared,
+    bookmarksSaved,
+    strongestArea: areaScores[0]?.score ? areaScores[0].area : ""
+  };
+}
 
 async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
   const profile = await ctx.db.get(profileId);

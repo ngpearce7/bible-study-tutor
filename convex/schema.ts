@@ -120,7 +120,9 @@ export default defineSchema({
     .index("by_auth_user_id", ["authUserId"])
     .index("by_client_key", ["clientKey"])
     .index("by_normalized_username", ["normalizedUsername"])
-    .index("by_friend_code", ["friendCode"]),
+    .index("by_friend_code", ["friendCode"])
+    .index("by_updated_at", ["updatedAt"])
+    .index("by_auth_user_and_updated_at", ["authUserId", "updatedAt"]),
   sessions: defineTable({
     profileId: v.id("profiles"),
     passage: v.string(),
@@ -233,7 +235,10 @@ export default defineSchema({
   })
     .index("by_circle_created", ["circleId", "createdAt"])
     .index("by_recipient_profile_created", ["recipientProfileId", "createdAt"])
-    .index("by_profile_created", ["profileId", "createdAt"]),
+    .index("by_profile_created", ["profileId", "createdAt"])
+    .index("by_checkin_id", ["checkinId"])
+    .index("by_profile_and_recipient_profile_and_created", ["profileId", "recipientProfileId", "createdAt"])
+    .index("by_recipient_profile_and_profile_and_created", ["recipientProfileId", "profileId", "createdAt"]),
   communityReactions: defineTable({
     postId: v.id("communityPosts"),
     profileId: v.id("profiles"),
@@ -292,6 +297,89 @@ export default defineSchema({
     updatedAt: v.number()
   })
     .index("by_profile", ["profileId"]),
+  studyStats: defineTable({
+    profileId: v.id("profiles"),
+    sessionCount: v.number(),
+    minutes: v.number(),
+    currentStreak: v.number(),
+    bestStreak: v.number(),
+    lastActiveDayKey: v.optional(v.string()),
+    migrationStatus: v.union(v.literal("pending"), v.literal("backfilling"), v.literal("ready")),
+    migrationPhase: v.optional(v.union(v.literal("sessions"), v.literal("checkins"), v.literal("memoryHistory"), v.literal("usageEvents"))),
+    migrationCursor: v.optional(v.string()),
+    migrationThroughAt: v.optional(v.number()),
+    updatedAt: v.number()
+  }).index("by_profile", ["profileId"]),
+  studyDailyStats: defineTable({
+    profileId: v.id("profiles"),
+    dayKey: v.string(),
+    studiesCompleted: v.number(),
+    planReadingsCompleted: v.number(),
+    planReadingsOpened: v.number(),
+    chaptersRead: v.number(),
+    bibleSearches: v.number(),
+    memoryReviews: v.number(),
+    memoryMeditations: v.number(),
+    memorySaved: v.number(),
+    worksheetsPrinted: v.number(),
+    memoryCardsPrinted: v.number(),
+    encouragementsShared: v.number(),
+    bookmarksSaved: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_profile_and_day_key", ["profileId", "dayKey"]),
+  bibleReaderStates: defineTable({
+    profileId: v.id("profiles"),
+    translation: v.optional(v.union(v.literal("bsb"), v.literal("web"), v.literal("kjv"))),
+    position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
+    history: v.optional(v.array(bibleReaderHistoryItem)),
+    readChapters: v.optional(v.record(v.string(), v.array(v.number()))),
+    activePlanId: v.optional(v.string()),
+    followedPlanIds: v.optional(v.array(v.string())),
+    startDates: v.optional(v.record(v.string(), v.string())),
+    completedPlanDates: v.optional(v.record(v.string(), v.string())),
+    completionCounts: v.optional(v.record(v.string(), v.number())),
+    acknowledgedCareNotes: v.optional(v.array(v.string())),
+    bookmarksMigrated: v.optional(v.boolean()),
+    plansMigrated: v.optional(v.boolean()),
+    revision: v.number(),
+    updatedAt: v.number()
+  }).index("by_profile", ["profileId"]),
+  bibleBookmarks: defineTable({
+    profileId: v.id("profiles"),
+    bookmarkId: v.string(),
+    book: v.string(),
+    chapter: v.number(),
+    startVerse: v.optional(v.number()),
+    endVerse: v.optional(v.number()),
+    reference: v.string(),
+    bookmarked: v.optional(v.boolean()),
+    note: v.optional(v.string()),
+    createdAt: v.string(),
+    updatedAt: v.number()
+  })
+    .index("by_profile", ["profileId"])
+    .index("by_profile_and_bookmark_id", ["profileId", "bookmarkId"]),
+  customBibleReadingPlans: defineTable({
+    profileId: v.id("profiles"),
+    planId: v.string(),
+    title: v.string(),
+    description: v.string(),
+    source: v.literal("custom"),
+    category: v.optional(v.string()),
+    days: v.array(bibleReadingPlanDay),
+    updatedAt: v.number()
+  })
+    .index("by_profile", ["profileId"])
+    .index("by_profile_and_plan_id", ["profileId", "planId"]),
+  bibleReadingPlanCompletions: defineTable({
+    profileId: v.id("profiles"),
+    planId: v.string(),
+    completedDays: v.array(v.number()),
+    updatedAt: v.number()
+  })
+    .index("by_profile", ["profileId"])
+    .index("by_profile_and_plan_id", ["profileId", "planId"]),
   feedback: defineTable({
     profileId: v.id("profiles"),
     category: v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other")),
@@ -349,7 +437,9 @@ export default defineSchema({
     email: v.optional(v.string()),
     name: v.optional(v.string()),
     triggeredAt: v.number()
-  }).index("by_key", ["key"]),
+  })
+    .index("by_key", ["key"])
+    .index("by_profile", ["profileId"]),
   accountDeletionRequests: defineTable({
     profileId: v.id("profiles"),
     authUserId: v.optional(v.id("users")),
@@ -364,6 +454,25 @@ export default defineSchema({
   })
     .index("by_profile_status", ["profileId", "status"])
     .index("by_status_requested", ["status", "requestedAt"]),
+  cleanupJobs: defineTable({
+    kind: v.union(v.literal("profile"), v.literal("circle"), v.literal("post")),
+    profileId: v.optional(v.id("profiles")),
+    authUserId: v.optional(v.id("users")),
+    circleId: v.optional(v.id("communityCircles")),
+    postId: v.optional(v.id("communityPosts")),
+    deletionRequestId: v.optional(v.id("accountDeletionRequests")),
+    requestedBy: v.optional(v.id("users")),
+    phase: v.string(),
+    status: v.union(v.literal("pending"), v.literal("running"), v.literal("complete"), v.literal("failed")),
+    attempts: v.optional(v.number()),
+    lastError: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number()
+  })
+    .index("by_status_and_created_at", ["status", "createdAt"])
+    .index("by_profile_and_status", ["profileId", "status"])
+    .index("by_circle_and_status", ["circleId", "status"])
+    .index("by_post_and_status", ["postId", "status"]),
   adminAuditLog: defineTable({
     adminUserId: v.id("users"),
     action: v.string(),

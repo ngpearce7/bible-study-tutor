@@ -22,7 +22,7 @@ import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { Component, Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
 import { Alert, Animated, Easing, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
@@ -683,44 +683,45 @@ export default function Home() {
   const deleteSessionMutation = useMutation(api.study.deleteSession);
   const savePlan = useMutation(api.accountability.savePlan);
   const saveAccountSettings = useMutation(api.accountability.saveAccountSettings);
-  const saveScriptureInsertSettings = useMutation((api as any).accountability.saveScriptureInsertSettings);
-  const saveUiPreference = useMutation((api as any).accountability.saveUiPreference);
-  const saveMemoryMilestoneGoals = useMutation((api as any).accountability.saveMemoryMilestoneGoals);
-  const saveBibleReaderState = useMutation((api as any).accountability.saveBibleReaderState);
+  const saveScriptureInsertSettings = useMutation(api.accountability.saveScriptureInsertSettings);
+  const saveUiPreference = useMutation(api.accountability.saveUiPreference);
+  const saveMemoryMilestoneGoals = useMutation(api.accountability.saveMemoryMilestoneGoals);
+  const saveBibleReaderState = useMutation(api.accountability.saveBibleReaderState);
+  const ensureStudyStats = useMutation(api.statistics.ensureStats);
   const changePassword = useAction(api.accountability.changePassword);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
   const deleteCheckinMutation = useMutation(api.accountability.deleteCheckin);
   const updateCheckin = useMutation(api.accountability.updateCheckin);
-  const createCommunityCircle = useMutation((api as any).community.createCircle);
-  const joinCommunityCircle = useMutation((api as any).community.joinCircle);
-  const inviteCommunityFriend = useMutation((api as any).community.inviteFriendByEmail);
-  const inviteCommunityFriendByCode = useMutation((api as any).community.inviteFriendByCode);
-  const ensureCommunityFriendCode = useMutation((api as any).community.ensureFriendCode);
-  const acceptCommunityFriend = useMutation((api as any).community.acceptFriend);
-  const removeCommunityFriend = useMutation((api as any).community.removeFriend);
-  const shareCheckinToCircle = useMutation((api as any).community.shareCheckin);
-  const shareStudyInsightToCommunity = useMutation((api as any).community.shareInsight);
-  const reactToCommunityPost = useMutation((api as any).community.reactToPost);
-  const removeCommunityPost = useMutation((api as any).community.removePost);
-  const updateCommunityPost = useMutation((api as any).community.updatePost);
-  const leaveCommunityCircle = useMutation((api as any).community.leaveCircle);
-  const deleteCommunityCircle = useMutation((api as any).community.deleteCircle);
+  const createCommunityCircle = useMutation(api.community.createCircle);
+  const joinCommunityCircle = useMutation(api.community.joinCircle);
+  const inviteCommunityFriend = useMutation(api.community.inviteFriendByEmail);
+  const inviteCommunityFriendByCode = useMutation(api.community.inviteFriendByCode);
+  const ensureCommunityFriendCode = useMutation(api.community.ensureFriendCode);
+  const acceptCommunityFriend = useMutation(api.community.acceptFriend);
+  const removeCommunityFriend = useMutation(api.community.removeFriend);
+  const shareCheckinToCircle = useMutation(api.community.shareCheckin);
+  const shareStudyInsightToCommunity = useMutation(api.community.shareInsight);
+  const reactToCommunityPost = useMutation(api.community.reactToPost);
+  const removeCommunityPost = useMutation(api.community.removePost);
+  const updateCommunityPost = useMutation(api.community.updatePost);
+  const leaveCommunityCircle = useMutation(api.community.leaveCircle);
+  const deleteCommunityCircle = useMutation(api.community.deleteCircle);
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
-  const scheduleMemoryReview = useMutation((api as any).memory.scheduleReview);
-  const updateMemoryCollections = useMutation((api as any).memory.updateCollections);
-  const recordMemoryHistoryEvent = useMutation((api as any).memory.recordHistoryEvent);
-  const submitFeedback = useMutation((api as any).insights.submitFeedback);
-  const recordUsage = useMutation((api as any).insights.recordUsage);
-  const markFeedbackStatus = useMutation((api as any).insights.markFeedbackStatus);
-  const requestAccountDeletion = useMutation((api as any).insights.requestAccountDeletion);
-  const cancelAccountDeletionRequest = useMutation((api as any).insights.cancelAccountDeletionRequest);
-  const approveDeletionRequestAsAdmin = useMutation((api as any).insights.approveDeletionRequestAsAdmin);
-  const cancelDeletionRequestAsAdmin = useMutation((api as any).insights.cancelDeletionRequestAsAdmin);
-  const cleanupEmptyLocalProfilesAsAdmin = useMutation((api as any).insights.cleanupEmptyLocalProfilesAsAdmin);
-  const setProfileSuspensionAsAdmin = useMutation((api as any).insights.setProfileSuspensionAsAdmin);
-  const markProfileSecurityReviewedAsAdmin = useMutation((api as any).insights.markProfileSecurityReviewedAsAdmin);
+  const scheduleMemoryReview = useMutation(api.memory.scheduleReview);
+  const updateMemoryCollections = useMutation(api.memory.updateCollections);
+  const recordMemoryHistoryEvent = useMutation(api.memory.recordHistoryEvent);
+  const submitFeedback = useMutation(api.insights.submitFeedback);
+  const recordUsage = useMutation(api.insights.recordUsage);
+  const markFeedbackStatus = useMutation(api.insights.markFeedbackStatus);
+  const requestAccountDeletion = useMutation(api.insights.requestAccountDeletion);
+  const cancelAccountDeletionRequest = useMutation(api.insights.cancelAccountDeletionRequest);
+  const approveDeletionRequestAsAdmin = useMutation(api.insights.approveDeletionRequestAsAdmin);
+  const cancelDeletionRequestAsAdmin = useMutation(api.insights.cancelDeletionRequestAsAdmin);
+  const cleanupEmptyLocalProfilesAsAdmin = useMutation(api.insights.cleanupEmptyLocalProfilesAsAdmin);
+  const setProfileSuspensionAsAdmin = useMutation(api.insights.setProfileSuspensionAsAdmin);
+  const markProfileSecurityReviewedAsAdmin = useMutation(api.insights.markProfileSecurityReviewedAsAdmin);
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
@@ -1549,6 +1550,7 @@ export default function Home() {
     trackedIncomingShareRef.current = incomingShareSource;
     recordUsage({
       profileId: activeProfileId,
+      localDayKey: localDateKey(),
       eventType: "app_shared",
       reference: incomingShareSource === "qr" ? "QR code" : incomingShareSource,
       tab: "help"
@@ -1556,6 +1558,10 @@ export default function Home() {
   }, [activeProfileId, incomingShareSource, recordUsage]);
 
   const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const remoteBibleReaderState = useQuery(
+    api.accountability.bibleReaderState,
+    activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip"
+  );
   const profileAppearanceMode = (profile as any)?.appearanceMode;
   const profileMatchesActiveState =
     !!activeProfileId &&
@@ -1589,6 +1595,11 @@ export default function Home() {
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, limit: 10 } : "skip");
 
   useEffect(() => {
+    if (!profileMatchesActiveState || !activeProfileId || stats === undefined || stats?.migrationStatus === "ready" || stats?.migrationStatus === "backfilling") return;
+    ensureStudyStats({ profileId: activeProfileId }).catch(() => undefined);
+  }, [activeProfileId, ensureStudyStats, profileMatchesActiveState, stats]);
+
+  useEffect(() => {
     const missedDate = typeof rhythmGrace?.missedDate === "string" ? rhythmGrace.missedDate : "";
     if (!profileMatchesActiveState || !activeProfileId || !missedDate) return;
     const storageKey = `bible-study-tutor-rhythm-grace-${activeProfileId}-${missedDate}`;
@@ -1614,16 +1625,20 @@ export default function Home() {
     rhythmGrace?.missedDate
   ]);
   const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
-  const communityFriends = useQuery((api as any).community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
-  const communityCircles = useQuery((api as any).community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
+  const communityFriends = useQuery(api.community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
+  const communityCircles = useQuery(api.community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 50 } : "skip");
-  const memoryHistory = useQuery((api as any).memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
-  const memoryStats = useQuery((api as any).memory.stats, shouldLoadMemoryHistory ? { profileId: activeProfileId } : "skip");
-  const adminOverview = useQuery((api as any).insights.adminOverview, shouldLoadAdminOverview ? {} : "skip");
-  const accountDeletionRequest = useQuery((api as any).insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
-  const adminUsers = useQuery((api as any).insights.adminUsers, shouldLoadAdminDetails ? {} : "skip");
-  const adminUserDetail = useQuery((api as any).insights.adminUserDetail, shouldLoadAdminDetails && selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
-  const adminAuditLog = useQuery((api as any).insights.adminAuditLog, shouldLoadAdminDetails ? { limit: 20 } : "skip");
+  const memoryHistory = useQuery(api.memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
+  const memoryStats = useQuery(api.memory.stats, shouldLoadMemoryHistory ? { profileId: activeProfileId } : "skip");
+  const adminOverview = useQuery(api.insights.adminOverview, shouldLoadAdminOverview ? {} : "skip");
+  const accountDeletionRequest = useQuery(api.insights.deletionRequestForProfile, shouldLoadAccountDeletionRequest ? { profileId: activeProfileId } : "skip");
+  const {
+    results: adminUsers,
+    status: adminUsersStatus,
+    loadMore: loadMoreAdminUsers
+  } = usePaginatedQuery(api.insights.adminUsersPage, shouldLoadAdminDetails ? {} : "skip", { initialNumItems: 15 });
+  const adminUserDetail = useQuery(api.insights.adminUserDetail, shouldLoadAdminDetails && selectedAdminProfileId ? { profileId: selectedAdminProfileId } : "skip");
+  const adminAuditLog = useQuery(api.insights.adminAuditLog, shouldLoadAdminDetails ? { limit: 20 } : "skip");
 
   useEffect(() => {
     if (!profileMatchesActiveState || !memoryReviewSortsHydrated) return;
@@ -2615,7 +2630,7 @@ export default function Home() {
   useEffect(() => {
     if (!profileMatchesActiveState || !isAuthenticated || !profile) return;
     if (!storedBibleReadingPlanProgressHydrated) return;
-    const syncedReaderState = normalizeSyncedBibleReaderState((profile as any).bibleReaderState);
+    const syncedReaderState = normalizeSyncedBibleReaderState(remoteBibleReaderState);
     if (!syncedReaderState) {
       const profileKey = String(activeProfileId || "");
       const localPlanProgress = storedBibleReadingPlanProgress || currentBibleReadingPlanProgress();
@@ -2685,7 +2700,7 @@ export default function Home() {
         persistBibleReaderState({ readingPlanProgress: localProgress });
       }
     }
-  }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState, storedBibleReadingPlanProgress, storedBibleReadingPlanProgressHydrated]);
+  }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState, remoteBibleReaderState, storedBibleReadingPlanProgress, storedBibleReadingPlanProgressHydrated]);
 
   useEffect(() => {
     if (profileAppearanceMode !== "light" && profileAppearanceMode !== "dark") return;
@@ -3031,6 +3046,7 @@ export default function Home() {
     try {
       savedSessionId = await saveSession({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         passage,
         methodId: method.id,
         methodName: method.name,
@@ -3417,7 +3433,7 @@ export default function Home() {
       const result = await cleanupEmptyLocalProfilesAsAdmin({});
       setLocalProfileCleanupArmed(false);
       setSelectedAdminProfileId(null);
-      setAdminMaintenanceStatus(`Removed ${result?.removed ?? 0} empty local/test profile${result?.removed === 1 ? "" : "s"}. Kept ${result?.kept ?? 0} with saved content.`);
+      setAdminMaintenanceStatus(`Queued ${result?.queued ?? 0} empty local/test profile${result?.queued === 1 ? "" : "s"} for cleanup. Kept ${result?.kept ?? 0} with saved content.`);
     } catch {
       setLocalProfileCleanupArmed(false);
       setAdminMaintenanceStatus("Could not clean local/test profiles. Make sure Convex has the latest functions deployed.");
@@ -3506,7 +3522,7 @@ export default function Home() {
 
   function trackUsage(eventType: string, details: { reference?: string; methodId?: string; methodName?: string; translation?: string; tab?: string; book?: string; chapter?: number } = {}) {
     if (!activeProfileId) return;
-    recordUsage({ profileId: activeProfileId, eventType, ...details }).catch(() => undefined);
+    recordUsage({ profileId: activeProfileId, eventType, localDayKey: localDateKey(), ...details }).catch(() => undefined);
   }
 
   function dismissRhythmGracePrompt() {
@@ -3584,7 +3600,7 @@ export default function Home() {
     const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && targetCircleId;
     const shouldShareWithFriends = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "friend" && targetFriendIds.length > 0;
     try {
-      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "encouragement", note: noteToSave, sentAt: Date.now() });
+      const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "encouragement", note: noteToSave, sentAt: Date.now(), localDayKey: localDateKey() });
       if (shouldShareWithCircle || shouldShareWithFriends) {
         try {
           await shareCheckinToCircle({
@@ -3997,6 +4013,7 @@ export default function Home() {
     try {
       await saveCheckin({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         mood: "Highlight reflection",
         note: buildHighlightReflectionNote(item, reflectionInsight, reflectionPrayer, reflectionNextStep)
       });
@@ -4561,6 +4578,7 @@ export default function Home() {
     try {
       await saveMemoryVerse({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         reference: request.reference,
         verseText: text,
         translationName: request.translationName,
@@ -4595,6 +4613,7 @@ export default function Home() {
         const sectionReference = buildMemorySectionReference(section);
         const memoryVerseId = await saveMemoryVerse({
           profileId: activeProfileId,
+          localDayKey: localDateKey(),
           reference: sectionReference,
           verseText: section.map((verse) => verse.text.trim()).join(" "),
           translationName: request.translationName,
@@ -4676,6 +4695,7 @@ export default function Home() {
           : await fetchBibleApiPassage(reference, bibleTranslation, controller.signal);
         const memoryVerseId = await saveMemoryVerse({
           profileId: activeProfileId,
+          localDayKey: localDateKey(),
           reference,
           verseText: (passage.verses || []).map((verse) => verse.text.trim()).join(" "),
           translationName: passage.translation_name
@@ -4727,6 +4747,7 @@ export default function Home() {
     try {
       await saveMemoryVerse({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         reference,
         verseText: selectedVerses.map((verse) => verse.text.trim()).join(" "),
         translationName: passageText.translation_name,
@@ -4764,6 +4785,7 @@ export default function Home() {
     try {
       await saveMemoryVerse({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         reference,
         verseText: verses.map((verse) => verse.text.trim()).join(" "),
         translationName: readerPassage.translation_name
@@ -5280,6 +5302,7 @@ export default function Home() {
     try {
       await saveSession({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         passage: verse.reference,
         methodId: "memory-meditation",
         methodName: "Memory Meditation",
@@ -5295,6 +5318,7 @@ export default function Home() {
       });
       await recordMemoryHistoryEvent({
         profileId: activeProfileId,
+        localDayKey: localDateKey(),
         memoryVerseId: verse._id,
         event: "meditated",
         practiceLevel: verse.practiceLevel || 1
@@ -6623,6 +6647,36 @@ export default function Home() {
       ...overrides
     });
     if (!state) return;
+    const includes = (key: keyof SyncedBibleReaderState) => Object.prototype.hasOwnProperty.call(overrides, key);
+    const saveAllSections = Object.keys(overrides).length === 0;
+    const stateForSave: Partial<SyncedBibleReaderState> = {};
+    if (saveAllSections || includes("translation")) stateForSave.translation = state.translation;
+    if (saveAllSections || includes("position")) stateForSave.position = state.position;
+    if (saveAllSections || includes("history")) stateForSave.history = state.history;
+    if (saveAllSections || includes("readChapters")) stateForSave.readChapters = state.readChapters;
+    if (saveAllSections || includes("bookmarks")) stateForSave.bookmarks = state.bookmarks;
+    if ((saveAllSections || includes("readingPlanProgress")) && state.readingPlanProgress) {
+      stateForSave.readingPlanProgress = {
+        ...state.readingPlanProgress,
+        customPlans: state.readingPlanProgress.customPlans
+          .filter((plan) => plan.source === "custom")
+          .map((plan) => ({
+            id: plan.id,
+            title: plan.title,
+            description: plan.description,
+            source: "custom" as const,
+            category: plan.category,
+            days: plan.days.map((day) => ({
+              day: day.day,
+              title: day.title,
+              reference: day.reference,
+              readerBook: day.readerBook,
+              readerChapter: day.readerChapter,
+              studyReference: day.studyReference
+            }))
+          }))
+      };
+    }
 
     const signature = JSON.stringify(state);
     appliedBibleReaderStateSignatureRef.current = signature;
@@ -6634,7 +6688,11 @@ export default function Home() {
     pendingBibleReaderStateTimerRef.current = setTimeout(() => {
       if (pendingBibleReaderStateProfileIdRef.current === profileId) clearPendingBibleReaderStateSync(signature);
     }, 5000);
-    saveBibleReaderState({ profileId: activeProfileId, state }).catch(() => {
+    saveBibleReaderState({
+      profileId: activeProfileId,
+      state: stateForSave as Parameters<typeof saveBibleReaderState>[0]["state"],
+      revision: Date.now()
+    }).catch(() => {
       if (pendingBibleReaderStateProfileIdRef.current === profileId) clearPendingBibleReaderStateSync(signature);
     });
   }
@@ -9897,6 +9955,7 @@ export default function Home() {
               <LazyAdminDashboard
               adminStats={adminStats}
               adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
+              adminUsersCanLoadMore={adminUsersStatus === "CanLoadMore"}
               adminUserDetail={adminUserDetail}
               adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
               adminMaintenanceStatus={adminMaintenanceStatus}
@@ -9912,6 +9971,7 @@ export default function Home() {
               onCancelDeletion={cancelAdminDeletionRequest}
               onCleanupLocalProfiles={cleanupEmptyLocalProfiles}
               onMarkFeedbackStatus={markFeedbackStatus}
+              onLoadMoreAdminUsers={() => loadMoreAdminUsers(15)}
               onOpenAccount={() => setTab("account")}
               onSelectProfile={setSelectedAdminProfileId}
               onSelectRegion={setSelectedAdminRegion}

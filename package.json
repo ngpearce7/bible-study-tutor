@@ -16,8 +16,9 @@
     "serve:dist": "python3 -m http.server 8088 --directory dist",
     "typecheck": "tsc --noEmit",
     "plans:audit": "node scripts/validate-reading-plans.mjs",
+    "convex:validate": "node scripts/validate-convex-phase-two.mjs",
     "build:validate": "node scripts/validate-build.mjs",
-    "verify": "npm run typecheck && npm run plans:audit && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate"
+    "verify": "npm run typecheck && npm run plans:audit && npm run convex:validate && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate"
   },
   "dependencies": {
     "@auth/core": "^0.37.0",

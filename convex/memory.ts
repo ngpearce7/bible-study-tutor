@@ -3,6 +3,7 @@ import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertCollectionLimit, assertProfileCanWrite, enforceRecentLimit } from "./security";
+import { recordStudyActivity } from "./statisticsModel";
 import { v } from "convex/values";
 
 const memoryStatus = v.union(v.literal("new"), v.literal("learning"), v.literal("review"), v.literal("memorized"));
@@ -39,8 +40,10 @@ export const saveVerse = mutation({
     reference: v.string(),
     verseText: v.string(),
     translationName: v.string(),
-    note: v.optional(v.string())
+    note: v.optional(v.string()),
+    localDayKey: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -79,7 +82,8 @@ export const saveVerse = mutation({
         practiceLevel: existing.practiceLevel,
         reviewCount: existing.reviewCount,
         nextReviewAt: existing.nextReviewAt,
-        createdAt: now
+        createdAt: now,
+        localDayKey: args.localDayKey
       });
       return existing._id;
     }
@@ -111,7 +115,8 @@ export const saveVerse = mutation({
       event: "added",
       practiceLevel: 1,
       reviewCount: 0,
-      createdAt: now
+      createdAt: now,
+      localDayKey: args.localDayKey
     });
     return memoryVerseId;
   }
@@ -122,6 +127,7 @@ export const list = query({
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -141,6 +147,7 @@ export const recordPractice = mutation({
     practiceLevel: v.number(),
     localDayKey: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -181,7 +188,8 @@ export const recordPractice = mutation({
       practiceLevel: currentPracticeLevel,
       reviewCount: verse.reviewCount + 1,
       nextReviewAt: now + nextReviewDelay,
-      createdAt: now
+      createdAt: now,
+      localDayKey: args.localDayKey
     });
     await updateMemoryPracticeRhythm(ctx, args.profileId, args.localDayKey, now);
     return true;
@@ -193,6 +201,7 @@ export const remove = mutation({
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -221,6 +230,7 @@ export const scheduleReview = mutation({
     memoryVerseId: v.id("memoryVerses"),
     preset: reviewPreset
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -257,6 +267,7 @@ export const updateCollections = mutation({
     memoryVerseId: v.id("memoryVerses"),
     collections: v.array(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -286,6 +297,7 @@ export const listHistory = query({
     memoryVerseId: v.optional(v.id("memoryVerses")),
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
     const limit = Math.max(1, Math.min(args.limit ?? 80, 150));
@@ -316,6 +328,7 @@ export const recordHistoryEvent = mutation({
     practiceLevel: v.optional(v.number()),
     localDayKey: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -330,7 +343,8 @@ export const recordHistoryEvent = mutation({
       practiceLevel: args.practiceLevel ?? verse.practiceLevel,
       reviewCount: verse.reviewCount,
       nextReviewAt: verse.nextReviewAt,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      localDayKey: args.localDayKey
     });
     if (args.event === "reviewed" || args.event === "repeated") {
       await updateMemoryPracticeRhythm(ctx, args.profileId, args.localDayKey, Date.now());
@@ -343,6 +357,7 @@ export const stats = query({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
     const memoryStats = await ctx.db
@@ -370,6 +385,7 @@ async function insertMemoryHistory(
     reviewCount?: number;
     nextReviewAt?: number;
     createdAt: number;
+    localDayKey?: string;
   }
 ) {
   await ctx.db.insert("memoryHistory", {
@@ -382,6 +398,21 @@ async function insertMemoryHistory(
     nextReviewAt: event.nextReviewAt,
     createdAt: event.createdAt
   });
+  const increments = event.event === "added"
+    ? { memorySaved: 1 }
+    : event.event === "reviewed"
+      ? { memoryReviews: 1 }
+      : event.event === "meditated"
+        ? { memoryMeditations: 1 }
+        : null;
+  if (increments) {
+    await recordStudyActivity(ctx, {
+      profileId: event.profileId,
+      timestamp: event.createdAt,
+      localDayKey: event.localDayKey,
+      increments
+    });
+  }
 }
 
 async function updateMemoryPracticeRhythm(ctx: MutationCtx, profileId: Id<"profiles">, localDayKey: string | undefined, now: number) {

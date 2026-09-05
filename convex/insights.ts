@@ -1,9 +1,13 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { internal } from "./_generated/api";
+import type { Doc } from "./_generated/dataModel";
 import type { Id } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertProfileCanWrite, enforceRecentLimit, logSecurityEvent } from "./security";
+import { countsTowardStudyRhythm, recordStudyActivity, usageEventIncrements } from "./statisticsModel";
 import { v } from "convex/values";
+import { paginationOptsValidator, paginationResultValidator } from "convex/server";
 
 const feedbackCategory = v.union(v.literal("bug"), v.literal("confusing"), v.literal("suggestion"), v.literal("encouragement"), v.literal("other"));
 const publicAnalyticsEventType = v.union(
@@ -21,6 +25,27 @@ const publicAnalyticsEventType = v.union(
   v.literal("app_shared")
 );
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
+const adminUserRowValidator = v.object({
+  profileId: v.id("profiles"),
+  authUserId: v.optional(v.id("users")),
+  displayName: v.string(),
+  email: v.optional(v.string()),
+  signedIn: v.boolean(),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+  lastActiveAt: v.number(),
+  studies: v.number(),
+  drafts: v.number(),
+  checkins: v.number(),
+  memoryVerses: v.number(),
+  feedback: v.number(),
+  events: v.number(),
+  deletionStatus: v.string(),
+  suspendedAt: v.optional(v.number()),
+  suspensionReason: v.optional(v.string()),
+  securityReviewedAt: v.optional(v.number()),
+  securityReviewNote: v.optional(v.string())
+});
 
 function usernameFromCredential(value?: string) {
   const email = (value || "").trim().toLowerCase();
@@ -41,6 +66,7 @@ export const submitFeedback = mutation({
     tab: v.optional(v.string()),
     device: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -81,8 +107,10 @@ export const recordUsage = mutation({
     translation: v.optional(v.string()),
     tab: v.optional(v.string()),
     book: v.optional(v.string()),
-    chapter: v.optional(v.number())
+    chapter: v.optional(v.number()),
+    localDayKey: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -108,9 +136,11 @@ export const recordUsage = mutation({
       return null;
     }
 
-    return await ctx.db.insert("usageEvents", {
+    const createdAt = Date.now();
+    const eventType = clampText(args.eventType, 80);
+    const eventId = await ctx.db.insert("usageEvents", {
       profileId: args.profileId,
-      eventType: clampText(args.eventType, 80),
+      eventType,
       reference: clampOptionalText(args.reference, 160),
       methodId: clampOptionalText(args.methodId, 80),
       methodName: clampOptionalText(args.methodName, 120),
@@ -118,8 +148,17 @@ export const recordUsage = mutation({
       tab: clampOptionalText(args.tab, 80),
       book: clampOptionalText(args.book, 80),
       chapter: clampNumber(args.chapter, 0, 200),
-      createdAt: Date.now()
+      createdAt
     });
+    if (countsTowardStudyRhythm(eventType)) {
+      await recordStudyActivity(ctx, {
+        profileId: args.profileId,
+        timestamp: createdAt,
+        localDayKey: args.localDayKey,
+        increments: usageEventIncrements(eventType)
+      });
+    }
+    return eventId;
   }
 });
 
@@ -131,6 +170,7 @@ export const recordPublicAnalytics = internalMutation({
     ctaTarget: v.optional(v.string()),
     methodId: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const oneMinuteAgo = Date.now() - 60 * 1000;
     const recentPublicEvents = await ctx.db.query("publicAnalyticsEvents").withIndex("by_created").order("desc").take(600);
@@ -154,6 +194,7 @@ export const requestAccountDeletion = mutation({
     profileId: v.id("profiles"),
     note: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     const now = Date.now();
@@ -181,6 +222,7 @@ export const cancelAccountDeletionRequest = mutation({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -202,6 +244,7 @@ export const deletionRequestForProfile = query({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
 
@@ -214,22 +257,23 @@ export const deletionRequestForProfile = query({
 
 export const adminOverview = query({
   args: {},
+  returns: v.any(),
   handler: async (ctx) => {
     if (!(await isAdmin(ctx))) return null;
 
-    const [events, publicEvents, feedback, profiles, sessions, deletionRequests, securityEvents] = await Promise.all([
+    const [events, publicEvents, feedback, profiles, studyStats, deletionRequests, securityEvents] = await Promise.all([
       ctx.db.query("usageEvents").withIndex("by_created").order("desc").take(500),
       ctx.db.query("publicAnalyticsEvents").withIndex("by_created").order("desc").take(500),
       ctx.db.query("feedback").withIndex("by_created").order("desc").take(50),
-      ctx.db.query("profiles").collect(),
-      ctx.db.query("sessions").collect(),
+      ctx.db.query("profiles").withIndex("by_updated_at").order("desc").take(2000),
+      ctx.db.query("studyStats").take(2000),
       ctx.db.query("accountDeletionRequests").withIndex("by_status_requested", (q) => q.eq("status", "pending")).order("asc").take(25),
       ctx.db.query("securityEvents").withIndex("by_created").order("desc").take(20)
     ]);
     const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
-    const studyProfileIds = new Set(sessions.map((item) => item.profileId));
+    const studyProfileIds = new Set(studyStats.filter((item) => item.sessionCount > 0).map((item) => item.profileId));
     const shareEvents = events.filter((item) => item.eventType === "app_shared");
     const recentPublicEvents = publicEvents.filter((item) => item.createdAt >= sevenDaysAgo);
     const recentSecurityEvents = securityEvents.filter((item) => item.createdAt >= sevenDaysAgo);
@@ -314,78 +358,71 @@ export const adminOverview = query({
   }
 });
 
-export const adminUsers = query({
-  args: {},
-  handler: async (ctx) => {
-    if (!(await isAdmin(ctx))) return null;
+export const adminUsersPage = query({
+  args: { paginationOpts: paginationOptsValidator },
+  returns: paginationResultValidator(adminUserRowValidator),
+  handler: async (ctx, args) => {
+    if (!(await isAdmin(ctx))) return { page: [], isDone: true, continueCursor: "" };
 
-    const [profiles, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, deletionRequests] = await Promise.all([
-      ctx.db.query("profiles").collect(),
-      ctx.db.query("sessions").collect(),
-      ctx.db.query("drafts").collect(),
-      ctx.db.query("checkins").collect(),
-      ctx.db.query("memoryVerses").collect(),
-      ctx.db.query("feedback").collect(),
-      ctx.db.query("usageEvents").collect(),
-      ctx.db.query("accountDeletionRequests").collect()
-    ]);
-    const profileStats = new Map<string, { studies: number; drafts: number; checkins: number; memoryVerses: number; feedback: number; events: number; lastActiveAt: number }>();
-
-    for (const profile of profiles) {
-      profileStats.set(profile._id, {
-        studies: 0,
-        drafts: 0,
-        checkins: 0,
-        memoryVerses: 0,
-        feedback: 0,
-        events: 0,
-        lastActiveAt: profile.updatedAt || profile.createdAt
-      });
-    }
-
-    incrementProfileStats(profileStats, sessions, "studies", "completedAt");
-    incrementProfileStats(profileStats, drafts, "drafts", "updatedAt");
-    incrementProfileStats(profileStats, checkins, "checkins", "createdAt");
-    incrementProfileStats(profileStats, memoryVerses, "memoryVerses", "updatedAt");
-    incrementProfileStats(profileStats, feedback, "feedback", "createdAt");
-    incrementProfileStats(profileStats, usageEvents, "events", "createdAt");
-
-    const rows = [];
-    for (const profile of profiles) {
-      const user = profile.authUserId ? await ctx.db.get(profile.authUserId) : null;
-      const pendingDeletion = deletionRequests.find((item) => item.profileId === profile._id && item.status === "pending");
-      const stats = profileStats.get(profile._id);
-      rows.push({
-        profileId: profile._id,
-        authUserId: profile.authUserId,
-        displayName: profile.displayName,
-        email: visibleAuthEmail(user?.email),
-        signedIn: !!profile.authUserId,
-        createdAt: profile.createdAt,
-        updatedAt: profile.updatedAt,
-        lastActiveAt: stats?.lastActiveAt || profile.updatedAt || profile.createdAt,
-        studies: stats?.studies || 0,
-        drafts: stats?.drafts || 0,
-        checkins: stats?.checkins || 0,
-        memoryVerses: stats?.memoryVerses || 0,
-        feedback: stats?.feedback || 0,
-        events: stats?.events || 0,
-        deletionStatus: pendingDeletion ? "pending" : "",
-        suspendedAt: profile.suspendedAt,
-        suspensionReason: profile.suspensionReason,
-        securityReviewedAt: profile.securityReviewedAt,
-        securityReviewNote: profile.securityReviewNote
-      });
-    }
-
-    return rows.sort((a, b) => b.lastActiveAt - a.lastActiveAt).slice(0, 100);
+    const profilesPage = await ctx.db
+      .query("profiles")
+      .withIndex("by_updated_at")
+      .order("desc")
+      .paginate(args.paginationOpts);
+    const page = await Promise.all(profilesPage.page.map((profile) => buildAdminUserRow(ctx, profile)));
+    return { ...profilesPage, page };
   }
 });
+
+async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
+  const [user, aggregate, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, pendingDeletion] = await Promise.all([
+    profile.authUserId ? ctx.db.get(profile.authUserId) : Promise.resolve(null),
+    ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).unique(),
+    ctx.db.query("sessions").withIndex("by_profile_completed", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
+    ctx.db.query("drafts").withIndex("by_profile_updated", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
+    ctx.db.query("checkins").withIndex("by_profile_created", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
+    ctx.db.query("memoryVerses").withIndex("by_profile_updated", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
+    ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
+    ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
+    ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profile._id).eq("status", "pending")).first()
+  ]);
+  const lastActiveAt = Math.max(
+    profile.updatedAt || profile.createdAt,
+    sessions[0]?.completedAt || 0,
+    drafts[0]?.updatedAt || 0,
+    checkins[0]?.createdAt || 0,
+    memoryVerses[0]?.updatedAt || 0,
+    feedback[0]?.createdAt || 0,
+    usageEvents[0]?.createdAt || 0
+  );
+  return {
+    profileId: profile._id,
+    authUserId: profile.authUserId,
+    displayName: profile.displayName,
+    email: visibleAuthEmail(user?.email),
+    signedIn: !!profile.authUserId,
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt,
+    lastActiveAt,
+    studies: aggregate?.sessionCount ?? Math.min(sessions.length, 500),
+    drafts: Math.min(drafts.length, 500),
+    checkins: Math.min(checkins.length, 500),
+    memoryVerses: Math.min(memoryVerses.length, 500),
+    feedback: Math.min(feedback.length, 500),
+    events: Math.min(usageEvents.length, 500),
+    deletionStatus: pendingDeletion ? "pending" : "",
+    suspendedAt: profile.suspendedAt,
+    suspensionReason: profile.suspensionReason,
+    securityReviewedAt: profile.securityReviewedAt,
+    securityReviewNote: profile.securityReviewNote
+  };
+}
 
 export const adminUserDetail = query({
   args: {
     profileId: v.id("profiles")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     if (!(await isAdmin(ctx))) return null;
 
@@ -394,15 +431,15 @@ export const adminUserDetail = query({
 
     const [user, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, securityEvents, deletionRequests, authSessions] = await Promise.all([
       profile.authUserId ? ctx.db.get(profile.authUserId) : Promise.resolve(null),
-      ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
-      ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
-      ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
-      ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).collect(),
-      ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).collect(),
-      ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).collect(),
+      ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(500),
+      ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(500),
+      ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(500),
+      ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).take(500),
+      ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).take(500),
+      ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).take(500),
       ctx.db.query("securityEvents").withIndex("by_profile_created", (q) => q.eq("profileId", args.profileId)).order("desc").take(50),
-      ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", args.profileId).eq("status", "pending")).collect(),
-      profile.authUserId ? ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", profile.authUserId!)).collect() : Promise.resolve([])
+      ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", args.profileId).eq("status", "pending")).take(1),
+      profile.authUserId ? ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", profile.authUserId!)).take(100) : Promise.resolve([])
     ]);
     const now = Date.now();
     const oneHourAgo = now - 60 * 60 * 1000;
@@ -489,6 +526,7 @@ export const adminAuditLog = query({
   args: {
     limit: v.optional(v.number())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     if (!(await isAdmin(ctx))) return null;
 
@@ -505,6 +543,7 @@ export const markFeedbackStatus = mutation({
     feedbackId: v.id("feedback"),
     status: v.union(v.literal("new"), v.literal("reviewed"), v.literal("actioned"), v.literal("ignored"))
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const adminUserId = await requireAdminUserId(ctx);
     const feedback = await ctx.db.get(args.feedbackId);
@@ -525,6 +564,7 @@ export const setProfileSuspensionAsAdmin = mutation({
     suspended: v.boolean(),
     reason: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const adminUserId = await requireAdminUserId(ctx);
     const profile = await ctx.db.get(args.profileId);
@@ -565,6 +605,7 @@ export const markProfileSecurityReviewedAsAdmin = mutation({
     profileId: v.id("profiles"),
     note: v.optional(v.string())
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const adminUserId = await requireAdminUserId(ctx);
     const profile = await ctx.db.get(args.profileId);
@@ -593,6 +634,7 @@ export const cancelDeletionRequestAsAdmin = mutation({
   args: {
     requestId: v.id("accountDeletionRequests")
   },
+  returns: v.any(),
   handler: async (ctx, args) => {
     const adminUserId = await requireAdminUserId(ctx);
     const request = await ctx.db.get(args.requestId);
@@ -619,6 +661,7 @@ export const approveDeletionRequestAsAdmin = mutation({
   args: {
     requestId: v.id("accountDeletionRequests")
   },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     const adminUserId = await requireAdminUserId(ctx);
     const request = await ctx.db.get(args.requestId);
@@ -631,20 +674,24 @@ export const approveDeletionRequestAsAdmin = mutation({
     }
 
     const now = Date.now();
-    await deleteProfileData(ctx, request.profileId, profile?.authUserId || request.authUserId);
+    await enqueueProfileCleanupJob(ctx, {
+      profileId: request.profileId,
+      authUserId: profile?.authUserId || request.authUserId,
+      deletionRequestId: request._id,
+      requestedBy: adminUserId
+    });
     await ctx.db.patch(args.requestId, {
       status: "approved",
       reviewedAt: now,
-      reviewedBy: adminUserId,
-      completedAt: now
+      reviewedBy: adminUserId
     });
     await logAdminAction(ctx, {
       adminUserId,
-      action: "account_deleted",
+      action: "account_deletion_queued",
       targetProfileId: request.profileId,
       targetUserId: profile?.authUserId || request.authUserId,
       targetEmail: request.email,
-      details: "Admin approved account deletion request"
+      details: "Admin approved account deletion; bounded cleanup job queued"
     });
     return true;
   }
@@ -652,32 +699,36 @@ export const approveDeletionRequestAsAdmin = mutation({
 
 export const cleanupEmptyLocalProfilesAsAdmin = mutation({
   args: {},
+  returns: v.object({ queued: v.number(), kept: v.number() }),
   handler: async (ctx) => {
     const adminUserId = await requireAdminUserId(ctx);
-    const profiles = await ctx.db.query("profiles").collect();
-    let removed = 0;
+    const profiles = await ctx.db
+      .query("profiles")
+      .withIndex("by_auth_user_and_updated_at", (q) => q.eq("authUserId", undefined))
+      .order("asc")
+      .take(100);
+    let queued = 0;
     let kept = 0;
 
     for (const profile of profiles) {
-      if (profile.authUserId) continue;
-
       const hasContent = await localProfileHasSavedContent(ctx, profile._id);
       if (hasContent) {
         kept += 1;
         continue;
       }
 
-      await deleteProfileData(ctx, profile._id, undefined);
-      removed += 1;
+      const job = await enqueueProfileCleanupJob(ctx, { profileId: profile._id, requestedBy: adminUserId });
+      if (job.created) queued += 1;
+      if (queued >= 20) break;
     }
 
     await logAdminAction(ctx, {
       adminUserId,
       action: "local_profiles_cleaned",
-      details: `Removed ${removed} empty local/test profile${removed === 1 ? "" : "s"}; kept ${kept} local profile${kept === 1 ? "" : "s"} with saved content`
+      details: `Queued ${queued} empty local/test profile${queued === 1 ? "" : "s"} for cleanup; kept ${kept} local profile${kept === 1 ? "" : "s"} with saved content`
     });
 
-    return { removed, kept };
+    return { queued, kept };
   }
 });
 
@@ -828,51 +879,319 @@ async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"prof
   return [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests].some((items) => items.length > 0);
 }
 
-async function deleteProfileData(ctx: MutationCtx, profileId: Id<"profiles">, authUserId: Id<"users"> | undefined) {
-  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, usageEvents, communityPosts, communityReactions] = await Promise.all([
-    ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("memoryVerses").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("memoryHistory").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("communityPosts").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).collect(),
-    ctx.db.query("communityReactions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).collect()
-  ]);
+const CLEANUP_BATCH_SIZE = 40;
 
-  for (const item of [...sessions, ...drafts, ...checkins, ...memoryVerses, ...memoryHistory, ...feedback, ...usageEvents, ...communityPosts, ...communityReactions]) {
-    await ctx.db.delete(item._id);
+type ProfileCleanupPhase =
+  | "ownedCircles"
+  | "authoredPosts"
+  | "receivedPosts"
+  | "reactions"
+  | "memberships"
+  | "requestedFriends"
+  | "receivedFriends"
+  | "sessions"
+  | "drafts"
+  | "checkins"
+  | "memoryVerses"
+  | "memoryHistory"
+  | "feedback"
+  | "usageEvents"
+  | "securityEvents"
+  | "bookmarks"
+  | "customPlans"
+  | "planCompletions"
+  | "dailyStats"
+  | "notifications"
+  | "deletionRequests"
+  | "singletonData"
+  | "authAccounts"
+  | "authSessions"
+  | "profile";
+
+const PROFILE_CLEANUP_PHASES: ProfileCleanupPhase[] = [
+  "ownedCircles",
+  "authoredPosts",
+  "receivedPosts",
+  "reactions",
+  "memberships",
+  "requestedFriends",
+  "receivedFriends",
+  "sessions",
+  "drafts",
+  "checkins",
+  "memoryVerses",
+  "memoryHistory",
+  "feedback",
+  "usageEvents",
+  "securityEvents",
+  "bookmarks",
+  "customPlans",
+  "planCompletions",
+  "dailyStats",
+  "notifications",
+  "deletionRequests",
+  "singletonData",
+  "authAccounts",
+  "authSessions",
+  "profile"
+];
+
+async function enqueueProfileCleanupJob(
+  ctx: MutationCtx,
+  args: {
+    profileId: Id<"profiles">;
+    authUserId?: Id<"users">;
+    deletionRequestId?: Id<"accountDeletionRequests">;
+    requestedBy?: Id<"users">;
+  }
+) {
+  const pending = await ctx.db
+    .query("cleanupJobs")
+    .withIndex("by_profile_and_status", (q) => q.eq("profileId", args.profileId).eq("status", "pending"))
+    .first();
+  const running = pending
+    ? null
+    : await ctx.db
+        .query("cleanupJobs")
+        .withIndex("by_profile_and_status", (q) => q.eq("profileId", args.profileId).eq("status", "running"))
+        .first();
+  const existing = pending || running;
+  if (existing) {
+    if (args.authUserId || args.deletionRequestId || args.requestedBy) {
+      await ctx.db.patch(existing._id, {
+        authUserId: args.authUserId ?? existing.authUserId,
+        deletionRequestId: args.deletionRequestId ?? existing.deletionRequestId,
+        requestedBy: args.requestedBy ?? existing.requestedBy,
+        updatedAt: Date.now()
+      });
+    }
+    return { jobId: existing._id, created: false };
   }
 
-  const profile = await ctx.db.get(profileId);
-  if (profile) await ctx.db.delete(profileId);
+  const now = Date.now();
+  const jobId = await ctx.db.insert("cleanupJobs", {
+    kind: "profile",
+    profileId: args.profileId,
+    authUserId: args.authUserId,
+    deletionRequestId: args.deletionRequestId,
+    requestedBy: args.requestedBy,
+    phase: PROFILE_CLEANUP_PHASES[0],
+    status: "pending",
+    createdAt: now,
+    updatedAt: now
+  });
+  await ctx.scheduler.runAfter(0, internal.insights.runCleanupJob, { jobId });
+  return { jobId, created: true };
+}
 
-  if (!authUserId) return;
+export const runCleanupJob = internalMutation({
+  args: { jobId: v.id("cleanupJobs") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const job = await ctx.db.get(args.jobId);
+    if (!job || job.status === "complete") return null;
 
-  const [accounts, sessionsForUser] = await Promise.all([
-    ctx.db.query("authAccounts").withIndex("userIdAndProvider", (q) => q.eq("userId", authUserId)).collect(),
-    ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", authUserId)).collect()
-  ]);
+    await ctx.db.patch(job._id, { status: "running", lastError: undefined, updatedAt: Date.now() });
+    try {
+      const complete =
+        job.kind === "post"
+          ? await cleanupPost(ctx, job.postId)
+          : job.kind === "circle"
+            ? await cleanupCircle(ctx, job.circleId)
+            : await cleanupProfilePhase(ctx, job);
 
-  for (const account of accounts) {
-    const codes = await ctx.db.query("authVerificationCodes").withIndex("accountId", (q) => q.eq("accountId", account._id)).collect();
-    for (const code of codes) await ctx.db.delete(code._id);
-    await ctx.db.delete(account._id);
+      if (complete) {
+        await ctx.db.patch(job._id, { status: "complete", updatedAt: Date.now() });
+      } else {
+        await ctx.db.patch(job._id, { status: "pending", updatedAt: Date.now() });
+        await ctx.scheduler.runAfter(0, internal.insights.runCleanupJob, { jobId: job._id });
+      }
+    } catch (error) {
+      const attempts = (job.attempts ?? 0) + 1;
+      const shouldRetry = attempts < 3;
+      await ctx.db.patch(job._id, {
+        status: shouldRetry ? "pending" : "failed",
+        attempts,
+        lastError: error instanceof Error ? error.message.slice(0, 500) : "Cleanup failed",
+        updatedAt: Date.now()
+      });
+      if (shouldRetry) {
+        await ctx.scheduler.runAfter(1000 * attempts, internal.insights.runCleanupJob, { jobId: job._id });
+      }
+    }
+    return null;
   }
+});
 
-  for (const session of sessionsForUser) {
-    const [refreshTokens, verifiers] = await Promise.all([
-      ctx.db.query("authRefreshTokens").withIndex("sessionId", (q) => q.eq("sessionId", session._id)).collect(),
-      ctx.db.query("authVerifiers").filter((q) => q.eq(q.field("sessionId"), session._id)).collect()
+async function cleanupPost(ctx: MutationCtx, postId: Id<"communityPosts"> | undefined) {
+  if (!postId || !(await ctx.db.get(postId))) return true;
+  const reactions = await ctx.db
+    .query("communityReactions")
+    .withIndex("by_post", (q) => q.eq("postId", postId))
+    .take(CLEANUP_BATCH_SIZE);
+  if (reactions.length > 0) {
+    await deleteDocuments(ctx, reactions);
+    return false;
+  }
+  await ctx.db.delete(postId);
+  return true;
+}
+
+async function cleanupCircle(ctx: MutationCtx, circleId: Id<"communityCircles"> | undefined) {
+  if (!circleId || !(await ctx.db.get(circleId))) return true;
+  const post = await ctx.db
+    .query("communityPosts")
+    .withIndex("by_circle_created", (q) => q.eq("circleId", circleId))
+    .first();
+  if (post) {
+    await cleanupPost(ctx, post._id);
+    return false;
+  }
+  const members = await ctx.db
+    .query("communityMembers")
+    .withIndex("by_circle", (q) => q.eq("circleId", circleId))
+    .take(CLEANUP_BATCH_SIZE);
+  if (members.length > 0) {
+    await deleteDocuments(ctx, members);
+    return false;
+  }
+  await ctx.db.delete(circleId);
+  return true;
+}
+
+async function cleanupProfilePhase(ctx: MutationCtx, job: Doc<"cleanupJobs">) {
+  const profileId = job.profileId;
+  if (!profileId) return true;
+  const phase = PROFILE_CLEANUP_PHASES.includes(job.phase as ProfileCleanupPhase)
+    ? (job.phase as ProfileCleanupPhase)
+    : PROFILE_CLEANUP_PHASES[0];
+
+  if (phase === "ownedCircles") {
+    const circle = await ctx.db.query("communityCircles").withIndex("by_owner_profile", (q) => q.eq("ownerProfileId", profileId)).first();
+    if (circle) {
+      await cleanupCircle(ctx, circle._id);
+      return false;
+    }
+  } else if (phase === "authoredPosts") {
+    const post = await ctx.db.query("communityPosts").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).first();
+    if (post) {
+      await cleanupPost(ctx, post._id);
+      return false;
+    }
+  } else if (phase === "receivedPosts") {
+    const post = await ctx.db.query("communityPosts").withIndex("by_recipient_profile_created", (q) => q.eq("recipientProfileId", profileId)).first();
+    if (post) {
+      await cleanupPost(ctx, post._id);
+      return false;
+    }
+  } else if (phase === "reactions") {
+    if (await deleteProfileBatch(ctx, "communityReactions", "by_profile", profileId)) return false;
+  } else if (phase === "memberships") {
+    if (await deleteProfileBatch(ctx, "communityMembers", "by_profile", profileId)) return false;
+  } else if (phase === "requestedFriends") {
+    const rows = await ctx.db.query("communityFriends").withIndex("by_requester", (q) => q.eq("requesterProfileId", profileId)).take(CLEANUP_BATCH_SIZE);
+    if (rows.length) { await deleteDocuments(ctx, rows); return false; }
+  } else if (phase === "receivedFriends") {
+    const rows = await ctx.db.query("communityFriends").withIndex("by_recipient", (q) => q.eq("recipientProfileId", profileId)).take(CLEANUP_BATCH_SIZE);
+    if (rows.length) { await deleteDocuments(ctx, rows); return false; }
+  } else if (phase === "sessions") {
+    if (await deleteProfileBatch(ctx, "sessions", "by_profile", profileId)) return false;
+  } else if (phase === "drafts") {
+    if (await deleteProfileBatch(ctx, "drafts", "by_profile", profileId)) return false;
+  } else if (phase === "checkins") {
+    if (await deleteProfileBatch(ctx, "checkins", "by_profile", profileId)) return false;
+  } else if (phase === "memoryVerses") {
+    if (await deleteProfileBatch(ctx, "memoryVerses", "by_profile", profileId)) return false;
+  } else if (phase === "memoryHistory") {
+    if (await deleteProfileBatch(ctx, "memoryHistory", "by_profile_created", profileId)) return false;
+  } else if (phase === "feedback") {
+    if (await deleteProfileBatch(ctx, "feedback", "by_profile_created", profileId)) return false;
+  } else if (phase === "usageEvents") {
+    if (await deleteProfileBatch(ctx, "usageEvents", "by_profile_created", profileId)) return false;
+  } else if (phase === "securityEvents") {
+    if (await deleteProfileBatch(ctx, "securityEvents", "by_profile_created", profileId)) return false;
+  } else if (phase === "bookmarks") {
+    if (await deleteProfileBatch(ctx, "bibleBookmarks", "by_profile", profileId)) return false;
+  } else if (phase === "customPlans") {
+    if (await deleteProfileBatch(ctx, "customBibleReadingPlans", "by_profile", profileId)) return false;
+  } else if (phase === "planCompletions") {
+    if (await deleteProfileBatch(ctx, "bibleReadingPlanCompletions", "by_profile", profileId)) return false;
+  } else if (phase === "dailyStats") {
+    if (await deleteProfileBatch(ctx, "studyDailyStats", "by_profile_and_day_key", profileId)) return false;
+  } else if (phase === "notifications") {
+    if (await deleteProfileBatch(ctx, "adminNotificationState", "by_profile", profileId)) return false;
+  } else if (phase === "deletionRequests") {
+    const requests = await ctx.db
+      .query("accountDeletionRequests")
+      .withIndex("by_profile_status", (q) => q.eq("profileId", profileId))
+      .take(CLEANUP_BATCH_SIZE + 1);
+    const removable = requests.filter((request) => request._id !== job.deletionRequestId).slice(0, CLEANUP_BATCH_SIZE);
+    if (removable.length) { await deleteDocuments(ctx, removable); return false; }
+  } else if (phase === "singletonData") {
+    const [memoryStats, studyStats, readerState] = await Promise.all([
+      ctx.db.query("memoryStats").withIndex("by_profile", (q) => q.eq("profileId", profileId)).unique(),
+      ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", profileId)).unique(),
+      ctx.db.query("bibleReaderStates").withIndex("by_profile", (q) => q.eq("profileId", profileId)).unique()
     ]);
-    for (const token of refreshTokens) await ctx.db.delete(token._id);
-    for (const verifier of verifiers) await ctx.db.delete(verifier._id);
-    await ctx.db.delete(session._id);
+    await deleteDocuments(ctx, [memoryStats, studyStats, readerState].filter(Boolean));
+  } else if (phase === "authAccounts") {
+    if (job.authUserId && (await cleanupAuthAccount(ctx, job.authUserId))) return false;
+  } else if (phase === "authSessions") {
+    if (job.authUserId && (await cleanupAuthSession(ctx, job.authUserId))) return false;
+  } else if (phase === "profile") {
+    const profile = await ctx.db.get(profileId);
+    if (profile) await ctx.db.delete(profileId);
+    if (job.authUserId) {
+      const user = await ctx.db.get(job.authUserId);
+      if (user) await ctx.db.delete(job.authUserId);
+    }
+    if (job.deletionRequestId) {
+      const request = await ctx.db.get(job.deletionRequestId);
+      if (request) await ctx.db.patch(request._id, { completedAt: Date.now() });
+    }
+    return true;
   }
 
-  const user = await ctx.db.get(authUserId);
-  if (user) await ctx.db.delete(authUserId);
+  const phaseIndex = PROFILE_CLEANUP_PHASES.indexOf(phase);
+  await ctx.db.patch(job._id, { phase: PROFILE_CLEANUP_PHASES[phaseIndex + 1], updatedAt: Date.now() });
+  return false;
+}
+
+async function deleteProfileBatch(
+  ctx: MutationCtx,
+  table: "communityReactions" | "communityMembers" | "sessions" | "drafts" | "checkins" | "memoryVerses" | "memoryHistory" | "feedback" | "usageEvents" | "securityEvents" | "bibleBookmarks" | "customBibleReadingPlans" | "bibleReadingPlanCompletions" | "studyDailyStats" | "adminNotificationState",
+  index: string,
+  profileId: Id<"profiles">
+) {
+  const rows = await (ctx.db.query(table) as any)
+    .withIndex(index, (q: any) => q.eq("profileId", profileId))
+    .take(CLEANUP_BATCH_SIZE);
+  await deleteDocuments(ctx, rows);
+  return rows.length > 0;
+}
+
+async function cleanupAuthAccount(ctx: MutationCtx, authUserId: Id<"users">) {
+  const account = await ctx.db.query("authAccounts").withIndex("userIdAndProvider", (q) => q.eq("userId", authUserId)).first();
+  if (!account) return false;
+  const codes = await ctx.db.query("authVerificationCodes").withIndex("accountId", (q) => q.eq("accountId", account._id)).take(CLEANUP_BATCH_SIZE);
+  if (codes.length) { await deleteDocuments(ctx, codes); return true; }
+  await ctx.db.delete(account._id);
+  return true;
+}
+
+async function cleanupAuthSession(ctx: MutationCtx, authUserId: Id<"users">) {
+  const session = await ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", authUserId)).first();
+  if (!session) return false;
+  const tokens = await ctx.db.query("authRefreshTokens").withIndex("sessionId", (q) => q.eq("sessionId", session._id)).take(CLEANUP_BATCH_SIZE);
+  if (tokens.length) { await deleteDocuments(ctx, tokens); return true; }
+  const verifiers = await ctx.db.query("authVerifiers").filter((q) => q.eq(q.field("sessionId"), session._id)).take(CLEANUP_BATCH_SIZE);
+  if (verifiers.length) { await deleteDocuments(ctx, verifiers); return true; }
+  await ctx.db.delete(session._id);
+  return true;
+}
+
+async function deleteDocuments(ctx: MutationCtx, rows: Array<{ _id: any } | null>) {
+  for (const row of rows) if (row) await ctx.db.delete(row._id);
 }
 
 async function logAdminAction(

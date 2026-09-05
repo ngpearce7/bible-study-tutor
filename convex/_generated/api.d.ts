@@ -16,6 +16,8 @@ import type * as http from "../http.js";
 import type * as insights from "../insights.js";
 import type * as memory from "../memory.js";
 import type * as security from "../security.js";
+import type * as statistics from "../statistics.js";
+import type * as statisticsModel from "../statisticsModel.js";
 import type * as study from "../study.js";
 
 import type {
@@ -33,6 +35,8 @@ declare const fullApi: ApiFromModules<{
   insights: typeof insights;
   memory: typeof memory;
   security: typeof security;
+  statistics: typeof statistics;
+  statisticsModel: typeof statisticsModel;
   study: typeof study;
 }>;
 

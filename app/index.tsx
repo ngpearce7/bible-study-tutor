@@ -34,6 +34,12 @@ type BibleReadingPlanCorpus = {
   plans: BibleReadingPlan[];
   getDetails: (plan: BibleReadingPlan) => ReturnType<typeof import("@/data/bibleReadingPlans")["getBibleReadingPlanDetails"]>;
 };
+type BibleSearchCriteriaOverrides = {
+  scope?: BibleSearchScope;
+  mode?: BibleSearchMode;
+  book?: string;
+  translationId?: BibleTranslationId;
+};
 let bibleReadingPlanCorpusPromise: Promise<BibleReadingPlanCorpus> | null = null;
 function loadBibleReadingPlanCorpus() {
   if (!bibleReadingPlanCorpusPromise) {
@@ -6201,9 +6207,14 @@ export default function Home() {
     }, 120);
   }
 
-  async function runBibleSearch() {
+  async function runBibleSearch(overrides: BibleSearchCriteriaOverrides = {}) {
     dismissBibleSearchInput();
     const query = bibleSearchQuery.trim();
+    const searchScope = overrides.scope ?? bibleSearchScope;
+    const searchMode = overrides.mode ?? bibleSearchMode;
+    const requestedBook = overrides.book ?? bibleSearchBook;
+    const searchBook = buildBibleSearchBookOptions(searchScope).includes(requestedBook) ? requestedBook : "";
+    const searchTranslationId = overrides.translationId ?? bibleTranslation;
     const requestId = ++bibleSearchRequestIdRef.current;
     bibleSearchAbortControllerRef.current?.abort();
     if (!query) {
@@ -6222,27 +6233,27 @@ export default function Home() {
       requestTimedOut = true;
       controller.abort();
     }, 15_000);
-    const translation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
-    const queries = buildBibleSearchQueries(query, bibleSearchMode);
+    const translation = searchTranslationId === "kjv" ? "KJV" : searchTranslationId === "bsb" ? "BSB" : "WEB";
+    const queries = buildBibleSearchQueries(query, searchMode);
     setBibleSearchStatus("Searching Scripture...");
     setBibleSearchDuration("");
     setBibleSearchActiveQuery(query);
 
     try {
-      const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchMode === "word", controller.signal)));
+      const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, searchScope, searchBook, searchMode === "word", controller.signal)));
       if (bibleSearchRequestIdRef.current !== requestId) return;
-      const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, bibleSearchMode), query, bibleSearchMode).slice(0, 60);
+      const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, searchMode), query, searchMode).slice(0, 60);
       setBibleSearchDuration(`Search completed in ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults(combined);
       setBibleSearchStatus(
         combined.length
-          ? `${combined.length} ${bibleSearchModeLabel(bibleSearchMode).toLowerCase()} result${combined.length === 1 ? "" : "s"} found${bibleSearchBook ? ` in ${bibleSearchBook}` : ""}.`
-          : bibleSearchMode === "word"
+          ? `${combined.length} ${bibleSearchModeLabel(searchMode).toLowerCase()} result${combined.length === 1 ? "" : "s"} found${searchBook ? ` in ${searchBook}` : ""}.`
+          : searchMode === "word"
             ? "No exact word results found. Try Any words or Theme if you want broader matches."
             : "No results found. Try fewer words or a broader search mode."
       );
       scrollToBibleSearchSummary();
-      trackUsage("bible_search", { reference: query, translation, tab: "bible", book: bibleSearchBook || undefined });
+      trackUsage("bible_search", { reference: query, translation, tab: "bible", book: searchBook || undefined });
     } catch {
       if (bibleSearchRequestIdRef.current !== requestId) return;
       setBibleSearchStatus(requestTimedOut ? "That search took too long. Try again or choose a specific book." : "I couldn't complete the search. Check your connection and try again.");
@@ -6509,20 +6520,33 @@ export default function Home() {
 
   function setRememberedBibleSearchScope(nextScope: BibleSearchScope) {
     const normalized = nextScope === "old" || nextScope === "new" ? nextScope : "all";
+    const nextBook = buildBibleSearchBookOptions(normalized).includes(bibleSearchBook) ? bibleSearchBook : "";
     setBibleSearchScope(normalized);
     persistUiPreference("bibleSearchScope", normalized);
+    if (nextBook !== bibleSearchBook) setRememberedBibleSearchBook(nextBook);
+    if (bibleSearchActiveQuery && (normalized !== bibleSearchScope || nextBook !== bibleSearchBook)) {
+      runBibleSearch({ scope: normalized, book: nextBook }).catch(() => undefined);
+    }
   }
 
   function setRememberedBibleSearchMode(nextMode: BibleSearchMode) {
     const normalized = isBibleSearchModeValue(nextMode) ? nextMode : "word";
     setBibleSearchMode(normalized);
     persistUiPreference("bibleSearchMode", normalized);
+    if (bibleSearchActiveQuery && normalized !== bibleSearchMode) runBibleSearch({ mode: normalized }).catch(() => undefined);
   }
 
   function setRememberedBibleSearchBook(nextBook: string) {
     const normalized = bibleBooks.includes(nextBook) ? nextBook : "";
     setBibleSearchBook(normalized);
     persistUiPreference("bibleSearchBook", normalized);
+  }
+
+  function selectBibleSearchBook(nextBook: string) {
+    const normalized = bibleBooks.includes(nextBook) ? nextBook : "";
+    setRememberedBibleSearchBook(normalized);
+    setBibleSearchBookMenuOpen(false);
+    if (bibleSearchActiveQuery && normalized !== bibleSearchBook) runBibleSearch({ book: normalized }).catch(() => undefined);
   }
 
   function setRememberedBibleSearchCriteriaOpen(nextValue: SetStateAction<boolean>) {
@@ -8596,9 +8620,13 @@ export default function Home() {
               onOpenFollowedPlanReading={openFollowedBibleReadingPlan}
               onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
               onSelectTranslation={(nextTranslationId: string) => {
-                setBibleTranslation(nextTranslationId as BibleTranslationId);
-                saveStoredBibleTranslation(nextTranslationId as BibleTranslationId).catch(() => undefined);
-                persistBibleReaderState({ translation: nextTranslationId as BibleTranslationId });
+                const normalizedTranslation = nextTranslationId as BibleTranslationId;
+                setBibleTranslation(normalizedTranslation);
+                saveStoredBibleTranslation(normalizedTranslation).catch(() => undefined);
+                persistBibleReaderState({ translation: normalizedTranslation });
+                if (bibleSearchActiveQuery && normalizedTranslation !== bibleTranslation) {
+                  runBibleSearch({ translationId: normalizedTranslation }).catch(() => undefined);
+                }
               }}
               onBookSearchChange={setReaderBookSearch}
               onToggleHistoryCollapsed={() => toggleRememberedPanel(setReaderHistoryCollapsed, "bibleReaderHistoryCollapsed")}
@@ -8646,16 +8674,13 @@ export default function Home() {
               bibleSearchSections={bibleSearchSections}
               onToggleBibleSearchCollapsed={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")}
               onBibleSearchQueryChange={setBibleSearchQuery}
-              onRunBibleSearch={runBibleSearch}
+              onRunBibleSearch={() => runBibleSearch()}
               onClearBibleSearch={clearBibleSearch}
               onToggleBibleSearchCriteria={() => setRememberedBibleSearchCriteriaOpen((value) => !value)}
               onSelectBibleSearchScope={setRememberedBibleSearchScope}
               onSelectBibleSearchMode={setRememberedBibleSearchMode}
               onToggleBibleSearchBookMenu={() => setBibleSearchBookMenuOpen((value) => !value)}
-              onSelectBibleSearchBook={(nextBook: string) => {
-                setRememberedBibleSearchBook(nextBook);
-                setBibleSearchBookMenuOpen(false);
-              }}
+              onSelectBibleSearchBook={selectBibleSearchBook}
               onBibleSearchSummaryLayout={(event: any) => {
                 bibleSearchSummaryYRef.current = event.nativeEvent.layout.y;
               }}

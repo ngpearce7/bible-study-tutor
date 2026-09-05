@@ -75,6 +75,11 @@ assert(!layout.includes("font-display: block"), "icon fonts must not block text 
 assert(layout.includes("font-display: swap"), "icon font swap behavior is missing");
 assert(passageSource.includes("fetchWithTimeout("), "Bible passage requests need a timeout");
 assert(searchSource.includes("fetchWithTimeout(") && searchSource.includes("signal?: AbortSignal"), "Bible search needs timeout and cancellation support");
+assert(app.includes("runBibleSearch(overrides: BibleSearchCriteriaOverrides = {})"), "Bible search filters need criteria-aware refresh support");
+assert(app.includes("runBibleSearch({ scope: normalized, book: nextBook })"), "Changing Bible search scope should refresh active results");
+assert(app.includes("runBibleSearch({ mode: normalized })"), "Changing Bible search mode should refresh active results");
+assert(app.includes("runBibleSearch({ book: normalized })"), "Changing Bible search book should refresh active results");
+assert(app.includes("runBibleSearch({ translationId: normalizedTranslation })"), "Changing Bible translation should refresh active search results");
 assert(contextSource.includes("CROSS_REFERENCE_ASSET_VERSION") && contextSource.includes("?v=${CROSS_REFERENCE_ASSET_VERSION}"), "cross-reference requests need a cache-busting version");
 
 const coral = capture(ui, /coral:\s*["'](#[0-9a-f]{6})["']/i, "design-system coral colour");

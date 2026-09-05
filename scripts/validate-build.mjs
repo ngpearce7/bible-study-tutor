@@ -4,8 +4,8 @@ import { extname, join, relative, sep } from "node:path";
 
 const root = process.cwd();
 const distDir = join(root, "dist");
-const mainBundleBudget = 620_000;
-const totalJavaScriptBudget = 900_000;
+const mainBundleBudget = 500_000;
+const totalJavaScriptBudget = 860_000;
 
 assert(existsSync(distDir), "dist is missing; run npm run web:export first");
 
@@ -20,10 +20,16 @@ const bundleRows = jsFiles.map((file) => {
   return { file, raw: source.length, gzip: gzipSync(source).length };
 });
 const mainBundle = bundleRows.find((row) => row.file === entryFiles[0]);
+const readingPlanBundles = bundleRows.filter((row) => /[/\\]bibleReadingPlans-[^/\\]+\.js$/.test(row.file));
+const webVitalsBundles = bundleRows.filter((row) => /[/\\]webVitals-[^/\\]+\.js$/.test(row.file));
 const totalGzip = bundleRows.reduce((total, row) => total + row.gzip, 0);
 
 assert(mainBundle.gzip <= mainBundleBudget, `main bundle is ${formatBytes(mainBundle.gzip)} gzip; budget is ${formatBytes(mainBundleBudget)}`);
 assert(totalGzip <= totalJavaScriptBudget, `all JavaScript is ${formatBytes(totalGzip)} gzip; budget is ${formatBytes(totalJavaScriptBudget)}`);
+assert(readingPlanBundles.length === 1, `expected one lazy reading-plan bundle, found ${readingPlanBundles.length}`);
+assert(webVitalsBundles.length === 1, `expected one lazy web-vitals bundle, found ${webVitalsBundles.length}`);
+assert(!readFileSync(mainBundle.file, "utf8").includes("Old and New Testament Daily Pairing"), "the reading-plan corpus leaked into the entry bundle");
+assert(readFileSync(readingPlanBundles[0].file, "utf8").includes("Old and New Testament Daily Pairing"), "the lazy reading-plan bundle is missing its corpus");
 assert(!files.some((file) => file.endsWith(".map")), "production export contains source maps");
 
 const knownRoutes = new Set(["/"]);
@@ -78,6 +84,7 @@ assert(primaryContrast >= 4.5, `primary button contrast is ${primaryContrast.toF
 console.log(`Validated ${htmlFiles.length} HTML files and ${linkCount} internal links.`);
 console.log(`Main bundle: ${formatBytes(mainBundle.gzip)} gzip / ${formatBytes(mainBundle.raw)} raw.`);
 console.log(`All JavaScript: ${formatBytes(totalGzip)} gzip across ${jsFiles.length} files.`);
+console.log(`Reading-plan chunk: ${formatBytes(readingPlanBundles[0].gzip)} gzip; loaded only when needed.`);
 console.log(`Primary button contrast: ${primaryContrast.toFixed(2)}:1.`);
 
 function walk(directory, output = []) {

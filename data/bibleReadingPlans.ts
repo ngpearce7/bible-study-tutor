@@ -1,57 +1,11 @@
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "@/data/bibleLibrary";
-
-export type BibleReadingPlanSource = "built-in" | "custom";
-
-export type BibleReadingPlanDay = {
-  day: number;
-  title: string;
-  reference: string;
-  readerBook: string;
-  readerChapter: number;
-  studyReference: string;
-  context?: string;
-  devotional?: {
-    title: string;
-    body: string;
-    source?: string;
-  };
-  observationQuestion?: string;
-  reflectionQuestion?: string;
-  reflectionPrompt?: string;
-  prayer?: string;
-  prayerPrompt?: string;
-  gentleAction?: string;
-  studyMethod?: string;
-  careNote?: string;
-  guidanceKind?: "guided-devotional" | "reading-guidance";
-};
-
-export type BibleReadingPlan = {
-  id: string;
-  title: string;
-  description: string;
-  source: BibleReadingPlanSource;
-  category?: string;
-  purpose?: string;
-  bestFor?: string;
-  pace?: string;
-  estimatedTime?: string;
-  coverage?: string;
-  rhythm?: string;
-  careNote?: string;
-  sampleDayNumbers?: number[];
-  previewDayNumber?: number;
-  days: BibleReadingPlanDay[];
-};
+import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
+export { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay, type BibleReadingPlanSource } from "@/data/bibleReadingPlanTypes";
 
 type ChapterRef = { book: string; chapter: number };
 
 function referenceBook(book: string) {
   return book === "Psalms" ? "Psalm" : book;
-}
-
-export function readerBookFromReferenceBook(book: string) {
-  return book === "Psalm" ? "Psalms" : book;
 }
 
 export function chapterReference(book: string, chapter: number) {

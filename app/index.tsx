@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, createCustomBibleReadingPlanState, deleteCustomBibleReadingPlanState, followBibleReadingPlanState, stopFollowingBibleReadingPlanState, uncompleteBibleReadingPlanDayState } from "@/data/bibleReadingPlanActions";
 import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
-import { bibleReadingPlans, getBibleReadingPlanDetails, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
+import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
@@ -23,13 +23,29 @@ import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, useMutation, usePaginatedQuery, useQuery } from "convex/react";
-import { Component, Suspense, createElement, lazy, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
+import { Component, Suspense, createElement, lazy, memo, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
 import { Alert, Animated, Easing, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 type ProfileConnectionState = "idle" | "loading" | "ready" | "error";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
 const publicUrlTabs = new Set<Tab>(["home", "study", "bible", "plans", "methods", "memory", "help"]);
+type BibleReadingPlanCorpus = {
+  plans: BibleReadingPlan[];
+  getDetails: (plan: BibleReadingPlan) => ReturnType<typeof import("@/data/bibleReadingPlans")["getBibleReadingPlanDetails"]>;
+};
+let bibleReadingPlanCorpusPromise: Promise<BibleReadingPlanCorpus> | null = null;
+function loadBibleReadingPlanCorpus() {
+  if (!bibleReadingPlanCorpusPromise) {
+    bibleReadingPlanCorpusPromise = import("@/data/bibleReadingPlans")
+      .then((module) => ({ plans: module.bibleReadingPlans, getDetails: module.getBibleReadingPlanDetails }))
+      .catch((error) => {
+        bibleReadingPlanCorpusPromise = null;
+        throw error;
+      });
+  }
+  return bibleReadingPlanCorpusPromise;
+}
 const LazyAdminDashboard = lazy(() => import("@/components/AdminDashboard").then((module) => ({ default: module.AdminDashboard })));
 const LazyBibleTab = lazy(() => import("@/components/BibleTab").then((module) => ({ default: module.BibleTab })));
 const LazyCommunityTab = lazy(() => import("@/components/CommunityTab").then((module) => ({ default: module.CommunityTab })));
@@ -973,6 +989,9 @@ export default function Home() {
   const [followedBibleReadingPlanIds, setFollowedBibleReadingPlanIds] = useState<string[]>([]);
   const [completedBibleReadingPlanDays, setCompletedBibleReadingPlanDays] = useState<string[]>([]);
   const [customBibleReadingPlans, setCustomBibleReadingPlans] = useState<BibleReadingPlan[]>([]);
+  const [bibleReadingPlanCorpus, setBibleReadingPlanCorpus] = useState<BibleReadingPlanCorpus | null>(null);
+  const [bibleReadingPlanCorpusStatus, setBibleReadingPlanCorpusStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const [bibleReadingPlanLoadAttempt, setBibleReadingPlanLoadAttempt] = useState(0);
   const [bibleReadingPlanStartDates, setBibleReadingPlanStartDates] = useState<Record<string, string>>({});
   const [bibleReadingPlanCompletionDates, setBibleReadingPlanCompletionDates] = useState<Record<string, string>>({});
   const [bibleReadingPlanCompletionCounts, setBibleReadingPlanCompletionCounts] = useState<Record<string, number>>({});
@@ -995,6 +1014,8 @@ export default function Home() {
   const [activeBiblePlanSelectedDay, setActiveBiblePlanSelectedDay] = useState(0);
   const [activeBiblePlanSelectedPlanId, setActiveBiblePlanSelectedPlanId] = useState("");
   const [expandedBiblePlanVisibleRows, setExpandedBiblePlanVisibleRows] = useState<Record<string, number>>({});
+  const [visibleBiblePlanGroupRows, setVisibleBiblePlanGroupRows] = useState<Record<string, number>>({});
+  const [biblePlanDayWindowStarts, setBiblePlanDayWindowStarts] = useState<Record<string, number>>({});
   const [expandedBiblePlanPreviews, setExpandedBiblePlanPreviews] = useState<Record<string, boolean>>({});
   const biblePlanPreviewToggleRefs = useRef<Record<string, { focus?: () => void } | null>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>(DEFAULT_OPEN_BIBLE_PLAN_SECTIONS);
@@ -1338,6 +1359,50 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (Platform.OS !== "web") return;
+    let stopMeasurement: (() => void) | undefined;
+    let mounted = true;
+    const cancelIdle = runWhenBrowserIdle(() => {
+      import("@/data/webVitals")
+        .then((module) => {
+          if (mounted) stopMeasurement = module.startWebVitalsMeasurement();
+        })
+        .catch(() => undefined);
+    });
+    return () => {
+      mounted = false;
+      cancelIdle();
+      stopMeasurement?.();
+    };
+  }, []);
+
+  const customBibleReadingPlanIdSet = useMemo(
+    () => new Set(customBibleReadingPlans.map((plan) => plan.id)),
+    [customBibleReadingPlans]
+  );
+  const needsBuiltInBibleReadingPlans =
+    tab === "plans" ||
+    [activeBibleReadingPlanId, ...followedBibleReadingPlanIds].some((planId) => planId && !customBibleReadingPlanIdSet.has(planId));
+
+  useEffect(() => {
+    if (!needsBuiltInBibleReadingPlans || bibleReadingPlanCorpus) return;
+    let active = true;
+    setBibleReadingPlanCorpusStatus("loading");
+    loadBibleReadingPlanCorpus()
+      .then((corpus) => {
+        if (!active) return;
+        setBibleReadingPlanCorpus(corpus);
+        setBibleReadingPlanCorpusStatus("ready");
+      })
+      .catch(() => {
+        if (active) setBibleReadingPlanCorpusStatus("error");
+      });
+    return () => {
+      active = false;
+    };
+  }, [bibleReadingPlanCorpus, bibleReadingPlanLoadAttempt, needsBuiltInBibleReadingPlans]);
+
+  useEffect(() => {
     if (!appInitializationAllowed) return;
 
     return runWhenBrowserIdle(() => {
@@ -1374,9 +1439,8 @@ export default function Home() {
           setStoredBibleReadingPlanProgressHydrated(true);
           if (!normalizedProgress) return;
           const storedPlans = normalizedProgress.customPlans;
-          const availablePlans = [...bibleReadingPlans, ...storedPlans];
           const normalizedActivePlanId = normalizedProgress.activePlanId;
-          const normalizedFollowedPlanIds = (normalizedProgress.followedPlanIds || []).filter((planId) => availablePlans.some((plan) => plan.id === planId)).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
+          const normalizedFollowedPlanIds = (normalizedProgress.followedPlanIds || []).slice(0, MAX_STORED_BIBLE_READING_PLAN_IDS);
           const normalizedCompletedDays = normalizedProgress.completedDays;
           const normalizedStartDates = normalizedProgress.startDates || {};
           const normalizedCompletionDates = normalizedProgress.completedPlanDates || {};
@@ -1387,7 +1451,7 @@ export default function Home() {
           setBibleReadingPlanCompletionDates(normalizedCompletionDates);
           setBibleReadingPlanCompletionCounts(normalizedCompletionCounts);
           setAcknowledgedBibleReadingCareNotes(normalizedAcknowledgedCareNotes);
-          if (availablePlans.some((plan) => plan.id === normalizedActivePlanId)) {
+          if (normalizedActivePlanId) {
             const backfilledStartDates = normalizedFollowedPlanIds.reduce<Record<string, string>>((dates, planId) => {
               if (!dates[planId]) dates[planId] = localDateKey();
               return dates;
@@ -1557,7 +1621,12 @@ export default function Home() {
     }).catch(() => undefined);
   }, [activeProfileId, incomingShareSource, recordUsage]);
 
-  const profile = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const profileSummary = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
+  const accountIdentity = useQuery(api.accountability.accountIdentity, activeProfileId && tab === "account" ? { profileId: activeProfileId } : "skip");
+  const profile = useMemo(
+    () => profileSummary ? { ...profileSummary, ...(accountIdentity || {}) } : profileSummary,
+    [accountIdentity, profileSummary]
+  );
   const remoteBibleReaderState = useQuery(
     api.accountability.bibleReaderState,
     activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip"
@@ -1583,7 +1652,8 @@ export default function Home() {
   const shouldLoadAdminOverview = profileMatchesActiveState && (tab === "account" || tab === "admin");
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
-  const stats = useQuery(api.study.stats, profileMatchesActiveState ? { profileId: activeProfileId, timezoneOffsetMinutes } : "skip");
+  const shouldLoadStudyStats = profileMatchesActiveState && (tab === "home" || tab === "account");
+  const stats = useQuery(api.study.stats, shouldLoadStudyStats ? { profileId: activeProfileId, timezoneOffsetMinutes } : "skip");
   const rhythmGrace = (stats as any)?.rhythmGrace;
   const currentRhythmCount = Number((stats as any)?.currentStreak || 0);
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
@@ -1919,7 +1989,8 @@ export default function Home() {
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
   const todayDateKey = localDateKey();
-  const bibleReadingPlanView = buildBibleReadingPlanView({
+  const bibleReadingPlanView = useMemo(() => buildBibleReadingPlanView({
+    builtInPlans: bibleReadingPlanCorpus?.plans || [],
     customPlans: customBibleReadingPlans,
     followedPlanIds: followedBibleReadingPlanIds,
     activePlanId: activeBibleReadingPlanId,
@@ -1930,7 +2001,18 @@ export default function Home() {
     selectedDay: activeBiblePlanSelectedDay,
     todayDateKey,
     addDaysToDateKey
-  });
+  }), [
+    activeBiblePlanSelectedDay,
+    activeBiblePlanSelectedPlanId,
+    activeBibleReadingPlanId,
+    bibleReadingPlanCompletionDates,
+    bibleReadingPlanCorpus,
+    bibleReadingPlanStartDates,
+    completedBibleReadingPlanDays,
+    customBibleReadingPlans,
+    followedBibleReadingPlanIds,
+    todayDateKey
+  ]);
   const allBibleReadingPlans = bibleReadingPlanView.allPlans;
   const followedBibleReadingPlans = bibleReadingPlanView.followedPlans;
   const completedFollowedBibleReadingPlans = bibleReadingPlanView.completedFollowedPlans;
@@ -2308,6 +2390,9 @@ export default function Home() {
   const layoutHeight = Platform.OS === "web" && !layoutReady ? 844 : height;
   const compactLayout = layoutWidth < 900;
   const phoneLayout = layoutWidth < 760;
+  const activeBibleReadingPlanDayWindow = activeBibleReadingPlan
+    ? getBiblePlanDayWindow(activeBibleReadingPlan, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1)
+    : null;
   const friendPanelSummary = !COMMUNITY_CIRCLES_ENABLED
     ? "Coming soon"
     : !isAuthenticated
@@ -2410,7 +2495,7 @@ export default function Home() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), delay);
   }
 
-  function scrollBiblePlanDayPickerIntoView(planId: string, day = 1, animated = true, delay = 80) {
+  function scrollBiblePlanDayPickerIntoView(planId: string, day = 1, animated = true, delay = 80, firstVisibleDay = 1) {
     if (tab !== "plans" || !planId || day < 1) return;
     setTimeout(() => {
       const picker = biblePlanDayPickerRefs.current[planId];
@@ -2421,7 +2506,7 @@ export default function Home() {
         phoneLayout ? 260 : 360,
         Math.min(phoneLayout ? layoutWidth - 48 : layoutWidth - 420, phoneLayout ? 520 : 760)
       );
-      const tileStart = (day - 1) * (tileWidth + gap);
+      const tileStart = Math.max(0, day - firstVisibleDay) * (tileWidth + gap);
       const x = Math.max(0, tileStart - estimatedVisibleWidth * 0.42);
       picker.scrollTo({ x, y: 0, animated });
     }, delay);
@@ -7066,6 +7151,21 @@ export default function Home() {
     return `${reference} · ${title}`;
   };
 
+  function getBiblePlanDayWindow(plan: BibleReadingPlan, focusDay = 1) {
+    const size = phoneLayout ? 9 : 15;
+    const maximumStart = Math.max(0, plan.days.length - size);
+    const centeredStart = Math.max(0, Math.min(maximumStart, focusDay - 1 - Math.floor(size / 2)));
+    const start = Math.max(0, Math.min(maximumStart, biblePlanDayWindowStarts[plan.id] ?? centeredStart));
+    return {
+      days: plan.days.slice(start, start + size),
+      firstVisibleDay: plan.days[start]?.day || 1,
+      canShowEarlier: start > 0,
+      canShowLater: start + size < plan.days.length,
+      showEarlier: () => setBiblePlanDayWindowStarts((current) => ({ ...current, [plan.id]: Math.max(0, start - size) })),
+      showLater: () => setBiblePlanDayWindowStarts((current) => ({ ...current, [plan.id]: Math.min(maximumStart, start + size) }))
+    };
+  }
+
   const renderFollowedBibleReadingPlanPanel = (plan: BibleReadingPlan) => {
     const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
     const today = plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))) || plan.days[0];
@@ -7086,6 +7186,7 @@ export default function Home() {
     const selectedDone = !!selectedDay && completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, selectedDay.day));
     const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
     const openPlanDay = selectedDay || today;
+    const dayWindow = getBiblePlanDayWindow(plan, selectedDay?.day || today?.day || 1);
 
     return (
       <View key={plan.id} style={[styles.currentPlanWideBox, styles.currentBibleReadingPlanBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
@@ -7118,9 +7219,15 @@ export default function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.planDayPickerScroll}
-          onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(plan.id, selectedDay?.day || today?.day || 1, false, 20)}
+          onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(plan.id, selectedDay?.day || today?.day || 1, false, 20, dayWindow.firstVisibleDay)}
         >
-          {plan.days.map((planDay) => {
+          {dayWindow.canShowEarlier ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={`Show earlier days in ${plan.title}`} onPress={dayWindow.showEarlier} style={[styles.planDayTile, styles.planDayWindowButton, plansDarkMode && styles.planDayTileDark]}>
+              <Ionicons name="chevron-back-outline" size={18} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.planDayTileDate, plansDarkMode && styles.accountDarkMutedText]}>Earlier</Text>
+            </Pressable>
+          ) : null}
+          {dayWindow.days.map((planDay) => {
             const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, planDay.day));
             const selected = selectedDay?.day === planDay.day;
             const dateKey = startDate ? addDaysToDateKey(startDate, planDay.day - 1) : "";
@@ -7157,6 +7264,12 @@ export default function Home() {
               </Pressable>
             );
           })}
+          {dayWindow.canShowLater ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={`Show later days in ${plan.title}`} onPress={dayWindow.showLater} style={[styles.planDayTile, styles.planDayWindowButton, plansDarkMode && styles.planDayTileDark]}>
+              <Ionicons name="chevron-forward-outline" size={18} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Text style={[styles.planDayTileDate, plansDarkMode && styles.accountDarkMutedText]}>Later</Text>
+            </Pressable>
+          ) : null}
         </ScrollView>
         {selectedDay && (
           <View
@@ -7345,15 +7458,16 @@ export default function Home() {
 
         {!compactLayout && (
           <>
-            <Card style={[styles.todayCard, accountDarkMode && styles.accountDarkMainCard]}>
-              <Eyebrow>Today</Eyebrow>
-              <Text style={[styles.streakNumber, accountDarkMode && styles.accountDarkTitle]}>{stats?.currentStreak ?? 0}</Text>
-              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>day rhythm</Text>
-              <View style={[styles.progressTrack, accountDarkMode && styles.appDarkProgressTrack]}>
-                <View style={[styles.progressFill, { width: `${progress}%` }]} />
-              </View>
-              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}</Text>
-            </Card>
+            <TodayRhythmCard
+              profileId={profileMatchesActiveState ? activeProfileId : null}
+              timezoneOffsetMinutes={timezoneOffsetMinutes}
+              providedStats={shouldLoadStudyStats ? stats : undefined}
+              queryOwnStats={!shouldLoadStudyStats}
+              progress={progress}
+              darkMode={accountDarkMode}
+              effectivePartner={effectivePartner}
+              friendlyName={friendlyName}
+            />
 
           </>
         )}
@@ -8632,9 +8746,15 @@ export default function Home() {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.planDayPickerScroll}
-                  onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1, false, 20)}
+                  onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1, false, 20, activeBibleReadingPlanDayWindow?.firstVisibleDay || 1)}
                 >
-                  {activeBibleReadingPlan.days.map((planDay) => {
+                  {activeBibleReadingPlanDayWindow?.canShowEarlier ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel={`Show earlier days in ${activeBibleReadingPlan.title}`} onPress={activeBibleReadingPlanDayWindow.showEarlier} style={[styles.planDayTile, styles.planDayWindowButton, plansDarkMode && styles.planDayTileDark]}>
+                      <Ionicons name="chevron-back-outline" size={18} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Text style={[styles.planDayTileDate, plansDarkMode && styles.accountDarkMutedText]}>Earlier</Text>
+                    </Pressable>
+                  ) : null}
+                  {(activeBibleReadingPlanDayWindow?.days || []).map((planDay) => {
                     const done = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(activeBibleReadingPlan.id, planDay.day));
                     const selected = activeBibleReadingPlanSelectedDay?.day === planDay.day;
                     const dateKey = activeBibleReadingPlanStartDate ? addDaysToDateKey(activeBibleReadingPlanStartDate, planDay.day - 1) : "";
@@ -8671,6 +8791,12 @@ export default function Home() {
                       </Pressable>
                     );
                   })}
+                  {activeBibleReadingPlanDayWindow?.canShowLater ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel={`Show later days in ${activeBibleReadingPlan.title}`} onPress={activeBibleReadingPlanDayWindow.showLater} style={[styles.planDayTile, styles.planDayWindowButton, plansDarkMode && styles.planDayTileDark]}>
+                      <Ionicons name="chevron-forward-outline" size={18} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Text style={[styles.planDayTileDate, plansDarkMode && styles.accountDarkMutedText]}>Later</Text>
+                    </Pressable>
+                  ) : null}
                 </ScrollView>
                 {activeBibleReadingPlanSelectedDay && (
                   <View
@@ -8816,8 +8942,22 @@ export default function Home() {
               <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Browse plans</Text>
             </View>
             <View style={styles.planBrowseSectionStack}>
-              {unfollowedBibleReadingPlanGroups.map((group) => {
+              {bibleReadingPlanCorpusStatus !== "ready" ? (
+                <Card style={[styles.planPageCard, plansDarkMode && styles.accountDarkMainCard]}>
+                  <Text accessibilityLiveRegion="polite" aria-live="polite" style={[styles.cardTitle, plansDarkMode && styles.accountDarkTitle]}>
+                    {bibleReadingPlanCorpusStatus === "error" ? "Reading plans could not be loaded" : "Loading reading plans…"}
+                  </Text>
+                  <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>
+                    {bibleReadingPlanCorpusStatus === "error" ? "Check your connection and try again." : "The plan library loads only when you need it."}
+                  </Text>
+                  {bibleReadingPlanCorpusStatus === "error" ? (
+                    <AppButton label="Try again" variant="secondary" onPress={() => { setBibleReadingPlanCorpusStatus("idle"); setBibleReadingPlanLoadAttempt((attempt) => attempt + 1); }} style={plansDarkMode && styles.homeDarkResumeButton} labelStyle={plansDarkMode && styles.homeDarkResumeButtonText} />
+                  ) : null}
+                </Card>
+              ) : unfollowedBibleReadingPlanGroups.map((group) => {
                 const sectionOpen = openBiblePlanSections[group.id] ?? (group.id === "custom" || group.id === "short");
+                const visibleGroupRowCount = visibleBiblePlanGroupRows[group.id] || (phoneLayout ? 6 : 9);
+                const visibleGroupPlans = group.plans.slice(0, visibleGroupRowCount);
                 return (
                   <View key={group.id} style={[styles.planBrowseSection, plansDarkMode && styles.planBrowseSectionDark]}>
                     <Pressable
@@ -8838,11 +8978,11 @@ export default function Home() {
                     </Pressable>
                     {sectionOpen && (
                       <View style={[styles.planPageGrid, phoneLayout && styles.phonePlanPageGrid]}>
-                        {group.plans.map((plan) => {
+                        {visibleGroupPlans.map((plan) => {
                 const completedCount = plan.days.filter((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day))).length;
                 const expanded = expandedBiblePlanId === plan.id;
                 const progressPercent = plan.days.length ? (completedCount / plan.days.length) * 100 : 0;
-                const planDetails = getBibleReadingPlanDetails(plan);
+                const planDetails = bibleReadingPlanCorpus!.getDetails(plan);
                 const visibleRows = expandedBiblePlanVisibleRows[plan.id] || 0;
                 const previewOpen = !!expandedBiblePlanPreviews[plan.id];
                 const previewContentId = `complete-day-preview-${plan.id.replace(/[^A-Za-z0-9_-]/g, "-")}`;
@@ -9070,6 +9210,17 @@ export default function Home() {
                   </Card>
                 );
                         })}
+                        {group.plans.length > visibleGroupPlans.length ? (
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Show more ${group.title.toLowerCase()}`}
+                            onPress={() => setVisibleBiblePlanGroupRows((current) => ({ ...current, [group.id]: visibleGroupRowCount + (phoneLayout ? 6 : 9) }))}
+                            style={[styles.readerBookmarkExpandButton, plansDarkMode && styles.homeDarkResumeButton]}
+                          >
+                            <Text style={[styles.readerBookmarkExpandText, plansDarkMode && styles.homeDarkResumeButtonText]}>Show more plans</Text>
+                            <Ionicons name="chevron-down-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          </Pressable>
+                        ) : null}
                       </View>
                     )}
                   </View>
@@ -11032,6 +11183,46 @@ function formatAdminDate(value?: number) {
   if (!value) return "";
   return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
+
+const TodayRhythmCard = memo(function TodayRhythmCard({
+  profileId,
+  timezoneOffsetMinutes,
+  providedStats,
+  queryOwnStats,
+  progress,
+  darkMode,
+  effectivePartner,
+  friendlyName
+}: {
+  profileId: any;
+  timezoneOffsetMinutes: number;
+  providedStats: any;
+  queryOwnStats: boolean;
+  progress: number;
+  darkMode: boolean;
+  effectivePartner: string;
+  friendlyName: string;
+}) {
+  const isolatedStats = useQuery(
+    api.study.stats,
+    queryOwnStats && profileId ? { profileId, timezoneOffsetMinutes } : "skip"
+  );
+  const currentStats = providedStats ?? isolatedStats;
+
+  return (
+    <Card style={[styles.todayCard, darkMode && styles.accountDarkMainCard]}>
+      <Eyebrow>Today</Eyebrow>
+      <Text style={[styles.streakNumber, darkMode && styles.accountDarkTitle]}>{currentStats?.currentStreak ?? 0}</Text>
+      <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>day rhythm</Text>
+      <View style={[styles.progressTrack, darkMode && styles.appDarkProgressTrack]}>
+        <View style={[styles.progressFill, { width: `${progress}%` }]} />
+      </View>
+      <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
+        {effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}
+      </Text>
+    </Card>
+  );
+});
 
 function Metric({
   value,
@@ -19462,6 +19653,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 8,
     width: 72
+  },
+  planDayWindowButton: {
+    borderStyle: "solid"
   },
   phonePlanDayTile: {
     height: 76,

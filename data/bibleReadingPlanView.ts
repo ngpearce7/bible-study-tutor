@@ -1,4 +1,4 @@
-import { bibleReadingPlans, type BibleReadingPlan } from "@/data/bibleReadingPlans";
+import type { BibleReadingPlan } from "@/data/bibleReadingPlanTypes";
 import { MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
 
 export type BibleReadingPlanGroup = {
@@ -25,6 +25,7 @@ export type OtherFollowedBibleReadingPlanSummary = {
 };
 
 export function buildBibleReadingPlanView({
+  builtInPlans,
   customPlans,
   followedPlanIds,
   activePlanId,
@@ -36,6 +37,7 @@ export function buildBibleReadingPlanView({
   todayDateKey,
   addDaysToDateKey
 }: {
+  builtInPlans: BibleReadingPlan[];
   customPlans: BibleReadingPlan[];
   followedPlanIds: string[];
   activePlanId: string;
@@ -47,7 +49,7 @@ export function buildBibleReadingPlanView({
   todayDateKey: string;
   addDaysToDateKey: (dateKey: string, days: number) => string;
 }) {
-  const allPlans = [...bibleReadingPlans, ...customPlans];
+  const allPlans = [...builtInPlans, ...customPlans];
   const followedPlans = followedPlanIds
     .map((planId) => allPlans.find((plan) => plan.id === planId))
     .filter((plan): plan is BibleReadingPlan => !!plan);

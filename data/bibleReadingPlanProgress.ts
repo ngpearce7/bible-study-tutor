@@ -1,5 +1,5 @@
 import { BIBLE_CHAPTER_COUNTS } from "@/data/bibleLibrary";
-import { bibleReadingPlans, readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlans";
+import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 
 export const MAX_FOLLOWED_BIBLE_READING_PLANS = 3;
 export const MAX_STORED_BIBLE_READING_PLAN_IDS = 60;
@@ -51,17 +51,17 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
         .filter((plan): plan is BibleReadingPlan => !!plan)
         .slice(0, MAX_CUSTOM_BIBLE_READING_PLANS)
     : [];
-  const validPlans = [...bibleReadingPlans, ...customPlans];
-  const validPlanIds = new Set(validPlans.map((plan) => plan.id));
+  const customPlanById = new Map(customPlans.map((plan) => [plan.id, plan]));
+  const isPlausiblePlanId = (planId: string) => !!planId && (/^[a-z0-9][a-z0-9-]{0,79}$/.test(planId) || customPlanById.has(planId));
   const activePlanId = normalizeBibleReadingPlanId(typeof source.activePlanId === "string" ? source.activePlanId : "");
   const followedPlanIds = Array.from(new Set(
     Array.isArray(source.followedPlanIds)
       ? source.followedPlanIds
           .map((planId) => normalizeBibleReadingPlanId(String(planId).slice(0, 80)))
-          .filter((planId) => planId && validPlanIds.has(planId))
+          .filter(isPlausiblePlanId)
       : []
   ));
-  const normalizedActivePlanId = activePlanId && validPlanIds.has(activePlanId) ? activePlanId : followedPlanIds[0] || "";
+  const normalizedActivePlanId = isPlausiblePlanId(activePlanId) ? activePlanId : followedPlanIds[0] || "";
   const normalizedFollowedPlanIds = Array.from(new Set([
     normalizedActivePlanId,
     ...(followedPlanIds.length ? followedPlanIds : normalizedActivePlanId ? [normalizedActivePlanId] : [])
@@ -73,17 +73,16 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
   )
     .filter((key) => {
       const [planId, dayValue] = key.split(":");
-      if (!validPlanIds.has(planId)) return false;
-      const plan = validPlans.find((item) => item.id === planId);
       const day = Math.round(Number(dayValue) || 0);
-      return !!plan && plan.days.some((item) => item.day === day);
+      const customPlan = customPlanById.get(planId);
+      return isPlausiblePlanId(planId) && day >= 1 && day <= MAX_CUSTOM_BIBLE_READING_PLAN_DAYS && (!customPlan || customPlan.days.some((item) => item.day === day));
     })
     .slice(0, MAX_COMPLETED_BIBLE_READING_PLAN_DAYS);
   const startDates = source.startDates && typeof source.startDates === "object" && !Array.isArray(source.startDates)
     ? Object.entries(source.startDates).slice(0, 60).reduce<Record<string, string>>((map, [planId, date]) => {
         const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
         const dateKey = String(date).slice(0, 10);
-        if (normalizedPlanId && validPlanIds.has(normalizedPlanId) && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
+        if (isPlausiblePlanId(normalizedPlanId) && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
         return map;
       }, {})
     : {};
@@ -91,7 +90,7 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
     ? Object.entries(source.completedPlanDates).slice(0, 60).reduce<Record<string, string>>((map, [planId, date]) => {
         const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
         const dateKey = String(date).slice(0, 10);
-        if (normalizedPlanId && validPlanIds.has(normalizedPlanId) && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
+        if (isPlausiblePlanId(normalizedPlanId) && /^\d{4}-\d{2}-\d{2}$/.test(dateKey)) map[normalizedPlanId] = dateKey;
         return map;
       }, {})
     : {};
@@ -99,7 +98,7 @@ export function normalizeBibleReadingPlanProgress(value: unknown): StoredBibleRe
     ? Object.entries(source.completionCounts).slice(0, 60).reduce<Record<string, number>>((map, [planId, count]) => {
         const normalizedPlanId = normalizeBibleReadingPlanId(String(planId).slice(0, 80));
         const normalizedCount = Math.max(0, Math.min(MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, Math.round(Number(count) || 0)));
-        if (normalizedPlanId && validPlanIds.has(normalizedPlanId) && normalizedCount > 0) map[normalizedPlanId] = normalizedCount;
+        if (isPlausiblePlanId(normalizedPlanId) && normalizedCount > 0) map[normalizedPlanId] = normalizedCount;
         return map;
       }, {})
     : {};

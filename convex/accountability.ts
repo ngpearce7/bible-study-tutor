@@ -449,7 +449,47 @@ export const profile = query({
   args: {
     profileId: v.id("profiles")
   },
-  returns: v.any(),
+  returns: v.object({
+    _id: v.id("profiles"),
+    authUserId: v.optional(v.id("users")),
+    displayName: v.string(),
+    weeklyGoal: v.optional(v.string()),
+    accountabilityPartner: v.optional(v.string()),
+    preferredMethodId: v.optional(v.string()),
+    appearanceMode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
+    scriptureInsertSettings: v.optional(v.any()),
+    uiPreferences: v.optional(v.any()),
+    memoryMilestoneGoalIds: v.optional(v.array(v.string()))
+  }),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    return {
+      _id: profile._id,
+      authUserId: profile.authUserId,
+      displayName: profile.displayName,
+      weeklyGoal: profile.weeklyGoal,
+      accountabilityPartner: profile.accountabilityPartner,
+      preferredMethodId: profile.preferredMethodId,
+      appearanceMode: profile.appearanceMode,
+      scriptureInsertSettings: profile.scriptureInsertSettings,
+      uiPreferences: profile.uiPreferences,
+      memoryMilestoneGoalIds: profile.memoryMilestoneGoalIds
+    };
+  }
+});
+
+export const accountIdentity = query({
+  args: {
+    profileId: v.id("profiles")
+  },
+  returns: v.object({
+    authEmail: v.optional(v.string()),
+    authName: v.optional(v.string()),
+    authProvider: v.optional(v.string()),
+    authUsername: v.optional(v.string()),
+    authLoginKind: v.optional(v.string()),
+    authPasswordAccountId: v.optional(v.string())
+  }),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId);
     const authUserId = await getAuthUserId(ctx);
@@ -466,10 +506,7 @@ export const profile = query({
       authAccounts[0];
     const passwordAccount = authAccounts.find((account) => account.provider === "password");
     const username = usernameFromCredential(passwordAccount?.providerAccountId || authUser?.email);
-    const { bibleReaderState: _legacyBibleReaderState, ...profileSummary } = profile;
-
     return {
-      ...profileSummary,
       authEmail: visibleAuthEmail(authUser?.email),
       authName: authUser?.name,
       authProvider: preferredAuthAccount?.provider,

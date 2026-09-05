@@ -32,12 +32,14 @@ transpileToCjs("data/bibleBooks.ts", "bibleBooks.cjs");
 transpileToCjs("data/bibleLibrary.ts", "bibleLibrary.cjs", [
   ['"@/data/bibleBooks"', '"./bibleBooks.cjs"']
 ]);
+transpileToCjs("data/bibleReadingPlanTypes.ts", "bibleReadingPlanTypes.cjs");
 const plansPath = transpileToCjs("data/bibleReadingPlans.ts", "bibleReadingPlans.cjs", [
-  ['"@/data/bibleLibrary"', '"./bibleLibrary.cjs"']
+  ['"@/data/bibleLibrary"', '"./bibleLibrary.cjs"'],
+  ['"@/data/bibleReadingPlanTypes"', '"./bibleReadingPlanTypes.cjs"']
 ]);
 const progressPath = transpileToCjs("data/bibleReadingPlanProgress.ts", "bibleReadingPlanProgress.cjs", [
   ['"@/data/bibleLibrary"', '"./bibleLibrary.cjs"'],
-  ['"@/data/bibleReadingPlans"', '"./bibleReadingPlans.cjs"']
+  ['"@/data/bibleReadingPlanTypes"', '"./bibleReadingPlanTypes.cjs"']
 ]);
 const actionsPath = transpileToCjs("data/bibleReadingPlanActions.ts", "bibleReadingPlanActions.cjs", [
   ['"@/data/bibleReadingPlans"', '"./bibleReadingPlans.cjs"'],

@@ -126,7 +126,7 @@ export const methods: StudyMethod[] = [
     short: "IND",
     name: "Inductive Study",
     tone: "Deeper investigation",
-    description: "Read closely, map the passage, ask questions, then summarize what the text teaches.",
+    description: "Read closely, map the passage, ask questions, summarize what the text teaches, then choose a grounded response.",
     labels: ["Deep study", "Analytical", "Teaching prep"],
     steps: [
       {
@@ -173,6 +173,15 @@ export const methods: StudyMethod[] = [
         checklist: ["Name the main subject", "Name the main action or claim", "Use “because” or “therefore” if helpful"],
         output: "Write a 1-2 sentence summary of what the passage teaches.",
         example: "Because the Lord shepherds his people, they can trust him in need, danger, and uncertainty.",
+        responseType: "text"
+      },
+      {
+        title: "Respond",
+        action: "Choose a response that grows from the passage’s main point.",
+        prompt: "Keep the passage’s original meaning distinct from your present response. Then name one fitting act of trust, obedience, repentance, prayer, encouragement, or further study.",
+        checklist: ["Begin from your summary, not an isolated phrase", "Name the present situation where the passage matters", "Choose a response that fits what the passage actually teaches"],
+        output: "Write 1-2 sentences beginning with “Because this passage teaches..., I will...”",
+        example: "Because this passage teaches that the Lord remains present with his people in danger, I will bring today’s fear to him in prayer rather than pretending it is not there.",
         responseType: "text"
       }
     ]

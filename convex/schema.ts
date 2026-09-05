@@ -11,6 +11,13 @@ const passageMarkup = v.object({
   verse: v.number()
 });
 
+const studyMethodState = v.object({
+  focusText: v.optional(v.string()),
+  focusVerseKeys: v.optional(v.array(v.string())),
+  evidenceVerseKeys: v.optional(v.array(v.string())),
+  reviewReadActionTomorrow: v.optional(v.boolean())
+});
+
 const scriptureInsertSettings = v.object({
   disabled: v.boolean(),
   bold: v.boolean(),
@@ -130,6 +137,7 @@ export default defineSchema({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    methodState: v.optional(studyMethodState),
     passageMarkups: v.optional(v.array(passageMarkup)),
     reviewStatus: v.optional(v.union(v.literal("scheduled"), v.literal("reviewed"))),
     reviewAt: v.optional(v.number()),
@@ -168,6 +176,7 @@ export default defineSchema({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    methodState: v.optional(studyMethodState),
     stepIndex: v.number(),
     answers: v.array(
       v.object({

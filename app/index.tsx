@@ -438,6 +438,12 @@ type PassageMarkupRecord = {
   reference: string;
   verse: number;
 };
+type StudyMethodState = {
+  focusText: string;
+  focusVerseKeys: string[];
+  evidenceVerseKeys: string[];
+  reviewReadActionTomorrow: boolean;
+};
 type StudyRecoveryDraft = {
   version: 1;
   profileId: string;
@@ -449,8 +455,22 @@ type StudyRecoveryDraft = {
   passageMarkups: PassageMarkupRecord[];
   shareNote: string;
   skippedStepTitles: string[];
+  methodState: StudyMethodState;
   updatedAt: number;
 };
+
+function normalizeStudyMethodState(value: unknown): StudyMethodState {
+  const state = value && typeof value === "object" ? value as Partial<StudyMethodState> : {};
+  const cleanKeys = (keys: unknown) => Array.isArray(keys)
+    ? keys.filter((key): key is string => typeof key === "string").slice(0, 40)
+    : [];
+  return {
+    focusText: typeof state.focusText === "string" ? state.focusText.slice(0, 1200) : "",
+    focusVerseKeys: cleanKeys(state.focusVerseKeys),
+    evidenceVerseKeys: cleanKeys(state.evidenceVerseKeys),
+    reviewReadActionTomorrow: state.reviewReadActionTomorrow === true
+  };
+}
 
 function studyRecoveryStorageKey(profileId: string, currentStudyKey: string) {
   return `bible-study-tutor-study-recovery-${profileId}-${currentStudyKey}`;
@@ -491,6 +511,7 @@ function readStudyRecoveryDraft(profileId: string, currentStudyKey: string): Stu
       skippedStepTitles: Array.isArray(parsed?.skippedStepTitles)
         ? parsed.skippedStepTitles.filter((title: unknown): title is string => typeof title === "string").slice(0, 20)
         : [],
+      methodState: normalizeStudyMethodState(parsed?.methodState),
       updatedAt: parsed.updatedAt
     };
   } catch {
@@ -551,6 +572,7 @@ type SavedStudySummary = {
   highlightCount: number;
   shareNote: string;
   reviewAt?: number;
+  readActionReviewRequested?: boolean;
   completedPlanDay?: string;
 };
 type PrintableWorksheetRequest = {
@@ -884,6 +906,7 @@ export default function Home() {
   const [studyFocusModeHydrated, setStudyFocusModeHydrated] = useState(false);
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [skippedStudySteps, setSkippedStudySteps] = useState<Record<string, boolean>>({});
+  const [studyMethodState, setStudyMethodState] = useState<StudyMethodState>(() => normalizeStudyMethodState(null));
   const [pendingStudyTransition, setPendingStudyTransition] = useState<PendingStudyTransition | null>(null);
   const [isSavingStudyDraft, setIsSavingStudyDraft] = useState(false);
   const [isCompletingStudy, setIsCompletingStudy] = useState(false);
@@ -1976,7 +1999,11 @@ export default function Home() {
   const writingStepCount = method.steps.filter((item) => item.responseType === "text").length;
   const completedWritingStepCount = sessionAnswers.filter((item) => item.answer.trim()).length;
   const hasStudySubstance = hasStudyWork || Object.keys(passageMarkups).length > 0;
-  const hasStudyContent = hasStudySubstance || !!shareNote.trim();
+  const hasStudyMethodState = !!studyMethodState.focusText.trim()
+    || studyMethodState.focusVerseKeys.length > 0
+    || studyMethodState.evidenceVerseKeys.length > 0
+    || studyMethodState.reviewReadActionTomorrow;
+  const hasStudyContent = hasStudySubstance || !!shareNote.trim() || hasStudyMethodState;
   const completedStudyStepCount = method.steps.filter((item, index) =>
     item.responseType === "none"
       ? index < stepIndex || studyPhase !== "study"
@@ -2282,6 +2309,14 @@ export default function Home() {
   const selectedVerses = useMemo(
     () => passageText?.verses?.filter((verse) => selectedVerseKeys.includes(verseMarkupKey(verse))) || [],
     [passageText?.verses, selectedVerseKeys]
+  );
+  const focusVerses = useMemo(
+    () => passageText?.verses?.filter((verse) => studyMethodState.focusVerseKeys.includes(verseMarkupKey(verse))) || [],
+    [passageText?.verses, studyMethodState.focusVerseKeys]
+  );
+  const evidenceVerses = useMemo(
+    () => passageText?.verses?.filter((verse) => studyMethodState.evidenceVerseKeys.includes(verseMarkupKey(verse))) || [],
+    [passageText?.verses, studyMethodState.evidenceVerseKeys]
   );
   const selectedMarkupKinds = Array.from(new Set(selectedVerseKeys.map((key) => passageMarkups[key]).filter(Boolean)));
   const selectedVerseMarkup = selectedMarkupKinds.length === 1 ? selectedMarkupKinds[0] : undefined;
@@ -2941,6 +2976,7 @@ export default function Home() {
         return map;
       }, {}));
       setSelectedVerseKeys([]);
+      setStudyMethodState(recoveryDraft.methodState);
       setStepIndex(Math.min(recoveryDraft.stepIndex, Math.max(0, method.steps.length - 1)));
       setStudyPhase("study");
       loadedDraftRevisionRef.current = recoveryDraft.updatedAt;
@@ -2959,6 +2995,7 @@ export default function Home() {
       setPassageMarkups({});
       setPassageMarkupNotes({});
       setSelectedVerseKeys([]);
+      setStudyMethodState(normalizeStudyMethodState(null));
       setStepIndex(0);
       setStudyPhase("study");
       setLoadedDraftKey(currentStudyKey);
@@ -2980,6 +3017,7 @@ export default function Home() {
     setPassageMarkups(markupRecordsToMap(savedDraft.passageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(savedDraft.passageMarkups || []));
     setSelectedVerseKeys([]);
+    setStudyMethodState(normalizeStudyMethodState(savedDraft.methodState));
     setStepIndex(pickResumeStepIndex(savedDraft.answers, savedDraft.stepIndex));
     setStudyPhase("study");
     loadedDraftRevisionRef.current = draftRevision;
@@ -3252,6 +3290,7 @@ export default function Home() {
         passageMarkups: passageMarkupRecords,
         shareNote,
         skippedStepTitles,
+        methodState: studyMethodState,
         updatedAt: recoveryUpdatedAt
       });
     }
@@ -3267,7 +3306,7 @@ export default function Home() {
       clearTimeout(timeout);
       if (studyDraftSaveTimerRef.current === timeout) studyDraftSaveTimerRef.current = null;
     };
-  }, [answers, currentStudyKey, hasStudyContent, loadedDraftKey, method.id, passage, passageMarkupRecords, passageText, shareNote, skippedStepTitles, activeProfileId, stepIndex]);
+  }, [answers, currentStudyKey, hasStudyContent, loadedDraftKey, method.id, passage, passageMarkupRecords, passageText, shareNote, skippedStepTitles, activeProfileId, stepIndex, studyMethodState]);
 
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
@@ -3302,6 +3341,7 @@ export default function Home() {
           passageMarkups: passageMarkupRecords,
           shareNote,
           skippedStepTitles,
+          methodState: studyMethodState,
           updatedAt: recoveryUpdatedAt
         }
       : null;
@@ -3325,6 +3365,7 @@ export default function Home() {
       methodName: method.name,
       shareNote: shareNote.trim() || undefined,
       skippedStepTitles: skippedStepTitles.length ? skippedStepTitles : undefined,
+      methodState: hasStudyMethodState ? studyMethodState : undefined,
       stepIndex,
       answers: sessionAnswers
     });
@@ -3382,6 +3423,7 @@ export default function Home() {
         methodName: method.name,
         shareNote: finalShareNote || undefined,
         skippedStepTitles: skippedStepTitles.length ? skippedStepTitles : undefined,
+        methodState: hasStudyMethodState ? studyMethodState : undefined,
         passageMarkups: passageMarkupRecords,
         minutes: Math.max(5, sessionAnswers.filter((item) => item.answer.trim()).length * 6),
         answers: sessionAnswers
@@ -3393,12 +3435,28 @@ export default function Home() {
       return;
     }
 
+    let readActionReviewAt: number | undefined;
+    let readActionReviewFailed = false;
+    if (method.id === "read" && studyMethodState.reviewReadActionTomorrow) {
+      try {
+        readActionReviewAt = await scheduleStudyReviewMutation({
+          profileId: activeProfileId,
+          sessionId: savedSessionId,
+          preset: "tomorrow"
+        });
+      } catch {
+        readActionReviewFailed = true;
+      }
+    }
+
     setSavedStudySummary({
       sessionId: savedSessionId,
       passage: passageText?.reference || passage,
       methodName: method.name,
       highlightCount: passageMarkupRecords.length,
-      shareNote: finalShareNote
+      shareNote: finalShareNote,
+      reviewAt: readActionReviewAt,
+      readActionReviewRequested: method.id === "read" && studyMethodState.reviewReadActionTomorrow
     });
     setAnswers((current) => {
       const nextAnswers = { ...current };
@@ -3411,12 +3469,15 @@ export default function Home() {
     setPassageMarkups({});
     setPassageMarkupNotes({});
     setSelectedVerseKeys([]);
+    setStudyMethodState(normalizeStudyMethodState(null));
     setStudyPhase("saved");
     setLoadedDraftKey("");
     clearStudyRecoveryDraft(String(activeProfileId), currentStudyKey);
     suppressStudyDraftSaveRef.current = false;
     setIsCompletingStudy(false);
-    setSaveStatus(`Completed and saved${firstName ? `, ${firstName}` : ""}`);
+    setSaveStatus(readActionReviewFailed
+      ? "Study saved, but the action review could not be scheduled. You can choose a review time below."
+      : `Completed and saved${firstName ? `, ${firstName}` : ""}`);
     trackUsage("study_completed", { reference: passageText?.reference || passage, methodId: method.id, methodName: method.name, translation: passageText?.translation_name, tab: "study" });
     trackPublicAnalytics({ eventType: "study_completed", source: "study", ctaTarget: "/?tab=study", methodId: method.id });
     setCheckinNote(finalShareNote);
@@ -3431,6 +3492,7 @@ export default function Home() {
       passageMarkups: draft.passageMarkups,
       shareNote: draft.shareNote,
       skippedStepTitles: draft.skippedStepTitles,
+      methodState: draft.methodState,
       status: "Restored saved draft"
     });
   }
@@ -3453,6 +3515,7 @@ export default function Home() {
       passageMarkups: session.passageMarkups,
       shareNote: session.shareNote,
       skippedStepTitles: session.skippedStepTitles,
+      methodState: session.methodState,
       status: "Loaded past study notes"
     });
   }
@@ -3479,6 +3542,7 @@ export default function Home() {
     passageMarkups: nextPassageMarkups,
     shareNote: nextShareNote,
     skippedStepTitles: nextSkippedStepTitles,
+    methodState: nextMethodState,
     status
   }: {
     passage: string;
@@ -3488,6 +3552,7 @@ export default function Home() {
     passageMarkups?: PassageMarkupRecord[];
     shareNote?: string;
     skippedStepTitles?: string[];
+    methodState?: unknown;
     status: string;
   }) {
     const restoredAnswers: AnswerMap = {};
@@ -3509,6 +3574,7 @@ export default function Home() {
     setPassageMarkups(markupRecordsToMap(nextPassageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(nextPassageMarkups || []));
     setSelectedVerseKeys([]);
+    setStudyMethodState(normalizeStudyMethodState(nextMethodState));
     setLoadedDraftKey(studyKey(nextPassage, nextMethodId));
     setSaveStatus(status);
     setShareNote(nextShareNote || "");
@@ -3611,6 +3677,7 @@ export default function Home() {
     setAnswers({});
     setSkippedStudySteps({});
     setShareNote("");
+    setStudyMethodState(normalizeStudyMethodState(null));
     resetPassageMarkup();
   }
 
@@ -4981,6 +5048,33 @@ export default function Home() {
 
   function toggleVerseSelection(key: string) {
     setSelectedVerseKeys((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
+  }
+
+  function useSelectedVersesAsFocus() {
+    if (selectedVerses.length === 0) {
+      setSaveStatus("Select one or more verses in the passage first.");
+      return;
+    }
+    setStudyMethodState((current) => ({
+      ...current,
+      focusText: selectedVerses.map((verse) => verse.text.trim()).join(" ").slice(0, 1200),
+      focusVerseKeys: selectedVerses.map(verseMarkupKey)
+    }));
+    setSelectedVerseKeys([]);
+    setSaveStatus("Scripture focus saved with this study.");
+  }
+
+  function useSelectedVersesAsEvidence() {
+    if (selectedVerses.length === 0) {
+      setSaveStatus("Select one or more verses in the passage first.");
+      return;
+    }
+    setStudyMethodState((current) => ({
+      ...current,
+      evidenceVerseKeys: selectedVerses.map(verseMarkupKey)
+    }));
+    setSelectedVerseKeys([]);
+    setSaveStatus("Passage evidence linked to your interpretation.");
   }
 
   function updateSelectedVerseNote(note: string) {
@@ -8168,7 +8262,7 @@ export default function Home() {
                   <>
                     {passageText.verses?.length ? (
                       <>
-                        <Text style={[styles.markupHelp, studyDarkMode && styles.accountDarkMutedText]}>Tap one or more verses, then choose a highlight label.</Text>
+                        <Text style={[styles.markupHelp, studyDarkMode && styles.accountDarkMutedText]}>Tap one or more verses, then choose an action below.</Text>
                         <View style={styles.verseList}>
                           {passageText.verses.map((verse) => {
                             const key = verseMarkupKey(verse);
@@ -8176,6 +8270,8 @@ export default function Home() {
                             const markupOption = PASSAGE_MARKUP_OPTIONS.find((item) => item.id === markup);
                             const selected = selectedVerseKeys.includes(key);
                             const savedToMemory = memoryVerseKeys.has(key);
+                            const isFocusVerse = studyMethodState.focusVerseKeys.includes(key);
+                            const isEvidenceVerse = studyMethodState.evidenceVerseKeys.includes(key);
 
                             return (
                               <View key={key}>
@@ -8196,10 +8292,16 @@ export default function Home() {
                                   <View style={styles.verseTextBlock}>
                                     <Text style={[styles.verseText, phoneLayout && styles.phoneVerseText, studyDarkMode && !markupOption && styles.accountDarkText, markupOption && { color: markupOption.color }]}>{verse.text.trim()}</Text>
                                   </View>
-                                  {savedToMemory && (
-                                    <View style={styles.memoryVerseBadge}>
-                                      <Ionicons name="sparkles-outline" size={12} color={colors.coral} />
-                                      <Text style={styles.memoryVerseBadgeText}>Memory</Text>
+                                  {(savedToMemory || isFocusVerse || isEvidenceVerse) && (
+                                    <View style={styles.verseStatusBadges}>
+                                      {isFocusVerse && <View style={[styles.memoryVerseBadge, styles.methodVerseBadge]}><Text style={styles.methodVerseBadgeText}>Focus</Text></View>}
+                                      {isEvidenceVerse && <View style={[styles.memoryVerseBadge, styles.methodVerseBadge]}><Text style={styles.methodVerseBadgeText}>Evidence</Text></View>}
+                                      {savedToMemory && (
+                                        <View style={styles.memoryVerseBadge}>
+                                          <Ionicons name="sparkles-outline" size={12} color={colors.coral} />
+                                          <Text style={styles.memoryVerseBadgeText}>Memory</Text>
+                                        </View>
+                                      )}
                                     </View>
                                   )}
                                 </Pressable>
@@ -8230,6 +8332,18 @@ export default function Home() {
                                       ))}
                                     </View>
                                     <View style={styles.inlineReaderActions}>
+                                      {["soap", "lectio", "hear"].includes(method.id) && (
+                                        <Pressable onPress={useSelectedVersesAsFocus} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                                          <Ionicons name="bookmark-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                          <Text style={[styles.inlineReaderBookmarkText, studyDarkMode && styles.homeDarkResumeButtonText]}>Use as focus</Text>
+                                        </Pressable>
+                                      )}
+                                      {method.id === "oia" && step.title === "Interpret" && (
+                                        <Pressable onPress={useSelectedVersesAsEvidence} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                                          <Ionicons name="link-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                          <Text style={[styles.inlineReaderBookmarkText, studyDarkMode && styles.homeDarkResumeButtonText]}>Link evidence</Text>
+                                        </Pressable>
+                                      )}
                                       {selectedMarkupKinds.length > 0 && (
                                         <Pressable onPress={clearVerseMarkup} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
                                           <Ionicons name="remove-circle-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -8490,7 +8604,9 @@ export default function Home() {
                     <Text style={[styles.lastCheckinLabel, studyDarkMode && styles.studyDarkAccentText]}>Review later</Text>
                     <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>
                       {savedStudySummary.reviewAt
-                        ? `This study is set for review on ${formatReviewDate(savedStudySummary.reviewAt)}.`
+                        ? `${savedStudySummary.readActionReviewRequested ? "Your READ action" : "This study"} is set for review on ${formatReviewDate(savedStudySummary.reviewAt)}.`
+                        : savedStudySummary.readActionReviewRequested
+                          ? "Your action follow-up was not scheduled. Choose a review time below to try again."
                         : "Choose when you want this study to come back into your Journal."}
                     </Text>
                     <View style={[styles.reviewPresetRow, phoneLayout && styles.phoneReviewPresetRow]}>
@@ -8529,6 +8645,25 @@ export default function Home() {
                       ? `All ${writingStepCount} writing steps are complete.`
                       : `${completedWritingStepCount} of ${writingStepCount} writing steps completed. Review unfinished steps before saving if you wish.`}
                   </Text>
+                  {(studyMethodState.focusText || focusVerses.length > 0) && (
+                    <View style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
+                      <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Scripture focus</Text>
+                      {!!focusVerses.length && <Text style={[styles.methodSupportReference, studyDarkMode && styles.accountDarkTitle]}>{formatStudyVerseReferences(focusVerses)}</Text>}
+                      {!!studyMethodState.focusText && <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{studyMethodState.focusText}</Text>}
+                    </View>
+                  )}
+                  {evidenceVerses.length > 0 && (
+                    <View style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
+                      <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Passage evidence</Text>
+                      <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{formatStudyVerseReferences(evidenceVerses)}</Text>
+                    </View>
+                  )}
+                  {method.id === "read" && studyMethodState.reviewReadActionTomorrow && (
+                    <View style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
+                      <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Action follow-up</Text>
+                      <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>Schedule this study to return tomorrow after saving.</Text>
+                    </View>
+                  )}
                   <View style={styles.reviewAnswers}>
                     {method.steps.map((methodStep, index) => {
                       if (methodStep.responseType === "none") return null;
@@ -8569,6 +8704,95 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel]}>
+                  {stepIndex > 0 && ["soap", "lectio", "hear"].includes(method.id) && (studyMethodState.focusText || focusVerses.length > 0) && (
+                    <View style={[styles.methodFocusReminder, studyDarkMode && styles.accountDarkSection]}>
+                      <Ionicons name="bookmark" size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <View style={styles.readyCopy}>
+                        <Text style={[styles.methodSupportReference, studyDarkMode && styles.studyDarkAccentText]}>{focusVerses.length ? formatStudyVerseReferences(focusVerses) : "Scripture focus"}</Text>
+                        {!!studyMethodState.focusText && <Text numberOfLines={4} style={[styles.methodFocusReminderText, studyDarkMode && styles.accountDarkMutedText]}>{studyMethodState.focusText}</Text>}
+                      </View>
+                      <Pressable accessibilityRole="button" onPress={() => goToStudyStep(0)} style={styles.methodSupportClear}>
+                        <Text style={styles.methodSupportClearText}>Edit</Text>
+                      </Pressable>
+                    </View>
+                  )}
+                  {stepIndex === 0 && ["soap", "lectio", "hear"].includes(method.id) && (
+                    <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
+                      <View style={styles.feedbackHeader}>
+                        <Ionicons name="bookmark-outline" size={18} color={colors.coral} />
+                        <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Your Scripture focus</Text>
+                      </View>
+                      <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Tap a verse in the passage and use it here, or type the exact phrase you want to carry through this method.</Text>
+                      {!!focusVerses.length && <Text style={[styles.methodSupportReference, studyDarkMode && styles.accountDarkTitle]}>{formatStudyVerseReferences(focusVerses)}</Text>}
+                      <TextInput
+                        multiline
+                        value={studyMethodState.focusText}
+                        onChangeText={(focusText) => setStudyMethodState((current) => ({ ...current, focusText }))}
+                        placeholder="Verse or phrase to focus on"
+                        placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+                        style={[styles.input, styles.methodSupportInput, studyDarkMode && styles.accountDarkInput]}
+                      />
+                      <View style={styles.methodSupportActions}>
+                        <Pressable accessibilityRole="button" onPress={useSelectedVersesAsFocus} style={[styles.methodSupportAction, studyDarkMode && styles.homeDarkResumeButton]}>
+                          <Text style={[styles.methodSupportActionText, studyDarkMode && styles.homeDarkResumeButtonText]}>{selectedVerses.length ? `Use ${selectedVerses.length === 1 ? "selected verse" : `${selectedVerses.length} selected verses`}` : "Use selected verse"}</Text>
+                        </Pressable>
+                        {(studyMethodState.focusText || studyMethodState.focusVerseKeys.length > 0) && (
+                          <Pressable accessibilityRole="button" onPress={() => setStudyMethodState((current) => ({ ...current, focusText: "", focusVerseKeys: [] }))} style={styles.methodSupportClear}>
+                            <Text style={styles.methodSupportClearText}>Clear focus</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </View>
+                  )}
+                  {method.id === "oia" && step.title === "Interpret" && (
+                    <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
+                      <View style={styles.feedbackHeader}>
+                        <Ionicons name="link-outline" size={18} color={colors.coral} />
+                        <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Passage evidence</Text>
+                      </View>
+                      <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Select the verse or verses that most directly support your interpretation, then link them here.</Text>
+                      {!!evidenceVerses.length && <Text style={[styles.methodSupportReference, studyDarkMode && styles.accountDarkTitle]}>{formatStudyVerseReferences(evidenceVerses)}</Text>}
+                      <View style={styles.methodSupportActions}>
+                        <Pressable accessibilityRole="button" onPress={useSelectedVersesAsEvidence} style={[styles.methodSupportAction, studyDarkMode && styles.homeDarkResumeButton]}>
+                          <Text style={[styles.methodSupportActionText, studyDarkMode && styles.homeDarkResumeButtonText]}>{evidenceVerses.length ? "Replace with selected verses" : "Link selected verses"}</Text>
+                        </Pressable>
+                        {!!studyMethodState.evidenceVerseKeys.length && (
+                          <Pressable accessibilityRole="button" onPress={() => setStudyMethodState((current) => ({ ...current, evidenceVerseKeys: [] }))} style={styles.methodSupportClear}>
+                            <Text style={styles.methodSupportClearText}>Remove link</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </View>
+                  )}
+                  {method.id === "coma" && step.title === "Context" && (
+                    <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
+                      <View style={styles.feedbackHeader}>
+                        <Ionicons name="albums-outline" size={18} color={colors.coral} />
+                        <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Read the nearby context</Text>
+                      </View>
+                      <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Use the verses before and after the selection to identify the speaker, audience, situation, and flow before writing.</Text>
+                      {studyContextReference ? (
+                        <>
+                          <Pressable accessibilityRole="button" accessibilityState={{ expanded: studyContextOpen }} onPress={() => setStudyContextOpen((value) => !value)} style={[styles.methodSupportAction, styles.methodSupportContextAction, studyDarkMode && styles.homeDarkResumeButton]}>
+                            <Text style={[styles.methodSupportActionText, studyDarkMode && styles.homeDarkResumeButtonText]}>{studyContextOpen ? "Hide nearby context" : "Show nearby context"}</Text>
+                          </Pressable>
+                          {studyContextOpen && (
+                            <View style={[styles.methodContextPreview, studyDarkMode && styles.accountDarkInsetBox]}>
+                              {!!studyContextStatus && <Text style={[styles.helpDescription, studyDarkMode && styles.accountDarkMutedText]}>{studyContextStatus}</Text>}
+                              {studyContextPassage?.verses?.map((verse) => (
+                                <View key={`coma-context-${verse.book_name}-${verse.chapter}-${verse.verse}`} style={styles.methodContextVerseRow}>
+                                  <Text style={[styles.methodContextVerseNumber, studyDarkMode && styles.accountDarkMutedText]}>{verse.verse}</Text>
+                                  <Text style={[styles.methodContextVerseText, studyDarkMode && styles.accountDarkText]}>{verse.text.trim()}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                        </>
+                      ) : (
+                        <Text style={[styles.methodContextWholeChapter, studyDarkMode && styles.accountDarkMutedText]}>This selection already includes the whole chapter. Notice how the opening, middle, and closing develop the main thought.</Text>
+                      )}
+                    </View>
+                  )}
                   {step.responseType === "none" ? (
                     <View style={[styles.readyBox, studyDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="book-outline" size={22} color={colors.coral} />
@@ -8693,6 +8917,20 @@ export default function Home() {
                           {renderShareInsightCommunityControls()}
                           {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                         </View>
+                      )}
+                      {method.id === "read" && step.title === "Do" && (
+                        <Pressable
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: studyMethodState.reviewReadActionTomorrow }}
+                          onPress={() => setStudyMethodState((current) => ({ ...current, reviewReadActionTomorrow: !current.reviewReadActionTomorrow }))}
+                          style={[styles.methodFollowUpBox, studyMethodState.reviewReadActionTomorrow && styles.activeMethodFollowUpBox, studyDarkMode && styles.accountDarkSection]}
+                        >
+                          <Ionicons name={studyMethodState.reviewReadActionTomorrow ? "checkbox-outline" : "square-outline"} size={22} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          <View style={styles.readyCopy}>
+                            <Text style={[styles.readyTitle, studyDarkMode && styles.accountDarkTitle]}>Review this action tomorrow</Text>
+                            <Text style={[styles.readyText, studyDarkMode && styles.accountDarkMutedText]}>When you save the study, it will return in your Journal for a brief follow-up.</Text>
+                          </View>
+                        </Pressable>
                       )}
                     </>
                   )}
@@ -12695,6 +12933,15 @@ function CollapsibleStudyPanel({
 
 function verseMarkupKey(verse: BibleVerse) {
   return `${verse.book_name}:${verse.chapter}:${verse.verse}`;
+}
+
+function formatStudyVerseReferences(verses: BibleVerse[]) {
+  if (!verses.length) return "";
+  const first = verses[0];
+  const sameChapter = verses.every((verse) => verse.book_name === first.book_name && verse.chapter === first.chapter);
+  if (!sameChapter) return verses.map((verse) => `${verse.book_name} ${verse.chapter}:${verse.verse}`).join(", ");
+  const verseNumbers = verses.map((verse) => verse.verse);
+  return `${first.book_name} ${first.chapter}:${verseNumbers.join(", ")}`;
 }
 
 function localDayKey(date = new Date()) {
@@ -18946,6 +19193,20 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     textTransform: "uppercase"
   },
+  verseStatusBadges: {
+    alignItems: "flex-end",
+    gap: 4
+  },
+  methodVerseBadge: {
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.28)"
+  },
+  methodVerseBadgeText: {
+    color: colors.oliveDark,
+    fontSize: 10,
+    fontWeight: "800",
+    textTransform: "uppercase"
+  },
   phoneVerseText: {
     fontSize: 15,
     lineHeight: 22
@@ -19553,6 +19814,125 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 14,
     padding: 14
+  },
+  methodSupportBox: {
+    backgroundColor: "#fffaf2",
+    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderRadius: 14,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 14,
+    padding: 14
+  },
+  methodFocusReminder: {
+    alignItems: "flex-start",
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 14,
+    padding: 12
+  },
+  methodFocusReminderText: {
+    color: colors.ink,
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 3
+  },
+  methodSupportReference: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "800",
+    lineHeight: 19
+  },
+  methodSupportInput: {
+    marginBottom: 0,
+    minHeight: 78,
+    paddingTop: 11,
+    textAlignVertical: "top"
+  },
+  methodSupportActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 9
+  },
+  methodSupportAction: {
+    alignItems: "center",
+    backgroundColor: colors.sage,
+    borderColor: "rgba(102, 114, 78, 0.3)",
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 38,
+    justifyContent: "center",
+    paddingHorizontal: 13,
+    paddingVertical: 8
+  },
+  methodSupportContextAction: {
+    alignSelf: "flex-start"
+  },
+  methodSupportActionText: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "800"
+  },
+  methodSupportClear: {
+    minHeight: 38,
+    justifyContent: "center",
+    paddingHorizontal: 8
+  },
+  methodSupportClearText: {
+    color: colors.coral,
+    fontSize: 13,
+    fontWeight: "800"
+  },
+  methodContextPreview: {
+    backgroundColor: "#fff6eb",
+    borderRadius: 12,
+    gap: 7,
+    padding: 11
+  },
+  methodContextWholeChapter: {
+    backgroundColor: "#fff6eb",
+    borderRadius: 12,
+    color: colors.muted,
+    fontSize: 13,
+    lineHeight: 19,
+    padding: 11
+  },
+  methodContextVerseRow: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 8
+  },
+  methodContextVerseNumber: {
+    color: colors.coral,
+    fontSize: 11,
+    fontWeight: "800",
+    minWidth: 20
+  },
+  methodContextVerseText: {
+    color: colors.ink,
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20
+  },
+  methodFollowUpBox: {
+    alignItems: "flex-start",
+    backgroundColor: "#fffaf2",
+    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 11,
+    marginBottom: 14,
+    padding: 14
+  },
+  activeMethodFollowUpBox: {
+    backgroundColor: colors.sage,
+    borderColor: colors.olive
   },
   studyNoteEditorWrap: {
     position: "relative"

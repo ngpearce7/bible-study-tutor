@@ -15,6 +15,12 @@ const passageMarkup = v.object({
   reference: v.string(),
   verse: v.number()
 });
+const studyMethodState = v.object({
+  focusText: v.optional(v.string()),
+  focusVerseKeys: v.optional(v.array(v.string())),
+  evidenceVerseKeys: v.optional(v.array(v.string())),
+  reviewReadActionTomorrow: v.optional(v.boolean())
+});
 const reviewPreset = v.union(v.literal("tomorrow"), v.literal("three-days"), v.literal("next-week"), v.literal("next-month"));
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 
@@ -165,6 +171,7 @@ export const saveSession = mutation({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    methodState: v.optional(studyMethodState),
     passageMarkups: v.optional(v.array(passageMarkup)),
     minutes: v.number(),
     localDayKey: v.optional(v.string()),
@@ -202,6 +209,7 @@ export const saveSession = mutation({
       methodName: clampText(args.methodName, 120),
       shareNote: clampOptionalText(args.shareNote, 1200),
       skippedStepTitles: cleanStepTitles(args.skippedStepTitles),
+      methodState: cleanStudyMethodState(args.methodState),
       passageMarkups: cleanPassageMarkups(args.passageMarkups),
       minutes: clampNumber(args.minutes, 0, 600),
       coachingMoments: cleanCoachingMoments(args.coachingMoments),
@@ -247,6 +255,7 @@ export const saveDraft = mutation({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    methodState: v.optional(studyMethodState),
     stepIndex: v.number(),
     answers: v.array(
       v.object({
@@ -276,6 +285,7 @@ export const saveDraft = mutation({
       methodName: clampText(args.methodName, 120),
       shareNote: clampOptionalText(args.shareNote, 1200),
       skippedStepTitles: cleanStepTitles(args.skippedStepTitles),
+      methodState: cleanStudyMethodState(args.methodState),
       stepIndex: clampNumber(args.stepIndex, 0, 20),
       answers: cleanAnswers(args.answers)
     };
@@ -297,6 +307,7 @@ export const saveDraft = mutation({
         methodName: cleaned.methodName,
         shareNote: cleaned.shareNote,
         skippedStepTitles: cleaned.skippedStepTitles,
+        methodState: cleaned.methodState,
         stepIndex: cleaned.stepIndex,
         answers: cleaned.answers,
         updatedAt: now
@@ -661,6 +672,25 @@ function cleanStepTitles(stepTitles: string[] | undefined) {
   if (!stepTitles?.length) return undefined;
   const cleaned = Array.from(new Set(stepTitles.map((title) => clampText(title, 120)).filter(Boolean))).slice(0, 20);
   return cleaned.length ? cleaned : undefined;
+}
+
+function cleanStudyMethodState(state: {
+  focusText?: string;
+  focusVerseKeys?: string[];
+  evidenceVerseKeys?: string[];
+  reviewReadActionTomorrow?: boolean;
+} | undefined) {
+  if (!state) return undefined;
+  const focusText = clampOptionalText(state.focusText, 1200);
+  const cleanVerseKeys = (keys: string[] | undefined) => {
+    const cleaned = Array.from(new Set((keys || []).map((key) => clampText(key, 120)).filter(Boolean))).slice(0, 40);
+    return cleaned.length ? cleaned : undefined;
+  };
+  const focusVerseKeys = cleanVerseKeys(state.focusVerseKeys);
+  const evidenceVerseKeys = cleanVerseKeys(state.evidenceVerseKeys);
+  const reviewReadActionTomorrow = state.reviewReadActionTomorrow || undefined;
+  if (!focusText && !focusVerseKeys && !evidenceVerseKeys && !reviewReadActionTomorrow) return undefined;
+  return { focusText, focusVerseKeys, evidenceVerseKeys, reviewReadActionTomorrow };
 }
 
 function cleanCoachingMoments(

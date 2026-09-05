@@ -15,7 +15,9 @@
     "web:export": "npm run seo:prepare && HOME=$PWD/.local-home EXPO_NO_TELEMETRY=1 expo export --platform web",
     "serve:dist": "python3 -m http.server 8088 --directory dist",
     "typecheck": "tsc --noEmit",
-    "plans:audit": "node scripts/validate-reading-plans.mjs"
+    "plans:audit": "node scripts/validate-reading-plans.mjs",
+    "build:validate": "node scripts/validate-build.mjs",
+    "verify": "npm run typecheck && npm run plans:audit && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate"
   },
   "dependencies": {
     "@auth/core": "^0.37.0",

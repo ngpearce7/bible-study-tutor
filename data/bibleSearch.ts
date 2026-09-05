@@ -7,6 +7,7 @@ import {
   flattenBsbVerseContent,
   normalizeBibleBookName
 } from "@/data/bibleLibrary";
+import { fetchWithTimeout, throwIfRequestAborted } from "@/data/network";
 
 export type BibleSearchScope = "all" | "old" | "new";
 export type BibleSearchMode = "word" | "phrase" | "allWords" | "anyWords" | "theme";
@@ -34,19 +35,21 @@ export async function fetchBibleSearchResults(
   translation: SearchTranslation,
   scope: BibleSearchScope,
   bookFilter: string,
-  matchWhole: boolean
+  matchWhole: boolean,
+  signal?: AbortSignal
 ): Promise<BibleSearchResult[]> {
   if (translation === "BSB") {
     try {
-      const indexedResults = await fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole);
+      const indexedResults = await fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole, signal);
       if (indexedResults.length > 0 || !bookFilter) return indexedResults;
-    } catch {
+    } catch (error) {
+      throwIfRequestAborted(signal);
       if (!bookFilter) return [];
     }
-    return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole);
+    return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole, signal);
   }
 
-  return fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole);
+  return fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole, signal);
 }
 
 async function fetchIndexedBibleSearchResults(
@@ -54,7 +57,8 @@ async function fetchIndexedBibleSearchResults(
   translation: SearchTranslation,
   scope: BibleSearchScope,
   bookFilter: string,
-  matchWhole: boolean
+  matchWhole: boolean,
+  signal?: AbortSignal
 ): Promise<BibleSearchResult[]> {
   const params = new URLSearchParams({
     search: searchTerm,
@@ -70,7 +74,7 @@ async function fetchIndexedBibleSearchResults(
     params.set("book", scope === "old" ? "ot" : "nt");
   }
 
-  const response = await fetch(`https://bolls.life/v2/find/${bibleSearchTranslationId(translation)}?${params.toString()}`);
+  const response = await fetchWithTimeout(`https://bolls.life/v2/find/${bibleSearchTranslationId(translation)}?${params.toString()}`, { signal });
   if (!response.ok) throw new Error("Bible search failed");
   const data = await response.json();
   const rawResults = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
@@ -96,7 +100,7 @@ async function fetchIndexedBibleSearchResults(
     .filter((item: BibleSearchResult | null): item is BibleSearchResult => item !== null);
 }
 
-async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string, matchWhole: boolean): Promise<BibleSearchResult[]> {
+async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string, matchWhole: boolean, signal?: AbortSignal): Promise<BibleSearchResult[]> {
   const books = bookFilter
     ? [bookFilter]
     : scope === "old"
@@ -109,19 +113,25 @@ async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope
   const batchSize = 8;
 
   for (let index = 0; index < chapters.length && results.length < 80; index += batchSize) {
+    throwIfRequestAborted(signal);
     const batch = chapters.slice(index, index + batchSize);
-    const batchResults = await Promise.all(batch.map(({ book, chapter }) => fetchBsbSearchChapter(searchTerm, book, chapter, matchWhole).catch(() => [] as BibleSearchResult[])));
+    const batchResults = await Promise.all(batch.map(({ book, chapter }) =>
+      fetchBsbSearchChapter(searchTerm, book, chapter, matchWhole, signal).catch((error) => {
+        throwIfRequestAborted(signal);
+        return [] as BibleSearchResult[];
+      })
+    ));
     results.push(...batchResults.flat());
   }
 
   return results;
 }
 
-async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: number, matchWhole: boolean): Promise<BibleSearchResult[]> {
+async function fetchBsbSearchChapter(searchTerm: string, book: string, chapter: number, matchWhole: boolean, signal?: AbortSignal): Promise<BibleSearchResult[]> {
   const bookId = BSB_BOOK_IDS[normalizeBibleBookName(book)];
   if (!bookId) return [];
 
-  const response = await fetch(`https://bible.helloao.org/api/BSB/${bookId}/${chapter}.json`);
+  const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${bookId}/${chapter}.json`, { signal });
   if (!response.ok) return [];
 
   const data = await response.json();

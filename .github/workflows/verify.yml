@@ -1,0 +1,25 @@
+name: Verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPO_PUBLIC_SITE_URL: https://biblestudytutor.org
+      EXPO_PUBLIC_CONVEX_URL: https://fabulous-ladybug-435.convex.cloud
+      EXPO_PUBLIC_CONVEX_SITE_URL: https://fabulous-ladybug-435.convex.site
+      EXPO_PUBLIC_ANALYTICS_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run verify

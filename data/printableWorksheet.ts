@@ -86,7 +86,7 @@ export function buildPrintableStudyWorksheetHtml({
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${safeReference} Worksheet</title>
     <style>
-      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #c96750; --soft: #fffaf2; }
+      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #b5533d; --soft: #fffaf2; }
       * { box-sizing: border-box; }
       body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 28px; }
       .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 900px; }
@@ -194,7 +194,7 @@ export function buildPrintableMemoryCardsHtml({
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(title)}</title>
     <style>
-      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #c96750; --soft: #fffaf2; }
+      :root { --ink: #241d19; --muted: #766d63; --paper: #f8f1e6; --line: #d8c8b6; --olive: #39452e; --coral: #b5533d; --soft: #fffaf2; }
       * { box-sizing: border-box; }
       body { background: var(--paper); color: var(--ink); font-family: Georgia, "Times New Roman", serif; margin: 0; padding: 24px; }
       .toolbar { align-items: center; display: flex; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; gap: 12px; justify-content: space-between; margin: 0 auto 18px; max-width: 980px; }
@@ -267,7 +267,7 @@ export function buildEditableMemoryCardsDocHtml({
       .card { background: #fffdf8; border: 1.5pt solid #d8c8b6; border-radius: 12pt; mso-border-alt: solid #d8c8b6 1.5pt; padding: 16pt; page-break-inside: avoid; }
       h2 { color: #39452e; font-family: Arial, sans-serif; font-size: 17pt; line-height: 1.1; margin: 0 0 8pt; }
       p { color: #241d19; font-size: ${layout === "large" ? "18pt" : "14.5pt"}; font-weight: bold; line-height: 1.35; margin: 0 0 10pt; }
-      .note { color: #c96750; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; margin-bottom: 6pt; }
+      .note { color: #b5533d; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; margin-bottom: 6pt; }
       .footer { border-top: 1pt solid #d8c8b6; color: #766d63; font-family: Arial, sans-serif; font-size: 8pt; font-weight: bold; padding-top: 7pt; }
     </style>
   </head>

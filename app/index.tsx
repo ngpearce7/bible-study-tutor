@@ -27,6 +27,7 @@ import { Component, Suspense, createElement, lazy, useEffect, useMemo, useRef, u
 import { Alert, Animated, Easing, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
+type ProfileConnectionState = "idle" | "loading" | "ready" | "error";
 const tabs: Tab[] = ["home", "study", "bible", "plans", "methods", "memory", "accountability", "journal", "account", "help", "admin"];
 const publicUrlTabs = new Set<Tab>(["home", "study", "bible", "plans", "methods", "memory", "help"]);
 const LazyAdminDashboard = lazy(() => import("@/components/AdminDashboard").then((module) => ({ default: module.AdminDashboard })));
@@ -43,6 +44,14 @@ function HydrationSafeIonicon({ ready, name, size, color }: { ready: boolean; na
   }
 
   return <Ionicons name={name} size={size} color={color} />;
+}
+
+function modalAccessibilityProps(label: string) {
+  return {
+    accessibilityLabel: label,
+    accessibilityViewIsModal: true,
+    ...(Platform.OS === "web" ? { "aria-modal": true, role: "dialog", tabIndex: -1 } : {})
+  } as any;
 }
 
 function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean }) {
@@ -744,6 +753,8 @@ export default function Home() {
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
   const [appInitializationAllowed, setAppInitializationAllowed] = useState(Platform.OS !== "web");
+  const [profileConnectionState, setProfileConnectionState] = useState<ProfileConnectionState>("idle");
+  const [profileInitializationAttempt, setProfileInitializationAttempt] = useState(0);
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [iconFontReady, setIconFontReady] = useState(Platform.OS !== "web");
@@ -1040,6 +1051,7 @@ export default function Home() {
   const studyCrossReferenceRequestIdRef = useRef(0);
   const readerPassageRequestIdRef = useRef(0);
   const bibleSearchRequestIdRef = useRef(0);
+  const bibleSearchAbortControllerRef = useRef<AbortController | null>(null);
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
@@ -1073,13 +1085,9 @@ export default function Home() {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     let cancelled = false;
     const timer = window.setTimeout(() => {
-      Ionicons.loadFont()
-        .then(async () => {
-          const browserFonts = typeof document !== "undefined" ? document.fonts : null;
-          if (browserFonts?.load) {
-            await browserFonts.load("16px ionicons").catch(() => undefined);
-          }
-        })
+      const browserFonts = typeof document !== "undefined" ? document.fonts : null;
+      Promise.resolve(browserFonts?.load ? browserFonts.load("16px ionicons") : undefined)
+        .catch(() => undefined)
         .finally(() => {
           if (!cancelled) {
             setIconFontReady(true);
@@ -1204,17 +1212,22 @@ export default function Home() {
   }, [appInitializationAllowed, tab]);
 
   useEffect(() => {
-    if (!appInitializationAllowed) return;
+    if (!appInitializationAllowed) {
+      setProfileConnectionState("idle");
+      return;
+    }
 
     if (authLoading) {
       setProfileId(null);
       setProfileAuthState(null);
+      setProfileConnectionState("loading");
       return;
     }
 
     let cancelled = false;
     setProfileId(null);
     setProfileAuthState(null);
+    setProfileConnectionState("loading");
 
     getDeviceKey()
       .then((clientKey) => {
@@ -1228,17 +1241,94 @@ export default function Home() {
         if (cancelled) return;
         setProfileId(nextProfileId);
         setProfileAuthState(isAuthenticated);
+        setProfileConnectionState("ready");
       })
       .catch(() => {
         if (cancelled) return;
         setProfileId(null);
         setProfileAuthState(null);
+        setProfileConnectionState("error");
       });
 
     return () => {
       cancelled = true;
     };
-  }, [appInitializationAllowed, authLoading, authName, ensureProfile, isAuthenticated]);
+  }, [appInitializationAllowed, authLoading, authName, ensureProfile, isAuthenticated, profileInitializationAttempt]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof window === "undefined" || profileConnectionState !== "error") return;
+    const retryWhenOnline = () => setProfileInitializationAttempt((attempt) => attempt + 1);
+    window.addEventListener("online", retryWhenOnline);
+    return () => window.removeEventListener("online", retryWhenOnline);
+  }, [profileConnectionState]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || typeof document === "undefined") return;
+    let activeModal: HTMLElement | null = null;
+    let previousFocus: HTMLElement | null = null;
+    let focusTimer: ReturnType<typeof setTimeout> | null = null;
+    const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="button"]';
+
+    const syncActiveModal = () => {
+      const nextModal = document.querySelector<HTMLElement>('[role="dialog"][aria-modal="true"], [data-mobile-menu-modal="true"]');
+      if (nextModal === activeModal) return;
+      if (!nextModal && activeModal) previousFocus?.focus?.();
+      if (nextModal) {
+        previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        if (focusTimer) clearTimeout(focusTimer);
+        focusTimer = setTimeout(() => {
+          const firstFocusable = nextModal.querySelector<HTMLElement>(focusableSelector);
+          (firstFocusable || nextModal).focus?.();
+        }, 0);
+      }
+      activeModal = nextModal;
+    };
+
+    const keepFocusInsideModal = (event: KeyboardEvent) => {
+      if (!activeModal) return;
+      if (event.key === "Escape" && activeModal.dataset.mobileMenuModal === "true") {
+        event.preventDefault();
+        setMobileMenuOpen(false);
+        return;
+      }
+      if (event.key === "Escape") {
+        const closeControl = activeModal.querySelector<HTMLElement>('[aria-label^="Close"], [aria-label^="Cancel"]');
+        if (closeControl) {
+          event.preventDefault();
+          closeControl.click();
+        }
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(activeModal.querySelectorAll<HTMLElement>(focusableSelector)).filter((element) => !element.hasAttribute("disabled"));
+      if (!focusable.length) {
+        event.preventDefault();
+        activeModal.focus?.();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    const observer = new MutationObserver(syncActiveModal);
+    observer.observe(document.body, { attributes: true, childList: true, subtree: true, attributeFilter: ["aria-modal", "data-mobile-menu-modal"] });
+    document.addEventListener("keydown", keepFocusInsideModal);
+    syncActiveModal();
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("keydown", keepFocusInsideModal);
+      if (focusTimer) clearTimeout(focusTimer);
+    };
+  }, []);
+
+  useEffect(() => () => bibleSearchAbortControllerRef.current?.abort(), []);
 
   useEffect(() => {
     getStoredAppearanceMode()
@@ -1692,12 +1782,18 @@ export default function Home() {
   const parsedPassage = parsePassageQuery(passageQuery);
   const latestCheckin = checkins?.[0];
   const backendReady = profileMatchesActiveState;
-  const backendStatusLabel = backendReady ? "Saving connected" : "Saving unavailable";
+  const backendStatusLabel = backendReady
+    ? "Saving connected"
+    : profileConnectionState === "loading"
+      ? "Connecting saving"
+      : "Saving unavailable";
   const backendStatusDetail = backendReady
     ? isAuthenticated
       ? "Drafts, journal, and account changes sync with your signed-in account."
       : "Drafts, journal, and account changes save to this device profile."
-    : "Start the app backend before saving studies.";
+    : profileConnectionState === "loading"
+      ? "Connecting your saved work."
+      : "Check your connection, then retry saving.";
   const accountProviderLabel =
     profile?.authProvider === "google"
       ? "Google"
@@ -5978,6 +6074,7 @@ export default function Home() {
     dismissBibleSearchInput();
     const query = bibleSearchQuery.trim();
     const requestId = ++bibleSearchRequestIdRef.current;
+    bibleSearchAbortControllerRef.current?.abort();
     if (!query) {
       setBibleSearchStatus("Type a word, theme, idea, or question to search.");
       setBibleSearchResults([]);
@@ -5987,6 +6084,13 @@ export default function Home() {
     }
 
     const startedAt = Date.now();
+    const controller = new AbortController();
+    bibleSearchAbortControllerRef.current = controller;
+    let requestTimedOut = false;
+    const requestTimeout = setTimeout(() => {
+      requestTimedOut = true;
+      controller.abort();
+    }, 15_000);
     const translation = bibleTranslation === "kjv" ? "KJV" : bibleTranslation === "bsb" ? "BSB" : "WEB";
     const queries = buildBibleSearchQueries(query, bibleSearchMode);
     setBibleSearchStatus("Searching Scripture...");
@@ -5994,7 +6098,7 @@ export default function Home() {
     setBibleSearchActiveQuery(query);
 
     try {
-      const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchMode === "word")));
+      const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, bibleSearchScope, bibleSearchBook, bibleSearchMode === "word", controller.signal)));
       if (bibleSearchRequestIdRef.current !== requestId) return;
       const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, bibleSearchMode), query, bibleSearchMode).slice(0, 60);
       setBibleSearchDuration(`Search completed in ${formatSearchDuration(Date.now() - startedAt)}.`);
@@ -6010,14 +6114,20 @@ export default function Home() {
       trackUsage("bible_search", { reference: query, translation, tab: "bible", book: bibleSearchBook || undefined });
     } catch {
       if (bibleSearchRequestIdRef.current !== requestId) return;
-      setBibleSearchStatus("I couldn't complete the search. Check your connection and try again.");
+      setBibleSearchStatus(requestTimedOut ? "That search took too long. Try again or choose a specific book." : "I couldn't complete the search. Check your connection and try again.");
       setBibleSearchDuration(`Search stopped after ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults([]);
       scrollToBibleSearchSummary();
+    } finally {
+      clearTimeout(requestTimeout);
+      if (bibleSearchAbortControllerRef.current === controller) bibleSearchAbortControllerRef.current = null;
     }
   }
 
   function clearBibleSearch() {
+    bibleSearchAbortControllerRef.current?.abort();
+    bibleSearchAbortControllerRef.current = null;
+    bibleSearchRequestIdRef.current += 1;
     setBibleSearchQuery("");
     setBibleSearchResults([]);
     setBibleSearchStatus("");
@@ -7127,7 +7237,11 @@ export default function Home() {
         </View>
       )}
 
-      <View style={[styles.sidebar, accountDarkMode && styles.appDarkSidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}>
+      <View
+        accessibilityViewIsModal={phoneLayout && mobileMenuOpen}
+        {...(Platform.OS === "web" && phoneLayout && mobileMenuOpen ? ({ "aria-modal": true, "data-mobile-menu-modal": true, tabIndex: -1 } as any) : {})}
+        style={[styles.sidebar, accountDarkMode && styles.appDarkSidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}
+      >
         <View style={styles.brandRow}>
           <View style={[styles.brandMark, accountDarkMode && styles.appDarkBrandMark]}>
             <Text style={styles.brandMarkText}>BT</Text>
@@ -7189,6 +7303,9 @@ export default function Home() {
 
       <ScrollView
         ref={appScrollRef}
+        accessibilityElementsHidden={phoneLayout && mobileMenuOpen}
+        importantForAccessibility={phoneLayout && mobileMenuOpen ? "no-hide-descendants" : "auto"}
+        {...(Platform.OS === "web" ? ({ "aria-hidden": phoneLayout && mobileMenuOpen } as any) : {})}
         style={styles.contentScroll}
         onScroll={(event) => {
           appScrollYRef.current = event.nativeEvent.contentOffset?.y || 0;
@@ -7203,6 +7320,15 @@ export default function Home() {
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
         ]}
       >
+        {profileConnectionState === "error" && (
+          <View accessibilityRole="alert" style={[styles.connectionErrorBanner, accountDarkMode && styles.accountDarkInsetBox]}>
+            <View style={styles.connectionErrorCopy}>
+              <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>Saving is temporarily unavailable</Text>
+              <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>Your current screen still works. Check your connection, then retry before saving changes.</Text>
+            </View>
+            <AppButton label="Retry saving" variant="secondary" onPress={() => setProfileInitializationAttempt((attempt) => attempt + 1)} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
+          </View>
+        )}
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>
@@ -7604,7 +7730,7 @@ export default function Home() {
                                     : `${selectedVerses.length} verses selected`}
                               </Text>
                               {selectedVerses.length > 0 && (
-                                <Pressable onPress={() => setSelectedVerseKeys([])} style={styles.markupCloseButton}>
+                                <Pressable accessibilityRole="button" accessibilityLabel="Clear selected verses" onPress={() => setSelectedVerseKeys([])} style={styles.markupCloseButton}>
                                   <Ionicons name="close-outline" size={18} color={colors.muted} />
                                 </Pressable>
                               )}
@@ -10014,7 +10140,7 @@ export default function Home() {
         </View>
       )}
       {activeMemoryMeditationVerse && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Scripture meditation")} style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, styles.memoryMeditationScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={closeMemoryMeditation} />
           <View style={[styles.memoryMeditationFocusCard, phoneLayout && styles.phoneMemoryMeditationFocusCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
@@ -10109,7 +10235,7 @@ export default function Home() {
         </View>
       )}
       {memoryCollectionPrompt && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Memory collection")} style={styles.printOptionsOverlay}>
           <Pressable
             style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]}
             onPress={() => !memoryCollectionPromptSaving && setMemoryCollectionPrompt(null)}
@@ -10129,7 +10255,7 @@ export default function Home() {
                   {memoryCollectionPrompt.reference} is a longer selection. Split it into smaller sections so it is easier to review.
                 </Text>
               </View>
-              <Pressable disabled={memoryCollectionPromptSaving} onPress={() => setMemoryCollectionPrompt(null)} style={styles.markupCloseButton}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close memory collection" disabled={memoryCollectionPromptSaving} onPress={() => setMemoryCollectionPrompt(null)} style={styles.markupCloseButton}>
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
@@ -10184,7 +10310,7 @@ export default function Home() {
         </View>
       )}
       {memoryBookCollectionOpen && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Bible book collection")} style={styles.printOptionsOverlay}>
           <Pressable
             style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]}
             onPress={() => !memoryBookCollectionSaving && setMemoryBookCollectionOpen(false)}
@@ -10204,7 +10330,7 @@ export default function Home() {
                   Choose a Bible book or chapter range. Each chapter becomes one saved Memory section in the collection.
                 </Text>
               </View>
-              <Pressable disabled={memoryBookCollectionSaving} onPress={() => setMemoryBookCollectionOpen(false)} style={styles.markupCloseButton}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close Bible book collection" disabled={memoryBookCollectionSaving} onPress={() => setMemoryBookCollectionOpen(false)} style={styles.markupCloseButton}>
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
@@ -10338,7 +10464,7 @@ export default function Home() {
         </View>
       )}
       {memoryPrintOptionsOpen && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Memory card print options")} style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setMemoryPrintOptionsOpen(false)} />
           <View
             style={[
@@ -10356,7 +10482,7 @@ export default function Home() {
                   {memoryPrintVerses.length} of {memoryPrintCandidateVerses.length} verse{memoryPrintCandidateVerses.length === 1 ? "" : "s"} selected · {memoryPrintCopies} cop{memoryPrintCopies === 1 ? "y" : "ies"} each
                 </Text>
               </View>
-              <Pressable onPress={() => setMemoryPrintOptionsOpen(false)} style={styles.markupCloseButton}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close memory card print options" onPress={() => setMemoryPrintOptionsOpen(false)} style={styles.markupCloseButton}>
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
@@ -10492,7 +10618,7 @@ export default function Home() {
         </View>
       )}
       {printWorksheetRequest && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Worksheet print options")} style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPrintWorksheetRequest(null)} />
           <View style={[styles.printOptionsCard, styles.rhythmGraceCard, phoneLayout && styles.phonePrintOptionsCard, phoneLayout && styles.phoneRhythmGraceCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
@@ -10502,7 +10628,7 @@ export default function Home() {
                   {printWorksheetRequest.reference} · {methods.find((item) => item.id === printWorksheetMethodId)?.short || method.short} · {printWorksheetRequest.translation}
                 </Text>
               </View>
-              <Pressable onPress={() => setPrintWorksheetRequest(null)} style={styles.markupCloseButton}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close worksheet print options" onPress={() => setPrintWorksheetRequest(null)} style={styles.markupCloseButton}>
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
@@ -10575,7 +10701,7 @@ export default function Home() {
         const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanReadAhead.planId);
         if (!plan) return null;
         return (
-          <View style={styles.printOptionsOverlay}>
+          <View {...modalAccessibilityProps("Reading plan reminder")} style={styles.printOptionsOverlay}>
             <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanReadAhead(null)} />
             <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
               <View style={styles.printOptionsHeader}>
@@ -10612,7 +10738,7 @@ export default function Home() {
         );
       })()}
       {pendingRhythmGracePrompt && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Daily rhythm grace")} style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={dismissRhythmGracePrompt} />
           <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
@@ -10655,7 +10781,7 @@ export default function Home() {
         </View>
       )}
       {rhythmGraceSuccess && (
-        <View style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Restored rhythm confirmation")} style={styles.printOptionsOverlay}>
           <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setRhythmGraceSuccess(null)} />
           <View style={[styles.printOptionsCard, styles.rhythmGraceCard, phoneLayout && styles.phonePrintOptionsCard, phoneLayout && styles.phoneRhythmGraceCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
@@ -10693,7 +10819,7 @@ export default function Home() {
         const relativeDate = formatPlanDayRelativeDate(pendingBiblePlanContinuePrompt.nextDateKey);
         const title = pendingBiblePlanContinuePrompt.nextDateKey === localDateKey() ? "Continue with today’s reading?" : "Continue catching up?";
         return (
-          <View style={styles.printOptionsOverlay}>
+          <View {...modalAccessibilityProps("Continue reading plan")} style={styles.printOptionsOverlay}>
             <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanContinuePrompt(null)} />
             <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
               <View style={styles.printOptionsHeader}>
@@ -10736,7 +10862,7 @@ export default function Home() {
         const pulseScale = planCelebrationPulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
         const pulseOpacity = planCelebrationPulse.interpolate({ inputRange: [0, 1], outputRange: [0.78, 1] });
         return (
-          <View style={styles.printOptionsOverlay}>
+          <View {...modalAccessibilityProps("Reading plan completion")} style={styles.printOptionsOverlay}>
             <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanCompletionCelebration(null)} />
             <View style={[styles.printOptionsCard, styles.planCelebrationCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
               <View style={styles.planCelebrationArt} pointerEvents="none">
@@ -10801,7 +10927,7 @@ export default function Home() {
         <HydrationSafeIonicon ready={iconFontReady} name="help-circle-outline" size={22} color="white" />
       </Pressable>
       {contextHelpOpen && (
-        <View style={styles.contextHelpOverlay}>
+        <View {...modalAccessibilityProps(activeContextHelp.title)} style={styles.contextHelpOverlay}>
           <Pressable style={styles.contextHelpScrim} onPress={() => setContextHelpOpen(false)} />
           <View style={[styles.contextHelpCard, phoneLayout && styles.phoneContextHelpCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.contextHelpHeader}>
@@ -10809,7 +10935,7 @@ export default function Home() {
                 <Ionicons name={activeContextHelp.icon as any} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
                 <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>{activeContextHelp.title}</Text>
               </View>
-              <Pressable onPress={() => setContextHelpOpen(false)} style={styles.markupCloseButton}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close contextual help" onPress={() => setContextHelpOpen(false)} style={styles.markupCloseButton}>
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
             </View>
@@ -11553,7 +11679,7 @@ function ScriptureInsertSettingsDialog({
   };
 
   return (
-    <View style={styles.printOptionsOverlay}>
+    <View {...modalAccessibilityProps("Editor settings")} style={styles.printOptionsOverlay}>
       <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
       <View style={[styles.printOptionsCard, styles.editorSettingsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.printOptionsHeader}>
@@ -11659,7 +11785,7 @@ function NoteHighlightColorPicker({
   };
 
   return (
-    <View style={styles.printOptionsOverlay}>
+    <View {...modalAccessibilityProps("Highlight colour picker")} style={styles.printOptionsOverlay}>
       <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
       <View style={[styles.highlightColorPickerCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.printOptionsHeader}>
@@ -13806,6 +13932,23 @@ const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0
   },
+  connectionErrorBanner: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderColor: colors.coral,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between",
+    marginBottom: 14,
+    padding: 12
+  },
+  connectionErrorCopy: {
+    flex: 1,
+    gap: 3,
+    minWidth: 0
+  },
   mobileMenuBar: {
     alignItems: "center",
     backgroundColor: "#fff6eb",
@@ -13832,9 +13975,9 @@ const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
-    height: 42,
+    height: 44,
     justifyContent: "center",
-    width: 42
+    width: 44
   },
   appDarkMobileMenuButton: {
     backgroundColor: "#202625",
@@ -16067,7 +16210,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     maxWidth: "100%",
-    minHeight: 38,
+    minHeight: 44,
     minWidth: 0,
     paddingHorizontal: 12
   },
@@ -16263,6 +16406,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 6,
     justifyContent: "center",
+    minHeight: 44,
     paddingHorizontal: 12,
     paddingVertical: 7
   },
@@ -16332,6 +16476,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral,
     borderRadius: 999,
     flexShrink: 0,
+    justifyContent: "center",
+    minHeight: 44,
     paddingHorizontal: 12,
     paddingVertical: 6
   },
@@ -18144,9 +18290,9 @@ const styles = StyleSheet.create({
   },
   markupCloseButton: {
     alignItems: "center",
-    height: 30,
+    height: 44,
     justifyContent: "center",
-    width: 30
+    width: 44
   },
   markupOptionsRow: {
     flexDirection: "row",
@@ -18318,7 +18464,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "row",
     gap: 5,
-    minHeight: 32,
+    minHeight: 44,
     paddingHorizontal: 11
   },
   studyContextToggleText: {
@@ -20127,9 +20273,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 999,
     borderWidth: 0,
-    height: 38,
+    height: 44,
     justifyContent: "center",
-    width: 38
+    width: 44
   },
   phoneMemoryHeaderAddPanel: {
     backgroundColor: "#fffdfa",
@@ -22644,8 +22790,8 @@ const styles = StyleSheet.create({
     color: "white"
   },
   dangerActionChip: {
-    backgroundColor: "#c96750",
-    borderColor: "#c96750"
+    backgroundColor: colors.coral,
+    borderColor: colors.coral
   },
   dangerActionText: {
     color: "white"
@@ -24232,14 +24378,14 @@ const styles = StyleSheet.create({
     gap: 7,
     marginTop: 6,
     maxWidth: "100%",
-    minHeight: 40,
+    minHeight: 44,
     paddingHorizontal: 13
   },
   phoneMemoryActionButton: {
     flex: 1,
     justifyContent: "center",
     marginTop: 4,
-    minHeight: 38,
+    minHeight: 44,
     minWidth: 112,
     paddingHorizontal: 8
   },

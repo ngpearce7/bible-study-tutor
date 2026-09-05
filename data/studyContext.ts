@@ -1,4 +1,5 @@
 import { parseBsbPassageReference, type BibleVerse } from "@/data/biblePassage";
+import { fetchWithTimeout } from "@/data/network";
 
 export type StudyContextReference = {
   reference: string;
@@ -14,6 +15,8 @@ export type StudyCrossReference = {
 
 const CONTEXT_VERSES_BEFORE = 2;
 const CONTEXT_VERSES_AFTER = 3;
+// Bump when the generated cross-reference corpus changes so immutable browser caches receive the new files.
+const CROSS_REFERENCE_ASSET_VERSION = "2026-09-05";
 
 const CROSS_REFERENCE_SETS: { anchor: string; references: StudyCrossReference[] }[] = [
   {
@@ -109,7 +112,7 @@ export async function loadStudyCrossReferences(reference: string): Promise<Study
   if (!parsed) return getStudyCrossReferences(reference);
 
   try {
-    const response = await fetch(`/cross-references/bsb/${assetBookName(parsed.bookName)}.json`);
+    const response = await fetchWithTimeout(`/cross-references/bsb/${assetBookName(parsed.bookName)}.json?v=${CROSS_REFERENCE_ASSET_VERSION}`, {}, 8_000);
     if (!response.ok) return getStudyCrossReferences(reference);
 
     const data = await response.json();

@@ -10,7 +10,7 @@ export const colors = {
   olive: "#66724e",
   oliveDark: "#39452e",
   gold: "#c3923e",
-  coral: "#c96750",
+  coral: "#b5533d",
   blue: "#426f7d",
   soft: "#f0eadf",
   blush: "#f7ddd2",

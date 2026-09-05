@@ -141,13 +141,13 @@ export default function RootLayout() {
             @font-face {
               font-family: ionicons;
               src: url("/ionicons.ttf") format("truetype");
-              font-display: block;
+              font-display: swap;
             }
 
             @font-face {
               font-family: MaterialCommunityIcons;
               src: url("/material-community-icons.ttf") format("truetype");
-              font-display: block;
+              font-display: swap;
             }
           `}</style>
         ) : null}

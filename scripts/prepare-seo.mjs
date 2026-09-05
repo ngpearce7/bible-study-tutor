@@ -3900,7 +3900,7 @@ function buildSeoPage(page, baseUrl) {
     <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
     ${analyticsSnippet}
     <style>
-      :root { color-scheme: light; --ink: #241d19; --muted: #6f665c; --paper: #f8f1e6; --panel: #fffdf8; --line: #e4d6c5; --olive: #39452e; --coral: #c96750; }
+      :root { color-scheme: light; --ink: #241d19; --muted: #6f665c; --paper: #f8f1e6; --panel: #fffdf8; --line: #e4d6c5; --olive: #39452e; --coral: #b5533d; }
       * { box-sizing: border-box; }
       body { background: var(--paper); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; }
       .shell { margin: 0 auto; max-width: 980px; padding-left: 20px; padding-right: 20px; }

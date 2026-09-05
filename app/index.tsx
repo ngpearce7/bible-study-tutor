@@ -24,7 +24,7 @@ import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import { Component, Suspense, createElement, lazy, memo, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
-import { Alert, Animated, Easing, Image, Keyboard, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Alert, Animated, Easing, Image, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 type ProfileConnectionState = "idle" | "loading" | "ready" | "error";
@@ -12408,6 +12408,7 @@ function NoteFormatToolbar({
   darkMode?: boolean;
 }) {
   const [hoveredFormat, setHoveredFormat] = useState<NoteFormatKind | null>(null);
+  const [mobileToolbarOpen, setMobileToolbarOpen] = useState(false);
   const tooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const highlightPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const activeFormatSet = new Set(activeFormats);
@@ -12530,8 +12531,21 @@ function NoteFormatToolbar({
         };
 
   return (
-    <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar, darkMode && styles.accountDarkSection]}>
-      <View style={styles.noteFormatButtonRow}>
+    <View style={[styles.noteFormatToolbar, compact && styles.compactNoteFormatToolbar, compact && mobileToolbarOpen && styles.expandedCompactNoteFormatToolbar, darkMode && styles.accountDarkSection]}>
+      {compact && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={mobileToolbarOpen ? "Hide editing tools" : "Show editing tools"}
+          accessibilityState={{ expanded: mobileToolbarOpen }}
+          onPress={() => setMobileToolbarOpen((open) => !open)}
+          style={[styles.mobileToolbarToggle, darkMode && styles.studyDarkFormatButton]}
+        >
+          <Ionicons name="options-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
+          <Text style={[styles.mobileToolbarToggleText, darkMode && styles.accountDarkText]}>Editing tools</Text>
+          <Ionicons name={mobileToolbarOpen ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#c8bda9" : colors.muted} />
+        </Pressable>
+      )}
+      {(!compact || mobileToolbarOpen) && <View style={styles.noteFormatButtonRow}>
         <View style={styles.noteFormatMainButtons}>
           {Platform.OS === "web" && (
             <>
@@ -12560,11 +12574,11 @@ function NoteFormatToolbar({
           </Pressable>
         </View>
         {!!onOpenSettings && (
-          <Pressable onPress={(event) => onOpenSettings(event)} style={[styles.noteFormatButton, styles.noteSettingsButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Editor settings">
+          <Pressable accessibilityRole="button" onPress={(event) => onOpenSettings(event)} style={[styles.noteFormatButton, styles.noteSettingsButton, compact && styles.compactNoteFormatButton, darkMode && styles.studyDarkFormatButton]} accessibilityLabel="Editor settings">
             <Ionicons name="settings-outline" size={17} color={darkMode ? "#f7eddc" : colors.oliveDark} />
           </Pressable>
         )}
-      </View>
+      </View>}
       {Platform.OS === "web" && hoveredFormat && <Text style={styles.noteFormatTooltip}>{formatLabels[hoveredFormat]}</Text>}
     </View>
   );
@@ -12604,9 +12618,10 @@ function ScriptureInsertSettingsDialog({
   };
 
   return (
-    <View {...modalAccessibilityProps("Editor settings")} style={styles.printOptionsOverlay}>
-      <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
-      <View style={[styles.printOptionsCard, styles.editorSettingsCard, phoneLayout && styles.phonePrintOptionsCard, darkMode && styles.accountDarkMainCard]}>
+    <Modal transparent visible animationType="fade" onRequestClose={onClose}>
+    <View {...modalAccessibilityProps("Editor settings")} style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
+      <Pressable accessibilityLabel="Close editor settings" style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
+      <View style={[styles.printOptionsCard, styles.editorSettingsCard, phoneLayout && styles.phoneEditorSettingsCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.printOptionsHeader}>
           <View style={styles.printOptionsTitleBlock}>
             <Text style={[styles.printOptionsTitle, darkMode && styles.accountDarkTitle]}>Editor settings</Text>
@@ -12676,6 +12691,7 @@ function ScriptureInsertSettingsDialog({
         </View>
       </View>
     </View>
+    </Modal>
   );
 }
 
@@ -12710,9 +12726,10 @@ function NoteHighlightColorPicker({
   };
 
   return (
-    <View {...modalAccessibilityProps("Highlight colour picker")} style={styles.printOptionsOverlay}>
-      <Pressable style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
-      <View style={[styles.highlightColorPickerCard, darkMode && styles.accountDarkMainCard]}>
+    <Modal transparent visible animationType="fade" onRequestClose={onClose}>
+    <View {...modalAccessibilityProps("Highlight colour picker")} style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
+      <Pressable accessibilityLabel="Close highlight colour picker" style={[styles.printOptionsScrim, darkMode && styles.printDarkOptionsScrim]} onPress={onClose} />
+      <View style={[styles.highlightColorPickerCard, styles.editorHighlightColorPickerCard, darkMode && styles.accountDarkMainCard]}>
         <View style={styles.printOptionsHeader}>
           <View style={styles.printOptionsTitleBlock}>
             <Text style={[styles.printOptionsTitle, darkMode && styles.accountDarkTitle]}>Highlight colour</Text>
@@ -12750,6 +12767,7 @@ function NoteHighlightColorPicker({
         </View>
       </View>
     </View>
+    </Modal>
   );
 }
 
@@ -17430,11 +17448,30 @@ const styles = StyleSheet.create({
     padding: 8
   },
   compactNoteFormatToolbar: {
-    alignItems: "flex-start",
+    alignItems: "stretch",
     flexDirection: "column",
-    gap: 7,
+    gap: 0,
     marginTop: 0,
-    padding: 9
+    padding: 4
+  },
+  expandedCompactNoteFormatToolbar: {
+    gap: 7,
+    padding: 7
+  },
+  mobileToolbarToggle: {
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 9,
+    flexDirection: "row",
+    gap: 7,
+    minHeight: 36,
+    paddingHorizontal: 10
+  },
+  mobileToolbarToggleText: {
+    color: colors.oliveDark,
+    flex: 1,
+    fontSize: 12,
+    fontWeight: "800"
   },
   mobileNoteFormatBar: {
     alignItems: "center",
@@ -17507,8 +17544,8 @@ const styles = StyleSheet.create({
     width: 34
   },
   compactNoteFormatButton: {
-    height: 42,
-    width: 42
+    height: 36,
+    width: 36
   },
   noteSettingsButton: {
     marginLeft: "auto"
@@ -24549,6 +24586,12 @@ const styles = StyleSheet.create({
     top: 0,
     zIndex: 520
   },
+  editorDialogOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 16,
+    position: "relative"
+  },
   printOptionsScrim: {
     backgroundColor: "rgba(36, 29, 25, 0.28)",
     bottom: 0,
@@ -24721,8 +24764,16 @@ const styles = StyleSheet.create({
     minWidth: 0
   },
   editorSettingsCard: {
+    marginTop: 0,
+    maxHeight: "86%",
     maxWidth: 520,
-    overflow: "hidden"
+    overflow: "hidden",
+    width: "100%"
+  },
+  phoneEditorSettingsCard: {
+    maxHeight: "92%",
+    padding: 14,
+    width: "100%"
   },
   editorSettingsStatus: {
     color: colors.muted,
@@ -24759,6 +24810,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.16,
     shadowRadius: 24,
     width: "88%"
+  },
+  editorHighlightColorPickerCard: {
+    marginTop: 0,
+    maxHeight: "90%",
+    width: "100%"
   },
   highlightColorGrid: {
     flexDirection: "row",

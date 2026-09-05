@@ -20,8 +20,11 @@ assert(app.includes("Read the nearby context") && app.includes("studyContextPass
 assert(methods.includes('title: "Respond"') && methods.includes("Keep the passage’s original meaning distinct from your present response."), "Inductive needs a text-grounded response step.");
 assert(app.includes("Review this action tomorrow") && app.includes('preset: "tomorrow"'), "READ needs an explicit next-day action follow-up.");
 assert(app.includes('accessibilityRole="checkbox"') && app.includes("reviewReadActionTomorrow"), "The READ follow-up control must expose checkbox semantics.");
+assert(app.includes("mobileToolbarOpen") && app.includes('accessibilityLabel={mobileToolbarOpen ? "Hide editing tools" : "Show editing tools"}'), "Mobile editing tools must use an accessible collapsed control.");
+assert(app.includes('<Modal transparent visible animationType="fade" onRequestClose={onClose}>'), "Editor dialogs must render through a viewport-level modal.");
+assert(app.includes("phoneEditorSettingsCard") && app.includes("editorDialogOverlay"), "Editor settings must stay bounded at desktop and phone sizes.");
 
-console.log("Validated Phase B focus, evidence, context, response, persistence, and action follow-up behavior.");
+console.log("Validated Phase B study flows, compact mobile editing tools, and viewport-safe editor dialogs.");
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);

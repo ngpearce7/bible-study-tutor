@@ -80,6 +80,7 @@ export function JournalTab(props: any) {
     editingJournalEntryId,
     activeStudyReviewId,
     reviewScheduleStudyId,
+    pendingRemoveStudyReviewId,
     isHighlightReflection,
     getJournalEntryIcon,
     togglePinnedJournalEntry,
@@ -101,16 +102,19 @@ export function JournalTab(props: any) {
     setStudyReviewNote,
     completeStudyReview,
     studyReviewStatus,
+    setStudyReviewStatus,
     isSavingJournalEdit,
     saveJournalEntryEdit,
     cancelEditJournalEntry,
     setActiveStudyReviewId,
     setReviewScheduleStudyId,
+    setPendingRemoveStudyReviewId,
     startEditJournalEntry,
     pendingDeleteJournalEntryId,
     deleteJournalEntry,
     STUDY_REVIEW_OPTIONS,
     scheduleStudyReview,
+    removeStudyReview,
     customStudyReviewDays,
     setCustomStudyReviewDays,
     showJournalEmptyState,
@@ -659,9 +663,13 @@ export function JournalTab(props: any) {
                       )}
                       {entry.answers && !memoryMeditation && (
                         <ResumeButton
-                          label={reviewScheduleStudyId === rawEntryId ? "Hide schedule" : "Review later"}
+                          label={reviewScheduleStudyId === rawEntryId ? "Hide review options" : entry.reviewStatus === "scheduled" ? "Change review" : entry.reviewStatus === "reviewed" ? "Review again later" : "Review later"}
                           icon="calendar-outline"
-                          onPress={() => setReviewScheduleStudyId(reviewScheduleStudyId === rawEntryId ? "" : rawEntryId)}
+                          onPress={() => {
+                            setReviewScheduleStudyId(reviewScheduleStudyId === rawEntryId ? "" : rawEntryId);
+                            setPendingRemoveStudyReviewId("");
+                            setStudyReviewStatus("");
+                          }}
                           style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
                           labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
                           iconColor={journalDarkMode ? "#e9b76a" : undefined}
@@ -681,14 +689,20 @@ export function JournalTab(props: any) {
                 </View>
                 {entry.answers && !memoryMeditation && reviewScheduleStudyId === rawEntryId && (
                   <View style={[styles.reviewScheduleBox, journalDarkMode && styles.accountDarkInsetBox]}>
-                    <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Bring this study back</Text>
+                    <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>{entry.reviewStatus === "scheduled" ? "Change review date" : "Bring this study back"}</Text>
+                    <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
+                      {entry.reviewStatus === "scheduled"
+                        ? `Currently set for ${formatReviewDate(entry.reviewAt)}. Choosing a new period will replace this date.`
+                        : "Choose when you would like this study to return for review."}
+                    </Text>
                     <View style={styles.reviewPresetRow}>
-                            {STUDY_REVIEW_OPTIONS.map((option: any) => (
+                      {STUDY_REVIEW_OPTIONS.map((option: any) => (
                         <Pressable
                           key={option.id}
                           onPress={() => {
                             scheduleStudyReview(entry._id, option.id);
                             setReviewScheduleStudyId("");
+                            setPendingRemoveStudyReviewId("");
                           }}
                           style={[styles.filterChip, journalDarkMode && styles.printDarkOptionChip]}
                         >
@@ -703,8 +717,36 @@ export function JournalTab(props: any) {
                       onSchedule={() => {
                         scheduleStudyReview(entry._id);
                         setReviewScheduleStudyId("");
+                        setPendingRemoveStudyReviewId("");
                       }}
                     />
+                    {entry.reviewStatus === "scheduled" && (
+                      <View>
+                        <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
+                          <ResumeButton
+                            label={pendingRemoveStudyReviewId === rawEntryId ? "Confirm remove" : "Remove review"}
+                            icon="close-circle-outline"
+                            onPress={() => removeStudyReview(entry)}
+                            style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                            labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                            iconColor={journalDarkMode ? "#e9b76a" : undefined}
+                          />
+                          {pendingRemoveStudyReviewId === rawEntryId && (
+                            <ResumeButton
+                              label="Keep review"
+                              icon="arrow-undo-outline"
+                              onPress={() => setPendingRemoveStudyReviewId("")}
+                              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                              iconColor={journalDarkMode ? "#e9b76a" : undefined}
+                            />
+                          )}
+                        </View>
+                        {pendingRemoveStudyReviewId === rawEntryId && (
+                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>This removes the reminder only. Your completed study will stay in Journal.</Text>
+                        )}
+                      </View>
+                    )}
                   </View>
                 )}
               </>

@@ -4,6 +4,7 @@ import { join } from "node:path";
 const root = process.cwd();
 const read = (path) => readFileSync(join(root, path), "utf8");
 const app = read("app/index.tsx");
+const journal = read("components/JournalTab.tsx");
 const methods = read("data/methods.ts");
 const schema = read("convex/schema.ts");
 const study = read("convex/study.ts");
@@ -33,6 +34,10 @@ for (const queryName of ["recentDrafts", "recentSessions", "dueStudyReviews"]) {
   assert(section.includes("clampNumber(args.limit"), `${queryName} must clamp its requested result limit.`);
 }
 assert(app.includes("setInterval(() => setStudyReviewNow(Date.now()), 60_000)"), "The client must refresh due-review time.");
+assert(study.includes("export const removeStudyReview = mutation({") && study.includes("reviewAt: undefined") && study.includes("reviewStatus: undefined"), "Scheduled study reviews must be removable without deleting the study.");
+assert(app.includes("removeStudyReviewMutation") && app.includes("Review reminder removed. Your study is still in Journal."), "The Journal must invoke review removal and confirm that the study remains saved.");
+assert(journal.includes('"Change review"') && journal.includes('"Remove review"') && journal.includes('"Confirm remove"'), "Scheduled reviews need clear change and confirmed removal controls.");
+assert(journal.includes("Choosing a new period will replace this date."), "Changing a review must explain that the new date replaces the old one.");
 
 assert(app.includes("Public-domain translation comparison") && app.includes("Promise.allSettled(BIBLE_TRANSLATIONS.map"), "Study translation comparison is missing.");
 assert(app.includes("Optional quiet timer") && app.includes("formatQuietTimer"), "The optional contemplative timer is missing.");

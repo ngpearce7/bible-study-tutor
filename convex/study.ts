@@ -430,6 +430,28 @@ export const scheduleStudyReview = mutation({
   }
 });
 
+export const removeStudyReview = mutation({
+  args: {
+    profileId: v.id("profiles"),
+    sessionId: v.id("sessions")
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId);
+
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.profileId !== args.profileId) throw new Error("Study not found");
+
+    await ctx.db.patch(args.sessionId, {
+      reviewStatus: undefined,
+      reviewAt: undefined,
+      reviewedAt: undefined,
+      reviewNote: undefined
+    });
+    return true;
+  }
+});
+
 export const completeStudyReview = mutation({
   args: {
     profileId: v.id("profiles"),

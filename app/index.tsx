@@ -836,6 +836,7 @@ export default function Home() {
   const ensureProfile = useMutation(api.study.ensureProfile);
   const saveSession = useMutation(api.study.saveSession);
   const scheduleStudyReviewMutation = useMutation(api.study.scheduleStudyReview);
+  const removeStudyReviewMutation = useMutation(api.study.removeStudyReview);
   const completeStudyReviewMutation = useMutation(api.study.completeStudyReview);
   const saveDraft = useMutation(api.study.saveDraft);
   const deleteDraftMutation = useMutation(api.study.deleteDraft);
@@ -1123,6 +1124,7 @@ export default function Home() {
   const [editJournalNote, setEditJournalNote] = useState("");
   const [activeStudyReviewId, setActiveStudyReviewId] = useState("");
   const [reviewScheduleStudyId, setReviewScheduleStudyId] = useState("");
+  const [pendingRemoveStudyReviewId, setPendingRemoveStudyReviewId] = useState("");
   const [customStudyReviewDays, setCustomStudyReviewDays] = useState("14");
   const [studyReviewNote, setStudyReviewNote] = useState("");
   const [studyReviewStatus, setStudyReviewStatus] = useState("");
@@ -5141,6 +5143,31 @@ export default function Home() {
       setSavedStudySummary((current) => (current && current.sessionId === sessionId ? { ...current, reviewAt } : current));
     } catch {
       setStudyReviewStatus("Could not schedule review. Try again in a moment.");
+    }
+  }
+
+  async function removeStudyReview(entry: any) {
+    if (!activeProfileId || !entry?._id) return;
+
+    const entryId = String(entry._id);
+    if (pendingRemoveStudyReviewId !== entryId) {
+      setPendingRemoveStudyReviewId(entryId);
+      return;
+    }
+
+    setStudyReviewStatus("Removing review reminder...");
+    try {
+      await removeStudyReviewMutation({
+        profileId: activeProfileId,
+        sessionId: entry._id
+      });
+      setPendingRemoveStudyReviewId("");
+      setReviewScheduleStudyId("");
+      setActiveStudyReviewId("");
+      setStudyReviewStatus("");
+      setJournalStatus("Review reminder removed. Your study is still in Journal.");
+    } catch {
+      setStudyReviewStatus("Could not remove the review reminder. Try again in a moment.");
     }
   }
 
@@ -11143,6 +11170,7 @@ export default function Home() {
               editingJournalEntryId={editingJournalEntryId}
               activeStudyReviewId={activeStudyReviewId}
               reviewScheduleStudyId={reviewScheduleStudyId}
+              pendingRemoveStudyReviewId={pendingRemoveStudyReviewId}
               isHighlightReflection={isHighlightReflection}
               getJournalEntryIcon={getJournalEntryIcon}
               togglePinnedJournalEntry={togglePinnedJournalEntry}
@@ -11164,16 +11192,19 @@ export default function Home() {
               setStudyReviewNote={setStudyReviewNote}
               completeStudyReview={completeStudyReview}
               studyReviewStatus={studyReviewStatus}
+              setStudyReviewStatus={setStudyReviewStatus}
               isSavingJournalEdit={isSavingJournalEdit}
               saveJournalEntryEdit={saveJournalEntryEdit}
               cancelEditJournalEntry={cancelEditJournalEntry}
               setActiveStudyReviewId={setActiveStudyReviewId}
               setReviewScheduleStudyId={setReviewScheduleStudyId}
+              setPendingRemoveStudyReviewId={setPendingRemoveStudyReviewId}
               startEditJournalEntry={startEditJournalEntry}
               pendingDeleteJournalEntryId={pendingDeleteJournalEntryId}
               deleteJournalEntry={deleteJournalEntry}
               STUDY_REVIEW_OPTIONS={STUDY_REVIEW_OPTIONS}
               scheduleStudyReview={scheduleStudyReview}
+              removeStudyReview={removeStudyReview}
               customStudyReviewDays={customStudyReviewDays}
               setCustomStudyReviewDays={setCustomStudyReviewDays}
               showJournalEmptyState={showJournalEmptyState}

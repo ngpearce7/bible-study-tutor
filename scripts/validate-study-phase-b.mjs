@@ -7,6 +7,7 @@ const app = read("app/index.tsx");
 const methods = read("data/methods.ts");
 const schema = read("convex/schema.ts");
 const study = read("convex/study.ts");
+const memoryBlank = read("components/MemoryBlank.tsx");
 
 for (const field of ["focusText", "focusVerseKeys", "evidenceVerseKeys", "reviewReadActionTomorrow"]) {
   assert(schema.includes(`${field}: v.optional(`), `${field} must remain optional for existing study documents.`);
@@ -27,6 +28,8 @@ assert(app.includes('accessibilityRole="checkbox"') && app.includes("reviewReadA
 assert(app.includes("mobileToolbarOpen") && app.includes('accessibilityLabel={mobileToolbarOpen ? "Hide editing tools" : "Show editing tools"}'), "Mobile editing tools must use an accessible collapsed control.");
 assert(app.includes('<Modal transparent visible animationType="fade" onRequestClose={onClose}>'), "Editor dialogs must render through a viewport-level modal.");
 assert(app.includes("phoneEditorSettingsCard") && app.includes("editorDialogOverlay"), "Editor settings must stay bounded at desktop and phone sizes.");
+assert(memoryBlank.includes("compact && styles.compactHintText") && memoryBlank.includes("darkMode && styles.darkHintText"), "Memory hints need larger mobile text and a dedicated dark-mode colour.");
+assert(memoryBlank.includes('color: "#ee9b87"') && memoryBlank.includes("fontSize: 12"), "Dark mobile memory hints must retain readable contrast and size.");
 
 console.log("Validated Phase B study flows, compact mobile editing tools, and viewport-safe editor dialogs.");
 

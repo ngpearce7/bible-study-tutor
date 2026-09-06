@@ -79,7 +79,7 @@ function MemoryBlankComponent({
       />
       {hintsVisible && !correct && (
         <View style={styles.hintRow}>
-          <Text style={styles.hintText}>{memoryHintText(token.answer, hintLevel)}</Text>
+          <Text style={[styles.hintText, compact && styles.compactHintText, darkMode && styles.darkHintText]}>{memoryHintText(token.answer, hintLevel)}</Text>
           {canShowMoreHint && (
             <Pressable onPress={onMoreHint} style={styles.moreHintButton}>
               <Text style={[styles.moreHintText, darkMode && styles.darkMutedText]}>Hint</Text>
@@ -147,6 +147,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "800",
     lineHeight: 12
+  },
+  compactHintText: {
+    fontSize: 12,
+    lineHeight: 15
+  },
+  darkHintText: {
+    color: "#ee9b87"
   },
   moreHintButton: {
     paddingHorizontal: 3,

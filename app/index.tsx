@@ -1084,6 +1084,7 @@ export default function Home() {
   const [rhythmGraceSuccess, setRhythmGraceSuccess] = useState<RhythmGraceSuccess | null>(null);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
+  const [shareInsightPanelOpen, setShareInsightPanelOpen] = useState(false);
   const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
   const [shareInsightFriendIds, setShareInsightFriendIds] = useState<any[]>([]);
   const [shareInsightCircleId, setShareInsightCircleId] = useState<any>(null);
@@ -3768,6 +3769,7 @@ export default function Home() {
     setAnswers({});
     setSkippedStudySteps({});
     setShareNote("");
+    setShareInsightPanelOpen(false);
     setStudyMethodState(normalizeStudyMethodState(null));
     setMethodExampleModeId("");
     resetPassageMarkup();
@@ -4809,6 +4811,41 @@ export default function Home() {
           </>
         ) : (
           <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Add a friend or join a private circle before posting an insight inside the app.</Text>
+        )}
+      </View>
+    );
+  }
+
+  function renderShareInsightPanel(description: string) {
+    return (
+      <View style={[styles.shareInsightBox, studyDarkMode && styles.accountDarkSection]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={shareInsightPanelOpen ? "Hide shareable insight" : "Add a shareable insight"}
+          accessibilityState={{ expanded: shareInsightPanelOpen }}
+          onPress={() => setShareInsightPanelOpen((open) => !open)}
+          style={styles.collapsiblePanelHeader}
+        >
+          <View style={[styles.feedbackHeader, styles.collapsiblePanelTitle]}>
+            <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
+            <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
+          </View>
+          <Ionicons name={shareInsightPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral} />
+        </Pressable>
+        {shareInsightPanelOpen && (
+          <>
+            <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>{description}</Text>
+            <TextInput
+              multiline
+              value={shareNote}
+              onChangeText={setShareNote}
+              placeholder="Write a separate insight to share (optional)."
+              placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+              style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
+            />
+            {renderShareInsightCommunityControls()}
+            {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
+          </>
         )}
       </View>
     );
@@ -8872,23 +8909,7 @@ export default function Home() {
                       );
                     })}
                   </View>
-                  <View style={[styles.shareInsightBox, studyDarkMode && styles.accountDarkSection]}>
-                    <View style={styles.feedbackHeader}>
-                      <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
-                      <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
-                    </View>
-                    <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Write a separate note here only if you want to share it. Your study responses stay private unless you deliberately share them.</Text>
-                    <TextInput
-                      multiline
-                      value={shareNote}
-                      onChangeText={setShareNote}
-                      placeholder="Write a separate insight to share (optional)."
-                      placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
-                      style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
-                    />
-                    {renderShareInsightCommunityControls()}
-                    {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
-                  </View>
+                  {renderShareInsightPanel("Write a separate note here only if you want to share it. Your study responses stay private unless you deliberately share them.")}
                   <View style={styles.buttonRow}>
                     <AppButton label="Back to edit" variant="secondary" onPress={() => setStudyPhase("study")} />
                     <AppButton label={isCompletingStudy ? "Saving study..." : "Save study"} onPress={completeSession} />
@@ -9149,23 +9170,7 @@ export default function Home() {
                         </View>
                       </View>
                       {stepIndex === method.steps.length - 1 && (
-                        <View style={[styles.shareInsightBox, studyDarkMode && styles.accountDarkSection]}>
-                          <View style={styles.feedbackHeader}>
-                            <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
-                            <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
-                          </View>
-                          <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Optional: write a separate note only if you want to share it. Your study response is not copied here automatically.</Text>
-                          <TextInput
-                            multiline
-                            value={shareNote}
-                            onChangeText={setShareNote}
-                            placeholder="Write a separate insight to share (optional)."
-                            placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
-                            style={[styles.input, styles.shareInput, studyDarkMode && styles.accountDarkInput]}
-                          />
-                          {renderShareInsightCommunityControls()}
-                          {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
-                        </View>
+                        renderShareInsightPanel("Optional: write a separate note only if you want to share it. Your study response is not copied here automatically.")
                       )}
                       {method.id === "read" && step.title === "Do" && (
                         <Pressable

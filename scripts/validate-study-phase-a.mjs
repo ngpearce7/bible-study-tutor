@@ -20,6 +20,8 @@ assert(app.includes('label="Skip for now"') && app.includes("skippedStepTitles")
 assert(app.includes("writing steps completed") && app.includes("Not completed"), "Partial completion must be visible during review.");
 assert(!app.includes("shareNote || suggestedShareNote") && !app.includes("function buildShareNote("), "Private study responses must not automatically populate sharing text.");
 assert(app.includes("Your study responses stay private unless you deliberately share them."), "The sharing privacy explanation is missing.");
+assert(app.includes("shareInsightPanelOpen") && app.includes('accessibilityLabel={shareInsightPanelOpen ? "Hide shareable insight" : "Add a shareable insight"}'), "Shareable insight must use an accessible collapsed-by-default panel.");
+assert(app.includes('name={shareInsightPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral}'), "Shareable insight needs the established coral circular expand control aligned in its header.");
 assert(app.includes('accessibilityState={{ selected: active }}'), "Study progress needs a selected accessibility state.");
 assert(app.includes('accessibilityLiveRegion="polite"'), "Save and completion status must be announced accessibly.");
 assert(schema.includes("shareNote: v.optional(v.string())") && schema.includes("skippedStepTitles: v.optional(v.array(v.string()))"), "Draft/session recovery fields must stay backward-compatible.");

@@ -23,6 +23,11 @@ assert(app.includes('if (!hasStudyWork)') && app.includes("Complete at least one
 assert(study.includes('if (!cleaned.answers.some((item) => item.answer.length > 0))'), "Convex must reject completed studies without a written response.");
 assert(app.includes('if (studyPhase === "saved") return;') && app.includes("setLoadedDraftKey(currentStudyKey)"), "Deleting a completed draft must not reset the visible saved confirmation.");
 assert(app.includes("Saved to Journal") && app.includes('label="Open Journal"'), "Completed studies need an explicit Journal confirmation and next action.");
+assert((app.match(/Saved to Journal/g) || []).length === 1, "The saved screen must show only one Journal confirmation panel.");
+assertIncludes(app, '{studyPhase !== "saved" && (\n              <View style={[styles.studyGuidedHeader', "The guided-study header must be removed from the saved screen.");
+assert(app.includes("Review later (optional)") && app.includes('accessibilityState={{ expanded: reviewLaterPanelOpen }}'), "Review scheduling must be presented as an optional collapsible panel.");
+assert(app.includes('name={reviewLaterPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral}'), "Optional review scheduling needs the established coral circular expand control.");
+assert(app.includes("setReviewLaterPanelOpen(readActionReviewFailed)"), "A failed automatic READ follow-up must open the review panel so the error is visible.");
 assertIncludes(app, '{studyPhase !== "saved" && (\n              <View style={[styles.scriptureBox', "The passage workspace must be hidden once the saved confirmation is shown.");
 assert(app.includes("writing steps completed") && app.includes("Not completed"), "Partial completion must be visible during review.");
 assert(!app.includes("shareNote || suggestedShareNote") && !app.includes("function buildShareNote("), "Private study responses must not automatically populate sharing text.");

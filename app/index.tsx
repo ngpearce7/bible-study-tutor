@@ -1085,6 +1085,7 @@ export default function Home() {
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [shareInsightPanelOpen, setShareInsightPanelOpen] = useState(false);
+  const [reviewLaterPanelOpen, setReviewLaterPanelOpen] = useState(false);
   const [shareInsightTargetType, setShareInsightTargetType] = useState<"friend" | "circle">("friend");
   const [shareInsightFriendIds, setShareInsightFriendIds] = useState<any[]>([]);
   const [shareInsightCircleId, setShareInsightCircleId] = useState<any>(null);
@@ -3564,6 +3565,7 @@ export default function Home() {
     setSelectedVerseKeys([]);
     setStudyMethodState(normalizeStudyMethodState(null));
     setStudyPhase("saved");
+    setReviewLaterPanelOpen(readActionReviewFailed);
     setLoadedDraftKey(currentStudyKey);
     clearStudyRecoveryDraft(String(activeProfileId), currentStudyKey);
     suppressStudyDraftSaveRef.current = false;
@@ -3780,6 +3782,7 @@ export default function Home() {
     setSkippedStudySteps({});
     setShareNote("");
     setShareInsightPanelOpen(false);
+    setReviewLaterPanelOpen(false);
     setStudyMethodState(normalizeStudyMethodState(null));
     setMethodExampleModeId("");
     resetPassageMarkup();
@@ -8286,19 +8289,14 @@ export default function Home() {
         {tab === "study" && (
           <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout, studyDarkMode && styles.accountDarkLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard, studyDarkMode && styles.accountDarkMainCard]}>
+              {studyPhase !== "saved" && (
               <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader, studyDarkMode && styles.studyDarkGuidedHeader]}>
                 <View style={[styles.studyGuidedTopRow, phoneLayout && styles.phoneStudyGuidedTopRow]}>
                   <View style={[styles.studyGuidedTitleBlock, phoneLayout && styles.phoneStudyGuidedTitleBlock]}>
-                    <Eyebrow>{studyPhase === "saved" ? "Saved to Journal" : "Guided study"}</Eyebrow>
-                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>
-                      {studyPhase === "saved"
-                        ? firstName ? `${firstName}, your study is saved` : "Your study is saved"
-                        : firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}
-                    </Text>
+                    <Eyebrow>Guided study</Eyebrow>
+                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
                   </View>
-                  {studyPhase !== "saved" && (
-                    <>
-                      <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
+                  <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={studyMethodPickerOpen ? "Hide study method picker" : "Show study method picker"}
@@ -8309,8 +8307,8 @@ export default function Home() {
                           <Text style={[styles.compactMethodCurrent, studyDarkMode && styles.accountDarkTitle]}>{method.short}</Text>
                           <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                         </Pressable>
-                      </View>
-                      <Pressable
+                  </View>
+                  <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={studyFocusMode ? "Turn study focus mode off" : "Turn study focus mode on"}
                         onPress={() => {
@@ -8321,22 +8319,16 @@ export default function Home() {
                       >
                         <Ionicons name={studyFocusMode ? "contract-outline" : "expand-outline"} size={14} color={studyFocusMode ? "white" : (studyDarkMode ? "#c8bda9" : colors.muted)} />
                         <Text style={[styles.toggleText, studyDarkMode && styles.accountDarkMutedText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus off" : "Focus on"}</Text>
-                      </Pressable>
-                    </>
-                  )}
+                  </Pressable>
                 </View>
                 <View style={[styles.studyGuidedDescriptionRow, phoneLayout && styles.phoneStudyGuidedDescriptionRow]}>
-                  {studyPhase === "saved"
-                    ? <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>Your completed study is now available in Journal. It will stay here until you choose what to do next.</Text>
-                    : !studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
+                  {!studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
                 </View>
-                {studyPhase !== "saved" && (
-                  <View style={styles.studyDraftHint}>
-                    <Ionicons name="cloud-done-outline" size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <Text style={[styles.studyDraftHintText, studyDarkMode && styles.accountDarkMutedText]}>Draft autosave is on. Unfinished studies appear in Journal under Drafts.</Text>
-                  </View>
-                )}
-                {studyPhase !== "saved" && studyFocusMode && (
+                <View style={styles.studyDraftHint}>
+                  <Ionicons name="cloud-done-outline" size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Text style={[styles.studyDraftHintText, studyDarkMode && styles.accountDarkMutedText]}>Draft autosave is on. Unfinished studies appear in Journal under Drafts.</Text>
+                </View>
+                {studyFocusMode && (
                   <View style={[styles.focusPassageSelector, studyDarkMode && styles.accountDarkInput]}>
                     <Ionicons name="book-outline" size={16} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                     <TextInput
@@ -8354,6 +8346,7 @@ export default function Home() {
                   </View>
                 )}
               </View>
+              )}
               {studyPhase !== "saved" && studyMethodPickerOpen && (
                 <View style={[styles.compactMethodMenu, studyDarkMode && styles.accountDarkInsetBox]}>
                   {methods.map((item) => (
@@ -8856,32 +8849,50 @@ export default function Home() {
                     {!!shareInsightStatus && <Text style={styles.saveStatus}>{shareInsightStatus}</Text>}
                   </View>
                   <View style={[styles.savedSummaryPanel, studyDarkMode && styles.accountDarkSection]}>
-                    <Text style={[styles.lastCheckinLabel, studyDarkMode && styles.studyDarkAccentText]}>Review later</Text>
-                    <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>
-                      {savedStudySummary.reviewAt
-                        ? `${savedStudySummary.readActionReviewRequested ? "Your READ action" : "This study"} is set for review on ${formatReviewDate(savedStudySummary.reviewAt)}.`
-                        : savedStudySummary.readActionReviewRequested
-                          ? "Your action follow-up was not scheduled. Choose a review time below to try again."
-                        : "Choose when you want this study to come back into your Journal."}
-                    </Text>
-                    <View style={[styles.reviewPresetRow, phoneLayout && styles.phoneReviewPresetRow]}>
-                      {STUDY_REVIEW_OPTIONS.map((option) => (
-                        <Pressable
-                          key={option.id}
-                          onPress={() => scheduleStudyReview(savedStudySummary.sessionId, option.id)}
-                          style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, studyDarkMode && styles.homeDarkResumeButton]}
-                        >
-                          <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, studyDarkMode && styles.homeDarkResumeButtonText]}>{option.label}</Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                    <CustomStudyReviewControl
-                      styles={styles}
-                      value={customStudyReviewDays}
-                      onChange={setCustomStudyReviewDays}
-                      onSchedule={() => scheduleStudyReview(savedStudySummary.sessionId)}
-                    />
-                    {!!studyReviewStatus && <Text style={styles.saveStatus}>{studyReviewStatus}</Text>}
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={reviewLaterPanelOpen ? "Hide optional review scheduling" : "Show optional review scheduling"}
+                      accessibilityState={{ expanded: reviewLaterPanelOpen }}
+                      onPress={() => setReviewLaterPanelOpen((open) => !open)}
+                      style={styles.collapsiblePanelHeader}
+                    >
+                      <View style={styles.savedReviewLaterHeaderCopy}>
+                        <Text style={[styles.lastCheckinLabel, studyDarkMode && styles.studyDarkAccentText]}>Review later (optional)</Text>
+                        <Text style={[styles.savedReviewLaterSummary, studyDarkMode && styles.accountDarkMutedText]}>
+                          {savedStudySummary.reviewAt ? `Scheduled for ${formatReviewDate(savedStudySummary.reviewAt)}` : "Choose a reminder only if it would help."}
+                        </Text>
+                      </View>
+                      <Ionicons name={reviewLaterPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral} />
+                    </Pressable>
+                    {reviewLaterPanelOpen && (
+                      <View style={styles.savedReviewLaterBody}>
+                        <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>
+                          {savedStudySummary.reviewAt
+                            ? `${savedStudySummary.readActionReviewRequested ? "Your READ action" : "This study"} is set for review on ${formatReviewDate(savedStudySummary.reviewAt)}.`
+                            : savedStudySummary.readActionReviewRequested
+                              ? "Your action follow-up was not scheduled. Choose a review time below to try again."
+                              : "Choose when you want this study to come back into your Journal."}
+                        </Text>
+                        <View style={[styles.reviewPresetRow, phoneLayout && styles.phoneReviewPresetRow]}>
+                          {STUDY_REVIEW_OPTIONS.map((option) => (
+                            <Pressable
+                              key={option.id}
+                              onPress={() => scheduleStudyReview(savedStudySummary.sessionId, option.id)}
+                              style={[styles.filterChip, phoneLayout && styles.phoneJournalFilterChip, studyDarkMode && styles.homeDarkResumeButton]}
+                            >
+                              <Text style={[styles.filterText, phoneLayout && styles.phoneJournalFilterText, studyDarkMode && styles.homeDarkResumeButtonText]}>{option.label}</Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                        <CustomStudyReviewControl
+                          styles={styles}
+                          value={customStudyReviewDays}
+                          onChange={setCustomStudyReviewDays}
+                          onSchedule={() => scheduleStudyReview(savedStudySummary.sessionId)}
+                        />
+                        {!!studyReviewStatus && <Text style={styles.saveStatus}>{studyReviewStatus}</Text>}
+                      </View>
+                    )}
                   </View>
                   <View style={[styles.savedSummaryActions, phoneLayout && styles.phoneSavedSummaryActions]}>
                     <AppButton label="Open Journal" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
@@ -19382,6 +19393,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     width: "100%"
+  },
+  savedReviewLaterHeaderCopy: {
+    flex: 1,
+    gap: 3,
+    minWidth: 0
+  },
+  savedReviewLaterSummary: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 17
+  },
+  savedReviewLaterBody: {
+    marginTop: 12
   },
   savedSummaryActions: {
     flexDirection: "row",

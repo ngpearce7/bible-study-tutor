@@ -16,6 +16,7 @@ assert(app.includes("normalizeStudyMethodState(parsed?.methodState)"), "Older lo
 assert(app.includes("methodState: hasStudyMethodState ? studyMethodState : undefined"), "Method-specific state must be persisted only when used.");
 assert(app.includes("Your Scripture focus") && app.includes("useSelectedVersesAsFocus"), "SOAP, Lectio, and HEAR need a persistent Scripture focus.");
 assert(app.includes("Passage evidence") && app.includes("useSelectedVersesAsEvidence"), "OIA needs linked passage evidence.");
+assert(app.includes("...current.evidenceVerseKeys") && app.includes("Add selected verses"), "OIA evidence links must accumulate instead of replacing earlier verses.");
 assert(app.includes("Read the nearby context") && app.includes("studyContextPassage?.verses?.map"), "COMA needs nearby context in the active step.");
 assert(methods.includes('title: "Respond"') && methods.includes("Keep the passage’s original meaning distinct from your present response."), "Inductive needs a text-grounded response step.");
 assert(app.includes("Review this action tomorrow") && app.includes('preset: "tomorrow"'), "READ needs an explicit next-day action follow-up.");

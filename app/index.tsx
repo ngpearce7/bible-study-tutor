@@ -3484,12 +3484,14 @@ export default function Home() {
 
   async function completeSession() {
     if (isCompletingStudy) return;
-    if (!activeProfileId) {
-      setSaveStatus("Profile is still loading. Try again in a moment.");
+    if (!hasStudyWork) {
+      const firstWritingStepIndex = method.steps.findIndex((item) => item.responseType === "text");
+      if (firstWritingStepIndex >= 0) goToStudyStep(firstWritingStepIndex);
+      setSaveStatus("Complete at least one written response before saving this study.");
       return;
     }
-    if (!hasStudySubstance) {
-      setSaveStatus("Write at least one response or save a passage highlight before completing this study.");
+    if (!activeProfileId) {
+      setSaveStatus("Profile is still loading. Try again in a moment.");
       return;
     }
 
@@ -3690,6 +3692,12 @@ export default function Home() {
   function skipCurrentStudyStep() {
     if (step.responseType !== "text" || answers[answerKey]?.trim()) return;
     setSkippedStudySteps((current) => ({ ...current, [answerKey]: true }));
+    if (stepIndex === method.steps.length - 1 && !hasStudyWork) {
+      const firstWritingStepIndex = method.steps.findIndex((item) => item.responseType === "text");
+      if (firstWritingStepIndex >= 0) goToStudyStep(firstWritingStepIndex);
+      setSaveStatus("A completed study needs at least one written response. Add a response before reviewing and saving.");
+      return;
+    }
     setSaveStatus(`${step.title} skipped for now. You can return before saving.`);
     if (stepIndex < method.steps.length - 1) {
       goToStudyStep(stepIndex + 1);
@@ -8869,7 +8877,9 @@ export default function Home() {
                   <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{passageText?.reference || passage}</Text>
                   <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{method.name}</Text>
                   <Text accessibilityLiveRegion="polite" aria-live="polite" style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>
-                    {completedWritingStepCount === writingStepCount
+                    {completedWritingStepCount === 0
+                      ? "Complete at least one writing step before this study can be saved."
+                      : completedWritingStepCount === writingStepCount
                       ? `All ${writingStepCount} writing steps are complete.`
                       : `${completedWritingStepCount} of ${writingStepCount} writing steps completed. Review unfinished steps before saving if you wish.`}
                   </Text>

@@ -218,6 +218,9 @@ export const saveSession = mutation({
       coachingMoments: cleanCoachingMoments(args.coachingMoments),
       answers: cleanAnswers(args.answers)
     };
+    if (!cleaned.answers.some((item) => item.answer.length > 0)) {
+      throw new Error("Complete at least one written response before saving this study.");
+    }
 
     const completedAt = Date.now();
     const sessionId = await ctx.db.insert("sessions", {

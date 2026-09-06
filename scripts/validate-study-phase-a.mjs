@@ -15,11 +15,15 @@ for (const transition of ["switchMethod", "resetCurrentStudy", "applyPassageQuer
 }
 assert(app.includes("Keep draft & continue") && app.includes("Discard study") && app.includes("Cancel study change"), "The study transition dialog needs keep, discard, and cancel choices.");
 assert(app.includes("saveStudyRecoveryDraft({") && app.includes("Recovered unsaved work from this device"), "Web study recovery storage is missing.");
+assert(app.includes("Draft autosave is on. Unfinished studies appear in Journal under Drafts."), "The study screen must explain automatic draft saving and where drafts are found.");
 assert(app.includes('window.addEventListener("beforeunload"'), "Unsynced web drafts need a navigation warning.");
 assert(app.includes('label="Skip for now"') && app.includes("skippedStepTitles"), "Intentional skipped-step handling is missing.");
 assert(app.includes('if (stepIndex === method.steps.length - 1 && !hasStudyWork)') && app.includes("A completed study needs at least one written response."), "Skipping every writing step must return the user to a writing step instead of Review.");
 assert(app.includes('if (!hasStudyWork)') && app.includes("Complete at least one written response before saving this study."), "The client must prevent an empty study from being completed.");
 assert(study.includes('if (!cleaned.answers.some((item) => item.answer.length > 0))'), "Convex must reject completed studies without a written response.");
+assert(app.includes('if (studyPhase === "saved") return;') && app.includes("setLoadedDraftKey(currentStudyKey)"), "Deleting a completed draft must not reset the visible saved confirmation.");
+assert(app.includes("Saved to Journal") && app.includes('label="Open Journal"'), "Completed studies need an explicit Journal confirmation and next action.");
+assertIncludes(app, '{studyPhase !== "saved" && (\n              <View style={[styles.scriptureBox', "The passage workspace must be hidden once the saved confirmation is shown.");
 assert(app.includes("writing steps completed") && app.includes("Not completed"), "Partial completion must be visible during review.");
 assert(!app.includes("shareNote || suggestedShareNote") && !app.includes("function buildShareNote("), "Private study responses must not automatically populate sharing text.");
 assert(app.includes("Your study responses stay private unless you deliberately share them."), "The sharing privacy explanation is missing.");
@@ -34,4 +38,8 @@ console.log("Validated Phase A study guards, recovery, explicit sharing, partial
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function assertIncludes(source, value, message) {
+  assert(source.includes(value), message);
 }

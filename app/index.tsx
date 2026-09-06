@@ -1067,7 +1067,7 @@ export default function Home() {
   const [passageStatus, setPassageStatus] = useState("Loading passage...");
   const [passageReloadKey, setPassageReloadKey] = useState(0);
   const [loadedDraftKey, setLoadedDraftKey] = useState("");
-  const [saveStatus, setSaveStatus] = useState("Not saved yet");
+  const [saveStatus, setSaveStatus] = useState("Drafts save automatically once you begin writing.");
   const [printWorksheetRequest, setPrintWorksheetRequest] = useState<PrintableWorksheetRequest | null>(null);
   const [pendingStudyWorksheetPrint, setPendingStudyWorksheetPrint] = useState(false);
   const [printWorksheetMethodId, setPrintWorksheetMethodId] = useState(methods[0]?.id || "");
@@ -3009,6 +3009,7 @@ export default function Home() {
 
   useEffect(() => {
     if (savedDraft === undefined) return;
+    if (studyPhase === "saved") return;
 
     const draftRevision = savedDraft ? ((savedDraft as any).updatedAt || 0) : 0;
     const recoveryDraft = activeProfileId ? readStudyRecoveryDraft(String(activeProfileId), currentStudyKey) : null;
@@ -3048,7 +3049,7 @@ export default function Home() {
       setStepIndex(0);
       setStudyPhase("study");
       setLoadedDraftKey(currentStudyKey);
-      setSaveStatus("Not saved yet");
+      setSaveStatus("Drafts save automatically once you begin writing.");
       setShareNote("");
       return;
     }
@@ -3563,7 +3564,7 @@ export default function Home() {
     setSelectedVerseKeys([]);
     setStudyMethodState(normalizeStudyMethodState(null));
     setStudyPhase("saved");
-    setLoadedDraftKey("");
+    setLoadedDraftKey(currentStudyKey);
     clearStudyRecoveryDraft(String(activeProfileId), currentStudyKey);
     suppressStudyDraftSaveRef.current = false;
     setIsCompletingStudy(false);
@@ -3573,6 +3574,7 @@ export default function Home() {
     trackUsage("study_completed", { reference: passageText?.reference || passage, methodId: method.id, methodName: method.name, translation: passageText?.translation_name, tab: "study" });
     trackPublicAnalytics({ eventType: "study_completed", source: "study", ctaTarget: "/?tab=study", methodId: method.id });
     setCheckinNote(finalShareNote);
+    scrollStudyStepIntoView();
   }
 
   function resumeDraft(draft: any) {
@@ -3793,7 +3795,7 @@ export default function Home() {
       setSavedStudySummary(null);
       clearStudyWorkspace();
       setLoadedDraftKey("");
-      setSaveStatus("Not saved yet");
+      setSaveStatus("Drafts save automatically once you begin writing.");
     });
   }
 
@@ -3842,7 +3844,7 @@ export default function Home() {
       setStudyPhase("study");
       setSavedStudySummary(null);
       setLoadedDraftKey("");
-      setSaveStatus("Not saved yet");
+      setSaveStatus("Drafts save automatically once you begin writing.");
     });
   }
 
@@ -8287,38 +8289,54 @@ export default function Home() {
               <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader, studyDarkMode && styles.studyDarkGuidedHeader]}>
                 <View style={[styles.studyGuidedTopRow, phoneLayout && styles.phoneStudyGuidedTopRow]}>
                   <View style={[styles.studyGuidedTitleBlock, phoneLayout && styles.phoneStudyGuidedTitleBlock]}>
-                    <Eyebrow>Guided study</Eyebrow>
-                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
+                    <Eyebrow>{studyPhase === "saved" ? "Saved to Journal" : "Guided study"}</Eyebrow>
+                    <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>
+                      {studyPhase === "saved"
+                        ? firstName ? `${firstName}, your study is saved` : "Your study is saved"
+                        : firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}
+                    </Text>
                   </View>
-                  <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={studyMethodPickerOpen ? "Hide study method picker" : "Show study method picker"}
-                      onPress={() => setStudyMethodPickerOpen((value) => !value)}
-                      style={[styles.compactMethodPicker, studyDarkMode && styles.studyDarkPillControl]}
-                    >
-                      <Text style={[styles.compactMethodLabel, studyDarkMode && styles.studyDarkAccentText]}>Method</Text>
-                      <Text style={[styles.compactMethodCurrent, studyDarkMode && styles.accountDarkTitle]}>{method.short}</Text>
-                      <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    </Pressable>
-                  </View>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={studyFocusMode ? "Turn study focus mode off" : "Turn study focus mode on"}
-                    onPress={() => {
-                      const nextValue = !studyFocusMode;
-                      setRememberedStudyFocusMode(nextValue);
-                    }}
-                    style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyDarkMode && styles.studyDarkTogglePill, studyFocusMode && styles.activeTogglePill]}
-                  >
-                    <Ionicons name={studyFocusMode ? "contract-outline" : "expand-outline"} size={14} color={studyFocusMode ? "white" : (studyDarkMode ? "#c8bda9" : colors.muted)} />
-                    <Text style={[styles.toggleText, studyDarkMode && styles.accountDarkMutedText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus off" : "Focus on"}</Text>
-                  </Pressable>
+                  {studyPhase !== "saved" && (
+                    <>
+                      <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel={studyMethodPickerOpen ? "Hide study method picker" : "Show study method picker"}
+                          onPress={() => setStudyMethodPickerOpen((value) => !value)}
+                          style={[styles.compactMethodPicker, studyDarkMode && styles.studyDarkPillControl]}
+                        >
+                          <Text style={[styles.compactMethodLabel, studyDarkMode && styles.studyDarkAccentText]}>Method</Text>
+                          <Text style={[styles.compactMethodCurrent, studyDarkMode && styles.accountDarkTitle]}>{method.short}</Text>
+                          <Ionicons name={studyMethodPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        </Pressable>
+                      </View>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={studyFocusMode ? "Turn study focus mode off" : "Turn study focus mode on"}
+                        onPress={() => {
+                          const nextValue = !studyFocusMode;
+                          setRememberedStudyFocusMode(nextValue);
+                        }}
+                        style={[styles.togglePill, styles.studyFocusHeaderToggle, phoneLayout && styles.phoneStudyFocusHeaderToggle, studyDarkMode && styles.studyDarkTogglePill, studyFocusMode && styles.activeTogglePill]}
+                      >
+                        <Ionicons name={studyFocusMode ? "contract-outline" : "expand-outline"} size={14} color={studyFocusMode ? "white" : (studyDarkMode ? "#c8bda9" : colors.muted)} />
+                        <Text style={[styles.toggleText, studyDarkMode && styles.accountDarkMutedText, studyFocusMode && styles.activeToggleText]}>{studyFocusMode ? "Focus off" : "Focus on"}</Text>
+                      </Pressable>
+                    </>
+                  )}
                 </View>
                 <View style={[styles.studyGuidedDescriptionRow, phoneLayout && styles.phoneStudyGuidedDescriptionRow]}>
-                  {!studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
+                  {studyPhase === "saved"
+                    ? <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>Your completed study is now available in Journal. It will stay here until you choose what to do next.</Text>
+                    : !studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
                 </View>
-                {studyFocusMode && (
+                {studyPhase !== "saved" && (
+                  <View style={styles.studyDraftHint}>
+                    <Ionicons name="cloud-done-outline" size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.studyDraftHintText, studyDarkMode && styles.accountDarkMutedText]}>Draft autosave is on. Unfinished studies appear in Journal under Drafts.</Text>
+                  </View>
+                )}
+                {studyPhase !== "saved" && studyFocusMode && (
                   <View style={[styles.focusPassageSelector, studyDarkMode && styles.accountDarkInput]}>
                     <Ionicons name="book-outline" size={16} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                     <TextInput
@@ -8336,7 +8354,7 @@ export default function Home() {
                   </View>
                 )}
               </View>
-              {studyMethodPickerOpen && (
+              {studyPhase !== "saved" && studyMethodPickerOpen && (
                 <View style={[styles.compactMethodMenu, studyDarkMode && styles.accountDarkInsetBox]}>
                   {methods.map((item) => (
                       <Pressable
@@ -8357,7 +8375,7 @@ export default function Home() {
                 </View>
               )}
 
-              {!studyFocusMode && (
+              {studyPhase !== "saved" && !studyFocusMode && (
                 <>
                   <View style={[styles.smartPassageBox, studyDarkMode && styles.studyDarkSmartPassageBox]}>
                     <View style={[styles.smartPassageHeader, studyDarkMode && styles.accountDarkInput]}>
@@ -8424,6 +8442,7 @@ export default function Home() {
                 </ScrollView>
               )}
 
+              {studyPhase !== "saved" && (
               <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
                 <View style={styles.scriptureHeader}>
                   <View>
@@ -8808,18 +8827,18 @@ export default function Home() {
                   </View>
                 )}
               </View>
+              )}
 
               {studyInstructionPanel}
 
               {studyPhase === "saved" && savedStudySummary ? (
-                <View style={[styles.savedSummaryBox, studyDarkMode && styles.accountDarkInsetBox]}>
+                <View accessibilityLiveRegion="polite" aria-live="polite" style={[styles.savedSummaryBox, studyDarkMode && styles.accountDarkInsetBox]}>
                   <View style={[styles.savedSummaryIcon, studyDarkMode && styles.homeDarkIconBubble]}>
                     <Ionicons name="checkmark-circle-outline" size={30} color={colors.coral} />
                   </View>
-                  <Eyebrow>Study saved</Eyebrow>
-                  <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `Well done, ${firstName}.` : "Well done."}</Text>
-                  <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{savedStudySummary.passage}</Text>
-                  <Text style={[styles.reviewMeta, studyDarkMode && styles.accountDarkMutedText]}>{savedStudySummary.methodName}</Text>
+                  <Eyebrow>Saved to Journal</Eyebrow>
+                  <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `Your study is safely saved, ${firstName}.` : "Your study is safely saved."}</Text>
+                  <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{`${savedStudySummary.passage} · ${savedStudySummary.methodName} is now in your Journal.`}</Text>
                   <View style={[styles.savedSummaryGrid, phoneLayout && styles.phoneSavedSummaryGrid]}>
                     <Metric value={1} label="study saved" compact={phoneLayout} style={studyDarkMode && styles.homeDarkMetric} valueStyle={studyDarkMode && styles.homeDarkMetricValue} labelStyle={studyDarkMode && styles.accountDarkMutedText} />
                     <Metric value={savedStudySummary.highlightCount} label="highlights" compact={phoneLayout} style={studyDarkMode && styles.homeDarkMetric} valueStyle={studyDarkMode && styles.homeDarkMetricValue} labelStyle={studyDarkMode && styles.accountDarkMutedText} />
@@ -8865,7 +8884,7 @@ export default function Home() {
                     {!!studyReviewStatus && <Text style={styles.saveStatus}>{studyReviewStatus}</Text>}
                   </View>
                   <View style={[styles.savedSummaryActions, phoneLayout && styles.phoneSavedSummaryActions]}>
-                    <AppButton label="View Journal" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
+                    <AppButton label="Open Journal" onPress={() => setTab("journal")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
                     {savedStudySummary.highlightCount > 0 && <AppButton label="Reflect" variant="secondary" onPress={openSavedHighlights} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />}
                     <AppButton label="Encouragement" variant="secondary" onPress={() => setTab("accountability")} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
                     <AppButton label="New study" variant="secondary" onPress={resetCurrentStudy} style={phoneLayout && styles.phoneSavedSummaryActionButton} labelStyle={phoneLayout && styles.phoneSavedSummaryActionLabel} />
@@ -17383,6 +17402,19 @@ const styles = StyleSheet.create({
   },
   phoneStudyGuidedDescriptionRow: {
     paddingRight: 0
+  },
+  studyDraftHint: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 6,
+    width: "100%"
+  },
+  studyDraftHintText: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 12,
+    lineHeight: 17,
+    minWidth: 0
   },
   studyGuidedTitleBlock: {
     flex: 1,

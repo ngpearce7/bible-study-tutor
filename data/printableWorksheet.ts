@@ -155,6 +155,69 @@ export function buildPrintableStudyWorksheetHtml({
 </html>`;
 }
 
+export function buildPrintableGroupStudyGuideHtml({
+  reference,
+  translation,
+  method,
+  verses
+}: {
+  reference: string;
+  translation: string;
+  method: PrintableWorksheetMethod & { name?: string };
+  verses: PrintableWorksheetVerse[];
+}) {
+  const passageHtml = verses
+    .map((verse) => `<span class="verse"><sup>${escapeHtml(verse.verse)}</sup>${escapeHtml(verse.text)}</span>`)
+    .join(" ");
+  const stepHtml = method.steps.map((step, index) => `
+    <section class="step">
+      <h2><span>${index + 1}</span>${escapeHtml(step.title)}</h2>
+      <p>${escapeHtml(step.action || step.prompt || "Discuss what this step draws from the passage.")}</p>
+      <div class="lines"><i></i><i></i><i></i></div>
+    </section>
+  `).join("");
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(reference)} Group Study Guide</title>
+    <style>
+      :root { --ink:#241d19; --muted:#766d63; --paper:#f8f1e6; --line:#d8c8b6; --olive:#39452e; --coral:#b5533d; }
+      * { box-sizing:border-box; } body { background:var(--paper); color:var(--ink); font-family:Georgia,"Times New Roman",serif; margin:0; padding:28px; }
+      .toolbar,.page { margin:0 auto; max-width:900px; } .toolbar { color:var(--muted); font-family:system-ui,sans-serif; margin-bottom:16px; }
+      .page { background:#fffdf8; border:1px solid var(--line); box-shadow:0 12px 30px rgba(90,63,45,.14); padding:42px; }
+      header { border-bottom:3px double var(--line); padding-bottom:16px; } .eyebrow { color:var(--coral); font:800 12px system-ui,sans-serif; letter-spacing:.06em; text-transform:uppercase; }
+      h1 { color:var(--olive); font-size:34px; margin:7px 0; } .meta { color:var(--muted); font:700 13px system-ui,sans-serif; }
+      .scripture { border-bottom:1px solid var(--line); line-height:1.6; padding:18px 0; } .verse { margin-right:5px; } sup { color:var(--coral); font:800 10px system-ui,sans-serif; margin-right:3px; }
+      .leader { background:#fff6eb; border-left:4px solid var(--coral); margin:16px 0; padding:12px 14px; } .leader strong { color:var(--olive); font-family:system-ui,sans-serif; }
+      .grid { display:grid; gap:12px; grid-template-columns:1fr 1fr; } .step { border:1px solid var(--line); break-inside:avoid; padding:13px; }
+      h2 { align-items:center; color:var(--olive); display:flex; font:800 16px system-ui,sans-serif; gap:8px; margin:0 0 7px; } h2 span { align-items:center; background:var(--olive); border-radius:50%; color:white; display:inline-flex; height:25px; justify-content:center; width:25px; }
+      .step p { color:var(--muted); font-size:13px; margin:0 0 8px; } .lines i { border-bottom:1px solid var(--line); display:block; height:24px; }
+      .discussion { border-top:1px solid var(--line); margin-top:16px; padding-top:14px; } .discussion h2 { margin-top:10px; } footer { color:var(--muted); display:flex; font:700 11px system-ui,sans-serif; justify-content:space-between; margin-top:18px; }
+      @media(max-width:720px){ body{padding:10px}.page{padding:22px 16px}.grid{grid-template-columns:1fr} }
+      @media print{ @page{margin:9mm} body{background:white;padding:0}.toolbar{display:none}.page{border:0;box-shadow:none;max-width:none;padding:0}.grid{gap:7mm}.step{page-break-inside:avoid} }
+    </style>
+  </head>
+  <body>
+    <p class="toolbar">Use your browser’s Print command to print or save this group guide as a PDF.</p>
+    <main class="page">
+      <header><div class="eyebrow">Bible Study Tutor · Group guide</div><h1>${escapeHtml(reference)}</h1><div class="meta">${escapeHtml(method.name || `${method.short} Study Method`)} · ${escapeHtml(translation)} · Date: ____________________</div></header>
+      <section class="scripture">${passageHtml}</section>
+      <aside class="leader"><strong>Leader safeguard:</strong> Begin with what the passage says in context. Let application and discussion grow from its main point; do not treat an isolated phrase or a group member’s impression as the passage’s meaning.</aside>
+      <div class="grid">${stepHtml}</div>
+      <section class="discussion">
+        <h2>Context and main point</h2><div class="lines"><i></i><i></i><i></i></div>
+        <h2>Questions for the group</h2><div class="lines"><i></i><i></i><i></i></div>
+        <h2>Prayer and faithful response</h2><div class="lines"><i></i><i></i><i></i></div>
+      </section>
+      <footer><span>Private study answers are not included.</span><span>biblestudytutor.org</span></footer>
+    </main>
+  </body>
+</html>`;
+}
+
 export function buildPrintableMemoryCardsHtml({
   verses,
   layout = "pocket",

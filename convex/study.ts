@@ -171,6 +171,7 @@ export const saveSession = mutation({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    skippedStepIds: v.optional(v.array(v.string())),
     methodState: v.optional(studyMethodState),
     passageMarkups: v.optional(v.array(passageMarkup)),
     minutes: v.number(),
@@ -187,6 +188,7 @@ export const saveSession = mutation({
     ),
     answers: v.array(
       v.object({
+        stepId: v.optional(v.string()),
         stepTitle: v.string(),
         answer: v.string()
       })
@@ -209,6 +211,7 @@ export const saveSession = mutation({
       methodName: clampText(args.methodName, 120),
       shareNote: clampOptionalText(args.shareNote, 1200),
       skippedStepTitles: cleanStepTitles(args.skippedStepTitles),
+      skippedStepIds: cleanStepIds(args.skippedStepIds),
       methodState: cleanStudyMethodState(args.methodState),
       passageMarkups: cleanPassageMarkups(args.passageMarkups),
       minutes: clampNumber(args.minutes, 0, 600),
@@ -255,10 +258,12 @@ export const saveDraft = mutation({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    skippedStepIds: v.optional(v.array(v.string())),
     methodState: v.optional(studyMethodState),
     stepIndex: v.number(),
     answers: v.array(
       v.object({
+        stepId: v.optional(v.string()),
         stepTitle: v.string(),
         answer: v.string()
       })
@@ -285,6 +290,7 @@ export const saveDraft = mutation({
       methodName: clampText(args.methodName, 120),
       shareNote: clampOptionalText(args.shareNote, 1200),
       skippedStepTitles: cleanStepTitles(args.skippedStepTitles),
+      skippedStepIds: cleanStepIds(args.skippedStepIds),
       methodState: cleanStudyMethodState(args.methodState),
       stepIndex: clampNumber(args.stepIndex, 0, 20),
       answers: cleanAnswers(args.answers)
@@ -307,6 +313,7 @@ export const saveDraft = mutation({
         methodName: cleaned.methodName,
         shareNote: cleaned.shareNote,
         skippedStepTitles: cleaned.skippedStepTitles,
+        skippedStepIds: cleaned.skippedStepIds,
         methodState: cleaned.methodState,
         stepIndex: cleaned.stepIndex,
         answers: cleaned.answers,
@@ -350,12 +357,13 @@ export const recentDrafts = query({
   returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
+    const limit = clampNumber(args.limit ?? 12, 1, 50);
 
     return await ctx.db
       .query("drafts")
       .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
       .order("desc")
-      .take(args.limit ?? 12);
+      .take(limit);
   }
 });
 
@@ -449,31 +457,34 @@ export const recentSessions = query({
   returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
+    const limit = clampNumber(args.limit ?? 20, 1, 50);
 
     return await ctx.db
       .query("sessions")
       .withIndex("by_profile_completed", (q) => q.eq("profileId", args.profileId))
       .order("desc")
-      .take(args.limit ?? 20);
+      .take(limit);
   }
 });
 
 export const dueStudyReviews = query({
   args: {
     profileId: v.id("profiles"),
+    now: v.optional(v.number()),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId);
+    const limit = clampNumber(args.limit ?? 10, 1, 50);
 
     return await ctx.db
       .query("sessions")
       .withIndex("by_profile_review_status_and_review_at", (q) =>
-        q.eq("profileId", args.profileId).eq("reviewStatus", "scheduled").lte("reviewAt", Date.now())
+        q.eq("profileId", args.profileId).eq("reviewStatus", "scheduled").lte("reviewAt", args.now ?? 0)
       )
       .order("asc")
-      .take(args.limit ?? 10);
+      .take(limit);
   }
 });
 
@@ -661,11 +672,18 @@ function clampNumber(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, Math.round(value)));
 }
 
-function cleanAnswers(answers: { stepTitle: string; answer: string }[]) {
+function cleanAnswers(answers: { stepId?: string; stepTitle: string; answer: string }[]) {
   return answers.slice(0, 20).map((item) => ({
+    stepId: clampOptionalText(item.stepId, 80),
     stepTitle: clampText(item.stepTitle, 120),
     answer: clampText(item.answer, 12000)
   }));
+}
+
+function cleanStepIds(stepIds: string[] | undefined) {
+  if (!stepIds?.length) return undefined;
+  const cleaned = Array.from(new Set(stepIds.map((id) => clampText(id, 80)).filter(Boolean))).slice(0, 20);
+  return cleaned.length ? cleaned : undefined;
 }
 
 function cleanStepTitles(stepTitles: string[] | undefined) {

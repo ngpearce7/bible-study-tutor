@@ -54,10 +54,10 @@ const appearanceModeKey = "bible-study-tutor-appearance-mode";
 const memoryReviewSortsKey = "bible-study-tutor-memory-review-sorts";
 const devotionalTextSizeKey = "bible-study-tutor-devotional-text-size";
 const defaultCollapsedStudyPanels: StoredCollapsedStudyPanels = {
-  community: false,
-  plan: false,
-  feedback: false,
-  helps: false
+  community: true,
+  plan: true,
+  feedback: true,
+  helps: true
 };
 const defaultMemoryReviewSorts: StoredMemoryReviewSorts = {
   due: "oldest",
@@ -229,10 +229,10 @@ export async function getStoredCollapsedStudyPanels(): Promise<StoredCollapsedSt
   try {
     const parsed = JSON.parse(stored);
     return {
-      community: typeof parsed?.community === "boolean" ? parsed.community : false,
-      plan: typeof parsed?.plan === "boolean" ? parsed.plan : false,
-      feedback: typeof parsed?.feedback === "boolean" ? parsed.feedback : false,
-      helps: typeof parsed?.helps === "boolean" ? parsed.helps : false
+      community: typeof parsed?.community === "boolean" ? parsed.community : true,
+      plan: typeof parsed?.plan === "boolean" ? parsed.plan : true,
+      feedback: typeof parsed?.feedback === "boolean" ? parsed.feedback : true,
+      helps: typeof parsed?.helps === "boolean" ? parsed.helps : true
     };
   } catch {
     return defaultCollapsedStudyPanels;

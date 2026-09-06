@@ -137,6 +137,7 @@ export default defineSchema({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    skippedStepIds: v.optional(v.array(v.string())),
     methodState: v.optional(studyMethodState),
     passageMarkups: v.optional(v.array(passageMarkup)),
     reviewStatus: v.optional(v.union(v.literal("scheduled"), v.literal("reviewed"))),
@@ -156,6 +157,7 @@ export default defineSchema({
     ),
     answers: v.array(
       v.object({
+        stepId: v.optional(v.string()),
         stepTitle: v.string(),
         answer: v.string()
       })
@@ -176,10 +178,12 @@ export default defineSchema({
     methodName: v.string(),
     shareNote: v.optional(v.string()),
     skippedStepTitles: v.optional(v.array(v.string())),
+    skippedStepIds: v.optional(v.array(v.string())),
     methodState: v.optional(studyMethodState),
     stepIndex: v.number(),
     answers: v.array(
       v.object({
+        stepId: v.optional(v.string()),
         stepTitle: v.string(),
         answer: v.string()
       })

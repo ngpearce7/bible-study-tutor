@@ -455,6 +455,7 @@ type StudyRecoveryDraft = {
   passageMarkups: PassageMarkupRecord[];
   shareNote: string;
   skippedStepTitles: string[];
+  skippedStepIds: string[];
   methodState: StudyMethodState;
   updatedAt: number;
 };
@@ -511,12 +512,40 @@ function readStudyRecoveryDraft(profileId: string, currentStudyKey: string): Stu
       skippedStepTitles: Array.isArray(parsed?.skippedStepTitles)
         ? parsed.skippedStepTitles.filter((title: unknown): title is string => typeof title === "string").slice(0, 20)
         : [],
+      skippedStepIds: Array.isArray(parsed?.skippedStepIds)
+        ? parsed.skippedStepIds.filter((id: unknown): id is string => typeof id === "string").slice(0, 20)
+        : [],
       methodState: normalizeStudyMethodState(parsed?.methodState),
       updatedAt: parsed.updatedAt
     };
   } catch {
     return null;
   }
+}
+
+function studyStepKey(methodId: string, stepId: string) {
+  return `${methodId}:${stepId}`;
+}
+
+function restoreStudyAnswers(methodId: string, savedAnswers: { stepId?: string; stepTitle: string; answer: string }[]) {
+  const selectedMethod = methods.find((item) => item.id === methodId) || methods[0];
+  return selectedMethod.steps.reduce<AnswerMap>((map, step, index) => {
+    const saved = savedAnswers.find((item) => item.stepId === step.id)
+      || savedAnswers.find((item) => item.stepTitle === step.title)
+      || savedAnswers[index];
+    if (saved?.answer) map[studyStepKey(methodId, step.id)] = saved.answer;
+    return map;
+  }, {});
+}
+
+function normalizeStudyAnswerMap(methodId: string, savedAnswers: AnswerMap) {
+  const selectedMethod = methods.find((item) => item.id === methodId) || methods[0];
+  return selectedMethod.steps.reduce<AnswerMap>((map, step, index) => {
+    const stableKey = studyStepKey(methodId, step.id);
+    const value = savedAnswers[stableKey] ?? savedAnswers[`${methodId}:${index}`];
+    if (value) map[stableKey] = value;
+    return map;
+  }, {});
 }
 
 function saveStudyRecoveryDraft(draft: StudyRecoveryDraft) {
@@ -901,9 +930,14 @@ export default function Home() {
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("study");
   const [instructionsCollapsed, setInstructionsCollapsed] = useState(false);
   const [studyMethodPickerOpen, setStudyMethodPickerOpen] = useState(false);
+  const [methodExampleModeId, setMethodExampleModeId] = useState("");
+  const [contemplativeTimerOpen, setContemplativeTimerOpen] = useState(false);
+  const [contemplativeTimerSeconds, setContemplativeTimerSeconds] = useState(0);
+  const [contemplativeTimerRunning, setContemplativeTimerRunning] = useState(false);
   const [studyStepAnchorY, setStudyStepAnchorY] = useState(0);
   const [studyFocusMode, setStudyFocusMode] = useState(false);
   const [studyFocusModeHydrated, setStudyFocusModeHydrated] = useState(false);
+  const [studyReviewNow, setStudyReviewNow] = useState(() => Date.now());
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [skippedStudySteps, setSkippedStudySteps] = useState<Record<string, boolean>>({});
   const [studyMethodState, setStudyMethodState] = useState<StudyMethodState>(() => normalizeStudyMethodState(null));
@@ -965,6 +999,9 @@ export default function Home() {
   const [communityHistoryCircleId, setCommunityHistoryCircleId] = useState("all");
   const [shareNote, setShareNote] = useState("");
   const [passageText, setPassageText] = useState<BiblePassage | null>(null);
+  const [studyTranslationComparisonOpen, setStudyTranslationComparisonOpen] = useState(false);
+  const [studyTranslationComparisons, setStudyTranslationComparisons] = useState<BiblePassage[]>([]);
+  const [studyTranslationComparisonStatus, setStudyTranslationComparisonStatus] = useState("");
   const [passageMarkups, setPassageMarkups] = useState<PassageMarkupMap>({});
   const [passageMarkupNotes, setPassageMarkupNotes] = useState<PassageMarkupNoteMap>({});
   const [selectedVerseKeys, setSelectedVerseKeys] = useState<string[]>([]);
@@ -1055,10 +1092,10 @@ export default function Home() {
   const [passageQuery, setPassageQuery] = useState("Psalm 23");
   const [showCoaching, setShowCoaching] = useState(true);
   const [collapsedStudyPanels, setCollapsedStudyPanels] = useState<Record<StudySidePanelKey, boolean>>({
-    community: false,
-    plan: false,
-    feedback: false,
-    helps: false
+    community: true,
+    plan: true,
+    feedback: true,
+    helps: true
   });
   const [journalFilter, setJournalFilter] = useState<JournalFilter>("all");
   const [journalView, setJournalView] = useState<JournalView>("list");
@@ -1801,7 +1838,14 @@ export default function Home() {
     shouldLoadCurrentStudyDraft ? { profileId: activeProfileId, passage: passage.trim() || "Selected passage", methodId } : "skip"
   );
   const drafts = useQuery(api.study.recentDrafts, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
-  const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, limit: 10 } : "skip");
+  const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, now: studyReviewNow, limit: 10 } : "skip");
+
+  useEffect(() => {
+    if (!shouldLoadDueStudyReviews) return;
+    setStudyReviewNow(Date.now());
+    const interval = setInterval(() => setStudyReviewNow(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, [shouldLoadDueStudyReviews]);
 
   useEffect(() => {
     if (!profileMatchesActiveState || !activeProfileId || stats === undefined || stats?.migrationStatus === "ready" || stats?.migrationStatus === "backfilling") return;
@@ -1979,23 +2023,27 @@ export default function Home() {
   const selectedMethodRecommendation = methodRecommendations.find((item) => item.id === methodRecommendationId) || methodRecommendations[0];
   const recommendedMethod = methods.find((item) => item.id === selectedMethodRecommendation.methodId) || methods[0];
   const step = method.steps[stepIndex];
-  const answerKey = `${method.id}:${stepIndex}`;
+  const answerKey = studyStepKey(method.id, step.id);
   const currentStudyKey = studyKey(passage, method.id);
   const answeredSteps = method.steps
     .map((item, index) => ({
       index,
       title: item.title,
-      answer: answers[`${method.id}:${index}`] || ""
+      answer: answers[studyStepKey(method.id, item.id)] || ""
     }))
     .filter((item) => item.answer.trim());
   const sessionAnswers = method.steps.map((item, index) => ({
+    stepId: item.id,
     stepTitle: item.title,
-    answer: answers[`${method.id}:${index}`] || ""
+    answer: answers[studyStepKey(method.id, item.id)] || ""
   }));
   const hasStudyWork = sessionAnswers.some((item) => item.answer.trim());
   const skippedStepTitles = useMemo(() => method.steps
-    .filter((item, index) => item.responseType === "text" && skippedStudySteps[`${method.id}:${index}`] && !answers[`${method.id}:${index}`]?.trim())
+    .filter((item) => item.responseType === "text" && skippedStudySteps[studyStepKey(method.id, item.id)] && !answers[studyStepKey(method.id, item.id)]?.trim())
     .map((item) => item.title), [answers, method, skippedStudySteps]);
+  const skippedStepIds = useMemo(() => method.steps
+    .filter((item) => item.responseType === "text" && skippedStudySteps[studyStepKey(method.id, item.id)] && !answers[studyStepKey(method.id, item.id)]?.trim())
+    .map((item) => item.id), [answers, method, skippedStudySteps]);
   const writingStepCount = method.steps.filter((item) => item.responseType === "text").length;
   const completedWritingStepCount = sessionAnswers.filter((item) => item.answer.trim()).length;
   const hasStudySubstance = hasStudyWork || Object.keys(passageMarkups).length > 0;
@@ -2007,7 +2055,7 @@ export default function Home() {
   const completedStudyStepCount = method.steps.filter((item, index) =>
     item.responseType === "none"
       ? index < stepIndex || studyPhase !== "study"
-      : !!answers[`${method.id}:${index}`]?.trim()
+      : !!answers[studyStepKey(method.id, item.id)]?.trim()
   ).length;
   const progress = Math.min(100, (completedStudyStepCount / method.steps.length) * 100);
   const studyPassageReference = passageText?.reference || passage;
@@ -2968,11 +3016,11 @@ export default function Home() {
 
     if (recoveryDraft && recoveryDraft.updatedAt > draftRevision) {
       isHydratingDraftRef.current = false;
-      setAnswers(recoveryDraft.answers);
+      setAnswers(normalizeStudyAnswerMap(method.id, recoveryDraft.answers));
       setPassageMarkups(markupRecordsToMap(recoveryDraft.passageMarkups));
       setPassageMarkupNotes(markupRecordsToNoteMap(recoveryDraft.passageMarkups));
-      setSkippedStudySteps(method.steps.reduce<Record<string, boolean>>((map, item, index) => {
-        if (recoveryDraft.skippedStepTitles.includes(item.title)) map[`${method.id}:${index}`] = true;
+      setSkippedStudySteps(method.steps.reduce<Record<string, boolean>>((map, item) => {
+        if (recoveryDraft.skippedStepIds.includes(item.id) || recoveryDraft.skippedStepTitles.includes(item.title)) map[studyStepKey(method.id, item.id)] = true;
         return map;
       }, {}));
       setSelectedVerseKeys([]);
@@ -3004,21 +3052,18 @@ export default function Home() {
       return;
     }
 
-    const restoredAnswers: AnswerMap = {};
-    savedDraft.answers.forEach((item: any, index: number) => {
-      restoredAnswers[`${savedDraft.methodId}:${index}`] = item.answer;
-    });
+    const restoredAnswers = restoreStudyAnswers(savedDraft.methodId, savedDraft.answers);
     isHydratingDraftRef.current = true;
     setAnswers(restoredAnswers);
-    setSkippedStudySteps(method.steps.reduce<Record<string, boolean>>((map, item, index) => {
-      if ((savedDraft.skippedStepTitles || []).includes(item.title)) map[`${method.id}:${index}`] = true;
+    setSkippedStudySteps(method.steps.reduce<Record<string, boolean>>((map, item) => {
+      if ((savedDraft.skippedStepIds || []).includes(item.id) || (savedDraft.skippedStepTitles || []).includes(item.title)) map[studyStepKey(method.id, item.id)] = true;
       return map;
     }, {}));
     setPassageMarkups(markupRecordsToMap(savedDraft.passageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(savedDraft.passageMarkups || []));
     setSelectedVerseKeys([]);
     setStudyMethodState(normalizeStudyMethodState(savedDraft.methodState));
-    setStepIndex(pickResumeStepIndex(savedDraft.answers, savedDraft.stepIndex));
+    setStepIndex(pickResumeStepIndex(savedDraft.answers, savedDraft.stepIndex, savedDraft.methodId));
     setStudyPhase("study");
     loadedDraftRevisionRef.current = draftRevision;
     setLoadedDraftKey(currentStudyKey);
@@ -3031,6 +3076,27 @@ export default function Home() {
     setDetectedScriptureTypedReference("");
     setScriptureInsertStatus("");
   }, [answerKey]);
+
+  useEffect(() => {
+    if (!contemplativeTimerRunning || contemplativeTimerSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setContemplativeTimerSeconds((seconds) => {
+        if (seconds <= 1) {
+          setContemplativeTimerRunning(false);
+          return 0;
+        }
+        return seconds - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [contemplativeTimerRunning, contemplativeTimerSeconds]);
+
+  useEffect(() => {
+    if (method.id === "lectio") return;
+    setContemplativeTimerRunning(false);
+    setContemplativeTimerOpen(false);
+    setContemplativeTimerSeconds(0);
+  }, [method.id]);
 
   useEffect(() => {
     if (tab !== "study") return;
@@ -3072,6 +3138,25 @@ export default function Home() {
       controller.abort();
     };
   }, [passage, passageReloadKey, bibleTranslation, tab]);
+
+  useEffect(() => {
+    if (tab !== "study" || !studyTranslationComparisonOpen || !passageText) return;
+    const controller = new AbortController();
+    setStudyTranslationComparisonStatus("Loading public-domain translations...");
+    Promise.allSettled(BIBLE_TRANSLATIONS.map((translation) =>
+      translation.id === "bsb"
+        ? fetchBsbPassage(passageText.reference || passage, controller.signal)
+        : fetchBibleApiPassage(passageText.reference || passage, translation.id, controller.signal)
+    )).then((results) => {
+      if (controller.signal.aborted) return;
+      const passages = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
+      setStudyTranslationComparisons(passages);
+      setStudyTranslationComparisonStatus(passages.length
+        ? passages.length < BIBLE_TRANSLATIONS.length ? "Some translations could not be loaded." : ""
+        : "Translations could not be loaded. Check your connection and try again.");
+    });
+    return () => controller.abort();
+  }, [passage, passageText, studyTranslationComparisonOpen, tab]);
 
   useEffect(() => {
     if (!pendingStudyWorksheetPrint || tab !== "study" || !passageText?.verses?.length) return;
@@ -3290,6 +3375,7 @@ export default function Home() {
         passageMarkups: passageMarkupRecords,
         shareNote,
         skippedStepTitles,
+        skippedStepIds,
         methodState: studyMethodState,
         updatedAt: recoveryUpdatedAt
       });
@@ -3306,7 +3392,7 @@ export default function Home() {
       clearTimeout(timeout);
       if (studyDraftSaveTimerRef.current === timeout) studyDraftSaveTimerRef.current = null;
     };
-  }, [answers, currentStudyKey, hasStudyContent, loadedDraftKey, method.id, passage, passageMarkupRecords, passageText, shareNote, skippedStepTitles, activeProfileId, stepIndex, studyMethodState]);
+  }, [answers, currentStudyKey, hasStudyContent, loadedDraftKey, method.id, passage, passageMarkupRecords, passageText, shareNote, skippedStepIds, skippedStepTitles, activeProfileId, stepIndex, studyMethodState]);
 
   useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
@@ -3341,6 +3427,7 @@ export default function Home() {
           passageMarkups: passageMarkupRecords,
           shareNote,
           skippedStepTitles,
+          skippedStepIds,
           methodState: studyMethodState,
           updatedAt: recoveryUpdatedAt
         }
@@ -3365,6 +3452,7 @@ export default function Home() {
       methodName: method.name,
       shareNote: shareNote.trim() || undefined,
       skippedStepTitles: skippedStepTitles.length ? skippedStepTitles : undefined,
+      skippedStepIds: skippedStepIds.length ? skippedStepIds : undefined,
       methodState: hasStudyMethodState ? studyMethodState : undefined,
       stepIndex,
       answers: sessionAnswers
@@ -3423,6 +3511,7 @@ export default function Home() {
         methodName: method.name,
         shareNote: finalShareNote || undefined,
         skippedStepTitles: skippedStepTitles.length ? skippedStepTitles : undefined,
+        skippedStepIds: skippedStepIds.length ? skippedStepIds : undefined,
         methodState: hasStudyMethodState ? studyMethodState : undefined,
         passageMarkups: passageMarkupRecords,
         minutes: Math.max(5, sessionAnswers.filter((item) => item.answer.trim()).length * 6),
@@ -3460,7 +3549,7 @@ export default function Home() {
     });
     setAnswers((current) => {
       const nextAnswers = { ...current };
-      method.steps.forEach((_, index) => delete nextAnswers[`${method.id}:${index}`]);
+      method.steps.forEach((item) => delete nextAnswers[studyStepKey(method.id, item.id)]);
       return nextAnswers;
     });
     setSkippedStudySteps({});
@@ -3492,6 +3581,7 @@ export default function Home() {
       passageMarkups: draft.passageMarkups,
       shareNote: draft.shareNote,
       skippedStepTitles: draft.skippedStepTitles,
+      skippedStepIds: draft.skippedStepIds,
       methodState: draft.methodState,
       status: "Restored saved draft"
     });
@@ -3515,6 +3605,7 @@ export default function Home() {
       passageMarkups: session.passageMarkups,
       shareNote: session.shareNote,
       skippedStepTitles: session.skippedStepTitles,
+      skippedStepIds: session.skippedStepIds,
       methodState: session.methodState,
       status: "Loaded past study notes"
     });
@@ -3542,24 +3633,23 @@ export default function Home() {
     passageMarkups: nextPassageMarkups,
     shareNote: nextShareNote,
     skippedStepTitles: nextSkippedStepTitles,
+    skippedStepIds: nextSkippedStepIds,
     methodState: nextMethodState,
     status
   }: {
     passage: string;
     methodId: string;
     stepIndex: number;
-    answers: { stepTitle: string; answer: string }[];
+    answers: { stepId?: string; stepTitle: string; answer: string }[];
     passageMarkups?: PassageMarkupRecord[];
     shareNote?: string;
     skippedStepTitles?: string[];
+    skippedStepIds?: string[];
     methodState?: unknown;
     status: string;
   }) {
-    const restoredAnswers: AnswerMap = {};
-    nextAnswers.forEach((item, index) => {
-      restoredAnswers[`${nextMethodId}:${index}`] = item.answer;
-    });
-    const resumeStepIndex = pickResumeStepIndex(nextAnswers, nextStepIndex);
+    const restoredAnswers = restoreStudyAnswers(nextMethodId, nextAnswers);
+    const resumeStepIndex = pickResumeStepIndex(nextAnswers, nextStepIndex, nextMethodId);
 
     setPassage(nextPassage);
     setRememberedStudyMethod(nextMethodId, resumeStepIndex);
@@ -3567,14 +3657,15 @@ export default function Home() {
     setSavedStudySummary(null);
     setAnswers(restoredAnswers);
     const nextMethod = methods.find((item) => item.id === nextMethodId) || methods[0];
-    setSkippedStudySteps(nextMethod.steps.reduce<Record<string, boolean>>((map, item, index) => {
-      if ((nextSkippedStepTitles || []).includes(item.title)) map[`${nextMethodId}:${index}`] = true;
+    setSkippedStudySteps(nextMethod.steps.reduce<Record<string, boolean>>((map, item) => {
+      if ((nextSkippedStepIds || []).includes(item.id) || (nextSkippedStepTitles || []).includes(item.title)) map[studyStepKey(nextMethodId, item.id)] = true;
       return map;
     }, {}));
     setPassageMarkups(markupRecordsToMap(nextPassageMarkups || []));
     setPassageMarkupNotes(markupRecordsToNoteMap(nextPassageMarkups || []));
     setSelectedVerseKeys([]);
     setStudyMethodState(normalizeStudyMethodState(nextMethodState));
+    setMethodExampleModeId("");
     setLoadedDraftKey(studyKey(nextPassage, nextMethodId));
     setSaveStatus(status);
     setShareNote(nextShareNote || "");
@@ -3678,6 +3769,7 @@ export default function Home() {
     setSkippedStudySteps({});
     setShareNote("");
     setStudyMethodState(normalizeStudyMethodState(null));
+    setMethodExampleModeId("");
     resetPassageMarkup();
   }
 
@@ -3706,6 +3798,7 @@ export default function Home() {
       setStudyPhase("study");
       setSavedStudySummary(null);
       clearStudyWorkspace();
+      setMethodExampleModeId(nextMethod.id);
       setLoadedDraftKey("");
       setSaveStatus(`Example loaded: ${examplePassage}`);
       setActiveMethodInfoId("");
@@ -5345,6 +5438,35 @@ export default function Home() {
       translation: shortBibleTranslationName(passageText.translation_name),
       verses: versesToPrint
     });
+  }
+
+  async function openGroupStudyGuide() {
+    if (!passageText?.verses?.length) {
+      setSaveStatus("Passage is still loading. Try again in a moment.");
+      return;
+    }
+    if (Platform.OS !== "web" || typeof window === "undefined") {
+      setSaveStatus("Printable group guides are available in the web app.");
+      return;
+    }
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      setSaveStatus("Allow pop-ups to open the group study guide.");
+      return;
+    }
+    const { buildPrintableGroupStudyGuideHtml } = await import("@/data/printableWorksheet");
+    const guideHtml = buildPrintableGroupStudyGuideHtml({
+      reference: passageText.reference || passage,
+      translation: shortBibleTranslationName(passageText.translation_name),
+      method,
+      verses: passageText.verses
+    });
+    printWindow.document.open();
+    printWindow.document.write(guideHtml);
+    printWindow.document.close();
+    printWindow.document.title = `${passageText.reference || passage} Group Study Guide`;
+    printWindow.focus();
+    setSaveStatus("Group guide opened. Your private study answers were not included.");
   }
 
   async function openPrintableWorksheet() {
@@ -8148,6 +8270,23 @@ export default function Home() {
                 <View style={[styles.studyGuidedDescriptionRow, phoneLayout && styles.phoneStudyGuidedDescriptionRow]}>
                   {!studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
                 </View>
+                {studyFocusMode && (
+                  <View style={[styles.focusPassageSelector, studyDarkMode && styles.accountDarkInput]}>
+                    <Ionicons name="book-outline" size={16} color={studyDarkMode ? "#e9b76a" : colors.coral} />
+                    <TextInput
+                      accessibilityLabel="Bible passage reference in focus mode"
+                      value={passageQuery}
+                      onChangeText={setPassageQuery}
+                      onSubmitEditing={() => applyPassageQuery()}
+                      placeholder="Choose passage"
+                      placeholderTextColor={studyDarkMode ? "#8f8678" : undefined}
+                      style={[styles.focusPassageInput, studyDarkMode && styles.accountDarkText]}
+                    />
+                    <Pressable accessibilityRole="button" accessibilityLabel="Use this Bible passage" onPress={() => applyPassageQuery()} style={styles.useInlineButton}>
+                      <Text style={styles.useInlineText}>Use</Text>
+                    </Pressable>
+                  </View>
+                )}
               </View>
               {studyMethodPickerOpen && (
                 <View style={[styles.compactMethodMenu, studyDarkMode && styles.accountDarkInsetBox]}>
@@ -8163,7 +8302,8 @@ export default function Home() {
                       }}
                       style={[styles.compactMethodChip, studyDarkMode && styles.studyDarkMethodChip, method.id === item.id && styles.activeCompactMethodChip]}
                     >
-                      <Text style={[styles.compactMethodText, studyDarkMode && styles.accountDarkMutedText, method.id === item.id && styles.activeCompactMethodText]}>{item.short}</Text>
+                      <Text numberOfLines={1} style={[styles.compactMethodText, studyDarkMode && styles.accountDarkMutedText, method.id === item.id && styles.activeCompactMethodText]}>{`${item.short} · ${item.name}`}</Text>
+                      <Text style={[styles.compactMethodDuration, studyDarkMode && styles.accountDarkMutedText, method.id === item.id && styles.activeCompactMethodText]}>{item.detail?.duration || item.tone}</Text>
                     </Pressable>
                   ))}
                 </View>
@@ -8192,22 +8332,28 @@ export default function Home() {
               )}
 
               {studyPhase === "study" && (
-                <View style={[styles.studyProgressStrip, phoneLayout && styles.phoneStudyProgressStrip]}>
+                <ScrollView
+                  horizontal={phoneLayout}
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={[styles.studyProgressStrip, phoneLayout && styles.phoneStudyProgressStrip]}
+                  style={phoneLayout && styles.phoneStudyProgressScroll}
+                >
                   {method.steps.map((item, index) => {
-                    const stepAnswered = !!answers[`${method.id}:${index}`]?.trim();
+                    const itemKey = studyStepKey(method.id, item.id);
+                    const stepAnswered = !!answers[itemKey]?.trim();
                     const stepRead = item.responseType === "none" && (index < stepIndex || studyPhase !== "study");
-                    const stepSkipped = item.responseType === "text" && !stepAnswered && !!skippedStudySteps[`${method.id}:${index}`];
+                    const stepSkipped = item.responseType === "text" && !stepAnswered && !!skippedStudySteps[itemKey];
                     const stepCompleted = stepAnswered || stepRead;
                     const active = index === stepIndex;
                     const stepStatus = active ? "current" : stepCompleted ? "completed" : stepSkipped ? "skipped" : "not completed";
                     return (
                       <Pressable
-                        key={item.title}
+                        key={item.id}
                         accessibilityRole="button"
                         accessibilityLabel={`Step ${index + 1}, ${item.title}, ${stepStatus}`}
                         accessibilityState={{ selected: active }}
                         onPress={() => goToStudyStep(index)}
-                        style={[styles.studyProgressPill, studyDarkMode && styles.studyDarkProgressPill, stepCompleted && styles.completedStudyProgressPill, studyDarkMode && stepCompleted && styles.studyDarkCompletedProgressPill, stepSkipped && styles.skippedStudyProgressPill, active && styles.activeStudyProgressPill]}
+                        style={[styles.studyProgressPill, phoneLayout && styles.phoneStudyProgressPill, studyDarkMode && styles.studyDarkProgressPill, stepCompleted && styles.completedStudyProgressPill, studyDarkMode && stepCompleted && styles.studyDarkCompletedProgressPill, stepSkipped && styles.skippedStudyProgressPill, active && styles.activeStudyProgressPill]}
                       >
                         <Text
                           style={[
@@ -8227,10 +8373,8 @@ export default function Home() {
                       </Pressable>
                     );
                   })}
-                </View>
+                </ScrollView>
               )}
-
-              {studyInstructionPanel}
 
               <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyPhase === "study" && styles.attachedScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
                 <View style={styles.scriptureHeader}>
@@ -8455,6 +8599,40 @@ export default function Home() {
                     <Text style={[styles.translationNote, studyDarkMode && styles.accountDarkMutedText]}>
                       {passageText.translation_name} · {passageText.translation_note || "Public Domain"}
                     </Text>
+                    <View style={styles.studyPassageActions}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={studyTranslationComparisonOpen ? "Hide translation comparison" : "Compare public-domain translations"}
+                        accessibilityState={{ expanded: studyTranslationComparisonOpen }}
+                        onPress={() => setStudyTranslationComparisonOpen((value) => !value)}
+                        style={[styles.studyContextToggle, studyDarkMode && styles.homeDarkResumeButton]}
+                      >
+                        <Ionicons name="copy-outline" size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Text style={[styles.studyContextToggleText, studyDarkMode && styles.homeDarkResumeButtonText]}>{studyTranslationComparisonOpen ? "Hide comparison" : "Compare translations"}</Text>
+                      </Pressable>
+                    </View>
+                    {studyTranslationComparisonOpen && (
+                      <View style={[styles.translationComparisonBox, studyDarkMode && styles.accountDarkInsetBox]}>
+                        <View style={styles.translationComparisonHeader}>
+                          <Text style={[styles.studyContextToolTitle, studyDarkMode && styles.accountDarkTitle]}>Public-domain translation comparison</Text>
+                          <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Compare wording without treating every difference as a different meaning. Read each rendering in the passage’s context.</Text>
+                        </View>
+                        {!!studyTranslationComparisonStatus && <Text accessibilityLiveRegion="polite" style={[styles.saveStatus, studyDarkMode && styles.accountDarkMutedText]}>{studyTranslationComparisonStatus}</Text>}
+                        <View style={[styles.translationComparisonGrid, phoneLayout && styles.phoneTranslationComparisonGrid]}>
+                          {studyTranslationComparisons.map((comparison) => (
+                            <View key={comparison.translation_id} style={[styles.translationComparisonColumn, studyDarkMode && styles.accountDarkSection]}>
+                              <Text style={[styles.translationComparisonLabel, studyDarkMode && styles.studyDarkAccentText]}>{shortBibleTranslationName(comparison.translation_name)}</Text>
+                              {(comparison.verses || []).map((verse) => (
+                                <Text key={`${comparison.translation_id}-${verse.verse}`} style={[styles.translationComparisonVerse, studyDarkMode && styles.accountDarkText]}>
+                                  <Text style={styles.translationComparisonVerseNumber}>{verse.verse} </Text>{verse.text.trim()}
+                                </Text>
+                              ))}
+                              {!comparison.verses?.length && <Text style={[styles.translationComparisonVerse, studyDarkMode && styles.accountDarkText]}>{comparison.text.trim()}</Text>}
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
                     {passageText && (
                       <View style={[styles.studyContextTools, studyDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.studyContextToolHeader}>
@@ -8559,6 +8737,14 @@ export default function Home() {
                           labelStyle={[phoneLayout && styles.phoneStudyPrintButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}
                           iconColor={studyDarkMode ? "#e9b76a" : undefined}
                         />
+                        <ResumeButton
+                          label="Group guide"
+                          icon="people-outline"
+                          onPress={() => void openGroupStudyGuide()}
+                          style={[phoneLayout && styles.phoneStudyPrintButton, studyDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={[phoneLayout && styles.phoneStudyPrintButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}
+                          iconColor={studyDarkMode ? "#e9b76a" : undefined}
+                        />
                       </View>
                     ) : null}
                   </>
@@ -8574,6 +8760,8 @@ export default function Home() {
                   </View>
                 )}
               </View>
+
+              {studyInstructionPanel}
 
               {studyPhase === "saved" && savedStudySummary ? (
                 <View style={[styles.savedSummaryBox, studyDarkMode && styles.accountDarkInsetBox]}>
@@ -8667,14 +8855,15 @@ export default function Home() {
                   <View style={styles.reviewAnswers}>
                     {method.steps.map((methodStep, index) => {
                       if (methodStep.responseType === "none") return null;
-                      const answer = answers[`${method.id}:${index}`] || "";
+                      const itemKey = studyStepKey(method.id, methodStep.id);
+                      const answer = answers[itemKey] || "";
                       return (
-                        <View key={methodStep.title} style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
+                        <View key={methodStep.id} style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
                           <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>{methodStep.title}</Text>
                           {answer.trim()
                             ? <FormattedNoteText styles={styles} text={answer} darkMode={studyDarkMode} />
                             : <Text style={[styles.skippedReviewText, studyDarkMode && styles.accountDarkMutedText]}>
-                                {skippedStudySteps[`${method.id}:${index}`] ? "Skipped for now" : "Not completed"}
+                                {skippedStudySteps[itemKey] ? "Skipped for now" : "Not completed"}
                               </Text>}
                         </View>
                       );
@@ -8704,6 +8893,63 @@ export default function Home() {
                 </View>
               ) : (
                 <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel]}>
+                  {method.id === "lectio" && (
+                    <View style={[styles.contemplativeTimerBox, studyDarkMode && styles.accountDarkSection]}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={contemplativeTimerOpen ? "Hide optional quiet timer" : "Show optional quiet timer"}
+                        accessibilityState={{ expanded: contemplativeTimerOpen }}
+                        onPress={() => setContemplativeTimerOpen((value) => !value)}
+                        style={styles.contemplativeTimerHeader}
+                      >
+                        <View style={styles.feedbackHeader}>
+                          <Ionicons name="timer-outline" size={18} color={colors.coral} />
+                          <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Optional quiet timer</Text>
+                        </View>
+                        <Ionicons name={contemplativeTimerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </Pressable>
+                      {contemplativeTimerOpen && (
+                        <View style={styles.contemplativeTimerBody}>
+                          <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Use silence to remain with the Scripture, not to empty it of its meaning. The timer is optional and stays on this device.</Text>
+                          <Text accessibilityLiveRegion={contemplativeTimerSeconds === 0 ? "polite" : "none"} style={[styles.contemplativeTimerValue, studyDarkMode && styles.accountDarkTitle]}>
+                            {formatQuietTimer(contemplativeTimerSeconds)}
+                          </Text>
+                          <View style={styles.contemplativeTimerActions}>
+                            {[2, 5, 10].map((minutes) => (
+                              <Pressable key={minutes} accessibilityRole="button" onPress={() => { setContemplativeTimerSeconds(minutes * 60); setContemplativeTimerRunning(true); }} style={[styles.filterChip, studyDarkMode && styles.homeDarkResumeButton]}>
+                                <Text style={[styles.filterText, studyDarkMode && styles.homeDarkResumeButtonText]}>{minutes} min</Text>
+                              </Pressable>
+                            ))}
+                            {contemplativeTimerSeconds > 0 && (
+                              <Pressable accessibilityRole="button" onPress={() => setContemplativeTimerRunning((value) => !value)} style={[styles.filterChip, studyDarkMode && styles.homeDarkResumeButton]}>
+                                <Text style={[styles.filterText, studyDarkMode && styles.homeDarkResumeButtonText]}>{contemplativeTimerRunning ? "Pause" : "Resume"}</Text>
+                              </Pressable>
+                            )}
+                            {contemplativeTimerSeconds > 0 && (
+                              <Pressable accessibilityRole="button" onPress={() => { setContemplativeTimerRunning(false); setContemplativeTimerSeconds(0); }} style={styles.methodSupportClear}>
+                                <Text style={styles.methodSupportClearText}>Reset</Text>
+                              </Pressable>
+                            )}
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                  {methodExampleModeId === method.id && method.detail?.exampleWalkthrough?.[stepIndex] && (
+                    <View style={[styles.methodGuidedExampleBox, studyDarkMode && styles.accountDarkSection]}>
+                      <View style={styles.methodGuidedExampleHeader}>
+                        <View style={styles.feedbackHeader}>
+                          <Ionicons name="school-outline" size={18} color={colors.coral} />
+                          <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Worked example · not your response</Text>
+                        </View>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Hide worked example" onPress={() => setMethodExampleModeId("")} style={styles.methodSupportClear}>
+                          <Text style={styles.methodSupportClearText}>Hide</Text>
+                        </Pressable>
+                      </View>
+                      <Text style={[styles.methodGuidedExampleText, studyDarkMode && styles.accountDarkText]}>{method.detail.exampleWalkthrough[stepIndex]}</Text>
+                      <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Use this to understand the step, then write your own response in the blank editor below.</Text>
+                    </View>
+                  )}
                   {stepIndex > 0 && ["soap", "lectio", "hear"].includes(method.id) && (studyMethodState.focusText || focusVerses.length > 0) && (
                     <View style={[styles.methodFocusReminder, studyDarkMode && styles.accountDarkSection]}>
                       <Ionicons name="bookmark" size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -9966,10 +10212,11 @@ export default function Home() {
                   </Pressable>
                 </View>
                 <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{activeMethodInfo.detail?.purpose || activeMethodInfo.description}</Text>
+                <Text style={[styles.methodDurationText, methodsDarkMode && styles.accountDarkMutedText]}>{`Typical pace: ${activeMethodInfo.detail?.duration || "Take the time you need"}`}</Text>
                 <View style={styles.methodInfoSection}>
                   <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Best for</Text>
                   <View style={styles.methodFitRow}>
-                    {(activeMethodInfo.labels || activeMethodInfo.detail?.bestFor || [activeMethodInfo.tone]).map((fit) => (
+                    {Array.from(new Set([...(activeMethodInfo.detail?.bestFor || []), ...(activeMethodInfo.labels || []), activeMethodInfo.tone])).map((fit) => (
                       <Text key={fit} style={[styles.methodFitPill, methodsDarkMode && styles.methodsDarkPill]}>{fit}</Text>
                     ))}
                   </View>
@@ -9977,7 +10224,7 @@ export default function Home() {
                 <View style={styles.methodInfoSection}>
                   <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>How it works</Text>
                   {activeMethodInfo.steps.map((methodStep, index) => (
-                    <View key={`${activeMethodInfo.id}-${methodStep.title}`} style={[styles.methodStepPreview, methodsDarkMode && styles.accountDarkInsetBox]}>
+                    <View key={`${activeMethodInfo.id}-${methodStep.id}`} style={[styles.methodStepPreview, methodsDarkMode && styles.accountDarkInsetBox]}>
                       <Text style={styles.methodStepNumber}>{index + 1}</Text>
                       <View style={styles.methodStepCopy}>
                         <Text style={[styles.methodStepTitle, methodsDarkMode && styles.accountDarkTitle]}>{methodStep.title}</Text>
@@ -10032,7 +10279,7 @@ export default function Home() {
                   <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{item.description}</Text>
                   <View style={styles.methodStepCountRow}>
                     <Ionicons name="list-outline" size={15} color={colors.coral} />
-                    <Text style={[styles.methodStepCountText, methodsDarkMode && styles.accountDarkMutedText]}>{`${item.steps.length} guided steps`}</Text>
+                    <Text style={[styles.methodStepCountText, methodsDarkMode && styles.accountDarkMutedText]}>{`${item.steps.length} guided steps · ${item.detail?.duration || item.tone}`}</Text>
                   </View>
                   <View style={styles.methodCardAction}>
                     <AppButton
@@ -14748,15 +14995,32 @@ function buildVerseRange(startVerse: number, endVerse: number) {
   return Array.from({ length: end - start + 1 }, (_, index) => start + index);
 }
 
-function pickResumeStepIndex(answers: { answer: string }[], requestedIndex: number) {
-  if (answers[requestedIndex]?.answer?.trim()) return requestedIndex;
+function pickResumeStepIndex(answers: { stepId?: string; stepTitle?: string; answer: string }[], requestedIndex: number, methodId: string) {
+  const selectedMethod = methods.find((item) => item.id === methodId) || methods[0];
+  const currentIndexForSavedAnswer = (savedIndex: number) => {
+    const saved = answers[savedIndex];
+    if (!saved) return -1;
+    const byId = saved.stepId ? selectedMethod.steps.findIndex((step) => step.id === saved.stepId) : -1;
+    if (byId >= 0) return byId;
+    const byTitle = saved.stepTitle ? selectedMethod.steps.findIndex((step) => step.title === saved.stepTitle) : -1;
+    return byTitle >= 0 ? byTitle : Math.min(savedIndex, selectedMethod.steps.length - 1);
+  };
+
+  if (answers[requestedIndex]?.answer?.trim()) return Math.max(0, currentIndexForSavedAnswer(requestedIndex));
 
   for (let index = Math.min(requestedIndex, answers.length - 1); index >= 0; index -= 1) {
-    if (answers[index]?.answer?.trim()) return index;
+    if (answers[index]?.answer?.trim()) return Math.max(0, currentIndexForSavedAnswer(index));
   }
 
   const firstAnswered = answers.findIndex((item) => item.answer.trim());
-  return Math.max(0, firstAnswered);
+  return Math.max(0, currentIndexForSavedAnswer(firstAnswered));
+}
+
+function formatQuietTimer(totalSeconds: number) {
+  const safeSeconds = Math.max(0, Math.round(totalSeconds));
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 function buildCommunityMessage({
@@ -17140,6 +17404,24 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     position: "relative"
   },
+  focusPassageSelector: {
+    alignItems: "center",
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 8,
+    maxWidth: 520,
+    paddingHorizontal: 10
+  },
+  focusPassageInput: {
+    color: colors.ink,
+    flex: 1,
+    minHeight: 42,
+    minWidth: 0
+  },
   compactMethodPicker: {
     alignItems: "center",
     backgroundColor: "#fffaf2",
@@ -17190,9 +17472,10 @@ const styles = StyleSheet.create({
   },
   compactMethodChip: {
     backgroundColor: "#fff6eb",
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 6
+    borderRadius: 10,
+    minWidth: 170,
+    paddingHorizontal: 10,
+    paddingVertical: 7
   },
   activeCompactMethodChip: {
     backgroundColor: colors.oliveDark
@@ -17202,8 +17485,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "900"
   },
+  compactMethodDuration: {
+    color: colors.muted,
+    fontSize: 10,
+    fontWeight: "700",
+    marginTop: 2
+  },
   activeCompactMethodText: {
     color: "white"
+  },
+  methodDurationText: {
+    color: colors.muted,
+    fontSize: 13,
+    fontWeight: "800",
+    marginTop: 8
   },
   studyProgressStrip: {
     flexDirection: "row",
@@ -17212,7 +17507,20 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   phoneStudyProgressStrip: {
-    gap: 6
+    flexWrap: "nowrap",
+    gap: 6,
+    paddingRight: 8
+  },
+  phoneStudyProgressScroll: {
+    marginBottom: 8,
+    maxWidth: "100%"
+  },
+  phoneStudyProgressPill: {
+    flexGrow: 0,
+    flexShrink: 0,
+    minHeight: 34,
+    minWidth: 0,
+    paddingHorizontal: 9
   },
   studyProgressPill: {
     alignItems: "center",
@@ -19598,6 +19906,55 @@ const styles = StyleSheet.create({
     backgroundColor: "#8f6a35",
     borderColor: "#e9b76a"
   },
+  studyPassageActions: {
+    alignItems: "flex-start",
+    marginTop: 9
+  },
+  translationComparisonBox: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 10,
+    padding: 12
+  },
+  translationComparisonHeader: {
+    gap: 4
+  },
+  translationComparisonGrid: {
+    alignItems: "stretch",
+    flexDirection: "row",
+    gap: 10
+  },
+  phoneTranslationComparisonGrid: {
+    flexDirection: "column"
+  },
+  translationComparisonColumn: {
+    backgroundColor: "#fffefa",
+    borderColor: colors.line,
+    borderRadius: 10,
+    borderWidth: 1,
+    flex: 1,
+    gap: 7,
+    minWidth: 0,
+    padding: 10
+  },
+  translationComparisonLabel: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "900"
+  },
+  translationComparisonVerse: {
+    color: colors.ink,
+    fontSize: 13,
+    lineHeight: 19
+  },
+  translationComparisonVerseNumber: {
+    color: colors.coral,
+    fontSize: 10,
+    fontWeight: "900"
+  },
   phoneStudyPrintButton: {
     alignSelf: "stretch",
     justifyContent: "center",
@@ -19656,6 +20013,55 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 16,
     padding: 16
+  },
+  methodGuidedExampleBox: {
+    backgroundColor: "#fff6eb",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 8,
+    marginBottom: 12,
+    padding: 12
+  },
+  methodGuidedExampleHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  methodGuidedExampleText: {
+    color: colors.ink,
+    fontSize: 15,
+    lineHeight: 22
+  },
+  contemplativeTimerBox: {
+    backgroundColor: "#fffaf2",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    marginBottom: 12,
+    padding: 12
+  },
+  contemplativeTimerHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  contemplativeTimerBody: {
+    gap: 10,
+    marginTop: 10
+  },
+  contemplativeTimerValue: {
+    color: colors.oliveDark,
+    fontSize: 34,
+    fontWeight: "900",
+    letterSpacing: 1
+  },
+  contemplativeTimerActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 7
   },
   phoneGuidedStudyStepPanel: {
     borderBottomLeftRadius: 11,

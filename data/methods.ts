@@ -1,4 +1,5 @@
 export type StudyStep = {
+  id: string;
   title: string;
   action: string;
   prompt: string;
@@ -19,6 +20,7 @@ export type StudyMethod = {
   detail?: {
     purpose: string;
     bestFor: string[];
+    duration: string;
     watchFor: string;
     examplePassage: string;
     exampleWalkthrough: string[];
@@ -34,8 +36,22 @@ export const methods: StudyMethod[] = [
     tone: "Best starting point",
     description: "Read carefully, notice what is there, understand the meaning, then choose one response.",
     labels: ["Beginner", "Balanced", "Daily study"],
+    detail: {
+      purpose: "OIA builds a dependable habit: notice what the passage says, explain its meaning from the text and context, and only then choose a fitting response.",
+      bestFor: ["Beginners", "Daily Bible study", "Small groups", "Readers learning to separate observation from application"],
+      duration: "15–25 minutes",
+      watchFor: "Do not turn an observation into an interpretation too early, or make an application from an isolated phrase. Let the passage and its context set the direction.",
+      examplePassage: "Mark 1:35",
+      exampleWalkthrough: [
+        "Read Slowly: Read Mark 1:29-39 so verse 35 remains connected to Jesus’ ministry and mission.",
+        "Observe: Jesus rises very early, goes to a solitary place, and prays. The disciples search for him.",
+        "Interpret: Jesus’ prayer belongs within faithful dependence on the Father and his mission to preach; the verse is more than a general productivity habit.",
+        "Apply: Before beginning tomorrow’s work, I will make unhurried room to pray and submit the day to God."
+      ]
+    },
     steps: [
       {
+        id: "read",
         title: "Read Slowly",
         action: "Read once for the flow, then again to notice details.",
         prompt: "The first reading helps you hear the whole passage. The second reading is for observation: repeated words, people, actions, images, commands, promises, and contrasts.",
@@ -46,6 +62,7 @@ export const methods: StudyMethod[] = [
         nextLabel: "I noticed details"
       },
       {
+        id: "observe",
         title: "Observe",
         action: "Write what you see in the passage.",
         prompt: "Do not explain or apply it yet. Just list details that are actually in the selected verses.",
@@ -55,6 +72,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "interpret",
         title: "Interpret",
         action: "Write the main meaning of the passage.",
         prompt: "Use your observations to explain what the passage teaches. Keep your answer tied to the words in the passage.",
@@ -64,6 +82,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "apply",
         title: "Apply",
         action: "Choose one specific response for today.",
         prompt: "Move from meaning to a concrete act of trust, prayer, obedience, repentance, or encouragement.",
@@ -81,8 +100,22 @@ export const methods: StudyMethod[] = [
     tone: "Devotional rhythm",
     description: "Read the Scripture, observe what it says, apply it personally, then pray it back to God.",
     labels: ["Devotional", "Prayer", "Journal"],
+    detail: {
+      purpose: "SOAP is a short devotional rhythm that keeps personal response anchored in Scripture: choose the text, observe it, apply it, and pray from it.",
+      bestFor: ["Daily devotions", "Prayer journaling", "Beginners", "Short passages"],
+      duration: "10–20 minutes",
+      watchFor: "Application and prayer should grow from what the passage actually says. Keep the chosen verse connected to the surrounding paragraph.",
+      examplePassage: "Psalm 23:1",
+      exampleWalkthrough: [
+        "Scripture: ‘The Lord is my shepherd; I shall not want.’ Read the whole psalm before focusing on verse 1.",
+        "Observation: The Lord is described personally as shepherd; David connects his care with provision.",
+        "Application: I am tempted to treat control as my security. Today I can entrust one concrete worry to God’s care.",
+        "Prayer: Lord, shepherd me in this worry. Help me receive your care and act faithfully without grasping for control."
+      ]
+    },
     steps: [
       {
+        id: "scripture",
         title: "Read Scripture",
         action: "Read slowly and choose the verse or phrase you will carry into SOAP.",
         prompt: "Take in the whole passage, then settle on the Scripture line, verse, or phrase you want to observe, apply, and pray through.",
@@ -93,6 +126,7 @@ export const methods: StudyMethod[] = [
         nextLabel: "I chose a focus"
       },
       {
+        id: "observation",
         title: "Observation",
         action: "Write your observations about the selected verse or passage.",
         prompt: "Describe what is happening in the Scripture. Stay with what the text says before thinking about your life.",
@@ -102,6 +136,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "application",
         title: "Application",
         action: "Write how you will apply what you observed.",
         prompt: "Ask where this Scripture touches your actual life today: your thoughts, choices, habits, relationships, fears, or hopes.",
@@ -111,6 +146,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "prayer",
         title: "Prayer",
         action: "Write a prayer based on the passage and your application.",
         prompt: "Speak directly to God. Use your observations and application as the content of your prayer.",
@@ -128,8 +164,24 @@ export const methods: StudyMethod[] = [
     tone: "Deeper investigation",
     description: "Read closely, map the passage, ask questions, summarize what the text teaches, then choose a grounded response.",
     labels: ["Deep study", "Analytical", "Teaching prep"],
+    detail: {
+      purpose: "Inductive Study slows down interpretation by tracing context, structure, details, and questions before stating the main point and responding.",
+      bestFor: ["Deeper study", "Teaching preparation", "Longer passages", "Readers who enjoy careful investigation"],
+      duration: "30–45 minutes",
+      watchFor: "Questions and word details serve the passage’s main argument; they should not replace it. Distinguish the passage’s original meaning from your present response.",
+      examplePassage: "Romans 8:1-4",
+      exampleWalkthrough: [
+        "Context: Romans 7 describes the conflict with sin; Romans 8 begins with what God has done in Christ and by the Spirit.",
+        "Divide: Verse 1 states the verdict; verses 2-3 explain God’s action; verse 4 names its purpose.",
+        "Details: ‘No condemnation,’ ‘in Christ Jesus,’ and ‘God has done’ carry the argument.",
+        "Questions: Why is there no condemnation? Because God condemned sin in the flesh through his Son, not because believers became flawless.",
+        "Summary: God has acted in Christ to free his people from condemnation and enable Spirit-shaped life.",
+        "Respond: Because assurance rests in God’s action in Christ, I will confess today’s sin without hiding and trust his verdict rather than self-condemnation."
+      ]
+    },
     steps: [
       {
+        id: "context",
         title: "Read for Context",
         action: "Read the passage and identify its basic setting.",
         prompt: "Before analyzing details, get oriented. Notice the kind of writing, the people involved, the speaker or audience, and the basic flow of thought or events.",
@@ -140,6 +192,7 @@ export const methods: StudyMethod[] = [
         nextLabel: "I am oriented"
       },
       {
+        id: "divide",
         title: "Divide the Passage",
         action: "Break the passage into smaller sections.",
         prompt: "Find where the idea, scene, speaker, command, or image changes.",
@@ -149,6 +202,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "details",
         title: "Mark Key Details",
         action: "List the details that carry the meaning.",
         prompt: "Look for repeated words, strong verbs, commands, promises, contrasts, images, and changes in tone.",
@@ -158,6 +212,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "questions",
         title: "Ask Questions",
         action: "Ask questions raised by the passage.",
         prompt: "Good questions come from the text itself. Try to answer them using nearby clues before outside sources.",
@@ -167,6 +222,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "summarize",
         title: "Summarize",
         action: "Write the main point of the passage.",
         prompt: "Use your sections, key details, and questions to explain the passage in plain language.",
@@ -176,6 +232,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "respond",
         title: "Respond",
         action: "Choose a response that grows from the passage’s main point.",
         prompt: "Keep the passage’s original meaning distinct from your present response. Then name one fitting act of trust, obedience, repentance, prayer, encouragement, or further study.",
@@ -193,8 +250,22 @@ export const methods: StudyMethod[] = [
     tone: "Prayerful listening",
     description: "Read slowly, meditate on one phrase, pray honestly, then rest with one truth.",
     labels: ["Prayerful", "Reflective", "Slow reading"],
+    detail: {
+      purpose: "Lectio Divina offers a slow, prayerful way to receive Scripture through reading, meditation, prayer, and quiet rest before God.",
+      bestFor: ["Prayerful reading", "Contemplative reflection", "Psalms and Gospel passages", "People who need to slow down"],
+      duration: "10–20 minutes",
+      watchFor: "A phrase that stands out is not a private message detached from Scripture. Receive it within the passage’s plain meaning and the wider Christian faith.",
+      examplePassage: "Psalm 131:1-2",
+      exampleWalkthrough: [
+        "Read: Read the whole psalm slowly and notice ‘like a weaned child with its mother.’",
+        "Meditate: The image names quiet trust rather than demanding that every desire be met immediately.",
+        "Pray: Lord, quiet the pride and restless striving in me; teach me to hope in you.",
+        "Rest: I can be quiet before God without needing to control the outcome."
+      ]
+    },
     steps: [
       {
+        id: "read",
         title: "Read",
         action: "Read prayerfully and listen for one word or phrase.",
         prompt: "Do not try to study every detail. Let the passage slow you down and listen for the word or phrase that draws your attention before God.",
@@ -205,6 +276,7 @@ export const methods: StudyMethod[] = [
         nextLabel: "I noticed a phrase"
       },
       {
+        id: "meditate",
         title: "Meditate",
         action: "Stay with the phrase that stood out.",
         prompt: "Hold that phrase before God. Notice what it brings up in you: comfort, resistance, longing, confession, or hope.",
@@ -214,6 +286,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "pray",
         title: "Pray",
         action: "Turn the phrase into prayer.",
         prompt: "Speak directly to God from what surfaced during meditation.",
@@ -223,6 +296,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "rest",
         title: "Rest",
         action: "Receive one truth to carry with you.",
         prompt: "Sit with the passage without adding more analysis. Name the simple truth you want to carry today.",
@@ -243,6 +317,7 @@ export const methods: StudyMethod[] = [
     detail: {
       purpose: "READ is designed for people who want a simple, memorable path through Scripture without feeling like they need specialist study skills. It keeps the study practical while still slowing the reader down enough to notice the text.",
       bestFor: ["Beginners", "Daily quiet time", "Short passages", "People who want one clear action step"],
+      duration: "10–15 minutes",
       watchFor: "Do not rush straight to the Do step. The strength of READ is that action grows out of careful reading and honest exploration.",
       examplePassage: "James 1:22",
       exampleWalkthrough: [
@@ -254,6 +329,7 @@ export const methods: StudyMethod[] = [
     },
     steps: [
       {
+        id: "read",
         title: "Read",
         action: "Read the passage and name its main movement.",
         prompt: "Read for the whole thought. Notice where the passage begins, where it moves, and whether a word, phrase, command, promise, warning, or image seems important.",
@@ -264,6 +340,7 @@ export const methods: StudyMethod[] = [
         nextLabel: "I see the flow"
       },
       {
+        id: "explore",
         title: "Explore",
         action: "Explore what stands out and why it matters.",
         prompt: "Write what you noticed. Stay close to the passage before moving to personal application.",
@@ -273,6 +350,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "apply",
         title: "Apply",
         action: "Connect the passage to one real area of life.",
         prompt: "Ask where this passage touches your thoughts, choices, relationships, habits, or fears today.",
@@ -282,6 +360,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "do",
         title: "Do",
         action: "Choose one concrete response.",
         prompt: "Turn your application into a small act of trust, obedience, repentance, prayer, or encouragement.",
@@ -302,6 +381,7 @@ export const methods: StudyMethod[] = [
     detail: {
       purpose: "HEAR helps a reader move from attention to response. It is especially good when a passage has one phrase that seems to press gently on the heart.",
       bestFor: ["Devotional reading", "Journaling", "Prayerful reflection", "Users who like highlighting text"],
+      duration: "10–20 minutes",
       watchFor: "The Explain step should use the passage itself, not just a personal feeling. The feeling matters, but the text leads.",
       examplePassage: "Psalm 23:1",
       exampleWalkthrough: [
@@ -313,6 +393,7 @@ export const methods: StudyMethod[] = [
     },
     steps: [
       {
+        id: "highlight",
         title: "Highlight",
         action: "Choose one word or phrase from the passage.",
         prompt: "Read slowly enough to choose the phrase that carries weight for you today. It may comfort, challenge, puzzle, or invite you.",
@@ -323,6 +404,7 @@ export const methods: StudyMethod[] = [
         nextLabel: "I chose a phrase"
       },
       {
+        id: "explain",
         title: "Explain",
         action: "Explain the phrase in your own words.",
         prompt: "Use the surrounding passage to explain what the phrase means. Keep it simple and grounded.",
@@ -332,6 +414,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "apply",
         title: "Apply",
         action: "Apply the phrase to your current life.",
         prompt: "Ask how this phrase speaks to your day, relationships, decisions, fears, habits, or hopes.",
@@ -341,6 +424,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "respond",
         title: "Respond",
         action: "Respond to God in prayer or obedience.",
         prompt: "Turn your application into a short prayer, confession, thanksgiving, or action.",
@@ -361,6 +445,7 @@ export const methods: StudyMethod[] = [
     detail: {
       purpose: "COMA gives structure without becoming too technical. It is a helpful bridge between devotional reading and deeper inductive study because it forces the reader to consider context before meaning and application.",
       bestFor: ["Small groups", "Teaching preparation", "Letters and teaching passages", "Users ready for a little more structure"],
+      duration: "20–30 minutes",
       watchFor: "The biggest risk is skipping Context. A strong application should grow from what the passage meant in its setting.",
       examplePassage: "Philippians 4:6-7",
       exampleWalkthrough: [
@@ -372,6 +457,7 @@ export const methods: StudyMethod[] = [
     },
     steps: [
       {
+        id: "context",
         title: "Context",
         action: "Notice where the passage sits and what is happening around it.",
         prompt: "Read the selected passage and look briefly at the verses before and after if available. Identify the speaker, audience, situation, or flow.",
@@ -381,6 +467,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "observation",
         title: "Observation",
         action: "List what the passage says.",
         prompt: "Observe repeated words, commands, promises, contrasts, reasons, images, and connecting words.",
@@ -390,6 +477,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "meaning",
         title: "Meaning",
         action: "Summarize what the passage teaches.",
         prompt: "Use the context and observations to state the main meaning. Focus on what the passage teaches before deciding what you will do.",
@@ -399,6 +487,7 @@ export const methods: StudyMethod[] = [
         responseType: "text"
       },
       {
+        id: "application",
         title: "Application",
         action: "Choose a wise response.",
         prompt: "Apply the meaning to your actual life with humility and specificity.",

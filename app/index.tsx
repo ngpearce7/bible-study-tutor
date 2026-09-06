@@ -1119,6 +1119,8 @@ export default function Home() {
   const [isSavingReflection, setIsSavingReflection] = useState(false);
   const [pendingArchiveDraftId, setPendingArchiveDraftId] = useState("");
   const [pendingDeleteJournalEntryId, setPendingDeleteJournalEntryId] = useState("");
+  const [journalDeleteStatus, setJournalDeleteStatus] = useState("");
+  const [isDeletingJournalEntry, setIsDeletingJournalEntry] = useState(false);
   const [journalStatus, setJournalStatus] = useState("");
   const [editingJournalEntryId, setEditingJournalEntryId] = useState("");
   const [editJournalNote, setEditJournalNote] = useState("");
@@ -4925,26 +4927,29 @@ export default function Home() {
   }
 
   async function deleteJournalEntry(entry: any) {
-    if (!activeProfileId) return;
+    if (!activeProfileId || !entry?._id || isDeletingJournalEntry) return;
 
     const entryId = String(entry._id);
-    if (pendingDeleteJournalEntryId !== entryId) {
-      setPendingDeleteJournalEntryId(entryId);
-      setJournalStatus("Tap Confirm delete to remove this journal entry.");
-      return;
-    }
+    setIsDeletingJournalEntry(true);
+    setJournalDeleteStatus("Deleting journal entry...");
+    try {
+      if (entry.answers) {
+        await deleteSessionMutation({ profileId: activeProfileId, sessionId: entry._id });
+        const nextPinnedEntries = pinnedJournalEntryIds.filter((id) => id !== entryId);
+        setPinnedJournalEntryIds(nextPinnedEntries);
+        persistPinnedJournalEntries(nextPinnedEntries);
+      } else {
+        await deleteCheckinMutation({ profileId: activeProfileId, checkinId: entry._id });
+      }
 
-    if (entry.answers) {
-      await deleteSessionMutation({ profileId: activeProfileId, sessionId: entry._id });
-      const nextPinnedEntries = pinnedJournalEntryIds.filter((id) => id !== entryId);
-      setPinnedJournalEntryIds(nextPinnedEntries);
-      persistPinnedJournalEntries(nextPinnedEntries);
-    } else {
-      await deleteCheckinMutation({ profileId: activeProfileId, checkinId: entry._id });
+      setPendingDeleteJournalEntryId("");
+      setJournalDeleteStatus("");
+      setJournalStatus("Journal entry deleted");
+    } catch {
+      setJournalDeleteStatus("Could not delete this journal entry. Try again in a moment.");
+    } finally {
+      setIsDeletingJournalEntry(false);
     }
-
-    setPendingDeleteJournalEntryId("");
-    setJournalStatus("Journal entry deleted");
   }
 
   function startEditJournalEntry(entry: any) {
@@ -11201,6 +11206,10 @@ export default function Home() {
               setPendingRemoveStudyReviewId={setPendingRemoveStudyReviewId}
               startEditJournalEntry={startEditJournalEntry}
               pendingDeleteJournalEntryId={pendingDeleteJournalEntryId}
+              setPendingDeleteJournalEntryId={setPendingDeleteJournalEntryId}
+              journalDeleteStatus={journalDeleteStatus}
+              setJournalDeleteStatus={setJournalDeleteStatus}
+              isDeletingJournalEntry={isDeletingJournalEntry}
               deleteJournalEntry={deleteJournalEntry}
               STUDY_REVIEW_OPTIONS={STUDY_REVIEW_OPTIONS}
               scheduleStudyReview={scheduleStudyReview}
@@ -22431,6 +22440,12 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 10
   },
+  reviewScheduleInline: {
+    borderTopWidth: 1,
+    gap: 10,
+    marginTop: 4,
+    paddingTop: 12
+  },
   memoryBulkReviewBox: {
     backgroundColor: "#fffdfa",
     borderColor: colors.line,
@@ -25273,6 +25288,11 @@ const styles = StyleSheet.create({
     maxHeight: "86%",
     maxWidth: 520,
     overflow: "hidden",
+    width: "100%"
+  },
+  journalDeleteDialogCard: {
+    marginTop: 0,
+    maxWidth: 460,
     width: "100%"
   },
   phoneEditorSettingsCard: {

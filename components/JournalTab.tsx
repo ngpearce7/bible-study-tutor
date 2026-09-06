@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Modal, Platform, Pressable, Text, TextInput, View } from "react-native";
 
 import {
   CustomStudyReviewControl,
@@ -111,6 +111,10 @@ export function JournalTab(props: any) {
     setPendingRemoveStudyReviewId,
     startEditJournalEntry,
     pendingDeleteJournalEntryId,
+    setPendingDeleteJournalEntryId,
+    journalDeleteStatus,
+    setJournalDeleteStatus,
+    isDeletingJournalEntry,
     deleteJournalEntry,
     STUDY_REVIEW_OPTIONS,
     scheduleStudyReview,
@@ -123,6 +127,83 @@ export function JournalTab(props: any) {
     setTab
   } = props;
   const ResumeButton = ResumeButtonComponent;
+  const pendingDeleteJournalEntry = journalEntries.find((entry: any) => String(entry._id) === pendingDeleteJournalEntryId);
+  const pendingDeleteJournalEntryTitle = pendingDeleteJournalEntry?.passage
+    || (pendingDeleteJournalEntry && isHighlightReflection(pendingDeleteJournalEntry) ? "Highlight reflection" : "Encouragement");
+  const closeDeleteJournalDialog = () => {
+    if (isDeletingJournalEntry) return;
+    setPendingDeleteJournalEntryId("");
+    setJournalDeleteStatus("");
+  };
+  const deleteDialogAccessibilityProps = {
+    accessibilityLabel: "Delete journal entry confirmation",
+    accessibilityViewIsModal: true,
+    ...(Platform.OS === "web" ? { "aria-modal": true, role: "dialog", tabIndex: -1 } : {})
+  } as any;
+
+  const renderReviewScheduleOptions = (entry: any, rawEntryId: string) => (
+    <>
+      <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
+        {entry.reviewStatus === "scheduled"
+          ? `Currently set for ${formatReviewDate(entry.reviewAt)}. Choosing a new period will replace this date.`
+          : "Choose when you would like this study to return for review."}
+      </Text>
+      <View style={styles.reviewPresetRow}>
+        {STUDY_REVIEW_OPTIONS.map((option: any) => (
+          <Pressable
+            key={option.id}
+            accessibilityRole="button"
+            accessibilityLabel={`Review ${option.label.toLowerCase()}`}
+            onPress={() => {
+              scheduleStudyReview(entry._id, option.id);
+              setReviewScheduleStudyId("");
+              setPendingRemoveStudyReviewId("");
+            }}
+            style={[styles.filterChip, journalDarkMode && styles.printDarkOptionChip]}
+          >
+            <Text style={[styles.filterText, journalDarkMode && styles.accountDarkMutedText]}>{option.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <CustomStudyReviewControl
+        styles={styles}
+        value={customStudyReviewDays}
+        onChange={setCustomStudyReviewDays}
+        onSchedule={() => {
+          scheduleStudyReview(entry._id);
+          setReviewScheduleStudyId("");
+          setPendingRemoveStudyReviewId("");
+        }}
+      />
+      {entry.reviewStatus === "scheduled" && (
+        <View>
+          <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
+            <ResumeButton
+              label={pendingRemoveStudyReviewId === rawEntryId ? "Confirm remove" : "Remove review"}
+              icon="close-circle-outline"
+              onPress={() => removeStudyReview(entry)}
+              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+              iconColor={journalDarkMode ? "#e9b76a" : undefined}
+            />
+            {pendingRemoveStudyReviewId === rawEntryId && (
+              <ResumeButton
+                label="Keep review"
+                icon="arrow-undo-outline"
+                onPress={() => setPendingRemoveStudyReviewId("")}
+                style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                iconColor={journalDarkMode ? "#e9b76a" : undefined}
+              />
+            )}
+          </View>
+          {pendingRemoveStudyReviewId === rawEntryId && (
+            <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>This removes the reminder only. Your completed study will stay in Journal.</Text>
+          )}
+        </View>
+      )}
+    </>
+  );
 
   return (
     <View style={journalDarkMode && styles.accountDarkLayout}>
@@ -571,6 +652,23 @@ export function JournalTab(props: any) {
                             ? "Revisit your notes, then add one fresh reflection."
                             : `This study will return on ${formatReviewDate(entry.reviewAt)}.`}
                         </Text>
+                        <ResumeButton
+                          label={reviewScheduleStudyId === rawEntryId ? "Hide review options" : "Change review"}
+                          icon={reviewScheduleStudyId === rawEntryId ? "chevron-up-outline" : "calendar-outline"}
+                          onPress={() => {
+                            setReviewScheduleStudyId(reviewScheduleStudyId === rawEntryId ? "" : rawEntryId);
+                            setPendingRemoveStudyReviewId("");
+                            setStudyReviewStatus("");
+                          }}
+                          style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
+                          labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
+                          iconColor={journalDarkMode ? "#e9b76a" : undefined}
+                        />
+                        {reviewScheduleStudyId === rawEntryId && (
+                          <View style={[styles.reviewScheduleInline, { borderTopColor: journalDarkMode ? "#393027" : colors.line }]}>
+                            {renderReviewScheduleOptions(entry, rawEntryId)}
+                          </View>
+                        )}
                         {activeStudyReviewId === rawEntryId && (
                           <View style={[styles.reflectionBox, journalDarkMode && styles.accountDarkSection]}>
                             <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>What do you notice now?</Text>
@@ -661,9 +759,9 @@ export function JournalTab(props: any) {
                           iconColor={journalDarkMode ? "#e9b76a" : undefined}
                         />
                       )}
-                      {entry.answers && !memoryMeditation && (
+                      {entry.answers && !memoryMeditation && entry.reviewStatus !== "scheduled" && (
                         <ResumeButton
-                          label={reviewScheduleStudyId === rawEntryId ? "Hide review options" : entry.reviewStatus === "scheduled" ? "Change review" : entry.reviewStatus === "reviewed" ? "Review again later" : "Review later"}
+                          label={reviewScheduleStudyId === rawEntryId ? "Hide review options" : entry.reviewStatus === "reviewed" ? "Review again later" : "Review later"}
                           icon="calendar-outline"
                           onPress={() => {
                             setReviewScheduleStudyId(reviewScheduleStudyId === rawEntryId ? "" : rawEntryId);
@@ -679,74 +777,21 @@ export function JournalTab(props: any) {
                     </>
                   )}
                   <ResumeButton
-                    label={pendingDeleteJournalEntryId === rawEntryId ? "Confirm delete" : "Delete entry"}
+                    label="Delete entry"
                     icon="trash-outline"
-                    onPress={() => deleteJournalEntry(entry)}
+                    onPress={() => {
+                      setPendingDeleteJournalEntryId(rawEntryId);
+                      setJournalDeleteStatus("");
+                    }}
                     style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
                     labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
                     iconColor={journalDarkMode ? "#e9b76a" : undefined}
                   />
                 </View>
-                {entry.answers && !memoryMeditation && reviewScheduleStudyId === rawEntryId && (
+                {entry.answers && !memoryMeditation && entry.reviewStatus !== "scheduled" && reviewScheduleStudyId === rawEntryId && (
                   <View style={[styles.reviewScheduleBox, journalDarkMode && styles.accountDarkInsetBox]}>
-                    <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>{entry.reviewStatus === "scheduled" ? "Change review date" : "Bring this study back"}</Text>
-                    <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
-                      {entry.reviewStatus === "scheduled"
-                        ? `Currently set for ${formatReviewDate(entry.reviewAt)}. Choosing a new period will replace this date.`
-                        : "Choose when you would like this study to return for review."}
-                    </Text>
-                    <View style={styles.reviewPresetRow}>
-                      {STUDY_REVIEW_OPTIONS.map((option: any) => (
-                        <Pressable
-                          key={option.id}
-                          onPress={() => {
-                            scheduleStudyReview(entry._id, option.id);
-                            setReviewScheduleStudyId("");
-                            setPendingRemoveStudyReviewId("");
-                          }}
-                          style={[styles.filterChip, journalDarkMode && styles.printDarkOptionChip]}
-                        >
-                          <Text style={[styles.filterText, journalDarkMode && styles.accountDarkMutedText]}>{option.label}</Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                    <CustomStudyReviewControl
-                      styles={styles}
-                      value={customStudyReviewDays}
-                      onChange={setCustomStudyReviewDays}
-                      onSchedule={() => {
-                        scheduleStudyReview(entry._id);
-                        setReviewScheduleStudyId("");
-                        setPendingRemoveStudyReviewId("");
-                      }}
-                    />
-                    {entry.reviewStatus === "scheduled" && (
-                      <View>
-                        <View style={[styles.journalActions, phoneLayout && styles.phoneJournalActions]}>
-                          <ResumeButton
-                            label={pendingRemoveStudyReviewId === rawEntryId ? "Confirm remove" : "Remove review"}
-                            icon="close-circle-outline"
-                            onPress={() => removeStudyReview(entry)}
-                            style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
-                            labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
-                            iconColor={journalDarkMode ? "#e9b76a" : undefined}
-                          />
-                          {pendingRemoveStudyReviewId === rawEntryId && (
-                            <ResumeButton
-                              label="Keep review"
-                              icon="arrow-undo-outline"
-                              onPress={() => setPendingRemoveStudyReviewId("")}
-                              style={[phoneLayout && styles.phoneJournalActionButton, journalDarkMode && styles.homeDarkResumeButton]}
-                              labelStyle={[phoneLayout && styles.phoneJournalActionText, journalDarkMode && styles.homeDarkResumeButtonText]}
-                              iconColor={journalDarkMode ? "#e9b76a" : undefined}
-                            />
-                          )}
-                        </View>
-                        {pendingRemoveStudyReviewId === rawEntryId && (
-                          <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>This removes the reminder only. Your completed study will stay in Journal.</Text>
-                        )}
-                      </View>
-                    )}
+                    <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Bring this study back</Text>
+                    {renderReviewScheduleOptions(entry, rawEntryId)}
                   </View>
                 )}
               </>
@@ -786,6 +831,48 @@ export function JournalTab(props: any) {
           )}
         </View>
       )}
+      <Modal transparent visible={!!pendingDeleteJournalEntry} animationType="fade" onRequestClose={closeDeleteJournalDialog}>
+        <View {...deleteDialogAccessibilityProps} style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Cancel deleting journal entry"
+            style={[styles.printOptionsScrim, journalDarkMode && styles.printDarkOptionsScrim]}
+            onPress={closeDeleteJournalDialog}
+          />
+          <View style={[styles.printOptionsCard, styles.journalDeleteDialogCard, phoneLayout && styles.phoneEditorSettingsCard, journalDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, journalDarkMode && styles.accountDarkTitle]}>Delete journal entry?</Text>
+                <Text style={[styles.printOptionsSubtitle, journalDarkMode && styles.accountDarkMutedText]}>
+                  {pendingDeleteJournalEntryTitle ? `“${pendingDeleteJournalEntryTitle}” will be permanently removed.` : "This journal entry will be permanently removed."} This cannot be undone.
+                </Text>
+              </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Cancel deleting journal entry"
+                onPress={closeDeleteJournalDialog}
+                style={[styles.readerBookmarkIconButton, journalDarkMode && styles.homeDarkIconBubble]}
+              >
+                <Ionicons name="close-outline" size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
+              </Pressable>
+            </View>
+            {!!journalDeleteStatus && <Text style={styles.saveStatus}>{journalDeleteStatus}</Text>}
+            <View style={[styles.printOptionsActions, phoneLayout && styles.phoneRhythmGraceActions]}>
+              <AppButton
+                label="Cancel"
+                variant="secondary"
+                onPress={closeDeleteJournalDialog}
+                style={journalDarkMode && styles.homeDarkResumeButton}
+                labelStyle={journalDarkMode && styles.homeDarkResumeButtonText}
+              />
+              <AppButton
+                label={isDeletingJournalEntry ? "Deleting..." : "Delete entry"}
+                onPress={() => pendingDeleteJournalEntry && deleteJournalEntry(pendingDeleteJournalEntry)}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
 
   );

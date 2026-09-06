@@ -38,6 +38,12 @@ assert(study.includes("export const removeStudyReview = mutation({") && study.in
 assert(app.includes("removeStudyReviewMutation") && app.includes("Review reminder removed. Your study is still in Journal."), "The Journal must invoke review removal and confirm that the study remains saved.");
 assert(journal.includes('"Change review"') && journal.includes('"Remove review"') && journal.includes('"Confirm remove"'), "Scheduled reviews need clear change and confirmed removal controls.");
 assert(journal.includes("Choosing a new period will replace this date."), "Changing a review must explain that the new date replaces the old one.");
+const journalRenderStart = journal.indexOf("return (");
+const scheduledReviewPanelStart = journal.indexOf('entry.reviewStatus === "scheduled" && (', journalRenderStart);
+const scheduledReviewPanel = journal.slice(scheduledReviewPanelStart, journal.indexOf('entry.reviewStatus === "reviewed"', scheduledReviewPanelStart));
+assert(scheduledReviewPanel.includes('"Change review"') && scheduledReviewPanel.includes("renderReviewScheduleOptions(entry, rawEntryId)"), "Change-review options must expand inside the scheduled-review panel.");
+assert(journal.includes('entry.reviewStatus !== "scheduled" && (') && journal.includes("Delete journal entry?") && journal.includes("This cannot be undone."), "Scheduled review controls must stay out of the entry action row and journal deletion must use a warning dialog.");
+assert(journal.includes('role: "dialog"') && journal.includes('accessibilityLabel="Cancel deleting journal entry"'), "The delete confirmation must expose accessible dialog and cancel controls.");
 
 assert(app.includes("Public-domain translation comparison") && app.includes("Promise.allSettled(BIBLE_TRANSLATIONS.map"), "Study translation comparison is missing.");
 assert(app.includes("Optional quiet timer") && app.includes("formatQuietTimer"), "The optional contemplative timer is missing.");

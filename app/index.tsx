@@ -5170,7 +5170,7 @@ export default function Home() {
       ])).slice(0, 40)
     }));
     setSelectedVerseKeys([]);
-    setSaveStatus(`${selectedVerses.length === 1 ? "Verse" : "Verses"} added to your interpretation evidence.`);
+    setSaveStatus(`${selectedVerses.length === 1 ? "Verse reference" : "Verse references"} saved beside your interpretation.`);
   }
 
   function updateSelectedVerseNote(note: string) {
@@ -8379,7 +8379,7 @@ export default function Home() {
                 </ScrollView>
               )}
 
-              <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyPhase === "study" && styles.attachedScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
+              <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
                 <View style={styles.scriptureHeader}>
                   <View>
                     <Eyebrow>Passage text</Eyebrow>
@@ -8486,9 +8486,9 @@ export default function Home() {
                                         </Pressable>
                                       )}
                                       {method.id === "oia" && step.title === "Interpret" && (
-                                        <Pressable accessibilityRole="button" accessibilityLabel="Add selected verses as interpretation evidence" onPress={useSelectedVersesAsEvidence} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
-                                          <Ionicons name="link-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-                                          <Text style={[styles.inlineReaderBookmarkText, studyDarkMode && styles.homeDarkResumeButtonText]}>Link evidence</Text>
+                                        <Pressable accessibilityRole="button" accessibilityLabel="Save selected verses as evidence for your interpretation" onPress={useSelectedVersesAsEvidence} style={[styles.inlineReaderBookmarkButton, styles.compactInlineActionButton, studyDarkMode && styles.homeDarkResumeButton]}>
+                                          <Ionicons name="bookmark-outline" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                          <Text style={[styles.inlineReaderBookmarkText, studyDarkMode && styles.homeDarkResumeButtonText]}>Add as evidence</Text>
                                         </Pressable>
                                       )}
                                       {selectedMarkupKinds.length > 0 && (
@@ -8845,7 +8845,7 @@ export default function Home() {
                   )}
                   {evidenceVerses.length > 0 && (
                     <View style={[styles.reviewAnswer, studyDarkMode && styles.accountDarkSection]}>
-                      <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Passage evidence</Text>
+                      <Text style={[styles.reviewStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Verses supporting your interpretation</Text>
                       <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{formatStudyVerseReferences(evidenceVerses)}</Text>
                     </View>
                   )}
@@ -8996,18 +8996,18 @@ export default function Home() {
                   {method.id === "oia" && step.title === "Interpret" && (
                     <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="link-outline" size={18} color={colors.coral} />
-                        <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Passage evidence</Text>
+                        <Ionicons name="bookmark-outline" size={18} color={colors.coral} />
+                        <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Verses supporting your interpretation</Text>
                       </View>
-                      <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Select the verse or verses that most directly support your interpretation, then link them here.</Text>
-                      {!!evidenceVerses.length && <Text style={[styles.methodSupportReference, studyDarkMode && styles.accountDarkTitle]}>{formatStudyVerseReferences(evidenceVerses)}</Text>}
+                      <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Optional: select the verse or verses above that most clearly support the meaning you wrote. Saving them keeps their references beside your interpretation in Review. It does not insert verse text, create a hyperlink, or share anything.</Text>
+                      {!!evidenceVerses.length && <Text style={[styles.methodSupportReference, studyDarkMode && styles.accountDarkTitle]}>Saved evidence: {formatStudyVerseReferences(evidenceVerses)}</Text>}
                       <View style={styles.methodSupportActions}>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Add selected verses as interpretation evidence" onPress={useSelectedVersesAsEvidence} style={[styles.methodSupportAction, studyDarkMode && styles.homeDarkResumeButton]}>
-                          <Text style={[styles.methodSupportActionText, studyDarkMode && styles.homeDarkResumeButtonText]}>{evidenceVerses.length ? "Add selected verses" : "Link selected verses"}</Text>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Save selected verses as evidence for your interpretation" onPress={useSelectedVersesAsEvidence} style={[styles.methodSupportAction, studyDarkMode && styles.homeDarkResumeButton]}>
+                          <Text style={[styles.methodSupportActionText, studyDarkMode && styles.homeDarkResumeButtonText]}>{evidenceVerses.length ? "Add selected as evidence" : "Save selected as evidence"}</Text>
                         </Pressable>
                         {!!studyMethodState.evidenceVerseKeys.length && (
-                          <Pressable accessibilityRole="button" onPress={() => setStudyMethodState((current) => ({ ...current, evidenceVerseKeys: [] }))} style={styles.methodSupportClear}>
-                            <Text style={styles.methodSupportClearText}>Remove link</Text>
+                          <Pressable accessibilityRole="button" accessibilityLabel="Clear saved interpretation evidence" onPress={() => setStudyMethodState((current) => ({ ...current, evidenceVerseKeys: [] }))} style={styles.methodSupportClear}>
+                            <Text style={styles.methodSupportClearText}>Clear evidence</Text>
                           </Pressable>
                         )}
                       </View>
@@ -19436,12 +19436,6 @@ const styles = StyleSheet.create({
     minWidth: 0,
     padding: 16
   },
-  attachedScriptureBox: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    borderBottomWidth: 0,
-    marginBottom: 0
-  },
   phoneScriptureBox: {
     borderRadius: 11,
     padding: 11
@@ -20009,10 +20003,8 @@ const styles = StyleSheet.create({
   },
   guidedStudyStepPanel: {
     backgroundColor: "#fffefa",
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
+    borderRadius: 14,
     borderColor: colors.line,
-    borderTopWidth: 0,
     borderWidth: 1,
     marginBottom: 16,
     padding: 16
@@ -20067,8 +20059,7 @@ const styles = StyleSheet.create({
     gap: 7
   },
   phoneGuidedStudyStepPanel: {
-    borderBottomLeftRadius: 11,
-    borderBottomRightRadius: 11,
+    borderRadius: 11,
     padding: 12
   },
   focusModeRow: {

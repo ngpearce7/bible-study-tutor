@@ -44,6 +44,8 @@ const scheduledReviewPanel = journal.slice(scheduledReviewPanelStart, journal.in
 assert(scheduledReviewPanel.includes('"Change review"') && scheduledReviewPanel.includes("renderReviewScheduleOptions(entry, rawEntryId)"), "Change-review options must expand inside the scheduled-review panel.");
 assert(journal.includes('entry.reviewStatus !== "scheduled" && (') && journal.includes("Delete journal entry?") && journal.includes("This cannot be undone."), "Scheduled review controls must stay out of the entry action row and journal deletion must use a warning dialog.");
 assert(journal.includes('role: "dialog"') && journal.includes('accessibilityLabel="Cancel deleting journal entry"'), "The delete confirmation must expose accessible dialog and cancel controls.");
+assert(journal.includes('entry.reviewStatus === "scheduled" ? "Study" : entryStatus') && journal.includes('name="refresh-circle-outline"') && journal.includes("reviewScheduledIndicator"), "Scheduled reviews must retain the normal study header and show a separate review indicator at the top right.");
+assert(journal.includes('accessibilityLabel={isStudyReviewDue(entry) ? "Study review due"'), "The scheduled-review header indicator must announce its meaning.");
 
 assert(app.includes("Public-domain translation comparison") && app.includes("Promise.allSettled(BIBLE_TRANSLATIONS.map"), "Study translation comparison is missing.");
 assert(app.includes("Optional quiet timer") && app.includes("formatQuietTimer"), "The optional contemplative timer is missing.");

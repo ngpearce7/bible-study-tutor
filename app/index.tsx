@@ -25796,6 +25796,15 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     gap: 7
   },
+  reviewScheduledIndicator: {
+    alignItems: "center",
+    backgroundColor: "#fff6eb",
+    borderRadius: 999,
+    flexShrink: 0,
+    height: 28,
+    justifyContent: "center",
+    width: 28
+  },
   journalDateGroup: {
     gap: 10,
     marginBottom: 8

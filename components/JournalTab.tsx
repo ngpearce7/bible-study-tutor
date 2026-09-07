@@ -553,6 +553,7 @@ export function JournalTab(props: any) {
           : isHighlightReflection(entry)
             ? "Reflection"
             : "Encouragement";
+        const journalHeaderStatus = entry.answers && !memoryMeditation && entry.reviewStatus === "scheduled" ? "Study" : entryStatus;
 
         return (
           <Card key={entry._id} style={[styles.journalCard, phoneLayout && styles.phoneJournalCard, !expanded && styles.collapsedJournalCard, journalDarkMode && styles.accountDarkMainCard]}>
@@ -560,7 +561,7 @@ export function JournalTab(props: any) {
               <Pressable onPress={() => toggleJournalEntryExpanded(entryId)} style={styles.journalCompactTitleButton}>
                 <View style={styles.journalHeaderCopyRow}>
                   <View style={[styles.journalEntryTypeIcon, journalDarkMode && styles.homeDarkIconBubble]}>
-                    <Ionicons name={getJournalEntryIcon(entryStatus)} size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
+                    <Ionicons name={getJournalEntryIcon(journalHeaderStatus)} size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
                   <View style={styles.journalTitleBlock}>
                     <Text style={[styles.cardTitle, journalDarkMode && styles.accountDarkTitle]} numberOfLines={phoneLayout ? 2 : 1}>{entryTitle}</Text>
@@ -570,7 +571,16 @@ export function JournalTab(props: any) {
                 <Ionicons name={expanded ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={journalDarkMode ? "#c8bda9" : colors.muted} />
               </Pressable>
               <View style={styles.journalStatusCluster}>
-                <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{entryStatus}</Text>
+                <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{journalHeaderStatus}</Text>
+                {entry.answers && !memoryMeditation && entry.reviewStatus === "scheduled" && (
+                  <View
+                    accessible
+                    accessibilityLabel={isStudyReviewDue(entry) ? "Study review due" : `Review scheduled for ${formatReviewDate(entry.reviewAt)}`}
+                    style={[styles.reviewScheduledIndicator, journalDarkMode && styles.homeDarkIconBubble]}
+                  >
+                    <Ionicons name="refresh-circle-outline" size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
+                  </View>
+                )}
                 {entry.answers && !memoryMeditation && (
                   <Pressable
                     onPress={() => togglePinnedJournalEntry(rawEntryId)}

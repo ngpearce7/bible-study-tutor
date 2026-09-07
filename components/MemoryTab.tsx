@@ -230,7 +230,7 @@ export function MemoryTab(props: any) {
           <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
             <Ionicons name="sparkles-outline" size={24} color={colors.coral} />
             <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No memory verses yet</Text>
-            <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.`}</Text>
+            <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.` : "Open the Bible, select one or more verses, then tap Memory. You can also save verses while studying."}</Text>
             <View style={styles.emptyMemoryActions}>
               <AppButton label="Open Bible" onPress={() => setTab("bible")} />
               <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
@@ -264,7 +264,7 @@ export function MemoryTab(props: any) {
                       />
                     )}
                   </Pressable>
-                  {!phoneLayout && <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select verse/s, then tap Memory. You can also save verses from Study.</Text>}
+                  {!phoneLayout && <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select one or more verses, then tap Memory. You can also save verses from Study.</Text>}
                 </View>
                 {(!phoneLayout || addMemoryPanelOpen) && (
                   <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
@@ -577,7 +577,7 @@ export function MemoryTab(props: any) {
                     <View style={[styles.memoryBulkReviewBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.reviewScheduleHeader}>
                         <View style={styles.memoryHistoryTextBlock}>
-                          <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Change review rhythm</Text>
+                          <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Change review schedule</Text>
                           <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
                             Applies to {currentBrowseMemoryVerses.length} filtered verse{currentBrowseMemoryVerses.length === 1 ? "" : "s"}
                           </Text>
@@ -634,12 +634,12 @@ export function MemoryTab(props: any) {
                 />
                 <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
                   {memoryStatus === "reviewed-today"
-                    ? `Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
+                    ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
                     : memoryStatus || (reviewedTodayCount > 0
-                    ? `Well done${firstName ? `, ${firstName}` : ""}. You have successfully reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
+                    ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
                     : dueMemoryCount > 0
-                      ? `${friendlyName}, ${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today. Start with one and build from there.`
-                      : `${friendlyName}, your saved verses are resting until their next review. You can still practise any verse when you want to keep it fresh.`)}
+                      ? `${firstName ? `${firstName}, you have ` : ""}${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} ready for review today. Start with one and build from there.`
+                      : `${firstName ? `${firstName}, none` : "None"} of your saved verses are due for review. You can still practise any verse whenever you want.`)}
                 </Text>
               </View>
             )}
@@ -1165,7 +1165,7 @@ export function MemoryTab(props: any) {
                           {reviewOpen && (
                             <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                               <View style={styles.reviewScheduleHeader}>
-                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review rhythm</Text>
+                                <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review schedule</Text>
                                 <Pressable
                                   accessibilityRole="button"
                                   accessibilityLabel="Close review schedule"

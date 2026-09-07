@@ -133,7 +133,7 @@ const guideItems = [
       "For longer selections, choose Split into collection so the passage becomes smaller review sections.",
       "Open Memory and press Practice.",
       "Read the verse, fill every second word, then fill all words.",
-      "Use hints when needed and choose a review rhythm such as daily, weekly, monthly, or annually.",
+      "Use hints when needed and choose a review schedule such as daily, weekly, monthly, or annually.",
       "Use Meditate when you want to slow down with one verse."
     ],
     action: "Open Memory",

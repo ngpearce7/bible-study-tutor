@@ -146,7 +146,7 @@ export function JournalTab(props: any) {
       <Text style={[styles.muted, journalDarkMode && styles.accountDarkMutedText]}>
         {entry.reviewStatus === "scheduled"
           ? `Currently set for ${formatReviewDate(entry.reviewAt)}. Choosing a new period will replace this date.`
-          : "Choose when you would like this study to return for review."}
+          : "Choose when you would like to review this study again."}
       </Text>
       <View style={styles.reviewPresetRow}>
         {STUDY_REVIEW_OPTIONS.map((option: any) => (
@@ -660,7 +660,7 @@ export function JournalTab(props: any) {
                         <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
                           {isStudyReviewDue(entry)
                             ? "Revisit your notes, then add one fresh reflection."
-                            : `This study will return on ${formatReviewDate(entry.reviewAt)}.`}
+                            : `This study is scheduled for review on ${formatReviewDate(entry.reviewAt)}.`}
                         </Text>
                         <ResumeButton
                           label={reviewScheduleStudyId === rawEntryId ? "Hide review options" : "Change review"}
@@ -800,7 +800,7 @@ export function JournalTab(props: any) {
                 </View>
                 {entry.answers && !memoryMeditation && entry.reviewStatus !== "scheduled" && reviewScheduleStudyId === rawEntryId && (
                   <View style={[styles.reviewScheduleBox, journalDarkMode && styles.accountDarkInsetBox]}>
-                    <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Bring this study back</Text>
+                    <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Schedule a review</Text>
                     {renderReviewScheduleOptions(entry, rawEntryId)}
                   </View>
                 )}
@@ -828,7 +828,9 @@ export function JournalTab(props: any) {
                     ? "Memory meditations appear here after you save one from the Memory tab."
                   : journalFilter === "checkins"
                     ? "Encouragements appear here after you save one from Community."
-                    : `${friendlyName}, complete a study or save an encouragement to start building your journal.`}
+                    : firstName
+                      ? `${firstName}, complete a study or save an encouragement to start building your journal.`
+                      : "Complete a study or save an encouragement to start building your journal."}
           </Text>
           {!journalSearchTerm && (
             <AppButton

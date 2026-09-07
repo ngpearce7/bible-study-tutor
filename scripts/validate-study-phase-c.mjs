@@ -10,6 +10,12 @@ const schema = read("convex/schema.ts");
 const study = read("convex/study.ts");
 const preferences = read("data/feedbackPreferences.ts");
 const printable = read("data/printableWorksheet.ts");
+const memory = read("data/memory.ts");
+const memoryTab = read("components/MemoryTab.tsx");
+const community = read("components/CommunityTab.tsx");
+const help = read("data/help.ts");
+const helpTab = read("components/HelpTab.tsx");
+const seo = read("scripts/prepare-seo.mjs");
 
 const stepTitleCount = (methods.match(/^\s{8}title: /gm) || []).length;
 const stepIdCount = (methods.match(/^\s{8}id: /gm) || []).length;
@@ -46,6 +52,33 @@ assert(journal.includes('entry.reviewStatus !== "scheduled" && (') && journal.in
 assert(journal.includes('role: "dialog"') && journal.includes('accessibilityLabel="Cancel deleting journal entry"'), "The delete confirmation must expose accessible dialog and cancel controls.");
 assert(journal.includes('entry.reviewStatus === "scheduled" ? "Study" : entryStatus') && journal.includes('name="refresh-circle-outline"') && journal.includes("reviewScheduledIndicator"), "Scheduled reviews must retain the normal study header and show a separate review indicator at the top right.");
 assert(journal.includes('accessibilityLabel={isStudyReviewDue(entry) ? "Study review due"'), "The scheduled-review header indicator must announce its meaning.");
+
+const polishedCopy = [app, journal, memory, memoryTab, community, help, helpTab, seo].join("\n");
+for (const awkwardPhrase of [
+  "Keep going gently",
+  "begin gently",
+  "Your strongest rhythm was",
+  "Saving connected",
+  "Connecting saving",
+  "saving is connected",
+  "Saving is still connecting",
+  "No memory activity recorded this week yet",
+  "spanning across",
+  "Come back to one today",
+  "first slow review",
+  "Small faithful steps",
+  "select verse/s",
+  "This study will return on",
+  "Bring this study back",
+  "Community only opens through",
+  "Friends - select one or more",
+  "review rhythm"
+]) {
+  assert(!polishedCopy.includes(awkwardPhrase), `User-facing copy still contains awkward wording: ${awkwardPhrase}`);
+}
+assert(app.includes("Every step counts.") && app.includes("Your most-used area was") && app.includes('[weeklyRhythm.chaptersRead, "read", "chapter"]'), "The weekly summary must use natural encouragement and activity-specific verbs.");
+assert(memory.includes('const subject = name ? `${name}, you` : "You"') && memory.includes('const possessiveSubject = name ? `${name}, your` : "Your"'), "Memory encouragements must remain grammatical when no display name is available.");
+assert(memoryTab.includes("Change review schedule") && journal.includes("This study is scheduled for review on") && community.includes("There is no public feed or open posting."), "Review and Community terminology must remain clear and natural.");
 
 assert(app.includes("Public-domain translation comparison") && app.includes("Promise.allSettled(BIBLE_TRANSLATIONS.map"), "Study translation comparison is missing.");
 assert(app.includes("Optional quiet timer") && app.includes("formatQuietTimer"), "The optional contemplative timer is missing.");

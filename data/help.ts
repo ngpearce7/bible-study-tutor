@@ -109,7 +109,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
     return {
       title: "Memory history help",
       icon: "time-outline",
-      summary: "History shows your recent memory activity, milestones, and encouragement from your review rhythm.",
+      summary: "History shows your recent memory activity, milestones, and encouragement based on your review activity.",
       tips: ["Use milestones to choose what you want to track.", "Open verse history when you want to see progress for one verse.", "Recent activity shows the newest memory events first."]
     };
   }
@@ -218,7 +218,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       tips: [
         "Save verses from Bible or Study first.",
         "Use Due for Review when you want today’s practice list.",
-        "Use Browse to filter by collection, Testament, book, chapter, status, or review rhythm.",
+        "Use Browse to filter by collection, Testament, book, chapter, status, or review schedule.",
         "Use Practice for the three-step review flow, or Meditate to slow down with one verse.",
         "Use Print cards to download editable cards for carrying, sharing, or placing around the house."
       ]

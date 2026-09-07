@@ -1863,7 +1863,7 @@ const seoPages = [
     ],
     schemaType: "FAQPage",
     faq: [
-      ["How does Bible Study Tutor help with memory verses?", "It lets users save verses, practise with blanks and hints, set review rhythms, group verses into collections, and print memory cards."],
+      ["How does Bible Study Tutor help with memory verses?", "It lets users save verses, practise with blanks and hints, set review schedules, group verses into collections, and print memory cards."],
       ["Can I memorize more than one verse?", "Yes. You can save individual verses, passages, or themed collections and review them over time."],
       ["What are memory verse collections?", "Collections let you group saved verses by theme, book, topic, or study purpose."],
       ["Can I print memory verses?", "Yes. Saved verses can be printed as memory cards."]
@@ -2004,7 +2004,7 @@ const seoPages = [
           "Would a collection help keep the cards themed?",
           "Do I need more than one copy?",
           "Will the card be placed somewhere visible?",
-          "Can I pair the card with a simple daily review rhythm?"
+          "Can I pair the card with a simple daily review schedule?"
         ]
       },
       {
@@ -2501,13 +2501,13 @@ const seoPages = [
     path: "/how-to-memorize-bible-verses",
     file: "how-to-memorize-bible-verses.html",
     title: "How to Memorize Bible Verses | Scripture Memory with Review",
-    description: "Learn how to memorize Bible verses with reading, blanks, hints, review rhythms, Scripture-centred reflection prompts, collections, and printable memory cards.",
+    description: "Learn how to memorize Bible verses with reading, blanks, hints, review schedules, Scripture-centred reflection prompts, collections, and printable memory cards.",
     heading: "How to memorize Bible verses",
     intro: "Memorizing Scripture is helped by repetition, reflection, prayer, and review. Bible Study Tutor gives users a simple way to save, practise, pray through, and print memory verses.",
     sections: [
       ["Read before recall", "Begin by reading the verse carefully and noticing the words, theme, and context before hiding words or testing memory."],
       ["Practise with blanks", "Hide parts of the verse, type the missing words, and use hints when needed so review stays active rather than passive."],
-      ["Review over time", "Set review rhythms, group related verses into collections, and return to verses that need more attention."],
+      ["Review over time", "Set review schedules, group related verses into collections, and return to verses that need more attention."],
       ["Use Scripture-centred reflection and memory cards", "Pause over a saved verse by thinking about its meaning in context, praying through it, and considering a faithful response. You can also print memory cards to keep Scripture close through the day."]
     ],
     cta: "Open memory verses",

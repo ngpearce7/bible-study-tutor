@@ -315,14 +315,15 @@ export function buildMemoryHistoryEncouragement(
   summary: { reviewedToday: number; reviewedThisWeek: number; reviewDaysThisWeek: number; addedCount: number },
   name?: string
 ) {
-  const greeting = name ? `${name}, ` : "";
-  if (summary.reviewedToday >= 3) return `${greeting}you have reviewed ${summary.reviewedToday} verses today. That is a strong rhythm with Scripture.`;
-  if (summary.reviewedToday === 1) return `${greeting}you reviewed Scripture today. Small faithful steps are still real progress.`;
-  if (summary.reviewedToday > 1) return `${greeting}you reviewed ${summary.reviewedToday} verses today. Keep carrying those words with you.`;
-  if (summary.reviewDaysThisWeek >= 3) return `${greeting}you have returned to memory practice ${summary.reviewDaysThisWeek} days this week. Keep going.`;
-  if (summary.reviewedThisWeek > 0) return `${greeting}you have reviewed ${summary.reviewedThisWeek} verse${summary.reviewedThisWeek === 1 ? "" : "s"} this week. Come back to one today when you are ready.`;
-  if (summary.addedCount > 0) return `${greeting}you have started building a memory list. Choose one verse and review it slowly today.`;
-  return `${greeting}your memory history will grow as you add and review verses. Start with one verse and let it settle in.`;
+  const subject = name ? `${name}, you` : "You";
+  const possessiveSubject = name ? `${name}, your` : "Your";
+  if (summary.reviewedToday >= 3) return `${subject} have reviewed ${summary.reviewedToday} verses today. That is steady progress.`;
+  if (summary.reviewedToday === 1) return `${subject} reviewed Scripture today. A short review can help the verse stay familiar.`;
+  if (summary.reviewedToday > 1) return `${subject} reviewed ${summary.reviewedToday} verses today. Keep carrying those words with you.`;
+  if (summary.reviewDaysThisWeek >= 3) return `${subject} returned to memory practice on ${summary.reviewDaysThisWeek} days this week. Keep going.`;
+  if (summary.reviewedThisWeek > 0) return `${subject} have reviewed ${summary.reviewedThisWeek} verse${summary.reviewedThisWeek === 1 ? "" : "s"} this week. Review one again today whenever you’re ready.`;
+  if (summary.addedCount > 0) return `${subject} have started building a memory verse list. Choose one verse and review it slowly today.`;
+  return `${possessiveSubject} memory history will grow as you add and review verses. Start with one verse and let it settle in.`;
 }
 
 export function memoryVerseProgressMessage(verse: {
@@ -347,7 +348,7 @@ export function memoryVerseProgressDetail(verse: {
   createdAt?: number;
 }) {
   const reviewCount = verse.reviewCount || 0;
-  if (reviewCount === 0) return "This verse is ready for its first slow review.";
+  if (reviewCount === 0) return "This verse is ready for its first unhurried review.";
   if (isTodayLocal(verse.lastReviewedAt)) return "You have already returned to this verse today.";
   if (reviewCount >= 8) return "This verse has a steady review pattern behind it.";
   if (reviewCount >= 4) return "This verse is becoming familiar through repeated review.";
@@ -397,12 +398,10 @@ export function buildMemoryWeeklySummary(
     : [...weeklyReviewed, ...weeklyAdded].map((event) => event.reference);
   const books = uniqueBooksFromReferences(weeklyReferences);
   const nameText = name ? `, ${name}` : "";
-  const bookText = books.length ? ` spanning across ${formatWarmList(books)}` : "";
+  const bookText = books.length ? ` across ${formatWarmList(books)}` : "";
 
   if (weeklyReviewedCount === 0 && weeklyAddedCount === 0) {
-    return name
-      ? `No memory activity recorded this week yet, ${name}. One slow review would be a good place to begin.`
-      : "No memory activity recorded this week yet. One slow review would be a good place to begin.";
+    return "No memory activity has been recorded yet this week. An unhurried review is a good place to begin.";
   }
 
   if (savedCount > 0 && weeklyReviewedCount >= savedCount) {

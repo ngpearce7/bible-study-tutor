@@ -245,7 +245,7 @@ export function CommunityTab(props: any) {
       <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, communityDarkMode && styles.accountDarkMainCard]}>
         <Eyebrow>Community</Eyebrow>
         <Text style={[styles.title, communityDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
-        <Text style={[styles.titleSupport, communityDarkMode && styles.accountDarkMutedText]}>Community only opens through registered friends or private circles. No public feed, no open posting.</Text>
+        <Text style={[styles.titleSupport, communityDarkMode && styles.accountDarkMutedText]}>Community is available only with registered friends or private circles. There is no public feed or open posting.</Text>
         <View style={[styles.communitySubViewTabs, communityDarkMode && styles.accountDarkSegmentedRow]}>
           {[
             ["encourage", "Encourage"],
@@ -414,7 +414,7 @@ export function CommunityTab(props: any) {
               ) : COMMUNITY_CIRCLES_ENABLED ? (
                 <AppButton label="Open account" variant="secondary" onPress={() => setTab("account")} style={phoneLayout && styles.phoneFullWidthButton} labelStyle={phoneLayout && styles.phoneCommunityButtonLabel} />
               ) : (
-                <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>Friends will be enabled after the backend is ready.</Text>
+                <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>Friend connections are not available yet.</Text>
               )}
             </>
           )}
@@ -443,7 +443,7 @@ export function CommunityTab(props: any) {
                 ? isAuthenticated
                   ? "A circle is a small, invite-only group for people you trust. Share a study thought, prayer point, or simple encouragement so you can encourage one another to keep drawing near to God."
                   : "Sign in to create or join a small private circle where trusted people can share study thoughts, prayer points, and encouragement."
-                : "Private circles are being prepared and will be enabled after the backend is ready."}
+                : "Private circles are not available yet."}
               </Text>
               {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                 <>
@@ -575,7 +575,7 @@ export function CommunityTab(props: any) {
                 <View style={[styles.communityTargetPickerPanel, communityDarkMode && styles.accountDarkInsetBox]}>
                   {acceptedCommunityFriends.length > 0 && (
                     <View style={styles.communityTargetPickerGroup}>
-                      <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Friends - select one or more</Text>
+                      <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Friends — select one or more</Text>
                       {acceptedCommunityFriends.map((friend: any) => {
                         const isTarget = communityTargetType === "friend" && targetFriendIds.some((id: any) => String(id) === String(friend._id));
                         return (
@@ -638,7 +638,7 @@ export function CommunityTab(props: any) {
           ) : (
             <>
               <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>No friend or circle selected</Text>
-              <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, add a registered friend or join a private circle above.`}</Text>
+              <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, add a registered friend or join a private circle above.` : "Add a registered friend or join a private circle above."}</Text>
             </>
           )}
         </View>
@@ -762,7 +762,7 @@ export function CommunityTab(props: any) {
         {(checkins || []).length === 0 ? (
           <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
             <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No encouragements yet</Text>
-            <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{`After your next study, ${friendlyName}, save one sentence here and keep the rhythm visible.`}</Text>
+            <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>After your next study, save one sentence here to remember or share what stood out.</Text>
           </View>
         ) : (
           <>

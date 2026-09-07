@@ -2077,16 +2077,16 @@ export default function Home() {
   const latestCheckin = checkins?.[0];
   const backendReady = profileMatchesActiveState;
   const backendStatusLabel = backendReady
-    ? "Saving connected"
+    ? "Saving is ready"
     : profileConnectionState === "loading"
-      ? "Connecting saving"
+      ? "Connecting to saved data"
       : "Saving unavailable";
   const backendStatusDetail = backendReady
     ? isAuthenticated
       ? "Drafts, journal, and account changes sync with your signed-in account."
       : "Drafts, journal, and account changes save to this device profile."
     : profileConnectionState === "loading"
-      ? "Connecting your saved work."
+      ? "Connecting to your saved data."
       : "Check your connection, then retry saving.";
   const accountProviderLabel =
     profile?.authProvider === "google"
@@ -2108,24 +2108,25 @@ export default function Home() {
   const homeWeeklyRhythmText = useMemo(() => {
     if (!weeklyRhythm) return "";
     const activeDays = Number(weeklyRhythm.activeDays || 0);
-    if (activeDays <= 0) return `${friendlyName}, begin gently with one reading, study, or memory review this week.`;
+    const weeklySubject = firstName ? `${firstName}, you` : "You";
+    if (activeDays <= 0) return `${weeklySubject} can begin this week with one reading, guided study, or memory review whenever you’re ready.`;
 
     const parts = [
-      [weeklyRhythm.planReadingsCompleted, "plan reading"],
-      [weeklyRhythm.chaptersRead, "chapter"],
-      [weeklyRhythm.memoryReviews, "memory review"],
-      [weeklyRhythm.studiesCompleted, "guided study"],
-      [weeklyRhythm.worksheetsPrinted + weeklyRhythm.memoryCardsPrinted, "printable resource"],
-      [weeklyRhythm.encouragementsShared, "encouragement"]
+      [weeklyRhythm.planReadingsCompleted, "completed", "plan reading"],
+      [weeklyRhythm.chaptersRead, "read", "chapter"],
+      [weeklyRhythm.memoryReviews, "reviewed", "memory verse"],
+      [weeklyRhythm.studiesCompleted, "completed", "guided study"],
+      [weeklyRhythm.worksheetsPrinted + weeklyRhythm.memoryCardsPrinted, "printed", "resource"],
+      [weeklyRhythm.encouragementsShared, "shared", "encouragement"]
     ]
-      .map(([count, label]) => ({ count: Number(count || 0), label: String(label) }))
+      .map(([count, verb, label]) => ({ count: Number(count || 0), verb: String(verb), label: String(label) }))
       .filter((item) => item.count > 0)
-      .map((item) => `${item.count} ${item.label}${item.count === 1 ? "" : "s"}`);
-    const detail = parts.length ? ` You completed ${formatInlineList(parts)}.` : "";
+      .map((item) => `${item.verb} ${item.count} ${item.label}${item.count === 1 ? "" : "s"}`);
+    const detail = parts.length ? ` You ${formatInlineList(parts)}.` : "";
     const strongestArea = formatWeeklyRhythmArea(weeklyRhythm.strongestArea);
-    const strongest = strongestArea ? ` Your strongest rhythm was ${strongestArea}.` : "";
-    return `This week, ${friendlyName}, you met with Scripture on ${activeDays} day${activeDays === 1 ? "" : "s"}.${detail}${strongest} Keep going gently.`;
-  }, [friendlyName, weeklyRhythm]);
+    const strongest = strongestArea ? ` Your most-used area was ${strongestArea}.` : "";
+    return `${weeklySubject} used Bible Study Tutor on ${activeDays} day${activeDays === 1 ? "" : "s"} this week.${detail}${strongest} Every step counts.`;
+  }, [firstName, weeklyRhythm]);
   const accountIdentityLabel = profile?.authUsername
     ? `${personalDisplayName} (@${profile.authUsername})`
     : profile?.authEmail
@@ -3899,7 +3900,7 @@ export default function Home() {
       });
       setPlanStatus("Accountability plan saved");
     } catch {
-      setPlanStatus("Could not save. Check that saving is connected.");
+      setPlanStatus("Could not save. Check your connection and try again.");
     }
   }
 
@@ -3962,7 +3963,7 @@ export default function Home() {
 
   async function submitAccountDeletionRequest() {
     if (!activeProfileId) {
-      setDeletionStatus("Saving is still connecting. Try again in a moment.");
+      setDeletionStatus("The app is still connecting to your saved data. Try again in a moment.");
       return;
     }
     if (!deletionConfirmArmed) {
@@ -4156,7 +4157,7 @@ export default function Home() {
 
   async function submitUserFeedback() {
     if (!activeProfileId) {
-      setFeedbackStatus("Saving is still connecting. Try again in a moment.");
+      setFeedbackStatus("The app is still connecting to your saved data. Try again in a moment.");
       return;
     }
     if (!feedbackMessage.trim()) {
@@ -4184,7 +4185,7 @@ export default function Home() {
   async function persistCheckin() {
     if (isSavingCheckin) return;
     if (!activeProfileId) {
-      setCommunityStatus("Saving is still connecting. Please wait a moment and try again.");
+      setCommunityStatus("The app is still connecting to your saved data. Please wait a moment and try again.");
       return;
     }
     if (!checkinNote.trim()) {
@@ -4753,7 +4754,7 @@ export default function Home() {
               <View style={[styles.communityTargetPickerPanel, accountDarkMode && styles.accountDarkSection]}>
                 {acceptedCommunityFriends.length > 0 && (
                   <View style={styles.communityTargetPickerGroup}>
-                    <Text style={[styles.circleManagementLabel, accountDarkMode && styles.studyDarkAccentText]}>Friends - select one or more</Text>
+                    <Text style={[styles.circleManagementLabel, accountDarkMode && styles.studyDarkAccentText]}>Friends — select one or more</Text>
                     {acceptedCommunityFriends.map((friend: any) => {
                       const isTarget = shareInsightTargetType === "friend" && shareInsightFriendIds.some((id) => String(id) === String(friend._id));
                       return (
@@ -5290,7 +5291,7 @@ export default function Home() {
       if (request.source === "study") setSelectedVerseKeys([]);
       setMemoryCollectionPrompt(null);
     } catch {
-      statusSetter("Could not save to Memory. Check that saving is connected.");
+      statusSetter("Could not save to Memory. Check your connection and try again.");
     }
   }
 
@@ -5453,7 +5454,7 @@ export default function Home() {
       trackUsage("memory_saved", { reference, translation: passageText.translation_name, tab: "study" });
       setSelectedVerseKeys([]);
     } catch {
-      setMemoryStatus("Could not save to Memory. Check that saving is connected.");
+      setMemoryStatus("Could not save to Memory. Check your connection and try again.");
     }
   }
 
@@ -5496,7 +5497,7 @@ export default function Home() {
         chapter: readerChapter
       });
     } catch {
-      setReaderMemoryStatus("Could not save to Memory. Check that saving is connected.");
+      setReaderMemoryStatus("Could not save to Memory. Check your connection and try again.");
     }
   }
 
@@ -8234,7 +8235,7 @@ export default function Home() {
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
-                <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{`${friendlyName}, take the next small faithful step.`}</Text>
+                <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, choose one small next step.` : "Choose one small next step."}</Text>
                 <View style={styles.homePathList}>
                   {homeContinueItems.map((item) => (
                     <Pressable
@@ -12227,7 +12228,9 @@ const TodayRhythmCard = memo(function TodayRhythmCard({
         <View style={[styles.progressFill, { width: `${progress}%` }]} />
       </View>
       <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-        {effectivePartner ? `${friendlyName}, share an encouragement with ${effectivePartner} after study.` : `${friendlyName}, invite one person into the rhythm.`}
+        {effectivePartner
+          ? `${friendlyName === "friend" ? "Share" : `${friendlyName}, share`} an encouragement with ${effectivePartner} after your study.`
+          : `${friendlyName === "friend" ? "Invite" : `${friendlyName}, invite`} someone to connect with you.`}
       </Text>
     </Card>
   );

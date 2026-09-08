@@ -572,23 +572,25 @@ export function JournalTab(props: any) {
               </Pressable>
               <View style={styles.journalStatusCluster}>
                 <Text style={[styles.draftPill, journalDarkMode && styles.plansDarkDraftPill]}>{journalHeaderStatus}</Text>
-                {entry.answers && !memoryMeditation && entry.reviewStatus === "scheduled" && (
-                  <View
-                    accessible
-                    accessibilityLabel={isStudyReviewDue(entry) ? "Study review due" : `Review scheduled for ${formatReviewDate(entry.reviewAt)}`}
-                    style={[styles.reviewScheduledIndicator, journalDarkMode && styles.homeDarkIconBubble]}
-                  >
-                    <Ionicons name="refresh-circle-outline" size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
-                  </View>
-                )}
                 {entry.answers && !memoryMeditation && (
-                  <Pressable
-                    onPress={() => togglePinnedJournalEntry(rawEntryId)}
-                    style={[styles.pinJournalIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinJournalIconButton]}
-                    accessibilityLabel={pinned ? "Unpin journal entry" : "Pin journal entry"}
-                  >
-                    <Ionicons name={pinned ? "star" : "star-outline"} size={16} color={pinned ? "#2f7d4f" : (journalDarkMode ? "#c8bda9" : colors.muted)} />
-                  </Pressable>
+                  <View style={[styles.journalHeaderIconStack, phoneLayout && styles.phoneJournalHeaderIconStack]}>
+                    {entry.reviewStatus === "scheduled" && (
+                      <View
+                        accessible
+                        accessibilityLabel={isStudyReviewDue(entry) ? "Study review due" : `Review scheduled for ${formatReviewDate(entry.reviewAt)}`}
+                        style={[styles.reviewScheduledIndicator, journalDarkMode && styles.homeDarkIconBubble]}
+                      >
+                        <Ionicons name="refresh-circle-outline" size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
+                      </View>
+                    )}
+                    <Pressable
+                      onPress={() => togglePinnedJournalEntry(rawEntryId)}
+                      style={[styles.pinJournalIconButton, journalDarkMode && styles.homeDarkIconBubble, pinned && styles.activePinJournalIconButton]}
+                      accessibilityLabel={pinned ? "Unpin journal entry" : "Pin journal entry"}
+                    >
+                      <Ionicons name={pinned ? "star" : "star-outline"} size={16} color={pinned ? "#2f7d4f" : (journalDarkMode ? "#c8bda9" : colors.muted)} />
+                    </Pressable>
+                  </View>
                 )}
               </View>
             </View>

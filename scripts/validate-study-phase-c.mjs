@@ -51,6 +51,8 @@ assert(scheduledReviewPanel.includes('"Change review"') && scheduledReviewPanel.
 assert(journal.includes('entry.reviewStatus !== "scheduled" && (') && journal.includes("Delete journal entry?") && journal.includes("This cannot be undone."), "Scheduled review controls must stay out of the entry action row and journal deletion must use a warning dialog.");
 assert(journal.includes('role: "dialog"') && journal.includes('accessibilityLabel="Cancel deleting journal entry"'), "The delete confirmation must expose accessible dialog and cancel controls.");
 assert(journal.includes('entry.reviewStatus === "scheduled" ? "Study" : entryStatus') && journal.includes('name="refresh-circle-outline"') && journal.includes("reviewScheduledIndicator"), "Scheduled reviews must retain the normal study header and show a separate review indicator at the top right.");
+assert(journal.includes("styles.journalHeaderIconStack") && journal.includes("phoneLayout && styles.phoneJournalHeaderIconStack"), "Review and pin icons must share a responsive header stack.");
+assert(app.includes("phoneJournalHeaderIconStack") && app.includes('flexDirection: "column"'), "Mobile journal headers must stack the review indicator above the pin icon.");
 assert(journal.includes('accessibilityLabel={isStudyReviewDue(entry) ? "Study review due"'), "The scheduled-review header indicator must announce its meaning.");
 
 const polishedCopy = [app, journal, memory, memoryTab, community, help, helpTab, seo].join("\n");

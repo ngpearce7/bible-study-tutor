@@ -25799,6 +25799,17 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     gap: 7
   },
+  journalHeaderIconStack: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 7
+  },
+  phoneJournalHeaderIconStack: {
+    alignSelf: "flex-start",
+    flexDirection: "column",
+    gap: 3
+  },
   reviewScheduledIndicator: {
     alignItems: "center",
     backgroundColor: "#fff6eb",

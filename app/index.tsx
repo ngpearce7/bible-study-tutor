@@ -10,6 +10,7 @@ import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
+import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES } from "@/data/devotionalTypography";
 import { getContextHelp } from "@/data/help";
 import { LEGAL_LAST_UPDATED, PRIVACY_POLICY_SECTIONS, TERMS_OF_SERVICE_SECTIONS } from "@/data/legal";
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
@@ -659,16 +660,6 @@ const NOTE_HIGHLIGHT_COLOR_OPTIONS = [
   { label: "Sky", value: "#d6e8f7" },
   { label: "Lavender", value: "#e7ddf4" }
 ];
-const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; accessibilityLabel: string; iconSize: number }[] = [
-  { id: "normal", accessibilityLabel: "Use normal devotional text size", iconSize: 13 },
-  { id: "large", accessibilityLabel: "Use large devotional text size", iconSize: 16 },
-  { id: "larger", accessibilityLabel: "Use larger devotional text size", iconSize: 19 }
-];
-const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { title: { fontSize: number; lineHeight: number }; label: { fontSize: number; lineHeight: number }; body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
-  normal: { title: { fontSize: 13, lineHeight: 17 }, label: { fontSize: 10, lineHeight: 13 }, body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
-  large: { title: { fontSize: 15, lineHeight: 20 }, label: { fontSize: 12, lineHeight: 15 }, body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
-  larger: { title: { fontSize: 17, lineHeight: 23 }, label: { fontSize: 13, lineHeight: 17 }, body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
-};
 const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "studyMethodId",
   "studyStepIndex",
@@ -7741,7 +7732,7 @@ export default function Home() {
               <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.context}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.context}</Text>
           </View>
         )}
         {!!planDay.devotional && (
@@ -7752,43 +7743,43 @@ export default function Home() {
                 <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{planDay.devotional.title}</Text>
               </View>
             </View>
-            <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
+            <Text style={[styles.planDayDevotionalText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
           </>
         )}
         {!!planDay.observationQuestion && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.observationQuestion}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.observationQuestion}</Text>
           </View>
         )}
         {!!(planDay.reflectionQuestion || planDay.reflectionPrompt) && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.reflectionQuestion || planDay.reflectionPrompt}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.reflectionQuestion || planDay.reflectionPrompt}</Text>
           </View>
         )}
         {!!(planDay.prayer || planDay.prayerPrompt) && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.prayer || planDay.prayerPrompt}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.prayer || planDay.prayerPrompt}</Text>
           </View>
         )}
         {!!planDay.gentleAction && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.gentleAction}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.gentleAction}</Text>
           </View>
         )}
         {!!planDay.studyMethod && (
           <View style={styles.planDayPromptRow}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
           </View>
         )}
         {!!visibleCareNote && (
           <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
             <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{visibleCareNote}</Text>
+            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{visibleCareNote}</Text>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Acknowledge this care note"

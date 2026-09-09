@@ -2,21 +2,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 import { colors } from "@/components/ui";
-
-type DevotionalTextSize = "normal" | "large" | "larger";
-
-const DEVOTIONAL_TEXT_SIZE_OPTIONS: { id: DevotionalTextSize; accessibilityLabel: string; iconSize: number }[] = [
-  { id: "normal", accessibilityLabel: "Use normal devotional text size", iconSize: 13 },
-  { id: "large", accessibilityLabel: "Use large devotional text size", iconSize: 16 },
-  { id: "larger", accessibilityLabel: "Use larger devotional text size", iconSize: 19 }
-];
-
-const DEVOTIONAL_TEXT_SIZE_STYLES: Record<DevotionalTextSize, { title: { fontSize: number; lineHeight: number }; label: { fontSize: number; lineHeight: number }; body: { fontSize: number; lineHeight: number }; prompt: { fontSize: number; lineHeight: number } }> = {
-  normal: { title: { fontSize: 13, lineHeight: 17 }, label: { fontSize: 10, lineHeight: 13 }, body: { fontSize: 12, lineHeight: 18 }, prompt: { fontSize: 12, lineHeight: 17 } },
-  large: { title: { fontSize: 15, lineHeight: 20 }, label: { fontSize: 12, lineHeight: 15 }, body: { fontSize: 14, lineHeight: 21 }, prompt: { fontSize: 14, lineHeight: 20 } },
-  larger: { title: { fontSize: 17, lineHeight: 23 }, label: { fontSize: 13, lineHeight: 17 }, body: { fontSize: 16, lineHeight: 24 }, prompt: { fontSize: 15, lineHeight: 22 } }
-};
 
 type BibleReaderPassageProps = {
   styles: any;
@@ -323,7 +310,7 @@ export function BibleReaderPassage({
                         </Text>
                         {devotionalTextSizeControl}
                       </View>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>
                     </View>
                   )}
                   {!!activeReadingPlanDay.devotional && (
@@ -334,43 +321,43 @@ export function BibleReaderPassage({
                           <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
                         </View>
                       </View>
-                      <Text style={[styles.planDayDevotionalText, devotionalTextSizing.body, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
+                      <Text style={[styles.planDayDevotionalText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
                     </>
                   )}
                   {!!activeReadingPlanDay.observationQuestion && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.observationQuestion}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.observationQuestion}</Text>
                     </View>
                   )}
                   {!!(activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt) && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt}</Text>
                     </View>
                   )}
                   {!!(activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt) && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt}</Text>
                     </View>
                   )}
                   {!!activeReadingPlanDay.gentleAction && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.gentleAction}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.gentleAction}</Text>
                     </View>
                   )}
                   {!!activeReadingPlanDay.studyMethod && (
                     <View style={styles.planDayPromptRow}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
                     </View>
                   )}
                   {!!visibleActiveCareNote && (
                     <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.prompt, darkMode && styles.accountDarkMutedText]}>{visibleActiveCareNote}</Text>
+                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{visibleActiveCareNote}</Text>
                       {!!onAcknowledgeCareNote && (
                         <Pressable
                           accessibilityRole="button"

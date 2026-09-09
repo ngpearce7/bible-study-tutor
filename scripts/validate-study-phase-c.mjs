@@ -5,6 +5,8 @@ const root = process.cwd();
 const read = (path) => readFileSync(join(root, path), "utf8");
 const app = read("app/index.tsx");
 const journal = read("components/JournalTab.tsx");
+const bibleReaderPassage = read("components/BibleReaderPassage.tsx");
+const devotionalTypography = read("data/devotionalTypography.ts");
 const methods = read("data/methods.ts");
 const schema = read("convex/schema.ts");
 const study = read("convex/study.ts");
@@ -54,6 +56,10 @@ assert(journal.includes('entry.reviewStatus === "scheduled" ? "Study" : entrySta
 assert(journal.includes("styles.journalHeaderIconStack") && journal.includes("phoneLayout && styles.phoneJournalHeaderIconStack"), "Review and pin icons must share a responsive header stack.");
 assert(app.includes("phoneJournalHeaderIconStack") && app.includes('flexDirection: "column"'), "Mobile journal headers must stack the review indicator above the pin icon.");
 assert(journal.includes('accessibilityLabel={isStudyReviewDue(entry) ? "Study review due"'), "The scheduled-review header indicator must announce its meaning.");
+assert(!app.includes("devotionalTextSizing.prompt") && !app.includes("devotionalTextSizing.body"), "Plan-day devotional copy must use one consistent text-size token.");
+assert(!bibleReaderPassage.includes("devotionalTextSizing.prompt") && !bibleReaderPassage.includes("devotionalTextSizing.body"), "Bible-reader devotional copy must use the shared consistent text-size token.");
+assert((app.match(/devotionalTextSizing\.copy/g) || []).length >= 7 && (bibleReaderPassage.match(/devotionalTextSizing\.copy/g) || []).length >= 7, "Every devotional paragraph and prompt must use the shared copy size.");
+assert(devotionalTypography.includes("copy: { fontSize: 16, lineHeight: 24 }"), "The largest devotional setting must keep all body copy at the same readable mobile size.");
 
 const polishedCopy = [app, journal, memory, memoryTab, community, help, helpTab, seo].join("\n");
 for (const awkwardPhrase of [

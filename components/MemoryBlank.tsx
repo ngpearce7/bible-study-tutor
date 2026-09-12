@@ -77,11 +77,11 @@ function MemoryBlankComponent({
           incorrect && styles.incorrectInput
         ]}
       />
-      {hintsVisible && !correct && (
-        <View style={styles.hintRow}>
+      {hintsVisible && (
+        <View pointerEvents={correct ? "none" : "auto"} accessibilityElementsHidden={correct} importantForAccessibility={correct ? "no-hide-descendants" : "auto"} style={[styles.hintRow, correct && { opacity: 0 }]}>
           <Text style={[styles.hintText, compact && styles.compactHintText, darkMode && styles.darkHintText]}>{memoryHintText(token.answer, hintLevel)}</Text>
           {canShowMoreHint && (
-            <Pressable onPress={onMoreHint} style={styles.moreHintButton}>
+            <Pressable disabled={correct} onPress={onMoreHint} style={styles.moreHintButton}>
               <Text style={[styles.moreHintText, darkMode && styles.darkMutedText]}>Hint</Text>
             </Pressable>
           )}

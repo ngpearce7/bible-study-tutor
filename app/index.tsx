@@ -2682,15 +2682,15 @@ function HomeScreen() {
   }, [compactLayout, tab]);
 
   useEffect(() => {
-    if (!activeMemoryVerseId || memoryPracticeLevel <= 1 || firstMemoryBlankIndex < 0) return;
+    if (tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1 || firstMemoryBlankIndex < 0) return;
 
     const timeout = setTimeout(() => {
-      memoryBlankInputRefs.current[firstMemoryBlankIndex]?.focus();
-      if (!phoneLayout) ensureMemoryBlankVisible(firstMemoryBlankIndex);
+      focusMemoryBlank(firstMemoryBlankIndex);
+      ensureMemoryBlankVisible(firstMemoryBlankIndex);
     }, 120);
 
     return () => clearTimeout(timeout);
-  }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout]);
+  }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout, tab]);
 
   useEffect(() => () => {
     if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
@@ -2748,14 +2748,11 @@ function HomeScreen() {
         return;
       }
       input.measureInWindow((_x: number, y: number, _width: number, inputHeight: number) => {
-        const visualViewportHeight =
-          Platform.OS === "web" && typeof window !== "undefined" && (window as any).visualViewport?.height
-            ? Number((window as any).visualViewport.height)
-            : 0;
-        const keyboardSafeBottom =
-          visualViewportHeight > 0 && visualViewportHeight < layoutHeight - 80
-            ? visualViewportHeight - 24
-            : layoutHeight - Math.min(320, Math.max(210, layoutHeight * 0.34));
+        const viewport = Platform.OS === "web" && typeof window !== "undefined" ? window.visualViewport : null;
+        const keyboardTop = Platform.OS !== "web" ? Keyboard.metrics()?.screenY : undefined;
+        const keyboardSafeBottom = viewport
+          ? viewport.offsetTop + viewport.height - 24
+          : Math.min(layoutHeight, keyboardTop ?? layoutHeight) - 24;
         const inputBottom = y + inputHeight;
         const hiddenAmount = inputBottom - keyboardSafeBottom;
         if (hiddenAmount > 8) {
@@ -2765,12 +2762,18 @@ function HomeScreen() {
     }, delay);
   }
 
+  function focusMemoryBlank(index: number) {
+    const input = memoryBlankInputRefs.current[index] as any;
+    if (Platform.OS === "web") input?.focus?.({ preventScroll: true });
+    else input?.focus?.();
+  }
+
   function focusMemoryBlankWithRowCheck(currentIndex: number, nextIndex: number) {
     const currentInput = memoryBlankInputRefs.current[currentIndex] as any;
     const nextInput = memoryBlankInputRefs.current[nextIndex] as any;
 
     const focusNext = (crossesRow: boolean) => {
-      nextInput?.focus?.();
+      focusMemoryBlank(nextIndex);
       if (phoneLayout) {
         if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
         memoryBlankVisibilityTimerRef.current = null;
@@ -5905,7 +5908,7 @@ function HomeScreen() {
     if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
     memoryBlankVisibilityTimerRef.current = null;
     Keyboard.dismiss();
-    setTimeout(() => scrollMemoryPracticeBy(150), 140);
+
   }
 
   function updateMemoryPracticeAnswer(index: number, value: string) {

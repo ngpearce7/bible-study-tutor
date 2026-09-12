@@ -27,3 +27,16 @@ To remove a single stage later, revert its commit and review the resulting diff.
 - Browser review at 390 × 844 and 1440 × 1000, light and dark appearance; device choice persists on reload; phone Bible navigation loads Scripture; More opens the full menu.
 - The floating Help button clears phone navigation. Navigation hides during reader selection and memory focus views.
 - Native iOS/Android builds and actual OS-theme changes have not been exercised in this preview.
+
+## Follow-up review
+
+The follow-up changes remain on the preview branch until reviewed; they have not been copied into the GitHub Desktop main checkout or published.
+
+- Combined home actions and resource links into one section. Resource links use compact, underlined rows; the hero card no longer stretches to match the sidebar height.
+- Shared eyebrow labels follow the active theme across lazy-loaded screens. Fixed dark verse numbers, instruction labels and icons; selected gold translation controls use dark text.
+- Slightly darkened light-theme terracotta and muted text to meet the normal-text contrast target on cream, peach and gold surfaces. Build validation now covers those pairs as well as dark labels and translation controls.
+- Inspected the rendered default/guest states of Home, Study, Bible, Plans, Methods, Memory, Journal, Community, Help and Account in both modes. This is not a claim that every signed-in, error, modal or user-highlight state has been audited. The clipped SEO heading is not visually rendered and was excluded from the visual contrast findings.
+- Added a simulated device-theme integration test using the installed React Native Web appearance listener. It verifies live system changes, fixed Light/Dark overrides, switching back to Device, and listener cleanup.
+- Full verification passes with 21 tests. Both iOS and Android JavaScript exports compile. These exports are not signed native app builds or device tests. The current Xcode tools do not provide simctl, so simulator/physical-device behaviour remains unverified.
+
+The previously approved design remains available at commit `dd63352`. Reverting the follow-up commit alone restores that version while preserving the earlier design stages.

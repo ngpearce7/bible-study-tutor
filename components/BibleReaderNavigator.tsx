@@ -284,7 +284,7 @@ export function BibleReaderNavigator({
                 style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
               >
                 <View style={styles.readerBookmarkHeaderTitle}>
-                  <Ionicons name={quickListView === "read" ? "checkmark-circle-outline" : "time-outline"} size={15} color={colors.coral} />
+                  <Ionicons name={quickListView === "read" ? "checkmark-circle-outline" : "time-outline"} size={15} color={darkMode ? "#e9b76a" : colors.coral} />
                   <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{quickListView === "read" ? "Read chapters" : "Recent"}</Text>
                 </View>
                 <View style={styles.readerBookmarkHeaderMeta}>
@@ -370,7 +370,7 @@ export function BibleReaderNavigator({
                 style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
               >
                 <View style={styles.readerBookmarkHeaderTitle}>
-                  <Ionicons name="bookmark-outline" size={15} color={colors.coral} />
+                  <Ionicons name="bookmark-outline" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
                   <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Bookmarks & notes</Text>
                 </View>
                 <View style={styles.readerBookmarkHeaderMeta}>

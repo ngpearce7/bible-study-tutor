@@ -67,7 +67,7 @@ export function BibleReaderControls({
           <Eyebrow>{translationId.toUpperCase()}</Eyebrow>
           <View style={styles.readerTitleRow}>
             <Text style={[styles.stepTitle, darkMode && styles.accountDarkTitle]}>{readerReference}</Text>
-            {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={colors.coral} />}
+            {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={darkMode ? "#e9b76a" : colors.coral} />}
           </View>
         </View>
         <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />

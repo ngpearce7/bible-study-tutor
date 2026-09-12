@@ -26,14 +26,14 @@ assert(app.includes("Saved to Journal") && app.includes('label="Open Journal"'),
 assert((app.match(/Saved to Journal/g) || []).length === 1, "The saved screen must show only one Journal confirmation panel.");
 assertIncludes(app, '{studyPhase !== "saved" && (\n              <View style={[styles.studyGuidedHeader', "The guided-study header must be removed from the saved screen.");
 assert(app.includes("Review later (optional)") && app.includes('accessibilityState={{ expanded: reviewLaterPanelOpen }}'), "Review scheduling must be presented as an optional collapsible panel.");
-assert(app.includes('name={reviewLaterPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral}'), "Optional review scheduling needs the established coral circular expand control.");
+assert(app.includes('name={reviewLaterPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={studyDarkMode ? "#e9b76a" : colors.coral}'), "Optional review scheduling needs the theme-aware circular expand control.");
 assert(app.includes("setReviewLaterPanelOpen(readActionReviewFailed)"), "A failed automatic READ follow-up must open the review panel so the error is visible.");
 assertIncludes(app, '{studyPhase !== "saved" && (\n              <View style={[styles.scriptureBox', "The passage workspace must be hidden once the saved confirmation is shown.");
 assert(app.includes("writing steps completed") && app.includes("Not completed"), "Partial completion must be visible during review.");
 assert(!app.includes("shareNote || suggestedShareNote") && !app.includes("function buildShareNote("), "Private study responses must not automatically populate sharing text.");
 assert(app.includes("Your study responses stay private unless you deliberately share them."), "The sharing privacy explanation is missing.");
 assert(app.includes("shareInsightPanelOpen") && app.includes('accessibilityLabel={shareInsightPanelOpen ? "Hide shareable insight" : "Add a shareable insight"}'), "Shareable insight must use an accessible collapsed-by-default panel.");
-assert(app.includes('name={shareInsightPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral}'), "Shareable insight needs the established coral circular expand control aligned in its header.");
+assert(app.includes('name={shareInsightPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={studyDarkMode ? "#e9b76a" : colors.coral}'), "Shareable insight needs the theme-aware circular expand control aligned in its header.");
 assert(app.includes('accessibilityState={{ selected: active }}'), "Study progress needs a selected accessibility state.");
 assert(app.includes('accessibilityLiveRegion="polite"'), "Save and completion status must be announced accessibly.");
 assert(schema.includes("shareNote: v.optional(v.string())") && schema.includes("skippedStepTitles: v.optional(v.array(v.string()))"), "Draft/session recovery fields must stay backward-compatible.");

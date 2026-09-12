@@ -211,7 +211,7 @@ export function JournalTab(props: any) {
       <Text style={[styles.title, journalDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your study journal` : "Your study journal"}</Text>
       <Text style={[styles.titleSupport, journalDarkMode && styles.accountDarkMutedText]}>Return to what God has been teaching you through studies, highlights, reflections, and encouragements.</Text>
       <View style={[styles.journalSearchBox, phoneLayout && styles.phoneJournalSearchBox, journalDarkMode && styles.accountDarkInput]}>
-        <Ionicons name="search-outline" size={18} color={colors.coral} />
+        <Ionicons name="search-outline" size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
         <TextInput
           value={journalSearch}
           onChangeText={setJournalSearch}
@@ -268,7 +268,7 @@ export function JournalTab(props: any) {
                 }}
                 style={[styles.clearPassageFilterInlineButton, journalDarkMode && styles.homeDarkResumeButton]}
               >
-                <Ionicons name="close-outline" size={14} color={colors.coral} />
+                <Ionicons name="close-outline" size={14} color={journalDarkMode ? "#e9b76a" : colors.coral} />
                 <Text style={[styles.clearPassageFilterInlineText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
               </Pressable>
             )}
@@ -294,7 +294,7 @@ export function JournalTab(props: any) {
         )}
       </View>
       <View style={[styles.journalGuideBox, phoneLayout && styles.phoneJournalGuideBox, journalDarkMode && styles.accountDarkSection]}>
-        <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : journalFilter === "meditations" ? "sparkles-outline" : "reader-outline"} size={18} color={colors.coral} />
+        <Ionicons name={journalFilter === "reviews" ? "refresh-circle-outline" : journalFilter === "highlights" ? "color-wand-outline" : journalFilter === "checkins" ? "chatbubbles-outline" : journalFilter === "meditations" ? "sparkles-outline" : "reader-outline"} size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
         <Text style={[styles.journalGuideText, journalDarkMode && styles.accountDarkText]}>{buildJournalGuideText(journalFilter, totalSavedHighlightCount)}</Text>
       </View>
       {journalView === "calendar" && (
@@ -328,7 +328,7 @@ export function JournalTab(props: any) {
       )}
       {!!journalDateFilterKey && (
         <View style={[styles.dateFilterNotice, journalDarkMode && styles.accountDarkInsetBox]}>
-          <Ionicons name="calendar-outline" size={16} color={colors.coral} />
+          <Ionicons name="calendar-outline" size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
           <Text style={[styles.dateFilterText, journalDarkMode && styles.accountDarkText]}>
             {`${formatJournalDateKey(journalDateFilterKey)} · ${selectedJournalDateEntryCount} entr${selectedJournalDateEntryCount === 1 ? "y" : "ies"}`}
           </Text>
@@ -336,7 +336,7 @@ export function JournalTab(props: any) {
       )}
       {!!selectedJournalScriptureBook && selectedJournalScriptureChapter > 0 && (
         <View style={[styles.dateFilterNotice, styles.passageFilterNotice, journalDarkMode && styles.accountDarkInsetBox]}>
-          <Ionicons name="book-outline" size={16} color={colors.coral} />
+          <Ionicons name="book-outline" size={16} color={journalDarkMode ? "#e9b76a" : colors.coral} />
           <Text numberOfLines={1} style={[styles.dateFilterText, styles.passageFilterText, journalDarkMode && styles.accountDarkText]}>
             {`${selectedJournalScriptureBook} ${selectedJournalScriptureChapter} · ${selectedJournalScriptureEntryCount} entr${selectedJournalScriptureEntryCount === 1 ? "y" : "ies"}`}
           </Text>
@@ -344,7 +344,7 @@ export function JournalTab(props: any) {
             onPress={() => setSelectedJournalScripture("", 0)}
             style={[styles.clearPassageFilterInlineButton, journalDarkMode && styles.homeDarkResumeButton]}
           >
-            <Ionicons name="close-outline" size={14} color={colors.coral} />
+            <Ionicons name="close-outline" size={14} color={journalDarkMode ? "#e9b76a" : colors.coral} />
             <Text style={[styles.clearPassageFilterInlineText, journalDarkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
           </Pressable>
         </View>
@@ -356,7 +356,7 @@ export function JournalTab(props: any) {
           style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel, journalDarkMode && styles.accountDarkSection]}
         >
           <View style={[styles.highlightLibraryIcon, journalDarkMode && styles.homeDarkIconBubble]}>
-            <Ionicons name="refresh-circle-outline" size={19} color={colors.coral} />
+            <Ionicons name="refresh-circle-outline" size={19} color={journalDarkMode ? "#e9b76a" : colors.coral} />
           </View>
           <View style={styles.highlightLibraryCopy}>
             <Text style={[styles.highlightLibraryTitle, journalDarkMode && styles.accountDarkTitle]}>Studies ready to review</Text>
@@ -374,7 +374,7 @@ export function JournalTab(props: any) {
           style={[styles.highlightLibraryPanel, phoneLayout && styles.phoneHighlightLibraryPanel, journalDarkMode && styles.accountDarkSection]}
         >
           <View style={[styles.highlightLibraryIcon, journalDarkMode && styles.homeDarkIconBubble]}>
-            <Ionicons name="color-wand-outline" size={19} color={colors.coral} />
+            <Ionicons name="color-wand-outline" size={19} color={journalDarkMode ? "#e9b76a" : colors.coral} />
           </View>
           <View style={styles.highlightLibraryCopy}>
             <Text style={[styles.highlightLibraryTitle, journalDarkMode && styles.accountDarkTitle]}>Highlight library</Text>
@@ -656,7 +656,7 @@ export function JournalTab(props: any) {
                     {entry.reviewStatus === "scheduled" && (
                       <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
                         <View style={styles.feedbackHeader}>
-                          <Ionicons name="refresh-circle-outline" size={18} color={colors.coral} />
+                          <Ionicons name="refresh-circle-outline" size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
                           <Text style={[styles.feedbackTitle, journalDarkMode && styles.accountDarkTitle]}>{isStudyReviewDue(entry) ? "Ready to review" : "Review scheduled"}</Text>
                         </View>
                         <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>
@@ -817,7 +817,7 @@ export function JournalTab(props: any) {
       )}
       {showJournalEmptyState && (
         <View style={[styles.emptyJournalBox, journalDarkMode && styles.accountDarkSection]}>
-          <Ionicons name={journalSearchTerm ? "search-outline" : "reader-outline"} size={24} color={colors.coral} />
+          <Ionicons name={journalSearchTerm ? "search-outline" : "reader-outline"} size={24} color={journalDarkMode ? "#e9b76a" : colors.coral} />
           <Text style={[styles.emptyJournalTitle, journalDarkMode && styles.accountDarkTitle]}>{journalSearchTerm ? "No matching entries" : "No journal entries yet"}</Text>
           <Text style={[styles.emptyJournalText, journalDarkMode && styles.accountDarkMutedText]}>
             {journalSearchTerm

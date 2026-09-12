@@ -207,7 +207,7 @@ export function MemoryTab(props: any) {
         )}
         {phoneMemoryFocusMode && (
           <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
-            <Ionicons name={activeMemoryMeditationVerseId ? "leaf-outline" : "school-outline"} size={18} color={colors.coral} />
+            <Ionicons name={activeMemoryMeditationVerseId ? "leaf-outline" : "school-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
             <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>
               {activeMemoryMeditationVerseId
                 ? "Meditation mode. Save or close this reflection to return to your saved list."
@@ -228,7 +228,7 @@ export function MemoryTab(props: any) {
         )}
         {(memoryVerses || []).length === 0 ? (
           <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
-            <Ionicons name="sparkles-outline" size={24} color={colors.coral} />
+            <Ionicons name="sparkles-outline" size={24} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
             <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No memory verses yet</Text>
             <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.` : "Open the Bible, select one or more verses, then tap Memory. You can also save verses while studying."}</Text>
             <View style={styles.emptyMemoryActions}>
@@ -250,7 +250,7 @@ export function MemoryTab(props: any) {
                     style={[styles.addMemoryHeader, phoneLayout && styles.phoneAddMemoryHeader]}
                   >
                     <View style={[styles.feedbackHeader, phoneLayout && styles.phoneAddMemoryTitleBlock]}>
-                      <Ionicons name="add-circle-outline" size={18} color={colors.coral} />
+                      <Ionicons name="add-circle-outline" size={18} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
                       <View style={styles.addMemoryCopy}>
                         <Text style={[styles.feedbackTitle, phoneLayout && styles.phoneAddMemoryTitle, memoryDarkMode && styles.accountDarkTitle]}>{phoneLayout ? "Add verses" : "Add memory verses"}</Text>
                         {phoneLayout && <Text style={[styles.phoneAddMemorySubtitle, memoryDarkMode && styles.accountDarkMutedText]}>From Bible or Study</Text>}
@@ -347,7 +347,7 @@ export function MemoryTab(props: any) {
             {!phoneMemoryFocusMode && memoryView === "browse" && (
               <>
                 <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
-                  <Ionicons name="search-outline" size={18} color={colors.coral} />
+                  <Ionicons name="search-outline" size={18} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
                   <TextInput
                     value={memorySearch}
                     onChangeText={setMemorySearch}
@@ -735,7 +735,7 @@ export function MemoryTab(props: any) {
                         <View style={styles.journalTitleBlock}>
                           <View style={styles.memoryReferenceRow}>
                             <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
-                            <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={colors.coral} />
+                            <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
                           </View>
                           <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
                             {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
@@ -1225,7 +1225,7 @@ export function MemoryTab(props: any) {
             );})}
             {memoryView === "browse" && memoryBrowseSections.length === 0 && (
               <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
-                <Ionicons name="search-outline" size={24} color={colors.coral} />
+                <Ionicons name="search-outline" size={24} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
                 <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No saved verses found</Text>
                 <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>Try a book, chapter, reference, or a phrase from the verse.</Text>
               </View>

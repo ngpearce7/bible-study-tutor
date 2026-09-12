@@ -227,7 +227,7 @@ export function CommunityTab(props: any) {
                         style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
                         accessibilityLabel={deletePending ? "Confirm delete encouragement" : itemIsPost ? "Remove shared post" : "Remove encouragement"}
                       >
-                        <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={colors.coral} />
+                        <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={communityDarkMode ? "#e9b76a" : colors.coral} />
                       </Pressable>
                     </>
                   )}
@@ -270,7 +270,7 @@ export function CommunityTab(props: any) {
             style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
           >
             <View style={styles.mobileCommunityPanelTitleRow}>
-              <Ionicons name="person-add-outline" size={18} color={colors.coral} />
+              <Ionicons name="person-add-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Friends</Text>
             </View>
             {phoneLayout && (
@@ -426,7 +426,7 @@ export function CommunityTab(props: any) {
             style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
           >
             <View style={styles.mobileCommunityPanelTitleRow}>
-              <Ionicons name="lock-closed-outline" size={18} color={colors.coral} />
+              <Ionicons name="lock-closed-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Private circle</Text>
             </View>
             {phoneLayout && (
@@ -680,7 +680,7 @@ export function CommunityTab(props: any) {
         ) : (
           <View style={[styles.communityHistoryPanel, communityDarkMode && styles.accountDarkSection]}>
             <View style={styles.feedbackHeader}>
-              <Ionicons name="albums-outline" size={18} color={colors.coral} />
+              <Ionicons name="albums-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Encouragement history</Text>
             </View>
             <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
@@ -749,14 +749,14 @@ export function CommunityTab(props: any) {
       {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard, communityDarkMode && styles.accountDarkMainCard]}>
         <View style={[styles.communityGoalBox, communityDarkMode && styles.accountDarkSection]}>
           <View style={styles.feedbackHeader}>
-            <Ionicons name="shield-checkmark-outline" size={18} color={colors.coral} />
+            <Ionicons name="shield-checkmark-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Community boundary</Text>
           </View>
           <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
         </View>
         <View style={styles.communityDivider} />
         <View style={styles.feedbackHeader}>
-          <Ionicons name="time-outline" size={18} color={colors.coral} />
+          <Ionicons name="time-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Recent encouragements</Text>
         </View>
         {(checkins || []).length === 0 ? (

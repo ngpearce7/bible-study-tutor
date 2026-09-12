@@ -232,14 +232,14 @@ export function BibleReaderPassage({
                   selected && styles.selectedReaderVerseRow
                 ]}
               >
-                <Text style={[styles.readerVerseNumber, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>
+                <Text style={[styles.readerVerseNumber, darkMode && styles.studyDarkAccentText, phoneLayout && styles.phoneReaderVerseNumber]}>{verse.verse}</Text>
                 <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText, darkMode && !selected && styles.accountDarkText]}>{verse.text}</Text>
                 <View style={[styles.readerVerseIconRow, phoneLayout && styles.phoneReaderVerseIconRow]}>
                   {memoryVerseKeys.has(verseKey(verse)) && (
-                    <Ionicons name="sparkles" size={15} color={colors.coral} />
+                    <Ionicons name="sparkles" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
                   )}
                   {isVerseBookmarked(verse.verse) && (
-                    <Ionicons name="bookmark" size={15} color={colors.coral} />
+                    <Ionicons name="bookmark" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
                   )}
                   {isVerseNoted(verse.verse) && (
                     <Ionicons name="document-text" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />

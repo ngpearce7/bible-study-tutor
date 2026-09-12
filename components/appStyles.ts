@@ -241,7 +241,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   homeLayout: {
-    alignItems: "stretch",
+    alignItems: "flex-start",
     flexDirection: "row",
     gap: 18,
     maxWidth: "100%",
@@ -4629,7 +4629,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   activeTranslationOptionText: {
-    color: "white"
+    color: colors.ink
   },
   translationNote: {
     color: colors.muted,

@@ -1,3 +1,4 @@
+import { useAppDarkMode } from "@/components/useAppDarkMode";
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { sanitizeEditorHtml } from "@/data/noteHtml";
 import { styles } from "@/components/appStyles";
@@ -25,13 +26,13 @@ import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWo
 import { trackPublicAnalytics } from "@/data/publicAnalytics";
 import { buildStudyContextReference, getStudyCrossReferences, isVerseWithinReference, loadStudyCrossReferences, type StudyCrossReference } from "@/data/studyContext";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
-import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
+import { AppButton, Card, Eyebrow, colors, UIThemeContext } from "@/components/ui";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, usePaginatedQuery, useQuery as useRawQuery } from "convex/react";
 import { useMutation, useQuery } from "@/data/profileClient";
 import { Component, Suspense, createElement, lazy, memo, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
-import { Alert, Animated, Easing, Image, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useColorScheme, useWindowDimensions, View } from "react-native";
+import { Alert, Animated, Easing, Image, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 type ProfileConnectionState = "idle" | "loading" | "ready" | "error";
@@ -135,7 +136,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
           margin: "0 0 7px"
         }
       },
-      "Explore study resources"
+      "Go deeper"
     ),
     createElement(
       "p",
@@ -167,16 +168,19 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
           {
             href,
             key: href,
+            title: description,
             style: {
-              background: darkMode ? "#28312e" : "#fffdf8",
+              background: "transparent",
               border: "none",
               borderRadius: 12,
               color: darkMode ? "#f7eddc" : colors.ink,
               display: "grid",
               gap: 5,
-              minHeight: 76,
+              minHeight: 44,
+              boxSizing: "border-box",
+              alignItems: "center",
               padding: 12,
-              textDecoration: "none"
+              textDecoration: "underline"
             }
           },
           createElement(
@@ -191,19 +195,6 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
               }
             },
             label
-          ),
-          createElement(
-            "span",
-            {
-              style: {
-                color: darkMode ? "#c8bda9" : colors.muted,
-                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                fontSize: 13,
-                fontWeight: 400,
-                lineHeight: 1.35
-              }
-            },
-            description
           )
         )
       )
@@ -1144,7 +1135,6 @@ function HomeScreen() {
   const [editReflectionNextStep, setEditReflectionNextStep] = useState("");
   const [isSavingJournalEdit, setIsSavingJournalEdit] = useState(false);
   const [bibleTranslation, setBibleTranslation] = useState<BibleTranslationId>("bsb");
-  const deviceColorScheme = useColorScheme();
   const [appearanceHydrated, setAppearanceHydrated] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<StoredAppearanceMode>("light");
   const [readerBook, setReaderBook] = useState("Genesis");
@@ -2636,7 +2626,8 @@ function HomeScreen() {
         : `${(communityCircles || []).length} circle${(communityCircles || []).length === 1 ? "" : "s"}`;
   const showFriendsConnectionPanel = !phoneLayout || mobileFriendsPanelOpen;
   const showCircleConnectionPanel = !phoneLayout || mobileCirclesPanelOpen;
-  const accountDarkMode = DARK_MODE_ENABLED && (appearanceMode === "dark" || (appearanceMode === "system" && deviceColorScheme === "dark"));
+  const resolvedDarkMode = useAppDarkMode(appearanceMode);
+  const accountDarkMode = DARK_MODE_ENABLED && resolvedDarkMode;
   const homeDarkMode = accountDarkMode;
   const helpDarkMode = accountDarkMode;
   const studyDarkMode = accountDarkMode;
@@ -4856,7 +4847,7 @@ function HomeScreen() {
             <Ionicons name="chatbubble-ellipses-outline" size={18} color={colors.coral} />
             <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Shareable insight</Text>
           </View>
-          <Ionicons name={shareInsightPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral} />
+          <Ionicons name={shareInsightPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={studyDarkMode ? "#e9b76a" : colors.coral} />
         </Pressable>
         {shareInsightPanelOpen && (
           <>
@@ -7502,7 +7493,7 @@ function HomeScreen() {
         <View style={[styles.instructionHeaderCopy, phoneLayout && styles.phoneInstructionHeaderCopy]} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
           <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
           <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
-          <Text style={styles.instructionKicker}>Do this now</Text>
+          <Text style={[styles.instructionKicker, studyDarkMode && styles.studyDarkAccentText]}>Do this now</Text>
           <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={instructionsCollapsed ? "Show study instructions" : "Hide study instructions"} accessibilityState={{ expanded: !instructionsCollapsed }} onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
@@ -7516,7 +7507,7 @@ function HomeScreen() {
           <View style={styles.checklist}>
             {step.checklist.map((item) => (
               <View key={item} style={styles.checkItem}>
-                <Ionicons name="ellipse-outline" size={15} color={colors.olive} />
+                <Ionicons name="ellipse-outline" size={15} color={studyDarkMode ? "#b8c8a5" : colors.olive} />
                 <Text style={[styles.checkText, studyDarkMode && styles.accountDarkMutedText]}>{item}</Text>
               </View>
             ))}
@@ -8068,6 +8059,7 @@ function HomeScreen() {
   };
 
   return (
+    <UIThemeContext.Provider value={accountDarkMode}>
     <View style={[styles.screen, accountDarkMode && styles.appDarkScreen, compactLayout && styles.compactScreen]}>
       {!!readerSyncError && <View accessibilityRole="alert" style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 1000, padding: 16, backgroundColor: "#fffaf2", borderWidth: 1, borderColor: "#9c4537" }}>
         <Text>{readerSyncError}</Text>
@@ -8274,12 +8266,11 @@ function HomeScreen() {
               </View>
 
               <Text style={[styles.homePurposeText, homeDarkMode && styles.accountDarkMutedText]}>Free to use. Made for personal study, small groups and pen-and-paper reflection.</Text>
-              <HomeSemanticResourceLinks darkMode={homeDarkMode} />
             </Card>
 
             <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
-                <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
+                <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Start with what you need</Text>
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, choose one small next step.` : "Choose one small next step."}</Text>
                 <View style={styles.homePathList}>
                   {[
@@ -8306,6 +8297,7 @@ function HomeScreen() {
                     </Pressable>
                   ))}
                 </View>
+                <HomeSemanticResourceLinks darkMode={homeDarkMode} />
               </Card>
 
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
@@ -8550,7 +8542,7 @@ function HomeScreen() {
                                     selected && styles.selectedVerseRow
                                   ]}
                                 >
-                                  <Text style={[styles.verseNumber, phoneLayout && styles.phoneVerseNumber, markupOption && { color: markupOption.color }]}>{verse.verse}</Text>
+                                  <Text style={[styles.verseNumber, studyDarkMode && styles.studyDarkAccentText, phoneLayout && styles.phoneVerseNumber, markupOption && { color: markupOption.color }]}>{verse.verse}</Text>
                                   <View style={styles.verseTextBlock}>
                                     <Text style={[styles.verseText, phoneLayout && styles.phoneVerseText, studyDarkMode && !markupOption && styles.accountDarkText, markupOption && { color: markupOption.color }]}>{verse.text.trim()}</Text>
                                   </View>
@@ -8560,7 +8552,7 @@ function HomeScreen() {
                                       {isEvidenceVerse && <View style={[styles.memoryVerseBadge, styles.methodVerseBadge]}><Text style={styles.methodVerseBadgeText}>Evidence</Text></View>}
                                       {savedToMemory && (
                                         <View style={styles.memoryVerseBadge}>
-                                          <Ionicons name="sparkles-outline" size={12} color={colors.coral} />
+                                          <Ionicons name="sparkles-outline" size={12} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                                           <Text style={styles.memoryVerseBadgeText}>Memory</Text>
                                         </View>
                                       )}
@@ -8871,7 +8863,7 @@ function HomeScreen() {
                     <Text style={[styles.muted, studyDarkMode && styles.accountDarkMutedText]}>{passageStatus}</Text>
                     {passageStatus.startsWith("I couldn't") && (
                       <Pressable onPress={() => setPassageReloadKey((value) => value + 1)} style={styles.retryLink}>
-                        <Ionicons name="refresh-outline" size={15} color={colors.coral} />
+                        <Ionicons name="refresh-outline" size={15} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                         <Text style={styles.retryLinkText}>Try again</Text>
                       </Pressable>
                     )}
@@ -8885,7 +8877,7 @@ function HomeScreen() {
               {studyPhase === "saved" && savedStudySummary ? (
                 <View accessibilityLiveRegion="polite" aria-live="polite" style={[styles.savedSummaryBox, studyDarkMode && styles.accountDarkInsetBox]}>
                   <View style={[styles.savedSummaryIcon, studyDarkMode && styles.homeDarkIconBubble]}>
-                    <Ionicons name="checkmark-circle-outline" size={30} color={colors.coral} />
+                    <Ionicons name="checkmark-circle-outline" size={30} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
                   <Eyebrow>Saved to Journal</Eyebrow>
                   <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `Your study is safely saved, ${firstName}.` : "Your study is safely saved."}</Text>
@@ -8920,7 +8912,7 @@ function HomeScreen() {
                           {savedStudySummary.reviewAt ? `Scheduled for ${formatReviewDate(savedStudySummary.reviewAt)}` : "Choose a reminder only if it would help."}
                         </Text>
                       </View>
-                      <Ionicons name={reviewLaterPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={colors.coral} />
+                      <Ionicons name={reviewLaterPanelOpen ? "remove-circle-outline" : "add-circle-outline"} size={24} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                     </Pressable>
                     {reviewLaterPanelOpen && (
                       <View style={styles.savedReviewLaterBody}>
@@ -9025,7 +9017,7 @@ function HomeScreen() {
                         style={styles.contemplativeTimerHeader}
                       >
                         <View style={styles.feedbackHeader}>
-                          <Ionicons name="timer-outline" size={18} color={colors.coral} />
+                          <Ionicons name="timer-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                           <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Optional quiet timer</Text>
                         </View>
                         <Ionicons name={contemplativeTimerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
@@ -9061,7 +9053,7 @@ function HomeScreen() {
                     <View style={[styles.methodGuidedExampleBox, studyDarkMode && styles.accountDarkSection]}>
                       <View style={styles.methodGuidedExampleHeader}>
                         <View style={styles.feedbackHeader}>
-                          <Ionicons name="school-outline" size={18} color={colors.coral} />
+                          <Ionicons name="school-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                           <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Worked example · not your response</Text>
                         </View>
                         <Pressable accessibilityRole="button" accessibilityLabel="Hide worked example" onPress={() => setMethodExampleModeId("")} style={styles.methodSupportClear}>
@@ -9087,7 +9079,7 @@ function HomeScreen() {
                   {stepIndex === 0 && ["soap", "lectio", "hear"].includes(method.id) && (
                     <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="bookmark-outline" size={18} color={colors.coral} />
+                        <Ionicons name="bookmark-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                         <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Your Scripture focus</Text>
                       </View>
                       <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Tap a verse in the passage and use it here, or type the exact phrase you want to carry through this method.</Text>
@@ -9115,7 +9107,7 @@ function HomeScreen() {
                   {method.id === "oia" && step.title === "Interpret" && (
                     <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="bookmark-outline" size={18} color={colors.coral} />
+                        <Ionicons name="bookmark-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                         <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Verses supporting your interpretation</Text>
                       </View>
                       <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Optional: select the verse or verses above that most clearly support the meaning you wrote. Saving them keeps their references beside your interpretation in Review. It does not insert verse text, create a hyperlink, or share anything.</Text>
@@ -9135,7 +9127,7 @@ function HomeScreen() {
                   {method.id === "coma" && step.title === "Context" && (
                     <View style={[styles.methodSupportBox, studyDarkMode && styles.accountDarkSection]}>
                       <View style={styles.feedbackHeader}>
-                        <Ionicons name="albums-outline" size={18} color={colors.coral} />
+                        <Ionicons name="albums-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                         <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Read the nearby context</Text>
                       </View>
                       <Text style={[styles.helpIntro, studyDarkMode && styles.accountDarkMutedText]}>Use the verses before and after the selection to identify the speaker, audience, situation, and flow before writing.</Text>
@@ -9163,7 +9155,7 @@ function HomeScreen() {
                   )}
                   {step.responseType === "none" ? (
                     <View style={[styles.readyBox, studyDarkMode && styles.accountDarkSection]}>
-                      <Ionicons name="book-outline" size={22} color={colors.coral} />
+                      <Ionicons name="book-outline" size={22} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                       <View style={styles.readyCopy}>
                         <Text style={[styles.readyTitle, studyDarkMode && styles.accountDarkTitle]}>No response needed for this step.</Text>
                         <Text style={[styles.readyText, studyDarkMode && styles.accountDarkMutedText]}>Take your time with the passage. When you have completed the checklist, move to the next guided step.</Text>
@@ -9209,7 +9201,7 @@ function HomeScreen() {
                             >
                               <View style={styles.coachingHeaderRow}>
                                 <View style={styles.feedbackHeader}>
-                                  <Ionicons name="sparkles-outline" size={17} color={colors.coral} />
+                                  <Ionicons name="sparkles-outline" size={17} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                                   <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Tutor coaching is off</Text>
                                 </View>
                                 <Text style={styles.coachingToggleBadge}>Off</Text>
@@ -9221,7 +9213,7 @@ function HomeScreen() {
                             <View style={[styles.coachingBox, studyDarkMode && styles.accountDarkSection]}>
                               <View style={styles.coachingHeaderRow}>
                                 <View style={styles.feedbackHeader}>
-                                  <Ionicons name="bulb-outline" size={18} color={colors.coral} />
+                                  <Ionicons name="bulb-outline" size={18} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                                   <Text style={[styles.feedbackTitle, studyDarkMode && styles.studyDarkAccentText]}>Coaching feedback</Text>
                                 </View>
                                 <Pressable onPress={() => {
@@ -10348,7 +10340,7 @@ function HomeScreen() {
                 </View>
                 {!!activeMethodInfo.detail?.watchFor && (
                   <View style={[styles.methodWatchBox, methodsDarkMode && styles.methodsDarkWatchBox]}>
-                    <Ionicons name="alert-circle-outline" size={17} color={colors.coral} />
+                    <Ionicons name="alert-circle-outline" size={17} color={methodsDarkMode ? "#e9b76a" : colors.coral} />
                     <Text style={[styles.methodWatchText, methodsDarkMode && styles.accountDarkText]}>{activeMethodInfo.detail.watchFor}</Text>
                   </View>
                 )}
@@ -10384,7 +10376,7 @@ function HomeScreen() {
                   </View>
                   <Text style={[styles.body, methodsDarkMode && styles.accountDarkText]}>{item.description}</Text>
                   <View style={styles.methodStepCountRow}>
-                    <Ionicons name="list-outline" size={15} color={colors.coral} />
+                    <Ionicons name="list-outline" size={15} color={methodsDarkMode ? "#e9b76a" : colors.coral} />
                     <Text style={[styles.methodStepCountText, methodsDarkMode && styles.accountDarkMutedText]}>{`${item.steps.length} guided steps · ${item.detail?.duration || item.tone}`}</Text>
                   </View>
                   <View style={styles.methodCardAction}>
@@ -12246,6 +12238,7 @@ function HomeScreen() {
         </View>
       )}
     </View>
+    </UIThemeContext.Provider>
   );
 }
 

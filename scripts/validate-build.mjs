@@ -84,6 +84,23 @@ assert(contextSource.includes("CROSS_REFERENCE_ASSET_VERSION") && contextSource.
 
 const coral = capture(ui, /coral:\s*["'](#[0-9a-f]{6})["']/i, "design-system coral colour");
 const primaryContrast = contrastRatio(coral, "#ffffff");
+const muted = capture(ui, /muted:\s*["'](#[0-9a-f]{6})["']/i, "muted text colour");
+const ink = capture(ui, /ink:\s*["'](#[0-9a-f]{6})["']/i, "ink text colour");
+const gold = capture(ui, /gold:\s*["'](#[0-9a-f]{6})["']/i, "gold control colour");
+for (const [label, foreground, background] of [
+  ["muted text on soft panels", muted, "#f0eadf"],
+  ["muted text on peach metrics", muted, "#f7ddd2"],
+  ["accent on peach counts", coral, "#f7ddd2"],
+  ["accent on gold steps", coral, "#f4dfb6"],
+  ["accent text on cream panels", coral, "#fbf2e4"],
+  ["selected translation text", ink, gold],
+  ["dark accent labels", "#e9b76a", "#222b28"],
+  ["dark muted text", "#cbc5b9", "#242b2a"]
+]) {
+  const ratio = contrastRatio(foreground, background);
+  assert(ratio >= 4.5, `${label} contrast is ${ratio.toFixed(2)}:1; expected at least 4.5:1`);
+}
+
 assert(primaryContrast >= 4.5, `primary button contrast is ${primaryContrast.toFixed(2)}:1; expected at least 4.5:1`);
 
 console.log(`Validated ${htmlFiles.length} HTML files and ${linkCount} internal links.`);

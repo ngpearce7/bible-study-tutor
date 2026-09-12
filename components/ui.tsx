@@ -1,28 +1,31 @@
-import { PropsWithChildren } from "react";
+import { createContext, useContext, PropsWithChildren } from "react";
 import { Pressable, StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from "react-native";
 
 export const colors = {
   ink: "#241d19",
-  muted: "#766d63",
+  muted: "#695f55",
   paper: "#f8f1e6",
   panel: "#fffaf2",
   line: "#e4d6c5",
   olive: "#66724e",
   oliveDark: "#39452e",
   gold: "#c3923e",
-  coral: "#b5533d",
+  coral: "#a04734",
   blue: "#426f7d",
   soft: "#f0eadf",
   blush: "#f7ddd2",
   sage: "#e5ecda"
 };
 
+export const UIThemeContext = createContext(false);
+
 export function Card({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
 export function Eyebrow({ children }: PropsWithChildren) {
-  return <Text style={styles.eyebrow}>{children}</Text>;
+  const dark = useContext(UIThemeContext);
+  return <Text style={[styles.eyebrow, dark && { color: "#e9b76a" }]}>{children}</Text>;
 }
 
 export function AppButton({

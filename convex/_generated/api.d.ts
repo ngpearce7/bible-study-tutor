@@ -18,6 +18,7 @@ import type * as insights from "../insights.js";
 import type * as memory from "../memory.js";
 import type * as passwordCrypto from "../passwordCrypto.js";
 import type * as passwordReset from "../passwordReset.js";
+import type * as passwordResetEmail from "../passwordResetEmail.js";
 import type * as profileAccess from "../profileAccess.js";
 import type * as recovery from "../recovery.js";
 import type * as recoveryData from "../recoveryData.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   memory: typeof memory;
   passwordCrypto: typeof passwordCrypto;
   passwordReset: typeof passwordReset;
+  passwordResetEmail: typeof passwordResetEmail;
   profileAccess: typeof profileAccess;
   recovery: typeof recovery;
   recoveryData: typeof recoveryData;

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Text, TextInput, View } from "react-native";
 import { AppButton } from "./ui";
+import { recoveryStyles } from "./recoveryStyles";
 
-export function PasswordRecovery({ enabled }: { enabled: boolean }) {
+export function PasswordRecovery({ enabled, darkMode = false }: { enabled: boolean; darkMode?: boolean }) {
+  const styles = recoveryStyles(darkMode);
   const { signIn } = useAuthActions();
   const [open, setOpen] = useState(false);
   const [sent, setSent] = useState(false);
@@ -12,16 +14,16 @@ export function PasswordRecovery({ enabled }: { enabled: boolean }) {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
-  if (!open) return <AppButton label="Forgot password?" onPress={() => setOpen(true)} />;
-  return <View style={{ gap: 10, paddingVertical: 12 }}>
-    <Text>Email recovery requires the email used to create your account. Username-only accounts cannot receive a reset email.</Text>
-    {!enabled ? <Text>Email recovery is not configured yet. Contact support@biblestudytutor.org for help.</Text> : <>
-      <TextInput accessibilityLabel="Recovery email" placeholder="Email address" autoCapitalize="none" keyboardType="email-address" value={email} editable={!busy && !sent} onChangeText={setEmail} />
+  if (!open) return <AppButton label={enabled ? "Reset password by email" : "Email recovery options"} variant="secondary" style={styles.secondary} labelStyle={styles.secondaryLabel} onPress={() => setOpen(true)} />;
+  return <View style={styles.panel}>
+    <Text style={styles.text}>Email recovery requires the email used to create your account. Username-only accounts cannot receive a reset email.</Text>
+    {!enabled ? <Text style={styles.text}>Password reset by email is currently unavailable. If you saved a recovery code, choose “Use a saved recovery code” below. For other help, contact support@biblestudytutor.org.</Text> : <>
+      <TextInput style={styles.input} placeholderTextColor={darkMode ? "#bcb29f" : "#766d63"} autoCorrect={false} accessibilityLabel="Recovery email" placeholder="Email address" autoCapitalize="none" keyboardType="email-address" value={email} editable={!busy && !sent} onChangeText={setEmail} />
       {sent && <>
-        <TextInput accessibilityLabel="Password reset code" placeholder="Code from email" autoCapitalize="none" value={code} onChangeText={setCode} />
-        <TextInput accessibilityLabel="New password" placeholder="New password (at least 8 characters)" secureTextEntry value={password} onChangeText={setPassword} />
+        <TextInput style={styles.input} placeholderTextColor={darkMode ? "#bcb29f" : "#766d63"} autoCorrect={false} accessibilityLabel="Password reset code" placeholder="Code from email" autoCapitalize="none" value={code} onChangeText={setCode} />
+        <TextInput style={styles.input} placeholderTextColor={darkMode ? "#bcb29f" : "#766d63"} autoCorrect={false} accessibilityLabel="New password" placeholder="New password (at least 8 characters)" secureTextEntry value={password} onChangeText={setPassword} />
       </>}
-      <AppButton label={busy ? "Please wait…" : sent ? "Reset password" : "Send reset code"} onPress={async () => {
+      <AppButton disabled={busy} label={busy ? (sent ? "Resetting password…" : "Sending code…") : sent ? "Reset password" : "Send reset code"} onPress={async () => {
         if (busy) return;
         const address = email.trim().toLowerCase();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)) { setStatus("Enter your account email address."); return; }
@@ -36,9 +38,9 @@ export function PasswordRecovery({ enabled }: { enabled: boolean }) {
           if (!sent) setSent(true);
         } finally { setBusy(false); }
       }} />
-      {sent && <AppButton label="Use another email or request a new code" onPress={() => { setSent(false); setCode(""); }} />}
+      {sent && <AppButton label="Change email or start again" variant="secondary" style={styles.secondary} labelStyle={styles.secondaryLabel} disabled={busy} onPress={() => { setSent(false); setCode(""); setPassword(""); setStatus(""); }} />}
     </>}
-    {!!status && <Text accessibilityLiveRegion="polite">{status}</Text>}
-    <AppButton label="Back to sign in" onPress={() => { setOpen(false); setPassword(""); setCode(""); setStatus(""); }} />
+    {!!status && <Text style={styles.text} accessibilityLiveRegion="polite">{status}</Text>}
+    <AppButton label="Close email recovery" variant="secondary" style={styles.secondary} labelStyle={styles.secondaryLabel} disabled={busy} onPress={() => { setOpen(false); setSent(false); setPassword(""); setCode(""); setStatus(""); }} />
   </View>;
 }

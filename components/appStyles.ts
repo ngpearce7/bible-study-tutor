@@ -6582,6 +6582,10 @@ export const styles = StyleSheet.create({
   activeAuthFlowText: {
     color: "white"
   },
+  authFieldLabel: { color: colors.ink, fontSize: 14, fontWeight: "700", marginBottom: 8 },
+  accountAccessSection: { width: "100%", maxWidth: 640, alignSelf: "center" },
+  accountRecoveryOptions: { gap: 12, marginTop: 20 },
+  authFeedback: { color: colors.muted, fontSize: 14, lineHeight: 21, marginVertical: 12 },
   authHelperText: {
     color: colors.muted,
     fontSize: 12,

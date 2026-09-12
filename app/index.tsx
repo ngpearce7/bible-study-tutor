@@ -908,6 +908,8 @@ function HomeScreen() {
   const [authIdentifier, setAuthIdentifier] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authStatus, setAuthStatus] = useState("");
+  const [authBusy, setAuthBusy] = useState(false);
+  const [importStatus, setImportStatus] = useState("");
   const [feedbackCategory, setFeedbackCategory] = useState<"bug" | "confusing" | "suggestion" | "encouragement" | "other">("suggestion");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState("");
@@ -4061,6 +4063,7 @@ function HomeScreen() {
   }
 
   async function submitAuth() {
+    if (authBusy) return;
     Keyboard.dismiss();
     const rawIdentifier = authIdentifier.trim();
     const isEmailCredential = authInputLooksLikeEmail(rawIdentifier);
@@ -4069,7 +4072,7 @@ function HomeScreen() {
     const credentialMode = isEmailCredential ? "email" : "username";
     const name = authName.trim();
     const accountId = credentialMode === "username" ? usernameCredential(username) : email;
-    if (!accountId || !authPassword) {
+    if (!rawIdentifier || !authPassword) {
       setAuthStatus("Add your email or username and password first.");
       return;
     }
@@ -4082,7 +4085,8 @@ function HomeScreen() {
       return;
     }
 
-    setAuthStatus(authFlow === "signIn" ? "Signing in..." : "Creating account...");
+    setAuthBusy(true);
+    setAuthStatus("");
     if (authFlow === "signUp") {
       trackPublicAnalytics({ eventType: "account_creation_started", source: credentialMode, ctaTarget: "/?tab=account" });
     }
@@ -4107,7 +4111,7 @@ function HomeScreen() {
             ? "Could not create account. That username may already be taken, or the password needs at least 8 characters."
             : "Could not create account. Passwords need at least 8 characters."
       );
-    }
+    } finally { setAuthBusy(false); }
   }
 
   async function submitSignOut() {
@@ -10690,10 +10694,10 @@ function HomeScreen() {
           <View style={[styles.layout, compactLayout && styles.stackedLayout, accountDarkMode && styles.accountDarkLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Account & access</Eyebrow>
-              <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your profile and feedback choices"}</Text>
-              <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>Keep your details current so the app can speak to you personally and help you draw near to God.</Text>
-              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
-                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Sign in</Text>
+              <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your account"}</Text>
+              <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>{isAuthenticated ? "Manage your profile, sign-in details, and preferences." : "Sign in or create an account to keep your studies across devices."}</Text>
+              <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection]}>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{isAuthenticated ? "Your account" : authFlow === "signIn" ? "Sign in" : "Create account"}</Text>
                 {isAuthenticated ? (
                   <>
                     <View style={styles.signedInBadgeRow}>
@@ -10707,8 +10711,8 @@ function HomeScreen() {
                   </>
                 ) : (
                   <>
-                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Create an account to carry your study journal between phone, web, and desktop. Adding your name helps the app feel more personal as you draw near to God.</Text>
-                    <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{authFlow === "signIn" ? "Welcome back. Sign in to access your saved studies and reading progress." : "Create a free account to keep your studies and reading progress across devices."}</Text>
+                    {authFlow === "signUp" && <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.feedbackHeader}>
                         <Ionicons name="gift-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
                         <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Why create a free account?</Text>
@@ -10727,12 +10731,12 @@ function HomeScreen() {
                         <Ionicons name="shield-checkmark-outline" size={15} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
                         <Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read the Privacy Policy</Text>
                       </Pressable>
-                    </View>
+                    </View>}
                     <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
-                      <Pressable accessibilityRole="button" accessibilityLabel="Sign in to an existing account" onPress={() => setAuthFlow("signIn")} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Sign in to an existing account" disabled={authBusy} accessibilityState={{ selected: authFlow === "signIn", disabled: authBusy }} onPress={() => { setAuthFlow("signIn"); setAuthStatus(""); setAuthPassword(""); }} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
                       </Pressable>
-                      <Pressable accessibilityRole="button" accessibilityLabel="Create a free account" onPress={() => setAuthFlow("signUp")} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signUp" && styles.accountDarkActiveSegment]}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Create a free account" disabled={authBusy} accessibilityState={{ selected: authFlow === "signUp", disabled: authBusy }} onPress={() => { setAuthFlow("signUp"); setAuthStatus(""); setAuthPassword(""); }} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signUp" && styles.accountDarkActiveSegment]}>
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signUp" && styles.activeAuthFlowText]}>Create account</Text>
                       </Pressable>
                     </View>
@@ -10747,6 +10751,7 @@ function HomeScreen() {
                         style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                       />
                     )}
+                    <Text style={[styles.authFieldLabel, accountDarkMode && styles.accountDarkText]}>Email or username</Text>
                     <TextInput
                       accessibilityLabel="Email address or username"
                       value={authIdentifier}
@@ -10761,6 +10766,7 @@ function HomeScreen() {
                         ? "Enter the email address or username you used when creating your account."
                         : "Use an email address, or choose a unique username without sharing your email."}
                     </Text>
+                    <Text style={[styles.authFieldLabel, accountDarkMode && styles.accountDarkText]}>{authFlow === "signUp" ? "Password (at least 8 characters)" : "Password"}</Text>
                     <TextInput
                       accessibilityLabel="Password"
                       value={authPassword}
@@ -10771,17 +10777,28 @@ function HomeScreen() {
                       placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
                       style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                     />
-                    <AppButton label={authFlow === "signIn" ? "Sign in" : "Create account"} onPress={submitAuth} />
-                    <Suspense fallback={<Text>Loading recovery options…</Text>}><PasswordRecovery enabled={recoveryAvailable === true} /><RecoveryCode /></Suspense>
+                    <AppButton label={authBusy ? (authFlow === "signIn" ? "Signing in…" : "Creating account…") : authFlow === "signIn" ? "Sign in" : "Create account"} disabled={authBusy} onPress={submitAuth} />
+                    {!!authStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{authStatus}</Text>}
+                    {authFlow === "signIn" && <View style={styles.accountRecoveryOptions}>
+                      <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>Need help signing in?</Text>
+                      <Suspense fallback={<Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>Loading recovery options…</Text>}>
+                        <PasswordRecovery enabled={recoveryAvailable === true} darkMode={accountDarkMode} />
+                        <RecoveryCode darkMode={accountDarkMode} />
+                      </Suspense>
+                    </View>}
                   </>
                 )}
-                {isAuthenticated && accountIdentity?.authPasswordAccountId && <Suspense fallback={<Text>Loading recovery options…</Text>}><RecoveryCode accountId={accountIdentity.authPasswordAccountId} /></Suspense>}
-                {!!authStatus && <Text style={styles.saveStatus}>{authStatus}</Text>}
-                <Text style={styles.authHelperText}>On a shared device, import old local data only if it belongs to you. Existing account data will be kept.</Text>
-                <AppButton label="Import my legacy device data" onPress={async () => {
-                  try { await importLegacyDevicePreferences(); setProfileInitializationAttempt(value => value + 1); setAuthStatus("Legacy device data imported where no account copy existed."); }
-                  catch { setAuthStatus("Could not import device data."); }
+                {isAuthenticated && accountIdentity?.authPasswordAccountId && <Suspense fallback={<Text>Loading recovery options…</Text>}><View style={styles.accountRecoveryOptions}><RecoveryCode accountId={accountIdentity.authPasswordAccountId} darkMode={accountDarkMode} /></View></Suspense>}
+                {isAuthenticated && !!authStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{authStatus}</Text>}
+              </View>
+              <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection]}>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Older data on this device</Text>
+                <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>If you used an older version of this app, you can copy its saved device data into your current profile. On a shared device, only import data that belongs to you. Existing saved data will be kept.</Text>
+                <AppButton label="Import older device data" variant="secondary" style={accountDarkMode && styles.accountDarkInsetBox} labelStyle={accountDarkMode && styles.accountDarkText} onPress={async () => {
+                  try { await importLegacyDevicePreferences(); setProfileInitializationAttempt(value => value + 1); setImportStatus("Import finished. Existing saved data was kept; any available older data filled missing entries."); }
+                  catch { setImportStatus("Could not import device data. Please try again."); }
                 }} />
+                {!!importStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{importStatus}</Text>}
               </View>
               {isAuthenticated && (
                 <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
@@ -10795,18 +10812,18 @@ function HomeScreen() {
                     </View>
                   )}
                   <TextInput
-                    accessibilityLabel={profile?.authUsername ? "Optional email for account recovery" : "Email address"}
+                    accessibilityLabel={profile?.authUsername ? "Optional contact email" : "Email address"}
                     value={accountEmail}
                     onChangeText={setAccountEmail}
                     autoCapitalize="none"
                     keyboardType="email-address"
-                    placeholder={profile?.authUsername ? "Optional email for recovery" : "Email"}
+                    placeholder={profile?.authUsername ? "Optional contact email" : "Email"}
                     placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
                     style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                   />
                   {!!profile?.authUsername && (
                     <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
-                      Username sign-in still works even if you add an email later.
+                      This contact email does not enable email password recovery for a username account. Save a recovery code to recover your account.
                     </Text>
                   )}
                   <AppButton label="Save details" onPress={persistAccountSettings} />

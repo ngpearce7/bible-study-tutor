@@ -30,22 +30,27 @@ export function AppButton({
   onPress,
   variant = "primary",
   style,
-  labelStyle
+  labelStyle,
+  disabled = false
 }: {
   label: string;
   onPress: () => void;
   variant?: "primary" | "secondary";
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
+  disabled?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         variant === "secondary" ? styles.secondaryButton : styles.primaryButton,
         pressed && styles.pressed,
+        disabled && { opacity: 0.6 },
         style
       ]}
     >

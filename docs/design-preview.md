@@ -1,6 +1,6 @@
 # Design refresh preview — 12 September 2026
 
-This frontend design is on `codex/design-refresh-preview`. It has not been published or merged into the production branch. The preview uses the local Convex configuration, not the production backend.
+The user approved this frontend design after reviewing `codex/design-refresh-preview`. The approved commits are prepared for the GitHub Desktop `main` checkout; publishing remains a separate Push origin step. The local preview uses the local Convex configuration, not the production backend.
 
 ## Review
 
@@ -16,7 +16,7 @@ The pre-design checkpoint is tag `design-before-refresh-2026-09-12`, commit `288
 - `86d6990`: simplified home content and prominent continuation shortcuts.
 - `63f5b6d`: phone navigation, accessible appearance choices and final visual refinements.
 
-To discard the preview before publication, leave this branch intact and use `codex/reliability-production-release`, which remains at the checkpoint. No production rollback is needed because the design has not been published.
+Before publication, the previous version remains available on `codex/reliability-production-release` at the checkpoint. To remove the design from `main`, use the revert steps below. Do not push if you want to keep the current live design.
 
 To remove a single stage later, revert its commit and review the resulting diff. For a complete Git rollback after merging, revert the three design commits in reverse order: `63f5b6d`, `86d6990`, `4b273d7`. Use new revert commits rather than resetting shared history. Run validation and publish the reverted frontend. Cloudflare can also restore the preceding successful frontend deployment immediately, followed by the Git reverts to keep the source consistent. No Convex rollback is needed for this frontend-only design.
 

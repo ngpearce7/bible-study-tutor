@@ -89,8 +89,6 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
   if (Platform.OS !== "web") return null;
 
   const links = [
-    ["/?tab=bible", "Open the Bible reader", "Read Scripture, follow reading plans, and print selected passages."],
-    ["/?tab=study", "Start a guided study", "Use SOAP, OIA, Inductive Study, Lectio Divina, READ, HEAR, or COMA."],
     ["/bible-study-methods", "Choose a study method", "Compare Bible study methods before beginning a passage."],
     ["/printable-bible-study-worksheets", "Print a worksheet", "Prepare a paper worksheet for personal study, church groups, or youth groups."],
     ["/bible-study-app-for-churches", "For churches", "See ways churches and small groups can use Bible Study Tutor responsibly."],
@@ -114,11 +112,11 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
       "aria-labelledby": "home-resource-links-heading",
       style: {
         background: darkMode ? "#1b211f" : "#fffaf2",
-        border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.16)" : "#eadcc9"}`,
+        border: "none",
         borderRadius: 16,
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
         marginTop: 18,
-        padding: 16
+        padding: 0
       }
     },
     createElement("h1", { style: hiddenHeadingStyle }, "Bible Study Tutor free Bible study app"),
@@ -130,13 +128,13 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
           color: darkMode ? "#f7eddc" : colors.oliveDark,
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           fontSize: 18,
-          fontWeight: 900,
+          fontWeight: 700,
           letterSpacing: 0,
           lineHeight: 1.2,
           margin: "0 0 7px"
         }
       },
-      "Start with what you need"
+      "Explore study resources"
     ),
     createElement(
       "p",
@@ -145,12 +143,12 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
           color: darkMode ? "#c8bda9" : colors.muted,
           fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           fontSize: 14,
-          fontWeight: 600,
+          fontWeight: 400,
           lineHeight: 1.45,
           margin: "0 0 14px"
         }
       },
-      "Bible Study Tutor is free, privacy-aware, and built for desktop, mobile, and printable Bible study."
+      "Methods, printable worksheets and ideas for studying together."
     ),
     createElement(
       "nav",
@@ -169,13 +167,13 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
             href,
             key: href,
             style: {
-              background: darkMode ? "#211d18" : "#fffdf8",
+              background: darkMode ? "#28312e" : "#fffdf8",
               border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : "#eadcc9"}`,
               borderRadius: 12,
               color: darkMode ? "#f7eddc" : colors.ink,
               display: "grid",
               gap: 5,
-              minHeight: 88,
+              minHeight: 76,
               padding: 12,
               textDecoration: "none"
             }
@@ -187,7 +185,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
                 color: darkMode ? "#f7eddc" : colors.ink,
                 fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 fontSize: 14,
-                fontWeight: 900,
+                fontWeight: 700,
                 lineHeight: 1.25
               }
             },
@@ -200,7 +198,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
                 color: darkMode ? "#c8bda9" : colors.muted,
                 fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                 fontSize: 13,
-                fontWeight: 600,
+                fontWeight: 400,
                 lineHeight: 1.35
               }
             },
@@ -8202,6 +8200,29 @@ function HomeScreen() {
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>
+              {homeContinueItems.length > 0 && (
+                <View style={styles.homeSideCard}>
+                  <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Pick up where you left off</Text>
+                  {homeContinueItems.map((item) => (
+                    <Pressable
+                      key={item.key}
+                      accessibilityRole="button"
+                      accessibilityLabel={item.title}
+                      onPress={item.onPress}
+                      style={[styles.homePathItem, styles.homeContinueItem, homeDarkMode && styles.homeDarkContinueItem]}
+                    >
+                      <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
+                        <HydrationSafeIonicon ready={iconFontReady} name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      </View>
+                      <View style={styles.homePathTextBlock}>
+                        <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
+                        <Text numberOfLines={2} style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{item.detail}</Text>
+                      </View>
+                      <HydrationSafeIonicon ready={iconFontReady} name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
+                    </Pressable>
+                  ))}
+                </View>
+              )}
               <View style={[styles.homeHero, homeDarkMode && styles.homeDarkHero]}>
                 <Eyebrow>Purpose</Eyebrow>
                 <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle, homeDarkMode && styles.homeDarkHeroTitle]}>
@@ -8210,7 +8231,7 @@ function HomeScreen() {
                   <Text style={[styles.homeHeroTitleAccent, homeDarkMode && styles.homeDarkHeroTitleAccent]}>Be shaped by Scripture.</Text>
                 </Text>
                 <Text style={[styles.homeHeroText, homeDarkMode && styles.homeDarkHeroText]}>
-                  Bible Study Tutor helps you draw near to God through Scripture, prayerful reflection, and steady daily rhythms. Read, study, journal, memorize, review, and print worksheets in one free, privacy-aware place.
+                  A little space for Scripture, prayer and reflection. Read a passage, follow a guided study, or return to your journal.
                 </Text>
                 <View style={styles.homeActionRow}>
                   <AppButton label="Start a guided study" onPress={() => openStudyFromPublicSource("home_hero")} style={phoneLayout && styles.homePhoneActionButton} />
@@ -8243,30 +8264,7 @@ function HomeScreen() {
                 </View>
               </View>
 
-              <View style={[styles.homePurposePanel, homeDarkMode && styles.homeDarkPurposePanel]}>
-                <Text style={[styles.homePurposeTitle, homeDarkMode && styles.accountDarkTitle]}>Free Bible study for everyday discipleship.</Text>
-                <Text style={[styles.homePurposeText, homeDarkMode && styles.accountDarkMutedText]}>
-                  Built for individuals, small groups, and churches, Bible Study Tutor is free to use on desktop and mobile, with printable worksheets for anyone who prefers pen and paper.
-                </Text>
-                <View style={styles.homePurposePillRow}>
-                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <HydrationSafeIonicon ready={iconFontReady} name="gift-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Free to use</Text>
-                  </View>
-                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <HydrationSafeIonicon ready={iconFontReady} name="phone-portrait-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Mobile ready</Text>
-                  </View>
-                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <HydrationSafeIonicon ready={iconFontReady} name="desktop-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Desktop friendly</Text>
-                  </View>
-                  <View style={[styles.homePurposePill, homeDarkMode && styles.homeDarkPurposePill]}>
-                    <HydrationSafeIonicon ready={iconFontReady} name="print-outline" size={15} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
-                    <Text style={[styles.homePurposePillText, homeDarkMode && styles.accountDarkTitle]}>Printable worksheets</Text>
-                  </View>
-                </View>
-              </View>
+              <Text style={[styles.homePurposeText, homeDarkMode && styles.accountDarkMutedText]}>Free to use. Made for personal study, small groups and pen-and-paper reflection.</Text>
               <HomeSemanticResourceLinks darkMode={homeDarkMode} />
             </Card>
 
@@ -8275,29 +8273,9 @@ function HomeScreen() {
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Today’s path</Text>
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, choose one small next step.` : "Choose one small next step."}</Text>
                 <View style={styles.homePathList}>
-                  {homeContinueItems.map((item) => (
-                    <Pressable
-                      key={item.key}
-                      accessibilityRole="button"
-                      accessibilityLabel={item.title}
-                      onPress={item.onPress}
-                      style={[styles.homePathItem, styles.homeContinueItem, homeDarkMode && styles.homeDarkContinueItem]}
-                    >
-                      <View style={[styles.homePathIcon, homeDarkMode && styles.homeDarkIconBubble]}>
-                        <HydrationSafeIonicon ready={iconFontReady} name={item.icon as any} size={17} color={homeDarkMode ? "#e9b76a" : colors.oliveDark} />
-                      </View>
-                      <View style={styles.homePathTextBlock}>
-                        <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
-                        <Text numberOfLines={2} style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{item.detail}</Text>
-                      </View>
-                      <HydrationSafeIonicon ready={iconFontReady} name="chevron-forward-outline" size={16} color={homeDarkMode ? "#c8bda9" : colors.muted} />
-                    </Pressable>
-                  ))}
                   {[
                     ["Bible reader", "Read, search, select verses, or print a worksheet.", "reader-outline", "bible"],
                     ["Guided study", `Work through ${method.short} with notes and highlights.`, "book-outline", "study"],
-                    ["Study methods", "Choose SOAP, OIA, Inductive, Lectio Divina, or another method.", "layers-outline", "methods"],
-                    ["Worksheets", "Select verses in the Bible reader and print for pen-and-paper study.", "print-outline", "bible"],
                     ["Remember", dueMemoryCount > 0 ? `${dueMemoryCount} memory review${dueMemoryCount === 1 ? "" : "s"} due.` : "Save a verse worth carrying.", "sparkles-outline", "memory"],
                     ["Journal", dueStudyReviewCount > 0 ? `${dueStudyReviewCount} study review${dueStudyReviewCount === 1 ? "" : "s"} ready.` : "Keep your notes connected to Scripture.", "journal-outline", "journal"]
                   ].map(([title, detail, icon, target]) => (

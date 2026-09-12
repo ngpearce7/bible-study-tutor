@@ -1,3 +1,4 @@
+import { authorizeProfileAccess } from "./profileAccess";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
@@ -10,10 +11,10 @@ const migrationPhase = v.union(v.literal("sessions"), v.literal("checkins"), v.l
 type MigrationPhase = "sessions" | "checkins" | "memoryHistory" | "usageEvents";
 
 export const ensureStats = mutation({
-  args: { profileId: v.id("profiles") },
+  args: { clientKey: v.optional(v.string()), profileId: v.id("profiles") },
   returns: v.union(v.literal("ready"), v.literal("backfilling")),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const existing = await ctx.db
       .query("studyStats")
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
@@ -173,12 +174,4 @@ function nextMigrationPhase(phase: MigrationPhase): MigrationPhase | null {
   if (phase === "checkins") return "memoryHistory";
   if (phase === "memoryHistory") return "usageEvents";
   return null;
-}
-
-async function authorizeProfileAccess(ctx: MutationCtx, profileId: Id<"profiles">) {
-  const profile = await ctx.db.get(profileId);
-  if (!profile) throw new Error("Profile not found");
-  const authUserId = await getAuthUserId(ctx);
-  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
-  if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
 }

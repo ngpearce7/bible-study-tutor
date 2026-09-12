@@ -1,5 +1,6 @@
+import { sanitizeEditorHtml } from "@/data/noteHtml";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import MaterialCommunityIcons from "./MeditationIcons";
 import { createElement } from "react";
 import { Platform, Pressable, Text, TextInput, View } from "react-native";
 
@@ -43,13 +44,7 @@ function buildJournalCalendarCells(monthStart: number, items: any[]) {
   });
 }
 
-function sanitizeEditorHtml(html: string) {
-  return html
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
-    .replace(/javascript:/gi, "");
-}
+
 
 function richHtmlToMarkupText(text: string) {
   if (!/<\/?[a-z][\s\S]*>/i.test(text)) return text;

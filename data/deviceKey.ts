@@ -1,9 +1,23 @@
+import { createSecureDeviceKey } from "./secureRandom";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 
 const key = "bible-study-tutor-client-key";
 
+let cachedDeviceKey: string | undefined;
+export const getCachedDeviceKey = () => cachedDeviceKey;
+
+let loadingDeviceKey: Promise<string> | undefined;
 export async function getDeviceKey() {
+  if (cachedDeviceKey) return cachedDeviceKey;
+  if (!loadingDeviceKey) loadingDeviceKey = loadDeviceKey().then(value => {
+    cachedDeviceKey = value;
+    return value;
+  }).catch(error => { loadingDeviceKey = undefined; throw error; });
+  return loadingDeviceKey;
+}
+
+async function loadDeviceKey() {
   if (Platform.OS === "web" && typeof localStorage !== "undefined") {
     const created = createKey();
     try {
@@ -23,10 +37,4 @@ export async function getDeviceKey() {
   return created;
 }
 
-function createKey() {
-  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") {
-    return globalThis.crypto.randomUUID();
-  }
-
-  return `client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
+function createKey() { return createSecureDeviceKey(); }

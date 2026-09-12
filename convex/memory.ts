@@ -1,3 +1,4 @@
+import { authorizeProfileAccess } from "./profileAccess";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
@@ -36,6 +37,7 @@ const memoryHistoryEvent = v.union(
 
 export const saveVerse = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     reference: v.string(),
     verseText: v.string(),
@@ -45,7 +47,7 @@ export const saveVerse = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const cleaned = {
       profileId: args.profileId,
@@ -124,12 +126,13 @@ export const saveVerse = mutation({
 
 export const list = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     return await ctx.db
       .query("memoryVerses")
@@ -141,6 +144,7 @@ export const list = query({
 
 export const recordPractice = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses"),
     result: v.union(v.literal("again"), v.literal("got-it")),
@@ -149,7 +153,7 @@ export const recordPractice = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const recentHistory = await ctx.db
       .query("memoryHistory")
@@ -198,12 +202,13 @@ export const recordPractice = mutation({
 
 export const remove = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     const verse = await ctx.db.get(args.memoryVerseId);
@@ -226,13 +231,14 @@ export const remove = mutation({
 
 export const scheduleReview = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses"),
     preset: reviewPreset
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
@@ -263,13 +269,14 @@ export const scheduleReview = mutation({
 
 export const updateCollections = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses"),
     collections: v.array(v.string())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     const verse = await ctx.db.get(args.memoryVerseId);
@@ -293,13 +300,14 @@ export const updateCollections = mutation({
 
 export const listHistory = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.optional(v.id("memoryVerses")),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const limit = Math.max(1, Math.min(args.limit ?? 80, 150));
 
     if (args.memoryVerseId) {
@@ -322,6 +330,7 @@ export const listHistory = query({
 
 export const recordHistoryEvent = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses"),
     event: memoryHistoryEvent,
@@ -330,7 +339,7 @@ export const recordHistoryEvent = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
@@ -355,11 +364,12 @@ export const recordHistoryEvent = mutation({
 
 export const stats = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const memoryStats = await ctx.db
       .query("memoryStats")
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
@@ -580,15 +590,4 @@ function cleanCollections(collections: string[]) {
         .filter(Boolean)
     )
   ).slice(0, 8);
-}
-
-async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
-  const profile = await ctx.db.get(profileId);
-  if (!profile) throw new Error("Profile not found");
-
-  const authUserId = await getAuthUserId(ctx);
-  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
-  if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
-
-  return profile;
 }

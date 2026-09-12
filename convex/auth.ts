@@ -1,3 +1,5 @@
+import { passwordCrypto } from "./passwordCrypto";
+import { passwordReset } from "./passwordReset";
 import { convexAuth } from "@convex-dev/auth/server";
 import Apple from "@auth/core/providers/apple";
 import Google from "@auth/core/providers/google";
@@ -18,6 +20,8 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
     Google,
     Apple,
     Password({
+      reset: passwordReset,
+      crypto: passwordCrypto,
       profile(params) {
         const requestedUsername = normalizeUsername(String(params.username || ""));
         const isUsernameAccount = params.authMode === "username" || !!requestedUsername;

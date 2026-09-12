@@ -4,7 +4,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf
 const schema = read("convex/schema.ts");
 const insights = read("convex/insights.ts");
 const http = read("convex/http.ts");
-const app = read("app/index.tsx");
+const app = read("app/index.tsx") + "\n" + read("components/appStyles.ts");
 const publicAnalytics = read("data/publicAnalytics.ts");
 const reliability = read("data/reliabilityMetrics.ts");
 const crons = read("convex/crons.ts");

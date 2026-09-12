@@ -1,3 +1,4 @@
+import AsyncStorage from "./deviceStorage";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import {
@@ -351,27 +352,43 @@ export async function saveActiveCheckinPartnerId(id: string) {
   await setStoredValue(activeCheckinPartnerKey, id);
 }
 
-async function getStoredValue(key: string) {
-  if (Platform.OS === "web" && typeof localStorage !== "undefined") {
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      return null;
-    }
-  }
-
-  return await SecureStore.getItemAsync(key);
+let storageProfileId: string | null = null;
+export function setStorageProfile(profileId: string) { storageProfileId = profileId; }
+const devicePreferences = new Set([appearanceModeKey, bibleTranslationKey, devotionalTextSizeKey]);
+function scopedKey(key: string) {
+  if (devicePreferences.has(key)) return key;
+  return storageProfileId ? `${key}-profile-${storageProfileId}` : null;
 }
 
+// Legacy unscoped private data is kept, but never silently assigned to an account.
+export async function importLegacyDevicePreferences() {
+  const keys = [pinnedJournalEntriesKey, checkinPartnersKey, activeCheckinPartnerKey, bibleReaderPositionKey, bibleReaderHistoryKey, bibleReadChaptersKey, bibleReadingPlanProgressKey, bibleBookmarksKey, customWritingPromptsKey];
+  for (const key of keys) {
+    const target = scopedKey(key);
+    if (!target) throw new Error("Connect a profile before importing");
+    const value = Platform.OS === "web" ? localStorage.getItem(key) : await SecureStore.getItemAsync(key);
+    if (!value) continue;
+    const existing = Platform.OS === "web" ? localStorage.getItem(target) : await AsyncStorage.getItem(target);
+    if (existing !== null) continue; // Never replace an account's existing data.
+    if (Platform.OS === "web") localStorage.setItem(target, value);
+    else await AsyncStorage.setItem(target, value);
+  }
+}
+
+async function getStoredValue(key: string) {
+  const target = scopedKey(key);
+  if (!target) return null;
+  if (Platform.OS === "web") {
+    try { return localStorage.getItem(target); } catch { return null; }
+  }
+  return await AsyncStorage.getItem(target);
+}
 async function setStoredValue(key: string, value: string) {
-  if (Platform.OS === "web" && typeof localStorage !== "undefined") {
-    try {
-      localStorage.setItem(key, value);
-    } catch {
-      // Ignore storage limits or private-mode restrictions; in-memory state still updates.
-    }
+  const target = scopedKey(key);
+  if (!target) return;
+  if (Platform.OS === "web") {
+    localStorage.setItem(target, value);
     return;
   }
-
-  await SecureStore.setItemAsync(key, value);
+  await AsyncStorage.setItem(target, value);
 }

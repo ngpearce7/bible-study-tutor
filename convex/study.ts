@@ -1,3 +1,4 @@
+import { authorizeProfileAccess } from "./profileAccess";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
@@ -89,27 +90,29 @@ export const ensureProfile = mutation({
     }
 
     const clientKey = clampText(args.clientKey || "", 200);
+    if (!authUserId && !clientKey) throw new Error("Device credential required");
     const localClientKey = clientKey ? `local:${clientKey}` : "";
-    const existingLocalProfile = !authUserId && localClientKey
+    const existingLocalProfile = localClientKey
       ? await ctx.db
           .query("profiles")
           .withIndex("by_client_key", (q) => q.eq("clientKey", localClientKey))
           .first()
       : null;
-    if (existingLocalProfile) return existingLocalProfile._id;
+    if (existingLocalProfile && !authUserId) return existingLocalProfile._id;
 
-    const existingDeviceProfile = clientKey
+    const existingDeviceProfile = existingLocalProfile || (clientKey
       ? await ctx.db
           .query("profiles")
           .withIndex("by_client_key", (q) => q.eq("clientKey", clientKey))
           .first()
-      : null;
+      : null);
 
     if (existingDeviceProfile) {
       if (authUserId) {
         if (!existingDeviceProfile.authUserId) {
           const profilePatch: {
             authUserId: Id<"users">;
+            clientKey: string;
             updatedAt: number;
             displayName?: string;
             username?: string;
@@ -117,6 +120,7 @@ export const ensureProfile = mutation({
             accountLoginKind?: "email" | "username" | "oauth";
           } = {
             authUserId,
+            clientKey: `auth:${authUserId}`,
             updatedAt: now
           };
           if (authProfileName && existingDeviceProfile.displayName === "Bible student") {
@@ -165,6 +169,7 @@ export const ensureProfile = mutation({
 
 export const saveSession = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     passage: v.string(),
     methodId: v.string(),
@@ -196,7 +201,7 @@ export const saveSession = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const recentSessions = await ctx.db
       .query("sessions")
@@ -251,6 +256,7 @@ export const saveSession = mutation({
 
 export const saveDraft = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     passage: v.string(),
     passageReference: v.optional(v.string()),
@@ -274,7 +280,7 @@ export const saveDraft = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const recentDrafts = await ctx.db
       .query("drafts")
@@ -335,13 +341,14 @@ export const saveDraft = mutation({
 
 export const draftForPassage = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     passage: v.string(),
     methodId: v.string()
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     return await ctx.db
       .query("drafts")
@@ -354,12 +361,13 @@ export const draftForPassage = query({
 
 export const recentDrafts = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const limit = clampNumber(args.limit ?? 12, 1, 50);
 
     return await ctx.db
@@ -372,12 +380,13 @@ export const recentDrafts = query({
 
 export const deleteDraft = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     draftId: v.id("drafts")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const draft = await ctx.db.get(args.draftId);
     if (!draft || draft.profileId !== args.profileId) return false;
@@ -389,12 +398,13 @@ export const deleteDraft = mutation({
 
 export const deleteSession = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     sessionId: v.id("sessions")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const session = await ctx.db.get(args.sessionId);
     if (!session || session.profileId !== args.profileId) return false;
@@ -407,6 +417,7 @@ export const deleteSession = mutation({
 
 export const scheduleStudyReview = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     sessionId: v.id("sessions"),
     preset: v.optional(reviewPreset),
@@ -414,7 +425,7 @@ export const scheduleStudyReview = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const session = await ctx.db.get(args.sessionId);
     if (!session || session.profileId !== args.profileId) throw new Error("Study not found");
@@ -432,12 +443,13 @@ export const scheduleStudyReview = mutation({
 
 export const removeStudyReview = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     sessionId: v.id("sessions")
   },
   returns: v.boolean(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const session = await ctx.db.get(args.sessionId);
     if (!session || session.profileId !== args.profileId) throw new Error("Study not found");
@@ -454,13 +466,14 @@ export const removeStudyReview = mutation({
 
 export const completeStudyReview = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     sessionId: v.id("sessions"),
     reviewNote: v.optional(v.string())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const session = await ctx.db.get(args.sessionId);
     if (!session || session.profileId !== args.profileId) throw new Error("Study not found");
@@ -476,12 +489,13 @@ export const completeStudyReview = mutation({
 
 export const recentSessions = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const limit = clampNumber(args.limit ?? 20, 1, 50);
 
     return await ctx.db
@@ -494,13 +508,14 @@ export const recentSessions = query({
 
 export const dueStudyReviews = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     now: v.optional(v.number()),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const limit = clampNumber(args.limit ?? 10, 1, 50);
 
     return await ctx.db
@@ -515,7 +530,9 @@ export const dueStudyReviews = query({
 
 export const stats = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
+    now: v.optional(v.number()),
     timezoneOffsetMinutes: v.optional(v.number())
   },
   returns: v.object({
@@ -541,14 +558,14 @@ export const stats = query({
     rhythmGrace: v.union(v.null(), v.object({ missedDate: v.string(), latestActivityDate: v.string() }))
   }),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const [aggregate, dailyRows] = await Promise.all([
       ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", args.profileId)).unique(),
       ctx.db.query("studyDailyStats").withIndex("by_profile_and_day_key", (q) => q.eq("profileId", args.profileId)).order("desc").take(400)
     ]);
     const dates = dailyRows.map((row) => row.dayKey).sort();
-    const rhythm = currentStreak(dates, args.timezoneOffsetMinutes ?? 0);
-    const weeklyRhythm = buildIncrementalWeeklyRhythmSummary(dailyRows, args.timezoneOffsetMinutes ?? 0);
+    const rhythm = currentStreak(dates, args.timezoneOffsetMinutes ?? 0, args.now ?? 0);
+    const weeklyRhythm = buildIncrementalWeeklyRhythmSummary(dailyRows, args.timezoneOffsetMinutes ?? 0, args.now ?? 0);
 
     return {
       sessionCount: aggregate?.sessionCount ?? 0,
@@ -583,9 +600,10 @@ function buildIncrementalWeeklyRhythmSummary(
     encouragementsShared: number;
     bookmarksSaved: number;
   }>,
-  timezoneOffsetMinutes: number
+  timezoneOffsetMinutes: number,
+  now: number
 ) {
-  const today = dayKey(Date.now(), timezoneOffsetMinutes);
+  const today = dayKey(now, timezoneOffsetMinutes);
   const weekStart = addDaysToDateKey(today, -6);
   const week = rows.filter((row) => row.dayKey >= weekStart && row.dayKey <= today);
   const total = (key: Exclude<keyof (typeof rows)[number], "dayKey">) => week.reduce((sum, row) => sum + row[key], 0);
@@ -621,16 +639,7 @@ function buildIncrementalWeeklyRhythmSummary(
   };
 }
 
-async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
-  const profile = await ctx.db.get(profileId);
-  if (!profile) throw new Error("Profile not found");
 
-  const authUserId = await getAuthUserId(ctx);
-  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
-  if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
-
-  return profile;
-}
 
 async function maybeNotifyFirstNonAdminRegistration(
   ctx: MutationCtx,
@@ -780,8 +789,8 @@ function customReviewTimestamp(daysFromNow: number) {
   return Date.now() + days * 24 * 60 * 60 * 1000;
 }
 
-function currentStreak(dates: string[], timezoneOffsetMinutes = 0) {
-  const today = dayKey(Date.now(), timezoneOffsetMinutes);
+function currentStreak(dates: string[], timezoneOffsetMinutes = 0, now = 0) {
+  const today = dayKey(now, timezoneOffsetMinutes);
   const activeDays = new Set(dates);
   const latestActiveDay = [...activeDays].reverse().find((date) => date <= today);
   if (!latestActiveDay) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: "" };

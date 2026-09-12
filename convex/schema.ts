@@ -102,6 +102,7 @@ export default defineSchema({
   profiles: defineTable({
     authUserId: v.optional(v.id("users")),
     clientKey: v.string(),
+    recoveryDigest: v.optional(v.string()),
     displayName: v.string(),
     username: v.optional(v.string()),
     normalizedUsername: v.optional(v.string()),
@@ -126,6 +127,7 @@ export default defineSchema({
   })
     .index("by_auth_user_id", ["authUserId"])
     .index("by_client_key", ["clientKey"])
+    .index("by_recovery_digest", ["recoveryDigest"])
     .index("by_normalized_username", ["normalizedUsername"])
     .index("by_friend_code", ["friendCode"])
     .index("by_updated_at", ["updatedAt"])

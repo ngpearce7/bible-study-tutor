@@ -41,11 +41,9 @@ export async function enforceRecentLimit(
   try {
     assertRecentLimit(items, timestampKey, options);
   } catch (error) {
-    await logSecurityEvent(ctx, {
-      profileId,
-      eventType: options.eventType || "write_rate_limited",
-      details: `${options.label} blocked after ${options.max} attempts in ${Math.round(options.windowMs / 60000)} minutes.`
-    });
+    // Database inserts and scheduled jobs roll back with this rejected mutation.
+    // Structured server logs survive rejection; never log content or device keys.
+    console.warn(JSON.stringify({ event: "write_rate_limited", category: options.eventType || "write_rate_limited", limit: options.max, windowMs: options.windowMs }));
     throw error;
   }
 }

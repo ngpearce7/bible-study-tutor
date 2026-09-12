@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 const root = process.cwd();
 const read = (path) => readFileSync(join(root, path), "utf8");
-const app = read("app/index.tsx");
+const app = read("app/index.tsx") + "\n" + read("components/appStyles.ts");
 const methods = read("data/methods.ts");
 const schema = read("convex/schema.ts");
 const study = read("convex/study.ts");

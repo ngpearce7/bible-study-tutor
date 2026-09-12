@@ -1,3 +1,4 @@
+import { authorizeProfileAccess } from "./profileAccess";
 import { getAuthUserId, modifyAccountCredentials, retrieveAccount } from "@convex-dev/auth/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { action, mutation, query } from "./_generated/server";
@@ -70,6 +71,7 @@ const bibleReadingPlanProgress = v.object({
   updatedAt: v.optional(v.number())
 });
 const syncedBibleReaderState = v.object({
+  revision: v.optional(v.number()),
   translation: v.optional(bibleTranslation),
   position: v.optional(v.object({ book: v.string(), chapter: v.number() })),
   history: v.optional(v.array(bibleReaderHistoryItem)),
@@ -91,6 +93,7 @@ function visibleAuthEmail(value?: string) {
 
 export const savePlan = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     weeklyGoal: v.string(),
     accountabilityPartner: v.string(),
@@ -98,7 +101,7 @@ export const savePlan = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     await ctx.db.patch(args.profileId, {
@@ -112,6 +115,7 @@ export const savePlan = mutation({
 
 export const saveAccountSettings = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     displayName: v.string(),
     email: v.optional(v.string()),
@@ -122,7 +126,7 @@ export const saveAccountSettings = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const authUserId = await getAuthUserId(ctx);
     const nextName = clampText(args.displayName, 80) || "Bible student";
@@ -177,6 +181,7 @@ export const saveAccountSettings = mutation({
 
 export const saveScriptureInsertSettings = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     settings: v.object({
       disabled: v.boolean(),
@@ -189,7 +194,7 @@ export const saveScriptureInsertSettings = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     await ctx.db.patch(args.profileId, {
@@ -208,13 +213,14 @@ export const saveScriptureInsertSettings = mutation({
 
 export const saveUiPreference = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     key: v.string(),
     value: v.union(v.boolean(), v.string(), v.array(v.string()))
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const key = clampText(args.key, 80);
     if (!key || key.startsWith("$") || key.startsWith("_")) throw new Error("Invalid preference key.");
@@ -237,12 +243,13 @@ export const saveUiPreference = mutation({
 
 export const saveMemoryMilestoneGoals = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     goalIds: v.array(v.string())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     await ctx.db.patch(args.profileId, {
@@ -257,13 +264,15 @@ export const saveMemoryMilestoneGoals = mutation({
 
 export const saveBibleReaderState = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     state: syncedBibleReaderState,
-    revision: v.optional(v.number())
+    revision: v.optional(v.number()),
+    baseRevision: v.optional(v.number())
   },
   returns: v.boolean(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     const cleanedState = cleanBibleReaderState(args.state);
@@ -271,8 +280,9 @@ export const saveBibleReaderState = mutation({
       .query("bibleReaderStates")
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
       .unique();
-    const requestedRevision = Math.max(0, Math.round(args.revision ?? 0));
-    const revision = Math.max((existing?.revision ?? 0) + 1, requestedRevision);
+    const currentRevision = existing?.revision ?? 0;
+    if ((args.baseRevision ?? 0) !== currentRevision) throw new Error("READER_CONFLICT: Saved progress changed on another device. Reload before retrying.");
+    const revision = currentRevision + 1;
     const now = Date.now();
     const has = (key: keyof typeof args.state) => Object.prototype.hasOwnProperty.call(args.state, key);
     const includesBookmarks = has("bookmarks");
@@ -312,15 +322,15 @@ export const saveBibleReaderState = mutation({
 });
 
 export const bibleReaderState = query({
-  args: { profileId: v.id("profiles") },
+  args: { clientKey: v.optional(v.string()), profileId: v.id("profiles") },
   returns: v.union(v.null(), syncedBibleReaderState),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const normalized = await ctx.db
       .query("bibleReaderStates")
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
       .unique();
-    if (!normalized) return profile.bibleReaderState ?? null;
+    if (!normalized) return profile.bibleReaderState ? { ...profile.bibleReaderState, revision: 0 } : null;
 
     const legacy = profile.bibleReaderState;
     const [bookmarkRows, planRows, completionRows] = await Promise.all([
@@ -336,6 +346,7 @@ export const bibleReaderState = query({
     ]);
     const completedDays = completionRows.flatMap((row) => row.completedDays.map((day) => `${row.planId}:${day}`));
     return {
+      revision: normalized.revision,
       translation: normalized.translation ?? legacy?.translation,
       position: normalized.position ?? legacy?.position,
       history: normalized.history ?? legacy?.history,
@@ -410,6 +421,7 @@ export const changePassword = action({
 
 export const saveCheckin = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     mood: v.string(),
     note: v.string(),
@@ -418,7 +430,7 @@ export const saveCheckin = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const recentCheckins = await ctx.db
       .query("checkins")
@@ -447,6 +459,7 @@ export const saveCheckin = mutation({
 
 export const profile = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles")
   },
   returns: v.object({
@@ -462,7 +475,7 @@ export const profile = query({
     memoryMilestoneGoalIds: v.optional(v.array(v.string()))
   }),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     return {
       _id: profile._id,
       authUserId: profile.authUserId,
@@ -480,6 +493,7 @@ export const profile = query({
 
 export const accountIdentity = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles")
   },
   returns: v.object({
@@ -491,7 +505,7 @@ export const accountIdentity = query({
     authPasswordAccountId: v.optional(v.string())
   }),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const authUserId = await getAuthUserId(ctx);
     const authUser = authUserId ? await ctx.db.get(authUserId) : null;
     const authAccounts = authUserId
@@ -519,12 +533,13 @@ export const accountIdentity = query({
 
 export const recentCheckins = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     limit: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     const checkins = await ctx.db
@@ -638,12 +653,13 @@ export const recentCheckins = query({
 
 export const deleteCheckin = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     checkinId: v.id("checkins")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     const checkin = await ctx.db.get(args.checkinId);
@@ -670,13 +686,14 @@ export const deleteCheckin = mutation({
 
 export const updateCheckin = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     checkinId: v.id("checkins"),
     note: v.string()
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const checkin = await ctx.db.get(args.checkinId);
     if (!checkin || checkin.profileId !== args.profileId) return false;
@@ -996,13 +1013,8 @@ function cleanBibleReadingPlanProgress(progress: Parameters<typeof cleanBibleRea
   };
 }
 
-async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
-  const profile = await ctx.db.get(profileId);
-  if (!profile) throw new Error("Profile not found");
 
-  const authUserId = await getAuthUserId(ctx);
-  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
-  if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
 
-  return profile;
-}
+export const currentUser = query({ args: {}, returns: v.union(v.null(), v.id("users")), handler: async (ctx) => await getAuthUserId(ctx) });
+
+export const recoveryAvailable = query({ args: {}, returns: v.boolean(), handler: async () => !!(process.env.RESEND_API_KEY && process.env.AUTH_EMAIL_FROM) });

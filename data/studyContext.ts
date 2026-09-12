@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { parseBsbPassageReference, type BibleVerse } from "@/data/biblePassage";
 import { fetchWithTimeout } from "@/data/network";
 
@@ -112,7 +113,7 @@ export async function loadStudyCrossReferences(reference: string): Promise<Study
   if (!parsed) return getStudyCrossReferences(reference);
 
   try {
-    const response = await fetchWithTimeout(`/cross-references/bsb/${assetBookName(parsed.bookName)}.json?v=${CROSS_REFERENCE_ASSET_VERSION}`, {}, 8_000, { provider: "cross-reference-assets", operation: "asset" });
+    const response = await fetchWithTimeout(`${Platform.OS === "web" ? "" : (process.env.EXPO_PUBLIC_SITE_URL || "https://biblestudytutor.org").replace(/\/$/, "")}/cross-references/bsb/${assetBookName(parsed.bookName)}.json?v=${CROSS_REFERENCE_ASSET_VERSION}`, {}, 8_000, { provider: "cross-reference-assets", operation: "asset" });
     if (!response.ok) return getStudyCrossReferences(reference);
 
     const data = await response.json();

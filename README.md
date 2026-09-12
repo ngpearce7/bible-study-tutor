@@ -113,3 +113,15 @@ To regenerate the bundled cross-reference files:
 ```bash
 node scripts/build-cross-references.mjs
 ```
+
+## Reliability and security staging
+
+See [implementation stages](docs/implementation-stages.md) for the rollout sequence and [editorial/release checks](docs/editorial-and-release-checks.md) for human and device verification.
+
+Run `npm test` for behavioral tests and `npm run editorial:audit` for provenance checks. These run in CI through `npm run verify`.
+
+For an isolated backend verification in a fresh checkout with no deployment selected, use Node 24 and run `CONVEX_AGENT_MODE=anonymous npx convex dev --once --typecheck enable`. This creates a local anonymous deployment and writes its localhost URLs to ignored `.env.local`. Check the selected deployment before running Convex in an already configured checkout. Run `npm run convex` with the supported Node runtime to keep that local backend running while developing; `--once` stops it after validation. Local Node actions cannot run under Node 25.
+
+Before deploying this revision, configure `ADMIN_USER_IDS` with approved existing auth user IDs. Email addresses no longer grant admin access. Password-reset email requires backend `RESEND_API_KEY` and `AUTH_EMAIL_FROM`; username accounts can create a one-time recovery code from Account after confirming their current password. Store it securely outside the app.
+
+Backend and client rollout must be coordinated: older guest clients do not send the required device credential, and older reader clients do not send a base revision. They fail closed and must refresh/update. Do not roll back to unauthenticated guest access to accommodate stale clients. Legacy device-only preferences remain available through an explicit import into the current profile; existing profile copies are preserved.

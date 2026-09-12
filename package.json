@@ -23,23 +23,29 @@
     "study:validate:b": "node scripts/validate-study-phase-b.mjs",
     "study:validate:c": "node scripts/validate-study-phase-c.mjs",
     "build:validate": "node scripts/validate-build.mjs",
-    "verify": "npm run typecheck && npm run plans:audit && npm run convex:validate && npm run performance:validate && npm run observability:validate && npm run study:validate && npm run study:validate:b && npm run study:validate:c && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate"
+    "verify": "npm run typecheck && npm test && npm run plans:audit && npm run editorial:audit && npm run convex:validate && npm run performance:validate && npm run observability:validate && npm run study:validate && npm run study:validate:b && npm run study:validate:c && npm run web:export && node scripts/validate-seo.mjs && npm run build:validate",
+    "test": "vitest run",
+    "editorial:audit": "node scripts/validate-editorial.mjs"
   },
   "dependencies": {
     "@auth/core": "^0.37.0",
     "@convex-dev/auth": "^0.0.92",
     "@expo/vector-icons": "14.1.0",
+    "@react-native-async-storage/async-storage": "^2.1.2",
     "@tiptap/extension-highlight": "^3.26.0",
     "@tiptap/extension-underline": "^3.26.0",
     "@tiptap/react": "^3.26.0",
     "@tiptap/starter-kit": "^3.26.0",
     "convex": "^1.28.0",
+    "dompurify": "^3.4.15",
     "expo": "~53.0.0",
     "expo-constants": "~17.1.7",
+    "expo-crypto": "~14.1.5",
     "expo-linking": "~7.1.7",
     "expo-router": "~5.1.4",
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.2.3",
+    "lucia": "^3.2.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
@@ -48,8 +54,12 @@
     "react-native-web": "^0.20.0"
   },
   "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
     "@types/react": "~19.0.10",
     "@types/react-dom": "~19.0.0",
-    "typescript": "~5.8.3"
+    "convex-test": "^0.0.58",
+    "jsdom": "^29.1.1",
+    "typescript": "~5.8.3",
+    "vitest": "^4.1.11"
   }
 }

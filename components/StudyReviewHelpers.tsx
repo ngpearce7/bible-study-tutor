@@ -1,15 +1,10 @@
+import { sanitizeEditorHtml } from "@/data/noteHtml";
 import { createElement } from "react";
 import { Platform, Pressable, Text, TextInput, View } from "react-native";
 
 import { colors } from "@/components/ui";
 
-function sanitizeEditorHtml(html: string) {
-  return html
-    .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
-    .replace(/javascript:/gi, "");
-}
+
 
 function richHtmlToMarkupText(text: string) {
   if (!/<\/?[a-z][\s\S]*>/i.test(text)) return text;

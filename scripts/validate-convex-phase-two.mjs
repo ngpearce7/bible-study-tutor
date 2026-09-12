@@ -8,7 +8,7 @@ const study = read("convex/study.ts");
 const accountability = read("convex/accountability.ts");
 const community = read("convex/community.ts");
 const insights = read("convex/insights.ts");
-const app = read("app/index.tsx");
+const app = read("app/index.tsx") + "\n" + read("components/appStyles.ts");
 
 for (const table of [
   "studyStats",

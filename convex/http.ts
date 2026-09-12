@@ -104,7 +104,9 @@ http.route({
     try {
       const raw = await req.text();
       if (raw.length > 1200) throw new Error("Payload too large");
-      payload = raw ? JSON.parse(raw) : {};
+      const parsed: unknown = raw ? JSON.parse(raw) : {};
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid payload");
+      payload = parsed as Record<string, unknown>;
     } catch {
       return new Response(JSON.stringify({ ok: false }), { status: 400, headers });
     }
@@ -148,7 +150,9 @@ http.route({
     try {
       const raw = await req.text();
       if (raw.length > 600) throw new Error("Payload too large");
-      payload = raw ? JSON.parse(raw) : {};
+      const parsed: unknown = raw ? JSON.parse(raw) : {};
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Invalid payload");
+      payload = parsed as Record<string, unknown>;
     } catch {
       return new Response(JSON.stringify({ ok: false }), { status: 400, headers });
     }

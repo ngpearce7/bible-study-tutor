@@ -1,3 +1,5 @@
+import { isAdminUserId } from "./profileAccess";
+import { authorizeProfileAccess } from "./profileAccess";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
@@ -86,6 +88,7 @@ function visibleAuthEmail(value?: string) {
 
 export const submitFeedback = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     category: feedbackCategory,
     message: v.string(),
@@ -94,7 +97,7 @@ export const submitFeedback = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
 
     const message = args.message.trim();
@@ -125,6 +128,7 @@ export const submitFeedback = mutation({
 
 export const recordUsage = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     eventType: v.string(),
     reference: v.optional(v.string()),
@@ -138,7 +142,7 @@ export const recordUsage = mutation({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
     const recentEvents = await ctx.db
       .query("usageEvents")
@@ -294,12 +298,13 @@ export const pruneExpiredTelemetry = internalMutation({
 
 export const requestAccountDeletion = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     note: v.optional(v.string())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const profile = await authorizeProfileAccess(ctx, args.profileId);
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     const now = Date.now();
     const authUser = profile.authUserId ? await ctx.db.get(profile.authUserId) : null;
 
@@ -323,11 +328,12 @@ export const requestAccountDeletion = mutation({
 
 export const cancelAccountDeletionRequest = mutation({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const existing = await ctx.db
       .query("accountDeletionRequests")
@@ -345,11 +351,12 @@ export const cancelAccountDeletionRequest = mutation({
 
 export const deletionRequestForProfile = query({
   args: {
+    clientKey: v.optional(v.string()),
     profileId: v.id("profiles")
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    await authorizeProfileAccess(ctx, args.profileId);
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     return await ctx.db
       .query("accountDeletionRequests")
@@ -359,12 +366,12 @@ export const deletionRequestForProfile = query({
 });
 
 export const adminOverview = query({
-  args: {},
+  args: { now: v.optional(v.number()) },
   returns: v.any(),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
     if (!(await isAdmin(ctx))) return null;
 
-    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const sevenDaysAgo = (args.now ?? 0) - 7 * 24 * 60 * 60 * 1000;
     const sevenDayKey = utcDayKey(sevenDaysAgo);
     const [events, publicEvents, usageDaily, publicDaily, reliabilityDaily, feedback, profiles, studyStats, deletionRequests, securityEvents] = await Promise.all([
       ctx.db.query("usageEvents").withIndex("by_created").order("desc").take(500),
@@ -378,7 +385,7 @@ export const adminOverview = query({
       ctx.db.query("accountDeletionRequests").withIndex("by_status_requested", (q) => q.eq("status", "pending")).order("asc").take(25),
       ctx.db.query("securityEvents").withIndex("by_created").order("desc").take(20)
     ]);
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    const oneDayAgo = (args.now ?? 0) - 24 * 60 * 60 * 1000;
     const activeProfileIds = new Set(events.filter((item) => item.createdAt >= sevenDaysAgo).map((item) => item.profileId));
     const studyProfileIds = new Set(studyStats.filter((item) => item.sessionCount > 0).map((item) => item.profileId));
     const shareEvents = usageDaily.filter((item) => item.eventType === "app_shared");
@@ -529,7 +536,7 @@ async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
 
 export const adminUserDetail = query({
   args: {
-    profileId: v.id("profiles")
+    profileId: v.id("profiles"), now: v.optional(v.number())
   },
   returns: v.any(),
   handler: async (ctx, args) => {
@@ -550,7 +557,7 @@ export const adminUserDetail = query({
       ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", args.profileId).eq("status", "pending")).take(1),
       profile.authUserId ? ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", profile.authUserId!)).take(100) : Promise.resolve([])
     ]);
-    const now = Date.now();
+    const now = (args.now ?? 0);
     const oneHourAgo = now - 60 * 60 * 1000;
     const oneDayAgo = now - 24 * 60 * 60 * 1000;
     const writeTimestamps = [
@@ -682,7 +689,7 @@ export const setProfileSuspensionAsAdmin = mutation({
 
     if (args.suspended && profile.authUserId) {
       const user = await ctx.db.get(profile.authUserId);
-      if (user?.email && isAdminEmail(user.email)) throw new Error("Admin accounts cannot be suspended from this panel.");
+      if (user && isAdminUserId(user._id)) throw new Error("Admin accounts cannot be suspended from this panel.");
     }
 
     const now = Date.now();
@@ -780,7 +787,7 @@ export const approveDeletionRequestAsAdmin = mutation({
     const profile = await ctx.db.get(request.profileId);
     if (profile?.authUserId) {
       const user = await ctx.db.get(profile.authUserId);
-      if (user?.email && isAdminEmail(user.email)) throw new Error("Admin accounts cannot be deleted from this panel.");
+      if (user && isAdminUserId(user._id)) throw new Error("Admin accounts cannot be deleted from this panel.");
     }
 
     const now = Date.now();
@@ -842,23 +849,14 @@ export const cleanupEmptyLocalProfilesAsAdmin = mutation({
   }
 });
 
-async function authorizeProfileAccess(ctx: QueryCtx | MutationCtx, profileId: Id<"profiles">) {
-  const profile = await ctx.db.get(profileId);
-  if (!profile) throw new Error("Profile not found");
 
-  const authUserId = await getAuthUserId(ctx);
-  if (profile.authUserId && !authUserId) throw new Error("Unauthorized");
-  if (authUserId && profile.authUserId !== authUserId) throw new Error("Unauthorized");
-
-  return profile;
-}
 
 async function requireAdminUserId(ctx: QueryCtx | MutationCtx) {
   const authUserId = await getAuthUserId(ctx);
   if (!authUserId) throw new Error("Unauthorized");
 
   const user = await ctx.db.get(authUserId);
-  if (!user?.email || !isAdminEmail(user.email)) throw new Error("Unauthorized");
+  if (!user || !isAdminUserId(authUserId)) throw new Error("Unauthorized");
 
   return authUserId;
 }
@@ -868,23 +866,9 @@ async function isAdmin(ctx: QueryCtx | MutationCtx) {
   if (!authUserId) return false;
 
   const user = await ctx.db.get(authUserId);
-  const email = user?.email?.trim().toLowerCase();
-  if (!email) return false;
-
-  return isAdminEmail(email);
+  return !!user && isAdminUserId(authUserId);
 }
 
-function isAdminEmail(email: string) {
-  const normalized = email.trim().toLowerCase();
-  if (!normalized) return false;
-
-  const allowlist = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((item) => item.trim().toLowerCase())
-    .filter(Boolean);
-
-  return allowlist.includes(normalized);
-}
 
 function isString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;

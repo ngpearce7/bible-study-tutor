@@ -1,3 +1,4 @@
+import { useAutoHideNavigation } from "@/components/useAutoHideNavigation";
 import { useAppDarkMode } from "@/components/useAppDarkMode";
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { sanitizeEditorHtml } from "@/data/noteHtml";
@@ -911,6 +912,13 @@ function HomeScreen() {
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
+  const autoNav = useAutoHideNavigation(tab);
+  const navSlide = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    const animation = Animated.timing(navSlide, { toValue: autoNav.hidden ? 1 : 0, duration: autoNav.reduceMotion ? 0 : 180, useNativeDriver: true });
+    animation.start();
+    return () => animation.stop();
+  }, [autoNav.hidden, autoNav.reduceMotion, navSlide]);
   const [appInitializationAllowed, setAppInitializationAllowed] = useState(Platform.OS !== "web");
   const [profileConnectionState, setProfileConnectionState] = useState<ProfileConnectionState>("idle");
   const [profileInitializationAttempt, setProfileInitializationAttempt] = useState(0);
@@ -7541,7 +7549,7 @@ function HomeScreen() {
     adminProfileSelected: !!selectedAdminProfileId
   });
   const showQuickNav = phoneLayout && !phoneMemoryFocusMode && !showMobileReaderSelectionDock && !mobileMenuOpen;
-  const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : showQuickNav ? 88 : 18;
+  const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : showQuickNav && !autoNav.hidden ? 88 : 18;
 
   useEffect(() => {
     if (!pendingBiblePlanReadAhead) return;
@@ -8178,12 +8186,14 @@ function HomeScreen() {
         style={styles.contentScroll}
         onScroll={(event) => {
           appScrollYRef.current = event.nativeEvent.contentOffset?.y || 0;
+          if (phoneLayout) autoNav.onScroll(appScrollYRef.current, event.nativeEvent.contentSize.height - event.nativeEvent.layoutMeasurement.height);
         }}
         scrollEventThrottle={16}
         contentContainerStyle={[
           styles.content,
           accountDarkMode && styles.appDarkContent,
           phoneLayout && styles.phoneContent,
+          showQuickNav && { paddingBottom: 100 },
           phoneLayout && phoneMemoryFocusMode && memoryPracticeLevel > 1 && styles.phoneMemoryPracticeScrollContent,
           showMobileReaderSelectionDock && styles.contentWithMobileReaderDock,
           showMobileReaderNoteEditor && styles.contentWithMobileReaderNoteDock
@@ -11300,6 +11310,9 @@ function HomeScreen() {
         )}
       </ScrollView>
       {showQuickNav && (
+        <Animated.View pointerEvents={autoNav.hidden ? "none" : "auto"} accessibilityElementsHidden={autoNav.hidden} importantForAccessibility={autoNav.hidden ? "no-hide-descendants" : "auto"}
+          {...(Platform.OS === "web" ? { "aria-hidden": autoNav.hidden, inert: autoNav.hidden ? true : undefined } : {})}
+          style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 100, transform: [{ translateY: navSlide.interpolate({ inputRange: [0, 1], outputRange: [0, 100] }) }] }}>
         <View style={[styles.quickNav, accountDarkMode && styles.appDarkMobileMenuBar]}>
           {([['home', 'Home'], ['bible', 'Bible'], ['study', 'Study'], ['journal', 'Journal'], ['more', 'More']] as const).map(([key, label]) => (
             <Pressable key={key} accessibilityRole="button" accessibilityLabel={key === 'more' ? 'More navigation options' : `Open ${label} tab`} accessibilityState={{ selected: key === 'more' ? mobileMenuOpen : tab === key }}
@@ -11309,6 +11322,7 @@ function HomeScreen() {
             </Pressable>
           ))}
         </View>
+        </Animated.View>
       )}
 
       {showMobileReaderSelectionDock && (

@@ -12,7 +12,7 @@ import {
 } from "@/data/bibleReadingPlanProgress";
 
 export type StoredBibleTranslation = "bsb" | "web" | "kjv";
-export type StoredAppearanceMode = "light" | "dark";
+export type StoredAppearanceMode = "light" | "dark" | "system";
 export type StoredBibleReaderPosition = { book: string; chapter: number };
 export type StoredBibleReaderHistoryItem = { book: string; chapter: number; reference: string; translation: StoredBibleTranslation; updatedAt: string };
 export type StoredBibleReadChapters = Record<string, number[]>;
@@ -76,7 +76,7 @@ export async function saveStoredBibleTranslation(translation: StoredBibleTransla
 
 export async function getStoredAppearanceMode(): Promise<StoredAppearanceMode> {
   const stored = await getStoredValue(appearanceModeKey);
-  return stored === "dark" ? "dark" : "light";
+  return stored === "system" || stored === "dark" ? stored : "light";
 }
 
 export async function saveStoredAppearanceMode(mode: StoredAppearanceMode) {

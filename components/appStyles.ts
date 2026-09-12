@@ -2,6 +2,8 @@ import { StyleSheet, Platform } from "react-native";
 import { colors } from "./ui";
 
 export const styles = StyleSheet.create({
+  quickNav: { flexDirection: "row", backgroundColor: colors.panel, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 12, borderTopWidth: 1, borderTopColor: "rgba(108,91,67,0.12)", gap: 4 },
+  quickNavItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 10 },
   screen: {
     backgroundColor: colors.paper,
     flex: 1,

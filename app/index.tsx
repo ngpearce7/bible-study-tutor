@@ -1,3 +1,4 @@
+import { AppearanceControl } from "@/components/AppearanceControl";
 import { sanitizeEditorHtml } from "@/data/noteHtml";
 import { styles } from "@/components/appStyles";
 import { createReaderSyncQueue } from "@/data/readerSync";
@@ -30,7 +31,7 @@ import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyR
 import { useAction, usePaginatedQuery, useQuery as useRawQuery } from "convex/react";
 import { useMutation, useQuery } from "@/data/profileClient";
 import { Component, Suspense, createElement, lazy, memo, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
-import { Alert, Animated, Easing, Image, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Alert, Animated, Easing, Image, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useColorScheme, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 type ProfileConnectionState = "idle" | "loading" | "ready" | "error";
@@ -111,7 +112,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
     {
       "aria-labelledby": "home-resource-links-heading",
       style: {
-        background: darkMode ? "#1b211f" : "#fffaf2",
+        background: "transparent",
         border: "none",
         borderRadius: 16,
         fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -157,7 +158,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
         style: {
           display: "grid",
           gap: 10,
-          gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))"
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))"
         }
       },
       links.map(([href, label, description]) =>
@@ -168,7 +169,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
             key: href,
             style: {
               background: darkMode ? "#28312e" : "#fffdf8",
-              border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : "#eadcc9"}`,
+              border: "none",
               borderRadius: 12,
               color: darkMode ? "#f7eddc" : colors.ink,
               display: "grid",
@@ -1143,6 +1144,8 @@ function HomeScreen() {
   const [editReflectionNextStep, setEditReflectionNextStep] = useState("");
   const [isSavingJournalEdit, setIsSavingJournalEdit] = useState(false);
   const [bibleTranslation, setBibleTranslation] = useState<BibleTranslationId>("bsb");
+  const deviceColorScheme = useColorScheme();
+  const [appearanceHydrated, setAppearanceHydrated] = useState(false);
   const [appearanceMode, setAppearanceMode] = useState<StoredAppearanceMode>("light");
   const [readerBook, setReaderBook] = useState("Genesis");
   const [readerChapter, setReaderChapter] = useState(1);
@@ -1549,7 +1552,8 @@ function HomeScreen() {
   useEffect(() => {
     getStoredAppearanceMode()
       .then(setAppearanceMode)
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => setAppearanceHydrated(true));
   }, []);
 
   useEffect(() => {
@@ -2632,7 +2636,7 @@ function HomeScreen() {
         : `${(communityCircles || []).length} circle${(communityCircles || []).length === 1 ? "" : "s"}`;
   const showFriendsConnectionPanel = !phoneLayout || mobileFriendsPanelOpen;
   const showCircleConnectionPanel = !phoneLayout || mobileCirclesPanelOpen;
-  const accountDarkMode = DARK_MODE_ENABLED && appearanceMode === "dark";
+  const accountDarkMode = DARK_MODE_ENABLED && (appearanceMode === "dark" || (appearanceMode === "system" && deviceColorScheme === "dark"));
   const homeDarkMode = accountDarkMode;
   const helpDarkMode = accountDarkMode;
   const studyDarkMode = accountDarkMode;
@@ -3006,13 +3010,14 @@ function HomeScreen() {
   }, [activeProfileId, isAuthenticated, profile, profileMatchesActiveState, remoteBibleReaderState, storedBibleReadingPlanProgress, storedBibleReadingPlanProgressHydrated, readerSyncError, readerSyncAttempt]);
 
   useEffect(() => {
+    if (!appearanceHydrated) return;
     if (profileAppearanceMode !== "light" && profileAppearanceMode !== "dark") return;
     setAppearanceMode((current) => {
-      if (current === profileAppearanceMode) return current;
+      if (current === "system" || current === profileAppearanceMode) return current;
       saveStoredAppearanceMode(profileAppearanceMode).catch(() => undefined);
       return profileAppearanceMode;
     });
-  }, [profileAppearanceMode]);
+  }, [profileAppearanceMode, appearanceHydrated]);
 
   useEffect(() => {
     if (savedDraft === undefined) return;
@@ -3916,7 +3921,7 @@ function HomeScreen() {
         weeklyGoal,
         accountabilityPartner: effectivePartner,
         preferredMethodId: method.id,
-        appearanceMode
+        appearanceMode: appearanceMode === "system" ? undefined : appearanceMode
       });
       setAccountStatus("Account details saved");
     } catch {
@@ -3928,7 +3933,7 @@ function HomeScreen() {
     setAppearanceMode(mode);
     saveStoredAppearanceMode(mode).catch(() => undefined);
 
-    if (!activeProfileId) return;
+    if (!activeProfileId || mode === "system") return;
 
     try {
       await saveAccountSettings({
@@ -7544,7 +7549,8 @@ function HomeScreen() {
     signedIn: isAuthenticated,
     adminProfileSelected: !!selectedAdminProfileId
   });
-  const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : 18;
+  const showQuickNav = phoneLayout && !phoneMemoryFocusMode && !showMobileReaderSelectionDock && !mobileMenuOpen;
+  const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : showQuickNav ? 88 : 18;
 
   useEffect(() => {
     if (!pendingBiblePlanReadAhead) return;
@@ -8101,6 +8107,7 @@ function HomeScreen() {
             <Text style={[styles.mobileMenuTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
             <Text style={[styles.mobileMenuSubtitle, accountDarkMode && styles.accountDarkMutedText]}>{tab === "accountability" ? "Community" : tab === "admin" ? "Admin insights" : tab.charAt(0).toUpperCase() + tab.slice(1)}</Text>
           </View>
+          <AppearanceControl mode={appearanceMode} dark={accountDarkMode} onChange={chooseAppearanceMode} />
         </View>
       )}
 
@@ -8117,6 +8124,8 @@ function HomeScreen() {
             <Text style={[styles.brandTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
           </View>
         </View>
+
+        {!phoneLayout && <AppearanceControl mode={appearanceMode} dark={accountDarkMode} onChange={chooseAppearanceMode} />}
 
         <View style={[styles.tabs, compactLayout && styles.compactTabs]}>
           {([
@@ -8224,7 +8233,7 @@ function HomeScreen() {
                 </View>
               )}
               <View style={[styles.homeHero, homeDarkMode && styles.homeDarkHero]}>
-                <Eyebrow>Purpose</Eyebrow>
+                <Text style={[styles.homeScriptureRef, homeDarkMode && styles.homeDarkAccentText]}>A moment in Scripture</Text>
                 <Text style={[styles.homeHeroTitle, phoneLayout && styles.phoneHomeHeroTitle, homeDarkMode && styles.homeDarkHeroTitle]}>
                   {firstName ? `${firstName}, draw near.` : "Draw near."}
                   {"\n"}
@@ -10883,10 +10892,13 @@ function HomeScreen() {
                     <View style={styles.accountOptionGrid}>
                       {([
                         ["light", "Light", "Warm study colours", "sunny-outline"],
-                        ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"]
+                        ["dark", "Dark", "Soft charcoal with warm accents", "moon-outline"],
+                        ["system", "Use device setting", "Follow this device’s light or dark appearance", "phone-portrait-outline"]
                       ] as const).map(([mode, label, description, icon]) => (
                         <Pressable
                           key={mode}
+                          accessibilityRole="radio"
+                          accessibilityState={{ checked: appearanceMode === mode }}
                           onPress={() => chooseAppearanceMode(mode)}
                           style={[
                             styles.aiOptionCard,
@@ -11295,6 +11307,18 @@ function HomeScreen() {
           </TabErrorBoundary>
         )}
       </ScrollView>
+      {showQuickNav && (
+        <View style={[styles.quickNav, accountDarkMode && styles.appDarkMobileMenuBar]}>
+          {([['home', 'Home'], ['bible', 'Bible'], ['study', 'Study'], ['journal', 'Journal'], ['more', 'More']] as const).map(([key, label]) => (
+            <Pressable key={key} accessibilityRole="button" accessibilityLabel={key === 'more' ? 'More navigation options' : `Open ${label} tab`} accessibilityState={{ selected: key === 'more' ? mobileMenuOpen : tab === key }}
+              onPress={() => { if (key === 'more') setMobileMenuOpen(value => !value); else { setTab(key); setMobileMenuOpen(false); } }}
+              style={[styles.quickNavItem, (key === 'more' ? mobileMenuOpen : tab === key) && (accountDarkMode ? styles.appDarkActiveTab : styles.activeTab)]}>
+              <Text style={{ color: accountDarkMode ? '#f7eddc' : colors.oliveDark, fontSize: 12, fontWeight: tab === key ? '700' : '500' }}>{label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       {showMobileReaderSelectionDock && (
         <View style={[styles.mobileReaderSelectionDock, bibleDarkMode && styles.bibleDarkMobileSelectionDock]}>
           <Text numberOfLines={1} style={[styles.mobileReaderSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerMemoryStatus || readerStudyReference}</Text>

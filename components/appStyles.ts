@@ -77,12 +77,12 @@ export const styles = StyleSheet.create({
   mobileMenuTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   mobileMenuSubtitle: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   sidebar: {
     backgroundColor: "#fff6eb",
@@ -250,15 +250,15 @@ export const styles = StyleSheet.create({
   },
   homeMainCard: {
     flex: 1,
-    gap: 20,
+    gap: 28,
     maxWidth: "100%",
     minWidth: 0
   },
   homeHero: {
     borderBottomColor: "rgba(102, 114, 78, 0.18)",
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     gap: 14,
-    paddingBottom: 18
+    paddingBottom: 8
   },
   homeDarkHero: {
     borderBottomColor: "rgba(233, 183, 106, 0.18)"
@@ -267,7 +267,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
     fontSize: 42,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 48
   },
   homeDarkHeroTitle: {
@@ -289,7 +289,7 @@ export const styles = StyleSheet.create({
   homeHeroText: {
     color: colors.ink,
     fontSize: 17,
-    fontWeight: "500",
+    fontWeight: "400",
     lineHeight: 27,
     maxWidth: 720
   },
@@ -300,18 +300,18 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fffaf2",
     borderColor: "rgba(102, 114, 78, 0.22)",
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 0,
     gap: 10,
     padding: 14
   },
   homeDarkPurposePanel: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#28312e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homePurposeTitle: {
     color: colors.oliveDark,
     fontSize: 16,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   homePurposeText: {
     color: colors.ink,
@@ -368,15 +368,15 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fffdf8",
     borderColor: colors.line,
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 0,
     flex: 1,
     gap: 10,
     maxWidth: "100%",
     minWidth: 240,
-    padding: 16
+    padding: 20
   },
   homeDarkScriptureBlock: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#28312e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeScriptureIcon: {
@@ -393,7 +393,7 @@ export const styles = StyleSheet.create({
   homeScriptureRef: {
     color: colors.coral,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   homeDarkAccentText: {
     color: "#e9b76a"
@@ -402,9 +402,9 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
     fontSize: 20,
-    fontStyle: "italic",
-    fontWeight: "600",
-    lineHeight: 29
+    fontStyle: "normal",
+    fontWeight: "400",
+    lineHeight: 31
   },
   homeScriptureNote: {
     color: colors.muted,
@@ -430,7 +430,7 @@ export const styles = StyleSheet.create({
   homeSideTitle: {
     color: colors.oliveDark,
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     marginBottom: 2
   },
   homePathList: {
@@ -443,7 +443,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "#fffaf2",
     borderColor: colors.line,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 0,
     flexDirection: "row",
     gap: 10,
     maxWidth: "100%",
@@ -461,7 +461,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1.5
   },
   homeDarkPathItem: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#28312e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeDarkMetric: {
@@ -495,7 +495,7 @@ export const styles = StyleSheet.create({
   homePathTitle: {
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   homePathDetail: {
     color: colors.muted,
@@ -6255,10 +6255,10 @@ export const styles = StyleSheet.create({
     backgroundColor: "#171b1c"
   },
   accountDarkMainCard: {
-    backgroundColor: "#202625",
-    borderColor: "rgba(233, 183, 106, 0.18)",
+    backgroundColor: "#222b28",
+    borderColor: "rgba(247, 237, 220, 0.08)",
     shadowColor: "#000000",
-    shadowOpacity: 0.2
+    shadowOpacity: 0
   },
   accountDarkSection: {
     backgroundColor: "#242b2a",
@@ -6292,7 +6292,7 @@ export const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   accountDarkMutedText: {
-    color: "#c8bda9"
+    color: "#cbc5b9"
   },
   accountDarkBadge: {
     backgroundColor: "#2d352d",

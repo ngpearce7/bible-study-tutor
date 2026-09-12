@@ -62,14 +62,14 @@ export function AppButton({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(108, 91, 67, 0.18)",
-    borderRadius: 10,
+    borderColor: "rgba(108, 91, 67, 0.10)",
+    borderRadius: 16,
     borderWidth: 1,
     maxWidth: "100%",
     minWidth: 0,
-    padding: 16,
+    padding: 20,
     shadowColor: "#5a3f2d",
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.025,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 }
   },

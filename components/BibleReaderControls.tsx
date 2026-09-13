@@ -71,18 +71,14 @@ export function BibleReaderControls({
   return (
     <>
       <View style={[styles.readerHeader, { flexWrap: "nowrap", alignItems: "center", gap: phoneLayout ? 4 : 12 }]}>
-        <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Choose Bible book, chapter, or translation" onPress={onBrowse} style={{ flex: 1, minWidth: 0, minHeight: 44, justifyContent: "center" }}>
           <View style={styles.readerTitleRow}>
             <Text style={[styles.stepTitle, { flexShrink: 1 }, darkMode && styles.accountDarkTitle]}>{readerReference}</Text>
+            <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
             {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={darkMode ? "#e9b76a" : colors.coral} />}
-            <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>{translationId.toUpperCase()}</Text>
           </View>
-        </View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Browse Bible books, chapters, and translations" onPress={onBrowse} style={{ flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44, paddingHorizontal: phoneLayout ? 8 : 10, borderWidth: 1, borderColor: darkMode ? "#68705c" : colors.line, borderRadius: 10, backgroundColor: darkMode ? "#28312e" : colors.paper }}>
-            {!phoneLayout && <Ionicons name="book-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />}
-            <Text style={{ fontSize: 13, fontWeight: "700", color: darkMode ? "#f7eddc" : colors.oliveDark }}>{phoneLayout ? "Browse" : "Browse Bible"}</Text>
-            <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-          </Pressable>
+          <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>{translationId.toUpperCase()} · Browse Bible</Text>
+        </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel={searchOpen ? "Hide Scripture search" : "Show Scripture search"} accessibilityState={{ expanded: searchOpen }} onPress={onSearch} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}>
           <Ionicons name="search-outline" size={21} color={darkMode ? "#e9b76a" : colors.oliveDark} />
         </Pressable>

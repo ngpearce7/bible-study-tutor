@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { gzipSync } from "node:zlib";
+import { createHash } from "node:crypto";
 import { extname, join, relative, sep } from "node:path";
 
 const root = process.cwd();
@@ -14,6 +15,8 @@ const htmlFiles = files.filter((file) => extname(file) === ".html");
 const jsFiles = files.filter((file) => extname(file) === ".js");
 const entryFiles = jsFiles.filter((file) => /[/\\]entry-[^/\\]+\.js$/.test(file));
 assert(entryFiles.length === 1, `expected one web entry bundle, found ${entryFiles.length}`);
+const entryHash = createHash("sha256").update(readFileSync(entryFiles[0])).digest("hex");
+assert(entryFiles[0].endsWith(`entry-${entryHash}.js`), "web entry filename must match its final contents to prevent stale lazy-chunk URLs");
 
 const bundleRows = jsFiles.map((file) => {
   const source = readFileSync(file);

@@ -2558,18 +2558,6 @@ function HomeScreen() {
           icon: "school-outline",
           onPress: () => startDueMemoryReviewQueue()
         }]
-      : []),
-    ...(isAuthenticated && dueMemoryCount === 0 && (memoryVerses || []).length > 0
-      ? [{
-          key: "memory-saved",
-          title: "Open saved memory verses",
-          detail: `${(memoryVerses || []).length} verse${(memoryVerses || []).length === 1 ? "" : "s"} saved`,
-          icon: "sparkles-outline",
-          onPress: () => {
-            setRememberedMemoryView("browse");
-            setTab("memory");
-          }
-        }]
       : [])
   ];
   const memoryHistoryItems = shouldRenderMemoryHistory ? (memoryHistory || []) : [];

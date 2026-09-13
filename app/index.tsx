@@ -1,4 +1,5 @@
 import { useAutoHideNavigation } from "@/components/useAutoHideNavigation";
+import { useRefreshingValue } from "@/components/useRefreshingValue";
 import { useAppDarkMode } from "@/components/useAppDarkMode";
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { sanitizeEditorHtml } from "@/data/noteHtml";
@@ -1843,7 +1844,8 @@ function HomeScreen() {
   const timezoneOffsetMinutes = new Date().getTimezoneOffset();
 
   const shouldLoadStudyStats = profileMatchesActiveState && (tab === "home" || tab === "account");
-  const stats = useQuery(api.study.stats, shouldLoadStudyStats ? { profileId: activeProfileId, timezoneOffsetMinutes, now: studyReviewNow } : "skip");
+  const queriedStats = useQuery(api.study.stats, shouldLoadStudyStats ? { profileId: activeProfileId, timezoneOffsetMinutes, now: studyReviewNow } : "skip");
+  const stats = useRefreshingValue(shouldLoadStudyStats ? `${activeProfileId}:${isAuthenticated}:${timezoneOffsetMinutes}` : null, queriedStats);
   const rhythmGrace = (stats as any)?.rhythmGrace;
   const currentRhythmCount = Number((stats as any)?.currentStreak || 0);
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");

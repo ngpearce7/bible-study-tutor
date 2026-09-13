@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState } from "react";
 import { Platform, Pressable, Text, TextInput, View } from "react-native";
 
 import { AppButton, Eyebrow, colors } from "@/components/ui";
@@ -9,6 +10,9 @@ type BibleReaderControlsProps = {
   phoneLayout: boolean;
   translationId: string;
   readerReference: string;
+  onBrowse: () => void;
+  onSearch: () => void;
+  searchOpen: boolean;
   planReadingMode?: boolean;
   planReadingLabel?: string;
   chapterDraft: string;
@@ -37,6 +41,9 @@ export function BibleReaderControls({
   phoneLayout,
   translationId,
   readerReference,
+  onBrowse,
+  onSearch,
+  searchOpen,
   planReadingMode,
   planReadingLabel,
   chapterDraft,
@@ -58,20 +65,33 @@ export function BibleReaderControls({
   readerIconHoverProps,
   hideReaderTooltip
 }: BibleReaderControlsProps) {
+  const [toolsOpen, setToolsOpen] = useState(false);
   const [planReadingPlanName, planReadingDetail] = (planReadingLabel || "Plan reading").split(" - ");
 
   return (
     <>
-      <View style={styles.readerHeader}>
-        <View>
-          <Eyebrow>{translationId.toUpperCase()}</Eyebrow>
+      <View style={[styles.readerHeader, { flexWrap: "nowrap", alignItems: "center", gap: phoneLayout ? 4 : 12 }]}>
+        <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
           <View style={styles.readerTitleRow}>
-            <Text style={[styles.stepTitle, darkMode && styles.accountDarkTitle]}>{readerReference}</Text>
+            <Text style={[styles.stepTitle, { flexShrink: 1 }, darkMode && styles.accountDarkTitle]}>{readerReference}</Text>
             {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={darkMode ? "#e9b76a" : colors.coral} />}
+            <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>{translationId.toUpperCase()}</Text>
           </View>
         </View>
-        <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
+          <Pressable accessibilityRole="button" accessibilityLabel="Browse Bible books, chapters, and translations" onPress={onBrowse} style={{ flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44, paddingHorizontal: phoneLayout ? 8 : 10, borderWidth: 1, borderColor: darkMode ? "#68705c" : colors.line, borderRadius: 10, backgroundColor: darkMode ? "#28312e" : colors.paper }}>
+            {!phoneLayout && <Ionicons name="book-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />}
+            <Text style={{ fontSize: 13, fontWeight: "700", color: darkMode ? "#f7eddc" : colors.oliveDark }}>{phoneLayout ? "Browse" : "Browse Bible"}</Text>
+            <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={searchOpen ? "Hide Scripture search" : "Show Scripture search"} accessibilityState={{ expanded: searchOpen }} onPress={onSearch} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}>
+          <Ionicons name="search-outline" size={21} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="Reader actions" accessibilityState={{ expanded: toolsOpen }} onPress={() => setToolsOpen(open => !open)} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}>
+          <Ionicons name="ellipsis-horizontal" size={21} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+        </Pressable>
       </View>
+
+      {toolsOpen && <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this chapter"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />}
 
       {selectedVerseCount > 0 && (
         <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
@@ -169,7 +189,7 @@ export function BibleReaderControls({
 
       {Platform.OS === "web" && !!tooltip && <Text style={styles.readerIconTooltip}>{tooltip}</Text>}
 
-      {!planReadingMode && <View style={styles.readerProgressRow}>
+      {!planReadingMode && toolsOpen && <View style={styles.readerProgressRow}>
         <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>
           {`${readerReference.split(" ").slice(0, -1).join(" ") || readerReference}: ${currentBookReadChapterCount} of ${chapterCount} chapter${chapterCount === 1 ? "" : "s"} marked read`}
         </Text>

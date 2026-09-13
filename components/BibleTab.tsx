@@ -149,7 +149,7 @@ export function BibleTab({
 
   return (
     <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
-      <BibleReaderNavigator
+      {(!compactLayout || !readerNavCollapsed) && <BibleReaderNavigator
         styles={styles}
         darkMode={bibleDarkMode}
         phoneLayout={phoneLayout}
@@ -210,10 +210,10 @@ export function BibleTab({
         onSelectMobileBook={onSelectMobileBook}
         onSelectChapter={onSelectChapter}
         onClearReadBook={onClearReadBook}
-      />
+      />}
 
       <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
-        <BibleSearchPanel
+        {!bibleSearchCollapsed && <BibleSearchPanel
           styles={styles}
           darkMode={bibleDarkMode}
           phoneLayout={phoneLayout}
@@ -242,7 +242,7 @@ export function BibleTab({
           onSelectBook={onSelectBibleSearchBook}
           onSummaryLayout={onBibleSearchSummaryLayout}
           renderResultActions={renderBibleSearchResultActions}
-        />
+        />}
 
         <BibleReaderControls
           styles={styles}
@@ -250,6 +250,9 @@ export function BibleTab({
           phoneLayout={phoneLayout}
           translationId={bibleTranslation}
           readerReference={displayedReaderReference}
+          onBrowse={onToggleReaderNavCollapsed}
+          onSearch={onToggleBibleSearchCollapsed}
+          searchOpen={!bibleSearchCollapsed}
           planReadingMode={planReadingMode}
           planReadingLabel={planReadingLabel}
           chapterDraft={readerChapterDraft}

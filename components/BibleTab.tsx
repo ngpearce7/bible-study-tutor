@@ -149,7 +149,7 @@ export function BibleTab({
 
   return (
     <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
-      {(!compactLayout || !readerNavCollapsed) && <BibleReaderNavigator
+      {!readerNavCollapsed && <BibleReaderNavigator
         styles={styles}
         darkMode={bibleDarkMode}
         phoneLayout={phoneLayout}

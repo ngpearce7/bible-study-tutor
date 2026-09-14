@@ -1158,7 +1158,7 @@ function HomeScreen() {
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
   const [readerPlanReading, setReaderPlanReading] = useState<ReaderPlanReading | null>(null);
   const [readerBookSearch, setReaderBookSearch] = useState("");
-  const [readerNavCollapsed, setReaderNavCollapsed] = useState(false);
+  const [readerNavCollapsed, setReaderNavCollapsed] = useState(true);
   const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState("");
   const [followedBibleReadingPlanIds, setFollowedBibleReadingPlanIds] = useState<string[]>([]);
   const [completedBibleReadingPlanDays, setCompletedBibleReadingPlanDays] = useState<string[]>([]);
@@ -2668,8 +2668,8 @@ function HomeScreen() {
   }, [memoryPrintCandidateVerses, memoryPrintSelectedVerseIds]);
 
   useEffect(() => {
-    if (compactLayout && tab === "bible") setReaderNavCollapsed(true);
-  }, [compactLayout, tab]);
+    if (tab === "bible") setReaderNavCollapsed(true);
+  }, [tab]);
 
   useEffect(() => {
     if (tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1 || firstMemoryBlankIndex < 0) return;
@@ -2856,7 +2856,6 @@ function HomeScreen() {
     }
     if (uiBoolean(profileUiPreferences, "studyInstructionsCollapsed") !== undefined) setInstructionsCollapsed(uiBoolean(profileUiPreferences, "studyInstructionsCollapsed")!);
     if (uiBoolean(profileUiPreferences, "studyCoachingVisible") !== undefined) setShowCoaching(uiBoolean(profileUiPreferences, "studyCoachingVisible")!);
-    if (uiBoolean(profileUiPreferences, "bibleReaderNavCollapsed") !== undefined) setReaderNavCollapsed(uiBoolean(profileUiPreferences, "bibleReaderNavCollapsed")!);
     if (uiBoolean(profileUiPreferences, "bibleReaderHistoryCollapsed") !== undefined) setReaderHistoryCollapsed(uiBoolean(profileUiPreferences, "bibleReaderHistoryCollapsed")!);
     if (uiBoolean(profileUiPreferences, "bibleBookmarksCollapsed") !== undefined) setBookmarksCollapsed(uiBoolean(profileUiPreferences, "bibleBookmarksCollapsed")!);
     if (uiBoolean(profileUiPreferences, "bibleSearchCollapsed") !== undefined) setBibleSearchCollapsed(uiBoolean(profileUiPreferences, "bibleSearchCollapsed")!);
@@ -9561,7 +9560,7 @@ function HomeScreen() {
                 openBibleReadingPlanDay(activeBibleReadingPlanToday);
               }}
               onOpenFollowedPlanReading={openFollowedBibleReadingPlan}
-              onToggleReaderNavCollapsed={() => toggleRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed")}
+              onToggleReaderNavCollapsed={() => setReaderNavCollapsed(collapsed => !collapsed)}
               onSelectTranslation={(nextTranslationId: string) => {
                 const normalizedTranslation = nextTranslationId as BibleTranslationId;
                 setBibleTranslation(normalizedTranslation);

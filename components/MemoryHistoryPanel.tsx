@@ -56,7 +56,7 @@ export function MemoryHistoryPanel({
 }: MemoryHistoryPanelProps) {
   return (
     <View style={styles.memoryHistoryStack}>
-      <View style={[styles.memoryHistorySummaryBox, darkMode && styles.accountDarkSection]}>
+      <View style={[styles.memoryHistorySummaryBox, darkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, darkMode && styles.darkSectionDivider]}>
         <View style={styles.memoryHistorySummaryHeader}>
           <View style={styles.memoryHistorySummaryTextBlock}>
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Memory engagement</Text>
@@ -135,7 +135,7 @@ export function MemoryHistoryPanel({
         )}
       </View>
 
-      <View style={[styles.memoryHistorySummaryBox, darkMode && styles.accountDarkSection]}>
+      <View style={[styles.memoryHistorySummaryBox, darkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, darkMode && styles.darkSectionDivider]}>
         <View style={styles.memoryHistorySummaryHeader}>
           <View style={styles.memoryHistorySummaryTextBlock}>
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Memory milestones</Text>
@@ -198,7 +198,7 @@ export function MemoryHistoryPanel({
         </View>
       </View>
 
-      <View style={[styles.memoryHistorySummaryBox, darkMode && styles.accountDarkSection]}>
+      <View style={[styles.memoryHistorySummaryBox, darkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, darkMode && styles.darkSectionDivider]}>
         <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>Recent memory activity</Text>
         {historyItems.length === 0 ? (
           <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>Your history will appear here as you add, review, repeat, and schedule memory verses.</Text>

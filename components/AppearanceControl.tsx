@@ -13,7 +13,7 @@ export function AppearanceControl({ mode, dark, onChange }: {
     </Pressable>
     <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
       <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", alignItems: "center", padding: 24 }}>
-        <View accessibilityViewIsModal style={{ width: "100%", maxWidth: 360, backgroundColor: dark ? "#222b28" : "#fffaf2", borderRadius: 20, padding: 24, gap: 12 }}>
+        <View accessibilityViewIsModal style={{ width: "100%", maxWidth: 360, backgroundColor: dark ? "#242424" : "#fffaf2", borderRadius: 20, padding: 24, gap: 12 }}>
           <Text accessibilityRole="header" style={{ color: ink, fontSize: 22, fontWeight: "700" }}>Appearance</Text>
           {([['light', 'Light'], ['dark', 'Dark'], ['system', 'Use device setting']] as const).map(([value, label]) =>
             <Pressable key={value} accessibilityRole="radio" accessibilityState={{ checked: mode === value }} onPress={() => { onChange(value); setOpen(false); }} style={{ minHeight: 48, justifyContent: "center", padding: 12, borderRadius: 10, backgroundColor: mode === value ? (dark ? "#364237" : "#e5ecda") : "transparent" }}>

@@ -19,6 +19,8 @@ export const colors = {
 
 export const UIThemeContext = createContext(false);
 
+
+
 export function Card({ children, style }: PropsWithChildren<{ style?: StyleProp<ViewStyle> }>) {
   return <View style={[styles.card, style]}>{children}</View>;
 }
@@ -43,6 +45,7 @@ export function AppButton({
   labelStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
 }) {
+  const dark = useContext(UIThemeContext);
   return (
     <Pressable
       accessibilityRole="button"
@@ -52,12 +55,13 @@ export function AppButton({
       style={({ pressed }) => [
         styles.button,
         variant === "secondary" ? styles.secondaryButton : styles.primaryButton,
+        variant === "secondary" && dark && styles.darkSecondaryButton,
         pressed && styles.pressed,
         disabled && { opacity: 0.6 },
         style
       ]}
     >
-      <Text style={[variant === "secondary" ? styles.secondaryLabel : styles.primaryLabel, labelStyle]}>{label}</Text>
+      <Text style={[variant === "secondary" ? styles.secondaryLabel : styles.primaryLabel, variant === "secondary" && dark && styles.darkSecondaryLabel, labelStyle]}>{label}</Text>
     </Pressable>
   );
 }
@@ -97,9 +101,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.coral
   },
   secondaryButton: {
-    backgroundColor: colors.panel,
+    backgroundColor: "transparent",
     borderColor: colors.line,
     borderWidth: 1
+  },
+  darkSecondaryButton: {
+    borderColor: "rgba(247, 237, 220, 0.22)"
+  },
+  darkSecondaryLabel: {
+    color: "#f7eddc"
   },
   primaryLabel: {
     color: "white",

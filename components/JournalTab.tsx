@@ -654,7 +654,7 @@ export function JournalTab(props: any) {
                 ) : entry.answers ? (
                   <>
                     {entry.reviewStatus === "scheduled" && (
-                      <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                      <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, journalDarkMode && styles.darkSectionDivider]}>
                         <View style={styles.feedbackHeader}>
                           <Ionicons name="refresh-circle-outline" size={18} color={journalDarkMode ? "#e9b76a" : colors.coral} />
                           <Text style={[styles.feedbackTitle, journalDarkMode && styles.accountDarkTitle]}>{isStudyReviewDue(entry) ? "Ready to review" : "Review scheduled"}</Text>
@@ -702,7 +702,7 @@ export function JournalTab(props: any) {
                       </View>
                     )}
                     {entry.reviewStatus === "reviewed" && entry.reviewNote && (
-                      <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox]}>
+                      <View style={[styles.studyReviewBox, journalDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, journalDarkMode && styles.darkSectionDivider]}>
                         <Text style={[styles.lastCheckinLabel, journalDarkMode && styles.studyDarkAccentText]}>Review reflection</Text>
                         <Text style={[styles.body, journalDarkMode && styles.accountDarkText]}>{entry.reviewNote}</Text>
                       </View>

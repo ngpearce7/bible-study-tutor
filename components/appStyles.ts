@@ -2,6 +2,22 @@ import { StyleSheet, Platform } from "react-native";
 import { colors } from "./ui";
 
 export const styles = StyleSheet.create({
+  // Interior sections share the page surface; reserve cards for independent content.
+  openSection: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
+    borderRadius: 0,
+    paddingHorizontal: 0,
+    paddingVertical: 16,
+    shadowOpacity: 0
+  },
+  sectionDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.line
+  },
+  darkSectionDivider: {
+    borderTopColor: "rgba(247, 237, 220, 0.12)"
+  },
   quickNav: { flexDirection: "row", backgroundColor: colors.panel, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 12, borderTopWidth: 1, borderTopColor: "rgba(108,91,67,0.12)", gap: 4 },
   quickNavItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 10 },
   screen: {
@@ -14,7 +30,7 @@ export const styles = StyleSheet.create({
     position: "relative"
   },
   appDarkScreen: {
-    backgroundColor: "#171b1c"
+    backgroundColor: "#181818"
   },
   compactScreen: {
     flexDirection: "column",
@@ -55,7 +71,7 @@ export const styles = StyleSheet.create({
     zIndex: 100
   },
   appDarkMobileMenuBar: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderBottomColor: "rgba(233, 183, 106, 0.18)"
   },
   mobileMenuButton: {
@@ -69,7 +85,7 @@ export const styles = StyleSheet.create({
     width: 44
   },
   appDarkMobileMenuButton: {
-    backgroundColor: "#202625",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.22)"
   },
   mobileMenuTitleBlock: {
@@ -95,7 +111,7 @@ export const styles = StyleSheet.create({
     width: 200
   },
   appDarkSidebar: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   compactSidebar: {
@@ -169,7 +185,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.blush
   },
   appDarkActiveTab: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     borderColor: "rgba(233, 183, 106, 0.28)"
   },
   tabLabel: {
@@ -201,7 +217,7 @@ export const styles = StyleSheet.create({
     overflow: "hidden"
   },
   appDarkProgressTrack: {
-    backgroundColor: "#151a19"
+    backgroundColor: "#161616"
   },
   progressFill: {
     backgroundColor: colors.coral,
@@ -220,7 +236,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   appDarkContent: {
-    backgroundColor: "#171b1c"
+    backgroundColor: "#181818"
   },
   phoneContent: {
     padding: 14
@@ -248,7 +264,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   homeDarkLayout: {
-    backgroundColor: "#171b1c"
+    backgroundColor: "#181818"
   },
   homeMainCard: {
     flex: 1,
@@ -307,7 +323,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   homeDarkPurposePanel: {
-    backgroundColor: "#28312e",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homePurposeTitle: {
@@ -338,7 +354,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   homeDarkPurposePill: {
-    backgroundColor: "#242b2a",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   homePurposePillText: {
@@ -362,7 +378,7 @@ export const styles = StyleSheet.create({
   homeScriptureGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: 24,
     maxWidth: "100%",
     minWidth: 0
   },
@@ -378,7 +394,7 @@ export const styles = StyleSheet.create({
     padding: 20
   },
   homeDarkScriptureBlock: {
-    backgroundColor: "#28312e",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeScriptureIcon: {
@@ -390,7 +406,7 @@ export const styles = StyleSheet.create({
     width: 36
   },
   homeDarkIconBubble: {
-    backgroundColor: "#2d352d"
+    backgroundColor: "#343434"
   },
   homeScriptureRef: {
     color: colors.coral,
@@ -463,11 +479,11 @@ export const styles = StyleSheet.create({
     borderWidth: 1.5
   },
   homeDarkPathItem: {
-    backgroundColor: "#28312e",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeDarkMetric: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)",
     borderWidth: 1
   },
@@ -475,7 +491,7 @@ export const styles = StyleSheet.create({
     color: "#e9b76a"
   },
   homeDarkResumeButton: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.26)"
   },
   homeDarkResumeButtonText: {
@@ -520,7 +536,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   homeDarkWeeklyRhythmPanel: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeWeeklyRhythmHeader: {
@@ -4798,7 +4814,7 @@ export const styles = StyleSheet.create({
     width: 30
   },
   studyDarkPreviewBox: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   studyDarkContextVerseRow: {
@@ -4808,7 +4824,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(233, 183, 106, 0.12)"
   },
   studyDarkCrossReferenceChip: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkActiveCrossReferenceChip: {
@@ -6254,36 +6270,36 @@ export const styles = StyleSheet.create({
     marginTop: 12
   },
   accountDarkLayout: {
-    backgroundColor: "#171b1c"
+    backgroundColor: "#181818"
   },
   accountDarkMainCard: {
-    backgroundColor: "#222b28",
+    backgroundColor: "#242424",
     borderColor: "rgba(247, 237, 220, 0.08)",
     shadowColor: "#000000",
     shadowOpacity: 0
   },
   accountDarkSection: {
-    backgroundColor: "#242b2a",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   accountDarkInsetBox: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   accountDarkLegalDocBox: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   accountDarkOptionCard: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   accountDarkActiveOptionCard: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     borderColor: "rgba(233, 183, 106, 0.48)"
   },
   accountDarkInput: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.2)",
     color: "#f7eddc"
   },
@@ -6297,49 +6313,49 @@ export const styles = StyleSheet.create({
     color: "#cbc5b9"
   },
   accountDarkBadge: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     borderColor: "rgba(233, 183, 106, 0.45)"
   },
   accountDarkBadgeText: {
     color: "#f7eddc"
   },
   accountDarkSegmentedRow: {
-    backgroundColor: "#171b1c"
+    backgroundColor: "#181818"
   },
   accountDarkActiveSegment: {
     backgroundColor: "#8f6a35"
   },
   studyDarkGuidedHeader: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkPillControl: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.22)"
   },
   studyDarkTogglePill: {
-    backgroundColor: "#151a19"
+    backgroundColor: "#161616"
   },
   studyDarkAccentText: {
     color: "#e9b76a"
   },
   studyDarkMethodChip: {
-    backgroundColor: "#2d352d"
+    backgroundColor: "#343434"
   },
   studyDarkSmartPassageBox: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.34)"
   },
   studyDarkProgressPill: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.14)"
   },
   studyDarkCompletedProgressPill: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     borderColor: "rgba(233, 183, 106, 0.2)"
   },
   studyDarkProgressNumber: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#e9b76a"
   },
   studyDarkCompletedProgressNumber: {
@@ -6351,14 +6367,14 @@ export const styles = StyleSheet.create({
     color: "#171b1c"
   },
   studyDarkScriptureBox: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkVerseRow: {
     backgroundColor: "rgba(247, 237, 220, 0.04)"
   },
   studyDarkFloatingBar: {
-    backgroundColor: "#202625",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.22)"
   },
   bibleDarkDividerSection: {
@@ -6366,7 +6382,7 @@ export const styles = StyleSheet.create({
     borderTopColor: "rgba(233, 183, 106, 0.16)"
   },
   bibleDarkSearchSelect: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)",
     color: "#f7eddc"
   },
@@ -6374,24 +6390,24 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(247, 237, 220, 0.035)"
   },
   bibleDarkMobileSelectionDock: {
-    backgroundColor: "#202625",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.26)",
     shadowColor: "#000",
     shadowOpacity: 0.22
   },
   bibleDarkMobileNoteEditor: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   plansDarkProgressTrack: {
-    backgroundColor: "#2d352d"
+    backgroundColor: "#343434"
   },
   plansDarkDraftPill: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#f7eddc"
   },
   plansDarkDayRow: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.14)",
     borderWidth: 1
   },
@@ -6409,11 +6425,11 @@ export const styles = StyleSheet.create({
     backgroundColor: "#8f6a35"
   },
   methodsDarkBadge: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#f7eddc"
   },
   methodsDarkPill: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)",
     color: "#f7eddc"
   },
@@ -6426,34 +6442,34 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.32)"
   },
   memoryDarkCountPill: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#f7eddc"
   },
   memoryDarkActiveCard: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(201, 103, 80, 0.34)"
   },
   memoryDarkReviewPill: {
-    backgroundColor: "#242b2a",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(233, 183, 106, 0.18)",
     borderWidth: 1,
     color: "#f7eddc"
   },
   memoryDarkDueReviewPill: {
-    backgroundColor: "#242b2a",
+    backgroundColor: "#2b2b2b",
     borderColor: "rgba(201, 103, 80, 0.7)",
     borderWidth: 1,
     color: "#f2a08c"
   },
   memoryDarkPracticeText: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     color: "#f7eddc"
   },
   memoryDarkFillBox: {
-    backgroundColor: "#1b211f"
+    backgroundColor: "#1e1e1e"
   },
   journalDarkCalendarDayCell: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   journalDarkActiveCalendarDayCell: {
@@ -6465,11 +6481,11 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(233, 183, 106, 0.34)"
   },
   studyDarkStepPanel: {
-    backgroundColor: "#171b1c",
+    backgroundColor: "#181818",
     borderColor: "rgba(233, 183, 106, 0.24)"
   },
   studyDarkFormatButton: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.2)"
   },
   signedInBadgeRow: {
@@ -7408,7 +7424,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 4
   },
   memoryDarkCollectionPill: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     borderColor: "rgba(233, 183, 106, 0.16)",
     borderWidth: 1,
     color: "#f7eddc"
@@ -8691,7 +8707,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   helpDarkShareUrl: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.24)",
     color: "#e9b76a"
   },
@@ -8720,7 +8736,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   helpDarkQrFrame: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpQrImage: {
@@ -8846,7 +8862,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkScreenshotFrame: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpScreenshotTopBar: {
@@ -8870,7 +8886,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 4
   },
   helpDarkScreenshotPill: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#e9b76a"
   },
   helpVerseLine: {
@@ -8923,7 +8939,7 @@ export const styles = StyleSheet.create({
     padding: 7
   },
   helpDarkDockPreview: {
-    backgroundColor: "#202625",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   helpDockButton: {
@@ -8945,7 +8961,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkTextAreaPreview: {
-    backgroundColor: "#202625",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpToolbarPreview: {
@@ -8963,7 +8979,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   helpDarkToolButton: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#e9b76a"
   },
   helpMemoryLine: {
@@ -8997,7 +9013,7 @@ export const styles = StyleSheet.create({
     padding: 10
   },
   helpDarkJournalRow: {
-    backgroundColor: "#202625",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpJournalTitle: {
@@ -9052,7 +9068,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkGuideItem: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpGuideItem: {
@@ -9141,7 +9157,7 @@ export const styles = StyleSheet.create({
     textAlign: "center"
   },
   helpDarkGuideStepNumber: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     color: "#e9b76a"
   },
   helpGuideStepText: {
@@ -9184,7 +9200,7 @@ export const styles = StyleSheet.create({
     width: "32%"
   },
   helpDarkTabItem: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpTabItem: {
@@ -9209,7 +9225,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   helpDarkTroubleItem: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   feedbackCategoryRow: {
@@ -9226,7 +9242,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   helpDarkCategoryChip: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   activeFeedbackCategoryChip: {
@@ -9285,7 +9301,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   accountDarkSavedDataItem: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   savedDataIcon: {
@@ -9297,7 +9313,7 @@ export const styles = StyleSheet.create({
     width: 32
   },
   accountDarkSavedDataIcon: {
-    backgroundColor: "#2d352d"
+    backgroundColor: "#343434"
   },
   savedDataCopy: {
     flex: 1,
@@ -9401,7 +9417,7 @@ export const styles = StyleSheet.create({
     position: "relative"
   },
   adminDarkMapCanvas: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneAdminMapCanvas: {
@@ -9837,7 +9853,7 @@ export const styles = StyleSheet.create({
     borderColor: colors.olive
   },
   adminDarkActiveUserRow: {
-    backgroundColor: "#2d352d",
+    backgroundColor: "#343434",
     borderColor: "rgba(233, 183, 106, 0.35)"
   },
   adminUserMetaPills: {
@@ -10238,7 +10254,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   printDarkOptionChip: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   activePrintOptionChip: {
@@ -10335,11 +10351,11 @@ export const styles = StyleSheet.create({
     marginTop: 2
   },
   memoryDarkSubPanel: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   memoryDarkSoftPanel: {
-    backgroundColor: "#1b211f",
+    backgroundColor: "#1e1e1e",
     borderColor: "rgba(233, 183, 106, 0.14)"
   },
   rhythmGraceInfoBox: {
@@ -10449,7 +10465,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   printDarkCancelButton: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.32)",
     borderRadius: 999,
     borderWidth: 1,
@@ -10712,7 +10728,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   journalDarkMeditationScriptureBox: {
-    backgroundColor: "#151a19",
+    backgroundColor: "#161616",
     borderColor: "rgba(233, 183, 106, 0.24)"
   },
   journalMeditationReference: {

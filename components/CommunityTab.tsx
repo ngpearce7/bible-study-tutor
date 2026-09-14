@@ -263,7 +263,7 @@ export function CommunityTab(props: any) {
         {communitySubView === "encourage" ? (
           <>
         <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
-        <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
+        <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
           <Pressable
             disabled={!phoneLayout}
             onPress={() => toggleRememberedPanel(setMobileFriendsPanelOpen, "communityFriendsPanelOpen")}
@@ -287,7 +287,7 @@ export function CommunityTab(props: any) {
               </Text>
               {COMMUNITY_CIRCLES_ENABLED && isAuthenticated ? (
                 <>
-              <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
+              <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
                 <Text style={[styles.circleManagementLabel, communityDarkMode && styles.studyDarkAccentText]}>Your friend code</Text>
                 <View style={[styles.circleChip, communityDarkMode && styles.accountDarkSection]}>
                   <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
@@ -419,7 +419,7 @@ export function CommunityTab(props: any) {
             </>
           )}
         </View>
-        <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel]}>
+        <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
           <Pressable
             disabled={!phoneLayout}
             onPress={() => toggleRememberedPanel(setMobileCirclesPanelOpen, "communityCirclesPanelOpen")}
@@ -519,7 +519,7 @@ export function CommunityTab(props: any) {
                   <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Create one or join with an invite code when you are ready.</Text>
                 </View>
               )}
-              <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox]}>
+              <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
                 <Pressable onPress={() => toggleRememberedPanel(setCircleManagerOpen, "communityCircleToolsOpen")} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
                   <Ionicons name="settings-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
                   <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>

@@ -8249,7 +8249,7 @@ function HomeScreen() {
               </View>
 
               <View style={styles.homeScriptureGrid}>
-                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock, styles.openSection]}>
                   <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
                     <HydrationSafeIonicon ready={iconFontReady} name="heart-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
@@ -8257,7 +8257,7 @@ function HomeScreen() {
                   <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Draw near to God, and he will draw near to you.”</Text>
                   <Text style={[styles.homeScriptureNote, homeDarkMode && styles.accountDarkMutedText]}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
                 </View>
-                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock, styles.openSection]}>
                   <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
                     <HydrationSafeIonicon ready={iconFontReady} name="book-outline" size={20} color={homeDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
@@ -8342,7 +8342,7 @@ function HomeScreen() {
           <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout, studyDarkMode && styles.accountDarkLayout]}>
             <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard, studyDarkMode && styles.accountDarkMainCard]}>
               {studyPhase !== "saved" && (
-              <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader, studyDarkMode && styles.studyDarkGuidedHeader]}>
+              <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader, styles.openSection]}>
                 <View style={[styles.studyGuidedTopRow, phoneLayout && styles.phoneStudyGuidedTopRow]}>
                   <View style={[styles.studyGuidedTitleBlock, phoneLayout && styles.phoneStudyGuidedTitleBlock]}>
                     <Eyebrow>Guided study</Eyebrow>
@@ -8422,7 +8422,7 @@ function HomeScreen() {
 
               {studyPhase !== "saved" && !studyFocusMode && (
                 <>
-                  <View style={[styles.smartPassageBox, studyDarkMode && styles.studyDarkSmartPassageBox]}>
+                  <View style={[styles.smartPassageBox, styles.openSection]}>
                     <View style={[styles.smartPassageHeader, studyDarkMode && styles.accountDarkInput]}>
                       <Ionicons name="search-outline" size={20} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                       <TextInput
@@ -9008,7 +9008,7 @@ function HomeScreen() {
                   </View>
                 </View>
               ) : (
-                <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel]}>
+                <View style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel, styles.openSection, styles.sectionDivider, studyDarkMode && styles.darkSectionDivider]}>
                   {method.id === "lectio" && (
                     <View style={[styles.contemplativeTimerBox, studyDarkMode && styles.accountDarkSection]}>
                       <Pressable
@@ -10677,7 +10677,7 @@ function HomeScreen() {
               <Eyebrow>Account & access</Eyebrow>
               <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your account"}</Text>
               <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>{isAuthenticated ? "Manage your profile, sign-in details, and preferences." : "Sign in or create an account to keep your studies across devices."}</Text>
-              <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection]}>
+              <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{isAuthenticated ? "Your account" : authFlow === "signIn" ? "Sign in" : "Create account"}</Text>
                 {isAuthenticated ? (
                   <>
@@ -10772,7 +10772,7 @@ function HomeScreen() {
                 {isAuthenticated && accountIdentity?.authPasswordAccountId && <Suspense fallback={<Text>Loading recovery options…</Text>}><View style={styles.accountRecoveryOptions}><RecoveryCode accountId={accountIdentity.authPasswordAccountId} darkMode={accountDarkMode} /></View></Suspense>}
                 {isAuthenticated && !!authStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{authStatus}</Text>}
               </View>
-              <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection]}>
+              <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Older data on this device</Text>
                 <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>If you used an older version of this app, you can copy its saved device data into your current profile. On a shared device, only import data that belongs to you. Existing saved data will be kept.</Text>
                 <AppButton label="Import older device data" variant="secondary" style={accountDarkMode && styles.accountDarkInsetBox} labelStyle={accountDarkMode && styles.accountDarkText} onPress={async () => {
@@ -10782,7 +10782,7 @@ function HomeScreen() {
                 {!!importStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{importStatus}</Text>}
               </View>
               {isAuthenticated && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                   <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Personal details</Text>
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>This is how the app refers to you in encouraging prompts, account details, and community spaces.</Text>
                   <TextInput accessibilityLabel="Display name" value={displayName} onChangeText={setDisplayName} placeholder="Display name" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, accountDarkMode && styles.accountDarkInput]} />
@@ -10812,7 +10812,7 @@ function HomeScreen() {
                 </View>
               )}
               {isAuthenticated && profile?.authProvider === "password" && (
-                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+                <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                   <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Change password</Text>
                   <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Use this if you signed in with email or username and password.</Text>
                   <TextInput
@@ -10839,10 +10839,10 @@ function HomeScreen() {
                   {!!passwordStatus && <Text style={styles.saveStatus}>{passwordStatus}</Text>}
                 </View>
               )}
-              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}>
+              <View style={[styles.accountSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                 <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>App preferences</Text>
                 <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Choose how Bible Study Tutor reads, looks, and supports your study rhythm.</Text>
-                <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="book-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
                     <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Bible translations</Text>
@@ -10877,7 +10877,7 @@ function HomeScreen() {
                   </View>
                 </View>
                 {DARK_MODE_ENABLED && (
-                  <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                  <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                     <View style={styles.feedbackHeader}>
                       <Ionicons name="moon-outline" size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
                       <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Appearance</Text>
@@ -10913,7 +10913,7 @@ function HomeScreen() {
                   </View>
                 )}
                 {isAuthenticated && (
-                  <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                  <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                     <View style={styles.feedbackHeader}>
                       <Ionicons name={showCoaching ? "bulb" : "bulb-outline"} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
                       <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Coaching preference</Text>
@@ -10943,7 +10943,7 @@ function HomeScreen() {
                 onLayout={(event) => {
                   accountLegalYRef.current = event.nativeEvent.layout.y;
                 }}
-                style={[styles.accountSection, accountDarkMode && styles.accountDarkSection]}
+                style={[styles.accountSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}
               >
                 <Pressable
                   onPress={() => setRememberedAccountPrivacyOpen((open) => !open)}
@@ -10962,7 +10962,7 @@ function HomeScreen() {
                 {accountPrivacyOpen && (
                   <View style={styles.accountCollapsibleBody}>
                     {isAuthenticated && (
-                      <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                      <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                         <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Your saved data</Text>
                         <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                           A simple summary of what Bible Study Tutor is currently keeping for you. This does not show private note content.
@@ -10985,7 +10985,7 @@ function HomeScreen() {
                         </Text>
                       </View>
                     )}
-                    <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                    <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                       <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Legal</Text>
                       <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Privacy and terms for Bible Study Tutor. These explain how the app stores data, supports accounts, and sets expectations for safe use.</Text>
                       <Suspense fallback={<Text>Loading document…</Text>}><LegalDocument
@@ -11006,7 +11006,7 @@ function HomeScreen() {
                       /></Suspense>
                     </View>
                     {isAuthenticated && (
-                      <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox]}>
+                      <View style={[styles.accountSubsection, accountDarkMode && styles.accountDarkInsetBox, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
                         <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Account deletion</Text>
                         <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
                           You can request deletion of your saved app data. For safety, requests are reviewed by an administrator before anything is removed.
@@ -13297,8 +13297,8 @@ function CollapsibleStudyPanel({
   children: any;
 }) {
   return (
-    <View style={[style, darkMode && styles.accountDarkSection]}>
-      <Pressable onPress={onToggle} style={styles.collapsiblePanelHeader}>
+    <View style={[style, styles.openSection, styles.sectionDivider, darkMode && styles.darkSectionDivider]}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: !collapsed }} onPress={onToggle} style={styles.collapsiblePanelHeader}>
         <View style={[styles.feedbackHeader, styles.collapsiblePanelTitle]}>
           <Ionicons name={icon as any} size={18} color={darkMode ? "#e9b76a" : colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.studyDarkAccentText]}>{title}</Text>

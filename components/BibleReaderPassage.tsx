@@ -209,9 +209,9 @@ export function BibleReaderPassage({
         onLayout={onPassageLayout}
         style={[
           styles.readerPassageBox,
+          styles.openSection,
           phoneLayout && styles.phoneReaderPassageBox,
           phoneLayout && selectedVerses.length > 0 && styles.phoneReaderPassageWithSelectionDock,
-          darkMode && styles.accountDarkInsetBox
         ]}
       >
         {passage.verses.map((verse) => {

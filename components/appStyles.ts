@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
   },
   connectionErrorBanner: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.coral,
     borderRadius: 12,
     borderWidth: 1,
@@ -56,7 +56,7 @@ export const styles = StyleSheet.create({
   },
   mobileMenuBar: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderBottomColor: "rgba(108, 91, 67, 0.18)",
     borderBottomWidth: 1,
     elevation: 20,
@@ -71,7 +71,7 @@ export const styles = StyleSheet.create({
     zIndex: 100
   },
   appDarkMobileMenuBar: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderBottomColor: "rgba(233, 183, 106, 0.18)"
   },
   mobileMenuButton: {
@@ -103,7 +103,7 @@ export const styles = StyleSheet.create({
     fontWeight: "600"
   },
   sidebar: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(108, 91, 67, 0.18)",
     borderRightWidth: 1,
     gap: 22,
@@ -111,7 +111,7 @@ export const styles = StyleSheet.create({
     width: 200
   },
   appDarkSidebar: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   compactSidebar: {
@@ -217,7 +217,7 @@ export const styles = StyleSheet.create({
     overflow: "hidden"
   },
   appDarkProgressTrack: {
-    backgroundColor: "#161616"
+    backgroundColor: "#242424"
   },
   progressFill: {
     backgroundColor: colors.coral,
@@ -315,7 +315,7 @@ export const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   homePurposePanel: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.22)",
     borderRadius: 14,
     borderWidth: 0,
@@ -323,7 +323,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   homeDarkPurposePanel: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homePurposeTitle: {
@@ -354,7 +354,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   homeDarkPurposePill: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   homePurposePillText: {
@@ -383,7 +383,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   homeScriptureBlock: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 0,
@@ -394,7 +394,7 @@ export const styles = StyleSheet.create({
     padding: 20
   },
   homeDarkScriptureBlock: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeScriptureIcon: {
@@ -458,7 +458,7 @@ export const styles = StyleSheet.create({
   },
   homePathItem: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 0,
@@ -469,21 +469,21 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   homeContinueItem: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.52)",
     borderWidth: 1.5
   },
   homeDarkContinueItem: {
-    backgroundColor: "#211d18",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.38)",
     borderWidth: 1.5
   },
   homeDarkPathItem: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeDarkMetric: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)",
     borderWidth: 1
   },
@@ -491,7 +491,7 @@ export const styles = StyleSheet.create({
     color: "#e9b76a"
   },
   homeDarkResumeButton: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.26)"
   },
   homeDarkResumeButtonText: {
@@ -528,7 +528,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   homeWeeklyRhythmPanel: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(53, 74, 45, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -536,7 +536,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   homeDarkWeeklyRhythmPanel: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   homeWeeklyRhythmHeader: {
@@ -606,7 +606,7 @@ export const styles = StyleSheet.create({
   },
   collapsedReaderIconButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -624,7 +624,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   bibleSearchPanel: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -683,7 +683,7 @@ export const styles = StyleSheet.create({
   },
   bibleSearchClearButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -700,7 +700,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   bibleSearchSummaryBlock: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.28)",
     borderRadius: 12,
     borderWidth: 1,
@@ -723,7 +723,7 @@ export const styles = StyleSheet.create({
     lineHeight: 17
   },
   mobileBibleCriteriaDropdown: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -954,7 +954,7 @@ export const styles = StyleSheet.create({
     textAlign: "center"
   },
   bibleSearchResultCard: {
-    backgroundColor: "white",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1020,7 +1020,7 @@ export const styles = StyleSheet.create({
   },
   mobileReaderDropdownButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1049,7 +1049,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   mobileReaderBookOption: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1069,7 +1069,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   mobileReaderChapterPanel: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1085,7 +1085,7 @@ export const styles = StyleSheet.create({
   mobileReaderChapterSquare: {
     alignItems: "center",
     aspectRatio: 1,
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
@@ -1143,7 +1143,7 @@ export const styles = StyleSheet.create({
   },
   memoryChapterAllSquare: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
@@ -1186,7 +1186,7 @@ export const styles = StyleSheet.create({
     gap: 6
   },
   bibleReadingPlanPanel: {
-    backgroundColor: "#fffaf3",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -1226,7 +1226,7 @@ export const styles = StyleSheet.create({
   },
   bibleReadingPlanChip: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1241,7 +1241,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   bibleReadingPlanToday: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1269,7 +1269,7 @@ export const styles = StyleSheet.create({
     gap: 7
   },
   bibleReadingPlanMetaChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 11,
@@ -1280,7 +1280,7 @@ export const styles = StyleSheet.create({
   },
   bibleReadingPlanDoneRow: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.24)",
     borderRadius: 12,
     borderWidth: 1,
@@ -1363,7 +1363,7 @@ export const styles = StyleSheet.create({
   },
   readerHistoryChip: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1410,7 +1410,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   readerReadChapterBook: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1451,7 +1451,7 @@ export const styles = StyleSheet.create({
   },
   readerReadChapterChip: {
     alignItems: "center",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
@@ -1467,7 +1467,7 @@ export const styles = StyleSheet.create({
   },
   readerBookmarkHeader: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1503,7 +1503,7 @@ export const styles = StyleSheet.create({
   readerBookmarkFilterChip: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1540,7 +1540,7 @@ export const styles = StyleSheet.create({
   },
   readerBookmarkOpen: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1559,7 +1559,7 @@ export const styles = StyleSheet.create({
   },
   readerBookmarkIconButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1618,7 +1618,7 @@ export const styles = StyleSheet.create({
   },
   readerBookChip: {
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1638,7 +1638,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   desktopReaderChapterPanel: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1673,7 +1673,7 @@ export const styles = StyleSheet.create({
   },
   readerNavIconButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1698,7 +1698,7 @@ export const styles = StyleSheet.create({
   },
   readerChapterControl: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1758,7 +1758,7 @@ export const styles = StyleSheet.create({
   },
   readerReadButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1806,7 +1806,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   mobileReaderSelectionDock: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.22)",
     borderRadius: 14,
     borderWidth: 1,
@@ -1888,7 +1888,7 @@ export const styles = StyleSheet.create({
     padding: 9
   },
   readerPassageBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -1918,7 +1918,7 @@ export const styles = StyleSheet.create({
   },
   readerPlanCompletionBox: {
     alignItems: "stretch",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1935,7 +1935,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   readerPlanDevotionalBox: {
-    backgroundColor: "rgba(255, 250, 242, 0.76)",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1999,7 +1999,7 @@ export const styles = StyleSheet.create({
   },
   readerBottomNavButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -2093,7 +2093,7 @@ export const styles = StyleSheet.create({
   },
   selectedMarkupCloseButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -2121,7 +2121,7 @@ export const styles = StyleSheet.create({
   },
   inlineReaderBookmarkButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -2151,7 +2151,7 @@ export const styles = StyleSheet.create({
   },
   readerSelectionBar: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -2238,7 +2238,7 @@ export const styles = StyleSheet.create({
   },
   studyGuidedHeader: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -2389,7 +2389,7 @@ export const styles = StyleSheet.create({
     padding: 8
   },
   compactMethodChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 10,
     minWidth: 170,
     paddingHorizontal: 10,
@@ -2458,7 +2458,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.sage
   },
   skippedStudyProgressPill: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line
   },
   activeStudyProgressPill: {
@@ -2562,7 +2562,7 @@ export const styles = StyleSheet.create({
   },
   coachingToggleRow: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
@@ -2615,7 +2615,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22
   },
   smartPassageBox: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.coral,
     borderRadius: 14,
     borderWidth: 2,
@@ -2626,7 +2626,7 @@ export const styles = StyleSheet.create({
   },
   smartPassageHeader: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -2665,7 +2665,7 @@ export const styles = StyleSheet.create({
   },
   noteFormatToolbar: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -2705,7 +2705,7 @@ export const styles = StyleSheet.create({
   mobileNoteFormatBar: {
     alignItems: "center",
     alignSelf: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -2837,7 +2837,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   writingPromptBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3029,7 +3029,7 @@ export const styles = StyleSheet.create({
     lineHeight: 17
   },
   savedStepBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.2)",
     borderRadius: 14,
     borderWidth: 1,
@@ -3067,7 +3067,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   coachingBox: {
-    backgroundColor: colors.sage,
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.2)",
     borderRadius: 14,
     borderWidth: 1,
@@ -3102,7 +3102,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   collapsedCoachingBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3128,7 +3128,7 @@ export const styles = StyleSheet.create({
   },
   aiOptionCard: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3179,7 +3179,7 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase"
   },
   studyPlansBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3219,7 +3219,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   currentPlanBox: {
-    backgroundColor: colors.sage,
+    backgroundColor: colors.panel,
     borderRadius: 12,
     gap: 5,
     padding: 11
@@ -3318,7 +3318,7 @@ export const styles = StyleSheet.create({
   },
   planDayRow: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     flexDirection: "row",
     gap: 9,
@@ -3364,7 +3364,7 @@ export const styles = StyleSheet.create({
     lineHeight: 16
   },
   feedbackOptionsBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3388,7 +3388,7 @@ export const styles = StyleSheet.create({
     borderWidth: 2
   },
   aiDetailsBox: {
-    backgroundColor: colors.sage,
+    backgroundColor: colors.panel,
     borderRadius: 12,
     gap: 5,
     padding: 11
@@ -3404,7 +3404,7 @@ export const styles = StyleSheet.create({
     lineHeight: 19
   },
   studyHelpsBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3412,7 +3412,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   communityBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3450,7 +3450,7 @@ export const styles = StyleSheet.create({
     lineHeight: 21
   },
   communityFocusBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3564,7 +3564,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   communityTargetPickerPanel: {
-    backgroundColor: "rgba(255, 255, 255, 0.62)",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3624,18 +3624,18 @@ export const styles = StyleSheet.create({
     marginBottom: 12
   },
   lastCheckinBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     padding: 11
   },
   emptyCommunityBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     gap: 5,
     padding: 12
   },
   checkinHistoryItem: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3722,7 +3722,7 @@ export const styles = StyleSheet.create({
   },
   communityPanelHeader: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -3748,7 +3748,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   partnerManagerBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3763,7 +3763,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   communityGoalBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -3828,7 +3828,7 @@ export const styles = StyleSheet.create({
     textAlign: "right"
   },
   communityCircleBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -3837,7 +3837,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   circleManagementBox: {
-    backgroundColor: "rgba(255, 255, 255, 0.58)",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3849,7 +3849,7 @@ export const styles = StyleSheet.create({
     padding: 8
   },
   circleSelectorPanel: {
-    backgroundColor: "rgba(102, 114, 78, 0.07)",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -3921,7 +3921,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   circleChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -4035,7 +4035,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   circlePostCard: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -4109,7 +4109,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   partnerChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -4139,7 +4139,7 @@ export const styles = StyleSheet.create({
     lineHeight: 17
   },
   accountabilitySummaryBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -4152,7 +4152,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   sendNoteBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.2)",
     borderRadius: 12,
     borderWidth: 1,
@@ -4196,7 +4196,7 @@ export const styles = StyleSheet.create({
     textAlign: "center"
   },
   shareInsightBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.25)",
     borderRadius: 14,
     borderWidth: 1,
@@ -4210,7 +4210,7 @@ export const styles = StyleSheet.create({
     textAlignVertical: "top"
   },
   shareInsightCommunityBox: {
-    backgroundColor: "rgba(255, 255, 255, 0.58)",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -4220,7 +4220,7 @@ export const styles = StyleSheet.create({
   },
   savedSummaryBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.22)",
     borderRadius: 16,
     borderWidth: 1,
@@ -4229,7 +4229,7 @@ export const styles = StyleSheet.create({
   },
   savedSummaryIcon: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 999,
     height: 54,
     justifyContent: "center",
@@ -4246,7 +4246,7 @@ export const styles = StyleSheet.create({
     gap: 6
   },
   savedSummaryPanel: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     padding: 12,
     width: "100%"
@@ -4327,7 +4327,7 @@ export const styles = StyleSheet.create({
   },
   helpLink: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     flexDirection: "row",
     gap: 10,
@@ -4355,7 +4355,7 @@ export const styles = StyleSheet.create({
     lineHeight: 17
   },
   scriptureBox: {
-    backgroundColor: "#fff3e8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -4449,7 +4449,7 @@ export const styles = StyleSheet.create({
   memoryVerseBadge: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff3e8",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
@@ -4568,7 +4568,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 11
   },
   clearAllMarkupButton: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.35)",
     borderWidth: 1
   },
@@ -4586,7 +4586,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   markupNoteBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -4708,7 +4708,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   studyContextPreviewBox: {
-    backgroundColor: "rgba(255, 246, 235, 0.78)",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.18)",
     borderRadius: 10,
     borderWidth: 1,
@@ -4768,7 +4768,7 @@ export const styles = StyleSheet.create({
   },
   studyCrossReferenceChip: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -4814,7 +4814,7 @@ export const styles = StyleSheet.create({
     width: 30
   },
   studyDarkPreviewBox: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   studyDarkContextVerseRow: {
@@ -4824,7 +4824,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(233, 183, 106, 0.12)"
   },
   studyDarkCrossReferenceChip: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkActiveCrossReferenceChip: {
@@ -4836,7 +4836,7 @@ export const styles = StyleSheet.create({
     marginTop: 9
   },
   translationComparisonBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -4930,7 +4930,7 @@ export const styles = StyleSheet.create({
     marginBottom: 14
   },
   guidedStudyStepPanel: {
-    backgroundColor: "#fffefa",
+    backgroundColor: colors.panel,
     borderRadius: 14,
     borderColor: colors.line,
     borderWidth: 1,
@@ -4938,7 +4938,7 @@ export const styles = StyleSheet.create({
     padding: 16
   },
   methodGuidedExampleBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -4958,7 +4958,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22
   },
   contemplativeTimerBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -5013,7 +5013,7 @@ export const styles = StyleSheet.create({
     minHeight: 240
   },
   reviewBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -5031,7 +5031,7 @@ export const styles = StyleSheet.create({
     marginBottom: 14
   },
   reviewAnswer: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     padding: 12
   },
@@ -5075,7 +5075,7 @@ export const styles = StyleSheet.create({
     lineHeight: 18
   },
   instructionBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -5155,7 +5155,7 @@ export const styles = StyleSheet.create({
     lineHeight: 21
   },
   outputBox: {
-    backgroundColor: colors.sage,
+    backgroundColor: colors.panel,
     borderRadius: 12,
     padding: 12
   },
@@ -5174,7 +5174,7 @@ export const styles = StyleSheet.create({
   },
   readyBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.25)",
     borderRadius: 14,
     borderWidth: 1,
@@ -5184,7 +5184,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   methodSupportBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.24)",
     borderRadius: 14,
     borderWidth: 1,
@@ -5257,13 +5257,13 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   methodContextPreview: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     gap: 7,
     padding: 11
   },
   methodContextWholeChapter: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     color: colors.muted,
     fontSize: 13,
@@ -5307,7 +5307,7 @@ export const styles = StyleSheet.create({
   },
   scriptureInsertBox: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -5343,7 +5343,7 @@ export const styles = StyleSheet.create({
   },
   scriptureInsertCloseButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -5466,7 +5466,7 @@ export const styles = StyleSheet.create({
     marginTop: 4
   },
   planBrowseSection: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -5474,7 +5474,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   planBrowseSectionDark: {
-    backgroundColor: "#181510",
+    backgroundColor: "#242424",
     borderColor: "#3a3329"
   },
   planBrowseSectionHeader: {
@@ -5536,7 +5536,7 @@ export const styles = StyleSheet.create({
     marginTop: 0
   },
   completedReadingPlanCard: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -5578,7 +5578,7 @@ export const styles = StyleSheet.create({
     justifyContent: "flex-start"
   },
   completedReadingPlanRemoveButton: {
-    backgroundColor: "#fffdf8"
+    backgroundColor: colors.panel
   },
   planPageCard: {
     gap: 10,
@@ -5589,12 +5589,12 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   followingBiblePlanCard: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.coral,
     borderWidth: 1.5
   },
   followingBiblePlanCardDark: {
-    backgroundColor: "#211d18",
+    backgroundColor: "#242424",
     borderColor: "#e9b76a"
   },
   phonePlanPageCard: {
@@ -5667,7 +5667,7 @@ export const styles = StyleSheet.create({
     borderColor: "#4f4636"
   },
   planCardDangerChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "#f0c4b7"
   },
   planCardDangerChipDark: {
@@ -5715,7 +5715,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   planDetailsPanel: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -5749,7 +5749,7 @@ export const styles = StyleSheet.create({
   },
   planSampleReading: {
     alignItems: "center",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -5787,7 +5787,7 @@ export const styles = StyleSheet.create({
     alignSelf: "flex-start"
   },
   currentPlanWideBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -5823,7 +5823,7 @@ export const styles = StyleSheet.create({
   },
   planPageDay: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     flexDirection: "row",
     gap: 9,
@@ -5856,7 +5856,7 @@ export const styles = StyleSheet.create({
   },
   planDayTile: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -5954,7 +5954,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   planDayDevotionalBox: {
-    backgroundColor: "rgba(255, 250, 242, 0.72)",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -5964,7 +5964,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   planDayDevotionalBoxDark: {
-    backgroundColor: "#181510",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   planDayDevotionalHeader: {
@@ -6178,7 +6178,7 @@ export const styles = StyleSheet.create({
   },
   currentPlanNextBox: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6205,7 +6205,7 @@ export const styles = StyleSheet.create({
     gap: 6
   },
   planDayTextAction: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -6238,7 +6238,7 @@ export const styles = StyleSheet.create({
     gap: 14
   },
   accountSection: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -6248,7 +6248,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   accountSubsection: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6286,27 +6286,27 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0
   },
   accountDarkSection: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   accountDarkInsetBox: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   accountDarkLegalDocBox: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   accountDarkOptionCard: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   accountDarkActiveOptionCard: {
-    backgroundColor: "#343434",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.48)"
   },
   accountDarkInput: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.2)",
     color: "#f7eddc"
   },
@@ -6333,15 +6333,15 @@ export const styles = StyleSheet.create({
     backgroundColor: "#8f6a35"
   },
   studyDarkGuidedHeader: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkPillControl: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.22)"
   },
   studyDarkTogglePill: {
-    backgroundColor: "#161616"
+    backgroundColor: "#242424"
   },
   studyDarkAccentText: {
     color: "#e9b76a"
@@ -6350,11 +6350,11 @@ export const styles = StyleSheet.create({
     backgroundColor: "#343434"
   },
   studyDarkSmartPassageBox: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.34)"
   },
   studyDarkProgressPill: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.14)"
   },
   studyDarkCompletedProgressPill: {
@@ -6374,11 +6374,11 @@ export const styles = StyleSheet.create({
     color: "#171b1c"
   },
   studyDarkScriptureBox: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   studyDarkVerseRow: {
-    backgroundColor: "rgba(247, 237, 220, 0.04)"
+    backgroundColor: "transparent"
   },
   studyDarkFloatingBar: {
     backgroundColor: "#242424",
@@ -6389,12 +6389,12 @@ export const styles = StyleSheet.create({
     borderTopColor: "rgba(233, 183, 106, 0.16)"
   },
   bibleDarkSearchSelect: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)",
     color: "#f7eddc"
   },
   bibleDarkVerseRow: {
-    backgroundColor: "rgba(247, 237, 220, 0.035)"
+    backgroundColor: "transparent"
   },
   bibleDarkMobileSelectionDock: {
     backgroundColor: "#242424",
@@ -6403,7 +6403,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.22
   },
   bibleDarkMobileNoteEditor: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   plansDarkProgressTrack: {
@@ -6414,7 +6414,7 @@ export const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   plansDarkDayRow: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.14)",
     borderWidth: 1
   },
@@ -6436,7 +6436,7 @@ export const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   methodsDarkPill: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)",
     color: "#f7eddc"
   },
@@ -6453,30 +6453,30 @@ export const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   memoryDarkActiveCard: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(201, 103, 80, 0.34)"
   },
   memoryDarkReviewPill: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)",
     borderWidth: 1,
     color: "#f7eddc"
   },
   memoryDarkDueReviewPill: {
-    backgroundColor: "#2b2b2b",
+    backgroundColor: "#242424",
     borderColor: "rgba(201, 103, 80, 0.7)",
     borderWidth: 1,
     color: "#f2a08c"
   },
   memoryDarkPracticeText: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     color: "#f7eddc"
   },
   memoryDarkFillBox: {
-    backgroundColor: "#1e1e1e"
+    backgroundColor: "#242424"
   },
   journalDarkCalendarDayCell: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   journalDarkActiveCalendarDayCell: {
@@ -6488,11 +6488,11 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(233, 183, 106, 0.34)"
   },
   studyDarkStepPanel: {
-    backgroundColor: "#181818",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.24)"
   },
   studyDarkFormatButton: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.2)"
   },
   signedInBadgeRow: {
@@ -6523,7 +6523,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   freeAccountBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "#edd8bd",
     borderRadius: 12,
     borderWidth: 1,
@@ -6623,10 +6623,10 @@ export const styles = StyleSheet.create({
     gap: 10
   },
   accountOptionCard: {
-    backgroundColor: "#fff6eb"
+    backgroundColor: colors.panel
   },
   legalDocBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6663,7 +6663,7 @@ export const styles = StyleSheet.create({
     lineHeight: 19
   },
   translationLockedBox: {
-    backgroundColor: "#fbf2e4",
+    backgroundColor: colors.panel,
     borderColor: "#ead8bc",
     borderRadius: 12,
     borderWidth: 1,
@@ -6692,7 +6692,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   accountStatusBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -6706,7 +6706,7 @@ export const styles = StyleSheet.create({
   },
   accountHealthItem: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6747,7 +6747,7 @@ export const styles = StyleSheet.create({
     width: 44
   },
   phoneMemoryHeaderAddPanel: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6769,7 +6769,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(102, 114, 78, 0.28)"
   },
   memoryReviewEncourageBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.22)"
   },
   memoryReviewPromptText: {
@@ -6819,7 +6819,7 @@ export const styles = StyleSheet.create({
   },
   memoryPrintCardsButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -6863,7 +6863,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   memoryDiscoverBlock: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6899,7 +6899,7 @@ export const styles = StyleSheet.create({
   },
   memoryCollectionSelect: {
     alignItems: "center",
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6911,7 +6911,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   memoryCollectionPickerPanel: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6951,7 +6951,7 @@ export const styles = StyleSheet.create({
     gap: 12
   },
   memoryHistorySummaryBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -6970,7 +6970,7 @@ export const styles = StyleSheet.create({
   },
   memoryHistoryEncouragementBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.22)",
     borderRadius: 12,
     borderWidth: 1,
@@ -7009,7 +7009,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   memoryWeeklySummaryBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7032,7 +7032,7 @@ export const styles = StyleSheet.create({
     flex: 1.4
   },
   memoryWeeklyScriptureBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.2)",
     borderRadius: 10,
     borderWidth: 1,
@@ -7061,7 +7061,7 @@ export const styles = StyleSheet.create({
   },
   memoryMilestoneItem: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7070,7 +7070,7 @@ export const styles = StyleSheet.create({
     padding: 9
   },
   memoryMilestonePicker: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7106,7 +7106,7 @@ export const styles = StyleSheet.create({
     lineHeight: 15
   },
   memoryHistoryHighlight: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7118,7 +7118,7 @@ export const styles = StyleSheet.create({
   },
   memoryHistoryItem: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7147,7 +7147,7 @@ export const styles = StyleSheet.create({
   memoryHistoryMoreButton: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -7182,7 +7182,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   memoryVerseHistoryBox: {
-    backgroundColor: "rgba(255, 250, 242, 0.82)",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7191,7 +7191,7 @@ export const styles = StyleSheet.create({
   },
   memoryVerseProgressBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.18)",
     borderRadius: 10,
     borderWidth: 1,
@@ -7229,7 +7229,7 @@ export const styles = StyleSheet.create({
   },
   memoryFocusBanner: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.25)",
     borderRadius: 12,
     borderWidth: 1,
@@ -7261,7 +7261,7 @@ export const styles = StyleSheet.create({
     fontWeight: "900"
   },
   reviewScheduleBox: {
-    backgroundColor: "rgba(255, 250, 242, 0.82)",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7275,7 +7275,7 @@ export const styles = StyleSheet.create({
     paddingTop: 12
   },
   memoryBulkReviewBox: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7408,7 +7408,7 @@ export const styles = StyleSheet.create({
     color: "#cde0c8"
   },
   memoryCard: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -7437,7 +7437,7 @@ export const styles = StyleSheet.create({
     color: "#f7eddc"
   },
   memoryCollectionManageBox: {
-    backgroundColor: "rgba(255, 250, 242, 0.82)",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7477,7 +7477,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 14
   },
   memoryCollectionSuggestionPill: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -7494,7 +7494,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   activeMemoryCard: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.28)"
   },
   phoneMemoryCardHeader: {
@@ -7581,14 +7581,14 @@ export const styles = StyleSheet.create({
     gap: 10
   },
   phoneInlineMemoryPractice: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     padding: 10
   },
   memoryMeditationBox: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -7642,7 +7642,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   memoryMeditationVerse: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
@@ -7687,7 +7687,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   memoryPracticeBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -7695,7 +7695,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   memoryPracticeText: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     color: colors.ink,
     fontSize: 20,
@@ -7775,7 +7775,7 @@ export const styles = StyleSheet.create({
   },
   memoryFillBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     flexDirection: "row",
     flexWrap: "wrap",
@@ -7812,7 +7812,7 @@ export const styles = StyleSheet.create({
   },
   methodIconButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -7836,7 +7836,7 @@ export const styles = StyleSheet.create({
     gap: 6
   },
   methodLabelPill: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -7855,7 +7855,7 @@ export const styles = StyleSheet.create({
   },
   currentMethodStrip: {
     alignItems: "center",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -7890,7 +7890,7 @@ export const styles = StyleSheet.create({
   },
   methodToolbarButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -7926,7 +7926,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   methodFilterChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -7975,7 +7975,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   methodRecommendChoice: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -8036,7 +8036,7 @@ export const styles = StyleSheet.create({
   },
   methodStepPreview: {
     alignItems: "flex-start",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -8080,7 +8080,7 @@ export const styles = StyleSheet.create({
   },
   methodWatchBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.24)",
     borderRadius: 10,
     borderWidth: 1,
@@ -8176,7 +8176,7 @@ export const styles = StyleSheet.create({
   },
   journalSearchBox: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -8251,7 +8251,7 @@ export const styles = StyleSheet.create({
   clearDateFilterButton: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -8299,7 +8299,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   journalFilterPanel: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 13,
     borderWidth: 1,
@@ -8340,7 +8340,7 @@ export const styles = StyleSheet.create({
   },
   journalGuideBox: {
     alignItems: "flex-start",
-    backgroundColor: colors.sage,
+    backgroundColor: colors.panel,
     borderRadius: 12,
     flexDirection: "row",
     gap: 9,
@@ -8359,7 +8359,7 @@ export const styles = StyleSheet.create({
     lineHeight: 19
   },
   journalCalendarBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -8412,7 +8412,7 @@ export const styles = StyleSheet.create({
     minHeight: 44
   },
   activeCalendarDayCell: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.34)"
   },
   selectedCalendarDayCell: {
@@ -8443,7 +8443,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   journalScriptureBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -8455,13 +8455,13 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   journalScriptureActiveBookChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.34)"
   },
   journalScriptureChapterSquare: {
     alignItems: "center",
     aspectRatio: 1,
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
@@ -8482,7 +8482,7 @@ export const styles = StyleSheet.create({
   dateFilterNotice: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
@@ -8524,7 +8524,7 @@ export const styles = StyleSheet.create({
   },
   highlightLibraryPanel: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.28)",
     borderRadius: 14,
     borderWidth: 1,
@@ -8563,7 +8563,7 @@ export const styles = StyleSheet.create({
     lineHeight: 19
   },
   reflectionBox: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -8582,7 +8582,7 @@ export const styles = StyleSheet.create({
   },
   emptyJournalBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -8606,7 +8606,7 @@ export const styles = StyleSheet.create({
   },
   addMemoryBox: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.24)",
     borderRadius: 14,
     borderWidth: 1,
@@ -8702,7 +8702,7 @@ export const styles = StyleSheet.create({
   },
   helpShareUrl: {
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -8714,7 +8714,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   helpDarkShareUrl: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.24)",
     color: "#e9b76a"
   },
@@ -8743,7 +8743,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   helpDarkQrFrame: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpQrImage: {
@@ -8767,7 +8767,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   helpCategoryChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -8859,7 +8859,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(233, 183, 106, 0.32)"
   },
   helpScreenshotFrame: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -8869,7 +8869,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkScreenshotFrame: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   helpScreenshotTopBar: {
@@ -8936,7 +8936,7 @@ export const styles = StyleSheet.create({
     width: "42%"
   },
   helpDockPreview: {
-    backgroundColor: "#fbf2e4",
+    backgroundColor: colors.panel,
     borderColor: "#ead8bc",
     borderRadius: 999,
     borderWidth: 1,
@@ -8960,7 +8960,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   helpTextAreaPreview: {
-    backgroundColor: "white",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -9065,7 +9065,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   helpGuideItem: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9075,7 +9075,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkGuideItem: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpGuideItem: {
@@ -9196,7 +9196,7 @@ export const styles = StyleSheet.create({
   },
   helpTabItem: {
     alignItems: "flex-start",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9207,7 +9207,7 @@ export const styles = StyleSheet.create({
     width: "32%"
   },
   helpDarkTabItem: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneHelpTabItem: {
@@ -9223,7 +9223,7 @@ export const styles = StyleSheet.create({
   },
   helpTroubleItem: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.24)",
     borderRadius: 12,
     borderWidth: 1,
@@ -9232,7 +9232,7 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   helpDarkTroubleItem: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   feedbackCategoryRow: {
@@ -9241,7 +9241,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   feedbackCategoryChip: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9249,7 +9249,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   helpDarkCategoryChip: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   activeFeedbackCategoryChip: {
@@ -9272,7 +9272,7 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   deletionRequestBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "#edd8bd",
     borderRadius: 12,
     borderWidth: 1,
@@ -9292,7 +9292,7 @@ export const styles = StyleSheet.create({
   },
   savedDataItem: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9308,7 +9308,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   accountDarkSavedDataItem: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   savedDataIcon: {
@@ -9343,7 +9343,7 @@ export const styles = StyleSheet.create({
   },
   iconTextButton: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9413,7 +9413,7 @@ export const styles = StyleSheet.create({
     flexDirection: "column"
   },
   adminMapCanvas: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9424,7 +9424,7 @@ export const styles = StyleSheet.create({
     position: "relative"
   },
   adminDarkMapCanvas: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.16)"
   },
   phoneAdminMapCanvas: {
@@ -9516,7 +9516,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   adminMapDetailPanel: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9535,7 +9535,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   adminMapDetailRow: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -9630,7 +9630,7 @@ export const styles = StyleSheet.create({
   },
   adminCountRow: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -9651,7 +9651,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   adminFeedbackItem: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9692,7 +9692,7 @@ export const styles = StyleSheet.create({
     gap: 6
   },
   securitySummaryTile: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -9714,7 +9714,7 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase"
   },
   securityTypeBox: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9728,7 +9728,7 @@ export const styles = StyleSheet.create({
   },
   securityTypeChip: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9749,7 +9749,7 @@ export const styles = StyleSheet.create({
   },
   suspensionReasonBox: {
     alignSelf: "stretch",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9768,7 +9768,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(201, 103, 80, 0.35)"
   },
   adminReviewBox: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9783,7 +9783,7 @@ export const styles = StyleSheet.create({
     textAlignVertical: "top"
   },
   adminDirectoryTools: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9792,7 +9792,7 @@ export const styles = StyleSheet.create({
   },
   adminDirectorySearchBox: {
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9825,7 +9825,7 @@ export const styles = StyleSheet.create({
   adminDirectoryShowMore: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9840,7 +9840,7 @@ export const styles = StyleSheet.create({
   },
   adminUserRow: {
     alignItems: "center",
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9886,7 +9886,7 @@ export const styles = StyleSheet.create({
     color: "#783423"
   },
   adminEventItem: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -10032,7 +10032,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   memoryBookDropdown: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -10067,7 +10067,7 @@ export const styles = StyleSheet.create({
     gap: 7
   },
   memoryBookPickerChip: {
-    backgroundColor: "#fffdf8",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -10095,7 +10095,7 @@ export const styles = StyleSheet.create({
   },
   memoryCollectionPromptSummary: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -10261,7 +10261,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   printDarkOptionChip: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   activePrintOptionChip: {
@@ -10358,16 +10358,16 @@ export const styles = StyleSheet.create({
     marginTop: 2
   },
   memoryDarkSubPanel: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.18)"
   },
   memoryDarkSoftPanel: {
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.14)"
   },
   rhythmGraceInfoBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -10401,7 +10401,7 @@ export const styles = StyleSheet.create({
   },
   rhythmGraceCountBox: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: "rgba(53, 74, 45, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
@@ -10472,7 +10472,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   printDarkCancelButton: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.32)",
     borderRadius: 999,
     borderWidth: 1,
@@ -10611,7 +10611,7 @@ export const styles = StyleSheet.create({
   },
   journalEntryTypeIcon: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 999,
     flexShrink: 0,
     height: 32,
@@ -10637,7 +10637,7 @@ export const styles = StyleSheet.create({
   },
   reviewScheduledIndicator: {
     alignItems: "center",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 999,
     flexShrink: 0,
     height: 28,
@@ -10719,13 +10719,13 @@ export const styles = StyleSheet.create({
     color: "white"
   },
   journalShareBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderRadius: 12,
     marginBottom: 10,
     padding: 12
   },
   journalMeditationScriptureBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
@@ -10735,7 +10735,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   journalDarkMeditationScriptureBox: {
-    backgroundColor: "#161616",
+    backgroundColor: "#242424",
     borderColor: "rgba(233, 183, 106, 0.24)"
   },
   journalMeditationReference: {
@@ -10770,7 +10770,7 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase"
   },
   studyReviewBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
@@ -10836,7 +10836,7 @@ export const styles = StyleSheet.create({
     lineHeight: 19
   },
   reflectionSummaryBox: {
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.24)",
     borderRadius: 12,
     borderWidth: 1,
@@ -10889,7 +10889,7 @@ export const styles = StyleSheet.create({
   resumeButton: {
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#fff6eb",
+    backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
@@ -10936,7 +10936,7 @@ export const styles = StyleSheet.create({
     width: 42
   },
   phoneMemoryMoreMenu: {
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -10945,7 +10945,7 @@ export const styles = StyleSheet.create({
   },
   phoneMemoryToolbarMoreMenu: {
     alignSelf: "stretch",
-    backgroundColor: "#fffdfa",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,

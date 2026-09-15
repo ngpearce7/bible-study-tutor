@@ -5417,6 +5417,13 @@ export const styles = StyleSheet.create({
     gap: 6,
     width: "100%"
   },
+  studyOtherActions: {
+    alignSelf: "flex-start",
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 44
+  },
   studyStepBackButton: {
     flex: 0.72,
     minHeight: 42,

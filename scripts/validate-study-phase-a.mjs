@@ -15,7 +15,7 @@ for (const transition of ["switchMethod", "resetCurrentStudy", "applyPassageQuer
 }
 assert(app.includes("Keep draft & continue") && app.includes("Discard study") && app.includes("Cancel study change"), "The study transition dialog needs keep, discard, and cancel choices.");
 assert(app.includes("saveStudyRecoveryDraft({") && app.includes("Recovered unsaved work from this device"), "Web study recovery storage is missing.");
-assert(app.includes("Draft autosave is on. Unfinished studies appear in Journal under Drafts."), "The study screen must explain automatic draft saving and where drafts are found.");
+assert(app.includes("Drafts save automatically in Journal → Drafts."), "The study screen must explain automatic draft saving and where drafts are found.");
 assert(app.includes('window.addEventListener("beforeunload"'), "Unsynced web drafts need a navigation warning.");
 assert(app.includes('label="Skip for now"') && app.includes("skippedStepTitles"), "Intentional skipped-step handling is missing.");
 assert(app.includes('if (stepIndex === method.steps.length - 1 && !hasStudyWork)') && app.includes("A completed study needs at least one written response."), "Skipping every writing step must return the user to a writing step instead of Review.");

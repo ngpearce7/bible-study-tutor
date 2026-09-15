@@ -936,7 +936,8 @@ function HomeScreen() {
   const [methodChooserOpen, setMethodChooserOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("study");
-  const [instructionsCollapsed, setInstructionsCollapsed] = useState(false);
+  const [instructionsCollapsed, setInstructionsCollapsed] = useState(true);
+  const [studyActionsOpen, setStudyActionsOpen] = useState(false);
   const [studyMethodPickerOpen, setStudyMethodPickerOpen] = useState(false);
   const [methodExampleModeId, setMethodExampleModeId] = useState("");
   const [contemplativeTimerOpen, setContemplativeTimerOpen] = useState(false);
@@ -2041,13 +2042,6 @@ function HomeScreen() {
   const step = method.steps[stepIndex];
   const answerKey = studyStepKey(method.id, step.id);
   const currentStudyKey = studyKey(passage, method.id);
-  const answeredSteps = method.steps
-    .map((item, index) => ({
-      index,
-      title: item.title,
-      answer: answers[studyStepKey(method.id, item.id)] || ""
-    }))
-    .filter((item) => item.answer.trim());
   const sessionAnswers = method.steps.map((item, index) => ({
     stepId: item.id,
     stepTitle: item.title,
@@ -2077,12 +2071,9 @@ function HomeScreen() {
   const studyPassageReference = passageText?.reference || passage;
   const studyContextReference = useMemo(() => buildStudyContextReference(studyPassageReference), [studyPassageReference]);
   const studyHelps = useMemo(() => buildStudyHelpLinks(passageText?.reference || passage, bibleTranslation), [bibleTranslation, passage, passageText?.reference]);
-  const continueLabel =
-    step.responseType === "none"
-      ? step.nextLabel || "I am ready for the next step"
-      : stepIndex === method.steps.length - 1
-        ? "Review study"
-        : "Continue";
+  const continueLabel = stepIndex === method.steps.length - 1
+    ? "Review study"
+    : `Next: ${method.steps[stepIndex + 1].title}`;
   const parsedPassage = parsePassageQuery(passageQuery);
   const latestCheckin = checkins?.[0];
   const backendReady = profileMatchesActiveState;
@@ -3349,7 +3340,8 @@ function HomeScreen() {
   }, [activeProfileId, bibleTranslation, isAuthenticated, profileMatchesActiveState, readerBook, readerChapter]);
 
   useEffect(() => {
-    if (profileUiPreferences.studyInstructionsCollapsed === undefined) setInstructionsCollapsed(false);
+    if (profileUiPreferences.studyInstructionsCollapsed === undefined) setInstructionsCollapsed(true);
+    setStudyActionsOpen(false);
   }, [method.id, profileUiPreferences.studyInstructionsCollapsed, stepIndex]);
 
   useEffect(() => {
@@ -3683,7 +3675,8 @@ function HomeScreen() {
 
   function continueStudy() {
     if (step.responseType === "text" && !answers[answerKey]?.trim()) {
-      setSaveStatus("Write a response, or choose Skip for now.");
+      setSaveStatus("Write a response, or choose Skip for now under Other actions.");
+      setStudyActionsOpen(true);
       return;
     }
     setSkippedStudySteps((current) => ({ ...current, [answerKey]: false }));
@@ -7488,17 +7481,16 @@ function HomeScreen() {
   }
 
   const studyInstructionPanel = studyPhase === "study" ? (
-    <View style={[styles.instructionBox, instructionsCollapsed && styles.collapsedInstructionBox, studyDarkMode && styles.accountDarkSection]}>
+    <View style={[styles.instructionBox, styles.openSection]}>
       <View style={[styles.instructionHeader, phoneLayout && styles.phoneInstructionHeader]}>
         <View style={[styles.instructionHeaderCopy, phoneLayout && styles.phoneInstructionHeaderCopy]} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
           <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
           <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
-          <Text style={[styles.instructionKicker, studyDarkMode && styles.studyDarkAccentText]}>Do this now</Text>
           <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={instructionsCollapsed ? "Show study instructions" : "Hide study instructions"} accessibilityState={{ expanded: !instructionsCollapsed }} onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
           <Ionicons name={instructionsCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={16} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-          <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Show more" : "Hide"}</Text>
+          <Text style={[styles.collapseButtonText, studyDarkMode && styles.homeDarkResumeButtonText]}>{instructionsCollapsed ? "Step guidance" : "Hide guidance"}</Text>
         </Pressable>
       </View>
       {!instructionsCollapsed && (
@@ -8374,11 +8366,11 @@ function HomeScreen() {
                   </Pressable>
                 </View>
                 <View style={[styles.studyGuidedDescriptionRow, phoneLayout && styles.phoneStudyGuidedDescriptionRow]}>
-                  {!studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{`${method.description} Take your time and let the passage lead.`}</Text>}
+                  {studyMethodPickerOpen && !studyFocusMode && <Text style={[styles.titleSupport, studyDarkMode && styles.accountDarkMutedText]}>{method.description}</Text>}
                 </View>
                 <View style={styles.studyDraftHint}>
                   <Ionicons name="cloud-done-outline" size={15} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
-                  <Text style={[styles.studyDraftHintText, studyDarkMode && styles.accountDarkMutedText]}>Draft autosave is on. Unfinished studies appear in Journal under Drafts.</Text>
+                  <Text style={[styles.studyDraftHintText, studyDarkMode && styles.accountDarkMutedText]}>Drafts save automatically in Journal → Drafts.</Text>
                 </View>
                 {studyFocusMode && (
                   <View style={[styles.focusPassageSelector, studyDarkMode && styles.accountDarkInput]}>
@@ -8486,6 +8478,8 @@ function HomeScreen() {
                   })}
                 </ScrollView>
               )}
+
+              {studyInstructionPanel}
 
               {studyPhase !== "saved" && (
               <View style={[styles.scriptureBox, phoneLayout && styles.phoneScriptureBox, studyFocusMode && styles.focusScriptureBox, studyDarkMode && styles.studyDarkScriptureBox]}>
@@ -8874,8 +8868,6 @@ function HomeScreen() {
               </View>
               )}
 
-              {studyInstructionPanel}
-
               {studyPhase === "saved" && savedStudySummary ? (
                 <View accessibilityLiveRegion="polite" aria-live="polite" style={[styles.savedSummaryBox, studyDarkMode && styles.accountDarkInsetBox]}>
                   <View style={[styles.savedSummaryIcon, studyDarkMode && styles.homeDarkIconBubble]}>
@@ -9160,7 +9152,7 @@ function HomeScreen() {
                       <Ionicons name="book-outline" size={22} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                       <View style={styles.readyCopy}>
                         <Text style={[styles.readyTitle, studyDarkMode && styles.accountDarkTitle]}>No response needed for this step.</Text>
-                        <Text style={[styles.readyText, studyDarkMode && styles.accountDarkMutedText]}>Take your time with the passage. When you have completed the checklist, move to the next guided step.</Text>
+                        <Text style={[styles.readyText, studyDarkMode && styles.accountDarkMutedText]}>Read at your own pace, then continue when you’re ready.</Text>
                       </View>
                     </View>
                   ) : (
@@ -9238,24 +9230,6 @@ function HomeScreen() {
                               )}
                             </View>
                           )}
-                          {answeredSteps.length > 0 && (
-                            <View style={[styles.savedStepBox, studyDarkMode && styles.accountDarkSection]}>
-                              <Text style={[styles.savedStepTitle, studyDarkMode && styles.studyDarkAccentText]}>Saved responses</Text>
-                              <View style={styles.savedStepRow}>
-                                {answeredSteps.map((item) => (
-                                  <Pressable
-                                    key={item.index}
-                                    onPress={() => goToStudyStep(item.index)}
-                                    style={[styles.savedStepChip, studyDarkMode && styles.studyDarkMethodChip, stepIndex === item.index && styles.activeSavedStepChip]}
-                                  >
-                                    <Text style={[styles.savedStepChipText, studyDarkMode && styles.accountDarkMutedText, stepIndex === item.index && styles.activeSavedStepChipText]}>
-                                      Step {item.index + 1}
-                                    </Text>
-                                  </Pressable>
-                                ))}
-                              </View>
-                            </View>
-                          )}
                           <View style={styles.responseFooter}>
                             <Text style={styles.saveStatus}>{(answers[answerKey] || "").trim().split(/\s+/).filter(Boolean).length} words</Text>
                           </View>
@@ -9289,15 +9263,19 @@ function HomeScreen() {
                         style={[phoneLayout && styles.studyStepBackButton, studyDarkMode && styles.homeDarkResumeButton]}
                         labelStyle={[phoneLayout && styles.studyStepButtonLabel, studyDarkMode && styles.homeDarkResumeButtonText]}
                       />
-                    ) : (
-                      <View style={[styles.hiddenBackButtonSpace, phoneLayout && styles.studyStepBackButton]} />
-                    )}
+                    ) : null}
                     <AppButton
                       label={continueLabel}
                       onPress={continueStudy}
                       style={phoneLayout && styles.studyStepContinueButton}
                       labelStyle={phoneLayout && styles.studyStepButtonLabel}
                     />
+                  </View>
+                  <Pressable accessibilityRole="button" accessibilityState={{ expanded: studyActionsOpen }} onPress={() => setStudyActionsOpen((open) => !open)} style={styles.studyOtherActions}>
+                    <Text style={[styles.saveStatus, studyDarkMode && styles.accountDarkMutedText]}>Other actions</Text>
+                    <Ionicons name={studyActionsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={studyDarkMode ? "#cbc5b9" : colors.muted} />
+                  </Pressable>
+                  {studyActionsOpen && <View style={styles.buttonRow}>
                     {step.responseType === "text" && !answers[answerKey]?.trim() && (
                       <AppButton
                         label="Skip for now"
@@ -9314,7 +9292,7 @@ function HomeScreen() {
                       style={[phoneLayout && styles.studyStepFreshButton, studyDarkMode && styles.homeDarkResumeButton]}
                       labelStyle={[phoneLayout && styles.studyStepButtonLabel, studyDarkMode && styles.homeDarkResumeButtonText]}
                     />
-                  </View>
+                  </View>}
                   <View style={styles.studySaveStatusRow}>
                     <Text accessibilityLiveRegion="polite" aria-live="polite" style={[styles.saveStatus, studyDarkMode && styles.accountDarkMutedText]}>
                       {isSavingStudyDraft ? "Saving draft..." : saveStatus}

@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { expect, test, vi } from "vitest";
 
 vi.mock("react-native", async () => ({
+  Platform: { OS: "web" },
   useColorScheme: (await vi.importActual<{ default: () => "light" | "dark" }>("react-native-web/dist/exports/useColorScheme")).default
 }));
 

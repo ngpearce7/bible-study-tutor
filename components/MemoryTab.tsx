@@ -37,6 +37,7 @@ export function MemoryTab(props: any) {
     focusMemoryBlankAfter,
     friendlyName,
     historyMemoryVerseId,
+    memoryFinishRef,
     memoryBlankInputRefs,
     memoryBlankTokens,
     memoryBookCounts,
@@ -824,7 +825,7 @@ export function MemoryTab(props: any) {
                           ) : (
                             !!memoryPracticeResult && <Text style={styles.saveStatus}>{memoryPracticeResult}</Text>
                           )}
-                          <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
+                          <View ref={memoryPracticeAllCorrect ? memoryFinishRef : undefined} collapsable={false} style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                             {memoryPracticeAllCorrect && memoryPracticeLevel > 1 ? (
                               <ResumeButton
                                 label={memoryPracticeLevel >= 3 ? "Finish verse" : "Continue"}

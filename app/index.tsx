@@ -1,3 +1,4 @@
+import { usePracticeViewport } from "@/components/usePracticeViewport";
 import { useAutoHideNavigation } from "@/components/useAutoHideNavigation";
 import { useRefreshingValue } from "@/components/useRefreshingValue";
 import { useAppDarkMode } from "@/components/useAppDarkMode";
@@ -2628,6 +2629,8 @@ function HomeScreen() {
   const communityDarkMode = accountDarkMode;
   const adminDarkMode = accountDarkMode;
   const phoneMemoryFocusMode = tab === "memory" && !!activeMemoryVerseId && (phoneLayout || activeMemoryReviewQueueCount > 0);
+  const practiceViewport = usePracticeViewport(phoneLayout && phoneMemoryFocusMode);
+  const memoryFinishRef = useRef<View>(null);
   const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
     .map((section) => ({
       ...section,
@@ -2691,6 +2694,24 @@ function HomeScreen() {
     window.addEventListener("keydown", handleMemoryPracticeEnter);
     return () => window.removeEventListener("keydown", handleMemoryPracticeEnter);
   }, [activeMemoryVerseId, memoryPracticeAllCorrect, memoryPracticeLevel, tab]);
+
+  useEffect(() => {
+    if (!phoneLayout || !phoneMemoryFocusMode || !memoryPracticeAllCorrect) return;
+    Keyboard.dismiss();
+    const reveal = () => memoryFinishRef.current?.measureInWindow((_x, y, _width, height) => {
+      const viewport = Platform.OS === "web" ? window.visualViewport : null;
+      const bottom = viewport ? viewport.offsetTop + viewport.height : layoutHeight;
+      const delta = y + height + 24 - bottom;
+      if (delta > 0) appScrollRef.current?.scrollTo({ y: appScrollYRef.current + delta, animated: false });
+    });
+    const timers = [120, 400, 800].map(delay => setTimeout(reveal, delay));
+    const viewport = Platform.OS === "web" ? window.visualViewport : null;
+    viewport?.addEventListener("resize", reveal);
+    return () => {
+      timers.forEach(clearTimeout);
+      viewport?.removeEventListener("resize", reveal);
+    };
+  }, [phoneLayout, phoneMemoryFocusMode, memoryPracticeAllCorrect, activeMemoryVerseId, memoryPracticeLevel, layoutHeight]);
 
   function scrollMemoryPracticeBy(delta: number, animated = true) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
@@ -5797,7 +5818,7 @@ function HomeScreen() {
   }
 
   function startDueMemoryReviewQueue(collectionName = "all") {
-    const dueVerses = (memoryQueueSections.find((section) => section.title === "Due for Review")?.verses || [])
+    const dueVerses = (buildMemoryQueueSections(memoryVerses || []).find((section) => section.title === "Due for Review")?.verses || [])
       .filter((verse: any) => collectionName === "all" || getMemoryVerseCollections(verse).includes(collectionName));
     if (!dueVerses.length) return;
 
@@ -8052,7 +8073,7 @@ function HomeScreen() {
 
   return (
     <UIThemeContext.Provider value={accountDarkMode}>
-    <View style={[styles.screen, accountDarkMode && styles.appDarkScreen, compactLayout && styles.compactScreen]}>
+    <View style={[styles.screen, accountDarkMode && styles.appDarkScreen, compactLayout && styles.compactScreen, practiceViewport]}>
       {!!readerSyncError && <View accessibilityRole="alert" style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 1000, padding: 16, backgroundColor: "#fffaf2", borderWidth: 1, borderColor: "#9c4537" }}>
         <Text>{readerSyncError}</Text>
         <AppButton label="Reload saved version" onPress={() => {
@@ -10450,6 +10471,7 @@ function HomeScreen() {
               memoryMilestoneStatus={memoryMilestoneStatus}
               memoryMilestones={memoryMilestones}
               memoryMoreVerseId={memoryMoreVerseId}
+              memoryFinishRef={memoryFinishRef}
               memoryPracticeAllCorrect={memoryPracticeAllCorrect}
               memoryPracticeAnswers={memoryPracticeAnswers}
               memoryPracticeChecked={memoryPracticeChecked}

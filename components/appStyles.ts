@@ -242,7 +242,7 @@ export const styles = StyleSheet.create({
     padding: 14
   },
   phoneMemoryPracticeScrollContent: {
-    paddingBottom: 220
+    paddingBottom: Platform.OS === "web" ? 32 : 220
   },
   contentWithMobileReaderDock: {
     paddingBottom: 172
@@ -3028,44 +3028,6 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 17
   },
-  savedStepBox: {
-    backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.2)",
-    borderRadius: 14,
-    borderWidth: 1,
-    marginBottom: 12,
-    marginTop: -4,
-    padding: 12
-  },
-  savedStepTitle: {
-    color: colors.oliveDark,
-    fontSize: 13,
-    fontWeight: "800",
-    marginBottom: 8,
-    textTransform: "uppercase"
-  },
-  savedStepRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
-  },
-  savedStepChip: {
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 7
-  },
-  activeSavedStepChip: {
-    backgroundColor: colors.oliveDark
-  },
-  savedStepChipText: {
-    color: colors.oliveDark,
-    fontSize: 13,
-    fontWeight: "700"
-  },
-  activeSavedStepChipText: {
-    color: "white"
-  },
   coachingBox: {
     backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.2)",
@@ -5089,19 +5051,8 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 8
   },
-  instructionKicker: {
-    color: colors.coral,
-    fontSize: 11,
-    fontWeight: "900",
-    marginBottom: 5,
-    marginTop: 10,
-    textTransform: "uppercase"
-  },
   collapsedActionText: {
     marginBottom: 0
-  },
-  collapsedInstructionBox: {
-    paddingBottom: 12
   },
   instructionHeader: {
     alignItems: "flex-start",
@@ -5428,10 +5379,6 @@ export const styles = StyleSheet.create({
     flex: 0.72,
     minHeight: 42,
     paddingHorizontal: 8
-  },
-  hiddenBackButtonSpace: {
-    minHeight: 42,
-    width: Platform.OS === "web" ? 88 : 0
   },
   studyStepContinueButton: {
     flex: 1.65,

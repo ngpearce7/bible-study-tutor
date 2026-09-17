@@ -6826,29 +6826,6 @@ export const styles = StyleSheet.create({
     lineHeight: 19,
     minWidth: 0
   },
-  memoryWeeklySummaryBox: {
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 12,
-    borderWidth: 1,
-    gap: 5,
-    padding: 10
-  },
-  memoryWeeklySummaryContent: {
-    alignItems: "stretch",
-    flexDirection: "row",
-    gap: 10,
-    minWidth: 0
-  },
-  phoneMemoryWeeklySummaryContent: {
-    alignItems: "stretch",
-    flexDirection: "column",
-    gap: 8,
-    width: "100%"
-  },
-  memoryWeeklySummaryText: {
-    flex: 1.4
-  },
   memoryWeeklyScriptureBox: {
     backgroundColor: colors.panel,
     borderColor: "rgba(201, 103, 80, 0.2)",

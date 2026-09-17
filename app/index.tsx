@@ -2726,6 +2726,13 @@ function HomeScreen() {
 
   function scrollMemoryPracticeBy(delta: number, animated = true) {
     if (!phoneLayout || tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1) return;
+    if (Platform.OS === "web") {
+      const node = appScrollRef.current?.getScrollableNode?.() as HTMLElement | undefined;
+      if (node) {
+        node.scrollTop = Math.max(0, node.scrollTop + delta);
+        return;
+      }
+    }
     appScrollRef.current?.scrollTo?.({ y: Math.max(0, appScrollYRef.current + delta), animated });
   }
 
@@ -2763,9 +2770,15 @@ function HomeScreen() {
       input.measureInWindow((_x: number, y: number, _width: number, inputHeight: number) => {
         const viewport = Platform.OS === "web" && typeof window !== "undefined" ? window.visualViewport : null;
         const keyboardTop = Platform.OS !== "web" ? Keyboard.metrics()?.screenY : undefined;
-        const keyboardSafeBottom = viewport
+        let keyboardSafeBottom = viewport
           ? viewport.offsetTop + viewport.height - 24
           : Math.min(layoutHeight, keyboardTop ?? layoutHeight) - 24;
+        if (Platform.OS === "web") {
+          const node = appScrollRef.current?.getScrollableNode?.() as HTMLElement | undefined;
+          // The browser viewport can include space outside the clipped app
+          // scroller while its keyboard toolbar is moving.
+          if (node) keyboardSafeBottom = Math.min(keyboardSafeBottom, node.getBoundingClientRect().bottom - 24);
+        }
         const inputBottom = y + inputHeight;
         const hiddenAmount = inputBottom - keyboardSafeBottom;
         if (hiddenAmount > 8) {

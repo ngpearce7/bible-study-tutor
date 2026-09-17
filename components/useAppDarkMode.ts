@@ -11,13 +11,19 @@ export function useAppDarkMode(mode: StoredAppearanceMode) {
     // the keyboard. Theme that canvas as well as the React Native screen.
     const elements = [document.documentElement, document.body];
     const previous = elements.map(({ style }) => [style.backgroundColor, style.colorScheme]);
+    const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    const previousThemeColor = themeMeta?.content;
+    if (themeMeta) themeMeta.content = dark ? "#181818" : "#f8f1e6";
     elements.forEach(({ style }) => {
       style.backgroundColor = dark ? "#181818" : "#f8f1e6";
       style.colorScheme = dark ? "dark" : "light";
     });
-    return () => elements.forEach(({ style }, index) => {
-      [style.backgroundColor, style.colorScheme] = previous[index];
-    });
+    return () => {
+      elements.forEach(({ style }, index) => {
+        [style.backgroundColor, style.colorScheme] = previous[index];
+      });
+      if (themeMeta && previousThemeColor !== undefined) themeMeta.content = previousThemeColor;
+    };
   }, [dark]);
   return dark;
 }

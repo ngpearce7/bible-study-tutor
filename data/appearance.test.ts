@@ -18,6 +18,10 @@ test("device theme reacts to changes while explicit choices remain fixed", async
     return createElement("span", null, useAppDarkMode(mode) ? "dark" : "light");
   }
   const host = document.createElement("div");
+  const themeMeta = document.createElement("meta");
+  themeMeta.name = "theme-color";
+  themeMeta.content = "#F6F1E8";
+  document.head.append(themeMeta);
   const root = createRoot(host);
   const render = async (mode: "system" | "light" | "dark") => act(() => root.render(createElement(Probe, { mode })));
   const change = async (matches: boolean) => act(() => { media.matches = matches; for (const listener of [...listeners]) listener({ matches }); });
@@ -27,9 +31,14 @@ test("device theme reacts to changes while explicit choices remain fixed", async
     await render("light"); expect(host.textContent).toBe("light");
     await change(false); await change(true); expect(host.textContent).toBe("light");
     await render("dark"); await change(false); expect(host.textContent).toBe("dark");
+    expect(themeMeta.content).toBe("#181818");
+    expect(document.body.style.colorScheme).toBe("dark");
     await render("system"); expect(host.textContent).toBe("light");
+    expect(themeMeta.content).toBe("#f8f1e6");
   } finally {
     await act(() => root.unmount());
+    expect(themeMeta.content).toBe("#F6F1E8");
+    themeMeta.remove();
     expect(listeners.size).toBe(0);
     vi.unstubAllGlobals();
   }

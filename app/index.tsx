@@ -2682,6 +2682,17 @@ function HomeScreen() {
   }, [activeMemoryVerseId, memoryPracticeLevel, tab]);
 
   useEffect(() => {
+    if (Platform.OS !== "web" || !phoneMemoryFocusMode) return;
+    const viewport = window.visualViewport;
+    const revealFocusedWord = () => {
+      const focused = Object.entries(memoryBlankInputRefs.current).find(([, input]) => input?.isFocused());
+      if (focused) ensureMemoryBlankVisible(Number(focused[0]), 180);
+    };
+    viewport?.addEventListener("resize", revealFocusedWord);
+    return () => viewport?.removeEventListener("resize", revealFocusedWord);
+  }, [phoneMemoryFocusMode, activeMemoryVerseId, memoryPracticeLevel]);
+
+  useEffect(() => {
     if (Platform.OS !== "web" || typeof window === "undefined") return;
     if (tab !== "memory" || !activeMemoryVerseId || memoryPracticeLevel <= 1 || !memoryPracticeAllCorrect) return;
 
@@ -2758,7 +2769,7 @@ function HomeScreen() {
         const inputBottom = y + inputHeight;
         const hiddenAmount = inputBottom - keyboardSafeBottom;
         if (hiddenAmount > 8) {
-          scrollMemoryPracticeBy(Math.min(64, hiddenAmount + 8), false);
+          scrollMemoryPracticeBy(hiddenAmount + 8, false);
         }
       });
     }, delay);
@@ -2779,7 +2790,7 @@ function HomeScreen() {
       if (phoneLayout) {
         if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
         memoryBlankVisibilityTimerRef.current = null;
-        if (crossesRow) ensureMemoryBlankVisible(nextIndex, 360);
+        ensureMemoryBlankVisible(nextIndex, crossesRow ? 360 : 180);
         return;
       }
       ensureMemoryBlankVisible(nextIndex, 180);

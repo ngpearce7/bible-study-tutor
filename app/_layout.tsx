@@ -5,6 +5,12 @@ import { Stack } from "expo-router";
 import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+
+// Let the themed document canvas show behind the keyboard-sized web screen.
+const navigationTheme = Platform.OS === "web"
+  ? { ...DefaultTheme, colors: { ...DefaultTheme.colors, background: "transparent" } }
+  : DefaultTheme;
 
 const SITE_TITLE = "Bible Study Tutor | Free Bible Study App and Printable Worksheets";
 const SITE_DESCRIPTION =
@@ -154,7 +160,9 @@ export default function RootLayout() {
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Head>
       <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <ThemeProvider value={navigationTheme}>
+        <Stack screenOptions={{ headerShown: false }} />
+      </ThemeProvider>
     </ConvexAuthProvider>
   );
 }

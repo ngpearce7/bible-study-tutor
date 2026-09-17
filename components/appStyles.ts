@@ -314,53 +314,11 @@ export const styles = StyleSheet.create({
   homeDarkHeroText: {
     color: "#f7eddc"
   },
-  homePurposePanel: {
-    backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.22)",
-    borderRadius: 14,
-    borderWidth: 0,
-    gap: 10,
-    padding: 14
-  },
-  homeDarkPurposePanel: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
-  },
-  homePurposeTitle: {
-    color: colors.oliveDark,
-    fontSize: 16,
-    fontWeight: "700"
-  },
   homePurposeText: {
     color: colors.ink,
     fontSize: 14,
     fontWeight: "500",
     lineHeight: 21
-  },
-  homePurposePillRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
-  },
-  homePurposePill: {
-    alignItems: "center",
-    backgroundColor: "white",
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 7
-  },
-  homeDarkPurposePill: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
-  },
-  homePurposePillText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "900"
   },
   homeActionRow: {
     flexDirection: "row",
@@ -440,10 +398,6 @@ export const styles = StyleSheet.create({
     gap: 12,
     maxWidth: "100%",
     minWidth: 0
-  },
-  homeContinueCard: {
-    borderColor: "rgba(201, 103, 80, 0.28)",
-    borderWidth: 1.5
   },
   homeSideTitle: {
     color: colors.oliveDark,
@@ -2500,77 +2454,12 @@ export const styles = StyleSheet.create({
   activeStudyProgressText: {
     color: "white"
   },
-  studyIntro: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 18
-  },
-  studyIntroCopy: {
-    flex: 1,
-    minWidth: 0
-  },
-  methodPill: {
-    alignItems: "center",
-    backgroundColor: colors.oliveDark,
-    borderRadius: 999,
-    minWidth: 52,
-    paddingHorizontal: 12,
-    paddingVertical: 8
-  },
-  methodPillText: {
-    color: "white",
-    fontSize: 13,
-    fontWeight: "800"
-  },
   title: {
     color: colors.ink,
     fontSize: 23,
     fontWeight: "800",
     lineHeight: 28,
     marginBottom: 3
-  },
-  methodFullName: {
-    color: colors.oliveDark,
-    fontSize: 14,
-    fontWeight: "700",
-    lineHeight: 20,
-    marginBottom: 5
-  },
-  inlineMethodRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 14
-  },
-  inlineMethodChip: {
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    paddingHorizontal: 11,
-    paddingVertical: 7
-  },
-  activeInlineMethodChip: {
-    backgroundColor: colors.oliveDark
-  },
-  inlineMethodText: {
-    color: colors.oliveDark,
-    fontSize: 13,
-    fontWeight: "700"
-  },
-  activeInlineMethodText: {
-    color: "white"
-  },
-  coachingToggleRow: {
-    alignItems: "center",
-    backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.18)",
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10
   },
   togglePill: {
     alignItems: "center",
@@ -6725,24 +6614,6 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "700",
     lineHeight: 20
-  },
-  memoryListTools: {
-    alignItems: "center",
-    backgroundColor: "#fffaf2",
-    borderColor: colors.line,
-    borderRadius: 12,
-    borderWidth: 1,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    paddingVertical: 10
-  },
-  phoneMemoryListToolButton: {
-    alignSelf: "stretch",
-    justifyContent: "center",
-    width: "100%"
   },
   memoryViewToggle: {
     backgroundColor: colors.soft,

@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   eyebrow: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     letterSpacing: 0.4,
     marginBottom: 6,
     textTransform: "uppercase"
@@ -114,13 +114,13 @@ const styles = StyleSheet.create({
   primaryLabel: {
     color: "white",
     flexShrink: 1,
-    fontWeight: "700",
+    fontWeight: "600",
     textAlign: "center"
   },
   secondaryLabel: {
     color: colors.oliveDark,
     flexShrink: 1,
-    fontWeight: "700",
+    fontWeight: "600",
     textAlign: "center"
   },
   pressed: {

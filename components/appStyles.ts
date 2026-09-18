@@ -95,7 +95,7 @@ export const styles = StyleSheet.create({
   mobileMenuTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   mobileMenuSubtitle: {
     color: colors.muted,
@@ -153,12 +153,12 @@ export const styles = StyleSheet.create({
   },
   brandMarkText: {
     color: "white",
-    fontWeight: "800"
+    fontWeight: "600"
   },
   brandTitle: {
     color: colors.ink,
     fontSize: 17,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 21
   },
   tabs: {
@@ -190,7 +190,7 @@ export const styles = StyleSheet.create({
   },
   tabLabel: {
     color: colors.muted,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   appDarkTabLabel: {
     color: "#c8bda9"
@@ -207,7 +207,7 @@ export const styles = StyleSheet.create({
   streakNumber: {
     color: colors.ink,
     fontSize: 36,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   progressTrack: {
     backgroundColor: "#dce4dc",
@@ -285,7 +285,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
     fontSize: 42,
-    fontWeight: "700",
+    fontWeight: "400",
     lineHeight: 48
   },
   homeDarkHeroTitle: {
@@ -295,7 +295,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
     fontStyle: "italic",
-    fontWeight: "700"
+    fontWeight: "400"
   },
   homeDarkHeroTitleAccent: {
     color: "#e9b76a"
@@ -402,7 +402,7 @@ export const styles = StyleSheet.create({
   homeSideTitle: {
     color: colors.oliveDark,
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "600",
     marginBottom: 2
   },
   homePathList: {
@@ -467,7 +467,7 @@ export const styles = StyleSheet.create({
   homePathTitle: {
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   homePathDetail: {
     color: colors.muted,
@@ -501,7 +501,7 @@ export const styles = StyleSheet.create({
   homeWeeklyRhythmTitle: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   homeWeeklyRhythmText: {
@@ -604,7 +604,7 @@ export const styles = StyleSheet.create({
   bibleSearchTranslationText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   bibleSearchInputRow: {
     alignItems: "flex-start",
@@ -651,7 +651,7 @@ export const styles = StyleSheet.create({
   bibleSearchClearText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   bibleSearchSummaryBlock: {
     backgroundColor: colors.panel,
@@ -667,13 +667,13 @@ export const styles = StyleSheet.create({
   bibleSearchStatusText: {
     color: colors.coral,
     fontSize: 14,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 19
   },
   bibleSearchDurationText: {
     color: colors.ink,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 17
   },
   mobileBibleCriteriaDropdown: {
@@ -703,12 +703,12 @@ export const styles = StyleSheet.create({
   mobileBibleCriteriaTitle: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   mobileBibleCriteriaSummary: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     marginTop: 2
   },
   mobileBibleCriteriaPanel: {
@@ -725,7 +725,7 @@ export const styles = StyleSheet.create({
   mobileBibleCriteriaLabel: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   mobileBibleCriteriaChipRow: {
@@ -813,7 +813,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 1,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     minWidth: 0
   },
   bibleSearchSelect: {
@@ -823,7 +823,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.ink,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     minHeight: 34,
     paddingHorizontal: 11,
     width: "100%"
@@ -853,7 +853,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     minWidth: 0
   },
   bibleSearchSelectMenu: {
@@ -876,7 +876,7 @@ export const styles = StyleSheet.create({
   bibleSearchSelectOptionText: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeBibleSearchChipText: {
     color: "white"
@@ -900,7 +900,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: "white",
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 24,
     overflow: "hidden",
     paddingHorizontal: 7,
@@ -925,12 +925,12 @@ export const styles = StyleSheet.create({
   bibleSearchResultReference: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   bibleSearchSourceQuery: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   bibleSearchResultText: {
     color: colors.ink,
@@ -988,7 +988,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 14,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 0
   },
   mobileReaderBookList: {
@@ -1017,7 +1017,7 @@ export const styles = StyleSheet.create({
   mobileReaderBookText: {
     color: colors.ink,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeMobileReaderBookText: {
     color: "white"
@@ -1062,7 +1062,7 @@ export const styles = StyleSheet.create({
   mobileReaderChapterText: {
     color: colors.ink,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readMobileReaderChapterText: {
     color: colors.oliveDark
@@ -1082,7 +1082,7 @@ export const styles = StyleSheet.create({
   readerChapterReadCountText: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryBookFilterOption: {
     alignItems: "center",
@@ -1092,7 +1092,7 @@ export const styles = StyleSheet.create({
   memoryBookCountText: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 12
   },
   memoryChapterAllSquare: {
@@ -1108,7 +1108,7 @@ export const styles = StyleSheet.create({
   memoryChapterCountText: {
     color: colors.muted,
     fontSize: 9,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 10
   },
   readerBookmarkSection: {
@@ -1192,7 +1192,7 @@ export const styles = StyleSheet.create({
   bibleReadingPlanChipText: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   bibleReadingPlanToday: {
     backgroundColor: colors.panel,
@@ -1208,13 +1208,13 @@ export const styles = StyleSheet.create({
   bibleReadingPlanOpenHint: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   bibleReadingPlanStatusText: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 17
   },
   bibleReadingPlanMetaRow: {
@@ -1227,7 +1227,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 5
@@ -1308,12 +1308,12 @@ export const styles = StyleSheet.create({
   readerQuickListToggleText: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerQuickListToggleCount: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerHistoryChip: {
     alignItems: "center",
@@ -1330,13 +1330,13 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 0
   },
   readerHistoryTranslation: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerReadChapterList: {
     gap: 8
@@ -1361,7 +1361,7 @@ export const styles = StyleSheet.create({
   readerReadChapterSwipeClearText: {
     color: "white",
     fontSize: 10,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerReadChapterBook: {
     backgroundColor: colors.panel,
@@ -1391,7 +1391,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 0
   },
   readerReadChapterClearButton: {
@@ -1417,7 +1417,7 @@ export const styles = StyleSheet.create({
   readerReadChapterChipText: {
     color: colors.ink,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerBookmarkHeader: {
     alignItems: "center",
@@ -1448,7 +1448,7 @@ export const styles = StyleSheet.create({
   readerBookmarkCount: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerBookmarkSearchInput: {
     paddingHorizontal: 10,
@@ -1469,7 +1469,7 @@ export const styles = StyleSheet.create({
   readerBookmarkFilterText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerBookmarkExpandButton: {
     alignItems: "center",
@@ -1482,7 +1482,7 @@ export const styles = StyleSheet.create({
   readerBookmarkExpandText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerBookmarkItem: {
     gap: 6
@@ -1509,7 +1509,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   readerBookmarkIconButton: {
     alignItems: "center",
@@ -1551,7 +1551,7 @@ export const styles = StyleSheet.create({
   readerBookSectionTitle: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   readerBookGrid: {
@@ -1586,7 +1586,7 @@ export const styles = StyleSheet.create({
   readerBookText: {
     color: colors.ink,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeReaderBookText: {
     color: "white"
@@ -1645,7 +1645,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: "white",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     marginTop: -6,
     paddingHorizontal: 10,
     paddingVertical: 6
@@ -1673,7 +1673,7 @@ export const styles = StyleSheet.create({
   readerChapterLabel: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   phoneReaderChapterLabel: {
     flexShrink: 0,
@@ -1686,7 +1686,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 40,
     paddingHorizontal: 6,
     paddingVertical: 4,
@@ -1703,7 +1703,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flexShrink: 1,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     minWidth: 0
   },
   phoneReaderChapterCountText: {
@@ -1732,7 +1732,7 @@ export const styles = StyleSheet.create({
   readerReadButtonText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeReaderReadButtonText: {
     color: "white"
@@ -1748,7 +1748,7 @@ export const styles = StyleSheet.create({
   readerProgressText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   readerProgressClearButton: {
     paddingHorizontal: 4,
@@ -1757,7 +1757,7 @@ export const styles = StyleSheet.create({
   readerProgressClearText: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   mobileReaderSelectionDock: {
     backgroundColor: colors.panel,
@@ -1779,7 +1779,7 @@ export const styles = StyleSheet.create({
   mobileReaderSelectionText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   mobileReaderSelectionActions: {
     alignItems: "center",
@@ -1817,7 +1817,7 @@ export const styles = StyleSheet.create({
   mobileReaderSelectionButtonText: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   primaryMobileReaderSelectionButtonText: {
     color: "white"
@@ -1946,7 +1946,7 @@ export const styles = StyleSheet.create({
   readerPlanCompletedStatusText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerPlanCompletedStatusTextDark: {
     color: "#dcebc8"
@@ -1972,7 +1972,7 @@ export const styles = StyleSheet.create({
   readerBottomNavText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerVerseRow: {
     alignItems: "flex-start",
@@ -2071,7 +2071,7 @@ export const styles = StyleSheet.create({
   inlineReaderStudyText: {
     color: "white",
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   inlineReaderBookmarkButton: {
     alignItems: "center",
@@ -2092,7 +2092,7 @@ export const styles = StyleSheet.create({
   inlineReaderBookmarkText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryReaderButton: {
     backgroundColor: colors.coral,
@@ -2101,7 +2101,7 @@ export const styles = StyleSheet.create({
   memoryReaderButtonText: {
     color: "white",
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   readerSelectionBar: {
     alignItems: "center",
@@ -2120,7 +2120,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 1,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   readerPlanModeBar: {
     alignItems: "center",
@@ -2135,7 +2135,7 @@ export const styles = StyleSheet.create({
     color: colors.coral,
     flexShrink: 1,
     fontSize: 15,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 20
   },
   readerDarkPlanModeName: {
@@ -2188,7 +2188,7 @@ export const styles = StyleSheet.create({
   coachTitle: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   studyGuidedHeader: {
     alignItems: "flex-start",
@@ -2311,7 +2311,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 0,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   compactMethodChips: {
@@ -2325,7 +2325,7 @@ export const styles = StyleSheet.create({
   compactMethodCurrent: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   compactMethodMenu: {
     alignSelf: "flex-end",
@@ -2355,12 +2355,12 @@ export const styles = StyleSheet.create({
   compactMethodText: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   compactMethodDuration: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: "600",
     marginTop: 2
   },
   activeCompactMethodText: {
@@ -2369,7 +2369,7 @@ export const styles = StyleSheet.create({
   methodDurationText: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     marginTop: 8
   },
   studyProgressStrip: {
@@ -2424,7 +2424,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     height: 22,
     lineHeight: 22,
     overflow: "hidden",
@@ -2441,7 +2441,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flex: 1,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 0
   },
   completedStudyProgressText: {
@@ -2457,7 +2457,7 @@ export const styles = StyleSheet.create({
   title: {
     color: colors.ink,
     fontSize: 23,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 28,
     marginBottom: 3
   },
@@ -2478,7 +2478,7 @@ export const styles = StyleSheet.create({
   toggleText: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   activeToggleText: {
     color: "white"
@@ -2529,7 +2529,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 17,
-    fontWeight: "700",
+    fontWeight: "600",
     minHeight: 44,
     minWidth: 0,
     outlineStyle: "none" as any
@@ -2545,7 +2545,7 @@ export const styles = StyleSheet.create({
   },
   useInlineText: {
     color: "white",
-    fontWeight: "800"
+    fontWeight: "600"
   },
   textarea: {
     minHeight: 150,
@@ -2589,7 +2589,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flex: 1,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   mobileNoteFormatBar: {
     alignItems: "center",
@@ -2675,7 +2675,7 @@ export const styles = StyleSheet.create({
   noteFormatText: {
     color: colors.oliveDark,
     fontSize: 15,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeNoteFormatText: {
     color: "white"
@@ -2685,12 +2685,12 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: "white",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     paddingHorizontal: 10,
     paddingVertical: 6
   },
   noteFormatBold: {
-    fontWeight: "900"
+    fontWeight: "700"
   },
   noteFormatItalic: {
     fontStyle: "italic"
@@ -2763,7 +2763,7 @@ export const styles = StyleSheet.create({
   writingPromptLabel: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   customizePromptButton: {
@@ -2780,7 +2780,7 @@ export const styles = StyleSheet.create({
   customizePromptText: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   writingPromptRow: {
     flexDirection: "row",
@@ -2822,7 +2822,7 @@ export const styles = StyleSheet.create({
   writingPromptText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   compactWritingPromptText: {
     flex: 1,
@@ -2863,12 +2863,12 @@ export const styles = StyleSheet.create({
   },
   addPromptText: {
     color: "white",
-    fontWeight: "800"
+    fontWeight: "600"
   },
   writingPromptStatus: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     marginTop: 8
   },
   responseFooter: {
@@ -2887,7 +2887,7 @@ export const styles = StyleSheet.create({
   saveStatus: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   studySaveStatusRow: {
     alignItems: "center",
@@ -2909,12 +2909,12 @@ export const styles = StyleSheet.create({
   studySaveRetryText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   warningText: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 17
   },
   coachingBox: {
@@ -2939,7 +2939,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flexShrink: 0,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 10,
     paddingVertical: 6
@@ -2950,7 +2950,7 @@ export const styles = StyleSheet.create({
   activeCoachingToggleText: {
     color: "white",
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   collapsedCoachingBox: {
     backgroundColor: colors.panel,
@@ -2996,7 +2996,7 @@ export const styles = StyleSheet.create({
   aiOptionTitle: {
     color: colors.oliveDark,
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 3
   },
   aiOptionText: {
@@ -3026,7 +3026,7 @@ export const styles = StyleSheet.create({
     color: colors.coral,
     flexShrink: 1,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   studyPlansBox: {
@@ -3054,7 +3054,7 @@ export const styles = StyleSheet.create({
   planChipText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activePlanChipText: {
     color: "white"
@@ -3067,7 +3067,7 @@ export const styles = StyleSheet.create({
   planProgressText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   currentPlanBox: {
     backgroundColor: colors.panel,
@@ -3078,7 +3078,7 @@ export const styles = StyleSheet.create({
   currentPlanTitle: {
     color: colors.oliveDark,
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   currentPlanHeaderSpacer: {
     minHeight: 18
@@ -3132,7 +3132,7 @@ export const styles = StyleSheet.create({
   currentPlanManagementText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   phonePlanActionRow: {
     flexWrap: "nowrap",
@@ -3185,7 +3185,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: "white",
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     overflow: "hidden",
     paddingHorizontal: 8,
     paddingVertical: 5
@@ -3200,7 +3200,7 @@ export const styles = StyleSheet.create({
   planDayTitle: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   planDayPassage: {
     color: colors.muted,
@@ -3227,7 +3227,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 2,
     overflow: "hidden",
     paddingHorizontal: 10,
@@ -3247,7 +3247,7 @@ export const styles = StyleSheet.create({
   aiDetailsTitle: {
     color: colors.oliveDark,
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   aiDetailsText: {
     color: colors.oliveDark,
@@ -3291,12 +3291,12 @@ export const styles = StyleSheet.create({
   avatarText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   communityTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
     flexShrink: 1,
     lineHeight: 21
   },
@@ -3337,7 +3337,7 @@ export const styles = StyleSheet.create({
   communitySubViewTabText: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeCommunitySubViewTabText: {
     color: "white"
@@ -3379,7 +3379,7 @@ export const styles = StyleSheet.create({
   communityStepBadgeText: {
     color: "white",
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 14
   },
   phoneCommunityFocusBox: {
@@ -3394,7 +3394,7 @@ export const styles = StyleSheet.create({
   communityRecipientText: {
     color: colors.ink,
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 26
   },
   communityTargetSelect: {
@@ -3442,7 +3442,7 @@ export const styles = StyleSheet.create({
   communityTargetOptionTitle: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   communityTargetModeRow: {
     flexDirection: "row",
@@ -3467,7 +3467,7 @@ export const styles = StyleSheet.create({
   communityTargetModeText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   phoneCommunityMetricGrid: {
     flexWrap: "nowrap",
@@ -3519,7 +3519,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flexShrink: 1,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 17
   },
   communityPostFooterRow: {
@@ -3568,7 +3568,7 @@ export const styles = StyleSheet.create({
   checkinMood: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "capitalize"
   },
   communityPanelHeader: {
@@ -3596,7 +3596,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flexShrink: 1,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   partnerManagerBox: {
     backgroundColor: colors.panel,
@@ -3674,7 +3674,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flexShrink: 1,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 15,
     textAlign: "right"
   },
@@ -3716,7 +3716,7 @@ export const styles = StyleSheet.create({
   circleCountText: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   circleManagementContent: {
     gap: 9
@@ -3724,7 +3724,7 @@ export const styles = StyleSheet.create({
   circleManagementLabel: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   circleActionGrid: {
@@ -3792,12 +3792,12 @@ export const styles = StyleSheet.create({
   circleChipTitle: {
     color: colors.oliveDark,
     fontSize: 14,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   circleChipMeta: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 17
   },
   activeCircleChipText: {
@@ -3825,7 +3825,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 1,
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.5,
     minWidth: 0
   },
@@ -3842,7 +3842,7 @@ export const styles = StyleSheet.create({
   circleCopyText: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   circleManagementRow: {
     flexDirection: "row",
@@ -3874,7 +3874,7 @@ export const styles = StyleSheet.create({
   circleManageText: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeCircleManageText: {
     color: "white"
@@ -3929,7 +3929,7 @@ export const styles = StyleSheet.create({
   circleReactionText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   circleReactionSymbol: {
     fontSize: 15,
@@ -3954,7 +3954,7 @@ export const styles = StyleSheet.create({
   communityShowMoreText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   partnerList: {
     gap: 8
@@ -3979,7 +3979,7 @@ export const styles = StyleSheet.create({
   partnerChipText: {
     color: colors.oliveDark,
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activePartnerChipText: {
     color: "white"
@@ -4016,7 +4016,7 @@ export const styles = StyleSheet.create({
   lastCheckinLabel: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 4,
     textTransform: "uppercase"
   },
@@ -4152,7 +4152,7 @@ export const styles = StyleSheet.create({
   customReviewLabel: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   customReviewInput: {
@@ -4168,7 +4168,7 @@ export const styles = StyleSheet.create({
   customReviewUnit: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   helpIntro: {
     color: colors.muted,
@@ -4198,7 +4198,7 @@ export const styles = StyleSheet.create({
   helpTitle: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   helpDescription: {
     color: colors.muted,
@@ -4232,7 +4232,7 @@ export const styles = StyleSheet.create({
   retryLinkText: {
     color: colors.coral,
     fontSize: 13,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   scriptureHeader: {
     alignItems: "flex-start",
@@ -4257,7 +4257,7 @@ export const styles = StyleSheet.create({
   markupHelp: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 17,
     marginBottom: 10
   },
@@ -4313,7 +4313,7 @@ export const styles = StyleSheet.create({
   memoryVerseBadgeText: {
     color: colors.coral,
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "600",
     letterSpacing: 0,
     textTransform: "uppercase"
   },
@@ -4328,7 +4328,7 @@ export const styles = StyleSheet.create({
   methodVerseBadgeText: {
     color: colors.oliveDark,
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   phoneVerseText: {
@@ -4338,7 +4338,7 @@ export const styles = StyleSheet.create({
   verseNumber: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 20,
     minWidth: 18,
     textAlign: "right"
@@ -4367,7 +4367,7 @@ export const styles = StyleSheet.create({
   markupToolbarTitle: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   markupToolbarHelp: {
     color: colors.muted,
@@ -4408,7 +4408,7 @@ export const styles = StyleSheet.create({
   },
   markupOptionText: {
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   clearMarkupButton: {
     alignItems: "center",
@@ -4429,12 +4429,12 @@ export const styles = StyleSheet.create({
   memoryMarkupText: {
     color: "white",
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   clearMarkupText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   markupNoteBox: {
     backgroundColor: colors.panel,
@@ -4446,7 +4446,7 @@ export const styles = StyleSheet.create({
   markupNoteLabel: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 7,
     textTransform: "uppercase"
   },
@@ -4460,7 +4460,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.gold,
     borderRadius: 999,
     color: "white",
-    fontWeight: "800",
+    fontWeight: "600",
     overflow: "hidden",
     paddingHorizontal: 10,
     paddingVertical: 6
@@ -4493,7 +4493,7 @@ export const styles = StyleSheet.create({
   translationOptionText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeTranslationOptionText: {
     color: colors.ink
@@ -4501,7 +4501,7 @@ export const styles = StyleSheet.create({
   translationNote: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   studyPrintRow: {
     alignItems: "center",
@@ -4534,7 +4534,7 @@ export const styles = StyleSheet.create({
   studyContextToolTitle: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   studyContextToolIntro: {
     color: colors.muted,
@@ -4556,7 +4556,7 @@ export const styles = StyleSheet.create({
   studyContextToggleText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   studyContextPreviewBox: {
     backgroundColor: colors.panel,
@@ -4569,7 +4569,7 @@ export const styles = StyleSheet.create({
   studyContextPreviewLabel: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0,
     textTransform: "uppercase"
   },
@@ -4590,7 +4590,7 @@ export const styles = StyleSheet.create({
   studyContextVerseNumber: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 19,
     minWidth: 18,
     textAlign: "right"
@@ -4607,7 +4607,7 @@ export const styles = StyleSheet.create({
   },
   studyContextSelectedVerseText: {
     color: colors.ink,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   studyCrossReferenceArea: {
     gap: 8
@@ -4634,7 +4634,7 @@ export const styles = StyleSheet.create({
   studyCrossReferenceText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeStudyCrossReferenceText: {
     color: "white"
@@ -4719,7 +4719,7 @@ export const styles = StyleSheet.create({
   translationComparisonLabel: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   translationComparisonVerse: {
     color: colors.ink,
@@ -4729,7 +4729,7 @@ export const styles = StyleSheet.create({
   translationComparisonVerseNumber: {
     color: colors.coral,
     fontSize: 10,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   phoneStudyPrintButton: {
     alignSelf: "stretch",
@@ -4755,7 +4755,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flex: 1,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 17
   },
   methodChip: {
@@ -4769,7 +4769,7 @@ export const styles = StyleSheet.create({
   },
   methodChipText: {
     color: colors.oliveDark,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   activeMethodChipText: {
     color: "white"
@@ -4828,7 +4828,7 @@ export const styles = StyleSheet.create({
   contemplativeTimerValue: {
     color: colors.oliveDark,
     fontSize: 34,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 1
   },
   contemplativeTimerActions: {
@@ -4889,7 +4889,7 @@ export const styles = StyleSheet.create({
   reviewStepTitle: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 5
   },
   skippedReviewText: {
@@ -4901,14 +4901,14 @@ export const styles = StyleSheet.create({
   stepTitle: {
     color: colors.ink,
     fontSize: 20,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   badge: {
     alignSelf: "flex-start",
     backgroundColor: colors.oliveDark,
     borderRadius: 999,
     color: "white",
-    fontWeight: "800",
+    fontWeight: "600",
     overflow: "hidden",
     paddingHorizontal: 10,
     paddingVertical: 6
@@ -4922,7 +4922,7 @@ export const styles = StyleSheet.create({
   bodyStrong: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 18
   },
   instructionBox: {
@@ -4936,7 +4936,7 @@ export const styles = StyleSheet.create({
   actionText: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 22,
     marginBottom: 8
   },
@@ -4977,7 +4977,7 @@ export const styles = StyleSheet.create({
   collapseButtonText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   checklist: {
     gap: 8,
@@ -5002,14 +5002,14 @@ export const styles = StyleSheet.create({
   outputLabel: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 4,
     textTransform: "uppercase"
   },
   outputText: {
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 21
   },
   readyBox: {
@@ -5052,7 +5052,7 @@ export const styles = StyleSheet.create({
   methodSupportReference: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 19
   },
   methodSupportInput: {
@@ -5084,7 +5084,7 @@ export const styles = StyleSheet.create({
   methodSupportActionText: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   methodSupportClear: {
     minHeight: 38,
@@ -5094,7 +5094,7 @@ export const styles = StyleSheet.create({
   methodSupportClearText: {
     color: colors.coral,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   methodContextPreview: {
     backgroundColor: colors.panel,
@@ -5118,7 +5118,7 @@ export const styles = StyleSheet.create({
   methodContextVerseNumber: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     minWidth: 20
   },
   methodContextVerseText: {
@@ -5234,7 +5234,7 @@ export const styles = StyleSheet.create({
   readyTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 4
   },
   readyText: {
@@ -5289,7 +5289,7 @@ export const styles = StyleSheet.create({
   planSectionHeading: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0,
     marginBottom: 8,
     marginTop: 6,
@@ -5333,7 +5333,7 @@ export const styles = StyleSheet.create({
   planBrowseSectionTitle: {
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   planBrowseSectionDescription: {
     color: colors.muted,
@@ -5398,7 +5398,7 @@ export const styles = StyleSheet.create({
   completedReadingPlanStatusText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   completedReadingPlanStatusTextDark: {
     color: "#b8d39b"
@@ -5451,7 +5451,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.coral,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -5460,7 +5460,7 @@ export const styles = StyleSheet.create({
   planPageMetaText: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   planLastCompletedText: {
     color: colors.oliveDark
@@ -5512,7 +5512,7 @@ export const styles = StyleSheet.create({
   },
   planCardActionText: {
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   planCardPrimaryText: {
     color: colors.oliveDark
@@ -5544,7 +5544,7 @@ export const styles = StyleSheet.create({
   planExpandButtonText: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   planDetailsButton: {
     minHeight: 38,
@@ -5572,7 +5572,7 @@ export const styles = StyleSheet.create({
   planDetailLabel: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   planDetailText: {
@@ -5759,19 +5759,19 @@ export const styles = StyleSheet.create({
   planDayTileNumber: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   planDayTileDate: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "600",
     marginTop: 3,
     textAlign: "center"
   },
   planDayTileFlag: {
     color: colors.coral,
     fontSize: 9,
-    fontWeight: "900",
+    fontWeight: "700",
     marginTop: 2,
     textTransform: "uppercase"
   },
@@ -5830,7 +5830,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   devotionalTextSizeControl: {
     alignItems: "center",
@@ -5941,7 +5941,7 @@ export const styles = StyleSheet.create({
   devotionalTextSizeButtonText: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   devotionalTextSizeButtonTextActive: {
     color: "white"
@@ -5957,7 +5957,7 @@ export const styles = StyleSheet.create({
   planDayDevotionalSource: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   planDayPromptRow: {
@@ -5999,12 +5999,12 @@ export const styles = StyleSheet.create({
   careNoteAcknowledgeText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   planDayPromptLabel: {
     color: colors.coral,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   planDayPromptText: {
@@ -6056,7 +6056,7 @@ export const styles = StyleSheet.create({
   planDayTextActionLabel: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   planDayIconAction: {
     alignItems: "center",
@@ -6356,7 +6356,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 1,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   freeAccountBox: {
     backgroundColor: colors.panel,
@@ -6384,7 +6384,7 @@ export const styles = StyleSheet.create({
   freeAccountPrivacyLinkText: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     textDecorationLine: "underline"
   },
   freeAccountBenefitText: {
@@ -6392,7 +6392,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexShrink: 1,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 18,
     minWidth: 0
   },
@@ -6410,7 +6410,7 @@ export const styles = StyleSheet.create({
   authDividerText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   authFlowRow: {
@@ -6437,13 +6437,13 @@ export const styles = StyleSheet.create({
   authFlowText: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     textAlign: "center"
   },
   activeAuthFlowText: {
     color: "white"
   },
-  authFieldLabel: { color: colors.ink, fontSize: 14, fontWeight: "700", marginBottom: 8 },
+  authFieldLabel: { color: colors.ink, fontSize: 14, fontWeight: "600", marginBottom: 8 },
   accountAccessSection: { width: "100%", maxWidth: 640, alignSelf: "center" },
   accountRecoveryOptions: { gap: 12, marginTop: 20 },
   authFeedback: { color: colors.muted, fontSize: 14, lineHeight: 21, marginVertical: 12 },
@@ -6483,7 +6483,7 @@ export const styles = StyleSheet.create({
   legalUpdatedText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   legalDocSection: {
     gap: 3
@@ -6491,7 +6491,7 @@ export const styles = StyleSheet.create({
   legalDocSectionTitle: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   legalDocText: {
     color: colors.muted,
@@ -6525,7 +6525,7 @@ export const styles = StyleSheet.create({
   lockedTranslationText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   accountStatusBox: {
     backgroundColor: colors.panel,
@@ -6612,7 +6612,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 20
   },
   memoryViewToggle: {
@@ -6650,7 +6650,7 @@ export const styles = StyleSheet.create({
   memoryPrintCardsButtonText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   phoneMemoryPrintIconButton: {
     backgroundColor: "transparent",
@@ -6675,7 +6675,7 @@ export const styles = StyleSheet.create({
   memoryViewText: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeMemoryViewText: {
     color: "white"
@@ -6713,7 +6713,7 @@ export const styles = StyleSheet.create({
   memoryBrowseClearText: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryCollectionSelect: {
     alignItems: "center",
@@ -6754,13 +6754,13 @@ export const styles = StyleSheet.create({
   memoryDiscoverLabel: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   memoryFilterByLabel: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 12,
     marginBottom: -4,
     textTransform: "uppercase"
@@ -6822,7 +6822,7 @@ export const styles = StyleSheet.create({
   memoryHistoryEncouragementText: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 19,
     minWidth: 0
   },
@@ -6892,12 +6892,12 @@ export const styles = StyleSheet.create({
   memoryMilestoneGoalTitle: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryMilestoneGoalDescription: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 15
   },
   memoryHistoryHighlight: {
@@ -6936,7 +6936,7 @@ export const styles = StyleSheet.create({
   memoryHistoryDate: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     marginTop: 2
   },
   memoryHistoryMoreButton: {
@@ -6954,7 +6954,7 @@ export const styles = StyleSheet.create({
   memoryHistoryMoreText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   neglectedMemoryRow: {
     alignItems: "center",
@@ -6974,7 +6974,7 @@ export const styles = StyleSheet.create({
   neglectedMemoryPracticeText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryVerseHistoryBox: {
     backgroundColor: colors.panel,
@@ -7037,7 +7037,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flex: 1,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 17
   },
   memoryReviewQueueStopButton: {
@@ -7053,7 +7053,7 @@ export const styles = StyleSheet.create({
   memoryReviewQueueStopText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   reviewScheduleBox: {
     backgroundColor: colors.panel,
@@ -7165,7 +7165,7 @@ export const styles = StyleSheet.create({
   memorySectionTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   memorySectionTitleFeatured: {
     textTransform: "uppercase"
@@ -7175,7 +7175,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     minWidth: 26,
     overflow: "hidden",
     paddingHorizontal: 8,
@@ -7220,7 +7220,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     overflow: "hidden",
     paddingHorizontal: 8,
     paddingVertical: 4
@@ -7251,7 +7251,7 @@ export const styles = StyleSheet.create({
   memoryCollectionEditableText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   memoryCollectionInputRow: {
     alignItems: "center",
@@ -7341,7 +7341,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 13,
     overflow: "hidden",
     paddingHorizontal: 9,
@@ -7355,7 +7355,7 @@ export const styles = StyleSheet.create({
   memoryVerseText: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 24
   },
   phoneMemoryVerseText: {
@@ -7365,7 +7365,7 @@ export const styles = StyleSheet.create({
   memoryVersePreview: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 18
   },
   memoryTranslationLabel: {
@@ -7444,7 +7444,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 16,
     fontStyle: "italic",
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 24,
     padding: 12
   },
@@ -7559,7 +7559,7 @@ export const styles = StyleSheet.create({
   memoryStepText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 15
   },
   phoneMemoryStepText: {
@@ -7623,7 +7623,7 @@ export const styles = StyleSheet.create({
   methodStepCountText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   methodLabelRow: {
     flexDirection: "row",
@@ -7637,7 +7637,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     paddingHorizontal: 8,
     paddingVertical: 5
   },
@@ -7668,7 +7668,7 @@ export const styles = StyleSheet.create({
   currentMethodTitle: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 19
   },
   currentMethodActions: {
@@ -7698,14 +7698,14 @@ export const styles = StyleSheet.create({
   methodToolbarButtonText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   methodToolbarBadge: {
     backgroundColor: colors.sage,
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 7,
     paddingVertical: 3
@@ -7735,7 +7735,7 @@ export const styles = StyleSheet.create({
   methodFilterText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeMethodFilterText: {
     color: "white"
@@ -7757,7 +7757,7 @@ export const styles = StyleSheet.create({
   methodRecommendTitle: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   methodRecommendReason: {
     color: colors.muted,
@@ -7784,7 +7784,7 @@ export const styles = StyleSheet.create({
   methodRecommendChoiceText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activeMethodRecommendChoiceText: {
     color: "white"
@@ -7812,7 +7812,7 @@ export const styles = StyleSheet.create({
   methodInfoLabel: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   methodFitRow: {
@@ -7825,7 +7825,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     paddingHorizontal: 10,
     paddingVertical: 6
   },
@@ -7844,7 +7844,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: "white",
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 8,
     paddingVertical: 4
@@ -7856,7 +7856,7 @@ export const styles = StyleSheet.create({
   methodStepTitle: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   methodStepText: {
     color: colors.muted,
@@ -7866,7 +7866,7 @@ export const styles = StyleSheet.create({
   methodExamplePassage: {
     color: colors.coral,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   methodExampleLine: {
     color: colors.ink,
@@ -7900,7 +7900,7 @@ export const styles = StyleSheet.create({
   cardTitle: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 6
   },
   metricGrid: {
@@ -7933,7 +7933,7 @@ export const styles = StyleSheet.create({
   metricValue: {
     color: colors.coral,
     fontSize: 24,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   phoneMemoryMetricValue: {
     fontSize: 20,
@@ -7958,7 +7958,7 @@ export const styles = StyleSheet.create({
   phoneMemoryPrimaryReviewText: {
     color: "#fff",
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   journalCard: {
     marginBottom: 14
@@ -8038,7 +8038,7 @@ export const styles = StyleSheet.create({
   journalViewText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeJournalViewText: {
     color: "white"
@@ -8057,7 +8057,7 @@ export const styles = StyleSheet.create({
   clearDateFilterText: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   filterRow: {
     flexDirection: "row",
@@ -8085,7 +8085,7 @@ export const styles = StyleSheet.create({
   filterText: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   phoneJournalFilterText: {
     fontSize: 12
@@ -8116,7 +8116,7 @@ export const styles = StyleSheet.create({
   journalFilterSummaryText: {
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 20
   },
   journalFilterSummaryRight: {
@@ -8178,7 +8178,7 @@ export const styles = StyleSheet.create({
   journalCalendarTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   calendarWeekdayRow: {
     flexDirection: "row"
@@ -8187,7 +8187,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flex: 1,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     textAlign: "center"
   },
   calendarGrid: {
@@ -8220,7 +8220,7 @@ export const styles = StyleSheet.create({
   calendarDayNumber: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   inactiveCalendarDayNumber: {
     color: colors.muted
@@ -8231,7 +8231,7 @@ export const styles = StyleSheet.create({
   calendarEntryCount: {
     color: colors.coral,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     marginTop: 1
   },
   selectedCalendarEntryCount: {
@@ -8290,7 +8290,7 @@ export const styles = StyleSheet.create({
   dateFilterText: {
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   passageFilterNotice: {
     maxWidth: "100%",
@@ -8315,7 +8315,7 @@ export const styles = StyleSheet.create({
   clearPassageFilterInlineText: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   highlightLibraryPanel: {
     alignItems: "center",
@@ -8349,7 +8349,7 @@ export const styles = StyleSheet.create({
   highlightLibraryTitle: {
     color: colors.ink,
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 3
   },
   highlightLibraryText: {
@@ -8439,7 +8439,7 @@ export const styles = StyleSheet.create({
   phoneAddMemorySubtitle: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 14,
     marginTop: 1
   },
@@ -8461,7 +8461,7 @@ export const styles = StyleSheet.create({
   emptyJournalTitle: {
     color: colors.ink,
     fontSize: 17,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   emptyJournalText: {
     color: colors.muted,
@@ -8492,7 +8492,7 @@ export const styles = StyleSheet.create({
   helpShareTitle: {
     color: colors.ink,
     fontSize: 20,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 26
   },
   helpShareUrl: {
@@ -8503,7 +8503,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.oliveDark,
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 11,
     paddingVertical: 7
@@ -8548,7 +8548,7 @@ export const styles = StyleSheet.create({
   helpQrCaption: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   helpActionRow: {
@@ -8576,7 +8576,7 @@ export const styles = StyleSheet.create({
   helpCategoryText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeHelpCategoryText: {
     color: "white"
@@ -8613,12 +8613,12 @@ export const styles = StyleSheet.create({
   helpStepNumberText: {
     color: "white",
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   helpCardTitle: {
     color: colors.ink,
     fontSize: 16,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   helpCardText: {
     color: colors.muted,
@@ -8675,14 +8675,14 @@ export const styles = StyleSheet.create({
   helpScreenshotLabel: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   helpScreenshotPill: {
     backgroundColor: colors.sage,
     borderRadius: 999,
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 8,
     paddingVertical: 4
@@ -8707,7 +8707,7 @@ export const styles = StyleSheet.create({
   helpVerseNumber: {
     color: colors.coral,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   helpLongLine: {
     backgroundColor: colors.line,
@@ -8749,7 +8749,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: "white",
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 6
@@ -8775,7 +8775,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     overflow: "hidden",
     paddingHorizontal: 9,
     paddingVertical: 6
@@ -8802,7 +8802,7 @@ export const styles = StyleSheet.create({
   helpMemoryWord: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "700"
+    fontWeight: "600"
   },
   helpJournalRow: {
     alignItems: "center",
@@ -8821,7 +8821,7 @@ export const styles = StyleSheet.create({
   helpJournalTitle: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   helpFaqCard: {
     gap: 10
@@ -8838,7 +8838,7 @@ export const styles = StyleSheet.create({
   helpFaqQuestion: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   helpFaqAnswer: {
     color: colors.muted,
@@ -8905,7 +8905,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 15,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 0
   },
   helpGuideSummary: {
@@ -8952,7 +8952,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flexShrink: 0,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     minWidth: 22,
     overflow: "hidden",
     paddingVertical: 4,
@@ -9054,7 +9054,7 @@ export const styles = StyleSheet.create({
   feedbackCategoryText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activeFeedbackCategoryText: {
     color: "white"
@@ -9124,12 +9124,12 @@ export const styles = StyleSheet.create({
   savedDataValue: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   savedDataLabel: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   feedbackInput: {
     minHeight: 110,
@@ -9150,7 +9150,7 @@ export const styles = StyleSheet.create({
   iconTextButtonLabel: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   adminMapCard: {
     gap: 14,
@@ -9190,13 +9190,13 @@ export const styles = StyleSheet.create({
   adminMapMetricValue: {
     color: colors.oliveDark,
     fontSize: 22,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 24
   },
   adminMapMetricLabel: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   adminMapLayout: {
@@ -9282,7 +9282,7 @@ export const styles = StyleSheet.create({
   adminMapHotspotText: {
     color: "white",
     fontSize: 15,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 18
   },
   adminMapNote: {
@@ -9308,7 +9308,7 @@ export const styles = StyleSheet.create({
   adminMapNoteText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   adminMapDetailPanel: {
     backgroundColor: colors.panel,
@@ -9340,13 +9340,13 @@ export const styles = StyleSheet.create({
   adminMapDetailLabel: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   adminMapDetailValue: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   adminDashboardGrid: {
     flexDirection: "row",
@@ -9443,7 +9443,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   adminFeedbackItem: {
     backgroundColor: colors.panel,
@@ -9499,13 +9499,13 @@ export const styles = StyleSheet.create({
   securitySummaryValue: {
     color: colors.oliveDark,
     fontSize: 18,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 21
   },
   securitySummaryLabel: {
     color: colors.muted,
     fontSize: 10,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   securityTypeBox: {
@@ -9535,12 +9535,12 @@ export const styles = StyleSheet.create({
   securityTypeChipText: {
     color: colors.oliveDark,
     fontSize: 11,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   securityTypeChipCount: {
     color: colors.ink,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   suspensionReasonBox: {
     alignSelf: "stretch",
@@ -9601,7 +9601,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     flex: 1,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: "600",
     minWidth: 0,
     outlineStyle: "none" as any,
     padding: 0
@@ -9614,7 +9614,7 @@ export const styles = StyleSheet.create({
   adminDirectorySummary: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 17
   },
   adminDirectoryShowMore: {
@@ -9719,7 +9719,7 @@ export const styles = StyleSheet.create({
   adminEventMeta: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   printOptionsOverlay: {
     bottom: 0,
@@ -9848,12 +9848,12 @@ export const styles = StyleSheet.create({
   memoryBookDropdownTitle: {
     color: colors.oliveDark,
     fontSize: 14,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryBookDropdownSubtitle: {
     color: colors.muted,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     lineHeight: 15
   },
   memoryBookPickerGrid: {
@@ -9872,7 +9872,7 @@ export const styles = StyleSheet.create({
   memoryBookPickerChipText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryBookRangeRow: {
     alignItems: "center",
@@ -9886,7 +9886,7 @@ export const styles = StyleSheet.create({
   memoryBookRangeDash: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryCollectionPromptSummary: {
     alignItems: "flex-start",
@@ -9902,7 +9902,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flex: 1,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 18,
     minWidth: 0
   },
@@ -9927,7 +9927,7 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     flex: 1,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     minWidth: 120
   },
   editorSettingsSaveButton: {
@@ -9941,7 +9941,7 @@ export const styles = StyleSheet.create({
   editorSettingsSaveText: {
     color: "white",
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   highlightColorPickerCard: {
     alignSelf: "center",
@@ -10017,12 +10017,12 @@ export const styles = StyleSheet.create({
   printOptionsTitle: {
     color: colors.ink,
     fontSize: 18,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   printOptionsSubtitle: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 18,
     marginTop: 3
   },
@@ -10032,13 +10032,13 @@ export const styles = StyleSheet.create({
   printOptionsHintText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 17
   },
   printOptionLabel: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   printOptionChipRow: {
@@ -10066,7 +10066,7 @@ export const styles = StyleSheet.create({
   printOptionChipText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   activePrintOptionChipText: {
     color: "white"
@@ -10087,7 +10087,7 @@ export const styles = StyleSheet.create({
   printOptionToggleText: {
     color: colors.ink,
     fontSize: 14,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   memoryPrintPickerHeader: {
     alignItems: "center",
@@ -10103,7 +10103,7 @@ export const styles = StyleSheet.create({
   memoryPrintPickerActionText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryPrintVersePicker: {
     backgroundColor: "#fffaf2",
@@ -10143,12 +10143,12 @@ export const styles = StyleSheet.create({
   memoryPrintVerseReference: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   memoryPrintVerseText: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 17,
     marginTop: 2
   },
@@ -10186,7 +10186,7 @@ export const styles = StyleSheet.create({
   rhythmGraceInfoLabel: {
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   rhythmGraceInfoText: {
@@ -10209,13 +10209,13 @@ export const styles = StyleSheet.create({
   rhythmGraceCountLabel: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     textTransform: "uppercase"
   },
   rhythmGraceCountValue: {
     color: colors.oliveDark,
     fontSize: 20,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   rhythmGraceSuccessIconRow: {
     alignItems: "center",
@@ -10276,7 +10276,7 @@ export const styles = StyleSheet.create({
   printOptionsCancelText: {
     color: colors.muted,
     fontSize: 13,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   phonePrintOpenButton: {
     justifyContent: "center",
@@ -10364,7 +10364,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     color: colors.ink,
     fontSize: 20,
-    fontWeight: "800",
+    fontWeight: "600",
     marginBottom: 10
   },
   sectionHelp: {
@@ -10446,7 +10446,7 @@ export const styles = StyleSheet.create({
   journalDateGroupTitle: {
     color: colors.muted,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.4,
     marginTop: 2,
     textTransform: "uppercase"
@@ -10467,7 +10467,7 @@ export const styles = StyleSheet.create({
   pinButtonText: {
     color: colors.oliveDark,
     fontSize: 12,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   activePinButtonText: {
     color: "white"
@@ -10499,7 +10499,7 @@ export const styles = StyleSheet.create({
     borderRadius: 999,
     color: colors.coral,
     fontSize: 11,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 13,
     overflow: "hidden",
     paddingHorizontal: 10,
@@ -10536,7 +10536,7 @@ export const styles = StyleSheet.create({
   journalMeditationReference: {
     color: colors.ink,
     fontSize: 13,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.2,
     lineHeight: 18
   },
@@ -10544,7 +10544,7 @@ export const styles = StyleSheet.create({
     color: colors.ink,
     fontSize: 16,
     fontStyle: "italic",
-    fontWeight: "700",
+    fontWeight: "600",
     lineHeight: 24
   },
   journalMeditationAnswer: {
@@ -10559,7 +10559,7 @@ export const styles = StyleSheet.create({
   journalMeditationAnswerTitle: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "900",
+    fontWeight: "700",
     letterSpacing: 0.4,
     lineHeight: 16,
     textTransform: "uppercase"
@@ -10592,7 +10592,7 @@ export const styles = StyleSheet.create({
     marginBottom: 0
   },
   formattedBold: {
-    fontWeight: "900"
+    fontWeight: "700"
   },
   formattedItalic: {
     fontStyle: "italic"
@@ -10622,7 +10622,7 @@ export const styles = StyleSheet.create({
   },
   markupSummaryText: {
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     lineHeight: 16
   },
   markupSummaryNote: {
@@ -10650,7 +10650,7 @@ export const styles = StyleSheet.create({
   reflectionSummaryLabel: {
     color: colors.coral,
     fontSize: 12,
-    fontWeight: "800",
+    fontWeight: "600",
     textTransform: "uppercase"
   },
   journalActions: {
@@ -10759,7 +10759,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark,
     flex: 1,
     fontSize: 12,
-    fontWeight: "900"
+    fontWeight: "700"
   },
   phoneMemoryActionText: {
     fontSize: 12,
@@ -10778,7 +10778,7 @@ export const styles = StyleSheet.create({
   resumeButtonText: {
     color: colors.coral,
     flexShrink: 1,
-    fontWeight: "800"
+    fontWeight: "600"
   },
   primaryResumeButtonText: {
     color: "white"

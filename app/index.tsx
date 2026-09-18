@@ -262,11 +262,6 @@ type PendingRhythmGracePrompt = {
   storageKey: string;
 };
 
-type RhythmGraceSuccess = {
-  missedDate: string;
-  restoredCount: number;
-};
-
 type PendingStudyTransition = {
   description: string;
 };
@@ -1091,7 +1086,6 @@ function HomeScreen() {
   const [memoryPrintCollectionFilter, setMemoryPrintCollectionFilter] = useState("all");
   const [memoryPrintSelectedVerseIds, setMemoryPrintSelectedVerseIds] = useState<string[]>([]);
   const [pendingRhythmGracePrompt, setPendingRhythmGracePrompt] = useState<PendingRhythmGracePrompt | null>(null);
-  const [rhythmGraceSuccess, setRhythmGraceSuccess] = useState<RhythmGraceSuccess | null>(null);
   const [savedStudySummary, setSavedStudySummary] = useState<SavedStudySummary | null>(null);
   const [shareInsightStatus, setShareInsightStatus] = useState("");
   const [shareInsightPanelOpen, setShareInsightPanelOpen] = useState(false);
@@ -1848,7 +1842,7 @@ function HomeScreen() {
   const shouldLoadStudyStats = profileMatchesActiveState && (tab === "home" || tab === "account");
   const queriedStats = useQuery(api.study.stats, shouldLoadStudyStats ? { profileId: activeProfileId, timezoneOffsetMinutes, now: studyReviewNow } : "skip");
   const stats = useRefreshingValue(shouldLoadStudyStats ? `${activeProfileId}:${isAuthenticated}:${timezoneOffsetMinutes}` : null, queriedStats);
-  const rhythmGrace = (stats as any)?.rhythmGrace;
+  const rhythmGrace = queriedStats?.migrationStatus === "ready" ? queriedStats.rhythmGrace : null;
   const currentRhythmCount = Number((stats as any)?.currentStreak || 0);
   const sessions = useQuery(api.study.recentSessions, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const savedDraft = useQuery(
@@ -1872,7 +1866,10 @@ function HomeScreen() {
 
   useEffect(() => {
     const missedDate = typeof rhythmGrace?.missedDate === "string" ? rhythmGrace.missedDate : "";
-    if (!profileMatchesActiveState || !activeProfileId || !missedDate) return;
+    if (!profileMatchesActiveState || !activeProfileId || !missedDate) {
+      setPendingRhythmGracePrompt(null);
+      return;
+    }
     const storageKey = `bible-study-tutor-rhythm-grace-${activeProfileId}-${missedDate}`;
     const syncedHandledDates = uiStringList(profileUiPreferences, "rhythmGraceHandledDates") || [];
     if (syncedHandledDates.includes(missedDate)) {
@@ -4170,16 +4167,6 @@ function HomeScreen() {
       persistRhythmGraceHandledDate(pendingRhythmGracePrompt.missedDate, pendingRhythmGracePrompt.storageKey);
     }
     setPendingRhythmGracePrompt(null);
-  }
-
-  function restoreDailyRhythmFromGracePrompt() {
-    if (!pendingRhythmGracePrompt) return;
-    const restoredCount = Math.max(currentRhythmCount, 1);
-    persistRhythmGraceHandledDate(pendingRhythmGracePrompt.missedDate, pendingRhythmGracePrompt.storageKey);
-    trackUsage("rhythm_restored", { reference: pendingRhythmGracePrompt.missedDate, tab: "home" });
-    setRhythmGraceSuccess({ missedDate: pendingRhythmGracePrompt.missedDate, restoredCount });
-    setPendingRhythmGracePrompt(null);
-    setTab("home");
   }
 
   function openStudyFromPublicSource(source: string) {
@@ -8098,9 +8085,13 @@ function HomeScreen() {
   return (
     <UIThemeContext.Provider value={accountDarkMode}>
     <View style={[styles.screen, accountDarkMode && styles.appDarkScreen, compactLayout && styles.compactScreen, practiceViewport]}>
-      {!!readerSyncError && <View accessibilityRole="alert" style={{ position: "absolute", top: 12, left: 12, right: 12, zIndex: 1000, padding: 16, backgroundColor: "#fffaf2", borderWidth: 1, borderColor: "#9c4537" }}>
-        <Text>{readerSyncError}</Text>
-        <AppButton label="Reload saved version" onPress={() => {
+      <Modal visible={!!readerSyncError} transparent animationType="fade" onRequestClose={() => {}}>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0,0,0,0.55)" }}>
+        <ScrollView style={{ width: "100%", maxWidth: 520, maxHeight: "90%", flexGrow: 0, borderRadius: 16, backgroundColor: accountDarkMode ? "#242424" : colors.panel }} contentContainerStyle={{ padding: 20, gap: 16 }}>
+        <Text accessibilityRole="header" style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>Reader changes need attention</Text>
+        <Text accessibilityRole="alert" style={[styles.body, accountDarkMode && styles.accountDarkText]}>{readerSyncError}</Text>
+        <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>This concerns your Bible reader and reading-plan changes. Your memory verses and rhythm are stored separately.</Text>
+        <AppButton label="Reload saved version" disabled={!activeProfileId || remoteBibleReaderState === undefined} onPress={() => {
           removeRecoveryValue(`bible-study-tutor-study-recovery-reader-${activeProfileId}`);
           setReplaceReaderArmed(false);
           readerSyncQueue.current = createReaderSyncQueue();
@@ -8108,7 +8099,7 @@ function HomeScreen() {
           clearPendingBibleReaderStateSync();
           setReaderSyncError(""); setReaderSyncAttempt(value => value + 1);
         }} />
-        <AppButton label={replaceReaderArmed ? "Confirm replace saved version" : "Keep this device copy instead"} onPress={async () => {
+        <AppButton variant="secondary" label={replaceReaderArmed ? "Confirm replace saved version" : "Keep this device copy instead"} disabled={!activeProfileId || remoteBibleReaderState === undefined} onPress={async () => {
           if (!replaceReaderArmed) { setReplaceReaderArmed(true); return; }
           if (!activeProfileId || remoteBibleReaderState === undefined) return;
           const key = `bible-study-tutor-study-recovery-reader-${activeProfileId}`;
@@ -8121,7 +8112,9 @@ function HomeScreen() {
             setReaderSyncError(""); setReplaceReaderArmed(false); setReaderSyncAttempt(value => value + 1);
           } catch { setReaderSyncError("Could not save the device copy. The saved version may have changed again. Your device copy is still available."); setReplaceReaderArmed(false); }
         }} />
-      </View>}
+        </ScrollView>
+        </View>
+      </Modal>
       {phoneLayout && (
         <View style={[styles.mobileMenuBar, accountDarkMode && styles.appDarkMobileMenuBar]}>
           <Pressable
@@ -12046,9 +12039,9 @@ function HomeScreen() {
           <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
-                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Restore your daily rhythm?</Text>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Your rhythm includes a grace day</Text>
                 <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
-                  {firstName ? `${firstName}, y` : "Y"}ou missed {formatPlanDayRelativeDate(pendingRhythmGracePrompt.missedDate)}.
+                  No activity is recorded for {formatPlanDayRelativeDate(pendingRhythmGracePrompt.missedDate)}.
                 </Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Close daily rhythm grace prompt" onPress={dismissRhythmGracePrompt} style={styles.markupCloseButton}>
@@ -12061,10 +12054,10 @@ function HomeScreen() {
               </View>
               <View style={styles.rhythmGraceInfoCopy}>
                 <Text style={[styles.rhythmGraceInfoLabel, accountDarkMode && styles.studyDarkAccentText]}>
-                  Grace day available
+                  Grace day included automatically
                 </Text>
                 <Text style={[styles.rhythmGraceInfoText, accountDarkMode && styles.accountDarkMutedText]}>
-                  Use one grace day to keep your Scripture rhythm going from today.
+                  Your current count already allows one day without recorded activity. If you used the app that day, your activity may not have synced.
                 </Text>
               </View>
             </View>
@@ -12075,42 +12068,7 @@ function HomeScreen() {
               </Text>
             </View>
             <View style={[styles.printOptionsActions, styles.rhythmGraceActions, phoneLayout && styles.phoneRhythmGraceActions]}>
-              <ResumeButton label="Restore rhythm" icon="refresh-outline" onPress={restoreDailyRhythmFromGracePrompt} variant="primary" style={[styles.rhythmGracePrimaryButton, phoneLayout && styles.phonePrintOpenButton]} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
-              <Pressable onPress={dismissRhythmGracePrompt} style={[styles.rhythmGraceSecondaryButton, accountDarkMode && styles.printDarkCancelButton]}>
-                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Not now</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      )}
-      {rhythmGraceSuccess && (
-        <View {...modalAccessibilityProps("Restored rhythm confirmation")} style={styles.printOptionsOverlay}>
-          <Pressable style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setRhythmGraceSuccess(null)} />
-          <View style={[styles.printOptionsCard, styles.rhythmGraceCard, phoneLayout && styles.phonePrintOptionsCard, phoneLayout && styles.phoneRhythmGraceCard, accountDarkMode && styles.accountDarkMainCard]}>
-            <View style={styles.printOptionsHeader}>
-              <View style={styles.printOptionsTitleBlock}>
-                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Rhythm restored</Text>
-                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
-                  Success{firstName ? `, ${firstName}` : ""}. Your current rhythm is now {rhythmGraceSuccess.restoredCount} day{rhythmGraceSuccess.restoredCount === 1 ? "" : "s"}.
-                </Text>
-              </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Close restored rhythm confirmation" onPress={() => setRhythmGraceSuccess(null)} style={styles.markupCloseButton}>
-                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
-              </Pressable>
-            </View>
-            <View style={[styles.rhythmGraceCountBox, accountDarkMode && styles.memoryDarkSoftPanel]}>
-              <Text style={[styles.rhythmGraceCountLabel, accountDarkMode && styles.accountDarkMutedText]}>Current rhythm</Text>
-              <Text style={[styles.rhythmGraceCountValue, accountDarkMode && styles.accountDarkTitle]}>
-                {rhythmGraceSuccess.restoredCount} day{rhythmGraceSuccess.restoredCount === 1 ? "" : "s"}
-              </Text>
-            </View>
-            <View style={styles.rhythmGraceSuccessIconRow}>
-              <View style={[styles.rhythmGraceSuccessIcon, accountDarkMode && styles.homeDarkIconBubble]}>
-                <Ionicons name="checkmark-outline" size={34} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-              </View>
-            </View>
-            <View style={[styles.printOptionsActions, styles.rhythmGraceActions, phoneLayout && styles.phoneRhythmGraceActions]}>
-              <ResumeButton label="Done" icon="checkmark-outline" onPress={() => setRhythmGraceSuccess(null)} variant="primary" style={[styles.rhythmGracePrimaryButton, phoneLayout && styles.phonePrintOpenButton]} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
+              <ResumeButton label="Got it" icon="checkmark-outline" onPress={dismissRhythmGracePrompt} variant="primary" style={[styles.rhythmGracePrimaryButton, phoneLayout && styles.phonePrintOpenButton]} labelStyle={phoneLayout && styles.phonePrintOpenButtonText} />
             </View>
           </View>
         </View>

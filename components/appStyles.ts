@@ -3222,37 +3222,9 @@ export const styles = StyleSheet.create({
     gap: 8,
     padding: 14
   },
-  selectedAiOption: {
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "600",
-    marginBottom: 2,
-    overflow: "hidden",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    alignSelf: "flex-start"
-  },
   activeAiOptionCard: {
     borderColor: colors.oliveDark,
     borderWidth: 2
-  },
-  aiDetailsBox: {
-    backgroundColor: colors.panel,
-    borderRadius: 12,
-    gap: 5,
-    padding: 11
-  },
-  aiDetailsTitle: {
-    color: colors.oliveDark,
-    fontSize: 14,
-    fontWeight: "600"
-  },
-  aiDetailsText: {
-    color: colors.oliveDark,
-    fontSize: 13,
-    lineHeight: 19
   },
   studyHelpsBox: {
     backgroundColor: colors.panel,
@@ -7480,14 +7452,6 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     maxWidth: "100%",
     width: "100%"
-  },
-  memoryPracticeBox: {
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: 10,
-    padding: 14
   },
   memoryPracticeText: {
     backgroundColor: colors.panel,

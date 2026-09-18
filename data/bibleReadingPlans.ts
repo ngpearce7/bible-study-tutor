@@ -3984,7 +3984,7 @@ function withBookSectionGuidance(plan: BibleReadingPlan): BibleReadingPlan {
   };
 }
 
-export const builtInBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeguards([
+const originalBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeguards([
   withCuratedDevotionals(oneChapterPerDayPlan("john-21", "21 Days in John", "Read one chapter a day through John's Gospel.", "John", 21)),
   withCuratedDevotionals(oneChapterPerDayPlan("romans-16", "Romans in 16 Days", "Move slowly through Paul's letter one chapter at a time.", "Romans", 16)),
   withCuratedDevotionals(buildChapterPlan("psalms-prayer", "Psalms for Prayer", "Twenty-one Psalms chosen to shape prayer, trust, confession, and worship.", ["Psalms"], 21, "Prayer")),
@@ -4848,4 +4848,160 @@ export const builtInBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeg
   })
 ]);
 
+// Keep original IDs and readings resolvable for existing followers and saved progress.
+// Rebuilt schedules use new IDs; retirement affects discovery only.
+const retiredPlanIds = new Set([
+  "bible-30", "bible-overview-60", "old-testament-overview", "new-testament-overview",
+  "new-testament-1-year", "psalms-proverbs-1-year", "bible-1-year-old-new", "psalms-prayer"
+]);
+
+const prayerPsalmFocus: Record<string, [string, string]> = {
+  "Psalm 1": ["Delight in God's word", "What would help you make room for God's instruction today?"],
+  "Psalm 8": ["Wonder and gratitude", "What in creation moves you to praise God?"],
+  "Psalm 13": ["An honest lament", "What unanswered question can you bring honestly to God?"],
+  "Psalm 16": ["Finding refuge", "Where do you need to entrust your security to the Lord?"],
+  "Psalm 19": ["Listening to God", "Which words of this Psalm can become your prayer?"],
+  "Psalm 23": ["The Shepherd's care", "Where do you need the Shepherd's guidance or comfort?"],
+  "Psalm 27": ["Courage while waiting", "What fear can you bring into God's presence?"],
+  "Psalm 32": ["Confession and forgiveness", "What do you need to confess rather than keep hidden?"],
+  "Psalm 42": ["Longing for God", "How can this Psalm give words to your longing?"],
+  "Psalm 46": ["Refuge amid trouble", "What trouble do you need to place before God?"],
+  "Psalm 51": ["Asking for a clean heart", "Where do you need God's mercy and renewal?"],
+  "Psalm 63": ["Seeking God", "What competes for the attention you want to give to God?"],
+  "Psalm 73": ["Bringing envy to God", "Where has comparison unsettled your trust?"],
+  "Psalm 84": ["Longing for God's presence", "What helps you seek God in an ordinary day?"],
+  "Psalm 90": ["Wisdom with our days", "How could you use the time entrusted to you wisely?"],
+  "Psalm 95": ["Worship and listening", "Where do you need to listen as well as praise?"],
+  "Psalm 103": ["Remembering mercy", "Which of God's mercies do you want to remember today?"],
+  "Psalm 121": ["Looking for help", "What need can you entrust to the Lord's care?"],
+  "Psalm 130": ["Waiting with hope", "What does waiting on the Lord look like for you today?"],
+  "Psalm 139": ["Known by God", "What would you like to ask God to search and guide in you?"],
+  "Psalm 150": ["Let everything praise", "How can you express gratitude and praise today?"]
+};
+
+function selectedChapterPlan(id: string, title: string, description: string, references: string[], category = "Overview"): BibleReadingPlan {
+  return withBookSectionGuidance(enrichPlanMetadata({
+    id, title, description, source: "built-in", category,
+    pace: "One selected chapter each day", estimatedTime: "About 5–10 minutes reading; allow another 5–10 for reflection",
+    coverage: `${references.length} selected chapters, not every chapter of the Bible.`,
+    days: references.map((reference, index) => {
+      const match = /^(.*) (\d+)$/.exec(reference)!;
+      const book = readerBookFromReferenceBook(match[1]);
+      const focus = category === "Prayer" ? prayerPsalmFocus[reference] : undefined;
+      return buildDay(index + 1, reference, book, Number(match[2]), focus?.[0] || reference, reference, focus ? {
+        guidanceKind: "reading-guidance",
+        context: `Read ${reference} as a whole prayer. Notice who is speaking, what is being asked or praised, and how the prayer moves before making its words your own.`,
+        observationQuestion: "What does this Psalm say about God, and how does the writer respond?",
+        reflectionQuestion: focus[1],
+        prayer: "Pray one line of this Psalm in your own words, then name one person or situation to bring before God.",
+        gentleAction: "Carry one phrase from this Psalm into the rest of your day.",
+        studyMethod: "Meditation"
+      } : {});
+    })
+  }));
+}
+
+const storyReadings = [
+  "Genesis 1", "Genesis 3", "Genesis 12", "Genesis 15", "Genesis 22",
+  "Exodus 3", "Exodus 12", "Exodus 20", "Deuteronomy 6", "Joshua 24",
+  "Ruth 1", "2 Samuel 7", "Psalm 23", "Isaiah 9", "Isaiah 53",
+  "Jeremiah 31", "Ezekiel 36", "Luke 1", "Luke 2", "Matthew 5",
+  "Mark 4", "Luke 15", "John 11", "John 19", "John 20",
+  "Acts 2", "Acts 10", "Romans 3", "Ephesians 2", "Revelation 21"
+];
+const storyCompanionReadings = [
+  "Genesis 2", "Genesis 9", "Genesis 13", "Genesis 17", "Genesis 45",
+  "Exodus 6", "Exodus 14", "Exodus 34", "Deuteronomy 30", "Judges 2",
+  "Ruth 4", "1 Kings 8", "Psalm 51", "Isaiah 11", "Isaiah 55",
+  "Lamentations 3", "Ezekiel 37", "Matthew 1", "Luke 4", "Matthew 6",
+  "Mark 8", "Luke 19", "John 13", "Luke 23", "Luke 24",
+  "Acts 9", "Acts 15", "Romans 8", "Philippians 2", "Revelation 22"
+];
+
+function balancedReflectionYear(id: string, title: string, books: string[]): BibleReadingPlan {
+  const chapters = chaptersForBooks(books);
+  return withBookSectionGuidance(enrichPlanMetadata({
+    id, title, source: "built-in", category: "Book study", browseGroup: "books",
+    description: "One chapter at a time, with reflection days spread throughout the year.",
+    pace: "One chapter or a reflection reading daily", estimatedTime: "About 5–10 minutes reading; allow another 5–10 for reflection",
+    coverage: `All ${chapters.length} chapters, with ${365 - chapters.length} reflection days distributed across the year.`,
+    days: Array.from({ length: 365 }, (_, index) => {
+      const chapterIndex = Math.floor(index * chapters.length / 365);
+      const chapter = chapters[chapterIndex];
+      const reference = chapterReference(chapter.book, chapter.chapter);
+      const reflection = index > 0 && chapterIndex === Math.floor((index - 1) * chapters.length / 365);
+      return buildDay(index + 1, reference, chapter.book, chapter.chapter,
+        reflection ? `Reflect on ${reference}` : reference, reference,
+        reflection ? reflectionDayGuidance(reference) : {});
+    })
+  }));
+}
+
+function balancedPairingYear(): BibleReadingPlan {
+  const ot = chaptersForBooks(OLD_TESTAMENT_BOOKS);
+  const nt = chaptersForBooks(NEW_TESTAMENT_BOOKS);
+  return enrichPlanMetadata({
+    id: "bible-old-new-365-v2", title: "Old and New Testament Daily Pairing", source: "built-in", category: "Whole Bible",
+    description: "Read both testaments every day, with occasional New Testament rereadings for reflection.",
+    pace: "3–4 chapters daily", estimatedTime: "About 15–25 minutes reading; allow another 5–10 for reflection",
+    coverage: "Every Old and New Testament chapter across 365 days. Some New Testament chapters are revisited to keep both testaments present each day.",
+    days: Array.from({length: 365}, (_, index) => {
+      const old = ot.slice(Math.floor(index * ot.length / 365), Math.floor((index + 1) * ot.length / 365));
+      const newIndex = Math.floor(index * nt.length / 365);
+      const group = [...old, nt[newIndex]];
+      const reference = compactReference(group);
+      const reflection = index > 0 && newIndex === Math.floor((index - 1) * nt.length / 365);
+      return buildDay(index + 1, reference, old[0].book, old[0].chapter,
+        reflection ? "Read and revisit the New Testament passage" : `Day ${index + 1}`,
+        chapterReference(nt[newIndex].book, nt[newIndex].chapter),
+        nt[newIndex].chapter === 1 && !reflection ? bookSectionGuidance(nt[newIndex].book) : {});
+    })
+  });
+}
+
+const revisedPlans = [
+  selectedChapterPlan("bible-story-30", "Bible Story in 30 Days", "Follow creation, covenant, Jesus, the church and new creation through selected chapters.", storyReadings),
+  selectedChapterPlan("bible-story-60", "Bible Story in 60 Days", "A more spacious introduction to Scripture's story through 60 selected chapters.", storyReadings.flatMap((reference, i) => [reference, storyCompanionReadings[i]])),
+  selectedChapterPlan("old-testament-story-60", "Old Testament Story in 60 Days", "Selected chapters introduce the Old Testament's story, worship, wisdom and prophetic hope.", [
+    "Genesis 1", "Genesis 2", "Genesis 3", "Genesis 6", "Genesis 9", "Genesis 12", "Genesis 15", "Genesis 17", "Genesis 22", "Genesis 28",
+    "Genesis 37", "Genesis 45", "Genesis 50", "Exodus 1", "Exodus 3", "Exodus 6", "Exodus 12", "Exodus 14", "Exodus 16", "Exodus 19",
+    "Exodus 20", "Exodus 32", "Exodus 34", "Leviticus 19", "Numbers 14", "Deuteronomy 6", "Deuteronomy 30", "Joshua 1", "Joshua 24", "Judges 2",
+    "Ruth 1", "Ruth 4", "1 Samuel 3", "1 Samuel 8", "1 Samuel 16", "2 Samuel 7", "2 Samuel 12", "1 Kings 8", "1 Kings 18", "2 Kings 17",
+    "2 Kings 25", "Ezra 1", "Nehemiah 8", "Esther 4", "Job 38", "Psalm 23", "Psalm 51", "Psalm 103", "Proverbs 3", "Ecclesiastes 3",
+    "Isaiah 9", "Isaiah 40", "Isaiah 53", "Jeremiah 31", "Lamentations 3", "Ezekiel 36", "Daniel 7", "Hosea 11", "Amos 5", "Micah 6"
+  ]),
+  selectedChapterPlan("psalms-prayer-21-v2", "Psalms for Prayer", "Twenty-one selected Psalms for praise, lament, confession, trust and thanksgiving.", [1, 8, 13, 16, 19, 23, 27, 32, 42, 46, 51, 63, 73, 84, 90, 95, 103, 121, 130, 139, 150].map(n => `Psalm ${n}`), "Prayer"),
+  balancedReflectionYear("new-testament-365-v2", "New Testament in 1 Year", NEW_TESTAMENT_BOOKS),
+  balancedReflectionYear("psalms-proverbs-365-v2", "Psalms and Proverbs in 1 Year", ["Psalms", "Proverbs"]),
+  balancedPairingYear()
+];
+
+function catalogueGroup(plan: BibleReadingPlan): BibleReadingPlan["browseGroup"] {
+  if (["beginner-bible", "seven-days-new-believers", "john-21"].includes(plan.id)) return "start";
+  if (["bible-90", "bible-6-months", "new-testament-30", "major-prophets-overview"].includes(plan.id)) return "intensive";
+  if (plan.browseGroup) return plan.browseGroup;
+  if (plan.category === "Whole Bible") return "whole";
+  if (["Overview", "Character study"].includes(plan.category || "")) return "story";
+  if (["Book study", "New Testament", "Gospels"].includes(plan.category || "") || ["proverbs-31", "psalms-30"].includes(plan.id)) return "books";
+  return "life";
+}
+
+function catalogueReadingTime(plan: BibleReadingPlan): string {
+  const loads = plan.days.map(day => day.reference.split(";").reduce((total, part) => {
+    const match = /\s(\d+)(?:-(\d+))?(?::.*)?$/.exec(part.trim());
+    return total + (match ? Number(match[2] || match[1]) - Number(match[1]) + 1 : 1);
+  }, 0));
+  const average = loads.reduce((sum, count) => sum + count, 0) / loads.length;
+  const low = Math.max(5, Math.floor(average * 3 / 5) * 5);
+  const high = Math.max(low + 5, Math.ceil(average * 5 / 5) * 5);
+  return `About ${low}–${high} minutes reading; allow another 5–10 for reflection. Longer chapters may take more time.`;
+}
+
+export const builtInBibleReadingPlans: BibleReadingPlan[] = [...originalBibleReadingPlans, ...revisedPlans].map(plan => ({
+  ...plan,
+  retired: retiredPlanIds.has(plan.id),
+  browseGroup: catalogueGroup(plan),
+  estimatedTime: retiredPlanIds.has(plan.id) ? plan.estimatedTime : catalogueReadingTime(plan),
+  pace: retiredPlanIds.has(plan.id) ? plan.pace : catalogueGroup(plan) === "intensive" ? "Larger daily readings" : plan.pace
+}));
 export const bibleReadingPlans = builtInBibleReadingPlans;

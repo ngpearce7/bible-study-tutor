@@ -30,6 +30,8 @@ export type BibleReadingPlan = {
   description: string;
   source: BibleReadingPlanSource;
   category?: string;
+  retired?: boolean;
+  browseGroup?: "start" | "books" | "life" | "story" | "whole" | "intensive";
   purpose?: string;
   bestFor?: string;
   pace?: string;

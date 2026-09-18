@@ -633,7 +633,7 @@ type SyncedBibleReaderState = {
   readingPlanProgress?: StoredBibleReadingPlanProgress;
 };
 
-const DEFAULT_OPEN_BIBLE_PLAN_SECTIONS = { short: true, medium: false, long: false };
+const DEFAULT_OPEN_BIBLE_PLAN_SECTIONS = { start: true, books: false, life: false, story: false, whole: false, intensive: false };
 const SCRIPTURE_INSERT_SETTINGS_KEY = "bible-study-tutor-scripture-insert-settings";
 const DEFAULT_SCRIPTURE_INSERT_SETTINGS: ScriptureInsertSettings = {
   disabled: false,
@@ -9960,7 +9960,7 @@ function HomeScreen() {
                   ) : null}
                 </Card>
               ) : unfollowedBibleReadingPlanGroups.map((group) => {
-                const sectionOpen = openBiblePlanSections[group.id] ?? (group.id === "custom" || group.id === "short");
+                const sectionOpen = openBiblePlanSections[group.id] ?? (group.id === "custom" || group.id === "start");
                 const visibleGroupRowCount = visibleBiblePlanGroupRows[group.id] || (phoneLayout ? 6 : 9);
                 const visibleGroupPlans = group.plans.slice(0, visibleGroupRowCount);
                 return (
@@ -10007,7 +10007,7 @@ function HomeScreen() {
                         </View>
                         <Text style={[styles.muted, plansDarkMode && styles.accountDarkMutedText]}>{plan.description || "Custom reading plan"}</Text>
                         <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
-                          {(plan.category || (plan.source === "custom" ? "Custom" : "Reading plan"))} · {plan.days.length} days
+                          {(plan.category || (plan.source === "custom" ? "Custom" : "Reading plan"))} · {plan.days.length} days · {planDetails.estimatedTime.split(";")[0]} daily
                         </Text>
                         {planComplete ? (
                           <Text style={[styles.planPageMetaText, styles.planLastCompletedText, plansDarkMode && styles.accountDarkMutedText]}>
@@ -10076,7 +10076,7 @@ function HomeScreen() {
                               ["Purpose", planDetails.purpose],
                               ["Best for", planDetails.bestFor],
                               ["Pace", planDetails.pace],
-                              ["Time", planDetails.estimatedTime],
+                              ["Daily time (approx.)", planDetails.estimatedTime],
                               ["Covers", planDetails.coverage],
                               ["Rhythm", planDetails.rhythm],
                               ...(planDetails.careNote ? [["Care note", planDetails.careNote]] : [])

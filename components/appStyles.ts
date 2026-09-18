@@ -743,14 +743,6 @@ export const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 0
   },
-  phoneBibleSearchControls: {
-    alignItems: "flex-start",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    maxWidth: "100%",
-    width: "100%"
-  },
   bibleSearchRefineRow: {
     alignItems: "center",
     flexDirection: "row",
@@ -758,12 +750,6 @@ export const styles = StyleSheet.create({
     gap: 8,
     maxWidth: "100%",
     minWidth: 0
-  },
-  phoneBibleSearchRefineRow: {
-    alignItems: "flex-start",
-    flexWrap: "wrap",
-    maxWidth: "100%",
-    width: "100%"
   },
   bibleSearchModeGroup: {
     flexDirection: "row",
@@ -776,10 +762,6 @@ export const styles = StyleSheet.create({
     maxWidth: "100%",
     minWidth: 150,
     width: 170
-  },
-  phoneBibleSearchBookFilter: {
-    minWidth: 0,
-    width: "100%"
   },
   bibleSearchExactChip: {
     flexShrink: 0
@@ -1123,12 +1105,6 @@ export const styles = StyleSheet.create({
     gap: 8,
     paddingBottom: 12
   },
-  readerHistoryHeader: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 8,
-    justifyContent: "space-between"
-  },
   readerHistoryActions: {
     alignItems: "flex-end"
   },
@@ -1166,33 +1142,9 @@ export const styles = StyleSheet.create({
     gap: 2,
     minWidth: 0
   },
-  bibleReadingPlanChooser: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 7
-  },
   bibleReadingPlanStarter: {
     gap: 8,
     marginBottom: 14
-  },
-  phoneBibleReadingPlanChooser: {
-    flexWrap: "wrap"
-  },
-  bibleReadingPlanChip: {
-    alignItems: "center",
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    minHeight: 32,
-    maxWidth: 180,
-    paddingHorizontal: 10,
-    paddingVertical: 6
-  },
-  bibleReadingPlanChipText: {
-    color: colors.muted,
-    fontSize: 11,
-    fontWeight: "700"
   },
   bibleReadingPlanToday: {
     backgroundColor: colors.panel,
@@ -1204,12 +1156,6 @@ export const styles = StyleSheet.create({
   },
   clickableBibleReadingPlanToday: {
     borderColor: "rgba(185, 91, 72, 0.34)"
-  },
-  bibleReadingPlanOpenHint: {
-    color: colors.coral,
-    fontSize: 11,
-    fontWeight: "700",
-    textTransform: "uppercase"
   },
   bibleReadingPlanStatusText: {
     color: colors.coral,
@@ -1272,10 +1218,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8
-  },
-  phoneBibleReadingPlanActions: {
-    alignItems: "stretch",
-    flexDirection: "column"
   },
   planCustomForm: {
     gap: 9
@@ -1554,11 +1496,6 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     textTransform: "uppercase"
   },
-  readerBookGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 7
-  },
   desktopReaderBookList: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -1710,17 +1647,6 @@ export const styles = StyleSheet.create({
     flexShrink: 1,
     fontSize: 11
   },
-  readerReadButton: {
-    alignItems: "center",
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 9
-  },
   activeReaderReadButton: {
     backgroundColor: colors.oliveDark,
     borderColor: colors.oliveDark
@@ -1728,11 +1654,6 @@ export const styles = StyleSheet.create({
   activeReaderBookmarkButton: {
     backgroundColor: colors.coral,
     borderColor: colors.coral
-  },
-  readerReadButtonText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "700"
   },
   activeReaderReadButtonText: {
     color: "white"
@@ -2004,11 +1925,6 @@ export const styles = StyleSheet.create({
   selectedReaderVerseRow: {
     backgroundColor: "#f4dfb6"
   },
-  phoneSelectedReaderVerseRow: {
-    borderColor: colors.coral,
-    borderLeftWidth: 4,
-    paddingLeft: 7
-  },
   inlineReaderActionBar: {
     alignItems: "center",
     alignSelf: "stretch",
@@ -2185,11 +2101,6 @@ export const styles = StyleSheet.create({
     minWidth: 0,
     width: "100%"
   },
-  coachTitle: {
-    color: colors.ink,
-    fontSize: 18,
-    fontWeight: "600"
-  },
   studyGuidedHeader: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
@@ -2313,14 +2224,6 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     textTransform: "uppercase"
-  },
-  compactMethodChips: {
-    flexDirection: "row",
-    flexShrink: 1,
-    flexWrap: "wrap",
-    gap: 5,
-    justifyContent: "flex-end",
-    minWidth: 0
   },
   compactMethodCurrent: {
     color: colors.oliveDark,
@@ -2712,19 +2615,6 @@ export const styles = StyleSheet.create({
     backgroundColor: "transparent",
     color: "white"
   },
-  noteFormatHelp: {
-    color: colors.muted,
-    flex: 1,
-    fontSize: 12,
-    lineHeight: 17,
-    minWidth: 180
-  },
-  compactNoteFormatHelp: {
-    alignSelf: "stretch",
-    flex: 0,
-    minWidth: 0,
-    width: "100%"
-  },
   writingPromptBox: {
     backgroundColor: colors.panel,
     borderColor: "rgba(102, 114, 78, 0.16)",
@@ -3037,49 +2927,6 @@ export const styles = StyleSheet.create({
     gap: 8,
     padding: 14
   },
-  planSelectorRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 7
-  },
-  planChip: {
-    backgroundColor: colors.sage,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 7
-  },
-  activePlanChip: {
-    backgroundColor: colors.oliveDark
-  },
-  planChipText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "600"
-  },
-  activePlanChipText: {
-    color: "white"
-  },
-  planDescription: {
-    color: colors.muted,
-    fontSize: 13,
-    lineHeight: 18
-  },
-  planProgressText: {
-    color: colors.oliveDark,
-    fontSize: 12,
-    fontWeight: "600"
-  },
-  currentPlanBox: {
-    backgroundColor: colors.panel,
-    borderRadius: 12,
-    gap: 5,
-    padding: 11
-  },
-  currentPlanTitle: {
-    color: colors.oliveDark,
-    fontSize: 14,
-    fontWeight: "600"
-  },
   currentPlanHeaderSpacer: {
     minHeight: 18
   },
@@ -3155,25 +3002,9 @@ export const styles = StyleSheet.create({
     minWidth: 0,
     paddingHorizontal: 8
   },
-  phonePlanResumeButton: {
-    flex: 1,
-    justifyContent: "center",
-    marginTop: 0,
-    minHeight: 38,
-    minWidth: 0,
-    paddingHorizontal: 8
-  },
   phonePlanButtonLabel: {
     fontSize: 12,
     textAlign: "center"
-  },
-  planDayRow: {
-    alignItems: "center",
-    backgroundColor: colors.panel,
-    borderRadius: 12,
-    flexDirection: "row",
-    gap: 9,
-    padding: 10
   },
   completedPlanDayRow: {
     backgroundColor: "#fff",

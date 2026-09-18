@@ -2,7 +2,7 @@ import type { BibleReadingPlan } from "@/data/bibleReadingPlanTypes";
 import { MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
 
 export type BibleReadingPlanGroup = {
-  id: "custom" | "short" | "medium" | "long";
+  id: "custom" | "start" | "books" | "life" | "story" | "whole" | "intensive";
   title: string;
   description: string;
   plans: BibleReadingPlan[];
@@ -74,7 +74,7 @@ export function buildBibleReadingPlanView({
   const otherFollowedPlans = activeFollowedPlans.filter((plan) => plan.id !== selectedActivePlanId);
   const unfollowedPlans = allPlans.filter((plan) => !followedPlanIdSet.has(plan.id));
   const unfollowedCustomPlans = unfollowedPlans.filter((plan) => plan.source === "custom");
-  const unfollowedBuiltInPlans = unfollowedPlans.filter((plan) => plan.source !== "custom");
+  const unfollowedBuiltInPlans = unfollowedPlans.filter((plan) => plan.source !== "custom" && !plan.retired);
   const candidateGroups: BibleReadingPlanGroup[] = [
     {
       id: "custom",
@@ -82,24 +82,16 @@ export function buildBibleReadingPlanView({
       description: "Plans you created for your own reading rhythm.",
       plans: unfollowedCustomPlans
     },
-    {
-      id: "short",
-      title: "Short plans",
-      description: "Quick starts and focused 1-14 day paths.",
-      plans: unfollowedBuiltInPlans.filter((plan) => plan.days.length <= 14)
-    },
-    {
-      id: "medium",
-      title: "Medium plans",
-      description: "Steady 15-60 day plans for books, themes, and overviews.",
-      plans: unfollowedBuiltInPlans.filter((plan) => plan.days.length > 14 && plan.days.length <= 60)
-    },
-    {
-      id: "long",
-      title: "Long plans",
-      description: "Longer rhythms for New Testament, whole Bible, and yearly reading.",
-      plans: unfollowedBuiltInPlans.filter((plan) => plan.days.length > 60)
-    }
+    ...([
+      ["start", "Start here", "Three approachable starting points for a sustainable reading habit."],
+      ["books", "Bible books", "Stay with a book or collection, with room to read and reflect."],
+      ["life", "Prayer and daily life", "Focused readings for prayer, wisdom, faith and difficult seasons."],
+      ["story", "Bible story and people", "Selected passages and character studies that connect the wider story."],
+      ["whole", "Whole-Bible journeys", "Year-long paths through every book of the Bible."],
+      ["intensive", "Intensive reading", "Larger daily portions for readers who can set aside more time."]
+    ] as const).map(([id, title, description]) => ({
+      id, title, description, plans: unfollowedBuiltInPlans.filter(plan => plan.browseGroup === id)
+    }))
   ];
   const groups = candidateGroups.filter((group) => group.plans.length > 0);
   const activePlan = allPlans.find((plan) => plan.id === selectedActivePlanId);

@@ -1230,6 +1230,7 @@ function HomeScreen() {
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
   const biblePlanDayPickerRefs = useRef<Record<string, any>>({});
+  const memoryBlankFocusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const memoryBlankVisibilityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const planCelebrationPulse = useRef(new Animated.Value(0)).current;
   const planCelebrationParticles = useRef(Array.from({ length: 12 }, () => new Animated.Value(0))).current;
@@ -2674,6 +2675,8 @@ function HomeScreen() {
   }, [activeMemoryVerseId, firstMemoryBlankIndex, memoryPracticeFocusKey, memoryPracticeLevel, phoneLayout, tab]);
 
   useEffect(() => () => {
+    if (memoryBlankFocusTimerRef.current) clearTimeout(memoryBlankFocusTimerRef.current);
+    memoryBlankFocusTimerRef.current = null;
     if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
     memoryBlankVisibilityTimerRef.current = null;
   }, [activeMemoryVerseId, memoryPracticeLevel, tab]);
@@ -2800,7 +2803,7 @@ function HomeScreen() {
       if (phoneLayout) {
         if (memoryBlankVisibilityTimerRef.current) clearTimeout(memoryBlankVisibilityTimerRef.current);
         memoryBlankVisibilityTimerRef.current = null;
-        ensureMemoryBlankVisible(nextIndex, crossesRow ? 360 : 180);
+        ensureMemoryBlankVisible(nextIndex, Platform.OS === "web" ? 16 : crossesRow ? 360 : 180);
         return;
       }
       ensureMemoryBlankVisible(nextIndex, 180);
@@ -5907,15 +5910,18 @@ function HomeScreen() {
   }
 
   function focusMemoryBlankAfter(index: number, answers: Record<number, string>) {
+    if (memoryBlankFocusTimerRef.current) clearTimeout(memoryBlankFocusTimerRef.current);
+    memoryBlankFocusTimerRef.current = null;
     const currentPosition = memoryBlankTokens.findIndex((token) => token.index === index);
     const nextToken = memoryBlankTokens
       .slice(Math.max(0, currentPosition + 1))
       .find((token) => normalizeMemoryAnswer(answers[token.index] || "") !== normalizeMemoryAnswer(token.answer));
 
     if (nextToken) {
-      setTimeout(() => {
+      memoryBlankFocusTimerRef.current = setTimeout(() => {
+        memoryBlankFocusTimerRef.current = null;
         focusMemoryBlankWithRowCheck(index, nextToken.index);
-      }, phoneLayout ? 120 : 80);
+      }, Platform.OS === "web" && phoneLayout ? 0 : phoneLayout ? 120 : 80);
       return;
     }
 

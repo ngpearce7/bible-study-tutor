@@ -8,6 +8,7 @@ import {
   memoryHintText,
   normalizeMemoryAnswer
 } from "@/data/memory";
+import { StableMemoryInputSlot } from "./StableMemoryInput";
 import { colors } from "@/components/ui";
 
 type MemoryBlankProps = {
@@ -50,33 +51,34 @@ function MemoryBlankComponent({
 
   return (
     <View style={[styles.wrap, { width: memoryBlankWidth(token.answer, compact) }]}>
-      <TextInput
-        accessibilityLabel="Memory verse blank"
-        ref={inputRef}
-        autoFocus={autoFocus}
-        value={value}
-        onChangeText={(nextValue) => {
+      <StableMemoryInputSlot index={token.index} inputRef={inputRef} inputProps={{
+        accessibilityLabel: "Memory verse blank",
+        autoFocus,
+        value,
+        onChangeText: (nextValue) => {
           setAttempted(false);
           onChange(formatMemoryBlankValue(token.answer, nextValue));
-        }}
-        onFocus={() => setAttempted(false)}
-        onBlur={() => setAttempted(true)}
-        onSubmitEditing={(event) => {
+        },
+        onFocus: () => setAttempted(false),
+        onBlur: () => setAttempted(true),
+        onSubmitEditing: (event) => {
           setAttempted(true);
           onSubmit?.(event.nativeEvent?.text ?? value);
-        }}
-        autoCapitalize="none"
-        blurOnSubmit={false}
-        keyboardType={memoryAnswerIsReference(token.answer) ? "numbers-and-punctuation" : "default"}
-        returnKeyType={returnKeyType}
-        style={[
+        },
+        autoCapitalize: "none",
+        autoCorrect: false,
+        spellCheck: false,
+        blurOnSubmit: false,
+        keyboardType: memoryAnswerIsReference(token.answer) ? "numbers-and-punctuation" : "default",
+        returnKeyType,
+        style: [
           styles.input,
           darkMode && styles.darkInput,
           correct && styles.correctInput,
           darkMode && correct && styles.darkCorrectInput,
           incorrect && styles.incorrectInput
-        ]}
-      />
+        ]
+      }} />
       {hintsVisible && (
         <View pointerEvents={correct ? "none" : "auto"} accessibilityElementsHidden={correct} importantForAccessibility={correct ? "no-hide-descendants" : "auto"} style={[styles.hintRow, correct && { opacity: 0 }]}>
           <Text style={[styles.hintText, compact && styles.compactHintText, darkMode && styles.darkHintText]}>{memoryHintText(token.answer, hintLevel)}</Text>

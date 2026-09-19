@@ -1,14 +1,16 @@
 // @ts-nocheck
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Suspense } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import { Platform, Pressable, Text, TextInput, View } from "react-native";
 
 import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
+import { StableMemoryInput } from "./StableMemoryInput";
 import { MemoryBlank } from "@/components/MemoryBlank";
 import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
 
 export function MemoryTab(props: any) {
+  const PracticeGrid = Platform.OS === "web" && props.phoneLayout ? StableMemoryInput : View;
   const {
     activeMemoryCollectionDueCount,
     activeMemoryCollectionName,
@@ -780,7 +782,7 @@ export function MemoryTab(props: any) {
                           {memoryPracticeLevel === 1 ? (
                             <Text style={[styles.memoryPracticeText, phoneLayout && styles.phoneMemoryPracticeText, memoryDarkMode && styles.memoryDarkPracticeText]}>{memoryPracticeText}</Text>
                           ) : (
-                            <View style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox, memoryDarkMode && styles.memoryDarkFillBox]}>
+                            <PracticeGrid key={`${verseId}:${memoryPracticeLevel}`} style={[styles.memoryFillBox, phoneLayout && styles.phoneMemoryFillBox, memoryDarkMode && styles.memoryDarkFillBox]}>
                               {memoryPracticeTokens.map((token) => {
                                 const blankIndex = token.blank ? memoryBlankTokens.findIndex((item) => item.index === token.index) : -1;
                                 return token.blank ? (
@@ -818,7 +820,7 @@ export function MemoryTab(props: any) {
                                   <Text key={token.index} style={[styles.memoryPracticeWord, memoryDarkMode && styles.accountDarkText]}>{token.text}</Text>
                                 );
                               })}
-                            </View>
+                            </PracticeGrid>
                           )}
                           {(memoryPracticeAllCorrect && memoryPracticeLevel > 1) ? (
                             <Text style={styles.saveStatus}>{`Well done${firstName ? `, ${firstName}` : ""}. Every word is correct.`}</Text>

@@ -122,3 +122,34 @@ function escapeHtml(value) {
 function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
+
+// Validate the published lesson rather than relying on headings or word counts alone.
+const { studyPages, studyLessons, scriptureExcerpts, buildPracticeWorksheet } = await import("./seo/study-content.mjs");
+const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features"]);
+const translationsUsed = new Set();
+for (const page of pages) {
+  if (informationalPaths.has(page.path) || page.path === "/bible-study-app-for-churches") continue;
+  const guide = studyPages[page.path];
+  assert(guide, `${page.path}: missing reviewed study guide`);
+  if (buildPracticeWorksheet(page.path)) {
+    assert(page.html.includes('onclick="window.print()"'), `${page.path}: printable practice sheet is missing`);
+    assert(page.html.includes('class="worksheet-section"'), `${page.path}: blank worksheet sections are missing`);
+  }
+  const lesson = studyLessons[guide.lesson];
+  const excerpt = scriptureExcerpts[guide.lesson];
+  assert(lesson && excerpt, `${page.path}: missing lesson or verified Scripture`);
+  translationsUsed.add(lesson.translation);
+  assert(lesson.reference === excerpt.reference && lesson.translation === excerpt.translation, `${page.path}: quotation attribution mismatch`);
+  assert(count(page.html, 'class="extra-block journal-example study-lesson"') === 1, `${page.path}: expected one substantive study`);
+  for (const verse of excerpt.verses) {
+    assert(page.html.includes(escapeHtml(verse.text)), `${page.path}: verse ${verse.verse} differs from verified source`);
+  }
+  for (const field of ["context", "observation", "meaning", "application", "caution", "prayer"]) {
+    for (const paragraph of lesson[field].split("\n\n")) assert(page.html.includes(escapeHtml(paragraph)), `${page.path}: missing ${field}`);
+  }
+  assert(page.html.includes(escapeHtml(guide.practice)), `${page.path}: missing page-specific exercise`);
+  assert(page.html.includes(`href="${escapeHtml(excerpt.sourceUrl)}"`), `${page.path}: missing quotation source`);
+  assert(page.html.indexOf('class="extra-block journal-example study-lesson"') < page.html.indexOf('class="cta-section"'), `${page.path}: study must precede promotion`);
+}
+assert(translationsUsed.size === 3 && ["BSB", "WEB", "KJV"].every(id => translationsUsed.has(id)), "Study pages must include each app translation");
+console.log(`Verified ${Object.keys(studyPages).length} substantive study pages using BSB, WEB, and KJV, plus the reviewed churches study.`);

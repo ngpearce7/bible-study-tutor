@@ -1,5 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { buildStudyLesson, buildPracticeWorksheet, studyPages, studyLessons } from "./seo/study-content.mjs";
 
 const publicDir = join(process.cwd(), "public");
 const productionSiteUrl = "https://biblestudytutor.org";
@@ -518,8 +519,7 @@ const seoPages = [
       ["Scripture", "Choose a passage and write down the verse or section that stands out. This keeps the study anchored in the biblical text before reflection begins."],
       ["Observation", "Notice what the passage says. Look for repeated words, commands, promises, people, contrasts, and what the passage reveals about God."],
       ["Application", "Ask how the passage speaks to your beliefs, actions, relationships, worship, and trust in God. Keep the response specific rather than vague."],
-      ["Prayer", "Finish by praying honestly through what you have seen, asking God for help to receive and obey His Word."],
-      ["Simple SOAP example", "For Romans 8:1, Scripture records the verse, Observation notices the promise of no condemnation in Christ, Application responds with trust rather than fear, and Prayer asks God to help that truth settle into daily life."]
+      ["Prayer", "Finish by praying honestly through what you have seen, asking God for help to receive and obey His Word."]
     ],
     cta: "Practise SOAP",
     related: ["/printable-soap-bible-study-worksheet", "/bible-study-methods/oia", "/how-to-study-a-bible-passage", "/bible-study-app-with-printable-worksheets"],
@@ -2133,19 +2133,14 @@ const seoPages = [
     path: "/bible-study-app-for-churches",
     file: "bible-study-app-for-churches.html",
     title: "Free Bible Study App for Churches and Small Groups",
-    description: "See how churches and small groups can use free Bible reading, guided study, browser-printable worksheets, memory tools, and private circles—with clear product and privacy limits.",
-    heading: "Free Bible study app for churches and small groups",
-    intro: "Bible Study Tutor helps leaders prepare Scripture-centred sessions while giving each person a simple way to read, study, remember, and respond. The core app is intended to remain free, works in desktop and mobile browsers, and keeps community sharing away from a public social feed.",
-    sections: [
-      ["Useful for ordinary group study", "A leader can choose a passage, use an available guided method such as SOAP, OIA, or Inductive Study, prepare discussion prompts, and print a worksheet from the web app. Members can continue with reading plans, notes, memory verses, and journals during the week."],
-      ["What this is not", "Bible Study Tutor is not a church management system, attendance or scheduling tool, public social network, or church-leader dashboard for monitoring members’ private studies. It should support local discipleship rather than replace teaching, pastoral care, or accountable relationships."],
-      ["Accounts and privacy boundaries", "People can explore Scripture and print from the browser without creating an account. Signing in is needed for cross-device sync and private community features. Notes and journals are not public; a person must intentionally share an encouragement with an accepted friend or invite-only circle."],
-      ["Translations and printing", "The app currently offers BSB, WEB, and KJV, and availability may change. Generated worksheets and memory cards are printable from the web app using browser print or Save as PDF; native mobile printing is not currently offered."]
-    ],
-    cta: "Prepare your next group passage",
+    description: "Lead a small-group study of 2 Timothy 3:14–17 with worked observation, meaning, and application, discussion questions, and a free printable worksheet.",
+    heading: "Bible study for churches: a passage to work through together",
+    intro: "Help your group move from reading a passage to understanding and responding to it. Work through 2 Timothy 3:14–17 below, try the discussion questions, and use the blank worksheet for your own notes. No app or account is needed to complete the study.",
+    sections: [],
+    cta: "Open the Bible reader",
     primaryHref: "/?tab=bible",
-    primaryLabel: "Prepare your next group passage",
-    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheet-for-small-groups", "/printable-bible-word-study-worksheet", "/printable-bible-study-worksheets", "/free-bible-study-app"],
+    primaryLabel: "Open the Bible reader",
+    related: ["/bible-study-for-small-groups", "/printable-bible-study-worksheet-for-small-groups", "/printable-bible-word-study-worksheet", "/bible-study-methods/oia"],
     schemaType: "FAQPage",
     faq: [
       ["Can churches and small groups use Bible Study Tutor for free?", "Yes. The core Bible reading, guided study, journal, memory, plan, and web-printing tools are intended to remain free for individuals, churches, and small groups."],
@@ -2158,90 +2153,148 @@ const seoPages = [
     ],
     extraBlocks: [
       {
-        type: "list",
-        title: "A 30–45 minute small-group session",
-        intro: "This simple rhythm leaves room for the passage to lead the conversation.",
-        items: [
-          "Read · 4 minutes: read the passage aloud, then allow a short quiet rereading.",
-          "Observe · 6 minutes: ask what people notice before explaining or applying it.",
-          "Discuss · 8–23 minutes: trace the author’s main point, context, questions, and important details.",
-          "Apply · 5 minutes: invite one specific response grounded in the passage.",
-          "Pray · 5 minutes: pray from the text and for the responses named by the group.",
-          "Follow up · 2 minutes: choose one reading, memory verse, or action for the week."
-        ]
+            "type": "journalExample",
+            "layout": "lesson",
+            "title": "Worked study: 2 Timothy 3:14–17",
+            "intro": "Read the passage twice before looking at the notes. First ask what it says; then what it means in context; then how to respond. The answers below model the process rather than replace your own reading.",
+            "reference": "2 Timothy 3:14–17",
+            "translation": "KJV",
+            "scriptureHtml": "<sup>14</sup> But <mark>continue thou</mark> in the things which thou hast learned and hast been assured of, knowing of whom thou hast learned them;<br><br><sup>15</sup> And that from a child thou hast known the holy scriptures, which are able to make thee wise unto salvation <mark>through faith which is in Christ Jesus</mark>.<br><br><sup>16</sup> All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness:<br><br><sup>17</sup> <mark>That</mark> the man of God may be perfect, thoroughly furnished unto all good works.",
+            "notes": [
+                  [
+                        "Before you begin · read the context",
+                        "Read 2 Timothy 3:10–13 as well. Paul describes his teaching and endurance through persecution, then warns about people who deceive and are themselves deceived. Against that background, verse 14 calls Timothy to continue in what he has learned. This is encouragement to remain faithful under pressure, not an isolated slogan about reading more."
+                  ],
+                  [
+                        "1. Observation · what does the passage actually say?",
+                        "Question: What is Timothy told to do, and what does Paul say Scripture can do?\n\nExample answer: Verse 14 commands Timothy to continue in what he has learned. Verse 15 connects his knowledge of Scripture from childhood with salvation through faith in Christ Jesus. Verse 16 gives Scripture’s source—God—and lists four uses: doctrine, reproof, correction, and instruction in righteousness. Verse 17 names the outcome: someone equipped for good works. These observations point to words and connections anyone can check in the passage."
+                  ],
+                  [
+                        "2. Meaning · why does Paul say this to Timothy?",
+                        "Question: How do verses 15–17 support the command to continue?\n\nExample answer: Timothy can remain grounded in Scripture because it comes from God and is useful for forming faithful belief and conduct. It teaches truth, exposes what is wrong, corrects it, and trains a person to live rightly. Verse 17 explains the goal: readiness for good works. Verse 15 keeps salvation connected with faith in Christ; Paul is not saying that accumulating Bible knowledge earns salvation."
+                  ],
+                  [
+                        "How we reached that meaning",
+                        "The contrast between deception in verse 13 and “continue” in verse 14 explains the need for steadiness. The four uses in verse 16 show that Scripture does more than supply information or comfort. “That” at the start of verse 17 links those uses to their intended result. In the KJV, “perfect” here expresses being complete or equipped, as the following phrase explains; it is not a promise that reading will instantly make someone sinless."
+                  ],
+                  [
+                        "3. Application · one possible response",
+                        "Question: Where do I welcome Scripture’s encouragement but resist its correction?\n\nExample response: “When a passage challenges how I speak to people, I often think of someone else who needs it. This week I will read James 3:1–12 in context, write down what it challenges in my own speech, and choose one change to practise in a conversation. If I recognise someone I have hurt, I will seek to put that right.”\n\nThis is one possible response, not an extra command imposed on everyone. Your response may involve a belief to reconsider, a habit to change, or a good work to undertake."
+                  ],
+                  [
+                        "Why that application follows",
+                        "The response grows out of Scripture’s correcting and training roles in verse 16 and the practical outcome in verse 17. James supplies a passage to study during the week; it is not being presented as the topic of 2 Timothy 3. Simply writing “I should read more” would leave unclear what learning, correction, or action might follow."
+                  ],
+                  [
+                        "Pray and revisit",
+                        "“Father, thank You for Scripture and for salvation through faith in Christ. Help us receive Your teaching and correction with humility, and equip us to do good.”\n\nAt the next meeting, ask: What did the passage help you understand? What response did you attempt? What question still needs careful study? Sharing should be voluntary; private reflections can remain private."
+                  ]
+            ]
       },
       {
-        type: "checklist",
-        title: "15-minute leader setup",
-        intro: "Prepare the essentials before adding extra material.",
-        items: [
-          "Choose one passage short enough to read twice and discuss carefully.",
-          "Read its surrounding context and write the main point in one sentence.",
-          "Choose one available method or a short set of observation, meaning, and application prompts.",
-          "Decide whether the group will use the app, a browser-printed worksheet, or both.",
-          "Prepare one opening observation question and one text-shaped application question.",
-          "Choose a prayer response and one simple follow-up rhythm for the week."
-        ]
+            "type": "list",
+            "title": "Questions to lead the discussion",
+            "intro": "Let the group answer before offering the worked notes. Ask “Where do you see that in the passage?” whenever the discussion moves from observation to interpretation.",
+            "items": [
+                  "Observe: Which command appears in verse 14? What do verses 15, 16, and 17 each add? If the group stalls, invite someone to list the four uses in verse 16.",
+                  "Understand: Why is “continue” significant after the warning about deception in verse 13? Look for the contrast before discussing your own experiences.",
+                  "Go deeper: What changes if we read verse 16 without verse 15 or verse 17? Keep both faith in Christ and the purpose of good works in the discussion.",
+                  "Respond: What is one way we could make room for Scripture to teach or correct us this week? Ask for a possible action, not a disclosure of private wrongdoing.",
+                  "If people disagree: separate what the text states from what you infer. Reread the surrounding verses, compare the reasoning, and record unresolved questions for further study rather than forcing agreement."
+            ]
       },
       {
-        type: "worksheet",
-        title: "Printable leader session sheet",
-        eyebrow: "Bible Study Tutor · Small-group leader",
-        intro: "Print this one-session outline after choosing the passage and method. Adjust the timing to the needs of your group.",
-        meta: ["Group", "Date", "Passage", "Method"],
-        sections: [
-          { title: "Leader preparation", prompt: "Main point of the passage and one context note the group needs", lines: 4 },
-          { title: "Read · 4 minutes", items: ["Read the passage aloud.", "Pause for quiet rereading."], lines: 1 },
-          { title: "Observe · 6 minutes", prompt: "What words, actions, contrasts, commands, promises, or questions do we notice?", lines: 3 },
-          { title: "Discuss · 8–23 minutes", prompt: "What is the author’s main point in context? What question needs careful attention?", lines: 4 },
-          { title: "Apply · 5 minutes", prompt: "What specific belief, repentance, obedience, encouragement, or act of love follows from this passage?", lines: 3 },
-          { title: "Pray · 5 minutes", prompt: "Prayer shaped by the passage", lines: 3 },
-          { title: "Follow up · 2 minutes", prompt: "One reading, memory verse, or action for the coming week", lines: 2 }
-        ]
+            "type": "list",
+            "title": "Common mistakes to avoid",
+            "items": [
+                  "Skipping context: verse 16 belongs to Paul’s appeal for Timothy to remain faithful. Read verses 14–17 together, with the warning in verse 13 in view.",
+                  "Treating Bible knowledge as salvation: verse 15 explicitly connects salvation with faith in Christ Jesus.",
+                  "Using “reproof” to target another group member: begin with a willingness to be taught and corrected yourself. This passage does not authorise coercion or public pressure to disclose personal matters.",
+                  "Confusing an example with a command: a suggested weekly action is one way to respond, not a requirement the passage places on every reader."
+            ]
       },
       {
-        type: "list",
-        title: "Practical church use cases",
-        intro: "A church can use Bible Study Tutor in several ordinary ministry settings without asking people to learn a complicated system.",
-        items: [
-          "Small group leaders can print a worksheet for Sunday’s sermon passage and invite people to bring handwritten observations.",
-          "Youth leaders can choose a short passage, use SOAP or OIA, and give students a simple structure for discussion.",
-          "New believers can begin with a reading plan, save questions in the journal, and memorize a small set of foundational verses.",
-          "Pastoral care teams can encourage someone privately with Scripture while keeping the app away from public social-media style posting.",
-          "Bible class teachers can point people to a method page, then ask them to study the same passage during the week."
-        ]
+            "type": "list",
+            "title": "A 30–45 minute small-group session",
+            "intro": "Use the worked passage above for your first session. On another week, use the same process with a new passage and fresh observations.",
+            "items": [
+                  "Read · 4 minutes: read 2 Timothy 3:10–17 aloud, then reread verses 14–17 quietly.",
+                  "Observe · 6 minutes: identify the command, the four uses of Scripture, and the outcome. Write down the verse beside each observation.",
+                  "Discuss · 8–23 minutes: connect the warning about deception, the call to continue, faith in Christ, and preparation for good works. Use the follow-up questions above.",
+                  "Apply · 5 minutes: allow quiet writing, then invite a specific, voluntary response.",
+                  "Pray · 5 minutes: pray from the passage, including gratitude for Scripture and willingness to receive correction.",
+                  "Follow up · 2 minutes: decide when to revisit the response and any unresolved questions."
+            ]
       },
       {
-        type: "list",
-        title: "Privacy-aware by design",
-        intro: "The app is intended to support real discipleship without turning private spiritual reflection into public content.",
-        items: [
-          "There is no public timeline for notes, studies, or encouragements.",
-          "Friends and circles are private spaces for trusted encouragement.",
-          "Public analytics are intended to measure app usage patterns, not private journal text, notes, answers, emails, names, or community content.",
-          "A free account helps sync saved study data across devices, but people can still explore the app before creating one.",
-          "The app currently offers BSB, WEB, and KJV; leaders should verify the displayed translation and attribution for their setting."
-        ]
+            "type": "checklist",
+            "title": "15-minute leader setup",
+            "intro": "Use this after working through the passage yourself. Take more time if a question needs further study.",
+            "items": [
+                  "Read 2 Timothy 3:10–17 and note why Timothy is told to continue.",
+                  "Write three observations with verse references before drafting an interpretation.",
+                  "Summarise the main point in your own words, checking it against verses 15 and 17.",
+                  "Choose two discussion questions above and prepare a follow-up that sends the group back to the text.",
+                  "Think of one possible response, while leaving room for different faithful applications.",
+                  "Print the blank sheet below or use a notebook. Invite participation without requiring anyone to share private notes."
+            ]
       },
       {
-        type: "previews",
-        title: "What church members can do",
-        intro: "These lightweight previews show the kinds of workflows the app supports.",
-        items: [
-          ["Read and continue", "Open the Bible reader, follow a reading plan, and mark chapters or plan readings complete."],
-          ["Study with structure", "Send Romans 8:1-4 into Study, choose SOAP or Inductive Study, and save notes to the journal."],
-          ["Print for the room", "Create a printable worksheet for a group, youth lesson, or church class handout."],
-          ["Remember Scripture", "Save memory verses, review them during the week, and print cards for home or group use."]
-        ]
+            "type": "worksheet",
+            "title": "Printable leader session sheet",
+            "eyebrow": "Bible Study Tutor · Small-group study",
+            "intro": "Use with 2 Timothy 3:14–17 or another passage. Try your own answers before comparing them with the worked example above. This prints the blank worksheet.",
+            "meta": [
+                  "Group",
+                  "Date",
+                  "Passage",
+                  "Surrounding context"
+            ],
+            "sections": [
+                  {
+                        "title": "Read in context",
+                        "prompt": "Who is speaking to whom? What comes immediately before and after this passage?",
+                        "lines": 3
+                  },
+                  {
+                        "title": "Observe",
+                        "prompt": "Write three things the passage says. Include a verse reference for each. Notice commands, repeated words, contrasts, and connections.",
+                        "lines": 5
+                  },
+                  {
+                        "title": "Understand",
+                        "prompt": "What is the main point for the original hearers? Explain which words or connections support your answer. Record any uncertainty.",
+                        "lines": 5
+                  },
+                  {
+                        "title": "Respond",
+                        "prompt": "What belief, attitude, or action could change? Explain how that response follows from the passage, and name a realistic next step.",
+                        "lines": 4
+                  },
+                  {
+                        "title": "Pray",
+                        "prompt": "Write a prayer shaped by what you have read.",
+                        "lines": 3
+                  },
+                  {
+                        "title": "Revisit",
+                        "prompt": "When will you return to this response? What question needs more study?",
+                        "lines": 2
+                  }
+            ]
       },
       {
-        type: "cta",
-        title: "Prepare your next group passage",
-        intro: "Choose a passage in the Bible reader, then use an available guided method or browser-printable worksheet before your next small group or Bible class.",
-        href: "/?tab=bible",
-        label: "Prepare a group passage"
+            "type": "list",
+            "title": "Using the app with your group",
+            "intro": "You can complete this study with a Bible and paper. If digital tools help, Bible Study Tutor supports reading, guided questions, journals, memory verses, and browser-printable worksheets.",
+            "items": [
+                  "Open the passage in the Bible reader, then use an available guided method such as OIA to organise observation, interpretation, and application.",
+                  "No account is needed to explore Scripture or print from the browser. Sign in for cross-device sync and private community features.",
+                  "Members’ study answers and journals remain private. A leader cannot monitor them through a dashboard; sharing encouragement is a separate, intentional action.",
+                  "The app is not a church management system or a replacement for teaching and pastoral care. It currently offers BSB, WEB, and KJV; printing is available in the web app."
+            ]
       }
-    ]
+]
   },
   {
     path: "/free-bible-study-app-for-small-groups",
@@ -3321,417 +3374,6 @@ const seoPages = [
   }
 ];
 
-const generatedJournalExamplesByPath = {
-  "/printable-bible-study-worksheets": journalExample({
-    title: "Example worksheet notes: Romans 8:1",
-    intro: "A worksheet can show the selected Scripture first, then leave room for notes that grow out of marked words and phrases.",
-    reference: "Romans 8:1",
-    scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
-    notes: [
-      ["Observation", "Therefore links the verse to Paul's earlier argument. No condemnation is the central promise."],
-      ["Interpretation", "The promise belongs to those who are in Christ Jesus, not to people trying to justify themselves."],
-      ["Application", "A worksheet response could name one fear or accusation and answer it with this promise."]
-    ]
-  }),
-  "/bible-study-methods": journalExample({
-    title: "Method example: John 15:5",
-    intro: "Different methods can study the same verse from different angles while keeping the Scripture visible.",
-    reference: "John 15:5",
-    scriptureHtml: "I am the <mark>vine</mark>, ye are the branches: He that <span class=\"scripture-underline\">abideth in me</span>, and I in him, the same bringeth forth much fruit.",
-    notes: [
-      ["Observation", "The image links Jesus, branches, abiding, and fruitfulness."],
-      ["Method choice", "SOAP could turn this into prayer; OIA could trace the image; word study could examine abide."],
-      ["Application", "The response should grow from dependence on Christ rather than self-produced effort."]
-    ]
-  }),
-  "/bible-study-methods/inductive": journalExample({
-    title: "Inductive journal example: Romans 8:1",
-    intro: "Inductive study benefits from visible markings because observations need to be separated from conclusions.",
-    reference: "Romans 8:1",
-    scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
-    notes: [
-      ["Observation", "Therefore points backward. No condemnation is stated as a present reality."],
-      ["Interpretation", "Paul's conclusion rests on Christ's work, not on a believer's emotional confidence."],
-      ["Application", "The passage invites trust in Christ when guilt or fear is loud."]
-    ]
-  }),
-  "/bible-study-methods/oia": journalExample({
-    title: "OIA journal example: Philippians 4:6",
-    intro: "OIA moves from what is seen in the text to what it means, then to one faithful response.",
-    reference: "Philippians 4:6",
-    scriptureHtml: "Be careful for nothing; but in every thing by <mark>prayer</mark> and supplication with <span class=\"scripture-underline\">thanksgiving</span> let your requests be made known unto God.",
-    notes: [
-      ["Observation", "The verse contrasts anxiety with prayer, supplication, thanksgiving, and requests."],
-      ["Interpretation", "The passage calls believers to bring needs to God rather than carrying anxiety alone."],
-      ["Application", "A response could be to turn one specific worry into prayer with thanksgiving today."]
-    ]
-  }),
-  "/bible-study-methods/lectio-divina": journalExample({
-    title: "Lectio journal example: Psalm 46:10",
-    intro: "A Lectio-style journal entry often marks one phrase and turns attention slowly toward prayer.",
-    reference: "Psalm 46:10",
-    scriptureHtml: "<mark>Be still</mark>, and know that <span class=\"scripture-underline\">I am God</span>.",
-    notes: [
-      ["Notice", "The phrase be still draws attention because it is direct and simple."],
-      ["Reflect", "The command is connected to knowing God, not merely becoming quiet for quietness' sake."],
-      ["Pray", "Lord, quiet my striving and teach me to know You as God today."]
-    ]
-  }),
-  "/bible-study-methods/verse-mapping": journalExample({
-    title: "Verse mapping example: Ephesians 2:8",
-    intro: "Verse mapping can mark repeated ideas, connecting words, and theological anchors in one verse.",
-    reference: "Ephesians 2:8",
-    scriptureHtml: "For by <mark>grace</mark> are ye saved through faith; and that not of yourselves: it is the <span class=\"scripture-underline\">gift of God</span>.",
-    notes: [
-      ["Key words", "Grace, saved, faith, yourselves, and gift carry the main meaning."],
-      ["Connection", "The verse explains salvation as God's gift rather than human achievement."],
-      ["Response", "The application should lead to humility, gratitude, and trust."]
-    ]
-  }),
-  "/bible-study-methods/word-study": journalExample({
-    title: "Word study example: abide",
-    intro: "A word study should mark the word in context before moving to broader themes.",
-    reference: "John 15:4",
-    scriptureHtml: "<mark>Abide</mark> in me, and I in you. As the branch cannot bear fruit of itself, except it <span class=\"scripture-underline\">abide</span> in the vine.",
-    notes: [
-      ["Word in context", "Abide is used with the vine and branch image, so the word is about dependent connection."],
-      ["Safeguard", "The meaning should come from John 15 before jumping to other passages."],
-      ["Application", "The response is to remain dependent on Christ rather than trying to bear fruit alone."]
-    ]
-  }),
-  "/bible-study-methods/topical-study": journalExample({
-    title: "Topical study example: wisdom",
-    intro: "A topical study can begin with one anchor passage before comparing other verses.",
-    reference: "James 1:5",
-    scriptureHtml: "If any of you lack <mark>wisdom</mark>, let him ask of God, that giveth to all men liberally.",
-    notes: [
-      ["Anchor text", "Wisdom is connected to asking God, especially in the context of trials."],
-      ["Theme", "The topic should stay tied to the passage rather than becoming a loose list of ideas."],
-      ["Application", "A faithful response is to ask God for wisdom in one named situation."]
-    ]
-  }),
-  "/bible-study-methods/character-study": journalExample({
-    title: "Character study example: Mary",
-    intro: "A character study should notice a person's words and actions before drawing lessons.",
-    reference: "Luke 1:38",
-    scriptureHtml: "And Mary said, Behold the <mark>handmaid of the Lord</mark>; be it unto me according to thy word.",
-    notes: [
-      ["Observation", "Mary identifies herself in relation to the Lord and receives the word spoken to her."],
-      ["Meaning", "Her response shows humble trust, but the passage remains centered on God's promise."],
-      ["Application", "The response is not to imitate circumstances but to receive God's word with humble faith."]
-    ]
-  }),
-  "/bible-study-methods/cross-reference-study": journalExample({
-    title: "Cross-reference example: Genesis 15:6",
-    intro: "Cross references are most useful when the first passage is understood before related passages are compared.",
-    reference: "Genesis 15:6",
-    scriptureHtml: "And he <mark>believed in the Lord</mark>; and he counted it to him for <span class=\"scripture-underline\">righteousness</span>.",
-    notes: [
-      ["Anchor passage", "The verse connects believing the Lord with righteousness."],
-      ["Related passages", "Romans 4 and Galatians 3 later reflect on this verse, but Genesis 15 should be read first."],
-      ["Application", "Cross references should deepen confidence in God's promise, not replace the original context."]
-    ]
-  }),
-  "/free-bible-study-app": journalExample({
-    title: "Free study example: Matthew 6:33",
-    intro: "The free app experience supports ordinary Scripture study: read, mark, observe, apply, and save.",
-    reference: "Matthew 6:33",
-    scriptureHtml: "But seek ye first the <mark>kingdom of God</mark>, and his righteousness; and all these things shall be added unto you.",
-    notes: [
-      ["Observation", "The command is to seek God's kingdom and righteousness first."],
-      ["Interpretation", "The verse sits in Jesus' teaching about worry, needs, and trust in the Father."],
-      ["Application", "A saved note could name one anxious priority that needs to be reordered."]
-    ]
-  }),
-  "/bible-study-for-beginners": journalExample({
-    title: "Beginner journal example: Mark 1:15",
-    intro: "Beginners do not need complicated notes. A short passage can become a clear observation and response.",
-    reference: "Mark 1:15",
-    scriptureHtml: "The time is fulfilled, and the <mark>kingdom of God</mark> is at hand: repent ye, and believe the gospel.",
-    notes: [
-      ["Observation", "Jesus announces the kingdom of God and calls for repentance and belief."],
-      ["Meaning", "The passage presents good news as something to receive and respond to."],
-      ["Application", "A beginner can ask where the gospel calls for trust and change today."]
-    ]
-  }),
-  "/printable-bible-study-worksheet-for-small-groups": journalExample({
-    title: "Small group worksheet example: Colossians 3:12",
-    intro: "A group worksheet can mark words that shape discussion before people answer questions.",
-    reference: "Colossians 3:12",
-    scriptureHtml: "Put on therefore, as the elect of God, holy and beloved, <mark>bowels of mercies</mark>, kindness, humbleness of mind, meekness, longsuffering.",
-    notes: [
-      ["Observation", "The command to put on is grounded in identity: elect, holy, and beloved."],
-      ["Discussion", "The group can list the qualities and ask where each is needed in community."],
-      ["Prayer", "The worksheet can end by praying for Christlike patience and mercy."]
-    ]
-  }),
-  "/printable-soap-bible-study-worksheet": journalExample({
-    title: "Printable SOAP example: Psalm 121:2",
-    intro: "A printable SOAP worksheet can keep Scripture and prayer together on one page.",
-    reference: "Psalm 121:2",
-    scriptureHtml: "My help cometh from the <mark>Lord</mark>, which made heaven and earth.",
-    notes: [
-      ["Scripture", "The verse identifies the Lord as the source of help."],
-      ["Observation", "The Lord is not only near but also Creator of heaven and earth."],
-      ["Application", "The response is to seek help from God before grasping for control."],
-      ["Prayer", "Lord, teach me to look to You for help today."]
-    ]
-  }),
-  "/printable-inductive-bible-study-worksheet": journalExample({
-    title: "Printable inductive example: Ephesians 2:10",
-    intro: "An inductive worksheet can keep observations visible before summary and application.",
-    reference: "Ephesians 2:10",
-    scriptureHtml: "For we are his <mark>workmanship</mark>, created in Christ Jesus unto good works.",
-    notes: [
-      ["Observation", "The verse names believers as God's workmanship and connects new creation with good works."],
-      ["Interpretation", "Good works flow from God's saving work rather than earning salvation."],
-      ["Application", "The worksheet can ask what prepared good work might be walked in today."]
-    ]
-  }),
-  "/printable-bible-study-journal": journalExample({
-    title: "Printable journal example: Psalm 119:105",
-    intro: "A printable journal page can show the verse, marked words, and a few structured reflections.",
-    reference: "Psalm 119:105",
-    scriptureHtml: "Thy word is a <mark>lamp</mark> unto my feet, and a <span class=\"scripture-underline\">light</span> unto my path.",
-    notes: [
-      ["Observation", "The verse uses lamp and light imagery for God's word."],
-      ["Reflection", "The image suggests guidance for the next step, not merely abstract information."],
-      ["Prayer", "Lord, guide my next step through Your word."]
-    ]
-  }),
-  "/bible-study-worksheet-for-youth-groups": journalExample({
-    title: "Youth worksheet example: 1 Timothy 4:12",
-    intro: "A youth worksheet can highlight the direct call and then ask for practical examples.",
-    reference: "1 Timothy 4:12",
-    scriptureHtml: "Let no man despise thy youth; but be thou an <mark>example</mark> of the believers.",
-    notes: [
-      ["Observation", "The verse connects youth with being an example in visible ways."],
-      ["Discussion", "Students can list what example looks like in speech, conduct, love, faith, and purity."],
-      ["Application", "Each person can choose one setting where faith should become visible this week."]
-    ]
-  }),
-  "/bible-study-worksheet-for-church-groups": journalExample({
-    title: "Church group worksheet example: Acts 2:42",
-    intro: "A church group worksheet can mark the shared practices of the early believers.",
-    reference: "Acts 2:42",
-    scriptureHtml: "And they continued stedfastly in the apostles' doctrine and <mark>fellowship</mark>, and in breaking of bread, and in prayers.",
-    notes: [
-      ["Observation", "The verse lists teaching, fellowship, breaking bread, and prayers."],
-      ["Meaning", "The early church's life was shared, steady, and shaped by doctrine and prayer."],
-      ["Application", "A group can ask which shared practice needs renewed attention."]
-    ]
-  }),
-  "/online-bible-study-journal": journalExample({
-    title: "Online journal example: John 15:4",
-    intro: "An online journal can preserve marked Scripture alongside the user's own reflection.",
-    reference: "John 15:4",
-    scriptureHtml: "<mark>Abide</mark> in me, and I in you.",
-    notes: [
-      ["Observation", "The command is relational and repeated in the wider passage."],
-      ["Reflection", "The verse calls for remaining with Christ, not simply working harder for Him."],
-      ["Prayer", "Lord Jesus, teach me to abide in You today."]
-    ]
-  }),
-  "/bible-study-journal": journalExample({
-    title: "Bible study journal example: Psalm 27:1",
-    intro: "A Bible study journal becomes more useful when the verse, markings, and response stay together.",
-    reference: "Psalm 27:1",
-    scriptureHtml: "The Lord is my <mark>light</mark> and my salvation; whom shall I fear?",
-    notes: [
-      ["Observation", "The verse names the Lord as light and salvation before asking about fear."],
-      ["Meaning", "Confidence comes from who the Lord is, not from the absence of danger."],
-      ["Application", "A journal response could name one fear in light of God's saving care."]
-    ]
-  }),
-  "/bible-highlighting-and-notes": journalExample({
-    title: "Highlighting example: Hebrews 4:12",
-    intro: "Highlights are most helpful when they lead to a written observation rather than decoration only.",
-    reference: "Hebrews 4:12",
-    scriptureHtml: "For the word of God is <mark>quick, and powerful</mark>, and sharper than any twoedged sword.",
-    notes: [
-      ["Observation", "The highlighted words describe God's word as living and active."],
-      ["Meaning", "The verse presents Scripture as something that searches and exposes, not merely informs."],
-      ["Response", "A note can ask where God's word is calling for honesty and trust."]
-    ]
-  }),
-  "/bible-study-for-small-groups": journalExample({
-    title: "Small group study example: Ephesians 4:32",
-    intro: "Small group notes should keep the passage central before discussion moves to personal stories.",
-    reference: "Ephesians 4:32",
-    scriptureHtml: "And be ye <mark>kind one to another</mark>, tenderhearted, forgiving one another, even as God for Christ's sake hath forgiven you.",
-    notes: [
-      ["Observation", "The command includes kindness, tenderheartedness, and forgiveness."],
-      ["Meaning", "The reason for forgiving one another is God's forgiveness in Christ."],
-      ["Application", "A group can name one relationship where gospel-shaped forgiveness is needed."]
-    ]
-  }),
-  "/bible-study-app-for-churches": journalExample({
-    title: "Church use example: 2 Timothy 3:16",
-    intro: "A church can use the app to help people observe what Scripture says before discussing application.",
-    reference: "2 Timothy 3:16",
-    scriptureHtml: "All scripture is given by inspiration of God, and is <mark>profitable</mark> for doctrine, for reproof, for correction, for instruction in righteousness.",
-    notes: [
-      ["Observation", "The verse lists several ways Scripture is profitable."],
-      ["Meaning", "Scripture forms belief and life because it is God-given."],
-      ["Application", "A church group can ask which use of Scripture is most needed in the current series."]
-    ]
-  }),
-  "/free-bible-study-app-for-small-groups": journalExample({
-    title: "Free small group example: Galatians 5:13",
-    intro: "A free group tool should still keep discussion close to the words of the passage.",
-    reference: "Galatians 5:13",
-    scriptureHtml: "By love <mark>serve one another</mark>.",
-    notes: [
-      ["Observation", "Freedom is connected to serving one another by love."],
-      ["Meaning", "Christian liberty should not become selfishness but loving service."],
-      ["Application", "A small group can choose one practical way to serve someone this week."]
-    ]
-  }),
-  "/bible-study-app-with-printable-worksheets": journalExample({
-    title: "Digital-to-print example: Micah 6:8",
-    intro: "The same marked passage can become a saved digital note or a printed worksheet.",
-    reference: "Micah 6:8",
-    scriptureHtml: "What doth the Lord require of thee, but to do <mark>justly</mark>, and to love mercy, and to walk humbly with thy God?",
-    notes: [
-      ["Observation", "The verse names justice, mercy, and humble walking with God."],
-      ["Worksheet prompt", "Ask where each phrase touches ordinary relationships and choices."],
-      ["Application", "Choose one concrete act of justice, mercy, or humility."]
-    ]
-  }),
-  "/how-to-study-romans": journalExample({
-    title: "Romans journal example: Romans 8:1",
-    intro: "Romans rewards careful attention to connecting words and theological claims.",
-    reference: "Romans 8:1",
-    scriptureHtml: "<span class=\"scripture-underline\">There is therefore</span> now <mark>no condemnation</mark> to them which are in Christ Jesus.",
-    notes: [
-      ["Observation", "Therefore links the verse to Paul's previous argument."],
-      ["Meaning", "No condemnation is grounded in Christ, not human performance."],
-      ["Application", "Romans should lead to confidence in Christ and humble obedience."]
-    ]
-  }),
-  "/how-to-study-the-gospel-of-john": journalExample({
-    title: "John journal example: John 20:31",
-    intro: "John often states his purpose clearly, which helps guide a book study.",
-    reference: "John 20:31",
-    scriptureHtml: "But these are written, that ye might <mark>believe</mark> that Jesus is the Christ, the Son of God.",
-    notes: [
-      ["Observation", "John states that the signs and testimony are written for belief."],
-      ["Meaning", "The Gospel aims to reveal Jesus as the Christ, the Son of God."],
-      ["Application", "A study of John should ask how each passage calls for faith in Jesus."]
-    ]
-  }),
-  "/how-to-study-genesis": journalExample({
-    title: "Genesis journal example: Genesis 1:1",
-    intro: "Genesis begins with God as Creator, which shapes the rest of the book.",
-    reference: "Genesis 1:1",
-    scriptureHtml: "In the beginning <mark>God created</mark> the heaven and the earth.",
-    notes: [
-      ["Observation", "God is the subject of the opening sentence."],
-      ["Meaning", "Creation begins with God's action, authority, and purpose."],
-      ["Application", "A Genesis study should begin with worship and creaturely humility."]
-    ]
-  }),
-  "/how-to-study-psalms": journalExample({
-    title: "Psalms journal example: Psalm 1:2",
-    intro: "Psalms often invite slow meditation rather than quick extraction of a lesson.",
-    reference: "Psalm 1:2",
-    scriptureHtml: "But his delight is in the <mark>law of the Lord</mark>; and in his law doth he meditate day and night.",
-    notes: [
-      ["Observation", "Delight and meditation are connected to the Lord's instruction."],
-      ["Meaning", "The blessed life is shaped by sustained attention to God's word."],
-      ["Application", "A Psalm can become prayer and meditation through the day."]
-    ]
-  }),
-  "/how-to-study-proverbs": journalExample({
-    title: "Proverbs journal example: Proverbs 3:5",
-    intro: "Proverbs should be studied as wisdom that shapes trust and daily choices.",
-    reference: "Proverbs 3:5",
-    scriptureHtml: "Trust in the Lord with <mark>all thine heart</mark>; and lean not unto thine own understanding.",
-    notes: [
-      ["Observation", "Trust in the Lord is contrasted with leaning on one's own understanding."],
-      ["Meaning", "Wisdom begins with dependence on the Lord, not self-reliance."],
-      ["Application", "Name one decision where trust must replace self-protection."]
-    ]
-  }),
-  "/how-to-study-matthew": journalExample({
-    title: "Matthew journal example: Matthew 5:16",
-    intro: "Matthew often connects discipleship with visible obedience and the glory of the Father.",
-    reference: "Matthew 5:16",
-    scriptureHtml: "Let your <mark>light</mark> so shine before men, that they may see your good works, and glorify your Father which is in heaven.",
-    notes: [
-      ["Observation", "Good works are visible, but the goal is the Father's glory."],
-      ["Meaning", "Discipleship is public without becoming self-promoting."],
-      ["Application", "Choose one quiet act that points beyond self to the Father."]
-    ]
-  }),
-  "/how-to-study-mark": journalExample({
-    title: "Mark journal example: Mark 10:45",
-    intro: "Mark moves quickly, but key verses reveal Jesus' mission.",
-    reference: "Mark 10:45",
-    scriptureHtml: "For even the Son of man came not to be ministered unto, but to <mark>minister</mark>, and to give his life a ransom for many.",
-    notes: [
-      ["Observation", "Jesus contrasts being served with serving and giving His life."],
-      ["Meaning", "The verse summarizes the servant mission of Jesus."],
-      ["Application", "A study of Mark should lead to worship and servant-hearted discipleship."]
-    ]
-  }),
-  "/how-to-study-luke": journalExample({
-    title: "Luke journal example: Luke 19:10",
-    intro: "Luke often highlights Jesus' compassion for the lost and overlooked.",
-    reference: "Luke 19:10",
-    scriptureHtml: "For the Son of man is come to <mark>seek and to save</mark> that which was lost.",
-    notes: [
-      ["Observation", "Jesus describes His mission as seeking and saving the lost."],
-      ["Meaning", "The passage reveals purposeful mercy, not accidental kindness."],
-      ["Application", "A Luke study can ask who Jesus sees that others overlook."]
-    ]
-  }),
-  "/how-to-study-acts": journalExample({
-    title: "Acts journal example: Acts 1:8",
-    intro: "Acts should be studied with attention to the Spirit, witness, and movement of the gospel.",
-    reference: "Acts 1:8",
-    scriptureHtml: "But ye shall receive <mark>power</mark>, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me.",
-    notes: [
-      ["Observation", "Power is connected to the Holy Spirit and witness."],
-      ["Meaning", "Acts begins with mission empowered by God rather than human strategy alone."],
-      ["Application", "Ask where faithful witness depends on the Spirit's help."]
-    ]
-  }),
-  "/how-to-study-ephesians": journalExample({
-    title: "Ephesians journal example: Ephesians 2:10",
-    intro: "Ephesians connects identity in Christ with a transformed walk.",
-    reference: "Ephesians 2:10",
-    scriptureHtml: "For we are his <mark>workmanship</mark>, created in Christ Jesus unto good works.",
-    notes: [
-      ["Observation", "Believers are described as God's workmanship."],
-      ["Meaning", "Good works flow from being created in Christ Jesus."],
-      ["Application", "Ask what walking in grace-shaped good works looks like today."]
-    ]
-  }),
-  "/how-to-study-philippians": journalExample({
-    title: "Philippians journal example: Philippians 1:21",
-    intro: "Philippians studies joy, suffering, humility, and Christ-centered life.",
-    reference: "Philippians 1:21",
-    scriptureHtml: "For to me to live is <mark>Christ</mark>, and to die is gain.",
-    notes: [
-      ["Observation", "Paul frames both life and death around Christ."],
-      ["Meaning", "Christ is not one part of Paul's life but the defining center."],
-      ["Application", "Ask what would change if Christ were consciously central today."]
-    ]
-  }),
-  "/how-to-study-james": journalExample({
-    title: "James journal example: James 1:22",
-    intro: "James calls readers to let the word become visible in practice.",
-    reference: "James 1:22",
-    scriptureHtml: "But be ye <mark>doers of the word</mark>, and not hearers only, deceiving your own selves.",
-    notes: [
-      ["Observation", "James contrasts doing the word with hearing only."],
-      ["Meaning", "Receiving God's word should produce obedient action."],
-      ["Application", "Choose one concrete act of obedience before the day ends."]
-    ]
-  })
-};
-
 mkdirSync(publicDir, { recursive: true });
 copyFileSync(join(process.cwd(), "assets", "icon.png"), join(publicDir, "icon.png"));
 copyFileSync(join(process.cwd(), "assets", "favicon.png"), join(publicDir, "favicon.png"));
@@ -3790,7 +3432,10 @@ function buildSeoPage(page, baseUrl) {
   const relatedPages = (page.related || [])
     .map((path) => seoPages.find((candidate) => candidate.path === path))
     .filter(Boolean);
-  const pageExtraBlocks = withGeneratedJournalExample(page);
+  const allExtraBlocks = withGeneratedJournalExample(page);
+  const leadStudy = allExtraBlocks.find((block) => block.type === "journalExample" && block.layout === "lesson");
+  const leadStudyBlock = leadStudy ? buildExtraSeoBlock(leadStudy) : "";
+  const pageExtraBlocks = allExtraBlocks.filter((block) => block !== leadStudy);
   const leadHowToBlock = page.showHowToSteps && page.howToSteps?.length
     ? buildVisibleHowToSteps(page)
     : "";
@@ -3943,6 +3588,13 @@ function buildSeoPage(page, baseUrl) {
       .scripture-underline { border-bottom: 3px solid rgba(201, 103, 80, .42); padding-bottom: 1px; }
       .journal-notes { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .journal-note { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
+      .study-lesson { max-width: 780px; margin-inline: auto; }
+      .study-verse { display: block; margin-bottom: 12px; }
+      .study-verse:last-child { margin-bottom: 0; }
+      .study-lesson .journal-notes { display: block; }
+      .study-lesson .journal-note { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 22px 0; }
+      .study-lesson .journal-note h3 { font-size: 20px; }
+      .study-lesson .journal-note p + p { margin-top: 14px; }
       .journal-note h3 { color: var(--olive); font-size: 15px; margin: 0 0 7px; }
       .extra-cta { align-items: flex-start; display: grid; gap: 14px; }
       .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -3983,8 +3635,8 @@ function buildSeoPage(page, baseUrl) {
         <div class="eyebrow">Bible Study Tutor</div>
         <h1 id="page-heading">${escapeHtml(page.heading)}</h1>
         <p class="intro">${escapeHtml(page.intro)}</p>
-      </section>${leadHowToBlock}
-      <div class="grid">${sections}</div>
+      </section>${leadStudyBlock}${leadHowToBlock}
+      ${sections ? `<div class="grid">${sections}</div>` : ""}
       ${extraBlocks}
       ${faqBlock}
       ${relatedLinks}
@@ -4012,7 +3664,7 @@ function buildExtraSeoBlock(block) {
     const cardClass = block.type === "example" ? "example-card" : "preview-card";
     const gridClass = block.type === "example" ? "example-grid" : "preview-grid";
     const cards = (block.items || [])
-      .map(([title, body]) => `<article class="${cardClass}"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`)
+      .map(([title, body]) => `<article class="${cardClass}"><h3>${escapeHtml(title)}</h3>${body.split("\n\n").map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</article>`)
       .join("\n          ");
     return `<section class="extra-block" aria-labelledby="${slugifyForId(block.title)}">
         <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
@@ -4094,14 +3746,15 @@ function buildExtraSeoBlock(block) {
 
   if (block.type === "journalExample") {
     const notes = (block.notes || [])
-      .map(([title, body]) => `<article class="journal-note"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></article>`)
+      .map(([title, body]) => `<article class="journal-note"><h3>${escapeHtml(title)}</h3>${body.split("\n\n").map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</article>`)
       .join("\n          ");
-    return `<section class="extra-block journal-example" aria-labelledby="${slugifyForId(block.title)}">
+    return `<section class="extra-block journal-example${block.layout === "lesson" ? " study-lesson" : ""}" aria-labelledby="${slugifyForId(block.title)}">
         <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
         ${intro}
         <div class="journal-scripture">
           <div class="journal-reference">${escapeHtml(block.reference || "Example passage")}${block.translation ? ` · ${escapeHtml(block.translation)}` : ""}</div>
           <p class="scripture-text">${block.scriptureHtml || ""}</p>
+          ${block.sourceUrl ? `<p class="scripture-source"><a href="${escapeHtml(block.sourceUrl)}">Scripture text source</a> · Public domain</p>` : ""}
         </div>
         <div class="journal-notes">
           ${notes}
@@ -4143,30 +3796,20 @@ function buildVisibleHowToSteps(page) {
 }
 
 function withGeneratedJournalExample(page) {
-  const blocks = [...(page.extraBlocks || [])];
-  const hasJournalExample = blocks.some((block) => block.type === "journalExample");
-  const generatedExample = hasJournalExample ? null : generatedJournalExamplesByPath[page.path];
-  if (!generatedExample) return blocks;
-
-  const ctaIndex = blocks.findIndex((block) => block.type === "cta");
-  if (ctaIndex >= 0) {
-    blocks.splice(ctaIndex, 0, generatedExample);
-  } else {
-    blocks.push(generatedExample);
-  }
-  return blocks;
-}
-
-function journalExample({ title, intro, reference, translation = "KJV", scriptureHtml, notes }) {
-  return {
-    type: "journalExample",
-    title,
-    intro,
-    reference,
-    translation,
-    scriptureHtml,
-    notes
-  };
+  const lesson = buildStudyLesson(page.path);
+  if (!lesson) return [...(page.extraBlocks || [])];
+  // One complete study replaces the old, often conflicting miniature examples.
+  const reference = studyLessons[studyPages[page.path].lesson].reference;
+  const blocks = (page.extraBlocks || [])
+    .filter((block) => block.type !== "journalExample" && block.type !== "example")
+    .map((block) => {
+      if (block.type !== "cta" || !block.href?.includes("passage=")) return block;
+      const url = new URL(block.href, "https://biblestudytutor.org");
+      url.searchParams.set("passage", reference);
+      return { ...block, href: `${url.pathname}${url.search}` };
+    });
+  const worksheet = buildPracticeWorksheet(page.path);
+  return [lesson, ...(worksheet ? [worksheet] : []), ...blocks];
 }
 
 function buildNotFoundPage(baseUrl) {

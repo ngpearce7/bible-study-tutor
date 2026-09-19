@@ -1,0 +1,278 @@
+{
+  "/printable-bible-study-worksheets": {
+    "lesson": "romans8",
+    "title": "Complete a worksheet before printing a blank one",
+    "question": "Which words support your answer in each box?",
+    "practice": "Copy one observation and its verse reference into the observation box, then write the meaning in your own words. Keep the application separate. When you print a blank sheet for another passage, repeat that distinction rather than copying these answers."
+  },
+  "/bible-study-methods": {
+    "lesson": "vine",
+    "title": "Choose a method by the work you need to do",
+    "question": "How would different methods help you study this same passage?",
+    "practice": "Use OIA to trace the argument from vine to fruit; use SOAP to record the passage, an observation, an application, and a prayer; use word study to examine abiding in its sentences. Different methods organise attention; they should not produce meanings that contradict the context."
+  },
+  "/how-to-study-the-bible": {
+    "lesson": "shepherd",
+    "title": "Try the basic study process",
+    "question": "Can you point to a verse for each statement you write?",
+    "practice": "Read the whole psalm once without taking notes. On a second reading, record what the shepherd does. Only then summarise what these actions reveal about His care and choose a response. This order helps you distinguish the passage from the thoughts it brings to mind."
+  },
+  "/how-to-study-a-bible-passage": {
+    "lesson": "romans8",
+    "title": "Follow a paragraph’s connections",
+    "question": "What would be lost if you stopped after verse 1?",
+    "practice": "Mark the connecting expressions in verses 2–4. Write a short outline: declaration, explanation, God’s action, intended outcome. Compare your interpretation with all four verses. Use this technique whenever a single familiar verse belongs to a larger argument."
+  },
+  "/bible-study-methods/soap": {
+    "lesson": "shepherd",
+    "title": "Turn the study into a SOAP entry",
+    "question": "Does each part of your entry remain connected to the psalm?",
+    "practice": "S — copy Psalm 23:4 exactly, retaining the BSB label. O — note the valley, direct address to God, and reason for courage. A — write one specific way to entrust a present fear to God while acting responsibly. P — pray from that observation and response. Read the full psalm before filling those four headings."
+  },
+  "/bible-study-methods/inductive": {
+    "lesson": "romans8",
+    "title": "Build the conclusion from the evidence",
+    "question": "Which repeated words and connections led you to your interpretation?",
+    "practice": "List Christ, Spirit, law, and flesh, noting what each sentence says rather than assigning a definition too early. Draw the connection from verse 3 to verse 4. Test your summary against Romans 8:5–11, recording any question the paragraph does not settle."
+  },
+  "/bible-study-methods/oia": {
+    "lesson": "prayer",
+    "title": "Keep observation, interpretation, and application distinct",
+    "question": "Is “I should pray about my worry” an observation or an application?",
+    "practice": "It is an application. An observation names Paul’s instruction to bring requests with thanksgiving; interpretation explains how prayer and God’s guarding peace relate in this paragraph. Write one sentence under each heading and identify the evidence linking them."
+  },
+  "/bible-study-methods/lectio-divina": {
+    "lesson": "still",
+    "title": "Let reflective prayer follow careful reading",
+    "question": "How does reading the whole psalm change your response to “Be still”?",
+    "practice": "Read slowly, attend to a phrase in its context, respond to God in prayer, and rest quietly before Him. If an impression arises, write it as your reflection, not as a new message carrying Scripture’s authority. Return to the psalm’s account of God’s rule before deciding on an application."
+  },
+  "/bible-study-methods/verse-mapping": {
+    "lesson": "justice",
+    "title": "Map relationships rather than decorate a verse",
+    "question": "What does verse 8 answer in verses 6–7?",
+    "practice": "Place verse 8 in the centre of a page. Add the preceding questions on one side and the three requirements on the other. Draw a line explaining the contrast. Add a context note from verses 1–5 and your application below; colour should identify a relationship you can explain."
+  },
+  "/bible-study-methods/word-study": {
+    "lesson": "peace",
+    "title": "Study a word in its sentence first",
+    "question": "What does John 14 itself establish about peace?",
+    "practice": "Record the two uses in verse 27, the contrast with the world, and the instruction about troubled hearts. Read verses 25–31 before consulting a dictionary. Compare John 16:33 afterwards, noting its own setting. Distinguish supported conclusions from questions you would need further resources to answer."
+  },
+  "/printable-bible-word-study-worksheet": {
+    "lesson": "peace",
+    "title": "Complete the word-study sheet",
+    "question": "What belongs in a word-study box, and what would be speculation?",
+    "practice": "Write “peace” and John 14:27, label the translation BSB, record the contrast in the sentence, and summarise the surrounding conversation. Under comparison, read John 16:33 and explain the connection. Leave original-language details blank if you cannot verify them; an honest blank is better than an invented definition."
+  },
+  "/bible-study-methods/topical-study": {
+    "lesson": "wisdom",
+    "title": "Let an anchor passage control the topic",
+    "question": "How does wisdom in trials relate to wisdom shown in conduct?",
+    "practice": "First write what James 1:2–8 says in its own context. Then read James 3:13–18 and list its descriptions of wisdom. Compare the two before broadening the topic: one calls for asking, the other describes a life in which wisdom is visible. Do not build a topic by collecting matching words alone."
+  },
+  "/bible-study-methods/character-study": {
+    "lesson": "mary",
+    "title": "Study a person without losing the passage’s main subject",
+    "question": "What belongs to Mary’s unique calling, and what response can instruct us?",
+    "practice": "Make two columns: what God promises about Jesus, and what Mary says or does. Explain how her response follows the promise. Keep the unique miracle in its historical setting, then identify a general lesson about willing service that does not claim her circumstances for yourself."
+  },
+  "/bible-study-methods/cross-reference-study": {
+    "lesson": "abraham",
+    "title": "Compare passages without skipping their arguments",
+    "question": "What point does Romans 4 make when it quotes Genesis 15:6?",
+    "practice": "Write a summary of Genesis 15:1–6 first. Read Romans 4:1–5 next and note Paul’s contrast between a gift credited and wages owed. Record both the original promise and the later argument. A useful cross-reference explains a connection rather than merely adding another citation."
+  },
+  "/free-bible-study-app": {
+    "lesson": "kingdom",
+    "title": "Try a complete study without signing in",
+    "question": "Can you explain “these things” from the paragraph itself?",
+    "practice": "Read the text below, write your own answer, then compare it with the worked notes. Use paper or a document if you prefer. The value of the exercise is learning to support your answer from the passage; using an app is optional."
+  },
+  "/bible-study-for-beginners": {
+    "lesson": "beginning",
+    "title": "Begin with four manageable questions",
+    "question": "Who is speaking, what is announced, what response is invited, and what happens next?",
+    "practice": "Write one short answer to each question using verses 14–20. Look at the worked notes only after trying. If you meet an unfamiliar expression such as the Kingdom of God, record the question and continue reading Mark rather than guessing or feeling you must solve everything at once."
+  },
+  "/printable-bible-study-worksheet-for-small-groups": {
+    "lesson": "clothe",
+    "title": "Give everyone space to observe",
+    "question": "Which words ground the commands before the group starts discussing behaviour?",
+    "practice": "Invite everyone to write one observation silently, then share the verse behind it. Ask a second person to explain the connection between identity and conduct. Leave room on the sheet for disagreement or uncertainty, and make personal applications voluntary rather than requiring public disclosure."
+  },
+  "/printable-soap-bible-study-worksheet": {
+    "lesson": "help",
+    "title": "Fill the SOAP boxes with connected answers",
+    "question": "How does your prayer grow from your observation?",
+    "practice": "S — copy Psalm 121:2 and label it WEB. O — note that the source of help is also the Creator. A — describe one occasion this week when you will entrust your coming and going to Him. P — turn that response into prayer. Read the full psalm before completing the boxes so the chosen verse retains its setting."
+  },
+  "/printable-inductive-bible-study-worksheet": {
+    "lesson": "grace",
+    "title": "Mark the contrast on the worksheet",
+    "question": "How do verses 9 and 10 use works differently?",
+    "practice": "Underline what verse 9 excludes and circle what verse 10 affirms. Explain the difference in your own words before writing an application. If your summary either makes good works purchase salvation or makes them irrelevant, revise it against the complete paragraph."
+  },
+  "/printable-bible-study-journal": {
+    "lesson": "lamp",
+    "title": "Keep a journal entry open to correction",
+    "question": "Which part of your entry is the text, and which part is your reflection?",
+    "practice": "Use separate headings for passage and translation, observations with verse numbers, meaning, response, and unresolved questions. Add a date to revisit the response. When you later learn more, revise your interpretation without rewriting the quoted text."
+  },
+  "/bible-study-worksheet-for-youth-groups": {
+    "lesson": "youth",
+    "title": "Move from a category to a real setting",
+    "question": "What could speech shaped by love look like in a group chat?",
+    "practice": "Let students propose an ordinary scenario without naming or embarrassing anyone. Read verse 12 again and ask which category applies. Invite each person to choose a realistic response privately. The leader can model an imperfect attempt and willingness to learn rather than demand impressive answers."
+  },
+  "/bible-study-worksheet-for-church-groups": {
+    "lesson": "church",
+    "title": "Distinguish the description from your response",
+    "question": "Which practices can your group strengthen, and which details describe this particular community?",
+    "practice": "List what the passage records before making a plan. Choose one practice to discuss in your own setting, such as learning together or meeting a need. Explain the connection to the text and acknowledge where your circumstances differ."
+  },
+  "/online-bible-study-journal": {
+    "lesson": "vine",
+    "title": "Use a digital journal to preserve your reasoning",
+    "question": "Will your future self understand why you reached this conclusion?",
+    "practice": "Record the paragraph reference and translation, two observations with verse numbers, and the connection between abiding and Jesus’ words. Add your response and a follow-up date. A saved note becomes more useful when it preserves the evidence as well as the conclusion."
+  },
+  "/bible-study-journal": {
+    "lesson": "lamp",
+    "title": "Write more than a favourite quotation",
+    "question": "What does the surrounding stanza add to the lamp image?",
+    "practice": "Use the worked study below as an example of an entry that includes context, evidence, and response. After writing, identify one sentence that is your inference and check whether the cited verses support it. Keep remaining questions visible rather than filling every space with certainty."
+  },
+  "/bible-memory-verses": {
+    "lesson": "grace",
+    "title": "Remember a verse with its neighbours",
+    "question": "Would memorising only verse 9 leave your understanding incomplete?",
+    "practice": "Read Ephesians 2:1–10, then consider learning verses 8–10 together in BSB. Practise one sentence at a time and recite the whole unit before reviewing the reference. After recall, explain aloud how grace and good works relate; accurate words and understanding should grow together."
+  },
+  "/scripture-memorization-app": {
+    "lesson": "trust",
+    "title": "Practise recall without losing meaning",
+    "question": "What is this passage asking you to trust, reject, and do?",
+    "practice": "Read Proverbs 3:1–12 before practising verses 5–8. Start with one verse, hide a few words, then attempt full recall. Keep the translation consistent through the review. Finish by explaining one contrast from the passage and one decision it could shape."
+  },
+  "/printable-bible-memory-cards": {
+    "lesson": "help",
+    "title": "Make a card that preserves context",
+    "question": "What short context note would stop you misusing the promise?",
+    "practice": "Put Psalm 121:1–2 and WEB on the front. On the back, note that verses 3–8 continue the picture of God’s attentive keeping, then add a question about trust. Read the whole psalm periodically; the card is a reminder of that study, not a replacement for it."
+  },
+  "/bible-highlighting-and-notes": {
+    "lesson": "light",
+    "title": "Make each highlight explain something",
+    "question": "What relationship does your marking reveal?",
+    "practice": "Mark the two light pictures and underline the purpose at the end of verse 16. Beside them write: visible good works should lead to the Father’s glory. Compare Matthew 6:1 in a separate note about motive. Avoid highlighting the whole paragraph so heavily that the important connection disappears."
+  },
+  "/bible-study-for-small-groups": {
+    "lesson": "humility",
+    "title": "Lead discussion from the text into shared life",
+    "question": "How does Christ’s example address a disagreement over status?",
+    "practice": "Invite the group to identify the contrast in verses 3–4 before reading verses 5–11 aloud. Ask what changes when the model is Christ’s self-giving rather than winning the argument. Allow a quiet response, then agree on one practical way to listen and serve at the next meeting."
+  },
+  "/free-bible-study-app-for-small-groups": {
+    "lesson": "freedom",
+    "title": "Study together with a Bible and paper",
+    "question": "What would serving through love look like in a disagreement over preferences?",
+    "practice": "Read the three verses, let each person identify a contrast, then compare answers with the worked study. Write one group action you can take without needing an account or digital tool. If you use the app later, keep the same passage and questions rather than starting a different exercise."
+  },
+  "/bible-reading-plan-app": {
+    "lesson": "beginning",
+    "title": "Let a plan create space for understanding",
+    "question": "What would count as a worthwhile reading session besides marking a day complete?",
+    "practice": "After a short reading in Mark, write one observation, one question, and one possible response. If a passage needs more time, stay with it. A plan helps you return to Scripture; completing its schedule should not replace paying attention to what you read."
+  },
+  "/how-to-start-a-bible-reading-plan": {
+    "lesson": "purpose",
+    "title": "Begin a Gospel plan with its stated purpose",
+    "question": "How can John 20:30–31 guide your reading of John from the beginning?",
+    "practice": "Read this purpose statement, then begin John 1 in manageable sections. After each reading, note what it reveals about Jesus and how someone responds to Him. Choose a pace that allows those questions, and resume honestly after an interruption rather than rushing several readings without understanding."
+  },
+  "/bible-study-app-with-printable-worksheets": {
+    "lesson": "justice",
+    "title": "Turn sermon notes into a study you can check",
+    "question": "Can you trace the sermon’s application back to the passage?",
+    "practice": "Write the main claim you heard, read Micah 6:1–8, and list the textual evidence supporting or qualifying it. Distinguish the passage, the speaker’s explanation, and your response. Print the sheet if handwriting helps; leave a question for further discussion where the connection is unclear."
+  },
+  "/how-to-memorize-bible-verses": {
+    "lesson": "prayer",
+    "title": "Learn a passage without reducing it to a slogan",
+    "question": "What does the promise concern, and what instructions surround it?",
+    "practice": "Read Philippians 4:4–9, then learn verses 6–7 in BSB one phrase at a time. Check mistakes against the displayed translation, gradually remove prompts, and revisit after a delay. Each time, name the promised guarding peace rather than substituting a guarantee that every request will be granted."
+  },
+  "/how-to-study-romans": {
+    "lesson": "romans8",
+    "title": "Trace a claim through Paul’s reasoning",
+    "question": "How do God’s action and the Spirit’s work support the opening declaration?",
+    "practice": "Outline verses 1–4, then read verses 5–11 and note how the Spirit theme continues. Keep difficult terms as study questions instead of forcing a complete theology out of one sentence. Return to the letter’s argument as you develop your understanding."
+  },
+  "/how-to-study-the-gospel-of-john": {
+    "lesson": "purpose",
+    "title": "Read the signs with John’s stated purpose in view",
+    "question": "How does a sign reveal Jesus’ identity and invite a response?",
+    "practice": "After the worked study, read John 9 as a whole scene. Note the healing, the conversations, and the developing responses to Jesus. Compare what you find with John 20:30–31, retaining the details that make this particular scene distinctive."
+  },
+  "/how-to-study-genesis": {
+    "lesson": "abraham",
+    "title": "Follow promise through narrative",
+    "question": "What unresolved problem in Abram’s life makes the promise significant?",
+    "practice": "Read Genesis 12:1–3 before chapter 15. Track what is promised, what Abram asks, and what God says. Resist turning the narrative into a lesson about positive thinking; the specific divine promise is central. Record later questions to explore as the story continues."
+  },
+  "/how-to-study-psalms": {
+    "lesson": "shepherd",
+    "title": "Read the movement of the whole poem",
+    "question": "Where do the images and the way of addressing God change?",
+    "practice": "Mark the shepherd image, the direct address in the valley, and the table and home imagery. Read the psalm aloud and explain how these parts develop confidence. Let the entire poem shape your prayer rather than collecting its most comforting line."
+  },
+  "/how-to-study-proverbs": {
+    "lesson": "trust",
+    "title": "Read wisdom as wisdom",
+    "question": "What pattern of faithful living is commended without guaranteeing an easy outcome?",
+    "practice": "Compare Proverbs 3:5–8 with the surrounding instructions about learning and correction. Write the wise direction it gives, then distinguish that from a prediction about a particular decision. Ask for counsel about applying it to circumstances the proverb does not describe."
+  },
+  "/how-to-study-matthew": {
+    "lesson": "commission",
+    "title": "Connect the ending to Jesus’ teaching",
+    "question": "What will the disciples teach people to obey?",
+    "practice": "Read the final commission, then revisit a section of Matthew 5–7. Identify one command Jesus has actually taught rather than substituting a personal preference. Note how the ending’s emphasis on authority and presence supports the continuing work of discipleship."
+  },
+  "/how-to-study-mark": {
+    "lesson": "serve",
+    "title": "Notice how a scene corrects the disciples",
+    "question": "What does the request for honour reveal before Jesus explains greatness?",
+    "practice": "Read Mark 10:32–45 without skipping the request in verses 35–37. Compare the disciples’ concern with Jesus’ mission. As you continue through Mark, record other places where their expectations are corrected, especially as the narrative moves toward the cross."
+  },
+  "/how-to-study-luke": {
+    "lesson": "zacchaeus",
+    "title": "Attend to welcome and response in a narrative",
+    "question": "How do the crowd’s reaction and Jesus’ explanation help interpret the encounter?",
+    "practice": "Read the whole scene before extracting a lesson about generosity. List each person’s action and the closing explanation Jesus gives. Compare Luke 18:18–30 afterwards, noting both similarities and differences rather than flattening the two encounters into one."
+  },
+  "/how-to-study-acts": {
+    "lesson": "witness",
+    "title": "Read a scene within Acts’ developing story",
+    "question": "How does the promised spread of witness begin to unfold?",
+    "practice": "After Acts 1:6–11, read Acts 2 and note what the Spirit enables and what the witnesses proclaim. Later compare Acts 8 and 10. Track the unfolding narrative before turning a single event into a rule for every church experience."
+  },
+  "/how-to-study-ephesians": {
+    "lesson": "grace",
+    "title": "Follow the order from gift to new life",
+    "question": "Why is it important that verse 10 follows verses 8–9?",
+    "practice": "Read Ephesians 2:1–10, then notice the movement toward shared life in 2:11–22. Record God’s actions before listing human responses. Use that sequence when studying later commands so they remain connected to grace and identity in Christ."
+  },
+  "/how-to-study-philippians": {
+    "lesson": "life",
+    "title": "Read joy and service within Paul’s circumstances",
+    "question": "What explains Paul’s concern for the believers while his own future is uncertain?",
+    "practice": "Read Philippians 1:12–26 as an argument, not a collection of uplifting sayings. Link verse 21 to verses 23–26. As you continue, notice how the attention to others develops in chapter 2 and reshapes the way you understand joy."
+  },
+  "/how-to-study-james": {
+    "lesson": "doing",
+    "title": "Follow the illustration into its practical examples",
+    "question": "Which actions show that the mirror illustration is more than a call to try harder?",
+    "practice": "Read James 1:19–27 and connect receiving, hearing, speaking, and doing. Write the concrete practices in the final verses before making your own application. As you read on, trace how James revisits speech, partiality, generosity, and wisdom."
+  }
+}

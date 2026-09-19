@@ -5227,15 +5227,6 @@ export const styles = StyleSheet.create({
   expandedBrowsePlanCard: {
     width: "100%"
   },
-  followingBiblePlanCard: {
-    backgroundColor: colors.panel,
-    borderColor: colors.coral,
-    borderWidth: 1.5
-  },
-  followingBiblePlanCardDark: {
-    backgroundColor: "#242424",
-    borderColor: "#e9b76a"
-  },
   phonePlanPageCard: {
     gap: 8,
     padding: 12,
@@ -5246,19 +5237,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8
-  },
-  followingPlanBadge: {
-    backgroundColor: "#f8efe4",
-    borderColor: colors.coral,
-    borderRadius: 999,
-    borderWidth: 1,
-    color: colors.coral,
-    fontSize: 10,
-    fontWeight: "700",
-    overflow: "hidden",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    textTransform: "uppercase"
   },
   planPageMetaText: {
     color: colors.muted,
@@ -5331,27 +5309,6 @@ export const styles = StyleSheet.create({
   },
   planCardDangerTextDark: {
     color: "#f2a088"
-  },
-  planExpandButton: {
-    alignItems: "center",
-    backgroundColor: "#fff",
-    borderColor: colors.line,
-    borderRadius: 999,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 4,
-    minHeight: 30,
-    paddingHorizontal: 9,
-    paddingVertical: 5
-  },
-  planExpandButtonText: {
-    color: colors.oliveDark,
-    fontSize: 11,
-    fontWeight: "700"
-  },
-  planDetailsButton: {
-    minHeight: 38,
-    paddingHorizontal: 12
   },
   planDetailsPanel: {
     backgroundColor: colors.panel,
@@ -5485,9 +5442,6 @@ export const styles = StyleSheet.create({
     minHeight: 46,
     paddingHorizontal: 8,
     paddingVertical: 7
-  },
-  currentPlanDayList: {
-    gap: 6
   },
   planDayPickerScroll: {
     gap: 8,
@@ -5756,12 +5710,6 @@ export const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 12,
     lineHeight: 18
-  },
-  planDayDevotionalSource: {
-    color: colors.muted,
-    fontSize: 10,
-    fontWeight: "600",
-    textTransform: "uppercase"
   },
   planDayPromptRow: {
     gap: 2

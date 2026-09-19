@@ -1,3 +1,4 @@
+import { DEFAULT_OPEN_BIBLE_PLAN_SECTIONS, normalizePlanSectionIds, restoreBiblePlanSections } from "@/data/biblePlanSections";
 import { usePracticeViewport } from "@/components/usePracticeViewport";
 import { useAutoHideNavigation } from "@/components/useAutoHideNavigation";
 import { useRefreshingValue } from "@/components/useRefreshingValue";
@@ -633,7 +634,6 @@ type SyncedBibleReaderState = {
   readingPlanProgress?: StoredBibleReadingPlanProgress;
 };
 
-const DEFAULT_OPEN_BIBLE_PLAN_SECTIONS = { start: true, books: false, life: false, story: false, whole: false, intensive: false };
 const SCRIPTURE_INSERT_SETTINGS_KEY = "bible-study-tutor-scripture-insert-settings";
 const DEFAULT_SCRIPTURE_INSERT_SETTINGS: ScriptureInsertSettings = {
   disabled: false,
@@ -2924,13 +2924,7 @@ function HomeScreen() {
     if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
     if (syncedMemoryCollectionFilter) setMemoryCollectionFilter(syncedMemoryCollectionFilter);
     if (syncedPlanOpenSections) {
-      setOpenBiblePlanSections({
-        ...DEFAULT_OPEN_BIBLE_PLAN_SECTIONS,
-        custom: syncedPlanOpenSections.includes("custom"),
-        short: syncedPlanOpenSections.includes("short"),
-        medium: syncedPlanOpenSections.includes("medium"),
-        long: syncedPlanOpenSections.includes("long")
-      });
+      setOpenBiblePlanSections(restoreBiblePlanSections(syncedPlanOpenSections));
     }
     if (syncedPlanExpandedPlanId !== undefined) setExpandedBiblePlanId(syncedPlanExpandedPlanId);
     if (uiBoolean(profileUiPreferences, "plansCompletedOpen") !== undefined) setCompletedBiblePlansOpen(uiBoolean(profileUiPreferences, "plansCompletedOpen")!);
@@ -13662,11 +13656,6 @@ function uiMemoryChapterFilter(preferences: UiPreferenceMap) {
 function uiMemoryCollectionFilter(preferences: UiPreferenceMap) {
   const value = preferences.memoryCollectionFilter;
   return typeof value === "string" && value.length <= 80 && !value.startsWith("$") && !value.startsWith("_") ? value : undefined;
-}
-
-function normalizePlanSectionIds(value: unknown[]) {
-  const allowed = new Set(["custom", "short", "medium", "long"]);
-  return Array.from(new Set(value.map((item) => (typeof item === "string" ? item.trim() : "")).filter((item) => allowed.has(item)))).slice(0, 4);
 }
 
 function isSafePlanId(value: string) {

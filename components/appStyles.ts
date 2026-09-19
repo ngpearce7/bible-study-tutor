@@ -10028,23 +10028,10 @@ export const styles = StyleSheet.create({
   phonePrintOpenButtonText: {
     textAlign: "center"
   },
-  contextHelpButton: {
-    alignItems: "center",
-    backgroundColor: colors.oliveDark,
-    borderColor: "rgba(255, 255, 255, 0.72)",
-    borderRadius: 999,
-    borderWidth: 2,
-    height: 48,
-    justifyContent: "center",
-    position: "absolute",
-    right: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.14,
-    shadowRadius: 14,
-    width: 48,
-    zIndex: 350
-  },
+  inlineHelpButton: { paddingHorizontal: 10, minHeight: 44, justifyContent: "center", alignSelf: "flex-start" },
+  inlineHelpText: { color: colors.muted, fontSize: 14, textDecorationLine: "underline" },
+  contextHelpHeadingRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 },
+  contextHelpToolbar: { alignItems: "flex-end" },
   contextHelpOverlay: {
     bottom: 0,
     left: 0,

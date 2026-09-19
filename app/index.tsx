@@ -22,7 +22,7 @@ import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQuer
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES } from "@/data/devotionalTypography";
-import { getContextHelp } from "@/data/help";
+
 import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, getReaderPlanReadingChunk, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
@@ -70,6 +70,7 @@ const PasswordRecovery = lazy(() => import("@/components/PasswordRecovery").then
 const LazyAdminDashboard = lazy(() => import("@/components/AdminDashboard").then((module) => ({ default: module.AdminDashboard })));
 const LazyBibleTab = lazy(() => import("@/components/BibleTab").then((module) => ({ default: module.BibleTab })));
 const LazyCommunityTab = lazy(() => import("@/components/CommunityTab").then((module) => ({ default: module.CommunityTab })));
+const LazyContextHelpDialog = lazy(() => import("@/components/ContextHelpDialog"));
 const LazyHelpTab = lazy(() => import("@/components/HelpTab").then((module) => ({ default: module.HelpTab })));
 const LazyJournalTab = lazy(() => import("@/components/JournalTab").then((module) => ({ default: module.JournalTab })));
 const LazyMemoryTab = lazy(() => import("@/components/MemoryTab").then((module) => ({ default: module.MemoryTab })));
@@ -920,6 +921,7 @@ function HomeScreen() {
   const [profileConnectionState, setProfileConnectionState] = useState<ProfileConnectionState>("idle");
   const [profileInitializationAttempt, setProfileInitializationAttempt] = useState(0);
   const [contextHelpOpen, setContextHelpOpen] = useState(false);
+  const [helpPlanView, setHelpPlanView] = useState<"browse" | "current">("browse");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [iconFontReady, setIconFontReady] = useState(Platform.OS !== "web");
   const [layoutReady, setLayoutReady] = useState(Platform.OS !== "web");
@@ -7517,7 +7519,7 @@ function HomeScreen() {
       <View style={[styles.instructionHeader, phoneLayout && styles.phoneInstructionHeader]}>
         <View style={[styles.instructionHeaderCopy, phoneLayout && styles.phoneInstructionHeaderCopy]} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
           <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
-          <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
+          <View style={styles.contextHelpHeadingRow}><Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>{renderContextHelpButton()}</View>
           <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={instructionsCollapsed ? "Show study instructions" : "Hide study instructions"} accessibilityState={{ expanded: !instructionsCollapsed }} onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
@@ -7549,7 +7551,13 @@ function HomeScreen() {
 
   const showMobileReaderSelectionDock = phoneLayout && tab === "bible" && selectedReaderVerses.length > 0;
   const showMobileReaderNoteEditor = showMobileReaderSelectionDock && !!currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id;
-  const activeContextHelp = getContextHelp(tab, {
+  const contextHelp = {
+    studyMethodName: method.short,
+    studyStepDetails: step,
+    memoryPracticeLevel,
+    memoryPracticeAllCorrect,
+    planView: helpPlanView,
+    planTitle: activeBibleReadingPlan?.title,
     studyPhase,
     studyStep: stepIndex + 1,
     bibleSearchOpen: !bibleSearchCollapsed,
@@ -7563,9 +7571,17 @@ function HomeScreen() {
     communityView: communitySubView,
     signedIn: isAuthenticated,
     adminProfileSelected: !!selectedAdminProfileId
-  });
+  };
   const showQuickNav = phoneLayout && !phoneMemoryFocusMode && !showMobileReaderSelectionDock && !mobileMenuOpen;
-  const contextHelpBottom = showMobileReaderNoteEditor ? 300 : showMobileReaderSelectionDock ? 142 : showQuickNav && !autoNav.hidden ? 88 : 18;
+  function renderContextHelpButton(planView?: "browse" | "current") {
+    return <Pressable accessibilityRole="button" accessibilityLabel={planView === "browse" ? "Help choosing a reading plan" : planView === "current" ? "Help with active reading plans" : `Help for ${tab}`} onPress={() => {
+      if (planView) setHelpPlanView(planView);
+      Keyboard.dismiss();
+      setContextHelpOpen(true);
+    }} style={styles.inlineHelpButton}>
+      <Text style={[styles.inlineHelpText, accountDarkMode && styles.accountDarkMutedText]}>Help</Text>
+    </Pressable>;
+  }
 
   useEffect(() => {
     if (!pendingBiblePlanReadAhead) return;
@@ -8230,6 +8246,7 @@ function HomeScreen() {
             <AppButton label="Retry saving" variant="secondary" onPress={() => setProfileInitializationAttempt((attempt) => attempt + 1)} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
           </View>
         )}
+        {!["study", "memory", "plans", "help"].includes(tab) && <View style={styles.contextHelpToolbar}>{renderContextHelpButton()}</View>}
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>
@@ -8379,6 +8396,7 @@ function HomeScreen() {
                     <Text style={[styles.title, phoneLayout && styles.phoneStudyGuidedTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your ${method.short} study` : `${method.short} Study`}</Text>
                   </View>
                   <View style={[styles.studyHeaderControls, phoneLayout && styles.phoneStudyHeaderControls]}>
+                    {studyPhase === "review" && renderContextHelpButton()}
                         <Pressable
                           accessibilityRole="button"
                           accessibilityLabel={studyMethodPickerOpen ? "Hide study method picker" : "Show study method picker"}
@@ -8911,7 +8929,7 @@ function HomeScreen() {
                   <View style={[styles.savedSummaryIcon, studyDarkMode && styles.homeDarkIconBubble]}>
                     <Ionicons name="checkmark-circle-outline" size={30} color={studyDarkMode ? "#e9b76a" : colors.coral} />
                   </View>
-                  <Eyebrow>Saved to Journal</Eyebrow>
+                  <View style={styles.contextHelpHeadingRow}><Eyebrow>Saved to Journal</Eyebrow>{renderContextHelpButton()}</View>
                   <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{firstName ? `Your study is safely saved, ${firstName}.` : "Your study is safely saved."}</Text>
                   <Text style={[styles.body, studyDarkMode && styles.accountDarkMutedText]}>{`${savedStudySummary.passage} · ${savedStudySummary.methodName} is now in your Journal.`}</Text>
                   <View style={[styles.savedSummaryGrid, phoneLayout && styles.phoneSavedSummaryGrid]}>
@@ -9721,7 +9739,7 @@ function HomeScreen() {
             <Eyebrow>Reading paths</Eyebrow>
             <Text style={[styles.title, plansDarkMode && styles.accountDarkTitle]}>Bible reading plans</Text>
             <Text style={[styles.titleSupport, plansDarkMode && styles.accountDarkMutedText]}>Choose, continue, create, and manage reading plans. The Bible reader shows the active plan for today.</Text>
-            <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Active plans</Text>
+            <View style={styles.contextHelpHeadingRow}><Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Active plans</Text>{renderContextHelpButton("current")}</View>
             {activeBibleReadingPlan && activeBibleReadingPlanToday ? (
               <View style={[styles.currentPlanWideBox, styles.currentBibleReadingPlanBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
                 <View style={[styles.journalHeader, phoneLayout && styles.phonePlanHeader]}>
@@ -9944,7 +9962,7 @@ function HomeScreen() {
             </View>
 
             <View style={styles.planBrowseIntro}>
-              <Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Browse plans</Text>
+              <View style={styles.contextHelpHeadingRow}><Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Browse plans</Text>{renderContextHelpButton("browse")}</View>
             </View>
             <View style={styles.planBrowseSectionStack}>
               {bibleReadingPlanCorpusStatus !== "ready" ? (
@@ -10428,6 +10446,7 @@ function HomeScreen() {
           >
             <Suspense fallback={<Card style={[styles.mainCard, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory...</Text></Card>}>
               <LazyMemoryTab
+              contextHelpControl={renderContextHelpButton()}
               activeMemoryCollectionDueCount={activeMemoryCollectionDueCount}
               activeMemoryCollectionName={activeMemoryCollectionName}
               activeMemoryMeditationVerseId={activeMemoryMeditationVerseId}
@@ -12179,52 +12198,11 @@ function HomeScreen() {
           </View>
         );
       })()}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Help for ${activeContextHelp.title}`}
-        onPress={() => setContextHelpOpen(true)}
-        style={[styles.contextHelpButton, { bottom: contextHelpBottom }]}
-      >
-        <HydrationSafeIonicon ready={iconFontReady} name="help-circle-outline" size={22} color="white" />
-      </Pressable>
-      {contextHelpOpen && (
-        <View {...modalAccessibilityProps(activeContextHelp.title)} style={styles.contextHelpOverlay}>
-          <Pressable style={styles.contextHelpScrim} onPress={() => setContextHelpOpen(false)} />
-          <View style={[styles.contextHelpCard, phoneLayout && styles.phoneContextHelpCard, accountDarkMode && styles.accountDarkMainCard]}>
-            <View style={styles.contextHelpHeader}>
-              <View style={styles.feedbackHeader}>
-                <Ionicons name={activeContextHelp.icon as any} size={18} color={accountDarkMode ? "#e9b76a" : colors.coral} />
-                <Text style={[styles.feedbackTitle, accountDarkMode && styles.accountDarkTitle]}>{activeContextHelp.title}</Text>
-              </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Close contextual help" onPress={() => setContextHelpOpen(false)} style={styles.markupCloseButton}>
-                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#c8bda9" : colors.muted} />
-              </Pressable>
-            </View>
-            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{activeContextHelp.summary}</Text>
-            <View style={styles.contextHelpList}>
-              {activeContextHelp.tips.map((tip) => (
-                <View key={tip} style={[styles.contextHelpTip, accountDarkMode && styles.accountDarkInsetBox]}>
-                  <Ionicons name="checkmark-circle-outline" size={16} color={accountDarkMode ? "#e9b76a" : colors.oliveDark} />
-                  <Text style={[styles.contextHelpTipText, accountDarkMode && styles.accountDarkText]}>{tip}</Text>
-                </View>
-              ))}
-            </View>
-            <View style={styles.contextHelpActions}>
-              <ResumeButton
-                label="Full help"
-                icon="help-circle-outline"
-                onPress={() => {
-                  setContextHelpOpen(false);
-                  setTab("help");
-                }}
-                style={accountDarkMode && styles.homeDarkResumeButton}
-                labelStyle={accountDarkMode && styles.homeDarkResumeButtonText}
-                iconColor={accountDarkMode ? "#e9b76a" : undefined}
-              />
-            </View>
-          </View>
-        </View>
-      )}
+      {contextHelpOpen && <Suspense fallback={null}>
+        <LazyContextHelpDialog tab={tab} context={contextHelp} dark={accountDarkMode}
+          onClose={() => setContextHelpOpen(false)}
+          onFullHelp={() => { setContextHelpOpen(false); setTab("help"); }} />
+      </Suspense>}
     </View>
     </UIThemeContext.Provider>
   );

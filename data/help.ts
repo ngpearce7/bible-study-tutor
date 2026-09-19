@@ -7,6 +7,12 @@ export type ContextHelp = {
 
 export type ContextHelpContext = {
   studyPhase?: string;
+  studyMethodName?: string;
+  studyStepDetails?: { title: string; action: string; prompt: string; checklist: string[]; output: string; responseType: string };
+  memoryPracticeLevel?: number;
+  memoryPracticeAllCorrect?: boolean;
+  planView?: "browse" | "current";
+  planTitle?: string;
   studyStep?: number;
   bibleSearchOpen?: boolean;
   bibleSearchResultCount?: number;
@@ -31,12 +37,28 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
     };
   }
 
-  if (tab === "study" && typeof context.studyStep === "number") {
+  if (tab === "study" && context.studyPhase === "saved") {
+    return { title: "Your saved study", icon: "journal-outline", summary: "Your completed study is ready to revisit in Journal.", tips: ["Open Journal to read your saved answers.", "Begin another study when you are ready; you do not need to repeat this one."] };
+  }
+  if (tab === "study" && context.studyStepDetails) {
+    const step = context.studyStepDetails;
     return {
-      title: `Study step ${context.studyStep} help`,
+      title: `${context.studyMethodName || "Study"} · ${step.title}`,
       icon: "book-outline",
-      summary: "The current step panel tells you what to do next. Keep your answer simple, honest, and grounded in the passage.",
-      tips: ["Use note starters if you feel stuck.", "Select passage text to highlight, save to Memory, or print a worksheet.", "Use Focus mode if the side panels are distracting."]
+      summary: step.action,
+      tips: [step.prompt, ...step.checklist, step.responseType === "text" ? `What to write: ${step.output}` : step.output]
+    };
+  }
+  if (tab === "plans") {
+    if (context.planView === "current" && context.planTitle) return {
+      title: "Continue your reading plan", icon: "calendar-outline",
+      summary: `Your current plan is ${context.planTitle}. Choose its next reading or revisit a completed day.`,
+      tips: ["Select a day tile to see that day’s passage, then choose Read or Study.", "Mark the plan reading complete when you finish. This is separate from marking a Bible chapter read.", "Catch up dates moves the next incomplete reading to today while keeping completed progress.", "Stopping a plan keeps previous progress; restarting begins a new run."]
+    };
+    return {
+      title: "Choose a reading plan", icon: "calendar-outline",
+      summary: context.planView === "current" ? "You do not have a current plan selected. Browse the categories below to choose one." : "Open a category to explore plans by purpose, rather than duration alone.",
+      tips: ["Start here offers approachable starting points. Other categories cover books, themes, the Bible’s story, and whole-Bible reading.", "Compare daily reading time as well as the number of days; intensive plans require more time each day.", "Open a plan’s details and preview a day before choosing Follow.", "Create a custom plan if you want to choose your own sequence."]
     };
   }
 
@@ -82,17 +104,21 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
   }
 
   if (tab === "memory" && context.memoryPracticing) {
+    if (context.memoryPracticeAllCorrect && context.memoryPracticeLevel === 2) return {
+      title: "Continue to step 3", icon: "checkmark-circle-outline",
+      summary: "All the alternating blanks are correct. You are ready to recall the whole verse.",
+      tips: ["Choose Continue to move to step 3.", "Use Repeat if you would like another attempt at this step first."]
+    };
+    if (context.memoryPracticeAllCorrect && context.memoryPracticeLevel === 3) return {
+      title: "Finish this verse", icon: "checkmark-circle-outline",
+      summary: "Every word is correct. Finish the verse to record this review.",
+      tips: ["Use Finish verse beneath the practice area.", "If the keyboard covers the action, dismiss it and scroll to the end.", "When reviewing a queue, the next due verse may open after you finish."]
+    };
+    const level = context.memoryPracticeLevel || 1;
     return {
-      title: "Memory practice help",
-      icon: "create-outline",
-      summary: "Practice uses three steps: read the verse, fill some blanks, then fill the whole verse from memory.",
-      tips: [
-        "Step 1 is just reading; Step 2 hides alternating words; Step 3 asks for the whole verse.",
-        "Hints reveal more of a word when you need help.",
-        "A word shows feedback once your answer is long enough to check.",
-        "Press Enter or Return when the Finish Verse button is focused.",
-        "When reviewing due verses, the next due verse can open automatically."
-      ]
+      title: `Memory · step ${level}`, icon: "create-outline",
+      summary: level === 1 ? "Read the verse and its reference slowly before practising recall." : level === 2 ? "Fill the alternating blanks, using the visible words to help you recall the passage." : "Recall every word of the verse, including its reference.",
+      tips: level === 1 ? ["Read aloud if helpful and notice how the phrases connect.", "Move to step 2 when you are ready; this reading step has no blanks to fill."] : ["Type into the highlighted blank. A correct answer advances to the next word.", "Use Hint when you need a little more of the answer, or tap a blank to revisit it.", level === 2 ? "Complete the blanks, then choose Continue to move to step 3." : "Complete every blank, then use Finish verse to record your review."]
     };
   }
 
@@ -173,7 +199,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Home help",
       icon: "home-outline",
       summary: "Home gathers the next useful steps so you can move into reading, study, memory, or review without hunting around.",
-      tips: ["Use Today’s path when you are unsure what to do next.", "At a glance shows memory reviews and study reviews that need attention.", "Start with Read Scripture or Start a study if you are new."]
+      tips: ["Pick up where you left off shows outstanding reading or review tasks when there are any.", "Start a guided study or open the Bible reader to begin something new.", "Your rhythm reflects your recorded activity over time."]
     },
     study: {
       title: "Study help",

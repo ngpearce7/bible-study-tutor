@@ -155,6 +155,7 @@ export function MemoryTab(props: any) {
       <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
         <View style={phoneLayout ? styles.phoneMemoryHeaderRow : undefined}>
           <Eyebrow>Memory</Eyebrow>
+          {!activeMemoryVerseId && props.contextHelpControl}
           {phoneLayout && !phoneMemoryFocusMode && (
             <Pressable
               accessibilityRole="button"
@@ -761,7 +762,7 @@ export function MemoryTab(props: any) {
                       {practicing ? (
                         <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice, memoryDarkMode && styles.accountDarkInsetBox]}>
                           <View style={[styles.memoryPracticeHeader, phoneLayout && styles.phoneMemoryPracticeHeader]}>
-                            <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle, memoryDarkMode && styles.accountDarkMutedText]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
+                            <View style={styles.contextHelpHeadingRow}><Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle, memoryDarkMode && styles.accountDarkMutedText]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>{props.contextHelpControl}</View>
                             <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                               {[1, 2, 3].map((level) => (
                                 <Pressable

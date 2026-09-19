@@ -269,7 +269,7 @@ const commonQuestions = [
 const troubleshootingItems = [
   ["The screen feels crowded", "Use Study Focus mode, collapse side panels, or open the mobile menu only when you need it."],
   ["I cannot find a saved verse", "Open Memory, switch to Browse, then filter by collection, book, chapter, or status."],
-  ["The help button seems to change", "That is intentional. The floating help button responds to the tab and sub-view you are using."],
+  ["Where do I find help for this screen?", "Use the Help link near the heading or screen tools. Guidance follows the current task; Full help opens this guide."],
   ["I saved a note but not a bookmark", "That is expected. A note-only verse shows the note icon; a bookmarked verse shows the bookmark icon."],
   ["I want to find an older study", "Open Journal and use search, Calendar view, or Scripture view."],
   ["I am not signed in", "You can keep using a local profile. Sign in from Account when you want account-connected saving."]
@@ -419,7 +419,7 @@ export function HelpTab({
           <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Help from anywhere</Text>
         </View>
         <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
-          The floating help button changes with the part of the app you are using. It can explain selected Bible verses, Scripture search results, memory practice, meditation, Journal views, Community history, Account sign-in, and Admin review screens.
+          Help links sit beside task headings or in the screen tools. They explain the current study method and step, memory practice stage, plan browsing or active plan, and other views. Use More → Help on a phone, or Help in the sidebar, to open the full guide.
         </Text>
         <View style={styles.helpTabGrid}>
           {contextualHelpItems.map(([title, body, icon]) => (

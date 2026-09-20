@@ -762,7 +762,9 @@ export function MemoryTab(props: any) {
                       {practicing ? (
                         <View style={[styles.inlineMemoryPractice, phoneLayout && styles.phoneInlineMemoryPractice, memoryDarkMode && styles.accountDarkInsetBox]}>
                           <View style={[styles.memoryPracticeHeader, phoneLayout && styles.phoneMemoryPracticeHeader]}>
-                            <View style={styles.contextHelpHeadingRow}><Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle, memoryDarkMode && styles.accountDarkMutedText]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>{props.contextHelpControl}</View>
+                            <Text style={[styles.helpIntro, phoneLayout && styles.phoneMemoryPracticeTitle, memoryDarkMode && styles.accountDarkMutedText]}>Step {memoryPracticeLevel}: {memoryPracticeLabel(memoryPracticeLevel)}</Text>
+                            <View style={[styles.contextHelpHeadingRow, phoneLayout && styles.phoneMemoryPracticeControls]}>
+                            {props.contextHelpControl}
                             <View style={[styles.memoryStepRow, phoneLayout && styles.phoneMemoryStepRow, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                               {[1, 2, 3].map((level) => (
                                 <Pressable
@@ -778,6 +780,7 @@ export function MemoryTab(props: any) {
                                   </Text>
                                 </Pressable>
                               ))}
+                            </View>
                             </View>
                           </View>
                           {memoryPracticeLevel === 1 ? (

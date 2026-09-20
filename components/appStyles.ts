@@ -7254,11 +7254,15 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   phoneMemoryPracticeHeader: {
-    alignItems: "center",
-    flexWrap: "nowrap"
+    alignItems: "stretch",
+    flexDirection: "column"
+  },
+  phoneMemoryPracticeControls: {
+    width: "100%",
+    minWidth: 0
   },
   phoneMemoryPracticeTitle: {
-    flex: 1,
+    flexShrink: 1,
     fontSize: 12,
     lineHeight: 16,
     marginBottom: 0,

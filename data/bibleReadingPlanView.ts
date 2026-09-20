@@ -178,6 +178,7 @@ export function buildBibleReadingPlanView({
     activeSelectedDay,
     activeSelectedDateKey,
     activeTodayDateKey,
+    activeReadingDue: !!activeTodayDateKey && !activeComplete && activeTodayDateKey <= todayDateKey,
     activeScheduledToday,
     activeDoneToday,
     activeDoneTodayLabel: activeScheduledToday ? `Day ${activeScheduledToday.day} complete today` : "",

@@ -2531,7 +2531,7 @@ function HomeScreen() {
   const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const homeContinueItems = [
-    ...(isAuthenticated && activeBibleReadingPlan && activeBibleReadingPlanToday && !activeBibleReadingPlanComplete
+    ...(isAuthenticated && activeBibleReadingPlan && activeBibleReadingPlanToday && bibleReadingPlanView.activeReadingDue
       ? [{
           key: "reading-plan",
           title: "Continue reading plan",

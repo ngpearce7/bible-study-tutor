@@ -8246,7 +8246,7 @@ function HomeScreen() {
             <AppButton label="Retry saving" variant="secondary" onPress={() => setProfileInitializationAttempt((attempt) => attempt + 1)} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
           </View>
         )}
-        {!["study", "memory", "plans", "help"].includes(tab) && <View style={styles.contextHelpToolbar}>{renderContextHelpButton()}</View>}
+        {!["home", "study", "memory", "plans", "help"].includes(tab) && <View style={styles.contextHelpToolbar}>{renderContextHelpButton()}</View>}
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>

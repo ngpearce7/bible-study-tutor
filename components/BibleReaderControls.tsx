@@ -6,6 +6,7 @@ import { AppButton, Eyebrow, colors } from "@/components/ui";
 
 type BibleReaderControlsProps = {
   styles: any;
+  onHelp: () => void;
   darkMode: boolean;
   phoneLayout: boolean;
   translationId: string;
@@ -37,6 +38,7 @@ type BibleReaderControlsProps = {
 
 export function BibleReaderControls({
   styles,
+  onHelp,
   darkMode,
   phoneLayout,
   translationId,
@@ -87,7 +89,10 @@ export function BibleReaderControls({
         </Pressable>
       </View>
 
-      {toolsOpen && <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this chapter"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />}
+      {toolsOpen && <View style={{ gap: 8 }}>
+        <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this chapter"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
+        <AppButton label="Reader help" variant="secondary" onPress={onHelp} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
+      </View>}
 
       {selectedVerseCount > 0 && (
         <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>

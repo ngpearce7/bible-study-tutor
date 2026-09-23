@@ -8,6 +8,7 @@ import { BibleSearchPanel } from "@/components/BibleSearchPanel";
 
 export function BibleTab({
   styles,
+  onHelp,
   compactLayout,
   phoneLayout,
   bibleDarkMode,
@@ -80,12 +81,15 @@ export function BibleTab({
   bibleSearchCriteriaOpen,
   bibleSearchTranslation,
   bibleSearchStatus,
+  bibleSearchHasMore,
+  bibleSearchLoadingMore,
   bibleSearchDuration,
   bibleSearchActiveQuery,
   bibleSearchSections,
   onToggleBibleSearchCollapsed,
   onBibleSearchQueryChange,
   onRunBibleSearch,
+  onLoadMoreBibleSearch,
   onClearBibleSearch,
   onToggleBibleSearchCriteria,
   onSelectBibleSearchScope,
@@ -228,12 +232,15 @@ export function BibleTab({
           translationLabel={bibleSearchTranslation}
           translationId={bibleTranslation}
           status={bibleSearchStatus}
+          hasMore={bibleSearchHasMore}
+          loadingMore={bibleSearchLoadingMore}
           duration={bibleSearchDuration}
           activeQuery={bibleSearchActiveQuery}
           sections={bibleSearchSections}
           onToggleCollapsed={onToggleBibleSearchCollapsed}
           onQueryChange={onBibleSearchQueryChange}
           onRunSearch={onRunBibleSearch}
+          onLoadMore={onLoadMoreBibleSearch}
           onClearSearch={onClearBibleSearch}
           onToggleCriteria={onToggleBibleSearchCriteria}
           onSelectScope={onSelectBibleSearchScope}
@@ -246,6 +253,7 @@ export function BibleTab({
 
         <BibleReaderControls
           styles={styles}
+          onHelp={onHelp}
           darkMode={bibleDarkMode}
           phoneLayout={phoneLayout}
           translationId={bibleTranslation}

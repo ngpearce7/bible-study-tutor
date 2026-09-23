@@ -23,6 +23,13 @@ export type BibleSearchResult = {
 };
 
 type SearchTranslation = "KJV" | "WEB" | "BSB";
+const SEARCH_PAGE_SIZE = 30;
+
+export type BibleSearchPage = {
+  results: BibleSearchResult[];
+  hasMore: boolean;
+  limited: boolean;
+};
 
 function bibleSearchTranslationId(translation: SearchTranslation) {
   if (translation === "KJV") return "KJV";
@@ -36,20 +43,23 @@ export async function fetchBibleSearchResults(
   scope: BibleSearchScope,
   bookFilter: string,
   matchWhole: boolean,
-  signal?: AbortSignal
-): Promise<BibleSearchResult[]> {
+  signal?: AbortSignal,
+  page = 1
+): Promise<BibleSearchPage> {
   if (translation === "BSB") {
     try {
-      const indexedResults = await fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole, signal);
-      if (indexedResults.length > 0 || !bookFilter) return indexedResults;
+      const indexedResults = await fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole, signal, page);
+      if (indexedResults.results.length > 0 || !bookFilter || page > 1) return indexedResults;
     } catch (error) {
       throwIfRequestAborted(signal);
-      if (!bookFilter) return [];
+      if (!bookFilter) return { results: [], hasMore: false, limited: false };
+      if (page > 1) throw error;
     }
-    return fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole, signal);
+    const results = (await fetchBsbSearchResults(searchTerm, scope, bookFilter, matchWhole, signal)).slice(0, 80);
+    return { results, hasMore: false, limited: results.length === 80 };
   }
 
-  return fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole, signal);
+  return fetchIndexedBibleSearchResults(searchTerm, translation, scope, bookFilter, matchWhole, signal, page);
 }
 
 async function fetchIndexedBibleSearchResults(
@@ -58,14 +68,15 @@ async function fetchIndexedBibleSearchResults(
   scope: BibleSearchScope,
   bookFilter: string,
   matchWhole: boolean,
-  signal?: AbortSignal
-): Promise<BibleSearchResult[]> {
+  signal?: AbortSignal,
+  page = 1
+): Promise<BibleSearchPage> {
   const params = new URLSearchParams({
     search: searchTerm,
     match_case: "false",
     match_whole: matchWhole ? "true" : "false",
-    limit: "30",
-    page: "1"
+    limit: String(SEARCH_PAGE_SIZE),
+    page: String(page)
   });
   if (bookFilter) {
     const bookIndex = bibleBooks.indexOf(bookFilter);
@@ -79,7 +90,7 @@ async function fetchIndexedBibleSearchResults(
   const data = await response.json();
   const rawResults = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : [];
 
-  return rawResults
+  const results = rawResults
     .map((item: any): BibleSearchResult | null => {
       const bookIndex = Number(item.book || item.book_id || item.bookId || 0) - 1;
       const book = bibleBooks[bookIndex] || normalizeBibleBookName(String(item.book_name || item.bookName || ""));
@@ -98,6 +109,12 @@ async function fetchIndexedBibleSearchResults(
       };
     })
     .filter((item: BibleSearchResult | null): item is BibleSearchResult => item !== null);
+  const total = Number(data?.total);
+  return {
+    results,
+    hasMore: Number.isFinite(total) ? page * SEARCH_PAGE_SIZE < total : rawResults.length === SEARCH_PAGE_SIZE,
+    limited: false
+  };
 }
 
 async function fetchBsbSearchResults(searchTerm: string, scope: BibleSearchScope, bookFilter: string, matchWhole: boolean, signal?: AbortSignal): Promise<BibleSearchResult[]> {

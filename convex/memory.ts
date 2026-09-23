@@ -134,11 +134,14 @@ export const list = query({
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
+    const requestedLimit = args.limit ?? 50;
+    const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(500, Math.floor(requestedLimit))) : 50;
+
     return await ctx.db
       .query("memoryVerses")
       .withIndex("by_profile_updated", (q) => q.eq("profileId", args.profileId))
       .order("desc")
-      .take(args.limit ?? 50);
+      .take(limit);
   }
 });
 

@@ -52,6 +52,19 @@ type BibleSearchCriteriaOverrides = {
   book?: string;
   translationId?: BibleTranslationId;
 };
+type BibleSearchSnapshot = {
+  query: string;
+  translation: "KJV" | "WEB" | "BSB";
+  scope: BibleSearchScope;
+  book: string;
+  mode: BibleSearchMode;
+  terms: string[];
+  page: number;
+  rawResults: BibleSearchResult[];
+  hasMore: boolean;
+};
+const MAX_BIBLE_SEARCH_PAGES = 8;
+const MAX_BIBLE_SEARCH_RESULTS = 240;
 let bibleReadingPlanCorpusPromise: Promise<BibleReadingPlanCorpus> | null = null;
 function loadBibleReadingPlanCorpus() {
   if (!bibleReadingPlanCorpusPromise) {
@@ -1217,6 +1230,8 @@ function HomeScreen() {
   const [bibleSearchBookMenuOpen, setBibleSearchBookMenuOpen] = useState(false);
   const [bibleSearchCriteriaOpen, setBibleSearchCriteriaOpen] = useState(false);
   const [bibleSearchResults, setBibleSearchResults] = useState<BibleSearchResult[]>([]);
+  const [bibleSearchHasMore, setBibleSearchHasMore] = useState(false);
+  const [bibleSearchLoadingMore, setBibleSearchLoadingMore] = useState(false);
   const [bibleSearchStatus, setBibleSearchStatus] = useState("");
   const [bibleSearchDuration, setBibleSearchDuration] = useState("");
   const [bibleSearchActiveQuery, setBibleSearchActiveQuery] = useState("");
@@ -1247,6 +1262,7 @@ function HomeScreen() {
   const readerPassageRequestIdRef = useRef(0);
   const bibleSearchRequestIdRef = useRef(0);
   const bibleSearchAbortControllerRef = useRef<AbortController | null>(null);
+  const bibleSearchSnapshotRef = useRef<BibleSearchSnapshot | null>(null);
   const previousTabRef = useRef<Tab>(tab);
   const trackedIncomingShareRef = useRef("");
   const communityReactionStorageProfileRef = useRef("");
@@ -1898,7 +1914,7 @@ function HomeScreen() {
   const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery(api.community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery(api.community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
-  const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 50 } : "skip");
+  const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 500 } : "skip");
   const memoryHistory = useQuery(api.memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
   const memoryStats = useQuery(api.memory.stats, shouldLoadMemoryHistory ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery(api.insights.adminOverview, shouldLoadAdminOverview ? { now: studyReviewNow } : "skip");
@@ -2014,7 +2030,13 @@ function HomeScreen() {
   useEffect(() => {
     if (tab === "bible") return;
     if (bibleSearchResults.length === 0 && !bibleSearchStatus && !bibleSearchDuration && !bibleSearchActiveQuery) return;
+    bibleSearchAbortControllerRef.current?.abort();
+    bibleSearchAbortControllerRef.current = null;
+    bibleSearchRequestIdRef.current += 1;
+    bibleSearchSnapshotRef.current = null;
     setBibleSearchResults([]);
+    setBibleSearchHasMore(false);
+    setBibleSearchLoadingMore(false);
     setBibleSearchStatus("");
     setBibleSearchDuration("");
     setBibleSearchActiveQuery("");
@@ -6856,6 +6878,9 @@ function HomeScreen() {
     const searchTranslationId = overrides.translationId ?? bibleTranslation;
     const requestId = ++bibleSearchRequestIdRef.current;
     bibleSearchAbortControllerRef.current?.abort();
+    bibleSearchSnapshotRef.current = null;
+    setBibleSearchHasMore(false);
+    setBibleSearchLoadingMore(false);
     if (!query) {
       setBibleSearchStatus("Type a word, theme, idea, or question to search.");
       setBibleSearchResults([]);
@@ -6875,18 +6900,25 @@ function HomeScreen() {
     const translation = searchTranslationId === "kjv" ? "KJV" : searchTranslationId === "bsb" ? "BSB" : "WEB";
     const queries = buildBibleSearchQueries(query, searchMode);
     setBibleSearchStatus("Searching Scripture...");
+    setBibleSearchResults([]);
     setBibleSearchDuration("");
     setBibleSearchActiveQuery(query);
 
     try {
       const responses = await Promise.all(queries.map((searchTerm) => fetchBibleSearchResults(searchTerm, translation, searchScope, searchBook, searchMode === "word", controller.signal)));
       if (bibleSearchRequestIdRef.current !== requestId) return;
-      const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(dedupeBibleSearchResults(responses.flat()), query, searchMode), query, searchMode).slice(0, 60);
+      const rawResults = dedupeBibleSearchResults(responses.flatMap((response) => response.results));
+      const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(rawResults, query, searchMode), query, searchMode).slice(0, MAX_BIBLE_SEARCH_RESULTS);
+      const hasMore = responses.some((response) => response.hasMore) && combined.length < MAX_BIBLE_SEARCH_RESULTS;
+      bibleSearchSnapshotRef.current = { query, translation, scope: searchScope, book: searchBook, mode: searchMode, terms: queries, page: 1, rawResults, hasMore };
+      setBibleSearchHasMore(hasMore);
       setBibleSearchDuration(`Search completed in ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults(combined);
       setBibleSearchStatus(
         combined.length
-          ? `${combined.length} ${bibleSearchModeLabel(searchMode).toLowerCase()} result${combined.length === 1 ? "" : "s"} found${searchBook ? ` in ${searchBook}` : ""}.`
+          ? `Showing ${combined.length} ${bibleSearchModeLabel(searchMode).toLowerCase()} result${combined.length === 1 ? "" : "s"}${searchBook ? ` in ${searchBook}` : ""}.${hasMore ? " More results are available." : responses.some((response) => response.limited) ? " Refine your search to look beyond this limited BSB book scan." : ""}`
+          : hasMore
+            ? "No matching verses in this batch. Load more results or refine your search."
           : searchMode === "word"
             ? "No exact word results found. Try Any words or Theme if you want broader matches."
             : "No results found. Try fewer words or a broader search mode."
@@ -6898,6 +6930,7 @@ function HomeScreen() {
       setBibleSearchStatus(requestTimedOut ? "That search took too long. Try again or choose a specific book." : "I couldn't complete the search. Check your connection and try again.");
       setBibleSearchDuration(`Search stopped after ${formatSearchDuration(Date.now() - startedAt)}.`);
       setBibleSearchResults([]);
+      setBibleSearchHasMore(false);
       scrollToBibleSearchSummary();
     } finally {
       clearTimeout(requestTimeout);
@@ -6905,12 +6938,49 @@ function HomeScreen() {
     }
   }
 
+  async function loadMoreBibleSearch() {
+    const snapshot = bibleSearchSnapshotRef.current;
+    if (!snapshot?.hasMore || bibleSearchAbortControllerRef.current) return;
+    const requestId = bibleSearchRequestIdRef.current;
+    const controller = new AbortController();
+    bibleSearchAbortControllerRef.current = controller;
+    setBibleSearchLoadingMore(true);
+    let requestTimedOut = false;
+    const requestTimeout = setTimeout(() => {
+      requestTimedOut = true;
+      controller.abort();
+    }, 15_000);
+    try {
+      const nextPage = snapshot.page + 1;
+      const responses = await Promise.all(snapshot.terms.map((term) => fetchBibleSearchResults(term, snapshot.translation, snapshot.scope, snapshot.book, snapshot.mode === "word", controller.signal, nextPage)));
+      if (requestId !== bibleSearchRequestIdRef.current || bibleSearchSnapshotRef.current !== snapshot) return;
+      const rawResults = dedupeBibleSearchResults([...snapshot.rawResults, ...responses.flatMap((response) => response.results)]);
+      const combined = rankBibleSearchResults(filterBibleSearchResultsForMode(rawResults, snapshot.query, snapshot.mode), snapshot.query, snapshot.mode).slice(0, MAX_BIBLE_SEARCH_RESULTS);
+      const hasMore = nextPage < MAX_BIBLE_SEARCH_PAGES && combined.length < MAX_BIBLE_SEARCH_RESULTS && responses.some((response) => response.hasMore);
+      bibleSearchSnapshotRef.current = { ...snapshot, page: nextPage, rawResults, hasMore };
+      setBibleSearchResults(combined);
+      setBibleSearchHasMore(hasMore);
+      setBibleSearchStatus(`Showing ${combined.length} ${bibleSearchModeLabel(snapshot.mode).toLowerCase()} result${combined.length === 1 ? "" : "s"}${snapshot.book ? ` in ${snapshot.book}` : ""}.${hasMore ? " More results are available." : combined.length === MAX_BIBLE_SEARCH_RESULTS || nextPage === MAX_BIBLE_SEARCH_PAGES ? " Refine your search to look further." : ""}`);
+    } catch {
+      if (requestId === bibleSearchRequestIdRef.current) {
+        setBibleSearchStatus(requestTimedOut ? "More results took too long. Try again or choose a specific book." : "Could not load more results. Please try again.");
+      }
+    } finally {
+      clearTimeout(requestTimeout);
+      if (bibleSearchAbortControllerRef.current === controller) bibleSearchAbortControllerRef.current = null;
+      if (requestId === bibleSearchRequestIdRef.current) setBibleSearchLoadingMore(false);
+    }
+  }
+
   function clearBibleSearch() {
     bibleSearchAbortControllerRef.current?.abort();
     bibleSearchAbortControllerRef.current = null;
     bibleSearchRequestIdRef.current += 1;
+    bibleSearchSnapshotRef.current = null;
     setBibleSearchQuery("");
     setBibleSearchResults([]);
+    setBibleSearchHasMore(false);
+    setBibleSearchLoadingMore(false);
     setBibleSearchStatus("");
     setBibleSearchDuration("");
     setBibleSearchActiveQuery("");
@@ -7519,7 +7589,7 @@ function HomeScreen() {
       <View style={[styles.instructionHeader, phoneLayout && styles.phoneInstructionHeader]}>
         <View style={[styles.instructionHeaderCopy, phoneLayout && styles.phoneInstructionHeaderCopy]} onLayout={(event) => setStudyStepAnchorY(event.nativeEvent.layout.y)}>
           <Eyebrow>{`Step ${stepIndex + 1} of ${method.steps.length}`}</Eyebrow>
-          <View style={styles.contextHelpHeadingRow}><Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>{renderContextHelpButton()}</View>
+          <Text style={[styles.stepTitle, studyDarkMode && styles.accountDarkTitle]}>{step.title}</Text>
           <Text style={[styles.actionText, instructionsCollapsed && styles.collapsedActionText, studyDarkMode && styles.accountDarkText]}>{step.action}</Text>
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel={instructionsCollapsed ? "Show study instructions" : "Hide study instructions"} accessibilityState={{ expanded: !instructionsCollapsed }} onPress={() => toggleRememberedPanel(setInstructionsCollapsed, "studyInstructionsCollapsed")} style={[styles.collapseButton, phoneLayout && styles.phoneInstructionCollapseButton, studyDarkMode && styles.homeDarkResumeButton]}>
@@ -7573,12 +7643,13 @@ function HomeScreen() {
     adminProfileSelected: !!selectedAdminProfileId
   };
   const showQuickNav = phoneLayout && !phoneMemoryFocusMode && !showMobileReaderSelectionDock && !mobileMenuOpen;
+  function openContextHelp(planView?: "browse" | "current") {
+    if (planView) setHelpPlanView(planView);
+    Keyboard.dismiss();
+    setContextHelpOpen(true);
+  }
   function renderContextHelpButton(planView?: "browse" | "current") {
-    return <Pressable accessibilityRole="button" accessibilityLabel={planView === "browse" ? "Help choosing a reading plan" : planView === "current" ? "Help with active reading plans" : `Help for ${tab}`} onPress={() => {
-      if (planView) setHelpPlanView(planView);
-      Keyboard.dismiss();
-      setContextHelpOpen(true);
-    }} style={styles.inlineHelpButton}>
+    return <Pressable accessibilityRole="button" accessibilityLabel={planView === "browse" ? "Help choosing a reading plan" : planView === "current" ? "Help with active reading plans" : `Help for ${tab}`} onPress={() => openContextHelp(planView)} style={styles.inlineHelpButton}>
       <Text style={[styles.inlineHelpText, accountDarkMode && styles.accountDarkMutedText]}>Help</Text>
     </Pressable>;
   }
@@ -8246,7 +8317,7 @@ function HomeScreen() {
             <AppButton label="Retry saving" variant="secondary" onPress={() => setProfileInitializationAttempt((attempt) => attempt + 1)} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
           </View>
         )}
-        {!["home", "study", "memory", "plans", "help"].includes(tab) && <View style={styles.contextHelpToolbar}>{renderContextHelpButton()}</View>}
+        {!["home", "study", "memory", "plans", "help", "bible"].includes(tab) && <View style={styles.contextHelpToolbar}>{renderContextHelpButton()}</View>}
         {tab === "home" && (
           <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
             <Card style={[styles.homeMainCard, compactLayout && styles.fluidCard, homeDarkMode && styles.accountDarkMainCard]}>
@@ -9552,6 +9623,7 @@ function HomeScreen() {
             <Suspense fallback={<Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, bibleDarkMode && styles.accountDarkMutedText]}>Loading Bible reader...</Text></Card>}>
               <LazyBibleTab
               styles={styles}
+              onHelp={() => openContextHelp()}
               compactLayout={compactLayout}
               phoneLayout={phoneLayout}
               bibleDarkMode={bibleDarkMode}
@@ -9645,12 +9717,15 @@ function HomeScreen() {
               bibleSearchCriteriaOpen={bibleSearchCriteriaOpen}
               bibleSearchTranslation={bibleSearchTranslation}
               bibleSearchStatus={bibleSearchStatus}
+              bibleSearchHasMore={bibleSearchHasMore && bibleSearchQuery.trim() === bibleSearchActiveQuery}
+              bibleSearchLoadingMore={bibleSearchLoadingMore}
               bibleSearchDuration={bibleSearchDuration}
               bibleSearchActiveQuery={bibleSearchActiveQuery}
               bibleSearchSections={bibleSearchSections}
               onToggleBibleSearchCollapsed={() => toggleRememberedPanel(setBibleSearchCollapsed, "bibleSearchCollapsed")}
               onBibleSearchQueryChange={setBibleSearchQuery}
               onRunBibleSearch={() => runBibleSearch()}
+              onLoadMoreBibleSearch={loadMoreBibleSearch}
               onClearBibleSearch={clearBibleSearch}
               onToggleBibleSearchCriteria={() => setRememberedBibleSearchCriteriaOpen((value) => !value)}
               onSelectBibleSearchScope={setRememberedBibleSearchScope}

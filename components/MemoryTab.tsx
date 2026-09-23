@@ -153,7 +153,7 @@ export function MemoryTab(props: any) {
   return (
     <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
       <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
-        <View style={phoneLayout ? styles.phoneMemoryHeaderRow : undefined}>
+        <View style={styles.phoneMemoryHeaderRow}>
           <Eyebrow>Memory</Eyebrow>
           {!activeMemoryVerseId && props.contextHelpControl}
           {phoneLayout && !phoneMemoryFocusMode && (
@@ -202,11 +202,11 @@ export function MemoryTab(props: any) {
                 </View>
               </View>
             )}
-            <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
+            {(memoryVerses || []).length > 0 && <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
               <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
               <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
               <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-            </View>
+            </View>}
           </>
         )}
         {phoneMemoryFocusMode && (

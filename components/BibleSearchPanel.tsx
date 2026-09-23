@@ -24,12 +24,15 @@ type BibleSearchPanelProps = {
   translationLabel: string;
   translationId: string;
   status: string;
+  hasMore: boolean;
+  loadingMore: boolean;
   duration: string;
   activeQuery: string;
   sections: BibleSearchSection[];
   onToggleCollapsed: () => void;
   onQueryChange: (value: string) => void;
   onRunSearch: () => void;
+  onLoadMore: () => void;
   onClearSearch: () => void;
   onToggleCriteria: () => void;
   onSelectScope: (scope: BibleSearchScope) => void;
@@ -69,12 +72,15 @@ export function BibleSearchPanel({
   translationLabel,
   translationId,
   status,
+  hasMore,
+  loadingMore,
   duration,
   activeQuery,
   sections,
   onToggleCollapsed,
   onQueryChange,
   onRunSearch,
+  onLoadMore,
   onClearSearch,
   onToggleCriteria,
   onSelectScope,
@@ -302,6 +308,9 @@ export function BibleSearchPanel({
           ))}
         </View>
       ))}
+      {!collapsed && hasMore && (
+        <AppButton label={loadingMore ? "Loading more..." : "Load more results"} variant="secondary" onPress={onLoadMore} disabled={loadingMore} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
+      )}
     </View>
   );
 }

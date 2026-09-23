@@ -38,6 +38,56 @@ test("statistics change when supplied day advances without another write", async
   expect(later.weeklyRhythm.studiesCompleted).toBe(0);
 });
 
+test("a rhythm longer than the daily query window keeps its full count", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "long-rhythm-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const today = Date.parse("2026-09-23T12:00:00Z");
+  await t.run(async (ctx) => {
+    await ctx.db.insert("studyStats", {
+      profileId, sessionCount: 401, minutes: 401, currentStreak: 401,
+      bestStreak: 401, lastActiveDayKey: "2026-09-23", migrationStatus: "ready", updatedAt: today
+    });
+    for (let offset = 400; offset >= 0; offset -= 1) {
+      const dayKey = new Date(today - offset * 86400000).toISOString().slice(0, 10);
+      await ctx.db.insert("studyDailyStats", {
+        profileId, dayKey, studiesCompleted: 1, planReadingsCompleted: 0,
+        planReadingsOpened: 0, chaptersRead: 0, bibleSearches: 0,
+        memoryReviews: 0, memoryMeditations: 0, memorySaved: 0,
+        worksheetsPrinted: 0, memoryCardsPrinted: 0,
+        encouragementsShared: 0, bookmarksSaved: 0, updatedAt: today
+      });
+    }
+  });
+  const stats = await t.query(api.study.stats, { profileId, clientKey, now: today });
+  expect(stats.currentStreak).toBe(401);
+  expect(stats.bestStreak).toBe(401);
+  await t.run(async (ctx) => {
+    const aggregate = await ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", profileId)).unique();
+    if (!aggregate) throw new Error("Missing test aggregate");
+    await ctx.db.patch(aggregate._id, { lastActiveDayKey: "2026-09-22" });
+  });
+  expect((await t.query(api.study.stats, { profileId, clientKey, now: today })).currentStreak).toBe(400);
+});
+
+test("memory list includes older saved verses beyond the former 50-verse window", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "many-verses-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  await t.run(async (ctx) => {
+    for (let index = 0; index < 55; index += 1) {
+      await ctx.db.insert("memoryVerses", {
+        profileId, reference: `Psalm 119:${index + 1}`, verseText: `Verse ${index + 1}`,
+        translationName: "BSB", status: "new", practiceLevel: 1,
+        reviewCount: 0, createdAt: index, updatedAt: index
+      });
+    }
+  });
+  const verses = await t.query(api.memory.list, { profileId, clientKey, limit: 500 });
+  expect(verses).toHaveLength(55);
+  expect(verses.at(-1)?.reference).toBe("Psalm 119:1");
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

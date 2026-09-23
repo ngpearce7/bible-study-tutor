@@ -565,13 +565,18 @@ export const stats = query({
     ]);
     const dates = dailyRows.map((row) => row.dayKey).sort();
     const rhythm = currentStreak(dates, args.timezoneOffsetMinutes ?? 0, args.now ?? 0);
+    // The daily query is intentionally bounded. When every returned day belongs
+    // to the current run, the aggregate preserves the part before that window.
+    const currentRhythm = dailyRows.length === 400 && rhythm.current === 400 && aggregate?.lastActiveDayKey === rhythm.latestActivityDate
+      ? Math.max(rhythm.current, aggregate?.currentStreak ?? 0)
+      : rhythm.current;
     const weeklyRhythm = buildIncrementalWeeklyRhythmSummary(dailyRows, args.timezoneOffsetMinutes ?? 0, args.now ?? 0);
 
     return {
       sessionCount: aggregate?.sessionCount ?? 0,
       minutes: aggregate?.minutes ?? 0,
-      currentStreak: rhythm.current,
-      bestStreak: Math.max(aggregate?.bestStreak ?? 0, bestStreak(dates), rhythm.current),
+      currentStreak: currentRhythm,
+      bestStreak: Math.max(aggregate?.bestStreak ?? 0, bestStreak(dates), currentRhythm),
       migrationStatus: aggregate?.migrationStatus ?? "pending",
       weeklyRhythm,
       rhythmGrace: rhythm.graceUsed

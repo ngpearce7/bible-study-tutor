@@ -85,7 +85,7 @@ test("memory list includes older saved verses beyond the former 50-verse window"
   });
   const verses = await t.query(api.memory.list, { profileId, clientKey, limit: 500 });
   expect(verses).toHaveLength(55);
-  expect(verses.at(-1)?.reference).toBe("Psalm 119:1");
+  expect(verses[verses.length - 1]?.reference).toBe("Psalm 119:1");
 });
 
 test("recovery code consumption, password update and session revocation are atomic", async () => {

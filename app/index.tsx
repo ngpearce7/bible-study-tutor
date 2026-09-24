@@ -1856,10 +1856,12 @@ function HomeScreen() {
   const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
   const shouldLoadMemoryHistory = profileMatchesActiveState && shouldRenderMemoryHistory;
   const shouldLoadAdminOverview = profileMatchesActiveState && (tab === "account" || tab === "admin");
-  const timezoneOffsetMinutes = new Date().getTimezoneOffset();
+  const timezoneOffsetMinutes = new Date(studyReviewNow).getTimezoneOffset();
+  // Rhythm and weekly totals change at the local day boundary, not each minute.
+  const statsDayNow = new Date(studyReviewNow).setHours(12, 0, 0, 0);
 
   const shouldLoadStudyStats = profileMatchesActiveState && (tab === "home" || tab === "account");
-  const queriedStats = useQuery(api.study.stats, shouldLoadStudyStats ? { profileId: activeProfileId, timezoneOffsetMinutes, now: studyReviewNow } : "skip");
+  const queriedStats = useQuery(api.study.stats, shouldLoadStudyStats ? { profileId: activeProfileId, timezoneOffsetMinutes, now: statsDayNow } : "skip");
   const stats = useRefreshingValue(shouldLoadStudyStats ? `${activeProfileId}:${isAuthenticated}:${timezoneOffsetMinutes}` : null, queriedStats);
   const rhythmGrace = queriedStats?.migrationStatus === "ready" ? queriedStats.rhythmGrace : null;
   const currentRhythmCount = Number((stats as any)?.currentStreak || 0);
@@ -1871,12 +1873,13 @@ function HomeScreen() {
   const drafts = useQuery(api.study.recentDrafts, shouldLoadStudyLists ? { profileId: activeProfileId, limit: 12 } : "skip");
   const dueStudyReviews = useQuery(api.study.dueStudyReviews, shouldLoadDueStudyReviews ? { profileId: activeProfileId, now: studyReviewNow, limit: 10 } : "skip");
 
+  const shouldRefreshDateSensitiveViews = shouldLoadDueStudyReviews || shouldLoadStudyStats || tab === "bible" || tab === "plans" || tab === "memory";
   useEffect(() => {
-    if (!shouldLoadDueStudyReviews) return;
+    if (!shouldRefreshDateSensitiveViews) return;
     setStudyReviewNow(Date.now());
     const interval = setInterval(() => setStudyReviewNow(Date.now()), 60_000);
     return () => clearInterval(interval);
-  }, [shouldLoadDueStudyReviews]);
+  }, [shouldRefreshDateSensitiveViews]);
 
   useEffect(() => {
     if (!profileMatchesActiveState || !activeProfileId || stats === undefined || stats?.migrationStatus === "ready" || stats?.migrationStatus === "backfilling") return;
@@ -2221,7 +2224,7 @@ function HomeScreen() {
   const currentChapterRead = readBibleChapters[readerBook]?.includes(readerChapter) || false;
   const currentBookReadChapterCount = readBibleChapters[readerBook]?.length || 0;
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
-  const todayDateKey = localDateKey();
+  const todayDateKey = localDateKey(new Date(studyReviewNow));
   const bibleReadingPlanView = useMemo(() => buildBibleReadingPlanView({
     builtInPlans: bibleReadingPlanCorpus?.plans || [],
     customPlans: customBibleReadingPlans,
@@ -2986,7 +2989,7 @@ function HomeScreen() {
 
   useEffect(() => {
     if (!profileMatchesActiveState || !isAuthenticated || !profile || readerSyncError) return;
-    if (!storedBibleReadingPlanProgressHydrated) return;
+    if (!storedBibleReadingPlanProgressHydrated || remoteBibleReaderState === undefined) return;
     const syncedReaderState = normalizeSyncedBibleReaderState(remoteBibleReaderState);
     if (!syncedReaderState) {
       const profileKey = String(activeProfileId || "");

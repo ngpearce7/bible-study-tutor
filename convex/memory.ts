@@ -145,6 +145,24 @@ export const list = query({
   }
 });
 
+export const homeSummary = query({
+  args: {
+    clientKey: v.optional(v.string()),
+    profileId: v.id("profiles"),
+    dueThrough: v.number()
+  },
+  returns: v.object({ dueCount: v.number() }),
+  handler: async (ctx, args) => {
+    await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
+    const verses = await ctx.db.query("memoryVerses")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .take(500);
+    return {
+      dueCount: verses.filter((verse) => !verse.nextReviewAt || verse.nextReviewAt < args.dueThrough).length
+    };
+  }
+});
+
 export const recordPractice = mutation({
   args: {
     clientKey: v.optional(v.string()),

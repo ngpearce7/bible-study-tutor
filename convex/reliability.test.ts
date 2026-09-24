@@ -88,6 +88,24 @@ test("memory list includes older saved verses beyond the former 50-verse window"
   expect(verses[verses.length - 1]?.reference).toBe("Psalm 119:1");
 });
 
+test("home memory count respects the local due-day boundary and profile access", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "home-memory-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const dueThrough = Date.parse("2026-09-25T00:00:00Z");
+  await t.run(async (ctx) => {
+    for (const [index, nextReviewAt] of [undefined, dueThrough - 1, dueThrough].entries()) {
+      await ctx.db.insert("memoryVerses", {
+        profileId, reference: `Psalm 23:${index + 1}`, verseText: `Verse ${index + 1}`,
+        translationName: "BSB", status: "new", practiceLevel: 1,
+        reviewCount: 0, nextReviewAt, createdAt: index, updatedAt: index
+      });
+    }
+  });
+  expect(await t.query(api.memory.homeSummary, { profileId, clientKey, dueThrough })).toEqual({ dueCount: 2 });
+  await expect(t.query(api.memory.homeSummary, { profileId, dueThrough })).rejects.toThrow("Unauthorized");
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

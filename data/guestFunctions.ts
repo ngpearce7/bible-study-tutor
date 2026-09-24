@@ -14,6 +14,7 @@ export const guestFunctions = new Set([
   "study:stats",
   "memory:saveVerse",
   "memory:list",
+  "memory:homeSummary",
   "memory:recordPractice",
   "memory:remove",
   "memory:scheduleReview",

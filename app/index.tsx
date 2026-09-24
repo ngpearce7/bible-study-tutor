@@ -1061,6 +1061,7 @@ function HomeScreen() {
   const [activeMemoryVerseId, setActiveMemoryVerseId] = useState("");
   const [activeMemoryMeditationVerseId, setActiveMemoryMeditationVerseId] = useState("");
   const [memoryReviewQueueIds, setMemoryReviewQueueIds] = useState<string[]>([]);
+  const [pendingHomeMemoryReviewProfileId, setPendingHomeMemoryReviewProfileId] = useState("");
   const [memoryMeditationStep, setMemoryMeditationStep] = useState(0);
   const [memoryMeditationPhrase, setMemoryMeditationPhrase] = useState("");
   const [memoryMeditationReflection, setMemoryMeditationReflection] = useState("");
@@ -1853,7 +1854,8 @@ function HomeScreen() {
   const shouldLoadCurrentStudyDraft = profileMatchesActiveState && (tab === "study" || !!loadedDraftKey);
   const shouldRenderJournal = tab === "journal";
   const shouldRenderMemoryHistory = tab === "memory" && memoryView === "history";
-  const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "home" || tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
+  const shouldLoadMemoryVerses = profileMatchesActiveState && (tab === "study" || tab === "bible" || tab === "memory" || tab === "journal" || tab === "account");
+  const shouldLoadHomeMemorySummary = profileMatchesActiveState && tab === "home";
   const shouldLoadMemoryHistory = profileMatchesActiveState && shouldRenderMemoryHistory;
   const shouldLoadAdminOverview = profileMatchesActiveState && (tab === "account" || tab === "admin");
   const timezoneOffsetMinutes = new Date(studyReviewNow).getTimezoneOffset();
@@ -1918,6 +1920,18 @@ function HomeScreen() {
   const communityFriends = useQuery(api.community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const communityCircles = useQuery(api.community.myCircles, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
   const memoryVerses = useQuery(api.memory.list, shouldLoadMemoryVerses ? { profileId: activeProfileId, limit: 500 } : "skip");
+  const memoryDueThrough = new Date(studyReviewNow).setHours(24, 0, 0, 0);
+  const homeMemorySummary = useQuery(api.memory.homeSummary, shouldLoadHomeMemorySummary ? { profileId: activeProfileId, dueThrough: memoryDueThrough } : "skip");
+  useEffect(() => {
+    if (!pendingHomeMemoryReviewProfileId || tab !== "memory") return;
+    if (!profileMatchesActiveState || pendingHomeMemoryReviewProfileId !== String(activeProfileId || "")) {
+      setPendingHomeMemoryReviewProfileId("");
+      return;
+    }
+    if (memoryVerses === undefined) return;
+    setPendingHomeMemoryReviewProfileId("");
+    startDueMemoryReviewQueue();
+  }, [activeProfileId, memoryVerses, pendingHomeMemoryReviewProfileId, profileMatchesActiveState, tab]);
   const memoryHistory = useQuery(api.memory.listHistory, shouldLoadMemoryHistory ? { profileId: activeProfileId, limit: 120 } : "skip");
   const memoryStats = useQuery(api.memory.stats, shouldLoadMemoryHistory ? { profileId: activeProfileId } : "skip");
   const adminOverview = useQuery(api.insights.adminOverview, shouldLoadAdminOverview ? { now: studyReviewNow } : "skip");
@@ -2553,7 +2567,9 @@ function HomeScreen() {
     () => shouldPrepareMemoryUi ? buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter) : [],
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses, shouldPrepareMemoryUi]
   );
-  const dueMemoryCount = (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
+  const dueMemoryCount = tab === "home"
+    ? homeMemorySummary?.dueCount ?? 0
+    : (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const homeContinueItems = [
     ...(isAuthenticated && activeBibleReadingPlan && activeBibleReadingPlanToday && bibleReadingPlanView.activeReadingDue
@@ -2573,7 +2589,11 @@ function HomeScreen() {
           title: "Review memory verses",
           detail: `${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} due today`,
           icon: "school-outline",
-          onPress: () => startDueMemoryReviewQueue()
+          onPress: () => {
+            setPendingHomeMemoryReviewProfileId(String(activeProfileId));
+            setRememberedMemoryView("review");
+            setTab("memory");
+          }
         }]
       : [])
   ];

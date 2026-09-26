@@ -827,9 +827,9 @@ export function MemoryTab(props: any) {
                             </PracticeGrid>
                           )}
                           {(memoryPracticeAllCorrect && memoryPracticeLevel > 1) ? (
-                            <Text style={styles.saveStatus}>{`Well done${firstName ? `, ${firstName}` : ""}. Every word is correct.`}</Text>
+                            <Text style={[styles.saveStatus, memoryDarkMode && styles.accountDarkText]}>{`Well done${firstName ? `, ${firstName}` : ""}. Every word is correct.`}</Text>
                           ) : (
-                            !!memoryPracticeResult && <Text style={styles.saveStatus}>{memoryPracticeResult}</Text>
+                            !!memoryPracticeResult && <Text style={[styles.saveStatus, memoryDarkMode && styles.accountDarkText]}>{memoryPracticeResult}</Text>
                           )}
                           <View ref={memoryPracticeAllCorrect ? memoryFinishRef : undefined} collapsable={false} style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                             {memoryPracticeAllCorrect && memoryPracticeLevel > 1 ? (

@@ -7,6 +7,7 @@ import { createElement, useEffect, useRef, useState, type Dispatch, type SetStat
 import { View } from "react-native";
 
 import { colors } from "@/components/ui";
+import { noteThemeCss } from "@/data/noteTheme";
 
 type NoteFormatKind = "undo" | "redo" | "bold" | "italic" | "underline" | "highlight" | "bullet";
 
@@ -404,7 +405,7 @@ export function StudyNoteTiptapEditor({
   return (
     <View ref={wrapRef} style={appStyles.studyNoteEditorWrap}>
       {createElement("style", {
-        children: `.bst-note-editor{box-sizing:border-box;min-height:${editorStyle.minHeight}px;padding:${phoneLayout ? "15px" : "14px"};outline:none;line-height:22px;white-space:pre-wrap;color:inherit}.bst-note-editor p{margin:0 0 10px}.bst-note-editor p:last-child{margin-bottom:0}.bst-note-editor ul{margin:0 0 10px 20px;padding:0}.bst-note-editor mark{border-radius:4px;padding:0 2px}.bst-note-editor:empty:before{content:attr(data-placeholder);color:${darkMode ? "#8f8678" : "#7c7162"};pointer-events:none}`
+        children: `${noteThemeCss}.bst-note-editor{box-sizing:border-box;min-height:${editorStyle.minHeight}px;padding:${phoneLayout ? "15px" : "14px"};outline:none;line-height:22px;white-space:pre-wrap;color:inherit}.bst-note-editor p{margin:0 0 10px}.bst-note-editor p:last-child{margin-bottom:0}.bst-note-editor ul{margin:0 0 10px 20px;padding:0}.bst-note-editor mark{border-radius:4px;padding:0 2px}.bst-note-editor:empty:before{content:attr(data-placeholder);color:${darkMode ? "#8f8678" : "#7c7162"};pointer-events:none}`
       })}
       <WritingPromptChips
         prompts={writingPrompts}
@@ -416,7 +417,7 @@ export function StudyNoteTiptapEditor({
         compact={phoneLayout}
         darkMode={darkMode}
       />
-      {createElement("div", { style: editorStyle, children: createElement(EditorContent, { editor }) })}
+      {createElement("div", { className: darkMode ? "bst-note-theme-dark" : "bst-note-theme-light", style: editorStyle, children: createElement(EditorContent, { editor }) })}
       {phoneLayout && selectedTextActive && dismissedMobileMiniBarKey !== selectedTextRangeKey && (
         <MobileNoteFormatBar
           onFormat={applyTiptapFormat}

@@ -5,6 +5,7 @@ import { useRefreshingValue } from "@/components/useRefreshingValue";
 import { useAppDarkMode } from "@/components/useAppDarkMode";
 import { AppearanceControl } from "@/components/AppearanceControl";
 import { sanitizeEditorHtml } from "@/data/noteHtml";
+import { scriptureDisplayColor } from "@/data/noteTheme";
 import { styles } from "@/components/appStyles";
 import { createReaderSyncQueue } from "@/data/readerSync";
 import { hydratePrivateStorage, readRecoveryValue, writeRecoveryValue, removeRecoveryValue } from "@/data/privateStorage";
@@ -13092,45 +13093,45 @@ function ScriptureInsertSettingsDialog({
         </View>
 
         <ScrollView style={styles.editorSettingsScrollArea} contentContainerStyle={styles.scriptureSettingList}>
-          <Pressable onPress={() => update({ disabled: !draft.disabled })} style={styles.scriptureSettingToggle}>
+          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: draft.disabled }} onPress={() => update({ disabled: !draft.disabled })} style={styles.scriptureSettingToggle}>
             <Ionicons name={draft.disabled ? "checkbox" : "square-outline"} size={20} color={darkMode ? "#e9b76a" : colors.oliveDark} />
             <Text style={[styles.printOptionToggleText, darkMode && styles.accountDarkText]}>Disable scripture insert popup</Text>
           </Pressable>
 
-          <View style={styles.printOptionGroup}>
+          <View style={[styles.printOptionGroup, draft.disabled && { opacity: 0.45 }]}>
             <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Inserted scripture style</Text>
             <View style={styles.printOptionChipRow}>
-              <Pressable onPress={() => update({ bold: !draft.bold })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.bold && styles.activePrintOptionChip]}>
+              <Pressable disabled={draft.disabled} accessibilityRole="button" accessibilityState={{ disabled: draft.disabled, selected: draft.bold }} onPress={() => update({ bold: !draft.bold })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.bold && styles.activePrintOptionChip]}>
                 <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.bold && styles.activePrintOptionChipText]}>Bold</Text>
               </Pressable>
-              <Pressable onPress={() => update({ italic: !draft.italic })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.italic && styles.activePrintOptionChip]}>
+              <Pressable disabled={draft.disabled} accessibilityRole="button" accessibilityState={{ disabled: draft.disabled, selected: draft.italic }} onPress={() => update({ italic: !draft.italic })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.italic && styles.activePrintOptionChip]}>
                 <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.italic && styles.activePrintOptionChipText]}>Italic</Text>
               </Pressable>
             </View>
           </View>
 
-          <View style={styles.printOptionGroup}>
+          <View style={[styles.printOptionGroup, draft.disabled && { opacity: 0.45 }]}>
             <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Colour</Text>
             <View style={styles.printOptionChipRow}>
               {SCRIPTURE_INSERT_COLOR_OPTIONS.map((option) => {
                 const active = draft.color === option.value;
                 return (
-                  <Pressable key={option.value} onPress={() => update({ color: option.value })} style={[styles.scriptureColorOption, active && styles.activeScriptureColorOption, darkMode && styles.printDarkOptionChip]}>
-                    <View style={[styles.scriptureColorSwatch, { backgroundColor: option.value }]} />
-                    <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, active && styles.scriptureColorActiveText]}>{option.label}</Text>
+                  <Pressable key={option.value} disabled={draft.disabled} accessibilityRole="button" accessibilityState={{ disabled: draft.disabled, selected: active }} onPress={() => update({ color: option.value })} style={[styles.scriptureColorOption, active && styles.activeScriptureColorOption, darkMode && styles.printDarkOptionChip]}>
+                    <View style={[styles.scriptureColorSwatch, { backgroundColor: scriptureDisplayColor(option.value, darkMode) }]} />
+                    <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, active && styles.scriptureColorActiveText, active && darkMode && styles.studyDarkAccentText]}>{option.label}</Text>
                   </Pressable>
                 );
               })}
             </View>
           </View>
 
-          <View style={styles.printOptionGroup}>
+          <View style={[styles.printOptionGroup, draft.disabled && { opacity: 0.45 }]}>
             <Text style={[styles.printOptionLabel, darkMode && styles.studyDarkAccentText]}>Reference position</Text>
             <View style={styles.printOptionChipRow}>
-              <Pressable onPress={() => update({ referencePosition: "front" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.referencePosition === "front" && styles.activePrintOptionChip]}>
+              <Pressable disabled={draft.disabled} accessibilityRole="button" accessibilityState={{ disabled: draft.disabled, selected: draft.referencePosition === "front" }} onPress={() => update({ referencePosition: "front" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.referencePosition === "front" && styles.activePrintOptionChip]}>
                 <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.referencePosition === "front" && styles.activePrintOptionChipText]}>At front</Text>
               </Pressable>
-              <Pressable onPress={() => update({ referencePosition: "end" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.referencePosition === "end" && styles.activePrintOptionChip]}>
+              <Pressable disabled={draft.disabled} accessibilityRole="button" accessibilityState={{ disabled: draft.disabled, selected: draft.referencePosition === "end" }} onPress={() => update({ referencePosition: "end" })} style={[styles.printOptionChip, darkMode && styles.printDarkOptionChip, draft.referencePosition === "end" && styles.activePrintOptionChip]}>
                 <Text style={[styles.printOptionChipText, darkMode && styles.accountDarkText, draft.referencePosition === "end" && styles.activePrintOptionChipText]}>At end</Text>
               </Pressable>
             </View>

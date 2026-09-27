@@ -902,6 +902,8 @@ function HomeScreen() {
   const [deletionConfirmArmed, setDeletionConfirmArmed] = useState(false);
   const [pendingAdminDeletionRequestId, setPendingAdminDeletionRequestId] = useState("");
   const [localProfileCleanupArmed, setLocalProfileCleanupArmed] = useState(false);
+  const [localProfileCleanupBusy, setLocalProfileCleanupBusy] = useState(false);
+  const localProfileCleanupInFlight = useRef(false);
   const [adminMaintenanceStatus, setAdminMaintenanceStatus] = useState("");
   const [passwordStatus, setPasswordStatus] = useState("");
   const [currentAccountPassword, setCurrentAccountPassword] = useState("");
@@ -4098,21 +4100,29 @@ function HomeScreen() {
   }
 
   async function cleanupEmptyLocalProfiles() {
+    if (localProfileCleanupInFlight.current) return;
     if (!localProfileCleanupArmed) {
       setLocalProfileCleanupArmed(true);
       setAdminMaintenanceStatus("Tap again to remove empty local/test profiles. Profiles with saved content will be kept.");
       return;
     }
 
+    localProfileCleanupInFlight.current = true;
+    setLocalProfileCleanupBusy(true);
     setAdminMaintenanceStatus("Cleaning empty local/test profiles...");
     try {
       const result = await cleanupEmptyLocalProfilesAsAdmin({});
       setLocalProfileCleanupArmed(false);
       setSelectedAdminProfileId(null);
-      setAdminMaintenanceStatus(`Queued ${result?.queued ?? 0} empty local/test profile${result?.queued === 1 ? "" : "s"} for cleanup. Kept ${result?.kept ?? 0} with saved content.`);
+      setAdminMaintenanceStatus(result.queued > 0
+        ? `Queued ${result.queued} empty local/test profile${result.queued === 1 ? "" : "s"} for cleanup. The directory will update as cleanup finishes. Kept ${result.kept} with saved content.`
+        : `No empty local/test profiles were queued. Kept ${result.kept} with saved content; signed-in accounts are never included.`);
     } catch {
       setLocalProfileCleanupArmed(false);
-      setAdminMaintenanceStatus("Could not clean local/test profiles. Make sure Convex has the latest functions deployed.");
+      setAdminMaintenanceStatus("Cleanup failed. Check administrator access and that the latest Convex functions are deployed, then try again.");
+    } finally {
+      localProfileCleanupInFlight.current = false;
+      setLocalProfileCleanupBusy(false);
     }
   }
 
@@ -11258,6 +11268,9 @@ function HomeScreen() {
               adminUserDetail={adminUserDetail}
               adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
               adminMaintenanceStatus={adminMaintenanceStatus}
+              cleanupArmed={localProfileCleanupArmed}
+              cleanupBusy={localProfileCleanupBusy}
+              onCancelCleanup={() => { setLocalProfileCleanupArmed(false); setAdminMaintenanceStatus(""); }}
               pendingConfirmId={pendingAdminDeletionRequestId}
               selectedProfileId={selectedAdminProfileId}
               selectedRegion={selectedAdminRegion}

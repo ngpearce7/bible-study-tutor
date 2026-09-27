@@ -1189,7 +1189,14 @@ function clampNumber(value: number | undefined, min: number, max: number) {
 }
 
 async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"profiles">) {
-  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests] = await Promise.all([
+  const profile = await ctx.db.get(profileId);
+  if (profile?.authUserId) return true;
+  // Legacy reader state predates the separate reader tables.
+  const legacy = profile?.bibleReaderState;
+  if (legacy && ((legacy.history?.length ?? 0) > 0 || Object.values(legacy.readChapters ?? {}).some((chapters) => chapters.length > 0) || (legacy.bookmarks?.length ?? 0) > 0 || legacy.readingPlanProgress?.activePlanId || (legacy.readingPlanProgress?.followedPlanIds?.length ?? 0) > 0 || (legacy.readingPlanProgress?.completedDays?.length ?? 0) > 0 || (legacy.readingPlanProgress?.customPlans?.length ?? 0) > 0)) return true;
+  const reader = await ctx.db.query("bibleReaderStates").withIndex("by_profile", (q) => q.eq("profileId", profileId)).first();
+  if (reader && ((reader.history?.length ?? 0) > 0 || Object.values(reader.readChapters ?? {}).some((chapters) => chapters.length > 0) || reader.activePlanId || (reader.followedPlanIds?.length ?? 0) > 0 || Object.keys(reader.completedPlanDates ?? {}).length > 0)) return true;
+  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests, bookmarks, customPlans, completions] = await Promise.all([
     ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
@@ -1202,10 +1209,13 @@ async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"prof
     ctx.db.query("communityFriends").withIndex("by_recipient", (q) => q.eq("recipientProfileId", profileId)).take(1),
     ctx.db.query("communityPosts").withIndex("by_profile_created", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("communityReactions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
-    ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profileId)).take(1)
+    ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("bibleBookmarks").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("customBibleReadingPlans").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("bibleReadingPlanCompletions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1)
   ]);
 
-  return [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests].some((items) => items.length > 0);
+  return [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests, bookmarks, customPlans, completions].some((items) => items.length > 0);
 }
 
 const CLEANUP_BATCH_SIZE = 40;

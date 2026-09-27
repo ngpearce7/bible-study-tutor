@@ -98,6 +98,9 @@ export const AdminDashboard = memo(function AdminDashboard({
   adminUserDetail,
   adminAuditLog,
   adminMaintenanceStatus,
+  cleanupArmed,
+  cleanupBusy,
+  onCancelCleanup,
   pendingConfirmId,
   selectedProfileId,
   selectedRegion,
@@ -123,6 +126,9 @@ export const AdminDashboard = memo(function AdminDashboard({
   adminUserDetail: any;
   adminAuditLog: any[];
   adminMaintenanceStatus: string;
+  cleanupArmed: boolean;
+  cleanupBusy: boolean;
+  onCancelCleanup: () => void;
   pendingConfirmId: string;
   selectedProfileId: any;
   selectedRegion: string;
@@ -190,7 +196,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
           </View>
           <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
-          <AdminUserDirectory styles={styles} users={adminUsers} canLoadMore={adminUsersCanLoadMore} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} onSelect={onSelectProfile} onLoadMore={onLoadMoreAdminUsers} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminUserDirectory styles={styles} users={adminUsers} canLoadMore={adminUsersCanLoadMore} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} cleanupArmed={cleanupArmed} cleanupBusy={cleanupBusy} onCancelCleanup={onCancelCleanup} onSelect={onSelectProfile} onLoadMore={onLoadMoreAdminUsers} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <View style={styles.feedbackHeader}>
@@ -458,6 +464,9 @@ function AdminUserDirectory({
   canLoadMore,
   selectedProfileId,
   maintenanceStatus,
+  cleanupArmed,
+  cleanupBusy,
+  onCancelCleanup,
   onSelect,
   onLoadMore,
   onCleanupLocalProfiles,
@@ -470,6 +479,9 @@ function AdminUserDirectory({
   canLoadMore: boolean;
   selectedProfileId: any;
   maintenanceStatus: string;
+  cleanupArmed: boolean;
+  cleanupBusy: boolean;
+  onCancelCleanup: () => void;
   onSelect: (profileId: any) => void;
   onLoadMore: () => void;
   onCleanupLocalProfiles: () => void;
@@ -555,11 +567,12 @@ function AdminUserDirectory({
         <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>
           Showing {visibleUsers.length} of {filteredUsers.length} matching users · {users.length} loaded
         </Text>
-        <Pressable onPress={onCleanupLocalProfiles} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}>
+        <Pressable accessibilityRole="button" accessibilityState={{ disabled: cleanupBusy, busy: cleanupBusy }} disabled={cleanupBusy} onPress={onCleanupLocalProfiles} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton, cleanupBusy && { opacity: 0.6 }]}>
           <Ionicons name="sparkles-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Clean empty local/test profiles</Text>
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{cleanupBusy ? "Cleaning profiles…" : cleanupArmed ? "Confirm cleanup of empty profiles" : "Clean empty local/test profiles"}</Text>
         </Pressable>
-        {!!maintenanceStatus && <Text style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>{maintenanceStatus}</Text>}
+        {cleanupArmed && !cleanupBusy && <Pressable accessibilityRole="button" onPress={onCancelCleanup} style={styles.adminDirectoryShowMore}><Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Cancel cleanup</Text></Pressable>}
+        {!!maintenanceStatus && <Text accessibilityLiveRegion="polite" style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>{maintenanceStatus}</Text>}
       </View>
 
       {visibleUsers.length === 0 ? (

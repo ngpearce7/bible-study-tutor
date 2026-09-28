@@ -9521,8 +9521,8 @@ function HomeScreen() {
                             <Ionicons name="checkmark" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                           </View>
                           <View style={styles.bibleReadingPlanDoneTextBlock}>
-                            <Text numberOfLines={1} style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlanDoneTodayLabel || "Done today"}</Text>
-                            <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkMutedText]}>Next: {activeBibleReadingPlanToday.reference}</Text>
+                            <Text style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>{activeBibleReadingPlanDoneTodayLabel || "Today’s reading complete"}</Text>
+                            <Text style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkMutedText]}>{bibleReadingPlanView.activeNextReadingLabel}</Text>
                           </View>
                         </View>
                       ) : (
@@ -9576,8 +9576,8 @@ function HomeScreen() {
                                 <Ionicons name="checkmark" size={14} color={studyDarkMode ? "#e9b76a" : colors.oliveDark} />
                               </View>
                               <View style={styles.bibleReadingPlanDoneTextBlock}>
-                                <Text numberOfLines={1} style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>{plan.doneTodayLabel || "Done today"}</Text>
-                                <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkMutedText]}>Next: {plan.reference}</Text>
+                                <Text style={[styles.readerBookSectionTitle, studyDarkMode && styles.accountDarkTitle]}>{plan.doneTodayLabel || "Today’s reading complete"}</Text>
+                                <Text style={[styles.readerReadChapterBookTitle, studyDarkMode && styles.accountDarkMutedText]}>{plan.nextReadingLabel}</Text>
                               </View>
                             </View>
                           ) : (
@@ -9689,6 +9689,7 @@ function HomeScreen() {
               activeBibleReadingPlanTodayLabel={activeBibleReadingPlanTodayLabel}
               activeBibleReadingPlanDoneToday={activeBibleReadingPlanDoneToday}
               activeBibleReadingPlanDoneTodayLabel={activeBibleReadingPlanDoneTodayLabel}
+              activeBibleReadingPlanNextReadingLabel={bibleReadingPlanView.activeNextReadingLabel}
               activeBibleReadingPlanCompletedCount={activeBibleReadingPlanCompletedCount}
               activeBibleReadingPlanComplete={activeBibleReadingPlanComplete}
               activeBibleReadingPlanOpen={readerPlanReadingActive}

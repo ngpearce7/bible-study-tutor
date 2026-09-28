@@ -37,3 +37,15 @@ describe("home reading plan reminder eligibility", () => {
     expect(view([1, 2], "2026-09-19", "2026-09-21").activeReadingDue).toBe(true);
   });
 });
+
+it("identifies today's completed passage and dates the next reading", () => {
+  const result = view([1, 2]);
+  expect(result.activeDoneToday).toBe(true);
+  expect(result.activeDoneTodayLabel).toBe("Today’s reading complete — Day 2 · John 2");
+  expect(result.activeNextReadingLabel).toBe("Tomorrow: Day 3 · John 3");
+});
+it("keeps overdue and unscheduled next readings distinct from tomorrow", () => {
+  expect(view([2]).activeNextReadingLabel).toBe("Still to read: Day 1 · John 1 · Yesterday");
+  expect(view([1], "").activeNextReadingLabel).toBe("Next reading: Day 2 · John 2");
+  expect(view([1]).activeNextReadingLabel).toBe("Today: Day 2 · John 2");
+});

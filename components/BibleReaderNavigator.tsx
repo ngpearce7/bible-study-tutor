@@ -26,6 +26,7 @@ type FollowedReadingPlanSummary = {
   doneToday?: boolean;
   doneTodayReference?: string;
   doneTodayLabel?: string;
+  nextReadingLabel?: string;
   overdue?: boolean;
   completedCount: number;
   dayCount: number;
@@ -66,6 +67,7 @@ type BibleReaderNavigatorProps = {
   activeBibleReadingPlanTodayLabel?: string;
   activeBibleReadingPlanDoneToday?: boolean;
   activeBibleReadingPlanDoneTodayLabel?: string;
+  activeBibleReadingPlanNextReadingLabel?: string;
   activeBibleReadingPlanCompletedCount: number;
   activeBibleReadingPlanComplete: boolean;
   activeBibleReadingPlanOpen?: boolean;
@@ -129,6 +131,7 @@ export function BibleReaderNavigator({
   activeBibleReadingPlanTodayLabel,
   activeBibleReadingPlanDoneToday,
   activeBibleReadingPlanDoneTodayLabel,
+  activeBibleReadingPlanNextReadingLabel,
   activeBibleReadingPlanCompletedCount,
   activeBibleReadingPlanComplete,
   activeBibleReadingPlanOpen,
@@ -165,18 +168,18 @@ export function BibleReaderNavigator({
   const activePlanRemainingCount = Math.max(0, activePlanDayCount - activePlanCompletedCount);
   const activePlanProgressPercent = activePlanDayCount ? Math.min(100, (activePlanCompletedCount / activePlanDayCount) * 100) : 0;
   const activePlanQuiet = !!activeBibleReadingPlanDoneToday && !activeBibleReadingPlanComplete;
-  const renderPlanDoneTodayRow = (label: string, nextReference: string) => (
+  const renderPlanDoneTodayRow = (label: string, nextReadingLabel: string) => (
     <View style={[styles.bibleReadingPlanDoneRow, darkMode && styles.accountDarkInsetBox]}>
       <View style={[styles.bibleReadingPlanDoneIcon, darkMode && styles.darkReadMobileReaderChapter]}>
         <Ionicons name="checkmark" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
       </View>
       <View style={styles.bibleReadingPlanDoneTextBlock}>
-        <Text numberOfLines={1} style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>
+        <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>
           {label || "Done today"}
         </Text>
-        {!!nextReference && (
-          <Text numberOfLines={1} style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkMutedText]}>
-            Next: {nextReference}
+        {!!nextReadingLabel && (
+          <Text style={[styles.readerReadChapterBookTitle, darkMode && styles.accountDarkMutedText]}>
+            {nextReadingLabel}
           </Text>
         )}
       </View>
@@ -546,7 +549,7 @@ export function BibleReaderNavigator({
                       <View style={[styles.planProgressFill, activeBibleReadingPlanComplete && styles.completedPlanProgressFill, { width: `${activePlanProgressPercent}%` }]} />
                     </View>
                     {activePlanQuiet ? (
-                      renderPlanDoneTodayRow(activeBibleReadingPlanDoneTodayLabel || "Done today", activeBibleReadingPlanToday.reference)
+                      renderPlanDoneTodayRow(activeBibleReadingPlanDoneTodayLabel || "Today’s reading complete", activeBibleReadingPlanNextReadingLabel || `Next reading: ${activeBibleReadingPlanToday.reference}`)
                     ) : (
                       <>
                         <View style={styles.bibleReadingPlanMetaRow}>
@@ -578,7 +581,7 @@ export function BibleReaderNavigator({
                         </Pressable>
                       </>
                     )}
-                  {!!biblePlanStatus && (
+                  {!!biblePlanStatus && !activePlanQuiet && (
                     <Text style={[styles.bibleReadingPlanStatusText, darkMode && styles.studyDarkAccentText]}>{biblePlanStatus}</Text>
                   )}
                   </>
@@ -605,7 +608,7 @@ export function BibleReaderNavigator({
                       <View style={[styles.planProgressFill, plan.complete && styles.completedPlanProgressFill, { width: `${Math.min(100, Math.max(0, plan.progressPercent))}%` }]} />
                     </View>
                     {planQuiet ? (
-                      renderPlanDoneTodayRow(plan.doneTodayLabel || "Done today", plan.reference)
+                      renderPlanDoneTodayRow(plan.doneTodayLabel || "Today’s reading complete", plan.nextReadingLabel || `Next reading: ${plan.reference}`)
                     ) : (
                       <>
                         <View style={styles.bibleReadingPlanMetaRow}>

@@ -16,6 +16,7 @@ export type OtherFollowedBibleReadingPlanSummary = {
   doneToday: boolean;
   doneTodayReference: string;
   doneTodayLabel: string;
+  nextReadingLabel: string;
   overdue: boolean;
   completedCount: number;
   dayCount: number;
@@ -147,7 +148,8 @@ export function buildBibleReadingPlanView({
       label: dayLabel,
       doneToday,
       doneTodayReference: scheduledToday?.reference || "",
-      doneTodayLabel: scheduledToday ? `Day ${scheduledToday.day} complete today` : "",
+      doneTodayLabel: scheduledToday ? `Today’s reading complete — Day ${scheduledToday.day} · ${scheduledToday.reference}` : "",
+      nextReadingLabel: nextDay ? formatNextPlanReading(nextDay, nextDateKey, todayDateKey, addDaysToDateKey) : "",
       overdue,
       completedCount,
       dayCount: plan.days.length,
@@ -181,7 +183,8 @@ export function buildBibleReadingPlanView({
     activeReadingDue: !!activeTodayDateKey && !activeComplete && activeTodayDateKey <= todayDateKey,
     activeScheduledToday,
     activeDoneToday,
-    activeDoneTodayLabel: activeScheduledToday ? `Day ${activeScheduledToday.day} complete today` : "",
+    activeDoneTodayLabel: activeScheduledToday ? `Today’s reading complete — Day ${activeScheduledToday.day} · ${activeScheduledToday.reference}` : "",
+    activeNextReadingLabel: activeToday ? formatNextPlanReading(activeToday, activeTodayDateKey, todayDateKey, addDaysToDateKey) : "",
     activeMissedFullDay: !!activeTodayDateKey && !activeComplete && activeTodayDateKey < todayDateKey,
     activeSelectedDone: !!activePlan && !!activeSelectedDay && completedDaySet.has(bibleReadingPlanDayKey(activePlan.id, activeSelectedDay.day)),
     otherSummaries
@@ -200,4 +203,14 @@ function formatPlanDayRelativeDate(
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return "";
   const [year, month, day] = dateKey.split("-").map(Number);
   return new Intl.DateTimeFormat(undefined, { day: "2-digit", month: "long" }).format(new Date(year, month - 1, day));
+}
+
+function formatNextPlanReading(
+  day: { day: number; reference: string }, dateKey: string, todayDateKey: string,
+  addDaysToDateKey: (dateKey: string, days: number) => string
+) {
+  const relative = formatPlanDayRelativeDate(dateKey, todayDateKey, addDaysToDateKey);
+  const reading = `Day ${day.day} · ${day.reference}`;
+  if (dateKey && dateKey < todayDateKey) return `Still to read: ${reading} · ${relative}`;
+  return `${relative || "Next reading"}: ${reading}`;
 }

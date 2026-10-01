@@ -260,7 +260,7 @@ function enrichPlanMetadata(plan: BibleReadingPlan): BibleReadingPlan {
     pace: plan.pace || paceFor(plan.days.length, plan.category),
     estimatedTime: plan.estimatedTime || estimateTimeFor(plan.days.length),
     coverage: plan.coverage || coverageFor(plan),
-    rhythm: plan.rhythm || "Read the passage, consider the devotional, reflect and pray, then complete the day when you are ready.",
+    rhythm: plan.rhythm || "Read the passage, use any guidance provided, reflect and pray, then complete the day when you are ready.",
     sampleDayNumbers: plan.sampleDayNumbers || sampleDayNumbersFor(plan.days.length)
   };
 }
@@ -540,7 +540,7 @@ const lifeOfJesusDevotionals: Record<string, BibleReadingPlanDayExtras> = {
     observationQuestion: "What details show both Jesus' suffering and the fulfillment of Scripture?",
     reflectionQuestion: "What changes when you receive the cross as finished work rather than unfinished striving?",
     prayer: "Lord Jesus, thank You that Your saving work is finished. Help me rest in Your cross with grateful faith.",
-    gentleAction: "Write 'It is finished' beside one burden of guilt or striving.",
+    gentleAction: "Thank Christ for His finished saving work. If your guilt concerns harm you have done, name one truthful step toward confession or repair.",
     studyMethod: "SOAP"
   }),
   "John 20": guidedDevotional({
@@ -616,7 +616,7 @@ const adventDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Isaiah 9": guidedDevotional({
     title: "A child who reigns",
-    context: "Isaiah promises light for people in darkness and a child whose government and peace will not end. The passage holds together royal rule, divine titles, and endless peace, preparing readers to expect a King unlike every failing human ruler.",
+    context: "Isaiah promises light for people in darkness and a child whose government and peace will not end. The passage gives the promised ruler exalted royal titles. In Christian reading, the title Everlasting Father describes the King's enduring care; it does not identify the Son as the same person as God the Father.",
     body: "The promised child is more than a symbol of hope. He bears royal names and brings righteous peace. Advent holds together tenderness and majesty: a child is born, a Son is given, and the government rests on His shoulders.",
     observationQuestion: "What darkness is answered, and what names are given to the promised child?",
     reflectionQuestion: "Which name of the promised King do you most need to trust today?",
@@ -740,9 +740,9 @@ const easterDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Mark 16": guidedDevotional({
     title: "Alarm and announcement",
-    context: "The women come to anoint Jesus and find the stone rolled away and the tomb empty. Mark's terse ending presses the reader into the alarm and wonder of the announcement: the crucified Jesus is risen and His followers must go and tell.",
-    body: "Mark's resurrection account confronts human fear with divine announcement. The crucified Jesus is risen, and His followers are called to go and tell. The passage does not ask you to manufacture confidence; it asks you to hear the announcement and respond.",
-    observationQuestion: "What do the women expect, what do they find, and what message are they given?",
+    context: "Focus on Mark 16:1-8: the women find the empty tomb and hear that the crucified Jesus has risen, yet leave trembling and afraid. The assigned reading includes the whole chapter. Many Bible editions note that the earliest manuscripts end at verse 8, while other manuscripts include verses 9-20; where available, compare your translation's note before drawing conclusions from the longer ending.",
+    body: "The announcement at the empty tomb is clear even while the women are afraid: Jesus has risen. Their fear in verse 8 should not be skipped. Notice the command to tell the disciples and Peter, then consider how the resurrection meets real fear without pretending courage comes instantly.",
+    observationQuestion: "In verses 1-8, what do the women expect and hear, and how do they respond? What does this plan note about verses 9-20?",
     reflectionQuestion: "What fear needs to be answered by the announcement that Jesus is risen?",
     prayer: "Lord Jesus, meet my fear with the truth of Your resurrection.",
     gentleAction: "Repeat the words 'He has risen' when fear feels louder than faith.",
@@ -1012,7 +1012,7 @@ const lifeOfMosesDevotionals: Record<string, BibleReadingPlanDayExtras> = {
     observationQuestion: "What are Israel, Moses, and the Lord each doing in this chapter?",
     reflectionQuestion: "When fear rises quickly, what might it look like to turn your attention toward the Lord's salvation?",
     prayer: "Lord, help me stand firm in trust when I cannot see the way forward.",
-    gentleAction: "Write 'The Lord will fight for you' beside one pressure you face.",
+    gentleAction: "Name Israel's situation at the sea, then pray for trust in God amid one pressure without assuming the same outcome for yourself.",
     studyMethod: "SOAP"
   }),
   "Exodus 16": guidedDevotional({
@@ -1108,7 +1108,13 @@ const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
     gentleAction: "Notice one created thing today and turn it into praise.",
     studyMethod: "OIA"
   }),
-  "Genesis 12": adventDevotionals["Genesis 12"],
+  "Genesis 12": {
+    ...adventDevotionals["Genesis 12"],
+    devotional: {
+      ...adventDevotionals["Genesis 12"].devotional!,
+      body: "God promises Abram land, offspring, and blessing that will reach all families of the earth. This covenant moves the Bible story toward a wider mercy. Christians see the promise reaching the nations through Christ, while first hearing it as God's promise to Abram."
+    }
+  },
   "Exodus 12": lifeOfMosesDevotionals["Exodus 12"],
   "Joshua 1": guidedDevotional({
     title: "Courage for the next step",
@@ -1122,7 +1128,13 @@ const chronologicalOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "1 Samuel 16": lifeOfDavidDevotionals["1 Samuel 16"],
   "2 Samuel 7": lifeOfDavidDevotionals["2 Samuel 7"],
-  "Isaiah 53": easterDevotionals["Isaiah 53"],
+  "Isaiah 53": {
+    ...easterDevotionals["Isaiah 53"],
+    devotional: {
+      ...easterDevotionals["Isaiah 53"].devotional!,
+      body: "The Servant is rejected and bears the iniquity of others; through his wounds, peace is promised. Christians read this suffering in light of Jesus' saving death. In this overview, the passage connects Israel's prophetic hope to the cross without skipping its own account of the Servant."
+    }
+  },
   "Luke 2": lifeOfJesusDevotionals["Luke 2"],
   "John 19": lifeOfJesusDevotionals["John 19"],
   "Acts 2": easterDevotionals["Acts 2"],
@@ -1315,12 +1327,12 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 21": guidedDevotional({
     title: "Ready for the name of Jesus",
-    context: "Paul travels toward Jerusalem despite warnings and is arrested after unrest in the temple. The journey to Jerusalem highlights Paul's willingness to suffer for Jesus' name and the misunderstandings that surround his mission among Jews and Gentiles.",
-    body: "Paul is not careless, but he is surrendered. He is ready to suffer for the name of the Lord Jesus. The chapter also shows how quickly misunderstanding can turn into conflict, making Paul's steady allegiance to Christ stand out.",
+    context: "Paul travels toward Jerusalem after warnings from disciples and prophets; Acts 21:4, 10-14 should be read alongside his conviction in Acts 20:22-24. Christians differ on how the warnings relate to his decision. The chapter clearly shows his readiness to suffer for Jesus' name and the misunderstandings surrounding his mission.",
+    body: "Paul says he is ready to suffer for the name of Jesus, while fellow believers plead with him not to go. The text invites careful attention to both the warnings and his response rather than an easy rule to ignore counsel. In Jerusalem, misunderstanding quickly turns into conflict.",
     observationQuestion: "What warnings does Paul receive, and how does he respond?",
     reflectionQuestion: "Where does allegiance to Jesus need to outrank comfort or reputation?",
     prayer: "Lord Jesus, make me faithful to Your name when obedience is costly.",
-    gentleAction: "Pray for courage to obey Christ in one uncomfortable area.",
+    gentleAction: "Read Acts 20:22-24 and 21:4, 10-14 together; pray for wisdom to weigh warnings and courage to follow Christ faithfully.",
     studyMethod: "COMA"
   }),
   "Acts 22": guidedDevotional({
@@ -1340,7 +1352,7 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
     observationQuestion: "What danger surrounds Paul, and what does the Lord say to him?",
     reflectionQuestion: "Where do you need to hear Christ's courage-giving presence today?",
     prayer: "Lord Jesus, stand near me with courage when circumstances feel unstable.",
-    gentleAction: "Write 'Take courage' beside one situation that feels uncertain.",
+    gentleAction: "Notice that Jesus promises Paul he will testify in Rome; ask Christ for courage in one uncertain situation without assuming Paul's specific journey is promised to you.",
     studyMethod: "SOAP"
   }),
   "Acts 24": guidedDevotional({
@@ -1375,12 +1387,12 @@ const actsEarlyChurchDevotionals: Record<string, BibleReadingPlanDayExtras> = {
   }),
   "Acts 27": guidedDevotional({
     title: "God's promise in the storm",
-    context: "Paul sails toward Rome, the ship is caught in a violent storm, and God promises preservation. The storm narrative shows Paul's trust in God's promise becoming public courage, even while sailors, soldiers, and prisoners face real danger.",
+    context: "On Paul's journey to Rome, God promises him safety and the lives of those sailing with him (Acts 27:23-24). The sailors must still remain aboard (verse 31). This is a particular promise in Paul's mission, not a general guarantee that every believer will survive every danger.",
     body: "The storm is severe, but God's promise stands. Paul becomes a calm witness of trust in the middle of danger, urging courage because he believes God. Faith does not deny the storm; it holds fast to the God who speaks in it.",
     observationQuestion: "What does God promise Paul, and how does Paul encourage the others?",
-    reflectionQuestion: "What storm needs to be answered by trust in God's word rather than panic?",
+    reflectionQuestion: "How can Paul's trust in a specific promise encourage you without claiming that same outcome for yourself?",
     prayer: "Lord, help me believe what You have spoken when the storm is loud.",
-    gentleAction: "Speak one promise of God aloud before reacting to pressure today.",
+    gentleAction: "Name who receives God's promise in Acts 27, then choose a promise addressed to believers more broadly before you pray about your own pressure.",
     studyMethod: "SOAP"
   }),
   "Acts 28": guidedDevotional({
@@ -1838,12 +1850,12 @@ const paulsLettersOverviewDevotionals: Record<string, BibleReadingPlanDayExtras>
   }),
   "Philemon 1": guidedDevotional({
     title: "The gospel reshapes relationships",
-    context: "Paul appeals to Philemon to receive Onesimus no longer merely as a slave, but as a beloved brother. In Philemon, Paul applies the gospel to reconciliation, brotherhood, and costly love within a real household situation in Philemon 1.",
-    body: "Philemon is personal, but not small. Paul applies the gospel to a strained and costly relationship, appealing through love rather than coercion. In Christ, reconciliation must become visible in how believers receive one another.",
+    context: "Paul appeals to Philemon concerning Onesimus, an enslaved man, asking that he be received as a beloved brother. The letter addresses an unequal and coercive social relationship, not merely a private disagreement. Read Paul's appeal in that setting; application must not pressure someone into unsafe contact or forced reconciliation.",
+    body: "Philemon is personal, but it concerns Onesimus's status and treatment as an enslaved person. Paul calls for him to be received as a beloved brother and offers to bear any debt. The gospel challenges how power is used; reconciliation cannot be reduced to asking a vulnerable person to return to harm.",
     observationQuestion: "How does Paul describe Onesimus, and what does he ask Philemon to do?",
-    reflectionQuestion: "Where might the gospel require costly welcome, forgiveness, or restored relationship?",
-    prayer: "Lord Jesus, let Your reconciling grace reshape the way I receive and forgive others.",
-    gentleAction: "Pray honestly about one relationship where gospel-shaped reconciliation is needed.",
+    reflectionQuestion: "How does Paul's appeal challenge the way a person with power receives and treats someone vulnerable?",
+    prayer: "Lord Jesus, teach me to honor the dignity and safety of others and to use any power I have with justice and love.",
+    gentleAction: "Name one way to treat a vulnerable person with dignity; do not require contact or reconciliation where it would be unsafe.",
     studyMethod: "OIA"
   })
 };
@@ -2130,10 +2142,10 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
     studyMethod: "Inductive"
   }),
   "Jeremiah 50-52; Lamentations 1": guidedDevotional({
-    title: "Babylon falls, Jerusalem weeps",
-    context: "Jeremiah ends with judgment on Babylon and the fall of Jerusalem, then Lamentations begins with grief over the ruined city. Keep the late-Judah and exile setting in view: covenant unfaithfulness, coming judgment, lament, and promised renewal shape the message in Jeremiah 50-52; Lamentations 1.",
-    body: "The proud oppressor is judged, but Jerusalem's grief is not skipped. Scripture gives space for both justice and lament. The fall of Babylon says evil will not last forever; Lamentations 1 teaches God's people to tell the truth about sorrow.",
-    observationQuestion: "What happens to Babylon and Jerusalem, and how does Lamentations describe the city?",
+    title: "Babylon judged, Jerusalem mourned",
+    context: "Jeremiah 50-51 announces the Lord's coming judgment against Babylon. Jeremiah 52 then recounts Jerusalem's fall, and Lamentations 1 grieves the ruined city. Keep prophecy, narrated history, and lament distinct as you read these chapters in their late-Judah and exilic setting.",
+    body: "Jeremiah announces that Babylon will not escape God's judgment, while the account of Jerusalem's fall and the opening lament refuse to skip Judah's grief. The reading holds promised justice and honest sorrow together without treating the oracle against Babylon as the event narrated in Jeremiah 52.",
+    observationQuestion: "What is foretold about Babylon in Jeremiah 50-51, what happens to Jerusalem in chapter 52, and how does Lamentations 1 respond?",
     reflectionQuestion: "Where do you need to hold together hope for justice and honest lament?",
     prayer: "Lord, judge evil rightly and teach me to bring sorrow honestly before You.",
     gentleAction: "Write one sentence of lament without rushing to solve it.",
@@ -2181,7 +2193,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 13-16": guidedDevotional({
     title: "False comfort and covenant grief",
-    context: "The Lord rebukes false prophets, exposes idolatry, and describes Jerusalem's covenant unfaithfulness in painful detail. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 13-16.",
+    context: "The Lord rebukes false prophets, exposes idolatry, and describes Jerusalem's covenant unfaithfulness in painful, sometimes violent imagery (especially chapter 16). This is prophetic language addressed to Jerusalem in exile, not a model for how a person may treat a partner. Read the imagery as part of Ezekiel's warning rather than turning it into permission for abuse.",
     body: "False comfort can sound kind while keeping people from repentance. Ezekiel confronts spiritual leaders who heal wounds lightly and a city that has forgotten grace. The imagery is confronting, but its point is covenant grief: the Lord had loved and rescued His people, and they turned from Him.",
     observationQuestion: "What kinds of false security are exposed in these chapters?",
     reflectionQuestion: "Where do you need the Lord's truthful mercy more than shallow reassurance?",
@@ -2201,7 +2213,7 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 21-24": guidedDevotional({
     title: "The end of false security",
-    context: "Ezekiel announces the sword, exposes corrupt leadership and worship, and marks Jerusalem's siege with painful signs. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 21-24.",
+    context: "Ezekiel announces judgment, exposes corrupt leadership, and marks Jerusalem's siege with painful prophetic signs. Chapter 23 uses graphic covenant imagery; chapter 24 includes the death of Ezekiel's wife and an unusual instruction concerning public mourning. That sign belongs to this specific prophetic moment and is not a rule against grieving. The imagery gives no permission for abuse.",
     body: "These chapters refuse to let false security survive. Kings, priests, prophets, and people are all weighed by the Lord's holiness. Ezekiel's personal sorrow also shows that judgment is not an abstract idea; sin tears through real lives.",
     observationQuestion: "What people, institutions, and false hopes are judged in these chapters?",
     reflectionQuestion: "What security would collapse if it were not anchored in the Lord?",
@@ -2241,12 +2253,12 @@ const majorProphetsOverviewDevotionals: Record<string, BibleReadingPlanDayExtras
   }),
   "Ezekiel 37-40": guidedDevotional({
     title: "Dry bones and returning hope",
-    context: "Ezekiel sees dry bones raised, the people reunited under one shepherd, enemies defeated, and a restored temple vision beginning. Keep Ezekiel's exilic setting in view: visions, signs, judgment, restored presence, and renewed hearts frame the prophetic witness in Ezekiel 37-40.",
-    body: "The valley of dry bones is not optimism; it is resurrection-like hope created by God's Spirit and word. The Lord can bring life where there is no human possibility. The restored temple vision then turns hope toward His dwelling presence.",
-    observationQuestion: "How does life come to the dry bones, and what future does the Lord promise?",
+    context: "The exiles say their hope is lost. In Ezekiel 37:11 the Lord identifies the dry bones as the whole house of Israel, then promises to restore His people by His word and Spirit. The following chapters speak of reunion under one shepherd, conflict, and a vision of restored worship. Begin with Israel's exilic setting before making a Christian or personal application.",
+    body: "The dry bones first portray Israel's lost hope in exile. God promises to restore His people, put His Spirit in them, and bring them home. The vision shows that restoration depends on His word and Spirit, not human strength. Christians may hear an echo of resurrection hope, but the passage does not promise that every private situation will turn out as we wish.",
+    observationQuestion: "Who does the Lord say the bones represent in verse 11, and what does He promise in verses 12-14?",
     reflectionQuestion: "Where do you need hope that depends on God's Spirit rather than your strength?",
-    prayer: "Spirit of God, breathe life where I have only seen dry bones.",
-    gentleAction: "Speak one prayer of hope over a place that feels impossible.",
+    prayer: "Faithful Lord, thank You for speaking hope to Your exiled people. Help me trust Your word and Spirit without turning Your promise into a prediction about my circumstances.",
+    gentleAction: "Read Ezekiel 37:11-14 again, name God's promise to Israel, and bring one present concern to Him without prescribing its outcome.",
     studyMethod: "Biblical theology"
   }),
   "Ezekiel 41-44": guidedDevotional({
@@ -2386,7 +2398,7 @@ const romansDevotionals = withContexts(devotionalEntries([
   "Romans 3": "Romans 3 draws Jew and Gentile alike under sin before announcing God's righteousness through faith in Jesus Christ. Paul holds together human guilt, God's justice, redemption, and grace. The chapter is central to Romans because it shows why the gospel is necessary and secure.",
   "Romans 4": "Paul uses Abraham and David to show that justification has always rested on faith rather than works. Abraham is counted righteous before circumcision, so the promise can embrace Gentiles as well as Jews. The chapter anchors Christian assurance in God's gracious promise.",
   "Romans 5": "Romans 5 follows justification by describing peace with God, hope in suffering, and God's love shown in Christ's death. Paul then contrasts Adam and Christ as two representative heads. The chapter shows grace reigning where sin and death once ruled.",
-  "Romans 6": "After celebrating grace, Paul answers the objection that grace might encourage sin. Baptism imagery points to union with Christ in His death and resurrection. The chapter calls believers to live from their new identity: dead to sin and alive to God.",
+  "Romans 6": "After celebrating grace, Paul answers the objection that grace might encourage sin. Paul connects baptism into Christ with His death and resurrection. The chapter calls believers to live from their new identity: dead to sin and alive to God.",
   "Romans 7": "Romans 7 explains the law's goodness while exposing sin's deep power. Paul shows that God's commandment is not the problem; sin seizes the commandment and produces death. The chapter's cry for rescue prepares readers for life in the Spirit in Romans 8.",
   "Romans 8": "Romans 8 is the summit of Paul's argument about life in Christ and the Spirit. It moves from no condemnation to adoption, suffering, future glory, Spirit-led prayer, and inseparable love. Assurance is grounded in God's action in Christ, not in denial of hardship.",
   "Romans 9": "Romans 9 begins Paul's three-chapter reflection on Israel, God's promises, and Gentile inclusion. Paul grieves Israel's unbelief while insisting that God's word has not failed. The chapter must be read with humility, lament, and confidence in God's mercy.",
@@ -2485,11 +2497,11 @@ const contextOverridesByPlan: Record<string, Record<string, string>> = {
     "John 20": "The Life of Jesus path concludes with John's resurrection witnesses. Mary, the gathered disciples, and Thomas move from grief, fear, and doubt toward peace, confession, and believing witness."
   },
   "holy-week-passion-week": {
-    "Matthew 26": "In Holy Week, Matthew 26 belongs to the night of betrayal and surrender. Passover, Gethsemane, arrest, and denial reveal Jesus walking willingly toward the cross while human faithfulness collapses around Him.",
-    "John 13": "In the Holy Week sequence, John 13 opens the upper-room hours before the cross. Jesus' washing of feet interprets His passion as cleansing, servant-hearted love given to disciples who still need grace.",
-    "John 17": "This Holy Week reading lets Jesus' prayer stand between the upper room and the cross. He entrusts His people to the Father, praying for truth, unity, protection, and love as His hour arrives.",
-    "John 19": "On Good Friday, John 19 presents the mocked King completing the Father's work. The crucifixion is full of suffering, yet John's fulfillment details show Jesus laying down His life with sovereign purpose.",
-    "John 20": "Holy Week ends in John's resurrection morning and evening appearances. The empty tomb, Mary's witness, the disciples' peace, and Thomas' confession answer the grief and fear of the previous days."
+    "Matthew 26": "This seven-session plan groups scenes by theme rather than strict sequence. Matthew 26 includes the meal, Gethsemane, arrest, and denial. The upper-room scenes visited in sessions 4-5 occur before Gethsemane in the passion story; Jesus walks willingly toward the cross while human faithfulness collapses around Him.",
+    "John 13": "This session returns to the upper room before Gethsemane, rather than moving forward in time from session 3. Jesus' washing of feet displays cleansing, servant-hearted love given to disciples who still need grace.",
+    "John 17": "This session remains with the upper-room discourse and Jesus' prayer before His arrest. He entrusts His people to the Father, praying for truth, unity, protection, and love as His hour arrives.",
+    "John 19": "In the Good Friday scene, John 19 presents the mocked King completing the Father's work. The crucifixion is full of suffering, yet John's fulfillment details show Jesus laying down His life with sovereign purpose.",
+    "John 20": "The final thematic session reaches Easter through John's resurrection appearances. If you follow the calendar from Palm Sunday, read this session on Easter Sunday rather than treating the seven sessions as seven consecutive dates. The empty tomb, Mary's witness, the disciples' peace, and Thomas' confession answer earlier grief and fear."
   },
   "advent-readings": {
     "Luke 2": "In the Advent path, Luke 2 is read as the arrival long promised through Israel's story. Bethlehem, David's city, angelic praise, and shepherd witnesses announce that the Savior has come in humility for ordinary people."
@@ -3690,12 +3702,12 @@ const curatedDevotionalsByPlan: CuratedDevotionalMap = {
     }),
     "Isaiah 43:1-7": guidedDevotional({
       title: "Called by name",
-      context: "The Lord comforts His people with redemption, belonging, and promised presence through waters and fire. The passage names danger but anchors courage in God's claim, 'You are Mine,' and His promise to be with His redeemed people.",
-      body: "Isaiah 43 comforts with belonging: 'I have called you by name; you are Mine.' Waters and fire are named, but God's presence is promised through them. The Lord's redeeming love is stronger than the threatening flood.",
+      context: "The Lord addresses Jacob/Israel as His redeemed people and promises His presence through threatening waters and fire. He also promises to gather their offspring. Hear the promise first in that covenant and exile setting; Christian hope of belonging to God is grounded in Christ, not in a guarantee that believers will avoid physical harm.",
+      body: "Isaiah speaks God's comfort to Jacob/Israel amid exile and danger: He has redeemed His people and will gather them. The waters and fire do not disappear from the passage. Christians can bring their grief to the God made known in Christ, while distinguishing Israel's particular promise from a prediction about any one hardship.",
       observationQuestion: "What does God say about belonging, waters, fire, and His presence?",
-      reflectionQuestion: "What water or fire do you need to face with the words, 'You are Mine'?",
+      reflectionQuestion: "How does God's faithfulness to Israel encourage you to seek His presence in Christ amid grief without assuming a particular outcome?",
       prayer: "Redeeming Lord, help me trust Your presence and love in the deep waters.",
-      gentleAction: "Write your name beside the phrase, 'You are Mine,' as a reminder of belonging.",
+      gentleAction: "Read Isaiah 43:1-7 with Jacob/Israel in view, then pray about one fear and read Romans 8:35-39 for Christian assurance in Christ.",
       studyMethod: "OIA",
       careNote: griefPastoralCareNote
     }),
@@ -4241,7 +4253,7 @@ const originalBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeguards(
     })],
     ["Galatians 3:26-29", "Galatians", 3, "Clothed with Christ", guidedDevotional({
       title: "Clothed with Christ",
-      context: "In Galatians 3, Paul argues that believers are children of God through faith in Christ rather than through law-based status. Baptism language pictures being clothed with Christ, and the promise to Abraham gathers diverse believers into one family in Him.",
+      context: "In Galatians 3, Paul argues that believers are children of God through faith in Christ rather than through law-based status. Paul connects baptism into Christ with being clothed with Him, and the promise to Abraham gathers diverse believers into one family in Him.",
       body: "Believers have been clothed with Christ. Before the world sees your gifts, background, weakness, status, or mistakes, God sees you in His Son. Unity in Christ does not erase your story, but it gives you a deeper identity than every human label.",
       observationQuestion: "What identity words does Paul use for those who belong to Christ?",
       reflectionQuestion: "Which lesser label has been louder than your identity in Christ?",
@@ -4541,7 +4553,7 @@ const originalBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeguards(
     purpose: "To help anxious readers meet worry and fear with Scripture-shaped trust in God's character, care, presence, kingdom, and love in Christ.",
     bestFor: "Readers seeking a gentle two-week path through worry and fear without shame, simplistic promises, or pressure."
   }), anxietyPastoralCareNote),
-  withCuratedDevotionals(planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Walk through the final week, cross, and resurrection of Jesus.", [
+  withCuratedDevotionals(planFromReferences("holy-week-passion-week", "Holy Week / Passion Week", "Seven thematic sessions on Jesus' final week, cross, and resurrection; these are not consecutive Holy Week calendar dates.", [
     ["Matthew 21", "Matthew", 21, "Palm Sunday"],
     ["Matthew 22", "Matthew", 22, "Questions and teaching"],
     ["Matthew 26", "Matthew", 26, "Gethsemane"],

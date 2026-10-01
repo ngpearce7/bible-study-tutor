@@ -5,15 +5,21 @@ import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "
 import { expandPlanReadingReferences } from "./biblePassage";
 import { buildBibleReadingPlanView } from "./bibleReadingPlanView";
 import legacyHashes from "./readingPlanLegacyHashes.json";
+import savedDayIdentityHashes from "./readingPlanDayIdentityHashes.json";
 
 vi.mock("./network", () => ({ fetchWithTimeout: vi.fn() }));
 
 const plan = (id: string) => bibleReadingPlans.find(p => p.id === id)!;
 const chapters = (id: string) => plan(id).days.flatMap(d => expandPlanReadingReferences(d.reference).map(c => `${c.book}:${c.chapter}`));
 
-test("every original plan retains its ID and exact day content for saved progress", () => {
+test("content snapshots and saved day identities remain stable", () => {
   for (const [id, hash] of Object.entries(legacyHashes)) {
     expect(createHash("sha256").update(JSON.stringify(plan(id).days)).digest("hex"), id).toBe(hash);
+  }
+  expect(Object.keys(savedDayIdentityHashes)).toHaveLength(bibleReadingPlans.length);
+  for (const [id, hash] of Object.entries(savedDayIdentityHashes)) {
+    const identities = plan(id).days.map(day => [day.day, day.reference, day.readerBook, day.readerChapter, day.studyReference]);
+    expect(createHash("sha256").update(JSON.stringify(identities)).digest("hex"), id).toBe(hash);
   }
   expect(new Set(bibleReadingPlans.map(p => p.id)).size).toBe(bibleReadingPlans.length);
 });

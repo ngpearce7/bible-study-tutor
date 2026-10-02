@@ -24,6 +24,27 @@ test("content snapshots and saved day identities remain stable", () => {
   expect(new Set(bibleReadingPlans.map(p => p.id)).size).toBe(bibleReadingPlans.length);
 });
 
+test("book guidance appears when a reading first crosses into the book", () => {
+  const year = plan("bible-365");
+  expect(year.days[12].reference).toContain("Exodus 1-2");
+  expect(year.days[12].devotional?.title).toBe("Beginning Exodus");
+  expect(year.days[13].devotional?.title).not.toBe("Beginning Exodus");
+  expect(year.days[357].devotional?.title).toContain("3 John, Jude, Revelation");
+
+  const sixMonths = plan("bible-6-months");
+  expect(sixMonths.days[7].devotional?.title).toBe("Beginning Exodus");
+  expect(sixMonths.days[170].devotional?.title).toContain("Titus, Philemon, Hebrews");
+
+  const selected = plan("bible-story-30");
+  expect(selected.days[8].devotional?.title).toBe("Love the Lord and remember");
+  expect(selected.days[8].context).toContain("Moses addresses Israel");
+  expect(selected.days.every((day) => !!day.devotional?.body && !!day.observationQuestion)).toBe(true);
+
+  const prayerPsalms = plan("psalms-prayer-21-v2");
+  expect(prayerPsalms.days.every((day) => !!day.devotional?.body && !!day.observationQuestion)).toBe(true);
+  expect(prayerPsalms.days.find((day) => day.reference === "Psalm 139")?.devotional?.body).toContain("verses 19-22");
+});
+
 test("reflection years cover every chapter with reflection spread throughout the year", () => {
   for (const [id, count] of [["new-testament-365-v2", 260], ["psalms-proverbs-365-v2", 181]] as const) {
     const days = plan(id).days;

@@ -3980,18 +3980,58 @@ function bookSectionGuidance(book: string): BibleReadingPlanDayExtras {
   );
 }
 
-function withBookSectionGuidance(plan: BibleReadingPlan): BibleReadingPlan {
+function firstSelectedChapterGuidance(book: string, reference: string): BibleReadingPlanDayExtras {
+  const base = bookSectionGuidance(book);
+  if (/\s1$/.test(reference)) return {
+    ...base,
+    observationQuestion: `What do you notice in ${reference} about the people, setting, and the Lord's action?`
+  };
+  return {
+    ...base,
+    context: `This plan samples ${reference}, its first reading from ${book}, rather than necessarily starting at chapter 1. Read the chapter within ${book}'s larger setting before drawing a conclusion from this selection.`,
+    devotional: {
+      title: `First stop in ${book}: ${reference}`,
+      body: `This selected chapter is one part of ${book}'s larger argument or story. ${base.devotional?.body || ""}`
+    },
+    observationQuestion: `What does ${reference} reveal within ${book}, and what would you need to read around it for more context?`
+  };
+}
+
+function combinedBookSectionGuidance(books: string[]): BibleReadingPlanDayExtras {
+  const introductions = books.map((book) => ({ book, guidance: bookSectionGuidance(book) }));
+  return {
+    guidanceKind: "reading-guidance",
+    context: `Today's assigned portion first enters ${books.join(", ")}. Pause at each book boundary; the readings have distinct settings and should not be treated as one continuous scene or letter.`,
+    devotional: {
+      title: `Entering ${books.join(", ")}`,
+      body: introductions.map(({ book, guidance }) => `${book}: ${guidance.devotional?.body || ""}`).join(" ")
+    },
+    observationQuestion: `Where does each new book begin in today's reading, and what changes in setting, speaker, or genre?`,
+    reflectionQuestion: "Which new book would benefit from a slower rereading?",
+    prayer: "Lord, help me hear each part of Your word in its own setting.",
+    gentleAction: "Mark the book transitions in today's reading before moving to application.",
+    studyMethod: "Observation"
+  };
+}
+
+function withBookSectionGuidance(plan: BibleReadingPlan, selectedChapters = false): BibleReadingPlan {
   const seenBooks = new Set<string>();
   return {
     ...plan,
     days: plan.days.map((day) => {
-      const startsNewBookSection = !seenBooks.has(day.readerBook);
-      seenBooks.add(day.readerBook);
-      if (!startsNewBookSection || day.devotional) return day;
-      return {
-        ...day,
-        ...bookSectionGuidance(day.readerBook)
-      };
+      const readingBooks = [...new Set(day.reference.split(";").map((segment) => {
+        const match = /^(.+?)\s+\d/.exec(segment.trim());
+        return match ? readerBookFromReferenceBook(match[1]) : "";
+      }).filter(Boolean))];
+      const newlyEnteredBooks = readingBooks.filter((book) => !seenBooks.has(book));
+      readingBooks.forEach((book) => seenBooks.add(book));
+      if (day.devotional || newlyEnteredBooks.length === 0) return day;
+      const guidance = newlyEnteredBooks.length > 1
+        ? combinedBookSectionGuidance(newlyEnteredBooks)
+        : selectedChapters
+          ? firstSelectedChapterGuidance(newlyEnteredBooks[0], day.reference)
+          : bookSectionGuidance(newlyEnteredBooks[0]);
+      return { ...day, ...guidance };
     })
   };
 }
@@ -4867,6 +4907,288 @@ const retiredPlanIds = new Set([
   "new-testament-1-year", "psalms-proverbs-1-year", "bible-1-year-old-new", "psalms-prayer"
 ]);
 
+function focusedReadingGuidance(
+  title: string,
+  context: string,
+  body: string,
+  observationQuestion: string,
+  reflectionQuestion: string,
+  prayer: string
+): BibleReadingPlanDayExtras {
+  return {
+    guidanceKind: "reading-guidance",
+    context,
+    devotional: { title, body },
+    observationQuestion,
+    reflectionQuestion,
+    prayer,
+    studyMethod: "Observation"
+  };
+}
+
+const storyChapterGuidance: Record<string, BibleReadingPlanDayExtras> = {
+  "Genesis 3": focusedReadingGuidance(
+    "Trust broken in the garden",
+    "Genesis 3 follows the good creation and human vocation of Genesis 1-2. The serpent disputes God's word; the man and woman disobey, hide, and blame. Read the chapter's judgments and God's care for them together.",
+    "The story names a rupture with God, with one another, and with the ground. God questions the pair and announces consequences; He also clothes them before they leave the garden. Do not skip either human responsibility or God's continued care.",
+    "How do the serpent, woman, and man each speak about God's command, and what changes after they eat?",
+    "Where does this chapter help you name mistrust or blame truthfully rather than hide it?",
+    "Lord, help me hear Your word, own my wrongdoing, and seek Your mercy."
+  ),
+  "Genesis 12": focusedReadingGuidance(
+    "Abram is called",
+    "After the scattering at Babel, the Lord calls Abram to leave his country and promises land, descendants, and blessing that will reach all families of the earth.",
+    "The story begins with God's initiative and Abram's journey. Read the promise to Abram in its own setting before tracing how later Scripture understands blessing for the nations.",
+    "What does the Lord command Abram, what does He promise, and how does Abram respond?",
+    "How might God's purpose to bless others shape the way you read the rest of this story?",
+    "Lord, help me hear Your call and trust Your faithful purposes."
+  ),
+  "Genesis 15": focusedReadingGuidance(
+    "Promise amid waiting",
+    "Abram worries because he remains childless. The Lord answers with a promise about descendants, and the chapter closes with a covenant concerning land and a future that includes hardship.",
+    "Abram believes the Lord, and the Lord counts it to him as righteousness. The promise does not mean the wait or coming suffering vanishes. Keep God's specific covenant with Abram distinct from a guarantee about every reader's wishes.",
+    "What concern does Abram bring, and what does the Lord promise in verses 1-6 and 13-18?",
+    "What do Abram's honest questions teach you about bringing uncertainty before God?",
+    "Faithful Lord, teach me to trust You without demanding that my waiting follow Abram's story."
+  ),
+  "Genesis 22": focusedReadingGuidance(
+    "The Lord provides",
+    "Genesis 22 describes a specific test of Abraham after the promised birth of Isaac. The messenger stops Abraham, forbids harm to the boy, and a ram is provided in his place.",
+    "This disturbing account must not be turned into a pattern for harming a child or obeying a private impression to do so. Attend to God's interruption, the provision, and the renewed promise to Abraham before drawing later Christian connections.",
+    "Who stops Abraham in verses 11-12, what is provided, and what promise follows?",
+    "How does the text's refusal of Isaac's death shape your reading of the test?",
+    "Lord, keep me attentive to Your word and protective of those entrusted to my care."
+  ),
+  "Exodus 12": focusedReadingGuidance(
+    "Passover and deliverance",
+    "The Lord gives Israel instructions for the Passover while they are still in Egypt. Households mark their doors, share a meal, and prepare to leave; the chapter also records judgment and the beginning of the exodus.",
+    "Passover belongs first to Israel's rescue from slavery and its remembered worship. Its details are not instructions for Christians to imitate the doorpost ritual. Read the commanded remembrance and costly deliverance before tracing later connections to Christ.",
+    "What are Israelite households told to do, and how is this night to be remembered?",
+    "What does this account show about rescue and remembrance without making it a promise of exemption from all danger?",
+    "Lord, help me remember Your saving acts with reverence and gratitude."
+  ),
+  "Exodus 20": focusedReadingGuidance(
+    "A covenant people learn to live",
+    "Israel has been rescued from Egypt before the commandments are spoken at Sinai. The chapter begins by naming the Lord as their deliverer, then addresses worship, family, speech, rest, and neighbourly conduct.",
+    "The commandments form covenant life for a redeemed people; they are not a ladder by which Israel first earns rescue. Notice both devotion to God and responsibility toward neighbours as you read.",
+    "How does the Lord introduce Himself in verses 1-2, and which commands address life with neighbours?",
+    "Where would truthful worship change the way you treat another person?",
+    "Delivering Lord, teach me to honour You and love my neighbours faithfully."
+  ),
+  "Isaiah 53": focusedReadingGuidance(
+    "The suffering Servant",
+    "Isaiah's Servant is rejected, bears others' iniquities, and is later vindicated. Read the chapter with the surrounding Servant passage in Isaiah 52:13-53:12 in view.",
+    "The poem links the Servant's suffering with the wrongdoing of others rather than celebrating suffering for its own sake. Christians read it in light of Jesus' death and resurrection (see Acts 8:32-35); that connection should be explained, not assumed or used to excuse harm.",
+    "What does the passage say the Servant suffers, for whom, and what follows his suffering?",
+    "How does the Servant's bearing of others' wrongdoing invite gratitude without asking the harmed to remain unsafe?",
+    "Lord, help me read the Servant's suffering with humility and hope."
+  ),
+  "Luke 2": focusedReadingGuidance(
+    "The Savior is born",
+    "Luke sets Jesus' birth under an imperial census and places Mary and Joseph in Bethlehem. Shepherds hear the angelic announcement; later, Simeon and Anna speak over the child in the temple.",
+    "Luke holds humble circumstances alongside the announcement of a Savior. The shepherds' witness and the temple voices connect this child's arrival to Israel's hope; do not reduce the chapter to a peaceful scene without its wider promises.",
+    "Who hears about Jesus, what titles or hopes are spoken, and how do they respond?",
+    "What does Luke's choice of witnesses draw your attention to about Jesus?",
+    "Lord Jesus, help me receive the news of Your coming with wonder and faith."
+  ),
+  "Luke 15": focusedReadingGuidance(
+    "Joy over the lost",
+    "Jesus speaks these parables while tax collectors and sinners draw near and religious critics object to His welcome. Read the lost sheep, lost coin, and two sons within that conversation.",
+    "Each story presses the joy of finding what was lost. The final parable also leaves the elder son's response open, turning the critics' complaint back on them. Notice the father's welcome without flattening the younger son's wrongdoing or the elder son's resentment.",
+    "What prompts Jesus to tell these stories, and who rejoices or refuses to join the joy?",
+    "Where might you need to receive mercy or welcome another's return?",
+    "Merciful Father, help me rejoice in Your grace without hiding my need for it."
+  ),
+  "Acts 10": focusedReadingGuidance(
+    "The gospel reaches Cornelius",
+    "Cornelius and Peter each receive a vision. Peter comes to a Gentile household, proclaims Jesus' life, death, and resurrection, and sees the Spirit given while he is speaking.",
+    "Peter learns that he must not treat these Gentile hearers as unclean or exclude them from hearing the gospel. The Spirit's gift surprises Jewish believers who came with him. Follow Peter's message about Jesus as well as the crossing of a social boundary.",
+    "What does Peter say about Jesus in verses 34-43, and what surprises those with him in verses 44-48?",
+    "Who might you wrongly assume is beyond hearing the good news?",
+    "Lord Jesus, keep me from favouritism and make me ready to share Your good news."
+  ),
+  "Deuteronomy 6": focusedReadingGuidance(
+    "Love the Lord and remember",
+    "Moses addresses Israel as they prepare to enter the land. Deuteronomy 6 calls them to hear that the Lord is one, love Him wholeheartedly, teach His words to their children, and remember His rescue from Egypt.",
+    "This selected chapter is not the beginning of Deuteronomy. Its call to love the Lord belongs to Israel's covenant life, including remembered deliverance and daily teaching. Read the command with its audience and story before applying its wisdom to your own worship and household.",
+    "Who is addressed in verses 3-7, and what rescue are they told to remember in verses 20-25?",
+    "How might remembering God's prior faithfulness shape what you teach or practice today?",
+    "Lord, teach me to love You with my whole life and to remember Your faithfulness."
+  ),
+  "John 19": focusedReadingGuidance(
+    "The crucified King",
+    "John 19 follows Jesus' arrest and trial. Notice the royal language, the people present at the cross, Jesus' words before death, and the care taken in His burial.",
+    "John presents Jesus' real suffering and death without turning the cross into a mere example of courage. His final cry belongs in the scene of His completed work; the burial confirms that He truly died. Read this chapter before moving to the resurrection witnesses in John 20.",
+    "What words and actions frame Jesus as King, and what does John report about His death and burial?",
+    "How does staying with the whole crucifixion account affect your response to Jesus?",
+    "Lord Jesus, help me face Your cross with gratitude, reverence, and honesty."
+  ),
+  "John 20": focusedReadingGuidance(
+    "Witnesses to the risen Jesus",
+    "John 20 moves from the empty tomb to Mary's encounter, Jesus' appearance to the gathered disciples, and Thomas' confession. John states his purpose in verses 30-31.",
+    "The witnesses do not all begin with instant understanding. Mary, the disciples, and Thomas encounter the risen Jesus in distinct scenes. John's stated aim is that readers believe Jesus is the Christ, the Son of God, and have life in His name.",
+    "What does each witness see or hear, and what purpose does John give for recording these signs?",
+    "Which witness's movement toward belief would you like to read more slowly?",
+    "Risen Lord Jesus, lead me from hearing the witnesses to trusting You."
+  ),
+  "Acts 2": focusedReadingGuidance(
+    "The Spirit and the first believers",
+    "At Pentecost the Spirit enables witness; Peter explains the event by speaking of Jesus' death, resurrection, and exaltation. The crowd asks how to respond, and the chapter ends with the shared life of the new believers.",
+    "Acts 2 links the Spirit's gift to testimony about the risen Jesus, a call to repent and be baptized, and a community devoted to teaching, fellowship, breaking bread, and prayer. Observe these parts together rather than reducing the chapter to a single dramatic moment.",
+    "What does Peter say God has done with Jesus, how do hearers respond, and what practices mark the new community?",
+    "What part of the church's shared life in verses 42-47 invites a concrete step of participation?",
+    "Lord Jesus, make me attentive to Your Spirit, Your gospel, and the life of Your people."
+  ),
+  "Revelation 21": focusedReadingGuidance(
+    "God dwells with His people",
+    "John's vision follows the judgment scenes of Revelation 20. Chapter 21 pictures a new heaven and earth, the holy city, God's dwelling with His people, and the removal of death and tears.",
+    "This is a vision of God's future renewal, not a promise that present grief has already ended. Its centre is God's presence with His people. Hold the hope of verses 1-5 alongside the chapter's call to faithful endurance rather than using it to rush another person's sorrow.",
+    "What does John see in verses 1-5, and what does the voice say God will do?",
+    "How can future hope make room for honest grief and faithful living now?",
+    "God of hope, keep me near You in present sorrow as I await Your promised renewal."
+  )
+};
+
+const prayerPsalmPassageNotes: Record<string, [string, string, string, string]> = {
+  "Psalm 1": [
+    "Psalm 1 opens the Psalter as a wisdom poem. It contrasts delight in the Lord's instruction with the way of the wicked, using a well-watered tree and windblown chaff as images.",
+    "The tree pictures a life rooted in God's teaching. Read the contrast as a wisdom portrait, not a guarantee that faithful people never suffer or that every project succeeds.",
+    "What does the blessed person delight in, and how do the two images describe the contrasting ways?",
+    "Lord, give me delight in Your instruction and wisdom to walk in Your way."
+  ],
+  "Psalm 8": [
+    "Psalm 8 praises the Lord whose glory fills creation, then asks why He attends to human beings at all. Its answer gives humans dignity and responsibility within the created world.",
+    "The psalm does not make humanity the centre of worship. Human honour is received under God's majestic name, and care for creatures is a responsibility within His creation.",
+    "How does the writer move from the heavens to humanity, and what is humanity entrusted to do?",
+    "Majestic Lord, teach me wonder at Your glory and care for what You have made."
+  ],
+  "Psalm 16": [
+    "Psalm 16 is a prayer of refuge. The speaker rejects rival gods, calls the Lord his chosen portion, and rejoices that God is before him and guides him in the path of life.",
+    "Its confidence grows from belonging to the Lord rather than from controlling every circumstance. Christians also hear its hope in light of Peter's use of this psalm in Acts 2.",
+    "What does the writer reject, what does he call his portion, and where does he locate lasting joy?",
+    "Lord, be my refuge and teach me to find joy in Your presence."
+  ],
+  "Psalm 19": [
+    "Psalm 19 first celebrates the heavens' witness to God's glory, then praises the Lord's instruction and ends with a prayer about hidden faults and acceptable speech.",
+    "The poem moves from creation to God's word to the worshipper's own life. Let each part speak before choosing only one favourite line for prayer.",
+    "What do the heavens declare, how is God's instruction described, and what does the writer ask at the end?",
+    "Lord, open my eyes to Your works and word, and guard my speech and heart."
+  ],
+  "Psalm 23": [
+    "Psalm 23 portrays the Lord as shepherd and host. The speaker receives guidance and provision, walks through a dark valley, and trusts the Lord's presence even near enemies.",
+    "The psalm does not promise a path without danger. Its comfort rests in the Shepherd who remains with the speaker through the valley and welcomes him to the table.",
+    "Which images show care, and where does danger still appear within the psalm?",
+    "Shepherding Lord, guide me and help me trust Your presence in the valley."
+  ],
+  "Psalm 27": [
+    "Psalm 27 opens with confidence in the Lord as light and salvation, yet also contains pleas for help and a final call to wait. Threats and hope appear in the same prayer.",
+    "The writer's confidence does not cancel his request that God hear and answer. Read both halves to let courage and dependence remain together.",
+    "What does the writer declare in verses 1-6, ask in verses 7-12, and urge in verses 13-14?",
+    "Lord, hear my plea and strengthen my heart as I wait for You."
+  ],
+  "Psalm 32": [
+    "Psalm 32 celebrates forgiveness after the writer stops concealing sin. It moves from the weight of silence to confession, release, instruction, and a call for the upright to rejoice.",
+    "Confession is honest naming of wrong, not a way to erase consequences for people harmed. The psalm's joy arises from the Lord's forgiving mercy.",
+    "What changes when the writer acknowledges wrongdoing, and what guidance follows?",
+    "Merciful Lord, give me honesty to confess and wisdom to repair harm where I can."
+  ],
+  "Psalm 42": [
+    "Psalm 42 voices longing for God while the writer remembers former worship and hears the question, 'Where is your God?' Its repeated refrain speaks to a downcast soul.",
+    "The refrain does not shame sadness or make it vanish at once. Thirst, tears, memory, turmoil, and hope all remain part of this prayer.",
+    "What causes the writer's longing, and how does the refrain answer his downcast soul?",
+    "Lord, hear my longing and keep me turned toward You while I am unsettled."
+  ],
+  "Psalm 46": [
+    "Psalm 46 calls God a refuge amid shaking earth and raging nations. It pictures God's presence with His city and calls hearers to behold His work, including the ending of war.",
+    "The call to be still comes in a poem about God's rule over upheaval and conflict. It is more than advice to relax; it asks worshippers to acknowledge His sovereignty.",
+    "What troubles are named, what does the refrain repeat, and what does God make cease?",
+    "God of refuge, hold me steady and teach me to trust Your rule amid trouble."
+  ],
+  "Psalm 51": [
+    "Psalm 51's heading places this prayer after Nathan confronted David over Bathsheba. David asks for mercy, cleansing, a renewed heart, and restored joy while acknowledging his sin.",
+    "The plea for forgiveness must not erase the harm done to Bathsheba or the consequences narrated in 2 Samuel 12. Repentance tells the truth and seeks changed conduct.",
+    "What wrong does David confess, what renewal does he seek, and what kind of heart does God welcome?",
+    "Merciful God, make me truthful about my sin and ready to turn from harm."
+  ],
+  "Psalm 63": [
+    "Psalm 63's heading locates David in Judah's wilderness. Thirst becomes an image for seeking God; the writer recalls worship, praises God's steadfast love, and rests in His help.",
+    "This is a prayer of longing in scarcity, not a claim that worship removes every physical need. Attend to how remembering God sustains praise in the wilderness.",
+    "What images of need appear, and how does the writer remember and bless the Lord?",
+    "Lord, meet me in my need and keep my desire turned toward You."
+  ],
+  "Psalm 84": [
+    "Psalm 84 is a song of longing for the Lord's dwelling place. It blesses those who dwell there and pictures pilgrims whose strength is in God as they journey toward worship.",
+    "The psalm's longing is communal and connected to the place of worship, not merely a private wish for a calmer day. Notice the journey as well as the destination.",
+    "Who is called blessed, what happens along the journey, and what is the writer's deepest desire?",
+    "Lord, deepen my longing for Your presence and strengthen Your people on the way."
+  ],
+  "Psalm 90": [
+    "Psalm 90 contrasts God's enduring life with human brevity. The prayer names mortality and trouble, then asks for wisdom to number our days, mercy, joy, and enduring work.",
+    "Numbering our days is not a technique for avoiding death. It is a request for wise life before the eternal God, with honest attention to frailty and a plea for His compassion.",
+    "What contrasts are drawn between God and human life, and what does the prayer ask for?",
+    "Eternal Lord, teach me wise use of my days and establish what is good."
+  ],
+  "Psalm 103": [
+    "Psalm 103 calls the soul to bless the Lord and remember His benefits. It praises forgiveness, compassion, steadfast love across generations, and God's knowledge of human frailty.",
+    "Read the praise as worship rooted in God's character, not a guarantee that every disease is removed immediately. The psalm itself remembers that human life is brief.",
+    "What does the writer tell his soul to remember, and how is God's compassion described?",
+    "Compassionate Lord, keep me grateful for Your mercy and mindful of Your care."
+  ],
+  "Psalm 121": [
+    "Psalm 121 is a song of ascents that lifts a question about help toward the hills and answers that help comes from the Maker of heaven and earth, who does not sleep.",
+    "The repeated language of keeping expresses deep trust in the Lord. Do not turn this pilgrim song into a prediction that believers can never be injured on a journey.",
+    "Where does the writer say help comes from, and what does the psalm repeat about the Lord's care?",
+    "Maker of heaven and earth, keep my trust in You as I travel through this day."
+  ],
+  "Psalm 139": [
+    "Psalm 139 praises God's searching knowledge and presence, reflects on life formed by Him, then includes a fierce plea against the wicked before asking God to search the writer's heart.",
+    "Do not skip the difficult anger in verses 19-22 or turn it into permission to harm an enemy. Let the final request for self-examination test the way you pray the whole psalm.",
+    "How does the writer describe God's knowledge and presence, and how does the final prayer follow the difficult verses?",
+    "Searching God, know my heart, confront what is harmful, and lead me in Your way."
+  ],
+  "Psalm 150": [
+    "Psalm 150 closes the Psalter with repeated calls to praise the Lord. It names His mighty acts and greatness, calls for many instruments, and invites every breathing creature to join.",
+    "The final psalm is a communal doxology, not a private rule about musical style. Its wide invitation turns attention from the worshipper's preference to God's worthiness.",
+    "Why is praise offered, where is it voiced, and who is invited to join?",
+    "Lord, receive the praise of all who have breath for Your mighty works."
+  ]
+};
+
+const prayerPsalmGuidance: Record<string, BibleReadingPlanDayExtras> = {
+  "Psalm 13": focusedReadingGuidance(
+    "Bring the whole lament",
+    "Psalm 13 is a short prayer that begins with repeated 'How long?' questions, asks the Lord to answer amid fear of an enemy, and ends with trust in His steadfast love.",
+    "The final note of trust does not erase the earlier distress. The psalm gives a worshipper room to name absence and fear before asking for help and recalling God's love. Follow its movement rather than forcing yourself to feel the ending immediately.",
+    "What does the writer ask in verses 1-2, request in verses 3-4, and affirm in verses 5-6?",
+    "Which part of this prayer gives honest words to your own situation today?",
+    "Lord, hear what I cannot resolve, and help me remember Your steadfast love."
+  ),
+  "Psalm 73": focusedReadingGuidance(
+    "Envy brought into worship",
+    "Asaph is troubled by the apparent prosperity of the wicked. His view changes when he enters God's sanctuary and reflects on their end and on God as his portion.",
+    "The psalm does not deny that injustice can look rewarding. It records a struggle, a turn in perspective, and a renewed confession of nearness to God. Read the change in verses 16-17 in the light of the whole poem.",
+    "What troubled the writer at first, what changes in the sanctuary, and what does he say is good in verse 28?",
+    "Where can you bring comparison or injustice before God without pretending it is simple?",
+    "Lord, receive my confusion and teach me to seek Your nearness."
+  ),
+  "Psalm 95": focusedReadingGuidance(
+    "Praise and hear",
+    "Psalm 95 begins with a communal invitation to praise the Creator and Shepherd, then calls worshippers to hear His voice and warns against hardening their hearts as Israel did in the wilderness.",
+    "The warning is part of this worship psalm, not an interruption to discard. Praise and attentive obedience belong together. Notice the shift at 'Today' before turning the opening lines into your own prayer.",
+    "What reasons for worship appear in verses 1-7, and what warning follows?",
+    "How might worship today include listening and responding as well as singing?",
+    "Lord, receive my praise and keep my heart open to Your word today."
+  ),
+  "Psalm 130": focusedReadingGuidance(
+    "From the depths to hope",
+    "This song of ascents begins with a cry from the depths, asks who could stand if the Lord kept account of sins, and turns to forgiveness, waiting, and a call for Israel to hope.",
+    "The writer does not claim that waiting is easy. Forgiveness gives reason for reverence, and hope rests in the Lord's steadfast love and redemption. Let the personal cry and the final communal invitation both shape your prayer.",
+    "How does the prayer move from verses 1-4 to waiting in verses 5-6 and hope for Israel in verses 7-8?",
+    "What does waiting with hope look like when you cannot hurry an answer?",
+    "Lord, hear my cry, forgive me, and teach me to wait on Your mercy."
+  )
+};
+
 const prayerPsalmFocus: Record<string, [string, string]> = {
   "Psalm 1": ["Delight in God's word", "What would help you make room for God's instruction today?"],
   "Psalm 8": ["Wonder and gratitude", "What in creation moves you to praise God?"],
@@ -4900,7 +5222,13 @@ function selectedChapterPlan(id: string, title: string, description: string, ref
       const match = /^(.*) (\d+)$/.exec(reference)!;
       const book = readerBookFromReferenceBook(match[1]);
       const focus = category === "Prayer" ? prayerPsalmFocus[reference] : undefined;
-      return buildDay(index + 1, reference, book, Number(match[2]), focus?.[0] || reference, reference, focus ? {
+      const psalmNotes = id === "psalms-prayer-21-v2" ? prayerPsalmPassageNotes[reference] : undefined;
+      const specificGuidance = id === "bible-story-30"
+        ? storyChapterGuidance[reference]
+        : id === "psalms-prayer-21-v2"
+          ? prayerPsalmGuidance[reference] || (psalmNotes && focus ? focusedReadingGuidance(focus[0], psalmNotes[0], psalmNotes[1], psalmNotes[2], focus[1], psalmNotes[3]) : undefined)
+          : undefined;
+      return buildDay(index + 1, reference, book, Number(match[2]), focus?.[0] || reference, reference, specificGuidance || (focus ? {
         guidanceKind: "reading-guidance",
         context: `Read ${reference} as a whole prayer. Notice who is speaking, what is being asked or praised, and how the prayer moves before making its words your own.`,
         observationQuestion: "What does this Psalm say about God, and how does the writer respond?",
@@ -4908,9 +5236,9 @@ function selectedChapterPlan(id: string, title: string, description: string, ref
         prayer: "Pray one line of this Psalm in your own words, then name one person or situation to bring before God.",
         gentleAction: "Carry one phrase from this Psalm into the rest of your day.",
         studyMethod: "Meditation"
-      } : {});
+      } : {}));
     })
-  }));
+  }), true);
 }
 
 const storyReadings = [

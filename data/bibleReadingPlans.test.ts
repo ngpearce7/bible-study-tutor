@@ -45,6 +45,23 @@ test("book guidance appears when a reading first crosses into the book", () => {
   expect(prayerPsalms.days.find((day) => day.reference === "Psalm 139")?.devotional?.body).toContain("verses 19-22");
 });
 
+test("selected story plans give sensitive readings passage-specific context", () => {
+  const story = plan("bible-story-60");
+  const oldTestament = plan("old-testament-story-60");
+  const storyDay = (reference: string) => story.days.find((day) => day.reference === reference)!;
+  const oldTestamentDay = (reference: string) => oldTestament.days.find((day) => day.reference === reference)!;
+
+  expect(storyDay("Exodus 20").devotional?.title).toBe("A covenant people learn to live");
+  expect(storyDay("Deuteronomy 30").context).toContain("Moses speaks to Israel");
+  expect(storyDay("Psalm 51").devotional?.body).toContain("Bathsheba");
+  expect(storyDay("Lamentations 3").devotional?.body).toContain("do not cancel the poem's pain");
+  expect(oldTestamentDay("Leviticus 19").observationQuestion).toContain("verses 9-18");
+  expect(oldTestamentDay("2 Samuel 12").devotional?.body).toContain("victims");
+  expect(oldTestamentDay("Job 38").context).toContain("wrongly insist");
+  expect(oldTestamentDay("Amos 5").devotional?.body).toContain("exploitation");
+  expect(oldTestamentDay("Daniel 7").devotional?.body).toContain("apocalyptic");
+});
+
 test("reflection years cover every chapter with reflection spread throughout the year", () => {
   for (const [id, count] of [["new-testament-365-v2", 260], ["psalms-proverbs-365-v2", 181]] as const) {
     const days = plan(id).days;

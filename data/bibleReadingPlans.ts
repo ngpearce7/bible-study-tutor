@@ -5049,6 +5049,170 @@ const storyChapterGuidance: Record<string, BibleReadingPlanDayExtras> = {
   )
 };
 
+// These chapters need more than a general book introduction in the selected-story plans.
+const selectedStoryGuidance: Record<string, BibleReadingPlanDayExtras> = {
+  "Genesis 9": focusedReadingGuidance(
+    "A covenant after the flood",
+    "After the flood, God blesses Noah's family and makes a covenant with them and every living creature. The chapter also records Noah's failure and its effect on his family.",
+    "The rainbow marks God's promise not to destroy all flesh by flood again. This is a covenant with living creatures, not a guarantee that no local flood or human evil will occur. Hold the promise and the chapter's sober ending together.",
+    "Who receives the covenant in verses 8-17, and what exactly is promised?",
+    "How does God's care for living creatures affect the way you receive this promise?",
+    "Lord, thank You for Your patience with a wounded world."
+  ),
+  "Exodus 34": focusedReadingGuidance(
+    "Mercy after the broken covenant",
+    "Exodus 34 follows Israel's golden calf and Moses' intercession. The Lord renews the covenant and reveals His character while warning Israel against idolatry.",
+    "God's mercy does not call the calf harmless, and His justice does not erase His compassion. Read His self-description in verses 6-7 alongside the covenant renewal rather than lifting one phrase out of the story.",
+    "How does the Lord describe Himself, and what commands accompany the renewed covenant?",
+    "Where do you need to receive both God's mercy and His call to faithfulness?",
+    "Merciful Lord, keep me from treating Your patience lightly."
+  ),
+  "Deuteronomy 30": focusedReadingGuidance(
+    "A call to return and choose life",
+    "Moses speaks to Israel near the end of the covenant address. After naming blessing, curse, and possible exile, he speaks of return, God's compassion, and the choice set before the people.",
+    "The promised gathering and land belong first to Israel's covenant history; they are not an individual guarantee of prosperity. Notice that God's work on the heart in verse 6 accompanies the call to love and obey Him.",
+    "What future does Moses describe in verses 1-10, and what choice does he set before Israel in verses 15-20?",
+    "How does remembering God's compassion affect your response to His call?",
+    "Lord, turn my heart toward love and faithful obedience."
+  ),
+  "Leviticus 19": focusedReadingGuidance(
+    "Holiness in ordinary life",
+    "The Lord addresses Israel's congregation through Moses. This chapter places worship, family, economic practices, justice, and care for neighbours under the call to be holy.",
+    "These are covenant instructions to Israel, not a set of isolated rules for earning God's favour. Gleaning, honest judgment, and care for the resident foreigner show that holiness includes how vulnerable neighbours are treated.",
+    "Which commands in verses 9-18 and 33-34 protect a neighbour from exploitation?",
+    "Where might love of neighbour require a more concrete act of fairness?",
+    "Holy Lord, teach me to honour You in the way I treat others."
+  ),
+  "Numbers 14": focusedReadingGuidance(
+    "Fear at the edge of the land",
+    "After the spies' report in Numbers 13, Israel fears the inhabitants of the land and proposes returning to Egypt. Joshua and Caleb urge trust; Moses intercedes when judgment is announced.",
+    "The chapter does not praise reckless confidence. It exposes a refusal to trust after repeated deliverance, records Moses' appeal to God's mercy, and shows consequences for that generation. Read the later failed attack after God's warning as part of the same account.",
+    "How do the people, Joshua and Caleb, and Moses respond to the report and to God's word?",
+    "What can you learn from Moses' intercession without equating your fears with Israel's land mission?",
+    "Lord, help me listen before fear turns me away from You."
+  ),
+  "1 Samuel 8": focusedReadingGuidance(
+    "Israel asks for a king",
+    "Samuel's sons have acted unjustly. Israel's elders ask for a king like other nations, and Samuel brings their request to the Lord.",
+    "The elders have a real grievance, yet the Lord names a deeper rejection of His kingship. Samuel warns that a king will take people, labour, and property. Avoid treating this as a simple verdict that every form of human government is wrong.",
+    "What reasons do the elders give, how does the Lord interpret the request, and what does Samuel warn the king will take?",
+    "How can a legitimate complaint still lead to an unwise remedy?",
+    "Lord, give me wisdom to seek justice without making power my hope."
+  ),
+  "2 Samuel 12": focusedReadingGuidance(
+    "Nathan confronts David",
+    "Nathan's parable confronts David after his abuse of Bathsheba and killing of Uriah in 2 Samuel 11. David confesses, but the chapter also names grave consequences.",
+    "God's mercy toward David does not erase his wrongdoing, the victims, or the harm that follows. Do not use David's confession to pressure harmed people to overlook abuse. Attend to Nathan's truth-telling and the whole chapter's grief.",
+    "How does Nathan expose David's action, and what remains after David admits his sin?",
+    "What would honest repentance require beyond saying the right words?",
+    "Just and merciful Lord, make me truthful about harm and ready to protect others."
+  ),
+  "2 Kings 17": focusedReadingGuidance(
+    "Why the northern kingdom fell",
+    "This chapter recounts Assyria's capture of Samaria, then explains the northern kingdom's exile through a long account of covenant unfaithfulness. It also describes later peoples and mixed worship in the land.",
+    "The writer is interpreting this particular history, not giving readers permission to diagnose every modern tragedy as divine punishment. Notice the repeated warnings through prophets and the people's refusal to listen.",
+    "What events are narrated in verses 1-6, and what reasons does the writer give in verses 7-23?",
+    "How can this history call you to listen without judging another person's suffering?",
+    "Lord, give me ears for warning and humility before histories of loss."
+  ),
+  "2 Kings 25": focusedReadingGuidance(
+    "Jerusalem falls",
+    "Babylon besieges Jerusalem, the city suffers famine, the temple is burned, and many people are taken into exile. The final verses tell of Jehoiachin's release from prison years later.",
+    "This is a record of devastating national loss, not a prompt to explain another person's suffering as punishment. Do not rush past the famine, destruction, and displacement to the small sign of hope at the end.",
+    "What is lost in verses 1-21, and what changes for Jehoiachin in verses 27-30?",
+    "How can you honour grief while remaining open to modest signs of hope?",
+    "Lord, have mercy on people facing war, hunger, and displacement."
+  ),
+  "Esther 4": focusedReadingGuidance(
+    "Esther faces a dangerous choice",
+    "After a decree threatens the Jews, Mordecai mourns and asks Esther to approach the king. Entering uninvited could cost her life, so she asks her people to fast before she acts.",
+    "Mordecai's 'such a time as this' is a question about Esther's place in this particular crisis, not a promise that every risky action will succeed. Notice the community's mourning, Esther's danger, and her uncertain resolve.",
+    "What risk does Esther describe, what does Mordecai ask, and how does she prepare?",
+    "How might courage include listening to threatened people and acting with others?",
+    "Lord, give me wisdom and courage to stand with those in danger."
+  ),
+  "Lamentations 3": focusedReadingGuidance(
+    "Hope voiced within lament",
+    "The poem speaks from affliction after Jerusalem's devastation. In the middle of grief it remembers the Lord's mercies, then returns to sorrow, injustice, and a plea for God to see.",
+    "The words about renewed mercy in verses 21-24 do not cancel the poem's pain. Read the whole chapter before using those verses to comfort someone else; lament and hope remain together here.",
+    "What suffering is described before and after verses 21-24, and what does the writer ask God to see?",
+    "Can you leave room for honest grief while recalling mercy?",
+    "Merciful Lord, see those who suffer and keep hope alive without silencing lament."
+  ),
+  "Job 38": focusedReadingGuidance(
+    "The Lord answers Job",
+    "Job has suffered profound losses and argued with friends who wrongly insist that suffering proves his guilt. After Job's pleas, the Lord answers from the whirlwind with questions about creation.",
+    "The speech widens Job's view of God's wisdom; it does not reveal a tidy reason for Job's losses. Do not use these questions to silence someone in pain. Read them after Job's lament and before the book's final correction of his friends.",
+    "What parts of creation does the Lord ask Job to consider, and what knowledge is beyond Job?",
+    "How might awe and honest lament be held together without pretending suffering is explained?",
+    "Creator Lord, meet those who suffer and teach me humility when I do not know why."
+  ),
+  "Isaiah 9": focusedReadingGuidance(
+    "Light amid judgment",
+    "Isaiah 9 speaks of light for people in darkness and a child associated with righteous rule. The chapter then turns to a repeated warning about judgment on Israel's pride and injustice.",
+    "Christians hear the royal child in relation to Jesus, but the promised reign should not be detached from Isaiah's setting or used to skip the chapter's warnings. Read both hope and judgment.",
+    "What changes in verses 1-7, and what actions bring warning in the rest of the chapter?",
+    "How does the promise of just rule challenge the ways people misuse power?",
+    "Lord, give me hope in Your justice and ears for Your warning."
+  ),
+  "Isaiah 40": focusedReadingGuidance(
+    "Comfort for a weary people",
+    "Isaiah 40 opens with comfort for God's people and announces a way prepared for the Lord. It contrasts fragile human life with God's enduring word and praises the Creator who strengthens the weary.",
+    "The chapter addresses a people in need of restoration, not a promise that every exhausted person will immediately feel strong. Notice how comfort is grounded in God's character and faithfulness.",
+    "What reasons for comfort appear in verses 1-11 and 27-31?",
+    "Where can you bring weariness to God without denying it?",
+    "Everlasting Lord, renew my trust as I wait for You."
+  ),
+  "Jeremiah 31": focusedReadingGuidance(
+    "Hope for a scattered people",
+    "Jeremiah speaks hope to Israel and Judah amid judgment and displacement. The chapter promises return, mourning turned toward joy, and a new covenant in which God's instruction is written on hearts.",
+    "The new covenant promise in verses 31-34 is addressed to the houses of Israel and Judah. Christian readers connect it with Jesus, but should not erase its first audience or treat restoration as instant relief for every sorrow.",
+    "Who is promised a new covenant, and how does it differ from the broken covenant?",
+    "How does God's commitment to forgive shape your hope without rushing grief?",
+    "Lord, make me attentive to Your faithful promise and forgiving mercy."
+  ),
+  "Ezekiel 36": focusedReadingGuidance(
+    "A new heart for exiles",
+    "Ezekiel addresses Israel in exile. The Lord promises restoration, cleansing, a new heart, and His Spirit, while explaining that He acts for the honour of His name.",
+    "This is a promise to a displaced people within Israel's history, not a formula for claiming anyone else's land or a guarantee of immediate personal success. Notice that renewal includes a changed heart and life, not merely changed circumstances.",
+    "What does the Lord say He will do in verses 22-27, and why does He say He acts?",
+    "What kind of inward change is more important than outward success?",
+    "Lord, cleanse my heart and lead me toward faithful living."
+  ),
+  "Daniel 7": focusedReadingGuidance(
+    "The kingdoms and the court of heaven",
+    "Daniel's vision pictures violent beasts, the Ancient of Days judging, and one like a son of man receiving dominion. An angel later interprets the vision in relation to kingdoms and the holy ones.",
+    "The images are apocalyptic, not a code for confident predictions about today's leaders. Read the interpretation in verses 15-27 alongside the vision. Christian readers also hear Jesus' use of 'Son of Man' without flattening Daniel's whole scene.",
+    "What do the beasts do, what happens in the heavenly court, and what does the interpretation say?",
+    "How can God's final judgment sustain patient faith rather than speculation?",
+    "Lord, keep me faithful when earthly power appears overwhelming."
+  ),
+  "Hosea 11": focusedReadingGuidance(
+    "The Lord's compassion for Israel",
+    "Hosea recalls the Lord calling Israel from Egypt and caring for the people, even as they turned to other gods. The chapter voices judgment and a striking refusal to give Israel up completely.",
+    "The parental imagery expresses God's care for Israel within a troubled covenant relationship. Do not turn it into an assurance that wrongdoing has no consequences; notice the tension between judgment and compassion.",
+    "What has the Lord done for Israel, how has Israel responded, and what does the Lord say about His compassion?",
+    "What does this tension teach you about God's steadfast care?",
+    "Compassionate Lord, keep me from forgetting Your care or dismissing Your warning."
+  ),
+  "Amos 5": focusedReadingGuidance(
+    "Seek the Lord and seek justice",
+    "Amos laments for Israel and warns of judgment. The chapter calls people to seek the Lord, reject evil, establish justice in the gate, and stop treating religious festivals as a substitute for righteousness.",
+    "The famous call for justice in verse 24 belongs to a concrete accusation against exploitation and corrupt worship. It is not merely a slogan for a cause; examine the chapter's concern for the poor and for honest judgment.",
+    "What does Amos condemn in verses 10-13 and 21-24, and what does he call the people to do?",
+    "Where might worship need to be matched by fairness toward a neighbour?",
+    "Lord, teach me to seek You and to act justly."
+  ),
+  "Micah 6": focusedReadingGuidance(
+    "What the Lord requires",
+    "Micah portrays a covenant dispute: the Lord recalls His saving acts, rejects the idea that extravagant offerings can replace faithfulness, and names justice, mercy, and humble walking with God.",
+    "Verse 8 belongs beside the charges of dishonest trade and violence later in the chapter. It is neither a way to earn rescue nor a vague call to be nice; it describes covenant faithfulness in public and personal life.",
+    "What has the Lord done in verses 3-5, and what practices in verses 10-12 contradict verse 8?",
+    "Which ordinary decision would better reflect justice, mercy, and humility?",
+    "Lord, help me walk humbly with You and deal honestly with others."
+  )
+};
+
 const prayerPsalmPassageNotes: Record<string, [string, string, string, string]> = {
   "Psalm 1": [
     "Psalm 1 opens the Psalter as a wisdom poem. It contrasts delight in the Lord's instruction with the way of the wicked, using a well-watered tree and windblown chaff as images.",
@@ -5225,9 +5389,22 @@ function selectedChapterPlan(id: string, title: string, description: string, ref
       const psalmNotes = id === "psalms-prayer-21-v2" ? prayerPsalmPassageNotes[reference] : undefined;
       const specificGuidance = id === "bible-story-30"
         ? storyChapterGuidance[reference]
-        : id === "psalms-prayer-21-v2"
-          ? prayerPsalmGuidance[reference] || (psalmNotes && focus ? focusedReadingGuidance(focus[0], psalmNotes[0], psalmNotes[1], psalmNotes[2], focus[1], psalmNotes[3]) : undefined)
-          : undefined;
+        : id === "bible-story-60" || id === "old-testament-story-60"
+          ? storyChapterGuidance[reference] || selectedStoryGuidance[reference] || (
+            prayerPsalmPassageNotes[reference] && prayerPsalmFocus[reference]
+              ? focusedReadingGuidance(
+                prayerPsalmFocus[reference][0],
+                prayerPsalmPassageNotes[reference][0],
+                prayerPsalmPassageNotes[reference][1],
+                prayerPsalmPassageNotes[reference][2],
+                prayerPsalmFocus[reference][1],
+                prayerPsalmPassageNotes[reference][3]
+              )
+              : undefined
+          )
+          : id === "psalms-prayer-21-v2"
+            ? prayerPsalmGuidance[reference] || (psalmNotes && focus ? focusedReadingGuidance(focus[0], psalmNotes[0], psalmNotes[1], psalmNotes[2], focus[1], psalmNotes[3]) : undefined)
+            : undefined;
       return buildDay(index + 1, reference, book, Number(match[2]), focus?.[0] || reference, reference, specificGuidance || (focus ? {
         guidanceKind: "reading-guidance",
         context: `Read ${reference} as a whole prayer. Notice who is speaking, what is being asked or praised, and how the prayer moves before making its words your own.`,

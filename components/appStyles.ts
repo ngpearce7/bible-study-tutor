@@ -5735,6 +5735,9 @@ export const styles = StyleSheet.create({
     gap: 2,
     minWidth: 0
   },
+  planDayGuidanceContent: {
+    gap: 7
+  },
   planDayCareNoteBox: {
     backgroundColor: "#fff4ea",
     borderColor: "#ecd8c7",

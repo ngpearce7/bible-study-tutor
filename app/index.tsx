@@ -1206,7 +1206,7 @@ function HomeScreen() {
   const [visibleBiblePlanGroupRows, setVisibleBiblePlanGroupRows] = useState<Record<string, number>>({});
   const [biblePlanDayWindowStarts, setBiblePlanDayWindowStarts] = useState<Record<string, number>>({});
   const [expandedBiblePlanPreviews, setExpandedBiblePlanPreviews] = useState<Record<string, boolean>>({});
-  const [expandedBiblePlanContexts, setExpandedBiblePlanContexts] = useState<Record<string, boolean>>({});
+  const [expandedBiblePlanGuidance, setExpandedBiblePlanGuidance] = useState<Record<string, boolean>>({});
   const biblePlanPreviewToggleRefs = useRef<Record<string, { focus?: () => void } | null>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>(DEFAULT_OPEN_BIBLE_PLAN_SECTIONS);
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
@@ -7891,103 +7891,100 @@ function HomeScreen() {
     const visibleCareNote = shouldShowBibleReadingCareNote(planDay.careNote) ? planDay.careNote : "";
     if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !visibleCareNote) return null;
     const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
-    const contextKey = `${planId}:${planDay.day}`;
-    const contextOpen = !!expandedBiblePlanContexts[contextKey];
-    const contextContentId = `plan-context-${planId.replace(/[^A-Za-z0-9_-]/g, "-")}-${planDay.day}`;
+    const guidanceKey = `${planId}:${planDay.day}`;
+    const guidanceOpen = !!expandedBiblePlanGuidance[guidanceKey];
+    const guidanceContentId = `plan-guidance-${planId.replace(/[^A-Za-z0-9_-]/g, "-")}-${planDay.day}`;
+    const guidancePreview = planDay.context || planDay.devotional?.title || "Questions and prompts for this reading.";
 
     return (
       <View style={[styles.planDayDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
-        {!planDay.context && (
-          <View style={styles.planDayDevotionalToolbar}>
-            {renderDevotionalTextSizeControl(darkMode)}
-          </View>
-        )}
-        {!!planDay.context && (
-          <View style={styles.planDayPromptRow}>
-            <View style={styles.planDayPromptHeaderRow}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`${contextOpen ? "Hide" : "Read"} passage context for ${planDay.reference}`}
-                accessibilityState={{ expanded: contextOpen }}
-                aria-controls={contextContentId}
-                onPress={() => setExpandedBiblePlanContexts((current) => ({ ...current, [contextKey]: !contextOpen }))}
-                style={styles.planDayContextToggle}
-              >
-                <View style={styles.planDayContextToggleCopy}>
-                  <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>
-                    {contextOpen ? "Hide passage context" : "Read passage context"}
-                  </Text>
-                  {!contextOpen && (
-                    <Text numberOfLines={1} style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>
-                      {planDay.context}
-                    </Text>
-                  )}
-                </View>
-                <Ionicons name={contextOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-              </Pressable>
-              {renderDevotionalTextSizeControl(darkMode)}
-            </View>
-            {contextOpen && (
-              <Text nativeID={contextContentId} style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>
-                {planDay.context}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${guidanceOpen ? "Hide" : "Show"} reading guidance for ${planDay.reference}`}
+          accessibilityState={{ expanded: guidanceOpen }}
+          aria-controls={guidanceContentId}
+          onPress={() => setExpandedBiblePlanGuidance((current) => ({ ...current, [guidanceKey]: !guidanceOpen }))}
+          style={styles.planDayContextToggle}
+        >
+          <View style={styles.planDayContextToggleCopy}>
+            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>
+              {guidanceOpen ? "Hide reading guidance" : "Show reading guidance"}
+            </Text>
+            {!guidanceOpen && (
+              <Text numberOfLines={1} style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>
+                {visibleCareNote ? "Includes a care note · " : ""}{guidancePreview}
               </Text>
             )}
           </View>
-        )}
-        {!!planDay.devotional && (
-          <>
-            <View style={styles.planDayDevotionalHeader}>
-              <View style={styles.planDayDevotionalTitleRow}>
-                <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-                <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{planDay.devotional.title}</Text>
-              </View>
+          <Ionicons name={guidanceOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+        </Pressable>
+        {guidanceOpen && (
+          <View nativeID={guidanceContentId} style={styles.planDayGuidanceContent}>
+            <View style={styles.planDayDevotionalToolbar}>
+              {renderDevotionalTextSizeControl(darkMode)}
             </View>
-            <Text style={[styles.planDayDevotionalText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
-          </>
-        )}
-        {!!planDay.observationQuestion && (
-          <View style={styles.planDayPromptRow}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.observationQuestion}</Text>
-          </View>
-        )}
-        {!!(planDay.reflectionQuestion || planDay.reflectionPrompt) && (
-          <View style={styles.planDayPromptRow}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.reflectionQuestion || planDay.reflectionPrompt}</Text>
-          </View>
-        )}
-        {!!(planDay.prayer || planDay.prayerPrompt) && (
-          <View style={styles.planDayPromptRow}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.prayer || planDay.prayerPrompt}</Text>
-          </View>
-        )}
-        {!!planDay.gentleAction && (
-          <View style={styles.planDayPromptRow}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.gentleAction}</Text>
-          </View>
-        )}
-        {!!planDay.studyMethod && (
-          <View style={styles.planDayPromptRow}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
-          </View>
-        )}
-        {!!visibleCareNote && (
-          <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
-            <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{visibleCareNote}</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Acknowledge this care note"
-              onPress={() => acknowledgeBibleReadingCareNote(visibleCareNote)}
-              style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
-            >
-              <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-              <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
-            </Pressable>
+            {!!planDay.context && (
+              <View style={styles.planDayPromptRow}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.context}</Text>
+              </View>
+            )}
+            {!!planDay.devotional && (
+              <>
+                <View style={styles.planDayDevotionalHeader}>
+                  <View style={styles.planDayDevotionalTitleRow}>
+                    <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{planDay.devotional.title}</Text>
+                  </View>
+                </View>
+                <Text style={[styles.planDayDevotionalText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.devotional.body}</Text>
+              </>
+            )}
+            {!!planDay.observationQuestion && (
+              <View style={styles.planDayPromptRow}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.observationQuestion}</Text>
+              </View>
+            )}
+            {!!(planDay.reflectionQuestion || planDay.reflectionPrompt) && (
+              <View style={styles.planDayPromptRow}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.reflectionQuestion || planDay.reflectionPrompt}</Text>
+              </View>
+            )}
+            {!!(planDay.prayer || planDay.prayerPrompt) && (
+              <View style={styles.planDayPromptRow}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.prayer || planDay.prayerPrompt}</Text>
+              </View>
+            )}
+            {!!planDay.gentleAction && (
+              <View style={styles.planDayPromptRow}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.gentleAction}</Text>
+              </View>
+            )}
+            {!!planDay.studyMethod && (
+              <View style={styles.planDayPromptRow}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
+              </View>
+            )}
+            {!!visibleCareNote && (
+              <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{visibleCareNote}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Acknowledge this care note"
+                  onPress={() => acknowledgeBibleReadingCareNote(visibleCareNote)}
+                  style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
+                </Pressable>
+              </View>
+            )}
           </View>
         )}
       </View>

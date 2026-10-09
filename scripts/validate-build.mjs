@@ -26,6 +26,9 @@ const mainBundle = bundleRows.find((row) => row.file === entryFiles[0]);
 const readingPlanBundles = bundleRows.filter((row) => /[/\\]bibleReadingPlans-[^/\\]+\.js$/.test(row.file));
 const webVitalsBundles = bundleRows.filter((row) => /[/\\]webVitals-[^/\\]+\.js$/.test(row.file));
 const totalGzip = bundleRows.reduce((total, row) => total + row.gzip, 0);
+const readingPlanIndexPath = join(distDir, "bible-reading-plan-index.json");
+assert(existsSync(readingPlanIndexPath), "compact reading-plan index is missing from the web export");
+assert(gzipSync(readFileSync(readingPlanIndexPath)).length <= 60_000, "compact reading-plan index exceeds its 60 KB gzip budget");
 
 assert(mainBundle.gzip <= mainBundleBudget, `main bundle is ${formatBytes(mainBundle.gzip)} gzip; budget is ${formatBytes(mainBundleBudget)}`);
 assert(totalGzip <= totalJavaScriptBudget, `all JavaScript is ${formatBytes(totalGzip)} gzip; budget is ${formatBytes(totalJavaScriptBudget)}`);

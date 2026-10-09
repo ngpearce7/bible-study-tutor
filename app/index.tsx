@@ -19,6 +19,7 @@ import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBo
 import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
 import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
+import { loadBibleReadingPlanIndex } from "@/data/bibleReadingPlanIndex";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
 import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
@@ -1179,6 +1180,7 @@ function HomeScreen() {
   const [completedBibleReadingPlanDays, setCompletedBibleReadingPlanDays] = useState<string[]>([]);
   const [customBibleReadingPlans, setCustomBibleReadingPlans] = useState<BibleReadingPlan[]>([]);
   const [bibleReadingPlanCorpus, setBibleReadingPlanCorpus] = useState<BibleReadingPlanCorpus | null>(null);
+  const [bibleReadingPlanIndex, setBibleReadingPlanIndex] = useState<BibleReadingPlan[] | null>(null);
   const [bibleReadingPlanCorpusStatus, setBibleReadingPlanCorpusStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [bibleReadingPlanLoadAttempt, setBibleReadingPlanLoadAttempt] = useState(0);
   const [bibleReadingPlanStartDates, setBibleReadingPlanStartDates] = useState<Record<string, string>>({});
@@ -1597,9 +1599,21 @@ function HomeScreen() {
     () => new Set(customBibleReadingPlans.map((plan) => plan.id)),
     [customBibleReadingPlans]
   );
-  const needsBuiltInBibleReadingPlans =
-    tab === "plans" ||
+  const needsBuiltInBibleReadingPlans = tab === "plans";
+  const needsBuiltInBibleReadingPlanIndex = tab !== "plans" && !bibleReadingPlanCorpus &&
     [activeBibleReadingPlanId, ...followedBibleReadingPlanIds].some((planId) => planId && !customBibleReadingPlanIdSet.has(planId));
+
+  useEffect(() => {
+    if (!needsBuiltInBibleReadingPlanIndex || bibleReadingPlanIndex) return;
+    let active = true;
+    const index = Platform.OS === "web"
+      ? loadBibleReadingPlanIndex().catch(() => loadBibleReadingPlanCorpus().then((corpus) => corpus.plans))
+      : loadBibleReadingPlanCorpus().then((corpus) => corpus.plans);
+    index.then((plans) => {
+      if (active) setBibleReadingPlanIndex(plans);
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [bibleReadingPlanIndex, needsBuiltInBibleReadingPlanIndex]);
 
   useEffect(() => {
     if (!needsBuiltInBibleReadingPlans || bibleReadingPlanCorpus) return;
@@ -2244,7 +2258,7 @@ function HomeScreen() {
   const readBibleChapterCount = Object.values(readBibleChapters).reduce((count, chapters) => count + chapters.length, 0);
   const todayDateKey = localDateKey(new Date(studyReviewNow));
   const bibleReadingPlanView = useMemo(() => buildBibleReadingPlanView({
-    builtInPlans: bibleReadingPlanCorpus?.plans || [],
+    builtInPlans: bibleReadingPlanCorpus?.plans || bibleReadingPlanIndex || [],
     customPlans: customBibleReadingPlans,
     followedPlanIds: followedBibleReadingPlanIds,
     activePlanId: activeBibleReadingPlanId,
@@ -2261,6 +2275,7 @@ function HomeScreen() {
     activeBibleReadingPlanId,
     bibleReadingPlanCompletionDates,
     bibleReadingPlanCorpus,
+    bibleReadingPlanIndex,
     bibleReadingPlanStartDates,
     completedBibleReadingPlanDays,
     customBibleReadingPlans,

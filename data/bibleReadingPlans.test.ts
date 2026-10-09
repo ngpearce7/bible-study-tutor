@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { expect, test, vi } from "vitest";
 import { bibleReadingPlans } from "./bibleReadingPlans";
+import { parseBibleReadingPlanIndex } from "./bibleReadingPlanIndex";
+import compactPlanIndex from "../public/bible-reading-plan-index.json";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "./bibleLibrary";
 import { expandPlanReadingReferences } from "./biblePassage";
 import { buildBibleReadingPlanView } from "./bibleReadingPlanView";
@@ -11,6 +13,15 @@ vi.mock("./network", () => ({ fetchWithTimeout: vi.fn() }));
 
 const plan = (id: string) => bibleReadingPlans.find(p => p.id === id)!;
 const chapters = (id: string) => plan(id).days.flatMap(d => expandPlanReadingReferences(d.reference).map(c => `${c.book}:${c.chapter}`));
+
+test("the compact Home schedule matches every built-in plan and reading day", () => {
+  const expected = bibleReadingPlans.map(({ days, ...metadata }) => ({
+    ...metadata,
+    days: days.map(({ day, title, reference, readerBook, readerChapter, studyReference }) =>
+      ({ day, title, reference, readerBook, readerChapter, studyReference }))
+  }));
+  expect(parseBibleReadingPlanIndex(compactPlanIndex)).toEqual(expected);
+});
 
 test("content snapshots and saved day identities remain stable", () => {
   for (const [id, hash] of Object.entries(legacyHashes)) {

@@ -49,3 +49,41 @@ it("keeps overdue and unscheduled next readings distinct from tomorrow", () => {
   expect(view([1], "").activeNextReadingLabel).toBe("Next reading: Day 2 · John 2");
   expect(view([1]).activeNextReadingLabel).toBe("Today: Day 2 · John 2");
 });
+
+describe("saved reading-plan progress", () => {
+  const plans: BibleReadingPlan[] = [
+    { ...plan, id: "peace", title: "7 Days of Peace", browseGroup: "life" },
+    { ...plan, id: "wisdom", title: "Wisdom", browseGroup: "life" },
+    { ...plan, id: "fresh", title: "Fresh", browseGroup: "start" }
+  ];
+  const build = (followedPlanIds: string[], completedDayKeys: string[]) =>
+    buildBibleReadingPlanView({
+      builtInPlans: plans, customPlans: [], followedPlanIds, activePlanId: followedPlanIds[0] || "",
+      completedDayKeys, startDates: {}, completedPlanDates: { peace: "2026-09-20" },
+      selectedPlanId: "", selectedDay: 0, todayDateKey: "2026-09-21",
+      addDaysToDateKey: (key) => key
+    });
+
+  it("keeps a fully read plan in Completed after it is no longer followed", () => {
+    const result = build([], ["peace:1", "peace:2", "peace:3"]);
+    expect(result.completedFollowedPlans.map((item) => item.id)).toEqual(["peace"]);
+    expect(result.groups.flatMap((group) => group.plans).some((item) => item.id === "peace")).toBe(false);
+    expect(result.activeFollowedPlans).toHaveLength(0);
+  });
+
+  it("separates a stopped, partly read plan from active and new plans", () => {
+    const result = build([], ["wisdom:1", "wisdom:2"]);
+    expect(result.activeFollowedPlans).toHaveLength(0);
+    expect(result.groups.find((group) => group.id === "paused")?.plans.map((item) => item.id)).toEqual(["wisdom"]);
+    expect(result.groups.find((group) => group.id === "life")?.plans.map((item) => item.id)).toEqual(["peace"]);
+    expect(result.groups.find((group) => group.id === "start")?.plans.map((item) => item.id)).toEqual(["fresh"]);
+  });
+
+  it("returns a resumed plan to Active without clearing its progress", () => {
+    const result = build(["wisdom"], ["wisdom:1", "wisdom:2"]);
+    expect(result.activeFollowedPlans.map((item) => item.id)).toEqual(["wisdom"]);
+    expect(result.activeCompletedCount).toBe(2);
+    expect(result.activeToday?.day).toBe(3);
+    expect(result.groups.find((group) => group.id === "paused")).toBeUndefined();
+  });
+});

@@ -2,7 +2,7 @@ import type { BibleReadingPlan } from "@/data/bibleReadingPlanTypes";
 import { MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
 
 export type BibleReadingPlanGroup = {
-  id: "custom" | "start" | "books" | "life" | "story" | "whole" | "intensive";
+  id: "paused" | "custom" | "start" | "books" | "life" | "story" | "whole" | "intensive";
   title: string;
   description: string;
   plans: BibleReadingPlan[];
@@ -59,7 +59,7 @@ export function buildBibleReadingPlanView({
     plan.days.length > 0 &&
     plan.days.every((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
   const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan)).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
-  const completedFollowedPlans = followedPlans
+  const completedFollowedPlans = allPlans
     .filter(planIsComplete)
     .sort((a, b) => {
       const aDate = completedPlanDates?.[a.id] || "";
@@ -73,10 +73,21 @@ export function buildBibleReadingPlanView({
     ? activePlanId
     : activeFollowedPlans[0]?.id || "";
   const otherFollowedPlans = activeFollowedPlans.filter((plan) => plan.id !== selectedActivePlanId);
-  const unfollowedPlans = allPlans.filter((plan) => !followedPlanIdSet.has(plan.id));
+  const pausedPlans = allPlans.filter((plan) =>
+    !followedPlanIdSet.has(plan.id) && !planIsComplete(plan) &&
+    plan.days.some((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)))
+  );
+  const pausedPlanIdSet = new Set(pausedPlans.map((plan) => plan.id));
+  const unfollowedPlans = allPlans.filter((plan) => !followedPlanIdSet.has(plan.id) && !planIsComplete(plan) && !pausedPlanIdSet.has(plan.id));
   const unfollowedCustomPlans = unfollowedPlans.filter((plan) => plan.source === "custom");
   const unfollowedBuiltInPlans = unfollowedPlans.filter((plan) => plan.source !== "custom" && !plan.retired);
   const candidateGroups: BibleReadingPlanGroup[] = [
+    {
+      id: "paused",
+      title: "Paused plans",
+      description: "Your saved progress is here. Resume where you left off or start again from Day 1.",
+      plans: pausedPlans
+    },
     {
       id: "custom",
       title: "Your custom plans",
@@ -164,6 +175,7 @@ export function buildBibleReadingPlanView({
     followedPlans,
     activeFollowedPlans,
     completedFollowedPlans,
+    pausedPlans,
     followedPlanIdSet,
     selectedActivePlanId,
     otherFollowedPlans,

@@ -6407,7 +6407,7 @@ function HomeScreen() {
     });
   }
 
-  function selectBibleReadingPlan(planId: string) {
+  function selectBibleReadingPlan(planId: string, resumeFromSavedProgress = false) {
     const nextState = followBibleReadingPlanState({
       planId,
       allPlans: allBibleReadingPlans,
@@ -6422,14 +6422,19 @@ function HomeScreen() {
       setBiblePlanStatus(`You can follow up to ${MAX_FOLLOWED_BIBLE_READING_PLANS} reading plans at once. Stop one before adding another.`);
       return;
     }
+    const resumedPlan = resumeFromSavedProgress ? allBibleReadingPlans.find((plan) => plan.id === planId) : undefined;
+    const nextUnreadDay = resumedPlan?.days.find((day) => !completedBibleReadingPlanDays.includes(bibleReadingPlanDayKey(planId, day.day)));
+    const nextStartDates = nextUnreadDay
+      ? { ...nextState.startDates, [planId]: addDaysToDateKey(localDateKey(), 1 - nextUnreadDay.day) }
+      : nextState.startDates;
     setActiveBibleReadingPlanId(nextState.activePlanId);
     setFollowedBibleReadingPlanIds(nextState.followedPlanIds);
     setRememberedExpandedBiblePlanId(nextState.activePlanId);
     setRememberedPlanSelectedDay(nextState.activePlanId, 0);
-    setBibleReadingPlanStartDates(nextState.startDates);
-    setBiblePlanStatus("");
-    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextState.startDates, nextState.followedPlanIds);
-    trackUsage("bible_reading_plan_selected", { reference: nextState.activePlanId, tab: "bible" });
+    setBibleReadingPlanStartDates(nextStartDates);
+    setBiblePlanStatus(resumeFromSavedProgress ? `${resumedPlan?.title || "Reading plan"} resumed from the next unread day.` : "");
+    persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextStartDates, nextState.followedPlanIds);
+    trackUsage(resumeFromSavedProgress ? "bible_reading_plan_resumed" : "bible_reading_plan_selected", { reference: nextState.activePlanId, tab: "plans" });
   }
 
   function catchUpActiveBibleReadingPlanDates(planId = activeBibleReadingPlan?.id || "") {
@@ -6487,6 +6492,10 @@ function HomeScreen() {
   function restartBibleReadingPlan(planId: string) {
     const plan = allBibleReadingPlans.find((item) => item.id === planId);
     if (!plan) return;
+    if (!followedBibleReadingPlanIds.includes(plan.id) && bibleReadingPlanView.activeFollowedPlans.length >= MAX_FOLLOWED_BIBLE_READING_PLANS) {
+      setBiblePlanStatus(`You can follow up to ${MAX_FOLLOWED_BIBLE_READING_PLANS} reading plans at once. Stop one before restarting another.`);
+      return;
+    }
     const nextStartDates = { ...bibleReadingPlanStartDates, [plan.id]: localDateKey() };
     const nextCompletedDays = completedBibleReadingPlanDays.filter((key) => !key.startsWith(`${plan.id}:`));
     const nextCompletionDates = { ...bibleReadingPlanCompletionDates };
@@ -6540,8 +6549,8 @@ function HomeScreen() {
     }
 
     const message = planComplete
-      ? `${plan.title} is complete. Your progress will stay saved, but this plan will be removed from Completed plans.`
-      : `You have completed ${completedCount} ${completedCount === 1 ? "day" : "days"} in ${plan.title}. Your progress will stay saved, but this plan will be removed from Active plans.`;
+      ? `${plan.title} is complete. Your progress will stay saved in Completed plans.`
+      : `You have completed ${completedCount} ${completedCount === 1 ? "day" : "days"} in ${plan.title}. Your progress will stay saved in Paused plans, ready to resume.`;
     if (Platform.OS === "web" && typeof window !== "undefined") {
       if (window.confirm(`${message}\n\n${planComplete ? "Remove this completed plan?" : "Stop following this plan?"}`)) {
         stopFollowingBibleReadingPlan(plan.id);
@@ -8181,11 +8190,11 @@ function HomeScreen() {
           </View>
         </View>
         <Text style={[styles.currentPlanText, plansDarkMode && styles.accountDarkMutedText]}>
-          Progress stays saved. Review the first reading, restart the path, or remove it from this list.
+          Progress stays saved. Review the readings or start this plan over when you are ready.
         </Text>
         <View style={[styles.completedReadingPlanActions, phoneLayout && styles.phoneCompletedReadingPlanActions]}>
           {!!firstDay && (
-            <Pressable accessibilityRole="button" accessibilityLabel={`Review ${plan.title} from the first reading`} onPress={() => openBibleReadingPlanDayInBible(firstDay, plan.id, { skipOverdueGuard: true })} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
+            <Pressable accessibilityRole="button" accessibilityLabel={`Review ${plan.title} from the first reading`} onPress={() => openBibleReadingPlanDayInBible(firstDay, "", { skipOverdueGuard: true })} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
               <Ionicons name="reader-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
               <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Review</Text>
             </Pressable>
@@ -8193,10 +8202,6 @@ function HomeScreen() {
           <Pressable accessibilityRole="button" accessibilityLabel={`Restart ${plan.title}`} onPress={() => requestRestartBibleReadingPlan(plan.id)} style={[styles.currentPlanManagementButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
             <Ionicons name="refresh-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
             <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Restart</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${plan.title} from completed plans`} onPress={() => requestStopFollowingBibleReadingPlan(plan.id)} style={[styles.currentPlanManagementButton, styles.completedReadingPlanRemoveButton, plansDarkMode && styles.currentPlanManagementButtonDark]}>
-            <Ionicons name="close-outline" size={14} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
-            <Text style={[styles.currentPlanManagementText, plansDarkMode && styles.accountDarkMutedText]}>Remove</Text>
           </Pressable>
         </View>
       </View>
@@ -9849,6 +9854,7 @@ function HomeScreen() {
             <Eyebrow>Reading paths</Eyebrow>
             <Text style={[styles.title, plansDarkMode && styles.accountDarkTitle]}>Bible reading plans</Text>
             <Text style={[styles.titleSupport, plansDarkMode && styles.accountDarkMutedText]}>Choose, continue, create, and manage reading plans. The Bible reader shows the active plan for today.</Text>
+            {!!biblePlanStatus && <Text accessibilityLiveRegion="polite" style={[styles.saveStatus, plansDarkMode && styles.accountDarkMutedText]}>{biblePlanStatus}</Text>}
             <View style={styles.contextHelpHeadingRow}><Text style={[styles.planSectionHeading, plansDarkMode && styles.planSectionHeadingDark]}>Active plans</Text>{renderContextHelpButton("current")}</View>
             {activeBibleReadingPlan && activeBibleReadingPlanToday ? (
               <View style={[styles.currentPlanWideBox, styles.currentBibleReadingPlanBox, phoneLayout && styles.phoneCurrentPlanWideBox, plansDarkMode && styles.accountDarkSection]}>
@@ -10088,7 +10094,7 @@ function HomeScreen() {
                   ) : null}
                 </Card>
               ) : unfollowedBibleReadingPlanGroups.map((group) => {
-                const sectionOpen = openBiblePlanSections[group.id] ?? (group.id === "custom" || group.id === "start");
+                const sectionOpen = openBiblePlanSections[group.id] ?? (group.id === "paused" || group.id === "custom" || group.id === "start");
                 const visibleGroupRowCount = visibleBiblePlanGroupRows[group.id] || (phoneLayout ? 6 : 9);
                 const visibleGroupPlans = group.plans.slice(0, visibleGroupRowCount);
                 return (
@@ -10121,6 +10127,7 @@ function HomeScreen() {
                 const previewContentId = `complete-day-preview-${plan.id.replace(/[^A-Za-z0-9_-]/g, "-")}`;
                 const visiblePlanDays = visibleRows > 0 ? plan.days.slice(0, visibleRows) : [];
                 const planStarted = completedCount > 0;
+                const planPaused = group.id === "paused";
                 const planComplete = plan.days.length > 0 && completedCount >= plan.days.length;
                 const lastCompletedDateKey = bibleReadingPlanCompletionDates[plan.id] || "";
                 const lastCompletedDateLabel = lastCompletedDateKey ? formatPlanDayDate(lastCompletedDateKey) : "";
@@ -10146,7 +10153,7 @@ function HomeScreen() {
                           </Text>
                         ) : planStarted ? (
                           <Text style={[styles.planPageMetaText, plansDarkMode && styles.accountDarkMutedText]}>
-                            Progress saved: {completedCount} of {plan.days.length} completed
+                            {planPaused ? "Paused" : "Progress saved"}: {completedCount} of {plan.days.length} completed
                           </Text>
                         ) : null}
                       </View>
@@ -10164,13 +10171,19 @@ function HomeScreen() {
                     <View style={styles.planCardActionRow}>
                       <Pressable
                         accessibilityRole="button"
-                        accessibilityLabel={`Follow ${plan.title}`}
-                        onPress={() => selectBibleReadingPlan(plan.id)}
+                        accessibilityLabel={`${planPaused ? "Resume" : "Follow"} ${plan.title}`}
+                        onPress={() => selectBibleReadingPlan(plan.id, planPaused)}
                         style={[styles.planCardActionChip, styles.planCardPrimaryChip, plansDarkMode && styles.planCardPrimaryChipDark]}
                       >
                         <Ionicons name="calendar-outline" size={13} color={plansDarkMode ? "#dce7c8" : colors.oliveDark} />
-                        <Text style={[styles.planCardActionText, styles.planCardPrimaryText, plansDarkMode && styles.planCardPrimaryTextDark]}>Follow</Text>
+                        <Text style={[styles.planCardActionText, styles.planCardPrimaryText, plansDarkMode && styles.planCardPrimaryTextDark]}>{planPaused ? "Resume" : "Follow"}</Text>
                       </Pressable>
+                      {planPaused && (
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Start ${plan.title} over from Day 1`} onPress={() => requestRestartBibleReadingPlan(plan.id)} style={[styles.planCardActionChip, styles.planCardSecondaryChip, plansDarkMode && styles.planCardSecondaryChipDark]}>
+                          <Ionicons name="refresh-outline" size={13} color={plansDarkMode ? "#e9b76a" : colors.oliveDark} />
+                          <Text style={[styles.planCardActionText, styles.planCardSecondaryText, plansDarkMode && styles.homeDarkResumeButtonText]}>Start over</Text>
+                        </Pressable>
+                      )}
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={expanded ? `Hide details for ${plan.title}` : `Show more details for ${plan.title}`}

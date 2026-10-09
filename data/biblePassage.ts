@@ -5,7 +5,7 @@ import {
   flattenBsbVerseContent,
   normalizeBibleBookName
 } from "@/data/bibleLibrary";
-import { fetchWithTimeout } from "@/data/network";
+import { fetchWithTimeout, throwIfRequestAborted } from "@/data/network";
 
 export type BibleVerse = {
   book_name: string;
@@ -33,7 +33,35 @@ export type BiblePlanReadingChunk = {
   endVerse?: number;
 };
 
+// Keep recently read chapters in memory for back/forward navigation and plan readings.
+// Only successful responses are cached; an aborted or failed request can be retried.
+const PASSAGE_CACHE_LIMIT = 24;
+const passageCache = new Map<string, BiblePassage>();
+
+function cachedPassage(key: string, signal: AbortSignal) {
+  throwIfRequestAborted(signal);
+  const passage = passageCache.get(key);
+  if (passage) {
+    passageCache.delete(key);
+    passageCache.set(key, passage);
+  }
+  return passage;
+}
+
+function rememberPassage(key: string, passage: BiblePassage, signal: AbortSignal) {
+  throwIfRequestAborted(signal);
+  passageCache.delete(key);
+  passageCache.set(key, passage);
+  if (passageCache.size > PASSAGE_CACHE_LIMIT) {
+    passageCache.delete(passageCache.keys().next().value!);
+  }
+  return passage;
+}
+
 export async function fetchBibleApiPassage(reference: string, translation: BibleApiTranslationId, signal: AbortSignal): Promise<BiblePassage> {
+  const key = `${translation}:${reference.trim().replace(/\s+/g, " ").toLowerCase()}`;
+  const cached = cachedPassage(key, signal);
+  if (cached) return cached;
   const response = await fetchWithTimeout(`https://bible-api.com/${encodeURIComponent(reference)}?translation=${translation}`, { signal }, undefined, { provider: "bible-api", operation: "passage" });
   if (!response.ok) throw new Error("Passage not found");
   const data = (await response.json()) as BiblePassage;
@@ -42,43 +70,52 @@ export async function fetchBibleApiPassage(reference: string, translation: Bible
     text: normalizeBibleApiText(verse.text)
   }));
 
-  return {
+  return rememberPassage(key, {
     ...data,
     text: verses?.map((verse) => verse.text).join("\n") || normalizeBibleApiText(data.text),
     verses
-  };
+  }, signal);
 }
 
 export async function fetchBsbPassage(reference: string, signal: AbortSignal): Promise<BiblePassage> {
   const parsed = parseBsbPassageReference(reference);
   if (!parsed) throw new Error("BSB needs a chapter reference");
+  const key = `bsb:${parsed.bookId}:${parsed.chapter}`;
+  let chapterPassage = cachedPassage(key, signal);
+  if (!chapterPassage) {
+    const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${parsed.bookId}/${parsed.chapter}.json`, { signal }, undefined, { provider: "helloao-bsb", operation: "passage" });
+    if (!response.ok) throw new Error("BSB passage not found");
 
-  const response = await fetchWithTimeout(`https://bible.helloao.org/api/BSB/${parsed.bookId}/${parsed.chapter}.json`, { signal }, undefined, { provider: "helloao-bsb", operation: "passage" });
-  if (!response.ok) throw new Error("BSB passage not found");
+    const data = await response.json();
+    const verses: BibleVerse[] = (data.chapter?.content || [])
+      .filter((item: any) => item.type === "verse" && typeof item.number === "number")
+      .map((item: any) => ({
+        book_name: data.book?.commonName || parsed.bookName,
+        chapter: parsed.chapter,
+        verse: item.number,
+        text: flattenBsbVerseContent(item.content)
+      }));
+    if (!verses.length) throw new Error("No BSB verses found");
+    chapterPassage = rememberPassage(key, {
+      reference: `${parsed.bookName} ${parsed.chapter}`,
+      text: verses.map((verse) => verse.text).join("\n"),
+      verses,
+      translation_id: "BSB",
+      translation_name: "Berean Standard Bible",
+      translation_note: "Public Domain"
+    }, signal);
+  }
 
-  const data = await response.json();
-  const allVerses = (data.chapter?.content || []).filter((item: any) => item.type === "verse" && typeof item.number === "number");
-  const selectedVerses = allVerses.filter((item: any) => {
-    if (!parsed.startVerse) return true;
-    return item.number >= parsed.startVerse && item.number <= (parsed.endVerse || parsed.startVerse);
-  });
-
-  if (!selectedVerses.length) throw new Error("No BSB verses found");
-
-  const verses = selectedVerses.map((item: any) => ({
-    book_name: data.book?.commonName || parsed.bookName,
-    chapter: parsed.chapter,
-    verse: item.number,
-    text: flattenBsbVerseContent(item.content)
-  }));
+  const verses = (chapterPassage.verses || []).filter((verse) =>
+    !parsed.startVerse || (verse.verse >= parsed.startVerse && verse.verse <= (parsed.endVerse || parsed.startVerse))
+  );
+  if (!verses.length) throw new Error("No BSB verses found");
 
   return {
+    ...chapterPassage,
     reference: formatBsbReference(parsed),
     text: verses.map((verse: BibleVerse) => verse.text).join("\n"),
-    verses,
-    translation_id: "BSB",
-    translation_name: "Berean Standard Bible",
-    translation_note: "Public Domain"
+    verses
   };
 }
 

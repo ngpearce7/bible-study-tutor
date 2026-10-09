@@ -3369,7 +3369,7 @@ function HomeScreen() {
     setReaderStatus(mode === "plan" ? "Loading plan reading..." : "Loading chapter...");
     setReaderPassage(null);
 
-    const timeout = setTimeout(async () => {
+    void (async () => {
       try {
         const data =
           mode === "plan"
@@ -3385,10 +3385,9 @@ function HomeScreen() {
         if (readerPassageRequestIdRef.current !== requestId) return;
         setReaderStatus(mode === "plan" ? "I couldn't load that plan reading. Exit plan reading or try again." : "I couldn't load that chapter. Try again or choose another chapter.");
       }
-    }, 250);
+    })();
 
     return () => {
-      clearTimeout(timeout);
       controller.abort();
     };
   }, [readerLoadRequest.mode, readerLoadRequest.reference, bibleTranslation, tab]);

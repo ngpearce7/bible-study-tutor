@@ -1206,6 +1206,7 @@ function HomeScreen() {
   const [visibleBiblePlanGroupRows, setVisibleBiblePlanGroupRows] = useState<Record<string, number>>({});
   const [biblePlanDayWindowStarts, setBiblePlanDayWindowStarts] = useState<Record<string, number>>({});
   const [expandedBiblePlanPreviews, setExpandedBiblePlanPreviews] = useState<Record<string, boolean>>({});
+  const [expandedBiblePlanContexts, setExpandedBiblePlanContexts] = useState<Record<string, boolean>>({});
   const biblePlanPreviewToggleRefs = useRef<Record<string, { focus?: () => void } | null>>({});
   const [openBiblePlanSections, setOpenBiblePlanSections] = useState<Record<string, boolean>>(DEFAULT_OPEN_BIBLE_PLAN_SECTIONS);
   const [pendingBiblePlanDeleteId, setPendingBiblePlanDeleteId] = useState("");
@@ -7886,10 +7887,13 @@ function HomeScreen() {
     );
   };
 
-  const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean) => {
+  const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean, planId: string) => {
     const visibleCareNote = shouldShowBibleReadingCareNote(planDay.careNote) ? planDay.careNote : "";
     if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !visibleCareNote) return null;
     const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
+    const contextKey = `${planId}:${planDay.day}`;
+    const contextOpen = !!expandedBiblePlanContexts[contextKey];
+    const contextContentId = `plan-context-${planId.replace(/[^A-Za-z0-9_-]/g, "-")}-${planDay.day}`;
 
     return (
       <View style={[styles.planDayDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
@@ -7901,10 +7905,33 @@ function HomeScreen() {
         {!!planDay.context && (
           <View style={styles.planDayPromptRow}>
             <View style={styles.planDayPromptHeaderRow}>
-              <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${contextOpen ? "Hide" : "Read"} passage context for ${planDay.reference}`}
+                accessibilityState={{ expanded: contextOpen }}
+                aria-controls={contextContentId}
+                onPress={() => setExpandedBiblePlanContexts((current) => ({ ...current, [contextKey]: !contextOpen }))}
+                style={styles.planDayContextToggle}
+              >
+                <View style={styles.planDayContextToggleCopy}>
+                  <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>
+                    {contextOpen ? "Hide passage context" : "Read passage context"}
+                  </Text>
+                  {!contextOpen && (
+                    <Text numberOfLines={1} style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>
+                      {planDay.context}
+                    </Text>
+                  )}
+                </View>
+                <Ionicons name={contextOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              </Pressable>
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
-            <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.context}</Text>
+            {contextOpen && (
+              <Text nativeID={contextContentId} style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>
+                {planDay.context}
+              </Text>
+            )}
           </View>
         )}
         {!!planDay.devotional && (
@@ -8143,7 +8170,7 @@ function HomeScreen() {
                 )}
               </View>
             </View>
-            {renderPlanDayDevotional(selectedDay, plansDarkMode)}
+            {renderPlanDayDevotional(selectedDay, plansDarkMode, plan.id)}
           </View>
         )}
         {missedFullDay && (
@@ -9986,7 +10013,7 @@ function HomeScreen() {
                         )}
                       </View>
                     </View>
-                    {renderPlanDayDevotional(activeBibleReadingPlanSelectedDay, plansDarkMode)}
+                    {renderPlanDayDevotional(activeBibleReadingPlanSelectedDay, plansDarkMode, activeBibleReadingPlan.id)}
                   </View>
                 )}
                 {activeBibleReadingPlanMissedFullDay && (

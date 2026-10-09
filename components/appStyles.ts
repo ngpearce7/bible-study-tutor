@@ -5722,6 +5722,19 @@ export const styles = StyleSheet.create({
     position: "relative",
     zIndex: 80
   },
+  planDayContextToggle: {
+    alignItems: "center",
+    flex: 1,
+    flexDirection: "row",
+    gap: 6,
+    minWidth: 0,
+    paddingVertical: 4
+  },
+  planDayContextToggleCopy: {
+    flex: 1,
+    gap: 2,
+    minWidth: 0
+  },
   planDayCareNoteBox: {
     backgroundColor: "#fff4ea",
     borderColor: "#ecd8c7",

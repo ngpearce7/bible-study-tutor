@@ -48,6 +48,13 @@ test("book guidance appears when a reading first crosses into the book", () => {
 test("selected story plans give sensitive readings passage-specific context", () => {
   const story = plan("bible-story-60");
   const oldTestament = plan("old-testament-story-60");
+  for (const selectedPlan of [story, oldTestament]) {
+    expect(selectedPlan.days.every((day) =>
+      !!day.context && !!day.devotional?.body && !!day.observationQuestion &&
+      !!day.reflectionQuestion && !!day.prayer &&
+      !/^(Beginning |First stop in )/.test(day.devotional.title)
+    ), selectedPlan.id).toBe(true);
+  }
   const storyDay = (reference: string) => story.days.find((day) => day.reference === reference)!;
   const oldTestamentDay = (reference: string) => oldTestament.days.find((day) => day.reference === reference)!;
 
@@ -60,6 +67,10 @@ test("selected story plans give sensitive readings passage-specific context", ()
   expect(oldTestamentDay("Job 38").context).toContain("wrongly insist");
   expect(oldTestamentDay("Amos 5").devotional?.body).toContain("exploitation");
   expect(oldTestamentDay("Daniel 7").devotional?.body).toContain("apocalyptic");
+  expect(storyDay("Acts 15").devotional?.body).toContain("grace");
+  expect(storyDay("John 11").devotional?.body).toContain("sorrow");
+  expect(oldTestamentDay("Genesis 6").devotional?.body).toContain("violence");
+  expect(oldTestamentDay("Ecclesiastes 3").devotional?.body).toContain("not approval");
 });
 
 test("reflection years cover every chapter with reflection spread throughout the year", () => {

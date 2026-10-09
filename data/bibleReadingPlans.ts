@@ -5213,6 +5213,429 @@ const selectedStoryGuidance: Record<string, BibleReadingPlanDayExtras> = {
   )
 };
 
+const remainingStoryNotes: Record<string, [string, string, string, string, string, string]> = {
+  "Luke 4": [
+    "Jesus announces His mission",
+    "After His baptism, Jesus resists temptation in the wilderness, then reads Isaiah in Nazareth and speaks of good news to the poor. The chapter ends with teaching, healing, and His insistence on proclaiming the kingdom elsewhere.",
+    "Jesus' Nazareth listeners move from admiration to anger when He recalls God's mercy beyond Israel. Do not turn the Isaiah reading into a promise that every hardship ends immediately; notice Jesus' announcement, rejection, and continuing mission.",
+    "How does Jesus answer temptation, what does He announce in Nazareth, and why do the listeners become angry?",
+    "Which part of Jesus' mission challenges what you expected Him to do?",
+    "Lord Jesus, help me hear Your good news and follow You beyond my expectations."
+  ],
+  "Matthew 5": [
+    "The King's opening teaching",
+    "Jesus begins the Sermon on the Mount by blessing unlikely people, calling disciples salt and light, and addressing the heart beneath commands about anger, desire, truth, retaliation, and enemies.",
+    "The Beatitudes describe life under God's kingdom, not a checklist for earning it. Jesus deepens rather than discards God's law. Read His difficult examples as a call to whole-hearted righteousness, not permission for others to abuse you.",
+    "Who does Jesus call blessed, and how does He move from outward acts to the heart?",
+    "Where might peacemaking or truthfulness require a concrete change?",
+    "King Jesus, shape my heart and actions in Your way."
+  ],
+  "Matthew 6": [
+    "Life before the Father",
+    "Jesus continues the Sermon on the Mount with teaching on giving, prayer, fasting, treasure, and worry. He repeatedly points disciples to their Father rather than to public approval.",
+    "The Lord's Prayer joins God's name and kingdom with daily bread, forgiveness, and deliverance. Jesus' words about anxiety invite trust; they should not shame people struggling with poverty or illness.",
+    "What does Jesus say about being seen by others, and what needs does the Lord's Prayer name?",
+    "Where could attention to the Father free you from performing for an audience?",
+    "Father, provide what I need and teach me to seek Your kingdom."
+  ],
+  "Mark 4": [
+    "Hear the word and watch the storm",
+    "Jesus teaches through parables about hearing and receiving the word, then crosses the lake with His disciples and stills a storm. The chapter moves from hidden growth to a question about His authority.",
+    "The soils invite self-examination without making growth a measure of personal worth. In the boat, frightened disciples meet Jesus' authority over the wind; the scene does not promise believers a life without storms.",
+    "What hinders the word in the soil parable, and what do the disciples ask after the storm?",
+    "How can you listen patiently while entrusting fear to Jesus?",
+    "Lord Jesus, open my ears to Your word and meet me in fear."
+  ],
+  "Mark 8": [
+    "Seeing the Messiah clearly",
+    "After feeding a crowd and healing a blind man in stages, Jesus hears Peter confess that He is the Christ. Jesus then predicts His suffering and calls followers to take up the cross.",
+    "Peter can name Jesus rightly and still resist the path Jesus describes. Read the call to self-denial in the light of Jesus' own suffering, not as a demand to stay in abuse or neglect ordinary responsibilities.",
+    "What does Peter confess, what does Jesus predict, and why does He correct Peter?",
+    "Where do your expectations of Jesus need to be shaped by His words?",
+    "Lord Jesus, teach me to follow Your way with wisdom and courage."
+  ],
+  "Luke 19": [
+    "The King draws near",
+    "Jesus welcomes Zacchaeus and speaks of seeking the lost. A parable addresses expectations of an immediate kingdom, and His entry into Jerusalem leads to tears over the city and action in the temple.",
+    "Zacchaeus' restitution shows that welcome and changed conduct belong together. The crowd's celebration and Jesus' weeping should both be heard before reducing this chapter to a triumphal procession.",
+    "How does Zacchaeus respond to Jesus, and what does Jesus say and do as He approaches Jerusalem?",
+    "How could receiving mercy lead to a concrete act of repair?",
+    "Lord Jesus, help me welcome Your mercy and respond honestly."
+  ],
+  "John 11": [
+    "Jesus meets grief at Lazarus's tomb",
+    "Lazarus dies before Jesus arrives. Martha and Mary speak to Him from grief, Jesus weeps, and He calls Lazarus from the tomb. The sign also intensifies the leaders' plan against Jesus.",
+    "Jesus' promise of resurrection does not make the sisters' sorrow unreal; He enters it. Lazarus's return is a sign pointing to Jesus, not a guarantee that every death will be reversed now.",
+    "What do the sisters say, how does Jesus respond to their grief, and what follows the sign?",
+    "How might Jesus' presence with mourners shape the way you comfort someone?",
+    "Lord Jesus, meet us in grief and hold us in resurrection hope."
+  ],
+  "John 13": [
+    "The Lord serves His friends",
+    "On the night before His death, Jesus washes His disciples' feet, speaks of betrayal and departure, and gives them a new command to love one another.",
+    "The foot washing is an act of the Lord who knows where He came from and where He is going. Service follows His love; it must not be used to require the vulnerable to accept exploitation.",
+    "What does Jesus know before He washes feet, and what command does He give after Judas leaves?",
+    "What humble act of care could reflect His love without ignoring healthy boundaries?",
+    "Lord Jesus, teach me to receive Your care and love others faithfully."
+  ],
+  "Luke 23": [
+    "Jesus suffers under human injustice",
+    "Luke recounts Jesus before Pilate and Herod, His crucifixion among criminals, His death, and His burial. Leaders and soldiers mock Him while others grieve or speak on His behalf.",
+    "The chapter shows both Jesus' innocence and His real suffering. Do not rush from the cross to Easter or use His endurance to excuse injustice against others. Notice His words of mercy and the witnesses to His death.",
+    "Who declares Jesus innocent, what does He say from the cross, and who witnesses His death?",
+    "How does staying with Luke's account affect your gratitude and concern for the unjustly treated?",
+    "Lord Jesus, help me face Your suffering with honesty and reverence."
+  ],
+  "Luke 24": [
+    "The risen Jesus opens the Scriptures",
+    "Women find the tomb empty; Jesus meets two travellers on the Emmaus road and later appears to the gathered disciples. He explains His suffering and resurrection in the light of Scripture.",
+    "The witnesses move through fear, confusion, recognition, and joy. Luke does not ask readers to pretend they understood at once. The risen Jesus sends His followers to proclaim repentance and forgiveness.",
+    "What do the women report, how do the travellers recognise Jesus, and what mission does He give?",
+    "Which witness's movement toward understanding would you like to read more slowly?",
+    "Risen Lord, open the Scriptures and steady my faith in Your witness."
+  ],
+  "Acts 9": [
+    "Saul is stopped and sent",
+    "Saul travels to Damascus to arrest followers of Jesus. The risen Lord confronts him; Ananias receives a difficult call to welcome him. The chapter also follows Peter's ministry.",
+    "Saul's reversal is Jesus' initiative, not proof that every persecutor changes quickly or should immediately be trusted. Ananias' fear is named, and Saul's new witness meets opposition. Follow the whole chapter beyond the road scene.",
+    "What does Jesus say to Saul and Ananias, and how does Saul's public message change?",
+    "How can you remain open to grace while taking another person's safety seriously?",
+    "Lord Jesus, turn hearts toward You and give Your people discernment."
+  ],
+  "Acts 15": [
+    "Grace for Gentile believers",
+    "A dispute over circumcision brings Paul and Barnabas to Jerusalem. Peter, James, and the assembly discuss Gentile inclusion, send a letter, and later Paul and Barnabas separate over Mark.",
+    "Peter says salvation comes through the grace of the Lord Jesus, not by placing Israel's law on Gentile converts as a condition of rescue. The letter addresses shared life in a mixed community. Do not miss the unresolved human disagreement at the chapter's end.",
+    "What question starts the meeting, what does Peter say about grace, and what does the letter ask of Gentile believers?",
+    "How can conviction and careful listening both serve a divided community?",
+    "Lord Jesus, keep Your grace central as Your people discern together."
+  ],
+  "Romans 3": [
+    "God's righteousness and human need",
+    "Paul continues his argument that both Jews and Gentiles stand accountable before God. He then announces God's righteousness through faith in Jesus Christ and says boasting is excluded.",
+    "The chapter's charge of universal sin prepares for the good news of grace; it is not a licence to single out one group as worse. Justification is God's gift in Christ, not a reward for flawless law-keeping.",
+    "How does Paul describe human accountability, and what changes in verses 21-26?",
+    "Where might grace replace boasting or despair in your response to God?",
+    "Righteous God, thank You for mercy in Christ rather than confidence in myself."
+  ],
+  "Romans 8": [
+    "Life in the Spirit and hope in suffering",
+    "Romans 8 follows Paul's account of sin, law, and life in Christ. It moves from no condemnation through adoption and groaning to the Spirit's help and God's inseparable love.",
+    "Paul does not deny suffering: creation groans, believers groan, and the Spirit helps in weakness. The final assurance belongs with these honest descriptions, not in place of them.",
+    "What does the Spirit do in verses 1-17 and 26-27, and what cannot separate believers from Christ's love?",
+    "Which part of this chapter helps you pray amid weakness rather than hide it?",
+    "Father, hold me in Christ's love and help me by Your Spirit."
+  ],
+  "Ephesians 2": [
+    "Grace makes one new people",
+    "Paul describes people dead in wrongdoing, made alive with Christ by grace, and created for good works. He then turns to Jews and Gentiles brought near and reconciled in one body.",
+    "Verses 8-10 keep salvation as gift and good works as its fruit. Do not stop there: Christ also breaks down hostility and builds a shared dwelling for God. Grace changes belonging as well as conduct.",
+    "What does God do in verses 4-10, and what does Christ make of those once far apart?",
+    "Where could gratitude for grace become an act of welcome or peace?",
+    "God of mercy, make me alive in Christ and ready to welcome His people."
+  ],
+  "Philippians 2": [
+    "The mind of Christ among His people",
+    "Paul urges a divided community toward humility and shared concern, points to Christ's self-giving and exaltation, then commends Timothy and Epaphroditus as examples of care.",
+    "Christ's humility is the basis of Paul's appeal, not a command to erase your worth or tolerate harm. Notice that God exalts Jesus and that the chapter ends with concrete coworkers who serve others.",
+    "What movement is described in verses 5-11, and how do Timothy and Epaphroditus embody concern for others?",
+    "What could humble care look like in a relationship where you have real responsibility?",
+    "Lord Jesus, form Your generous mind in me and in Your church."
+  ],
+  "Revelation 22": [
+    "The river of life and the final invitation",
+    "John's final vision follows the new creation of chapter 21. The river and tree of life appear, God's servants see His face, and Jesus promises to come; the book closes with invitation and warning.",
+    "The closing hope centres on God's presence and healing for the nations. Do not use its images to calculate a date for Jesus' return. Hear the repeated invitation to come and the final prayer for His coming.",
+    "What is restored in verses 1-5, and who is invited in verses 16-21?",
+    "How might future healing deepen patient faithfulness now?",
+    "Come, Lord Jesus. Keep my hope awake and my welcome wide."
+  ],
+  "Genesis 1": [
+    "God creates and blesses",
+    "Genesis opens with God speaking, ordering, and blessing creation. Humanity, male and female, is made in God's image and given a vocation within the world He calls good.",
+    "The chapter begins with God's initiative, not human achievement. Its repeated goodness grounds human dignity and responsibility; it does not answer every modern question about the mechanics of creation.",
+    "What does God make, bless, and call good, and what task is given to humanity?",
+    "How might shared image-bearing dignity change the way you regard another person?",
+    "Creator God, teach me to receive Your world with gratitude and care."
+  ],
+  "Genesis 2": [
+    "Life in the garden",
+    "Genesis 2 draws close to the human scene: the Lord forms the man, plants a garden, gives work and a boundary, and makes a fitting partner. The chapter ends with union and openness.",
+    "Read this alongside Genesis 1 rather than treating the two chapters as competing stories. The human vocation includes cultivation and care; the boundary reminds the reader that freedom is lived before God.",
+    "What does the Lord give the humans, and what limit does He set?",
+    "Where does receiving life as gift change your sense of work or relationship?",
+    "Lord, help me tend what You entrust to me with gratitude."
+  ],
+  "Genesis 13": [
+    "Abram and Lot separate",
+    "Returning from Egypt, Abram and Lot have too many flocks for the land to support them together. Abram offers Lot a choice; afterward the Lord repeats His promise to Abram.",
+    "Lot chooses a fertile-looking region near Sodom, while Abram receives God's specific land promise. Do not turn the contrast into a rule that generosity always brings property or wealth.",
+    "What causes the dispute, who chooses first, and what does the Lord promise Abram afterward?",
+    "How could generosity help resolve a real conflict without trying to control its outcome?",
+    "Lord, make me peaceable and attentive to Your promises."
+  ],
+  "Genesis 17": [
+    "The covenant marked in a family",
+    "The Lord reaffirms His covenant with Abram, changes Abram's and Sarai's names, appoints circumcision as its sign, and promises a son through Sarah.",
+    "The promise is given to this family within a long wait; it is not a guarantee of a child for every reader. Notice Sarah's named place in the promise and the difference between God's word about Isaac and Abraham's concern for Ishmael.",
+    "What does the Lord promise, what sign is commanded, and how are Sarah and Ishmael addressed?",
+    "How does this chapter hold promise and long waiting together?",
+    "Faithful Lord, help me honour Your promises without claiming another family's story as my own."
+  ],
+  "Genesis 45": [
+    "Joseph reveals himself",
+    "After years of separation and hardship, Joseph tells his brothers who he is. He names their sale of him into Egypt and describes how God has preserved life through the famine.",
+    "Joseph's account of providence does not make his brothers' betrayal good or require every harmed person to reconcile quickly. Observe his tears, their fear, and the practical provision for the family.",
+    "What wrong does Joseph name, what purpose does he see, and how does he provide for his family?",
+    "How can hope for good avoid denying a real wrong?",
+    "Lord, help me tell the truth about harm and notice Your care."
+  ],
+  "Exodus 3": [
+    "The Lord sees and sends",
+    "While Moses tends a flock, the Lord speaks from the burning bush. He names the suffering of Israel in Egypt, recalls the ancestors' covenant, and sends Moses to Pharaoh.",
+    "God's holy presence begins this rescue, and Moses' objections remain part of the conversation. The divine name is given in the setting of covenant faithfulness, not as a technique for mastering God.",
+    "What does the Lord say He has seen and heard, and how does Moses respond to being sent?",
+    "How could attending to another person's suffering change the way you pray or act?",
+    "Holy Lord, help me listen to Your word and care for those who suffer."
+  ],
+  "Exodus 6": [
+    "A promise to a discouraged people",
+    "After Pharaoh increases Israel's burden, the Lord repeats His promise to bring them out, take them as His people, and bring them to the promised land. A genealogy then locates Moses and Aaron within Israel.",
+    "The people cannot listen because of broken spirit and hard labour. Their exhaustion is not presented as a moral failure. God's covenant words precede the visible change in their circumstances.",
+    "What does the Lord say He will do, and why do the people struggle to hear Moses?",
+    "How can you speak hope without dismissing someone's exhaustion?",
+    "Lord, remember those worn down by labour and keep Your word before them."
+  ],
+  "Exodus 14": [
+    "A way through the sea",
+    "With Pharaoh's army approaching, Israel fears for its life. The Lord tells Moses to lead them forward, divides the sea, and brings the people through while the pursuing force is overwhelmed.",
+    "This is Israel's particular deliverance from slavery and pursuit, not a guarantee that every danger ends in escape. Read the people's fear, the Lord's action, and the costly judgment together.",
+    "How do the people and Moses speak at the sea, and what does the Lord do?",
+    "How can this story lead to gratitude for rescue without making light of current danger?",
+    "Delivering Lord, hear those in danger and teach me reverent trust."
+  ],
+  "Joshua 24": [
+    "Remember and choose whom to serve",
+    "Joshua gathers Israel at Shechem, recounts the Lord's acts from Abraham through the land, and calls the people to put away other gods and serve the Lord.",
+    "The call to choose follows God's prior gift and rescue. Joshua also warns that covenant loyalty is serious; his words are addressed to Israel in its land, not a simple slogan detached from its history.",
+    "Which acts of God does Joshua recount before asking the people to choose?",
+    "What does remembering prior mercy add to a decision about faithfulness?",
+    "Lord, keep my worship rooted in gratitude and truth."
+  ],
+  "Judges 2": [
+    "A generation forgets",
+    "After Joshua's generation dies, Israel turns to other gods. The chapter introduces a recurring pattern: oppression, judges raised up by the Lord, temporary rescue, and renewed unfaithfulness.",
+    "This is a summary of Israel's troubled life in the land, not a formula for diagnosing every modern crisis. Notice both the people's repeated turning and the Lord's compassion when they groan.",
+    "What changes after Joshua's generation, and why does the Lord raise judges?",
+    "What practices might help a community remember God's acts across generations?",
+    "Lord, keep us from forgetting Your mercy and turning from You."
+  ],
+  "Ruth 4": [
+    "Ruth and Naomi receive a future",
+    "Boaz acts at the town gate to redeem family property and marry Ruth. The women bless Naomi, and the genealogy closes by connecting their family to David.",
+    "The story honours Ruth's loyal care and Boaz's public responsibility. It should not be reduced to a promise that every faithful widow will remarry or have a child; the ending locates ordinary kindness within Israel's larger story.",
+    "What does Boaz do publicly, what do the women say to Naomi, and where does the genealogy lead?",
+    "How might reliable care for a vulnerable neighbour take a practical form?",
+    "Lord, teach me faithful kindness in ordinary responsibilities."
+  ],
+  "2 Samuel 7": [
+    "The Lord promises David a house",
+    "David proposes to build a temple, but through Nathan the Lord recounts what He has done and promises to establish David's house and kingdom. David answers in prayer.",
+    "The promise concerns David's line and Israel's kingdom, not a blank cheque for any leader's plans. Christian readers trace royal hope toward Jesus while first hearing David's surprise that God would establish his house.",
+    "What does David propose, what does the Lord promise instead, and how does David pray?",
+    "Where might gratitude be a better response than trying to secure your own legacy?",
+    "Lord, keep me humble before Your faithful purposes."
+  ],
+  "1 Kings 8": [
+    "The temple is dedicated",
+    "The ark enters the new temple, the Lord's glory fills it, and Solomon prays for Israel and for foreigners who come seeking the Lord. He repeatedly asks God to hear from heaven.",
+    "The temple is a place for the Lord's name, not a building that contains Him. Solomon's prayer anticipates sin and exile as well as worship; do not skip its calls for forgiveness and justice.",
+    "Where does Solomon say God dwells, and for whom does he ask God to hear and act?",
+    "How might worship hold together God's nearness, holiness, and concern for outsiders?",
+    "Lord, hear Your people and teach us justice and welcome."
+  ],
+  "Isaiah 11": [
+    "A ruler from Jesse's line",
+    "Isaiah pictures a shoot from Jesse, endowed with the Lord's Spirit, judging with righteousness, and bringing a peace that reaches creation and the nations.",
+    "The vision grows from David's line but reaches beyond ordinary human rule. Christian readers see the Messiah in this promised ruler; the chapter's concern for the poor and its future hope should remain visible.",
+    "What qualities mark the ruler, and who benefits from his just judgment?",
+    "Where does longing for righteous rule sharpen your care for those treated unfairly?",
+    "Lord, bring Your just peace and teach me to seek it faithfully."
+  ],
+  "Isaiah 55": [
+    "An open invitation to receive",
+    "Isaiah invites the thirsty to receive without price, recalls the Lord's covenant faithfulness, calls the wicked to turn, and compares God's effective word to rain and snow.",
+    "The invitation is grounded in the Lord's mercy and promise, not in a claim that every desire will be supplied on demand. Read the call to seek and return alongside the joyful imagery at the end.",
+    "What is freely offered, what response is called for, and what does God's word accomplish?",
+    "Where might returning to God matter more than trying to purchase security?",
+    "Merciful Lord, draw me to Your word and teach me to return."
+  ],
+  "Ezekiel 37": [
+    "Dry bones and a reunited people",
+    "In exile, Ezekiel sees a valley of dry bones brought to life by the Lord's word and breath. A second sign with two sticks points toward the reunification of God's people under one shepherd.",
+    "The Lord Himself interprets the bones as the whole house of Israel in despair. Do not reduce the vision to a motivational promise that any personal project will revive. Hear its hope for a people who think their future is cut off.",
+    "Who are the bones according to verses 11-14, and what does the second sign promise?",
+    "How can you speak hope to a discouraged community without making empty guarantees?",
+    "Lord, breathe hope into those who feel cut off and forgotten."
+  ],
+  "Genesis 6": [
+    "Corruption and Noah's calling",
+    "Genesis 6 describes human wickedness and violence, the Lord's grief, and His command for Noah to build an ark and preserve living creatures.",
+    "The chapter's opening verses are difficult and have more than one interpretation; do not make speculation about them the centre. The passage explicitly names violence and corruption, then records the Lord's decision and Noah's obedience.",
+    "What does the chapter say God sees, and what is Noah told to do?",
+    "How does the text's concern with violence shape your reading of judgment?",
+    "Lord, guard us from violence and teach us to heed Your word."
+  ],
+  "Genesis 28": [
+    "Jacob meets God on the road",
+    "Isaac sends Jacob away, and at Bethel Jacob dreams of a stairway between earth and heaven. The Lord repeats the family promise and pledges to be with him; Jacob wakes in awe and makes a vow.",
+    "Jacob receives this promise while away from home after a troubled family story. God's specific land and offspring promise is not a general guarantee that every journey will go safely.",
+    "What does the Lord promise Jacob, and how does Jacob respond when he wakes?",
+    "How might awe change the way you notice God's care without claiming Jacob's promise as your own?",
+    "Lord, keep me attentive to Your presence and faithful word."
+  ],
+  "Genesis 37": [
+    "Joseph's dreams and his brothers' betrayal",
+    "Joseph's dreams, Jacob's favouritism, and the brothers' jealousy lead to Joseph being sold and Jacob being deceived. The chapter also names Reuben's and Judah's different actions.",
+    "The later good God brings from Joseph's story does not make the brothers' violence harmless. Read the family conflict and Joseph's vulnerability honestly before moving to the reconciliation chapters.",
+    "What fuels the brothers' anger, and what does each brother do when Joseph is in danger?",
+    "How can naming jealousy early prevent harm to someone with less power?",
+    "Lord, expose envy in me and make me protective of the vulnerable."
+  ],
+  "Genesis 50": [
+    "Grief, fear, and a future promise",
+    "After Jacob dies, Joseph mourns and buries him. His brothers fear revenge; Joseph answers by distinguishing their evil intent from the good God brought about, and he speaks of God's future care for Israel.",
+    "Joseph's words do not call the brothers' actions good or require victims to offer instant trust. The book ends with Joseph's death in Egypt and a hope that God will bring the family onward.",
+    "What do the brothers fear, what does Joseph say about their intent, and what hope ends the book?",
+    "How can you hold hope for God's good without denying wrongdoing or grief?",
+    "Lord, meet us in grief and keep us truthful about both harm and hope."
+  ],
+  "Exodus 1": [
+    "Israel grows under oppression",
+    "After Joseph's generation, a new Pharaoh fears Israel's growth and imposes forced labour. Midwives refuse his command to kill Hebrew boys, and the chapter ends with further violence.",
+    "Israel's fruitfulness does not prevent suffering. The midwives' courage is concrete resistance to an unjust order; read their action without treating danger to oppressed people as a simple test of faith.",
+    "What fears drive Pharaoh's policies, and how do the midwives respond?",
+    "Where can you protect a vulnerable person without romanticising the risk they face?",
+    "Lord, defend the oppressed and give courage to those protecting life."
+  ],
+  "Exodus 16": [
+    "Bread in the wilderness",
+    "After leaving Egypt, Israel complains of hunger. The Lord provides manna and quail, instructs daily gathering, and establishes a pattern of rest on the seventh day.",
+    "The hunger is real, and God's provision meets a community in need. This account describes Israel's wilderness life; it is not a promise that no believer will ever face food insecurity. Notice the limits on hoarding and the provision for rest.",
+    "What is provided, how is it gathered, and what changes on the sixth and seventh days?",
+    "How could daily dependence and shared provision shape care for hungry neighbours?",
+    "Lord, provide for those without enough and teach us generous trust."
+  ],
+  "Exodus 19": [
+    "Israel prepares to meet the Lord",
+    "At Sinai, the Lord recalls carrying Israel out of Egypt and calls them to be His treasured people. Moses prepares the community, and the mountain scene stresses God's holiness and boundaries.",
+    "The covenant invitation follows deliverance; Israel does not earn rescue by first becoming holy. The limits around the mountain protect the people and frame the commandments that follow.",
+    "What does the Lord recall doing for Israel, and how are the people told to prepare?",
+    "How does gratitude for prior rescue change the way you hear a call to obedience?",
+    "Holy Lord, help me receive Your word with gratitude and reverence."
+  ],
+  "Exodus 32": [
+    "The calf and Moses' intercession",
+    "While Moses is on Sinai, Aaron makes a golden calf and the people worship it. The Lord names their betrayal; Moses intercedes and confronts the community.",
+    "This chapter is a grave account of idolatry and judgment, including violence that should not be imitated. Read Moses' appeal to God's promise alongside the harm of worship fashioned to suit human impatience.",
+    "What do the people ask Aaron to make, and what does Moses appeal to when he prays?",
+    "What can impatience reveal about the things you are tempted to trust?",
+    "Lord, turn me from false security and keep me faithful to You."
+  ],
+  "1 Samuel 3": [
+    "Samuel learns to hear",
+    "The boy Samuel serves at Shiloh while Eli's household is under judgment. The Lord calls Samuel and gives him a difficult message concerning Eli's family.",
+    "The repeated call is not a promise that every inner impression is God's voice. Samuel's first task is to receive and truthfully convey a hard word; Eli must also hear it.",
+    "How does Samuel recognise the caller, and what message is he reluctant to give?",
+    "How can attentive listening be joined to humility and truthfulness?",
+    "Lord, help me listen carefully and speak truth without presumption."
+  ],
+  "1 Samuel 16": [
+    "David is anointed",
+    "After Saul's rejection, the Lord sends Samuel to Jesse's family. Samuel expects an impressive older son, but the Lord chooses David and the Spirit comes upon him.",
+    "The contrast between outward appearance and the heart corrects Samuel's judgment. It does not grant readers the power to know another person's heart. The chapter also depicts Saul's distress and David's early service to him.",
+    "Whom does Samuel first expect, whom does the Lord choose, and what follows the anointing?",
+    "Where might first impressions need to give way to patient attention?",
+    "Lord, correct my shallow judgments and guide me in serving well."
+  ],
+  "1 Kings 18": [
+    "The Lord answers on Carmel",
+    "During a severe drought, Elijah confronts Ahab and the prophets of Baal. The people witness the Lord's answer by fire, and afterward rain returns.",
+    "The chapter contrasts rival worship in Israel's crisis. Its violence against the prophets must not be copied as a model for treating religious opponents today. Notice Elijah's prayer that the people might know the Lord has turned their hearts back.",
+    "What question does Elijah put to the people, and what does he ask in his prayer?",
+    "How can loyalty to God be shown without coercion or contempt for others?",
+    "Lord, turn my heart toward You and make my witness peaceable."
+  ],
+  "Nehemiah 8": [
+    "The people hear the law",
+    "After the wall is rebuilt, Ezra reads the law to the gathered people and others explain it. The people weep, are urged to celebrate and share food, and later keep the Festival of Shelters.",
+    "Understanding the text is a communal task here; grief and joy both have a place. The call to share portions with those unprepared keeps celebration from becoming private comfort.",
+    "Who helps the people understand, and what are they told to do for those without food?",
+    "How could reading Scripture with others lead to shared joy and practical care?",
+    "Lord, open Your word to us and make our joy generous."
+  ],
+  "Proverbs 3": [
+    "Wisdom, trust, and correction",
+    "Proverbs 3 addresses a learner with instruction about trust, generosity, wisdom, and the Lord's correction. It praises wisdom as more valuable than wealth.",
+    "These are wisdom sayings shaping a life, not mechanical guarantees that faithful people avoid illness, loss, or crooked paths. Trusting the Lord involves humility about our own insight and care for neighbours.",
+    "What actions are paired with trust in verses 1-12 and with neighbourly care later in the chapter?",
+    "Where could humility or generosity make trust visible today?",
+    "Lord, guide my decisions and make me generous and teachable."
+  ],
+  "Ecclesiastes 3": [
+    "Times we cannot control",
+    "Ecclesiastes 3 names contrasting seasons of human life, reflects on God's timing, and urges people to receive work and enjoyment as gifts while acknowledging injustice and mortality.",
+    "A time for each event is not approval of every violent act or a promise that pain follows a neat timetable. The Teacher presses the limits of human control and the need to receive ordinary gifts.",
+    "What contrasts are listed, and what questions about work, justice, and mortality follow?",
+    "How could you receive one ordinary good without pretending to control its season?",
+    "Lord, grant me humility about time and gratitude for today's gifts."
+  ],
+  "Ruth 1": [
+    "Loyalty beside grief",
+    "Famine takes Naomi's family to Moab, where her husband and sons die. Returning toward Bethlehem, Naomi urges her daughters-in-law to remain; Ruth chooses to stay with her.",
+    "Ruth's loyalty is real, and Naomi's bitterness is also real. Do not use Ruth's choice to tell grieving people how quickly to feel hopeful. The chapter ends at barley harvest, before the story's outcome is known.",
+    "What losses does Naomi name, and what distinct choices do Ruth and Orpah make?",
+    "How can you offer loyal presence without trying to correct someone's grief?",
+    "Lord, stay near those who grieve and make me a faithful companion."
+  ],
+  "Luke 1": [
+    "God remembers mercy",
+    "Luke introduces the promised births of John and Jesus. Gabriel speaks to Zechariah and Mary, Elizabeth welcomes Mary, and two songs praise God's mercy and covenant faithfulness.",
+    "Mary's song speaks of the lowly raised and the hungry filled, while Zechariah speaks of God's remembered promises to Abraham. These births belong to Israel's story and God's rescue, not a general promise that every longing for a child will be met in the same way.",
+    "What is announced about each child, and which acts of God do Mary and Zechariah praise?",
+    "How might remembering mercy change the way you worship amid waiting?",
+    "Lord, teach me to praise Your mercy and honour those still waiting."
+  ],
+  "Matthew 1": [
+    "Jesus enters Israel's story",
+    "Matthew opens with a genealogy linking Jesus to Abraham and David, then tells how Joseph receives the news of Mary's pregnancy and a command to name the child Jesus.",
+    "The genealogy places Jesus in a real family history with complicated lives. The angel says He will save His people from their sins, and Matthew names Him Immanuel. Read both His human lineage and His saving mission.",
+    "Which ancestors are named, and what do the names Jesus and Immanuel explain?",
+    "How does a long, imperfect family story shape your view of God's faithfulness?",
+    "Lord Jesus, help me receive Your saving presence with gratitude."
+  ],
+  "Joshua 1": [
+    "Joshua receives the commission",
+    "After Moses dies, the Lord commissions Joshua to lead Israel across the Jordan. He repeats the land promise, commands courage and attention to the law, and Joshua prepares the people to move.",
+    "The assurance of success is tied to Joshua's particular mission and Israel's covenant, not a guarantee that every project will prosper. The chapter also asks the eastern tribes to help their neighbours enter the land.",
+    "What does the Lord command Joshua, and what shared responsibility is given to the eastern tribes?",
+    "How could courage include faithful attention and help for others?",
+    "Lord, give me courage to serve faithfully within the work You entrust to me."
+  ],
+  "Ezra 1": [
+    "A return from exile begins",
+    "Cyrus permits exiles to return and rebuild the Lord's house in Jerusalem. Neighbours support them, and vessels taken from the temple are handed back.",
+    "The chapter marks a concrete beginning of restoration after displacement, not the end of every problem. The returning community still faces long work ahead; read the royal decree and the people's response in their historical setting.",
+    "What does Cyrus permit, who responds, and what is returned from Babylon?",
+    "How can a first step toward repair be welcomed without pretending the work is finished?",
+    "Lord, sustain people rebuilding after loss and make us generous in support."
+  ],
+};
+
+const remainingStoryGuidance: Record<string, BibleReadingPlanDayExtras> = Object.fromEntries(
+  Object.entries(remainingStoryNotes).map(([reference, note]) => [reference, focusedReadingGuidance(...note)])
+);
+
 const prayerPsalmPassageNotes: Record<string, [string, string, string, string]> = {
   "Psalm 1": [
     "Psalm 1 opens the Psalter as a wisdom poem. It contrasts delight in the Lord's instruction with the way of the wicked, using a well-watered tree and windblown chaff as images.",
@@ -5390,7 +5813,7 @@ function selectedChapterPlan(id: string, title: string, description: string, ref
       const specificGuidance = id === "bible-story-30"
         ? storyChapterGuidance[reference]
         : id === "bible-story-60" || id === "old-testament-story-60"
-          ? storyChapterGuidance[reference] || selectedStoryGuidance[reference] || (
+          ? storyChapterGuidance[reference] || selectedStoryGuidance[reference] || remainingStoryGuidance[reference] || (
             prayerPsalmPassageNotes[reference] && prayerPsalmFocus[reference]
               ? focusedReadingGuidance(
                 prayerPsalmFocus[reference][0],

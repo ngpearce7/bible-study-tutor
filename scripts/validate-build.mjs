@@ -30,6 +30,14 @@ const readingPlanIndexPath = join(distDir, "bible-reading-plan-index.json");
 assert(existsSync(readingPlanIndexPath), "compact reading-plan index is missing from the web export");
 assert(gzipSync(readFileSync(readingPlanIndexPath)).length <= 60_000, "compact reading-plan index exceeds its 60 KB gzip budget");
 
+if (mainBundle.gzip > mainBundleBudget || totalGzip > totalJavaScriptBudget) {
+  console.error("JavaScript gzip sizes (bytes), largest first:");
+  for (const row of [...bundleRows].sort((first, second) => second.gzip - first.gzip)) {
+    console.error(`  ${row.gzip.toLocaleString("en-US").padStart(9)}  ${relative(distDir, row.file)}`);
+  }
+  console.error(`Entry: ${mainBundle.gzip} / ${mainBundleBudget} bytes; total: ${totalGzip} / ${totalJavaScriptBudget} bytes.`);
+}
+
 assert(mainBundle.gzip <= mainBundleBudget, `main bundle is ${formatBytes(mainBundle.gzip)} gzip; budget is ${formatBytes(mainBundleBudget)}`);
 assert(totalGzip <= totalJavaScriptBudget, `all JavaScript is ${formatBytes(totalGzip)} gzip; budget is ${formatBytes(totalJavaScriptBudget)}`);
 assert(readingPlanBundles.length === 1, `expected one lazy reading-plan bundle, found ${readingPlanBundles.length}`);

@@ -1046,7 +1046,7 @@ export const styles = StyleSheet.create({
     width: 38
   },
   readMobileReaderChapterSquare: {
-    backgroundColor: "#edf2dc",
+    backgroundColor: theme.light.selected,
     borderColor: "rgba(16, 35, 59, 0.38)"
   },
   darkReadMobileReaderChapterSquare: {
@@ -1239,7 +1239,7 @@ export const styles = StyleSheet.create({
   },
   readerQuickListToggle: {
     alignItems: "center",
-    backgroundColor: "#f8efe4",
+    backgroundColor: theme.light.soft,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -1939,8 +1939,8 @@ export const styles = StyleSheet.create({
   inlineReaderActionBar: {
     alignItems: "center",
     alignSelf: "stretch",
-    backgroundColor: "#fbf2e4",
-    borderColor: "#ead8bc",
+    backgroundColor: theme.light.soft,
+    borderColor: theme.light.line,
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
@@ -2984,8 +2984,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   currentPlanManagementButtonDark: {
-    backgroundColor: "#181510",
-    borderColor: "#4f4636"
+    backgroundColor: theme.dark.raised,
+    borderColor: theme.dark.line
   },
   currentPlanManagementText: {
     color: colors.oliveDark,
@@ -3160,7 +3160,7 @@ export const styles = StyleSheet.create({
     gap: 12
   },
   communityHistoryGroup: {
-    backgroundColor: "rgba(255, 250, 242, 0.7)",
+    backgroundColor: theme.light.surface,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -3182,11 +3182,17 @@ export const styles = StyleSheet.create({
     marginTop: 1,
     width: 24
   },
+  communityDarkStepBadge: {
+    backgroundColor: theme.dark.selected
+  },
   communityStepBadgeText: {
     color: "white",
     fontSize: 12,
     fontWeight: "700",
     lineHeight: 14
+  },
+  communityDarkStepBadgeText: {
+    color: theme.dark.bronze
   },
   phoneCommunityFocusBox: {
     borderRadius: 12,
@@ -3242,7 +3248,7 @@ export const styles = StyleSheet.create({
     padding: 10
   },
   activeCommunityTargetOption: {
-    backgroundColor: "#f5eedf",
+    backgroundColor: theme.light.selected,
     borderColor: "rgba(16, 35, 59, 0.42)"
   },
   communityTargetOptionTitle: {
@@ -3267,7 +3273,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10
   },
   activeCommunityTargetModeChip: {
-    backgroundColor: "#f5eedf",
+    backgroundColor: theme.light.selected,
     borderColor: "rgba(16, 35, 59, 0.42)"
   },
   communityTargetModeText: {
@@ -3592,7 +3598,7 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   activeCircleChip: {
-    backgroundColor: "#f5eedf",
+    backgroundColor: theme.light.selected,
     borderColor: "rgba(16, 35, 59, 0.42)"
   },
   circleChipTitle: {
@@ -4055,7 +4061,7 @@ export const styles = StyleSheet.create({
     fontWeight: "800"
   },
   scriptureText: {
-    color: "#342821",
+    color: theme.light.ink,
     fontSize: 16,
     lineHeight: 26,
     marginBottom: 12
@@ -4073,7 +4079,7 @@ export const styles = StyleSheet.create({
   },
   verseRow: {
     alignItems: "flex-start",
-    backgroundColor: theme.light.soft,
+    backgroundColor: "transparent",
     borderColor: "transparent",
     borderRadius: 9,
     borderWidth: 2,
@@ -4272,7 +4278,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   translationControls: {
-    backgroundColor: "#f8eadf",
+    backgroundColor: theme.light.soft,
     borderRadius: 999,
     flexDirection: "row",
     flexShrink: 1,
@@ -4281,7 +4287,7 @@ export const styles = StyleSheet.create({
   },
   translationRow: {
     alignSelf: "flex-start",
-    backgroundColor: "#f8eadf",
+    backgroundColor: theme.light.soft,
     borderRadius: 999,
     flexDirection: "row",
     flexShrink: 1,
@@ -4405,7 +4411,7 @@ export const styles = StyleSheet.create({
     color: colors.coral
   },
   studyContextVerseText: {
-    color: "#342821",
+    color: theme.light.ink,
     flex: 1,
     fontSize: 14,
     lineHeight: 21,
@@ -4513,7 +4519,7 @@ export const styles = StyleSheet.create({
     flexDirection: "column"
   },
   translationComparisonColumn: {
-    backgroundColor: "#fffefa",
+    backgroundColor: theme.light.surface,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -5271,20 +5277,20 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   planCardPrimaryChip: {
-    backgroundColor: "#eef3e7",
-    borderColor: "#b8c8a7"
+    backgroundColor: theme.light.soft,
+    borderColor: theme.light.line
   },
   planCardPrimaryChipDark: {
-    backgroundColor: "#263026",
-    borderColor: "rgba(172, 196, 151, 0.45)"
+    backgroundColor: theme.dark.selected,
+    borderColor: "rgba(212, 167, 104, 0.35)"
   },
   planCardSecondaryChip: {
     backgroundColor: colors.panel,
     borderColor: colors.line
   },
   planCardSecondaryChipDark: {
-    backgroundColor: "#181510",
-    borderColor: "#4f4636"
+    backgroundColor: theme.dark.raised,
+    borderColor: theme.dark.line
   },
   planCardDangerChip: {
     backgroundColor: colors.panel,
@@ -5469,8 +5475,8 @@ export const styles = StyleSheet.create({
     width: 74
   },
   planDayTileDark: {
-    backgroundColor: "#211d18",
-    borderColor: "#4b4035"
+    backgroundColor: theme.dark.surface,
+    borderColor: theme.dark.line
   },
   completedPlanDayTile: {
     backgroundColor: colors.sage,
@@ -5495,7 +5501,7 @@ export const styles = StyleSheet.create({
     borderWidth: 2
   },
   selectedPlanDayTileDark: {
-    backgroundColor: "#2b241d",
+    backgroundColor: theme.dark.selected,
     borderColor: theme.dark.bronze
   },
   missedPlanDayTile: {
@@ -5510,7 +5516,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 6
   },
   selectedMissedPlanDayTileDark: {
-    backgroundColor: "#2b241d",
+    backgroundColor: theme.dark.selected,
     borderStyle: "solid",
     shadowColor: theme.dark.bronze,
     shadowOpacity: 0.18,
@@ -5820,8 +5826,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   planDayTextActionDark: {
-    backgroundColor: "#181510",
-    borderColor: "#4f4636"
+    backgroundColor: theme.dark.raised,
+    borderColor: theme.dark.line
   },
   planDayTextActionLabel: {
     color: colors.oliveDark,
@@ -5984,7 +5990,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(212, 167, 104, 0.18)"
   },
   studyDarkVerseRow: {
-    backgroundColor: theme.dark.raised
+    backgroundColor: "transparent"
   },
   studyDarkFloatingBar: {
     backgroundColor: theme.dark.surface,
@@ -6107,7 +6113,7 @@ export const styles = StyleSheet.create({
   },
   signedInBadge: {
     alignItems: "center",
-    backgroundColor: "#eef3e5",
+    backgroundColor: theme.light.soft,
     borderColor: colors.olive,
     borderRadius: 999,
     borderWidth: 1,
@@ -6920,7 +6926,7 @@ export const styles = StyleSheet.create({
     marginTop: 4
   },
   memorySectionHeaderFeatured: {
-    backgroundColor: "rgba(255, 250, 242, 0.9)",
+    backgroundColor: theme.light.soft,
     borderColor: "rgba(187, 130, 74, 0.22)",
     borderRadius: 12,
     borderWidth: 1,
@@ -6929,8 +6935,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 9
   },
   memoryDarkSectionHeaderFeatured: {
-    backgroundColor: "#181511",
-    borderColor: "#393027"
+    backgroundColor: theme.dark.raised,
+    borderColor: theme.dark.line
   },
   memorySectionTitle: {
     color: colors.ink,
@@ -8877,7 +8883,7 @@ export const styles = StyleSheet.create({
   },
   savedDataIcon: {
     alignItems: "center",
-    backgroundColor: "#eef3e5",
+    backgroundColor: theme.light.soft,
     borderRadius: 999,
     height: 32,
     justifyContent: "center",
@@ -9056,7 +9062,7 @@ export const styles = StyleSheet.create({
   },
   adminMapNote: {
     alignItems: "center",
-    backgroundColor: "rgba(255, 250, 242, 0.94)",
+    backgroundColor: theme.light.surface,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9420,7 +9426,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   activeAdminUserRow: {
-    backgroundColor: "#eef3e5",
+    backgroundColor: theme.light.selected,
     borderColor: colors.olive
   },
   adminDarkActiveUserRow: {
@@ -9545,8 +9551,8 @@ export const styles = StyleSheet.create({
   },
   planCelebrationIcon: {
     alignItems: "center",
-    backgroundColor: "#eef3e5",
-    borderColor: "#cbd8bd",
+    backgroundColor: theme.light.soft,
+    borderColor: theme.light.line,
     borderRadius: 999,
     borderWidth: 1,
     height: 70,
@@ -9941,7 +9947,7 @@ export const styles = StyleSheet.create({
   },
   rhythmGraceIconBubble: {
     alignItems: "center",
-    backgroundColor: "#fff0df",
+    backgroundColor: theme.light.selected,
     borderRadius: 999,
     height: 34,
     justifyContent: "center",
@@ -10262,8 +10268,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   readingPlanCountPill: {
-    backgroundColor: "#f5eadb",
-    color: "#7d6744"
+    backgroundColor: theme.light.selected,
+    color: theme.light.ink
   },
   pinnedJournalPill: {
     backgroundColor: colors.oliveDark,

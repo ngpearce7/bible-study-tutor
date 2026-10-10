@@ -7,6 +7,7 @@ import { createElement, useEffect, useRef, useState, type Dispatch, type SetStat
 import { View } from "react-native";
 
 import { colors } from "@/components/ui";
+import { theme } from "@/components/theme";
 import { noteThemeCss } from "@/data/noteTheme";
 
 type NoteFormatKind = "undo" | "redo" | "bold" | "italic" | "underline" | "highlight" | "bullet";
@@ -383,7 +384,7 @@ export function StudyNoteTiptapEditor({
   };
 
   const editorStyle = {
-    backgroundColor: darkMode ? "#202021" : "#fffaf2",
+    backgroundColor: darkMode ? theme.dark.surface : theme.light.surface,
     border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
     borderRadius: 11,
     color: darkMode ? "#f6f2ed" : colors.ink,

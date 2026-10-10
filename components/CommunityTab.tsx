@@ -556,8 +556,8 @@ export function CommunityTab(props: any) {
         </View>
         <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
           <View style={styles.communityStepHeader}>
-            <View style={styles.communityStepBadge}>
-              <Text style={styles.communityStepBadgeText}>1</Text>
+            <View style={[styles.communityStepBadge, communityDarkMode && styles.communityDarkStepBadge]}>
+              <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>1</Text>
             </View>
             <View style={styles.journalTitleBlock}>
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Choose a friend or circle</Text>
@@ -643,8 +643,8 @@ export function CommunityTab(props: any) {
           )}
         </View>
         <View style={styles.communityStepHeader}>
-          <View style={styles.communityStepBadge}>
-            <Text style={styles.communityStepBadgeText}>2</Text>
+          <View style={[styles.communityStepBadge, communityDarkMode && styles.communityDarkStepBadge]}>
+            <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>2</Text>
           </View>
           <View style={styles.journalTitleBlock}>
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Write one honest update</Text>
@@ -660,8 +660,8 @@ export function CommunityTab(props: any) {
         />
         <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
           <View style={styles.communityStepHeader}>
-            <View style={styles.communityStepBadge}>
-              <Text style={styles.communityStepBadgeText}>3</Text>
+          <View style={[styles.communityStepBadge, communityDarkMode && styles.communityDarkStepBadge]}>
+            <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>3</Text>
             </View>
             <View style={styles.journalTitleBlock}>
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Post encouragement</Text>

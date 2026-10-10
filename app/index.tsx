@@ -8450,7 +8450,7 @@ function HomeScreen() {
               </ImageBackground>
 
               <View style={styles.homeScriptureGrid}>
-                <View style={[styles.openSection, styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
                   <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
                     <HydrationSafeIonicon ready={iconFontReady} name="heart-outline" size={20} color={homeDarkMode ? "#d4a768" : colors.coral} />
                   </View>
@@ -8458,7 +8458,7 @@ function HomeScreen() {
                   <Text style={[styles.homeScriptureQuote, homeDarkMode && styles.accountDarkTitle]}>“Draw near to God, and he will draw near to you.”</Text>
                   <Text style={[styles.homeScriptureNote, homeDarkMode && styles.accountDarkMutedText]}>The app starts with relationship, not tasks. Study becomes a way of coming near.</Text>
                 </View>
-                <View style={[styles.openSection, styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
+                <View style={[styles.homeScriptureBlock, homeDarkMode && styles.homeDarkScriptureBlock]}>
                   <View style={[styles.homeScriptureIcon, homeDarkMode && styles.homeDarkIconBubble]}>
                     <HydrationSafeIonicon ready={iconFontReady} name="book-outline" size={20} color={homeDarkMode ? "#d4a768" : colors.coral} />
                   </View>

@@ -24,7 +24,7 @@ export const theme = {
     bronze: "#d4a768"
   },
   brand: {
-    navy: "#172536",
+    navy: "#244A70",
     bronze: "#bb824a"
   }
 } as const;

@@ -1,6 +1,6 @@
 # Brand assets
 
-The master is `brand-mark.svg`: warm bronze (#C59868) outlined Latin cross on navy (#172536), with a 64-unit corner radius on a 256-unit square.
+The master is `brand-mark.svg`: warm bronze (#C59868) outlined Latin cross on blue navy (#244A70), with a 64-unit corner radius on a 256-unit square.
 
 Run `npm run brand:generate` after editing the SVG. Sharp is a development-only dependency; generated PNGs are checked in, so native/web runtime rendering does not require an SVG library.
 

@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     color: theme.dark.page
   },
   secondaryLabel: {
-    color: colors.oliveDark,
+    color: theme.brand.navy,
     flexShrink: 1,
     fontWeight: "600",
     textAlign: "center"

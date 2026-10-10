@@ -33,6 +33,7 @@ import { trackPublicAnalytics } from "@/data/publicAnalytics";
 import { buildStudyContextReference, getStudyCrossReferences, isVerseWithinReference, loadStudyCrossReferences, type StudyCrossReference } from "@/data/studyContext";
 import { buildStudyHelpLinks } from "@/data/studyHelp";
 import { AppButton, Card, Eyebrow, colors, UIThemeContext } from "@/components/ui";
+import { theme } from "@/components/theme";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
 import { useAction, usePaginatedQuery, useQuery as useRawQuery } from "convex/react";
@@ -8148,10 +8149,10 @@ function HomeScreen() {
               <View style={styles.planDayActionStack}>
                 <View style={styles.planDayActions}>
                   <Pressable accessibilityRole="button" accessibilityLabel={`Open ${selectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDayInBible(selectedDay, plan.id); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
-                    <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#d4a768" : colors.oliveDark} />
+                    <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#d4a768" : theme.brand.navy} />
                   </Pressable>
                   <Pressable accessibilityRole="button" accessibilityLabel={`Study ${selectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(selectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
-                    <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#d4a768" : colors.oliveDark} />
+                    <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#d4a768" : theme.brand.navy} />
                   </Pressable>
                   <Pressable
                     accessibilityRole="button"
@@ -8288,7 +8289,7 @@ function HomeScreen() {
             onPress={() => setMobileMenuOpen((value) => !value)}
             style={[styles.mobileMenuButton, accountDarkMode && styles.appDarkMobileMenuButton]}
           >
-            <HydrationSafeIonicon ready={iconFontReady} name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+            <HydrationSafeIonicon ready={iconFontReady} name={mobileMenuOpen ? "close-outline" : "menu-outline"} size={23} color={accountDarkMode ? "#d4a768" : theme.brand.navy} />
           </Pressable>
           <View style={styles.mobileMenuTitleBlock}>
             <Text style={[styles.mobileMenuTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
@@ -9996,10 +9997,10 @@ function HomeScreen() {
                       <View style={styles.planDayActionStack}>
                         <View style={styles.planDayActions}>
                           <Pressable accessibilityRole="button" accessibilityLabel={`Open ${activeBibleReadingPlanSelectedDay.reference} in Bible`} onPress={(event: any) => { event.stopPropagation?.(); openBibleReadingPlanDayInBible(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
-                            <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#d4a768" : colors.oliveDark} />
+                            <Ionicons name="reader-outline" size={15} color={plansDarkMode ? "#d4a768" : theme.brand.navy} />
                           </Pressable>
                           <Pressable accessibilityRole="button" accessibilityLabel={`Study ${activeBibleReadingPlanSelectedDay.reference}`} onPress={(event: any) => { event.stopPropagation?.(); studyBibleReadingPlanDay(activeBibleReadingPlanSelectedDay); }} style={[styles.planDayIconAction, plansDarkMode && styles.homeDarkIconBubble]}>
-                            <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#d4a768" : colors.oliveDark} />
+                            <Ionicons name="book-outline" size={15} color={plansDarkMode ? "#d4a768" : theme.brand.navy} />
                           </Pressable>
                           <Pressable
                             accessibilityRole="button"

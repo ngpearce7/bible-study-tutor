@@ -4073,7 +4073,7 @@ export const styles = StyleSheet.create({
   },
   verseRow: {
     alignItems: "flex-start",
-    backgroundColor: "rgba(255, 250, 242, 0.55)",
+    backgroundColor: theme.light.soft,
     borderColor: "transparent",
     borderRadius: 9,
     borderWidth: 2,
@@ -4094,7 +4094,7 @@ export const styles = StyleSheet.create({
   },
   verseText: {
     borderRadius: 5,
-    color: "#342821",
+    color: theme.light.ink,
     fontSize: 16,
     lineHeight: 24
   },
@@ -4391,7 +4391,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   studyContextSelectedVerseRow: {
-    backgroundColor: "#fff0df"
+    backgroundColor: theme.light.selected
   },
   studyContextVerseNumber: {
     color: colors.muted,
@@ -5938,10 +5938,6 @@ export const styles = StyleSheet.create({
   accountDarkActiveSegment: {
     backgroundColor: theme.dark.selected
   },
-  studyDarkGuidedHeader: {
-    backgroundColor: theme.dark.surface,
-    borderColor: "rgba(212, 167, 104, 0.18)"
-  },
   studyDarkPillControl: {
     backgroundColor: theme.dark.surface,
     borderColor: "rgba(212, 167, 104, 0.22)"
@@ -5988,7 +5984,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(212, 167, 104, 0.18)"
   },
   studyDarkVerseRow: {
-    backgroundColor: "transparent"
+    backgroundColor: theme.dark.raised
   },
   studyDarkFloatingBar: {
     backgroundColor: theme.dark.surface,

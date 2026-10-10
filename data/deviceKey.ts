@@ -19,14 +19,12 @@ export async function getDeviceKey() {
 
 async function loadDeviceKey() {
   if (Platform.OS === "web" && typeof localStorage !== "undefined") {
-    const created = createKey();
     try {
       const existing = localStorage.getItem(key);
       if (existing) return existing;
-      localStorage.setItem(key, created);
-    } catch {
-      return created;
-    }
+    } catch { /* Storage may be unavailable; use a key for this session. */ }
+    const created = createKey();
+    try { localStorage.setItem(key, created); } catch { /* Keep the in-memory key. */ }
     return created;
   }
 

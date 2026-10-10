@@ -842,7 +842,6 @@ export default function Home() {
 
 function HomeScreen() {
   const { width, height } = useWindowDimensions();
-  const recoveryAvailable = useRawQuery(api.accountability.recoveryAvailable, {});
   const ensureProfile = useMutation(api.study.ensureProfile);
   const saveSession = useMutation(api.study.saveSession);
   const scheduleStudyReviewMutation = useMutation(api.study.scheduleStudyReview);
@@ -927,6 +926,7 @@ function HomeScreen() {
   const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
+  const recoveryAvailable = useRawQuery(api.accountability.recoveryAvailable, tab === "account" && !isAuthenticated && authFlow === "signIn" ? {} : "skip");
   const autoNav = useAutoHideNavigation(tab);
   const navSlide = useRef(new Animated.Value(0)).current;
   useEffect(() => {

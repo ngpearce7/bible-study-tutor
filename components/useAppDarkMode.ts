@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Platform, useColorScheme } from "react-native";
 import type { StoredAppearanceMode } from "@/data/feedbackPreferences";
+import { theme } from "./theme";
 
 export function useAppDarkMode(mode: StoredAppearanceMode) {
   const deviceScheme = useColorScheme();
@@ -13,9 +14,9 @@ export function useAppDarkMode(mode: StoredAppearanceMode) {
     const previous = elements.map(({ style }) => [style.backgroundColor, style.colorScheme]);
     const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     const previousThemeColor = themeMeta?.content;
-    if (themeMeta) themeMeta.content = dark ? "#181818" : "#f8f1e6";
+    if (themeMeta) themeMeta.content = dark ? theme.dark.page : theme.light.page;
     elements.forEach(({ style }) => {
-      style.backgroundColor = dark ? "#181818" : "#f8f1e6";
+      style.backgroundColor = dark ? theme.dark.page : theme.light.page;
       style.colorScheme = dark ? "dark" : "light";
     });
     return () => {

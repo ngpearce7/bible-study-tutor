@@ -30,6 +30,14 @@ const readingPlanIndexPath = join(distDir, "bible-reading-plan-index.json");
 assert(existsSync(readingPlanIndexPath), "compact reading-plan index is missing from the web export");
 assert(gzipSync(readFileSync(readingPlanIndexPath)).length <= 60_000, "compact reading-plan index exceeds its 60 KB gzip budget");
 
+if (mainBundle.gzip > mainBundleBudget || totalGzip > totalJavaScriptBudget) {
+  console.error("JavaScript gzip sizes (bytes), largest first:");
+  for (const row of [...bundleRows].sort((first, second) => second.gzip - first.gzip)) {
+    console.error(`  ${row.gzip.toLocaleString("en-US").padStart(9)}  ${relative(distDir, row.file)}`);
+  }
+  console.error(`Entry: ${mainBundle.gzip} / ${mainBundleBudget} bytes; total: ${totalGzip} / ${totalJavaScriptBudget} bytes.`);
+}
+
 assert(mainBundle.gzip <= mainBundleBudget, `main bundle is ${formatBytes(mainBundle.gzip)} gzip; budget is ${formatBytes(mainBundleBudget)}`);
 assert(totalGzip <= totalJavaScriptBudget, `all JavaScript is ${formatBytes(totalGzip)} gzip; budget is ${formatBytes(totalJavaScriptBudget)}`);
 assert(readingPlanBundles.length === 1, `expected one lazy reading-plan bundle, found ${readingPlanBundles.length}`);
@@ -72,7 +80,7 @@ assert(headers.includes("/cross-references/*") && immutableRuleFor(headers, "/cr
 
 const layout = readFileSync(join(root, "app", "_layout.tsx"), "utf8");
 const app = readFileSync(join(root, "app", "index.tsx"), "utf8");
-const ui = readFileSync(join(root, "components", "ui.tsx"), "utf8");
+const themeSource = readFileSync(join(root, "components", "theme.ts"), "utf8");
 const passageSource = readFileSync(join(root, "data", "biblePassage.ts"), "utf8");
 const searchSource = readFileSync(join(root, "data", "bibleSearch.ts"), "utf8");
 const contextSource = readFileSync(join(root, "data", "studyContext.ts"), "utf8");
@@ -88,20 +96,19 @@ assert(app.includes("runBibleSearch({ book: normalized })"), "Changing Bible sea
 assert(app.includes("runBibleSearch({ translationId: normalizedTranslation })"), "Changing Bible translation should refresh active search results");
 assert(contextSource.includes("CROSS_REFERENCE_ASSET_VERSION") && contextSource.includes("?v=${CROSS_REFERENCE_ASSET_VERSION}"), "cross-reference requests need a cache-busting version");
 
-const coral = capture(ui, /coral:\s*["'](#[0-9a-f]{6})["']/i, "design-system coral colour");
-const primaryContrast = contrastRatio(coral, "#ffffff");
-const muted = capture(ui, /muted:\s*["'](#[0-9a-f]{6})["']/i, "muted text colour");
-const ink = capture(ui, /ink:\s*["'](#[0-9a-f]{6})["']/i, "ink text colour");
-const gold = capture(ui, /gold:\s*["'](#[0-9a-f]{6})["']/i, "gold control colour");
+const light = capture(themeSource, /light:\s*\{([^}]+)\}/s, "light theme");
+const dark = capture(themeSource, /dark:\s*\{([^}]+)\}/s, "dark theme");
+const brand = capture(themeSource, /brand:\s*\{([^}]+)\}/s, "brand colours");
+const color = (source, name) => capture(source, new RegExp(`\\b${name}:\\s*["'](#[0-9a-f]{6})["']`, "i"), `${name} colour`);
+const primaryContrast = contrastRatio("#ffffff", color(brand, "navy"));
 for (const [label, foreground, background] of [
-  ["muted text on soft panels", muted, "#f0eadf"],
-  ["muted text on peach metrics", muted, "#f7ddd2"],
-  ["accent on peach counts", coral, "#f7ddd2"],
-  ["accent on gold steps", coral, "#f4dfb6"],
-  ["accent text on cream panels", coral, "#fbf2e4"],
-  ["selected translation text", ink, gold],
-  ["dark accent labels", "#e9b76a", "#222b28"],
-  ["dark muted text", "#cbc5b9", "#242b2a"]
+  ["light body text", color(light, "ink"), color(light, "surface")],
+  ["light muted text", color(light, "muted"), color(light, "surface")],
+  ["light accent text", color(light, "bronzeText"), color(light, "surface")],
+  ["light selected navigation", color(light, "ink"), color(light, "selected")],
+  ["dark body text", color(dark, "ink"), color(dark, "surface")],
+  ["dark muted text", color(dark, "muted"), color(dark, "surface")],
+  ["dark accent labels", color(dark, "bronze"), color(dark, "surface")]
 ]) {
   const ratio = contrastRatio(foreground, background);
   assert(ratio >= 4.5, `${label} contrast is ${ratio.toFixed(2)}:1; expected at least 4.5:1`);

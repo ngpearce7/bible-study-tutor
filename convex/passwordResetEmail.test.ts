@@ -6,7 +6,10 @@ test("the HTML code stays copyable and cannot inject markup", () => {
   const token = '<img src=x onerror="alert(1)">&\'Ab09';
   const email = passwordResetEmail(token);
   const document = new DOMParser().parseFromString(email.html, "text/html");
-  expect(document.querySelector("img, script")).toBeNull();
+  expect(document.querySelector("script, img[onerror]")).toBeNull();
+  expect(Array.from(document.querySelectorAll("img")).map((image) => image.src)).toEqual([
+    "https://biblestudytutor.org/apple-touch-icon.png"
+  ]);
   expect(Array.from(document.querySelectorAll("p")).some((p) => p.textContent === token)).toBe(true);
   expect(email.text).toContain(`\n\n${token}\n\n`);
   expect(email.text).toContain(`${passwordResetMaxAge / 60} minutes`);

@@ -2,6 +2,7 @@
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { expect, test, vi } from "vitest";
+import { theme } from "@/components/theme";
 
 vi.mock("react-native", async () => ({
   Platform: { OS: "web" },
@@ -31,10 +32,10 @@ test("device theme reacts to changes while explicit choices remain fixed", async
     await render("light"); expect(host.textContent).toBe("light");
     await change(false); await change(true); expect(host.textContent).toBe("light");
     await render("dark"); await change(false); expect(host.textContent).toBe("dark");
-    expect(themeMeta.content).toBe("#181818");
+    expect(themeMeta.content).toBe(theme.dark.page);
     expect(document.body.style.colorScheme).toBe("dark");
     await render("system"); expect(host.textContent).toBe("light");
-    expect(themeMeta.content).toBe("#f8f1e6");
+    expect(themeMeta.content).toBe(theme.light.page);
   } finally {
     await act(() => root.unmount());
     expect(themeMeta.content).toBe("#F6F1E8");

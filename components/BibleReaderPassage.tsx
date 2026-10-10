@@ -165,7 +165,7 @@ export function BibleReaderPassage({
         onPress={() => setDevotionalTextSizeOptionsOpen((open) => !open)}
         style={[styles.devotionalTextSizeSingleButton, darkMode && styles.devotionalTextSizeButtonDark]}
       >
-        <Ionicons name="search-outline" size={activeDevotionalTextSizeOption.iconSize} color={darkMode ? "#e9b76a" : colors.muted} />
+        <Ionicons name="search-outline" size={activeDevotionalTextSizeOption.iconSize} color={darkMode ? "#d4a768" : colors.muted} />
       </Pressable>
       {devotionalTextSizeOptionsOpen && (
         <>
@@ -192,7 +192,7 @@ export function BibleReaderPassage({
                     }}
                     style={[styles.devotionalTextSizeButton, selected && styles.devotionalTextSizeButtonActive, darkMode && styles.devotionalTextSizeButtonDark, darkMode && selected && styles.devotionalTextSizeButtonActiveDark]}
                   >
-                    <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#e9b76a" : colors.muted)} />
+                    <Ionicons name="search-outline" size={option.iconSize} color={selected ? (darkMode ? "#211a12" : "white") : (darkMode ? "#d4a768" : colors.muted)} />
                   </Pressable>
                 );
               })}
@@ -236,13 +236,13 @@ export function BibleReaderPassage({
                 <Text style={[styles.readerVerseText, phoneLayout && styles.phoneReaderVerseText, darkMode && !selected && styles.accountDarkText]}>{verse.text}</Text>
                 <View style={[styles.readerVerseIconRow, phoneLayout && styles.phoneReaderVerseIconRow]}>
                   {memoryVerseKeys.has(verseKey(verse)) && (
-                    <Ionicons name="sparkles" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
+                    <Ionicons name="sparkles" size={15} color={darkMode ? "#d4a768" : colors.coral} />
                   )}
                   {isVerseBookmarked(verse.verse) && (
-                    <Ionicons name="bookmark" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
+                    <Ionicons name="bookmark" size={15} color={darkMode ? "#d4a768" : colors.coral} />
                   )}
                   {isVerseNoted(verse.verse) && (
-                    <Ionicons name="document-text" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Ionicons name="document-text" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
                   )}
                 </View>
               </Pressable>
@@ -258,17 +258,17 @@ export function BibleReaderPassage({
                       onPress={onBookmarkSelection}
                       style={[styles.inlineReaderBookmarkButton, darkMode && styles.homeDarkResumeButton, currentSelectionBookmarked && styles.activeReaderBookmarkButton]}
                     >
-                      <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                      <Ionicons name={currentSelectionBookmarked ? "bookmark" : "bookmark-outline"} size={14} color={currentSelectionBookmarked ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
                       <Text style={[styles.inlineReaderBookmarkText, darkMode && styles.homeDarkResumeButtonText, currentSelectionBookmarked && styles.activeReaderReadButtonText]}>
                         {currentSelectionBookmarked ? "Bookmarked" : "Bookmark"}
                       </Text>
                     </Pressable>
                     <Pressable onPress={onOpenNote} style={[styles.inlineReaderBookmarkButton, darkMode && styles.homeDarkResumeButton, currentSelectionBookmark?.note?.trim() && styles.activeBookmarkNoteButton]}>
-                      <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                      <Ionicons name={currentSelectionBookmark?.note?.trim() ? "document-text" : "document-text-outline"} size={14} color={currentSelectionBookmark?.note?.trim() ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
                       <Text style={[styles.inlineReaderBookmarkText, darkMode && styles.homeDarkResumeButtonText, currentSelectionBookmark?.note?.trim() && styles.activeReaderReadButtonText]}>Note</Text>
                     </Pressable>
                     <Pressable onPress={onPrintWorksheet} style={[styles.inlineReaderBookmarkButton, darkMode && styles.homeDarkResumeButton]}>
-                      <Ionicons name="print-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Ionicons name="print-outline" size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
                       <Text style={[styles.inlineReaderBookmarkText, darkMode && styles.homeDarkResumeButtonText]}>Print</Text>
                     </Pressable>
                     <Pressable onPress={onSaveMemory} style={[styles.inlineReaderBookmarkButton, styles.memoryReaderButton, selectedVersesAlreadyInMemory && styles.savedMemoryButton]}>
@@ -317,7 +317,7 @@ export function BibleReaderPassage({
                     <>
                       <View style={styles.planDayDevotionalHeader}>
                         <View style={styles.planDayDevotionalTitleRow}>
-                          <Ionicons name="leaf-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                          <Ionicons name="leaf-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
                           <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
                         </View>
                       </View>
@@ -365,7 +365,7 @@ export function BibleReaderPassage({
                           onPress={() => onAcknowledgeCareNote(visibleActiveCareNote)}
                           style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
                         >
-                          <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                          <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
                           <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
                         </Pressable>
                       )}
@@ -382,7 +382,7 @@ export function BibleReaderPassage({
                   onPress={onExitPlanReading}
                   style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionExitButton, darkMode && styles.homeDarkResumeButton]}
                 >
-                  <Ionicons name="close-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Ionicons name="close-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
                   <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>{exitPlanReadingLabel}</Text>
                 </Pressable>
               )}
@@ -421,11 +421,11 @@ export function BibleReaderPassage({
               onPress={() => onMoveChapter(-1)}
               style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton, !planReadingCanMovePrevious && styles.inactiveCollapsedReaderIconButton]}
             >
-              <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
               <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
             </Pressable>
             <View style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
-              <Ionicons name="reader-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name="reader-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
               <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>{planReadingChunkLabel || "Plan passage"}</Text>
             </View>
             <Pressable
@@ -436,13 +436,13 @@ export function BibleReaderPassage({
               style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton, !planReadingCanMoveNext && styles.inactiveCollapsedReaderIconButton]}
             >
               <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Next</Text>
-              <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
             </Pressable>
           </View>
         ) : !planReadingMode ? (
         <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
           <Pressable onPress={() => onMoveChapter(-1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
-            <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
             <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Previous</Text>
           </Pressable>
           <Pressable
@@ -451,14 +451,14 @@ export function BibleReaderPassage({
             onPress={onToggleChapterRead}
             style={[styles.readerBottomNavButton, styles.readerBottomReadButton, darkMode && styles.homeDarkResumeButton, currentChapterRead && styles.activeReaderReadButton]}
           >
-            <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+            <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={15} color={currentChapterRead ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
             <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText, currentChapterRead && styles.activeReaderReadButtonText]}>
               {currentChapterRead ? "Mark Unread" : "Mark Chapter Read"}
             </Text>
           </Pressable>
           <Pressable onPress={() => onMoveChapter(1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
             <Text style={[styles.readerBottomNavText, darkMode && styles.homeDarkResumeButtonText]}>Next</Text>
-            <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
           </Pressable>
         </View>
         ) : null}

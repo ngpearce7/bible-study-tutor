@@ -92,7 +92,7 @@ export function FormattedNoteText({ styles, text, darkMode = false }: any) {
     return createElement("div", {
       style: {
         color: colors.ink,
-        ...(darkMode ? { color: "#f7eddc" } : {}),
+        ...(darkMode ? { color: "#f6f2ed" } : {}),
         fontSize: 15,
         lineHeight: "21px",
         marginBottom: 8

@@ -398,7 +398,7 @@ function AdminReachMap({ styles, activeUsers, selectedRegion, onSelectRegion, ph
             </Pressable>
           ))}
           <View style={[styles.adminMapNote, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminMapNote]}>
-            <Ionicons name="shield-checkmark-outline" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Ionicons name="shield-checkmark-outline" size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
             <Text style={[styles.adminMapNoteText, darkMode && styles.accountDarkMutedText]}>Broad regions only</Text>
           </View>
         </View>
@@ -542,7 +542,7 @@ function AdminUserDirectory({
           />
           {!!searchTerm && (
             <Pressable accessibilityRole="button" accessibilityLabel="Clear user search" onPress={() => setSearchTerm("")} style={styles.clearSearchButton}>
-              <Ionicons name="close-outline" size={17} color={darkMode ? "#c8bda9" : colors.muted} />
+              <Ionicons name="close-outline" size={17} color={darkMode ? "#bbb8b4" : colors.muted} />
             </Pressable>
           )}
         </View>
@@ -568,7 +568,7 @@ function AdminUserDirectory({
           Showing {visibleUsers.length} of {filteredUsers.length} matching users · {users.length} loaded
         </Text>
         <Pressable accessibilityRole="button" accessibilityState={{ disabled: cleanupBusy, busy: cleanupBusy }} disabled={cleanupBusy} onPress={onCleanupLocalProfiles} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton, cleanupBusy && { opacity: 0.6 }]}>
-          <Ionicons name="sparkles-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="sparkles-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
           <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{cleanupBusy ? "Cleaning profiles…" : cleanupArmed ? "Confirm cleanup of empty profiles" : "Clean empty local/test profiles"}</Text>
         </Pressable>
         {cleanupArmed && !cleanupBusy && <Pressable accessibilityRole="button" onPress={onCancelCleanup} style={styles.adminDirectoryShowMore}><Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Cancel cleanup</Text></Pressable>}
@@ -635,7 +635,7 @@ function AdminUserDirectory({
           style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}
         >
           <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Load 15 more</Text>
-          <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
       )}
     </View>

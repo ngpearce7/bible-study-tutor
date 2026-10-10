@@ -171,7 +171,7 @@ export function BibleReaderNavigator({
   const renderPlanDoneTodayRow = (label: string, nextReadingLabel: string) => (
     <View style={[styles.bibleReadingPlanDoneRow, darkMode && styles.accountDarkInsetBox]}>
       <View style={[styles.bibleReadingPlanDoneIcon, darkMode && styles.darkReadMobileReaderChapter]}>
-        <Ionicons name="checkmark" size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+        <Ionicons name="checkmark" size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
       </View>
       <View style={styles.bibleReadingPlanDoneTextBlock}>
         <Text style={[styles.readerBookSectionTitle, darkMode && styles.accountDarkTitle]}>
@@ -225,16 +225,16 @@ export function BibleReaderNavigator({
         {collapsed ? (
           <View style={[styles.collapsedReaderIconStack, compactLayout && styles.compactCollapsedReaderIconStack]}>
             <View style={[styles.collapsedReaderIconButton, darkMode && styles.homeDarkIconBubble]}>
-              <Ionicons name="book-outline" size={19} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name="book-outline" size={19} color={darkMode ? "#d4a768" : colors.oliveDark} />
             </View>
             <View style={[styles.collapsedReaderIconButton, darkMode && styles.homeDarkIconBubble, !bookmarks.length && styles.inactiveCollapsedReaderIconButton]}>
-              <Ionicons name={bookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bookmarks.length ? (darkMode ? "#e9b76a" : colors.coral) : (darkMode ? "#c8bda9" : colors.muted)} />
+              <Ionicons name={bookmarks.length ? "bookmark" : "bookmark-outline"} size={18} color={bookmarks.length ? (darkMode ? "#d4a768" : colors.coral) : (darkMode ? "#bbb8b4" : colors.muted)} />
             </View>
             <View style={[styles.collapsedReaderIconButton, darkMode && styles.homeDarkIconBubble, !readChapterCount && styles.inactiveCollapsedReaderIconButton]}>
-              <Ionicons name={readChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readChapterCount ? (darkMode ? "#e9b76a" : colors.oliveDark) : (darkMode ? "#c8bda9" : colors.muted)} />
+              <Ionicons name={readChapterCount ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={readChapterCount ? (darkMode ? "#d4a768" : colors.oliveDark) : (darkMode ? "#bbb8b4" : colors.muted)} />
             </View>
             <View style={[styles.collapsedReaderIconButton, darkMode && styles.homeDarkIconBubble]}>
-              <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#c8bda9" : colors.muted} />
+              <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#bbb8b4" : colors.muted} />
             </View>
           </View>
         ) : (
@@ -243,7 +243,7 @@ export function BibleReaderNavigator({
               <Eyebrow>Read Scripture</Eyebrow>
               <Text style={[styles.title, darkMode && styles.accountDarkTitle]}>Bible reader</Text>
             </View>
-            <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#c8bda9" : colors.muted} />
+            <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#bbb8b4" : colors.muted} />
           </>
         )}
       </Pressable>
@@ -287,12 +287,12 @@ export function BibleReaderNavigator({
                 style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
               >
                 <View style={styles.readerBookmarkHeaderTitle}>
-                  <Ionicons name={quickListView === "read" ? "checkmark-circle-outline" : "time-outline"} size={15} color={darkMode ? "#e9b76a" : colors.coral} />
+                  <Ionicons name={quickListView === "read" ? "checkmark-circle-outline" : "time-outline"} size={15} color={darkMode ? "#d4a768" : colors.coral} />
                   <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{quickListView === "read" ? "Read chapters" : "Recent"}</Text>
                 </View>
                 <View style={styles.readerBookmarkHeaderMeta}>
                   <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{quickListCount}</Text>
-                  <Ionicons name={historyCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={darkMode ? "#c8bda9" : colors.muted} />
+                  <Ionicons name={historyCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={darkMode ? "#bbb8b4" : colors.muted} />
                 </View>
               </Pressable>
               {!historyCollapsed && (
@@ -333,7 +333,7 @@ export function BibleReaderNavigator({
                             onPress={() => onOpenHistoryItem(item)}
                             style={[styles.readerHistoryChip, darkMode && styles.accountDarkInsetBox]}
                           >
-                            <Ionicons name="reader-outline" size={13} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                            <Ionicons name="reader-outline" size={13} color={darkMode ? "#d4a768" : colors.oliveDark} />
                             <Text numberOfLines={1} style={[styles.readerHistoryText, darkMode && styles.accountDarkTitle]}>{item.reference}</Text>
                             <Text style={[styles.readerHistoryTranslation, darkMode && styles.accountDarkMutedText]}>{item.translation.toUpperCase()}</Text>
                           </Pressable>
@@ -373,12 +373,12 @@ export function BibleReaderNavigator({
                 style={[styles.readerBookmarkHeader, darkMode && styles.accountDarkInsetBox]}
               >
                 <View style={styles.readerBookmarkHeaderTitle}>
-                  <Ionicons name="bookmark-outline" size={15} color={darkMode ? "#e9b76a" : colors.coral} />
+                  <Ionicons name="bookmark-outline" size={15} color={darkMode ? "#d4a768" : colors.coral} />
                   <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Bookmarks & notes</Text>
                 </View>
                 <View style={styles.readerBookmarkHeaderMeta}>
                   <Text style={[styles.readerBookmarkCount, darkMode && styles.accountDarkMutedText]}>{bookmarks.length}</Text>
-                  <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={darkMode ? "#c8bda9" : colors.muted} />
+                  <Ionicons name={bookmarksCollapsed ? "chevron-down-outline" : "chevron-up-outline"} size={15} color={darkMode ? "#bbb8b4" : colors.muted} />
                 </View>
               </Pressable>
               {!bookmarksCollapsed && (
@@ -397,18 +397,18 @@ export function BibleReaderNavigator({
                     onPress={onToggleBookmarkNotesOnly}
                     style={[styles.readerBookmarkFilterChip, darkMode && styles.homeDarkResumeButton, bookmarkNotesOnly && styles.activeReaderBookChip]}
                   >
-                    <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                    <Ionicons name={bookmarkNotesOnly ? "document-text" : "document-text-outline"} size={14} color={bookmarkNotesOnly ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
                     <Text style={[styles.readerBookmarkFilterText, darkMode && styles.homeDarkResumeButtonText, bookmarkNotesOnly && styles.activeReaderBookText]}>With notes</Text>
                   </Pressable>
                   {visibleBookmarks.map((bookmark) => (
                     <View key={bookmark.id} style={styles.readerBookmarkItem}>
                       <View style={styles.readerBookmarkRow}>
                         <Pressable accessibilityRole="button" accessibilityLabel={`Open ${bookmark.reference}`} onPress={() => onOpenBookmark(bookmark)} style={[styles.readerBookmarkOpen, darkMode && styles.accountDarkInsetBox]}>
-                          <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? (darkMode ? "#e9b76a" : colors.oliveDark) : (darkMode ? "#e9b76a" : colors.coral)} />
+                          <Ionicons name={bookmark.bookmarked === false ? "document-text-outline" : "bookmark-outline"} size={14} color={bookmark.bookmarked === false ? (darkMode ? "#d4a768" : colors.oliveDark) : (darkMode ? "#d4a768" : colors.coral)} />
                           <Text style={[styles.readerBookmarkText, darkMode && styles.accountDarkTitle]}>{bookmark.reference}</Text>
                         </Pressable>
                         <Pressable accessibilityRole="button" accessibilityLabel={`Edit note for ${bookmark.reference}`} onPress={() => onOpenBookmarkNote(bookmark)} style={[styles.readerBookmarkIconButton, darkMode && styles.homeDarkIconBubble, bookmark.note?.trim() && styles.activeBookmarkNoteButton]}>
-                          <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                          <Ionicons name={bookmark.note?.trim() ? "document-text" : "document-text-outline"} size={15} color={bookmark.note?.trim() ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
                         </Pressable>
                         <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${bookmark.reference}`} onPress={() => onRemoveBookmark(bookmark.id)} style={styles.readerBookmarkRemove}>
                           <Ionicons name="close-outline" size={15} color={colors.muted} />
@@ -450,7 +450,7 @@ export function BibleReaderNavigator({
                       <Text style={[styles.readerBookmarkExpandText, darkMode && styles.studyDarkAccentText]}>
                         {bookmarksExpanded ? "Show latest 3" : `Show all ${filteredBookmarksCount}`}
                       </Text>
-                      <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Ionicons name={bookmarksExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
                     </Pressable>
                   )}
                   {!visibleBookmarks.length && <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>No matching bookmarks.</Text>}
@@ -467,7 +467,7 @@ export function BibleReaderNavigator({
                   style={[styles.mobileReaderDropdownButton, darkMode && styles.accountDarkInsetBox]}
                 >
                   <Text style={[styles.mobileReaderDropdownText, darkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                  <Ionicons name={mobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#c8bda9" : colors.muted} />
+                  <Ionicons name={mobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#bbb8b4" : colors.muted} />
                 </Pressable>
                 {mobileMenu === section.id && (
                   <View style={styles.mobileReaderBookList}>
@@ -511,7 +511,7 @@ export function BibleReaderNavigator({
                                       chapterActive && styles.activeMobileReaderChapterText
                                     ]}>{chapter}</Text>
                                     {chapterRead && (
-                                      <Ionicons name="checkmark" size={10} color={chapterActive ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+                                      <Ionicons name="checkmark" size={10} color={chapterActive ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
                                     )}
                                   </Pressable>
                                 );
@@ -576,7 +576,7 @@ export function BibleReaderNavigator({
                                 {activeBibleReadingPlanComplete ? "Choose a new plan or keep reviewing." : activeBibleReadingPlanToday.reference}
                               </Text>
                             </View>
-                            <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : activeBibleReadingPlanComplete ? colors.oliveDark : colors.coral} />
+                            <Ionicons name={activeBibleReadingPlanComplete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#d4a768" : activeBibleReadingPlanComplete ? colors.oliveDark : colors.coral} />
                           </View>
                         </Pressable>
                       </>
@@ -634,7 +634,7 @@ export function BibleReaderNavigator({
                                 {plan.complete ? "Choose a new plan or keep reviewing." : plan.reference}
                               </Text>
                             </View>
-                            <Ionicons name={plan.complete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#e9b76a" : plan.complete ? colors.oliveDark : colors.coral} />
+                            <Ionicons name={plan.complete ? "checkmark-circle" : "calendar-outline"} size={20} color={darkMode ? "#d4a768" : plan.complete ? colors.oliveDark : colors.coral} />
                           </View>
                         </Pressable>
                       </>

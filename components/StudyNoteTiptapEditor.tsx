@@ -1,13 +1,13 @@
 import { Mark, mergeAttributes } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
-import Underline from "@tiptap/extension-underline";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { createElement, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { View } from "react-native";
 
 import { colors } from "@/components/ui";
+import { theme } from "@/components/theme";
 import { noteThemeCss } from "@/data/noteTheme";
+import { studyNoteExtensions } from "@/data/studyNoteExtensions";
 
 type NoteFormatKind = "undo" | "redo" | "bold" | "italic" | "underline" | "highlight" | "bullet";
 
@@ -209,13 +209,7 @@ export function StudyNoteTiptapEditor({
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: false,
-        codeBlock: false,
-        horizontalRule: false,
-        blockquote: false
-      }),
-      Underline,
+      ...studyNoteExtensions(),
       Highlight.configure({ multicolor: true }),
       ScriptureTextColor
     ],
@@ -383,10 +377,10 @@ export function StudyNoteTiptapEditor({
   };
 
   const editorStyle = {
-    backgroundColor: darkMode ? "#242424" : "#fffaf2",
+    backgroundColor: darkMode ? theme.dark.surface : theme.light.surface,
     border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
     borderRadius: 11,
-    color: darkMode ? "#f7eddc" : colors.ink,
+    color: darkMode ? "#f6f2ed" : colors.ink,
     marginBottom: 14,
     minHeight: studyFocusMode ? (phoneLayout ? 220 : 260) : phoneLayout ? 170 : 150,
     outline: "none",

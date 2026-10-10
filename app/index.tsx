@@ -2661,6 +2661,7 @@ function HomeScreen() {
   const layoutHeight = Platform.OS === "web" && !layoutReady ? 844 : height;
   const compactLayout = layoutWidth < 900;
   const phoneLayout = layoutWidth < 760;
+  const stackedContentLayout = layoutWidth < 1200;
   const activeBibleReadingPlanDayWindow = activeBibleReadingPlan
     ? getBiblePlanDayWindow(activeBibleReadingPlan, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1)
     : null;
@@ -8400,8 +8401,8 @@ function HomeScreen() {
         )}
         {!["home", "study", "memory", "plans", "help", "bible"].includes(tab) && <View style={styles.contextHelpToolbar}>{renderContextHelpButton()}</View>}
         {tab === "home" && (
-          <View style={[styles.homeLayout, compactLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
-            <Card style={[homeDarkMode && styles.accountDarkMainCard, styles.homeMainCard, compactLayout && styles.fluidCard]}>
+          <View style={[styles.homeLayout, stackedContentLayout && styles.stackedLayout, homeDarkMode && styles.homeDarkLayout]}>
+            <Card style={[homeDarkMode && styles.accountDarkMainCard, styles.homeMainCard, stackedContentLayout && styles.fluidCard]}>
               {homeContinueItems.length > 0 && (
                 <View style={styles.homeSideCard}>
                   <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Pick up where you left off</Text>
@@ -8470,7 +8471,7 @@ function HomeScreen() {
               <Text style={[styles.homePurposeText, homeDarkMode && styles.accountDarkMutedText]}>Free to use. Made for personal study, small groups and pen-and-paper reflection.</Text>
             </Card>
 
-            <View style={[styles.homeSideColumn, compactLayout && styles.fluidCard]}>
+            <View style={[styles.homeSideColumn, stackedContentLayout && styles.fluidCard]}>
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Start with what you need</Text>
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, choose one small next step.` : "Choose one small next step."}</Text>
@@ -8539,8 +8540,8 @@ function HomeScreen() {
         )}
 
         {tab === "study" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout, studyDarkMode && styles.accountDarkLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard, studyDarkMode && styles.accountDarkMainCard]}>
+          <View style={[styles.layout, stackedContentLayout && styles.stackedLayout, studyFocusMode && styles.focusLayout, studyDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, stackedContentLayout && styles.fluidCard, studyFocusMode && styles.focusMainCard, studyDarkMode && styles.accountDarkMainCard]}>
               {studyPhase !== "saved" && (
               <View style={[styles.studyGuidedHeader, phoneLayout && styles.phoneStudyGuidedHeader, styles.openSection]}>
                 <View style={[styles.studyGuidedTopRow, phoneLayout && styles.phoneStudyGuidedTopRow]}>
@@ -9517,7 +9518,7 @@ function HomeScreen() {
             </Card>
 
             {!studyFocusMode && (
-            <Card style={[styles.memoryCoachCard, compactLayout && styles.fluidCard, studyDarkMode && styles.accountDarkMainCard]}>
+            <Card style={[styles.memoryCoachCard, stackedContentLayout && styles.fluidCard, studyDarkMode && styles.accountDarkMainCard]}>
               <CollapsibleStudyPanel
                 title="Study helps"
                 icon="library-outline"
@@ -10874,8 +10875,8 @@ function HomeScreen() {
         )}
 
         {tab === "account" && (
-          <View style={[styles.layout, compactLayout && styles.stackedLayout, accountDarkMode && styles.accountDarkLayout]}>
-            <Card style={[styles.mainCard, compactLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
+          <View style={[styles.layout, stackedContentLayout && styles.stackedLayout, accountDarkMode && styles.accountDarkLayout]}>
+            <Card style={[styles.mainCard, stackedContentLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
               <Eyebrow>Account & access</Eyebrow>
               <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your account"}</Text>
               <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>{isAuthenticated ? "Manage your profile, sign-in details, and preferences." : "Sign in or create an account to keep your studies across devices."}</Text>
@@ -11244,7 +11245,7 @@ function HomeScreen() {
               </View>
             </Card>
             {isAuthenticated && (
-              <Card style={[styles.coachCard, compactLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
+              <Card style={[styles.coachCard, stackedContentLayout && styles.fluidCard, accountDarkMode && styles.accountDarkMainCard]}>
                 <View style={[styles.accountStatusBox, accountDarkMode && styles.accountDarkSection]}>
                   <View style={styles.feedbackHeader}>
                     <Ionicons name="shield-checkmark-outline" size={18} color={accountDarkMode ? "#d4a768" : colors.coral} />

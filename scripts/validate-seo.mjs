@@ -125,7 +125,7 @@ function assert(condition, message) {
 }
 
 // Validate the published lesson rather than relying on headings or word counts alone.
-const { studyPages, studyLessons, scriptureExcerpts, buildPracticeWorksheet } = await import("./seo/study-content.mjs");
+const { studyPages, studyLessons, scriptureExcerpts, scriptureEmphasis, buildStudyLesson, buildPracticeWorksheet } = await import("./seo/study-content.mjs");
 const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features", "/study-examples"]);
 const examplesDirectory = pageFor("/study-examples");
 for (const path of Object.keys(studyPages)) {
@@ -144,11 +144,16 @@ for (const page of pages) {
   const lesson = studyLessons[guide.lesson];
   const excerpt = scriptureExcerpts[guide.lesson];
   assert(lesson && excerpt, `${page.path}: missing lesson or verified Scripture`);
+  const annotations = scriptureEmphasis[guide.lesson];
+  assert(annotations?.some(([, , kind]) => kind === "mark") && annotations.some(([, , kind]) => kind === "underline"), `${page.path}: key Scripture emphasis is missing`);
+  const renderedScripture = buildStudyLesson(page.path).scriptureHtml;
+  assert(page.html.includes(renderedScripture), `${page.path}: annotated Scripture is not visible`);
   translationsUsed.add(lesson.translation);
   assert(lesson.reference === excerpt.reference && lesson.translation === excerpt.translation, `${page.path}: quotation attribution mismatch`);
   assert(count(page.html, 'class="extra-block journal-example study-lesson"') === 1, `${page.path}: expected one substantive study`);
+  const plainScripture = renderedScripture.replace(/<\/?(?:mark|span)(?: [^>]*)?>/g, "");
   for (const verse of excerpt.verses) {
-    assert(page.html.includes(escapeHtml(verse.text)), `${page.path}: verse ${verse.verse} differs from verified source`);
+    assert(plainScripture.includes(escapeHtml(verse.text)), `${page.path}: verse ${verse.verse} differs from verified source`);
   }
   for (const field of ["context", "observation", "meaning", "application", "caution", "prayer"]) {
     for (const paragraph of lesson[field].split("\n\n")) assert(page.html.includes(escapeHtml(paragraph)), `${page.path}: missing ${field}`);

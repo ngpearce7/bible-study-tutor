@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 export const studyLessons = JSON.parse(readFileSync(new URL("./study-lessons.json", import.meta.url), "utf8"));
 export const studyPages = JSON.parse(readFileSync(new URL("./study-pages.json", import.meta.url), "utf8"));
 export const scriptureExcerpts = JSON.parse(readFileSync(new URL("./scripture-excerpts.json", import.meta.url), "utf8"));
+export const scriptureEmphasis = JSON.parse(readFileSync(new URL("./scripture-emphasis.json", import.meta.url), "utf8"));
 const translationNames = { BSB: "Berean Standard Bible", WEB: "World English Bible", KJV: "King James Version" };
 const escape = (value) => String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
 
@@ -22,7 +23,7 @@ export function buildStudyLesson(path) {
     reference: lesson.reference,
     translation: `${lesson.translation} · ${translationNames[lesson.translation]}`,
     sourceUrl: excerpt.sourceUrl,
-    scriptureHtml: excerpt.verses.map(verse => `<span class="study-verse"><sup>${verse.verse}</sup> ${escape(verse.text)}</span>`).join(" "),
+    scriptureHtml: excerpt.verses.map(verse => `<span class="study-verse"><sup>${verse.verse}</sup> ${renderEmphasizedVerse(verse.text, (scriptureEmphasis[guide.lesson] || []).filter(([number]) => number === verse.verse))}</span>`).join(" "),
     notes: [
       ["Read in context", lesson.context],
       ["1. Observation · what does it say?", lesson.observation],
@@ -33,6 +34,25 @@ export function buildStudyLesson(path) {
       ["Pray and revisit", `${lesson.prayer}\n\nAfter trying your response, return to the passage: what did you learn, what did you do, and what still needs thought? You can revise your notes as your understanding grows.`]
     ]
   };
+}
+
+function renderEmphasizedVerse(text, annotations) {
+  const ranges = annotations.map(([, phrase, kind]) => {
+    if (kind !== "mark" && kind !== "underline") throw new Error(`Unknown Scripture emphasis: ${kind}`);
+    const start = text.indexOf(phrase);
+    if (start < 0) throw new Error(`Scripture emphasis phrase is missing: ${phrase}`);
+    return { start, end: start + phrase.length, kind };
+  }).sort((a, b) => a.start - b.start);
+  let cursor = 0;
+  let html = "";
+  for (const { start, end, kind } of ranges) {
+    if (start < cursor) throw new Error("Scripture emphasis phrases overlap");
+    html += escape(text.slice(cursor, start));
+    const phrase = escape(text.slice(start, end));
+    html += kind === "mark" ? `<mark>${phrase}</mark>` : `<span class="scripture-underline">${phrase}</span>`;
+    cursor = end;
+  }
+  return html + escape(text.slice(cursor));
 }
 
 export function buildPracticeWorksheet(path) {

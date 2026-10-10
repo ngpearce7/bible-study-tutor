@@ -3605,7 +3605,8 @@ function buildSeoPage(page, baseUrl) {
       .journal-scripture { background: #ffffff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
       .journal-reference { color: var(--bronze); font-size: 13px; font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; text-transform: uppercase; }
       .scripture-text { color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 22px; line-height: 1.65; }
-      .scripture-text mark { background: #f4dfb6; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 1px 4px; }
+      .scripture-text sup { color: var(--bronze); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .55em; font-weight: 900; margin-right: 4px; }
+      .scripture-text mark { background: #f4dfb6; border-radius: 6px; box-decoration-break: clone; color: inherit; -webkit-box-decoration-break: clone; padding: 1px 4px; }
       .scripture-underline { border-bottom: 3px solid rgba(133, 81, 32, .42); padding-bottom: 1px; }
       .journal-notes { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .journal-note { background: #ecf3f8; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }

@@ -8303,9 +8303,13 @@ function HomeScreen() {
         style={[styles.sidebar, accountDarkMode && styles.appDarkSidebar, compactLayout && styles.compactSidebar, phoneLayout && !mobileMenuOpen && styles.hiddenMobileSidebar, phoneLayout && mobileMenuOpen && styles.mobileMenuDrawer]}
       >
         <View style={styles.brandRow}>
-          <View style={[styles.brandMark, accountDarkMode && styles.appDarkBrandMark]}>
-            <Text style={styles.brandMarkText}>BT</Text>
-          </View>
+          <Image
+            source={require("../assets/brand-mark.png")}
+            style={styles.brandMark}
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no"
+          />
           <View style={styles.brandCopy}>
             <Text style={[styles.brandTitle, accountDarkMode && styles.accountDarkTitle]}>Bible Study Tutor</Text>
           </View>

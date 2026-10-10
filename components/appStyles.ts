@@ -141,19 +141,10 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   brandMark: {
-    alignItems: "center",
-    backgroundColor: colors.coral,
     borderRadius: 12,
+    flexShrink: 0,
     height: 48,
-    justifyContent: "center",
     width: 48
-  },
-  appDarkBrandMark: {
-    backgroundColor: "#8f6a35"
-  },
-  brandMarkText: {
-    color: "white",
-    fontWeight: "600"
   },
   brandTitle: {
     color: colors.ink,

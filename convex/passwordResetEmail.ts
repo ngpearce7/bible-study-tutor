@@ -19,7 +19,7 @@ export function passwordResetEmail(token: string) {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;">
       <tr><td style="padding:0 0 24px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
-          <td width="44" height="44" align="center" bgcolor="#b5533d" style="border-radius:12px;color:#ffffff;font-size:18px;font-weight:bold;">BT</td>
+          <td width="44" height="44" align="center" bgcolor="#172536" style="border-radius:11px;"><img src="https://biblestudytutor.org/apple-touch-icon.png" width="44" height="44" alt="" style="display:block;border:0;border-radius:11px;"></td>
           <td style="padding-left:12px;color:#39452e;font-size:20px;font-weight:bold;">Bible Study Tutor</td>
         </tr></table>
       </td></tr>

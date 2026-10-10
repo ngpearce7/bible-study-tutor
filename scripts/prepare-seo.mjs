@@ -3444,29 +3444,29 @@ function buildSeoPage(page, baseUrl) {
       .table-wrap { margin-top: 14px; overflow-x: auto; }
       .comparison-table { border-collapse: collapse; min-width: 620px; width: 100%; }
       .comparison-table th, .comparison-table td { border: 1px solid var(--line); line-height: 1.55; padding: 13px 14px; text-align: left; vertical-align: top; }
-      .comparison-table th { background: #f2eadc; color: var(--olive); font-size: 14px; }
-      .comparison-table td { background: #fffaf2; color: var(--muted); }
+      .comparison-table th { background: #ecf3f8; color: var(--navy); font-size: 14px; }
+      .comparison-table td { background: #ffffff; color: var(--muted); }
     `
     : "";
   const worksheetStyles = pageExtraBlocks.some((block) => block.type === "worksheet")
     ? `
       .printable-resource { padding: 0; }
-      .print-controls { align-items: center; background: #f2eadc; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; padding: 18px 20px; }
+      .print-controls { align-items: center; background: #ecf3f8; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; padding: 18px 20px; }
       .print-controls-copy { max-width: 650px; }
       .print-controls-copy h2 { margin-bottom: 6px; }
       .print-controls .button { border: 0; cursor: pointer; font: inherit; }
-      .print-sheet { background: #fffdf8; padding: clamp(22px, 4vw, 42px); }
-      .print-sheet-header { border-bottom: 3px double var(--line); margin-bottom: 20px; padding-bottom: 16px; }
+      .print-sheet { background: #ffffff; padding: clamp(22px, 4vw, 42px); }
+      .print-sheet-header { border-bottom: 2px solid var(--navy); margin-bottom: 20px; padding-bottom: 16px; }
       .print-sheet-header .eyebrow { margin-bottom: 8px; }
-      .print-sheet-header h2 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(28px, 5vw, 42px); line-height: 1.05; margin-bottom: 8px; }
+      .print-sheet-header h2 { color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: clamp(28px, 5vw, 42px); line-height: 1.05; margin-bottom: 8px; }
       .worksheet-meta { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
-      .worksheet-meta-field { color: var(--olive); font-size: 13px; font-weight: 900; }
-      .worksheet-blank { border-bottom: 1px solid #bbaa96; display: block; height: 24px; margin-top: 3px; }
+      .worksheet-meta-field { color: var(--navy); font-size: 13px; font-weight: 900; }
+      .worksheet-blank { border-bottom: 1px solid #becbd6; display: block; height: 24px; margin-top: 3px; }
       .worksheet-section { border: 1px solid var(--line); border-radius: 12px; break-inside: avoid; margin-top: 12px; padding: 14px; }
-      .worksheet-section h3 { color: var(--olive); font-size: 16px; margin: 0 0 5px; }
+      .worksheet-section h3 { color: var(--navy); font-size: 16px; margin: 0 0 5px; }
       .worksheet-section p { font-size: 14px; }
       .worksheet-section ul { color: var(--muted); line-height: 1.5; margin: 8px 0 0; padding-left: 20px; }
-      .worksheet-line { border-bottom: 1px solid #cfc0ad; height: 25px; }
+      .worksheet-line { border-bottom: 1px solid #becbd6; height: 25px; }
       .worksheet-footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; margin-top: 18px; padding-top: 8px; text-align: center; }
       @media (max-width: 640px) { .worksheet-meta { grid-template-columns: 1fr; } .print-controls { align-items: stretch; } .print-controls .button { justify-content: center; width: 100%; } }
       @media print {
@@ -3545,32 +3545,32 @@ function buildSeoPage(page, baseUrl) {
     <script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
     ${analyticsSnippet}
     <style>
-      :root { color-scheme: light; --ink: #241d19; --muted: #6f665c; --paper: #f8f1e6; --panel: #fffdf8; --line: #e4d6c5; --olive: #39452e; --coral: #b5533d; }
+      :root { color-scheme: light; --ink: #10233b; --muted: #50647a; --paper: #edf1f4; --panel: #ffffff; --line: #dce4ea; --navy: #244a70; --bronze: #855120; }
       * { box-sizing: border-box; }
       body { background: var(--paper); color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; }
       .shell { margin: 0 auto; max-width: 980px; padding-left: 20px; padding-right: 20px; }
-      .site-header { border-bottom: 1px solid var(--line); background: rgba(255, 253, 248, .72); }
+      .site-header { border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, .84); }
       .site-header .shell { align-items: center; display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; padding-bottom: 18px; padding-top: 18px; }
-      .brand { color: var(--olive); font-weight: 900; text-decoration: none; }
+      .brand { color: var(--navy); font-weight: 900; text-decoration: none; }
       .main-nav { display: flex; flex-wrap: wrap; gap: 14px; }
-      .main-nav a { color: var(--olive); font-weight: 800; text-decoration: none; }
+      .main-nav a { color: var(--navy); font-weight: 800; text-decoration: none; }
       main { padding-bottom: 48px; padding-top: 34px; }
       .breadcrumb { align-items: center; color: var(--muted); display: flex; flex-wrap: wrap; font-size: 14px; gap: 8px; margin-bottom: 22px; }
-      .breadcrumb a { color: var(--olive); font-weight: 800; text-decoration: none; }
-      .button { align-items: center; background: var(--olive); border-radius: 999px; color: white; display: inline-flex; font-weight: 800; min-height: 42px; padding: 10px 16px; text-decoration: none; }
+      .breadcrumb a { color: var(--navy); font-weight: 800; text-decoration: none; }
+      .button { align-items: center; background: var(--navy); border-radius: 999px; color: white; display: inline-flex; font-weight: 800; min-height: 42px; padding: 10px 16px; text-decoration: none; }
       .hero { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: clamp(24px, 5vw, 46px); }
-      .eyebrow { color: var(--coral); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-      h1 { color: var(--olive); font-size: clamp(34px, 7vw, 64px); line-height: .98; margin: 12px 0 18px; max-width: 780px; }
+      .eyebrow { color: var(--bronze); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+      h1 { color: var(--ink); font-size: clamp(34px, 7vw, 64px); line-height: .98; margin: 12px 0 18px; max-width: 780px; }
       .intro { color: var(--ink); font-size: 19px; line-height: 1.65; max-width: 760px; }
       .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 28px 0; }
       section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
-      h2 { color: var(--olive); font-size: 20px; margin: 0 0 8px; }
+      h2 { color: var(--navy); font-size: 20px; margin: 0 0 8px; }
       p { color: var(--muted); line-height: 1.65; margin: 0; }
-      .related { background: #f2eadc; border: 1px solid var(--line); border-radius: 16px; margin: 30px 0; padding: 22px; }
+      .related { background: #ecf3f8; border: 1px solid var(--line); border-radius: 16px; margin: 30px 0; padding: 22px; }
       .related h2 { margin-bottom: 14px; }
       .related-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
       .related-grid a { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); display: grid; gap: 6px; padding: 16px; text-decoration: none; }
-      .related-grid strong { color: var(--olive); font-size: 16px; }
+      .related-grid strong { color: var(--navy); font-size: 16px; }
       .related-grid span { color: var(--muted); font-size: 14px; line-height: 1.45; }
       .faq-section { margin-top: 28px; }
       .faq-list { display: grid; gap: 10px; margin-top: 14px; }
@@ -3578,16 +3578,16 @@ function buildSeoPage(page, baseUrl) {
       .extra-block ul, .extra-block ol { color: var(--muted); line-height: 1.65; margin: 12px 0 0; padding-left: 22px; }
       .extra-block li + li { margin-top: 7px; }
       .example-grid, .preview-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 14px; }
-      .example-card, .preview-card { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
-      .example-card h3, .preview-card h3 { color: var(--coral); font-size: 14px; letter-spacing: .04em; margin: 0 0 8px; text-transform: uppercase; }
+      .example-card, .preview-card { background: #ecf3f8; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
+      .example-card h3, .preview-card h3 { color: var(--bronze); font-size: 14px; letter-spacing: .04em; margin: 0 0 8px; text-transform: uppercase; }
       .journal-example { display: grid; gap: 14px; }
-      .journal-scripture { background: #fffaf2; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-      .journal-reference { color: var(--coral); font-size: 13px; font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; text-transform: uppercase; }
+      .journal-scripture { background: #ffffff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+      .journal-reference { color: var(--bronze); font-size: 13px; font-weight: 900; letter-spacing: .05em; margin-bottom: 10px; text-transform: uppercase; }
       .scripture-text { color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 22px; line-height: 1.65; }
       .scripture-text mark { background: #f4dfb6; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 1px 4px; }
-      .scripture-underline { border-bottom: 3px solid rgba(201, 103, 80, .42); padding-bottom: 1px; }
+      .scripture-underline { border-bottom: 3px solid rgba(133, 81, 32, .42); padding-bottom: 1px; }
       .journal-notes { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-      .journal-note { background: #fbf5eb; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
+      .journal-note { background: #ecf3f8; border: 1px solid var(--line); border-radius: 12px; padding: 15px; }
       .study-lesson { max-width: 780px; margin-inline: auto; }
       .study-verse { display: block; margin-bottom: 12px; }
       .study-verse:last-child { margin-bottom: 0; }
@@ -3595,20 +3595,20 @@ function buildSeoPage(page, baseUrl) {
       .study-lesson .journal-note { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 22px 0; }
       .study-lesson .journal-note h3 { font-size: 20px; }
       .study-lesson .journal-note p + p { margin-top: 14px; }
-      .journal-note h3 { color: var(--olive); font-size: 15px; margin: 0 0 7px; }
+      .journal-note h3 { color: var(--navy); font-size: 15px; margin: 0 0 7px; }
       .extra-cta { align-items: flex-start; display: grid; gap: 14px; }
       .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-      .button.secondary { background: transparent; border: 1px solid var(--olive); color: var(--olive); }
+      .button.secondary { background: transparent; border: 1px solid var(--navy); color: var(--navy); }
       details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
-      summary { color: var(--olive); cursor: pointer; font-weight: 900; }
+      summary { color: var(--navy); cursor: pointer; font-weight: 900; }
       details p { margin-top: 10px; }
-      .cta-section { background: var(--olive); border-radius: 18px; color: white; margin-top: 30px; padding: 24px; }
+      .cta-section { background: var(--navy); border-radius: 18px; color: white; margin-top: 30px; padding: 24px; }
       .cta-section h2 { color: white; }
       .cta-section p { color: rgba(255, 255, 255, .84); margin-bottom: 16px; max-width: 680px; }
-      .cta-section .button { background: var(--coral); }
+      .cta-section .button { background: var(--bronze); }
       .site-footer { border-top: 1px solid var(--line); color: var(--muted); }
       .site-footer .shell { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; padding-bottom: 26px; padding-top: 18px; }
-      .site-footer a { color: var(--olive); font-weight: 800; }
+      .site-footer a { color: var(--navy); font-weight: 800; }
     </style>${pageSpecificStyles}
   </head>
   <body>
@@ -3823,9 +3823,9 @@ function buildNotFoundPage(baseUrl) {
   <title>Page not found | Bible Study Tutor</title>
   <link rel="canonical" href="${canonical}">
   <style>
-    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f6f1e8;color:#231f1a;display:grid;min-height:100vh;place-items:center;padding:24px}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#edf1f4;color:#10233b;display:grid;min-height:100vh;place-items:center;padding:24px}
     main{max-width:560px}
-    a{color:#9f3d1e;font-weight:700}
+    a{color:#244a70;font-weight:700}
   </style>
 </head>
 <body>

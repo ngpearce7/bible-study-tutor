@@ -124,7 +124,7 @@ export default function RootLayout() {
         <meta name="robots" content="index, follow" />
         <meta name="application-name" content="Bible Study Tutor" />
         <meta name="apple-mobile-web-app-title" content="Bible Study Tutor" />
-        <meta name="theme-color" content="#F6F1E8" />
+        <meta name="theme-color" content="#edf1f4" />
         <meta property="og:site_name" content="Bible Study Tutor" />
         <meta property="og:locale" content="en_AU" />
         <meta property="og:type" content="website" />

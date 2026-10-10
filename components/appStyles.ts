@@ -1,5 +1,6 @@
 import { StyleSheet, Platform } from "react-native";
 import { colors } from "./ui";
+import { theme } from "./theme";
 
 export const styles = StyleSheet.create({
   // Interior sections share the page surface; reserve cards for independent content.
@@ -16,7 +17,7 @@ export const styles = StyleSheet.create({
     borderTopColor: colors.line
   },
   darkSectionDivider: {
-    borderTopColor: "rgba(247, 237, 220, 0.12)"
+    borderTopColor: "rgba(246, 242, 237, 0.12)"
   },
   quickNav: { flexDirection: "row", backgroundColor: colors.panel, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 12, borderTopWidth: 1, borderTopColor: "rgba(108,91,67,0.12)", gap: 4 },
   quickNavItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 10 },
@@ -30,7 +31,7 @@ export const styles = StyleSheet.create({
     position: "relative"
   },
   appDarkScreen: {
-    backgroundColor: "#181818"
+    backgroundColor: theme.dark.page
   },
   compactScreen: {
     flexDirection: "column",
@@ -56,8 +57,8 @@ export const styles = StyleSheet.create({
   },
   mobileMenuBar: {
     alignItems: "center",
-    backgroundColor: colors.panel,
-    borderBottomColor: "rgba(108, 91, 67, 0.18)",
+    backgroundColor: theme.light.sidebar,
+    borderBottomColor: "rgba(16, 35, 59, 0.18)",
     borderBottomWidth: 1,
     elevation: 20,
     flexDirection: "row",
@@ -71,8 +72,8 @@ export const styles = StyleSheet.create({
     zIndex: 100
   },
   appDarkMobileMenuBar: {
-    backgroundColor: "#242424",
-    borderBottomColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.sidebar,
+    borderBottomColor: theme.dark.line
   },
   mobileMenuButton: {
     alignItems: "center",
@@ -85,8 +86,8 @@ export const styles = StyleSheet.create({
     width: 44
   },
   appDarkMobileMenuButton: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.22)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.22)"
   },
   mobileMenuTitleBlock: {
     flex: 1,
@@ -103,16 +104,16 @@ export const styles = StyleSheet.create({
     fontWeight: "600"
   },
   sidebar: {
-    backgroundColor: colors.panel,
-    borderColor: "rgba(108, 91, 67, 0.18)",
+    backgroundColor: theme.light.sidebar,
+    borderColor: theme.light.line,
     borderRightWidth: 1,
     gap: 22,
     padding: 16,
     width: 200
   },
   appDarkSidebar: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.sidebar,
+    borderColor: theme.dark.line
   },
   compactSidebar: {
     borderBottomWidth: 1,
@@ -170,27 +171,27 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   appDarkTab: {
-    borderColor: "rgba(233, 183, 106, 0.08)"
+    borderColor: "rgba(212, 167, 104, 0.08)"
   },
   activeTab: {
     backgroundColor: colors.blush
   },
   appDarkActiveTab: {
-    backgroundColor: "#343434",
-    borderColor: "rgba(233, 183, 106, 0.28)"
+    backgroundColor: theme.dark.selected,
+    borderColor: theme.dark.line
   },
   tabLabel: {
     color: colors.muted,
     fontWeight: "600"
   },
   appDarkTabLabel: {
-    color: "#c8bda9"
+    color: theme.dark.muted
   },
   activeTabLabel: {
     color: colors.coral
   },
   appDarkActiveTabLabel: {
-    color: "#e9b76a"
+    color: theme.dark.bronze
   },
   todayCard: {
     marginTop: 0
@@ -201,14 +202,14 @@ export const styles = StyleSheet.create({
     fontWeight: "600"
   },
   progressTrack: {
-    backgroundColor: "#dce4dc",
+    backgroundColor: colors.soft,
     borderRadius: 999,
     height: 10,
     marginVertical: 14,
     overflow: "hidden"
   },
   appDarkProgressTrack: {
-    backgroundColor: "#242424"
+    backgroundColor: theme.dark.surface
   },
   progressFill: {
     backgroundColor: colors.coral,
@@ -227,7 +228,7 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   appDarkContent: {
-    backgroundColor: "#181818"
+    backgroundColor: theme.dark.page
   },
   phoneContent: {
     padding: 14
@@ -255,55 +256,65 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   homeDarkLayout: {
-    backgroundColor: "#181818"
+    backgroundColor: theme.dark.page
   },
   homeMainCard: {
+    backgroundColor: "transparent",
+    borderWidth: 0,
     flex: 1,
     gap: 28,
     maxWidth: "100%",
-    minWidth: 0
+    minWidth: 0,
+    padding: 0,
+    shadowOpacity: 0
   },
   homeHero: {
-    borderBottomColor: "rgba(102, 114, 78, 0.18)",
-    borderBottomWidth: 0,
+    alignItems: "center",
+    backgroundColor: theme.brand.navy,
+    borderRadius: 17,
     gap: 14,
-    paddingBottom: 8
+    justifyContent: "center",
+    minHeight: 285,
+    overflow: "hidden",
+    padding: 28
   },
   homeDarkHero: {
-    borderBottomColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.page
+  },
+  homeHeroImage: {
+    borderRadius: 17
+  },
+  homeHeroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(7, 18, 31, 0.62)"
+  },
+  homeDarkHeroOverlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.76)"
+  },
+  homeHeroCopy: {
+    alignItems: "center",
+    gap: 14,
+    maxWidth: 640,
+    width: "100%"
   },
   homeHeroTitle: {
-    color: colors.ink,
-    fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
-    fontSize: 42,
-    fontWeight: "400",
-    lineHeight: 48
-  },
-  homeDarkHeroTitle: {
-    color: "#f7eddc"
-  },
-  homeHeroTitleAccent: {
-    color: colors.oliveDark,
-    fontFamily: Platform.select({ ios: "Georgia", web: "Georgia", default: undefined }),
-    fontStyle: "italic",
-    fontWeight: "400"
-  },
-  homeDarkHeroTitleAccent: {
-    color: "#e9b76a"
+    color: "#ffffff",
+    fontSize: 40,
+    fontWeight: "700",
+    lineHeight: 46,
+    textAlign: "center"
   },
   phoneHomeHeroTitle: {
-    fontSize: 34,
-    lineHeight: 40
+    fontSize: 30,
+    lineHeight: 36
   },
   homeHeroText: {
-    color: colors.ink,
-    fontSize: 17,
+    color: "#ffffff",
+    fontSize: 16,
     fontWeight: "400",
-    lineHeight: 27,
-    maxWidth: 720
-  },
-  homeDarkHeroText: {
-    color: "#f7eddc"
+    lineHeight: 24,
+    maxWidth: 530,
+    textAlign: "center"
   },
   homePurposeText: {
     color: colors.ink,
@@ -315,6 +326,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 10,
+    justifyContent: "center",
     marginTop: 4,
     maxWidth: "100%",
     minWidth: 0,
@@ -323,6 +335,19 @@ export const styles = StyleSheet.create({
   homePhoneActionButton: {
     flex: 1,
     minWidth: 0
+  },
+  homeHeroPrimaryButton: {
+    backgroundColor: "#ddb178"
+  },
+  homeHeroPrimaryButtonText: {
+    color: "#171717"
+  },
+  homeHeroSecondaryButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.14)",
+    borderColor: "rgba(255, 255, 255, 0.7)"
+  },
+  homeHeroSecondaryButtonText: {
+    color: "#ffffff"
   },
   homeScriptureGrid: {
     flexDirection: "row",
@@ -335,7 +360,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
-    borderWidth: 0,
+    borderWidth: 1,
     flex: 1,
     gap: 10,
     maxWidth: "100%",
@@ -343,8 +368,8 @@ export const styles = StyleSheet.create({
     padding: 20
   },
   homeDarkScriptureBlock: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   homeScriptureIcon: {
     alignItems: "center",
@@ -355,7 +380,7 @@ export const styles = StyleSheet.create({
     width: 36
   },
   homeDarkIconBubble: {
-    backgroundColor: "#343434"
+    backgroundColor: theme.dark.raised
   },
   homeScriptureRef: {
     color: colors.coral,
@@ -363,7 +388,7 @@ export const styles = StyleSheet.create({
     fontWeight: "700"
   },
   homeDarkAccentText: {
-    color: "#e9b76a"
+    color: theme.dark.bronze
   },
   homeScriptureQuote: {
     color: colors.ink,
@@ -415,32 +440,32 @@ export const styles = StyleSheet.create({
   },
   homeContinueItem: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.52)",
+    borderColor: "rgba(187, 130, 74, 0.52)",
     borderWidth: 1.5
   },
   homeDarkContinueItem: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.38)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.38)",
     borderWidth: 1.5
   },
   homeDarkPathItem: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   homeDarkMetric: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)",
     borderWidth: 1
   },
   homeDarkMetricValue: {
-    color: "#e9b76a"
+    color: theme.dark.bronze
   },
   homeDarkResumeButton: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.26)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.26)"
   },
   homeDarkResumeButtonText: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   homePathIcon: {
     alignItems: "center",
@@ -481,8 +506,8 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   homeDarkWeeklyRhythmPanel: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   homeWeeklyRhythmHeader: {
     alignItems: "center",
@@ -646,7 +671,7 @@ export const styles = StyleSheet.create({
   },
   bibleSearchSummaryBlock: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderColor: "rgba(187, 130, 74, 0.28)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 4,
@@ -1022,11 +1047,11 @@ export const styles = StyleSheet.create({
   },
   readMobileReaderChapterSquare: {
     backgroundColor: "#edf2dc",
-    borderColor: "rgba(102, 114, 78, 0.38)"
+    borderColor: "rgba(16, 35, 59, 0.38)"
   },
   darkReadMobileReaderChapterSquare: {
-    backgroundColor: "rgba(233, 183, 106, 0.14)",
-    borderColor: "rgba(233, 183, 106, 0.38)"
+    backgroundColor: "rgba(212, 167, 104, 0.14)",
+    borderColor: "rgba(212, 167, 104, 0.38)"
   },
   activeMobileReaderChapterSquare: {
     backgroundColor: colors.coral,
@@ -1041,7 +1066,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark
   },
   darkReadMobileReaderChapterText: {
-    color: "#e9b76a"
+    color: theme.dark.bronze
   },
   activeMobileReaderChapterText: {
     color: "white"
@@ -1172,7 +1197,7 @@ export const styles = StyleSheet.create({
   bibleReadingPlanDoneRow: {
     alignItems: "center",
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderColor: "rgba(16, 35, 59, 0.24)",
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
@@ -1182,7 +1207,7 @@ export const styles = StyleSheet.create({
   bibleReadingPlanDoneIcon: {
     alignItems: "center",
     backgroundColor: "#edf3e4",
-    borderColor: "rgba(102, 114, 78, 0.28)",
+    borderColor: "rgba(16, 35, 59, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
     height: 26,
@@ -1204,11 +1229,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     gap: 3,
     minWidth: 0
-  },
-  bibleReadingPlanActions: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8
   },
   planCustomForm: {
     gap: 9
@@ -1673,7 +1693,7 @@ export const styles = StyleSheet.create({
   },
   mobileReaderSelectionDock: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.22)",
+    borderColor: "rgba(16, 35, 59, 0.22)",
     borderRadius: 14,
     borderWidth: 1,
     bottom: 12,
@@ -1701,7 +1721,7 @@ export const styles = StyleSheet.create({
   },
   mobileReaderSelectionButton: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1736,7 +1756,7 @@ export const styles = StyleSheet.create({
   },
   mobileReaderSelectionIconButton: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -1746,7 +1766,7 @@ export const styles = StyleSheet.create({
     width: 34
   },
   mobileReaderNoteEditor: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -1879,7 +1899,7 @@ export const styles = StyleSheet.create({
   },
   readerBottomReadButton: {
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.24)"
+    borderColor: "rgba(16, 35, 59, 0.24)"
   },
   readerBottomNavText: {
     color: colors.oliveDark,
@@ -2180,7 +2200,7 @@ export const styles = StyleSheet.create({
   },
   focusPassageSelector: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -2198,7 +2218,7 @@ export const styles = StyleSheet.create({
   },
   compactMethodPicker: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -2223,7 +2243,7 @@ export const styles = StyleSheet.create({
   },
   compactMethodMenu: {
     alignSelf: "flex-end",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -2326,7 +2346,7 @@ export const styles = StyleSheet.create({
     width: 22
   },
   completedStudyProgressNumber: {
-    backgroundColor: "#fffaf2"
+    backgroundColor: colors.panel
   },
   activeStudyProgressNumber: {
     color: colors.oliveDark
@@ -2383,7 +2403,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22
   },
   input: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 11,
     borderWidth: 1,
@@ -2516,7 +2536,7 @@ export const styles = StyleSheet.create({
   mobileNoteFormatButton: {
     alignItems: "center",
     backgroundColor: "white",
-    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderColor: "rgba(16, 35, 59, 0.24)",
     borderRadius: 999,
     borderWidth: 1,
     height: 34,
@@ -2548,7 +2568,7 @@ export const styles = StyleSheet.create({
   noteFormatButton: {
     alignItems: "center",
     backgroundColor: "white",
-    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderColor: "rgba(16, 35, 59, 0.24)",
     borderRadius: 9,
     borderWidth: 1,
     height: 34,
@@ -2599,8 +2619,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 3
   },
   studyDarkNoteFormatHighlight: {
-    backgroundColor: "#e9b76a",
-    color: "#171b1c"
+    backgroundColor: theme.dark.bronze,
+    color: theme.dark.page
   },
   activeNoteHighlightFormatText: {
     backgroundColor: "transparent",
@@ -2608,7 +2628,7 @@ export const styles = StyleSheet.create({
   },
   writingPromptBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderColor: "rgba(16, 35, 59, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
     marginBottom: 12,
@@ -2711,7 +2731,7 @@ export const styles = StyleSheet.create({
     lineHeight: 15
   },
   removePromptButton: {
-    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderColor: "rgba(16, 35, 59, 0.18)",
     borderLeftWidth: 1,
     paddingHorizontal: 8,
     paddingVertical: 8
@@ -2779,7 +2799,7 @@ export const styles = StyleSheet.create({
     marginTop: 10
   },
   studySaveRetryButton: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -2800,7 +2820,7 @@ export const styles = StyleSheet.create({
   },
   coachingBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.2)",
+    borderColor: "rgba(16, 35, 59, 0.2)",
     borderRadius: 14,
     borderWidth: 1,
     gap: 8,
@@ -2835,7 +2855,7 @@ export const styles = StyleSheet.create({
   },
   collapsedCoachingBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderColor: "rgba(16, 35, 59, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 4,
@@ -2861,7 +2881,7 @@ export const styles = StyleSheet.create({
   aiOptionCard: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderColor: "rgba(187, 130, 74, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
@@ -2953,7 +2973,7 @@ export const styles = StyleSheet.create({
   },
   currentPlanManagementButton: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -3056,14 +3076,6 @@ export const styles = StyleSheet.create({
     gap: 8,
     padding: 14
   },
-  communityBox: {
-    backgroundColor: colors.panel,
-    borderColor: colors.line,
-    borderRadius: 14,
-    borderWidth: 1,
-    gap: 10,
-    padding: 14
-  },
   avatarRow: {
     flexDirection: "row",
     marginBottom: 2
@@ -3109,7 +3121,7 @@ export const styles = StyleSheet.create({
   },
   communitySubViewTabs: {
     alignSelf: "flex-start",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -3194,7 +3206,7 @@ export const styles = StyleSheet.create({
   communityTargetSelect: {
     alignItems: "center",
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.22)",
+    borderColor: "rgba(16, 35, 59, 0.22)",
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
@@ -3210,7 +3222,7 @@ export const styles = StyleSheet.create({
   },
   communityTargetPickerPanel: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderColor: "rgba(16, 35, 59, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 10,
@@ -3231,7 +3243,7 @@ export const styles = StyleSheet.create({
   },
   activeCommunityTargetOption: {
     backgroundColor: "#f5eedf",
-    borderColor: "rgba(102, 114, 78, 0.42)"
+    borderColor: "rgba(16, 35, 59, 0.42)"
   },
   communityTargetOptionTitle: {
     color: colors.oliveDark,
@@ -3256,7 +3268,7 @@ export const styles = StyleSheet.create({
   },
   activeCommunityTargetModeChip: {
     backgroundColor: "#f5eedf",
-    borderColor: "rgba(102, 114, 78, 0.42)"
+    borderColor: "rgba(16, 35, 59, 0.42)"
   },
   communityTargetModeText: {
     color: colors.oliveDark,
@@ -3281,7 +3293,7 @@ export const styles = StyleSheet.create({
   },
   checkinHistoryItem: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 6,
@@ -3292,7 +3304,7 @@ export const styles = StyleSheet.create({
     padding: 10
   },
   focusedCheckinHistoryItem: {
-    borderColor: "rgba(102, 114, 78, 0.34)"
+    borderColor: "rgba(16, 35, 59, 0.34)"
   },
   checkinHistoryHeader: {
     alignItems: "flex-start",
@@ -3340,7 +3352,7 @@ export const styles = StyleSheet.create({
   checkinIconButton: {
     alignItems: "center",
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderColor: "rgba(16, 35, 59, 0.18)",
     borderRadius: 999,
     borderWidth: 1,
     height: 32,
@@ -3353,7 +3365,7 @@ export const styles = StyleSheet.create({
   },
   checkinDeleteIconButton: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)"
+    borderColor: "rgba(187, 130, 74, 0.28)"
   },
   checkinEditInput: {
     minHeight: 84,
@@ -3483,7 +3495,7 @@ export const styles = StyleSheet.create({
   },
   circleManagementBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 10,
@@ -3495,7 +3507,7 @@ export const styles = StyleSheet.create({
   },
   circleSelectorPanel: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 8,
@@ -3554,7 +3566,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "flex-start",
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderColor: "rgba(16, 35, 59, 0.18)",
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
@@ -3567,7 +3579,7 @@ export const styles = StyleSheet.create({
   },
   circleChip: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderColor: "rgba(16, 35, 59, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 3,
@@ -3581,7 +3593,7 @@ export const styles = StyleSheet.create({
   },
   activeCircleChip: {
     backgroundColor: "#f5eedf",
-    borderColor: "rgba(102, 114, 78, 0.42)"
+    borderColor: "rgba(16, 35, 59, 0.42)"
   },
   circleChipTitle: {
     color: colors.oliveDark,
@@ -3598,7 +3610,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark
   },
   circleInlineManagement: {
-    borderTopColor: "rgba(102, 114, 78, 0.14)",
+    borderTopColor: "rgba(16, 35, 59, 0.14)",
     borderTopWidth: 1,
     gap: 8,
     marginTop: 8,
@@ -3647,7 +3659,7 @@ export const styles = StyleSheet.create({
   circleManageButton: {
     alignSelf: "flex-start",
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.18)",
+    borderColor: "rgba(16, 35, 59, 0.18)",
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 9,
@@ -3659,7 +3671,7 @@ export const styles = StyleSheet.create({
   },
   circleDangerManageButton: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)"
+    borderColor: "rgba(187, 130, 74, 0.28)"
   },
   activeCircleDangerManageButton: {
     backgroundColor: colors.coral,
@@ -3681,7 +3693,7 @@ export const styles = StyleSheet.create({
   },
   circlePostCard: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 8,
@@ -3700,7 +3712,7 @@ export const styles = StyleSheet.create({
   },
   pendingDeleteButton: {
     backgroundColor: colors.blush,
-    borderColor: "rgba(201, 103, 80, 0.32)"
+    borderColor: "rgba(187, 130, 74, 0.32)"
   },
   circleReactionChip: {
     alignItems: "center",
@@ -3755,7 +3767,7 @@ export const styles = StyleSheet.create({
   },
   partnerChip: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.16)",
+    borderColor: "rgba(16, 35, 59, 0.16)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 3,
@@ -3798,7 +3810,7 @@ export const styles = StyleSheet.create({
   },
   sendNoteBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.2)",
+    borderColor: "rgba(187, 130, 74, 0.2)",
     borderRadius: 12,
     borderWidth: 1,
     padding: 12
@@ -3842,7 +3854,7 @@ export const styles = StyleSheet.create({
   },
   shareInsightBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.25)",
+    borderColor: "rgba(187, 130, 74, 0.25)",
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 14,
@@ -3856,7 +3868,7 @@ export const styles = StyleSheet.create({
   },
   shareInsightCommunityBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 9,
@@ -3866,7 +3878,7 @@ export const styles = StyleSheet.create({
   savedSummaryBox: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.22)",
+    borderColor: "rgba(187, 130, 74, 0.22)",
     borderRadius: 16,
     borderWidth: 1,
     gap: 12,
@@ -4095,7 +4107,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderColor: "rgba(187, 130, 74, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
@@ -4117,7 +4129,7 @@ export const styles = StyleSheet.create({
   },
   methodVerseBadge: {
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.28)"
+    borderColor: "rgba(16, 35, 59, 0.28)"
   },
   methodVerseBadgeText: {
     color: colors.oliveDark,
@@ -4141,7 +4153,7 @@ export const styles = StyleSheet.create({
     minWidth: 16
   },
   markupToolbar: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -4214,7 +4226,7 @@ export const styles = StyleSheet.create({
   },
   clearAllMarkupButton: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.35)",
+    borderColor: "rgba(187, 130, 74, 0.35)",
     borderWidth: 1
   },
   memoryMarkupButton: {
@@ -4305,7 +4317,7 @@ export const styles = StyleSheet.create({
     marginTop: 10
   },
   studyContextTools: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -4354,7 +4366,7 @@ export const styles = StyleSheet.create({
   },
   studyContextPreviewBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderColor: "rgba(187, 130, 74, 0.18)",
     borderRadius: 10,
     borderWidth: 1,
     gap: 8,
@@ -4459,22 +4471,22 @@ export const styles = StyleSheet.create({
     width: 30
   },
   studyDarkPreviewBox: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   studyDarkContextVerseRow: {
-    backgroundColor: "rgba(247, 237, 220, 0.03)"
+    backgroundColor: "rgba(246, 242, 237, 0.03)"
   },
   studyDarkContextSelectedVerseRow: {
-    backgroundColor: "rgba(233, 183, 106, 0.12)"
+    backgroundColor: "rgba(212, 167, 104, 0.12)"
   },
   studyDarkCrossReferenceChip: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   studyDarkActiveCrossReferenceChip: {
-    backgroundColor: "#8f6a35",
-    borderColor: "#e9b76a"
+    backgroundColor: theme.dark.selected,
+    borderColor: theme.dark.bronze
   },
   studyPassageActions: {
     alignItems: "flex-start",
@@ -4535,7 +4547,7 @@ export const styles = StyleSheet.create({
   },
   mobilePrintHint: {
     alignItems: "flex-start",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 10,
     borderWidth: 1,
@@ -4637,7 +4649,7 @@ export const styles = StyleSheet.create({
   },
   focusModeRow: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 14,
     borderWidth: 1,
@@ -4809,7 +4821,7 @@ export const styles = StyleSheet.create({
   readyBox: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.25)",
+    borderColor: "rgba(187, 130, 74, 0.25)",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -4819,7 +4831,7 @@ export const styles = StyleSheet.create({
   },
   methodSupportBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderColor: "rgba(16, 35, 59, 0.24)",
     borderRadius: 14,
     borderWidth: 1,
     gap: 10,
@@ -4829,7 +4841,7 @@ export const styles = StyleSheet.create({
   methodFocusReminder: {
     alignItems: "flex-start",
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.24)",
+    borderColor: "rgba(16, 35, 59, 0.24)",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -4864,7 +4876,7 @@ export const styles = StyleSheet.create({
   methodSupportAction: {
     alignItems: "center",
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.3)",
+    borderColor: "rgba(16, 35, 59, 0.3)",
     borderRadius: 999,
     borderWidth: 1,
     minHeight: 38,
@@ -4923,8 +4935,8 @@ export const styles = StyleSheet.create({
   },
   methodFollowUpBox: {
     alignItems: "flex-start",
-    backgroundColor: "#fffaf2",
-    borderColor: "rgba(102, 114, 78, 0.24)",
+    backgroundColor: colors.panel,
+    borderColor: "rgba(16, 35, 59, 0.24)",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -4999,7 +5011,7 @@ export const styles = StyleSheet.create({
   },
   scriptureColorOption: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -5090,7 +5102,7 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase"
   },
   planSectionHeadingDark: {
-    color: "#e9b76a"
+    color: theme.dark.bronze
   },
   planBrowseIntro: {
     marginTop: 4
@@ -5104,7 +5116,7 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   planBrowseSectionDark: {
-    backgroundColor: "#242424",
+    backgroundColor: theme.dark.surface,
     borderColor: "#3a3329"
   },
   planBrowseSectionHeader: {
@@ -5267,7 +5279,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(172, 196, 151, 0.45)"
   },
   planCardSecondaryChip: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line
   },
   planCardSecondaryChipDark: {
@@ -5467,11 +5479,11 @@ export const styles = StyleSheet.create({
     borderWidth: 1
   },
   completedPlanDayTileDark: {
-    backgroundColor: "#34422f",
-    borderColor: "rgba(233, 183, 106, 0.45)"
+    backgroundColor: theme.dark.selected,
+    borderColor: "rgba(212, 167, 104, 0.45)"
   },
   completedPlanDayTileText: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   currentPlanDayTile: {
     borderColor: colors.coral,
@@ -5484,7 +5496,7 @@ export const styles = StyleSheet.create({
   },
   selectedPlanDayTileDark: {
     backgroundColor: "#2b241d",
-    borderColor: "#e9b76a"
+    borderColor: theme.dark.bronze
   },
   missedPlanDayTile: {
     borderColor: colors.coral,
@@ -5500,7 +5512,7 @@ export const styles = StyleSheet.create({
   selectedMissedPlanDayTileDark: {
     backgroundColor: "#2b241d",
     borderStyle: "solid",
-    shadowColor: "#e9b76a",
+    shadowColor: theme.dark.bronze,
     shadowOpacity: 0.18,
     shadowRadius: 6
   },
@@ -5548,8 +5560,8 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   planDayDevotionalBoxDark: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   planDayDevotionalHeader: {
     alignItems: "center",
@@ -5592,7 +5604,7 @@ export const styles = StyleSheet.create({
   },
   devotionalTextSizeControlDark: {
     backgroundColor: "rgba(255, 255, 255, 0.04)",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   devotionalTextSizeAnchor: {
     alignItems: "flex-end",
@@ -5632,7 +5644,7 @@ export const styles = StyleSheet.create({
   },
   devotionalTextSizePopoverDark: {
     backgroundColor: "rgb(33, 26, 18)",
-    borderColor: "rgba(233, 183, 106, 0.2)",
+    borderColor: "rgba(212, 167, 104, 0.2)",
     shadowColor: "#000"
   },
   devotionalTextSizePopoverTail: {
@@ -5649,7 +5661,7 @@ export const styles = StyleSheet.create({
   },
   devotionalTextSizePopoverTailDark: {
     backgroundColor: "rgb(33, 26, 18)",
-    borderColor: "rgba(233, 183, 106, 0.2)"
+    borderColor: "rgba(212, 167, 104, 0.2)"
   },
   devotionalTextSizeDismissLayer: {
     backgroundColor: "rgba(0, 0, 0, 0)",
@@ -5684,7 +5696,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.oliveDark
   },
   devotionalTextSizeButtonActiveDark: {
-    backgroundColor: "#e9b76a"
+    backgroundColor: theme.dark.bronze
   },
   devotionalTextSizeButtonText: {
     color: colors.muted,
@@ -5739,8 +5751,8 @@ export const styles = StyleSheet.create({
     padding: 10
   },
   planDayCareNoteBoxDark: {
-    backgroundColor: "rgba(233, 183, 106, 0.08)",
-    borderColor: "rgba(233, 183, 106, 0.24)"
+    backgroundColor: "rgba(212, 167, 104, 0.08)",
+    borderColor: "rgba(212, 167, 104, 0.24)"
   },
   careNoteAcknowledgeButton: {
     alignItems: "center",
@@ -5871,223 +5883,227 @@ export const styles = StyleSheet.create({
     marginTop: 12
   },
   accountDarkLayout: {
-    backgroundColor: "#181818"
+    backgroundColor: theme.dark.page
   },
   accountDarkMainCard: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(247, 237, 220, 0.08)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(246, 242, 237, 0.08)",
     shadowColor: "#000000",
     shadowOpacity: 0
   },
   accountDarkSection: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   accountDarkInsetBox: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   accountDarkLegalDocBox: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   accountDarkOptionCard: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   accountDarkActiveOptionCard: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.48)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.48)"
   },
   accountDarkInput: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.2)",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.2)",
+    color: theme.dark.ink
   },
   accountDarkTitle: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   accountDarkText: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   accountDarkMutedText: {
-    color: "#cbc5b9"
+    color: theme.dark.muted
   },
   accountDarkBadge: {
-    backgroundColor: "#343434",
-    borderColor: "rgba(233, 183, 106, 0.45)"
+    backgroundColor: theme.dark.raised,
+    borderColor: "rgba(212, 167, 104, 0.45)"
   },
   accountDarkBadgeText: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   accountDarkSegmentedRow: {
-    backgroundColor: "#181818"
+    backgroundColor: theme.dark.page
   },
   accountDarkActiveSegment: {
-    backgroundColor: "#8f6a35"
+    backgroundColor: theme.dark.selected
   },
   studyDarkGuidedHeader: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   studyDarkPillControl: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.22)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.22)"
   },
   studyDarkTogglePill: {
-    backgroundColor: "#242424"
+    backgroundColor: theme.dark.surface
   },
   studyDarkAccentText: {
-    color: "#e9b76a"
+    color: theme.dark.bronze
   },
   studyDarkMethodChip: {
-    backgroundColor: "#343434"
+    backgroundColor: theme.dark.raised
   },
   studyDarkSmartPassageBox: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.34)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.34)"
   },
   studyDarkProgressPill: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.14)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.14)"
+  },
+  studyDarkActiveProgressPill: {
+    backgroundColor: theme.dark.selected,
+    borderColor: theme.dark.bronze
   },
   studyDarkCompletedProgressPill: {
-    backgroundColor: "#343434",
-    borderColor: "rgba(233, 183, 106, 0.2)"
+    backgroundColor: theme.dark.raised,
+    borderColor: "rgba(212, 167, 104, 0.2)"
   },
   studyDarkProgressNumber: {
-    backgroundColor: "#343434",
-    color: "#e9b76a"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.bronze
   },
   studyDarkCompletedProgressNumber: {
-    backgroundColor: "#e9b76a",
-    color: "#171b1c"
+    backgroundColor: theme.dark.bronze,
+    color: theme.dark.page
   },
   studyDarkActiveProgressNumber: {
-    backgroundColor: "#f7eddc",
-    color: "#171b1c"
+    backgroundColor: theme.dark.ink,
+    color: theme.dark.page
   },
   studyDarkScriptureBox: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   studyDarkVerseRow: {
     backgroundColor: "transparent"
   },
   studyDarkFloatingBar: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.22)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.22)"
   },
   bibleDarkDividerSection: {
-    borderBottomColor: "rgba(233, 183, 106, 0.16)",
-    borderTopColor: "rgba(233, 183, 106, 0.16)"
+    borderBottomColor: "rgba(212, 167, 104, 0.16)",
+    borderTopColor: "rgba(212, 167, 104, 0.16)"
   },
   bibleDarkSearchSelect: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)",
+    color: theme.dark.ink
   },
   bibleDarkVerseRow: {
     backgroundColor: "transparent"
   },
   bibleDarkMobileSelectionDock: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.26)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.26)",
     shadowColor: "#000",
     shadowOpacity: 0.22
   },
   bibleDarkMobileNoteEditor: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   plansDarkProgressTrack: {
-    backgroundColor: "#343434"
+    backgroundColor: theme.dark.raised
   },
   plansDarkDraftPill: {
-    backgroundColor: "#343434",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.ink
   },
   plansDarkDayRow: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.14)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.14)",
     borderWidth: 1
   },
   plansDarkCompletedDayRow: {
-    backgroundColor: "#34422f",
-    borderColor: "rgba(233, 183, 106, 0.45)"
+    backgroundColor: theme.dark.selected,
+    borderColor: "rgba(212, 167, 104, 0.45)"
   },
   completedPlanDayTextDark: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   completedPlanDayMutedTextDark: {
-    color: "#d8ceb8"
+    color: theme.dark.muted
   },
   plansDarkDayBadge: {
-    backgroundColor: "#8f6a35"
+    backgroundColor: theme.dark.selected
   },
   methodsDarkBadge: {
-    backgroundColor: "#343434",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.ink
   },
   methodsDarkPill: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)",
+    color: theme.dark.ink
   },
   methodsDarkWatchBox: {
-    backgroundColor: "rgba(201, 103, 80, 0.12)",
-    borderColor: "rgba(201, 103, 80, 0.32)"
+    backgroundColor: "rgba(187, 130, 74, 0.12)",
+    borderColor: "rgba(187, 130, 74, 0.32)"
   },
   memoryDarkFocusBanner: {
-    backgroundColor: "rgba(201, 103, 80, 0.12)",
-    borderColor: "rgba(201, 103, 80, 0.32)"
+    backgroundColor: "rgba(187, 130, 74, 0.12)",
+    borderColor: "rgba(187, 130, 74, 0.32)"
   },
   memoryDarkCountPill: {
-    backgroundColor: "#343434",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.ink
   },
   memoryDarkActiveCard: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(201, 103, 80, 0.34)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(187, 130, 74, 0.34)"
   },
   memoryDarkReviewPill: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)",
     borderWidth: 1,
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   memoryDarkDueReviewPill: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(201, 103, 80, 0.7)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(187, 130, 74, 0.7)",
     borderWidth: 1,
     color: "#f2a08c"
   },
   memoryDarkPracticeText: {
-    backgroundColor: "#242424",
-    color: "#f7eddc"
+    backgroundColor: theme.dark.surface,
+    color: theme.dark.ink
   },
   memoryDarkFillBox: {
-    backgroundColor: "#242424"
+    backgroundColor: theme.dark.surface
   },
   journalDarkCalendarDayCell: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   journalDarkActiveCalendarDayCell: {
-    backgroundColor: "rgba(233, 183, 106, 0.12)",
-    borderColor: "rgba(233, 183, 106, 0.34)"
+    backgroundColor: "rgba(212, 167, 104, 0.12)",
+    borderColor: "rgba(212, 167, 104, 0.34)"
   },
   journalDarkScriptureActiveBookChip: {
-    backgroundColor: "rgba(233, 183, 106, 0.12)",
-    borderColor: "rgba(233, 183, 106, 0.34)"
+    backgroundColor: "rgba(212, 167, 104, 0.12)",
+    borderColor: "rgba(212, 167, 104, 0.34)"
   },
   studyDarkStepPanel: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.24)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.24)"
   },
   studyDarkFormatButton: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.2)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.2)"
   },
   signedInBadgeRow: {
     alignItems: "flex-start",
@@ -6273,7 +6289,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   lockedTranslationPill: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -6360,11 +6376,11 @@ export const styles = StyleSheet.create({
   },
   memoryReviewSuccessBox: {
     backgroundColor: "#edf5df",
-    borderColor: "rgba(102, 114, 78, 0.28)"
+    borderColor: "rgba(16, 35, 59, 0.28)"
   },
   memoryReviewEncourageBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.22)"
+    borderColor: "rgba(187, 130, 74, 0.22)"
   },
   memoryReviewPromptText: {
     color: colors.ink,
@@ -6448,7 +6464,7 @@ export const styles = StyleSheet.create({
   },
   memoryBrowseFiltersToggle: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6547,7 +6563,7 @@ export const styles = StyleSheet.create({
   memoryHistoryEncouragementBox: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.22)",
+    borderColor: "rgba(187, 130, 74, 0.22)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 10,
@@ -6586,7 +6602,7 @@ export const styles = StyleSheet.create({
   },
   memoryWeeklyScriptureBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.2)",
+    borderColor: "rgba(187, 130, 74, 0.2)",
     borderRadius: 10,
     borderWidth: 1,
     flex: 1,
@@ -6637,7 +6653,7 @@ export const styles = StyleSheet.create({
   },
   memoryMilestoneGoalChip: {
     alignItems: "flex-start",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6681,7 +6697,7 @@ export const styles = StyleSheet.create({
   },
   memoryHistoryIcon: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderRadius: 999,
     height: 30,
     justifyContent: "center",
@@ -6722,7 +6738,7 @@ export const styles = StyleSheet.create({
     minWidth: 0
   },
   neglectedMemoryPracticeButton: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -6745,7 +6761,7 @@ export const styles = StyleSheet.create({
   memoryVerseProgressBox: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderColor: "rgba(187, 130, 74, 0.18)",
     borderRadius: 10,
     borderWidth: 1,
     flexDirection: "row",
@@ -6783,7 +6799,7 @@ export const styles = StyleSheet.create({
   memoryFocusBanner: {
     alignItems: "center",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.25)",
+    borderColor: "rgba(187, 130, 74, 0.25)",
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
@@ -6800,7 +6816,7 @@ export const styles = StyleSheet.create({
   },
   memoryReviewQueueStopButton: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -6845,7 +6861,7 @@ export const styles = StyleSheet.create({
   },
   memorySectionSortRow: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -6909,7 +6925,7 @@ export const styles = StyleSheet.create({
   },
   memorySectionHeaderFeatured: {
     backgroundColor: "rgba(255, 250, 242, 0.9)",
-    borderColor: "rgba(201, 103, 80, 0.22)",
+    borderColor: "rgba(187, 130, 74, 0.22)",
     borderRadius: 12,
     borderWidth: 1,
     marginTop: 8,
@@ -6941,7 +6957,7 @@ export const styles = StyleSheet.create({
     textAlign: "center"
   },
   memorySectionCountFeatured: {
-    backgroundColor: "rgba(201, 103, 80, 0.14)",
+    backgroundColor: "rgba(187, 130, 74, 0.14)",
     color: colors.coral,
     fontSize: 13,
     minWidth: 34,
@@ -6953,7 +6969,7 @@ export const styles = StyleSheet.create({
     color: colors.oliveDark
   },
   memoryDarkSectionCountFeatured: {
-    backgroundColor: "rgba(201, 103, 80, 0.22)",
+    backgroundColor: "rgba(187, 130, 74, 0.22)",
     color: "#f2c7ba"
   },
   memoryDarkSectionCountReviewed: {
@@ -6984,10 +7000,10 @@ export const styles = StyleSheet.create({
     paddingVertical: 4
   },
   memoryDarkCollectionPill: {
-    backgroundColor: "#343434",
-    borderColor: "rgba(233, 183, 106, 0.16)",
+    backgroundColor: theme.dark.raised,
+    borderColor: "rgba(212, 167, 104, 0.16)",
     borderWidth: 1,
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   memoryCollectionManageBox: {
     backgroundColor: colors.panel,
@@ -7048,7 +7064,7 @@ export const styles = StyleSheet.create({
   },
   activeMemoryCard: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)"
+    borderColor: "rgba(187, 130, 74, 0.28)"
   },
   phoneMemoryCardHeader: {
     alignItems: "flex-start",
@@ -7135,14 +7151,14 @@ export const styles = StyleSheet.create({
   },
   phoneInlineMemoryPractice: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     padding: 10
   },
   memoryMeditationBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(102, 114, 78, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 10,
@@ -7196,7 +7212,7 @@ export const styles = StyleSheet.create({
   },
   memoryMeditationVerse: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.14)",
+    borderColor: "rgba(187, 130, 74, 0.14)",
     borderRadius: 12,
     borderWidth: 1,
     color: colors.ink,
@@ -7630,7 +7646,7 @@ export const styles = StyleSheet.create({
   methodWatchBox: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.24)",
+    borderColor: "rgba(187, 130, 74, 0.24)",
     borderRadius: 10,
     borderWidth: 1,
     flexDirection: "row",
@@ -7788,6 +7804,9 @@ export const styles = StyleSheet.create({
   },
   activeJournalViewButton: {
     backgroundColor: colors.oliveDark
+  },
+  darkActiveJournalViewButton: {
+    backgroundColor: theme.dark.selected
   },
   journalViewText: {
     color: colors.oliveDark,
@@ -7962,7 +7981,7 @@ export const styles = StyleSheet.create({
   },
   activeCalendarDayCell: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.34)"
+    borderColor: "rgba(187, 130, 74, 0.34)"
   },
   selectedCalendarDayCell: {
     backgroundColor: colors.oliveDark,
@@ -8005,7 +8024,7 @@ export const styles = StyleSheet.create({
   },
   journalScriptureActiveBookChip: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.34)"
+    borderColor: "rgba(187, 130, 74, 0.34)"
   },
   journalScriptureChapterSquare: {
     alignItems: "center",
@@ -8032,7 +8051,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderColor: "rgba(187, 130, 74, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
@@ -8057,7 +8076,7 @@ export const styles = StyleSheet.create({
   clearPassageFilterInlineButton: {
     alignItems: "center",
     backgroundColor: "rgba(255, 255, 255, 0.72)",
-    borderColor: "rgba(201, 103, 80, 0.22)",
+    borderColor: "rgba(187, 130, 74, 0.22)",
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",
@@ -8074,7 +8093,7 @@ export const styles = StyleSheet.create({
   highlightLibraryPanel: {
     alignItems: "center",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderColor: "rgba(187, 130, 74, 0.28)",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -8156,7 +8175,7 @@ export const styles = StyleSheet.create({
   addMemoryBox: {
     alignItems: "center",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.24)",
+    borderColor: "rgba(187, 130, 74, 0.24)",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
@@ -8263,9 +8282,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   helpDarkShareUrl: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.24)",
-    color: "#e9b76a"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.24)",
+    color: theme.dark.bronze
   },
   helpShareActions: {
     flexDirection: "row",
@@ -8292,8 +8311,8 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   helpDarkQrFrame: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   helpQrImage: {
     height: 168,
@@ -8362,7 +8381,7 @@ export const styles = StyleSheet.create({
     width: 28
   },
   helpDarkStepNumber: {
-    backgroundColor: "#8f6a35"
+    backgroundColor: theme.dark.selected
   },
   helpStepNumberText: {
     color: "white",
@@ -8405,7 +8424,7 @@ export const styles = StyleSheet.create({
     width: 7
   },
   helpDarkWindowDot: {
-    backgroundColor: "rgba(233, 183, 106, 0.32)"
+    backgroundColor: "rgba(212, 167, 104, 0.32)"
   },
   helpScreenshotFrame: {
     backgroundColor: colors.panel,
@@ -8418,8 +8437,8 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkScreenshotFrame: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   helpScreenshotTopBar: {
     alignItems: "center",
@@ -8442,8 +8461,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 4
   },
   helpDarkScreenshotPill: {
-    backgroundColor: "#343434",
-    color: "#e9b76a"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.bronze
   },
   helpVerseLine: {
     alignItems: "center",
@@ -8456,7 +8475,7 @@ export const styles = StyleSheet.create({
     padding: 8
   },
   helpDarkSelectedLine: {
-    backgroundColor: "rgba(233, 183, 106, 0.14)"
+    backgroundColor: "rgba(212, 167, 104, 0.14)"
   },
   helpVerseNumber: {
     color: colors.coral,
@@ -8470,7 +8489,7 @@ export const styles = StyleSheet.create({
     width: "78%"
   },
   helpDarkLine: {
-    backgroundColor: "rgba(247, 237, 220, 0.24)"
+    backgroundColor: "rgba(246, 242, 237, 0.24)"
   },
   helpMediumLine: {
     backgroundColor: colors.line,
@@ -8495,8 +8514,8 @@ export const styles = StyleSheet.create({
     padding: 7
   },
   helpDarkDockPreview: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   helpDockButton: {
     backgroundColor: colors.oliveDark,
@@ -8517,8 +8536,8 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkTextAreaPreview: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   helpToolbarPreview: {
     flexDirection: "row",
@@ -8535,8 +8554,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   helpDarkToolButton: {
-    backgroundColor: "#343434",
-    color: "#e9b76a"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.bronze
   },
   helpMemoryLine: {
     alignItems: "center",
@@ -8551,7 +8570,7 @@ export const styles = StyleSheet.create({
     width: 48
   },
   helpDarkBlankWord: {
-    borderBottomColor: "#e9b76a"
+    borderBottomColor: theme.dark.bronze
   },
   helpMemoryWord: {
     color: colors.ink,
@@ -8569,8 +8588,8 @@ export const styles = StyleSheet.create({
     padding: 10
   },
   helpDarkJournalRow: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   helpJournalTitle: {
     color: colors.ink,
@@ -8587,7 +8606,7 @@ export const styles = StyleSheet.create({
     paddingTop: 10
   },
   helpDarkFaqItem: {
-    borderTopColor: "rgba(233, 183, 106, 0.16)"
+    borderTopColor: "rgba(212, 167, 104, 0.16)"
   },
   helpFaqQuestion: {
     color: colors.ink,
@@ -8624,8 +8643,8 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   helpDarkGuideItem: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   phoneHelpGuideItem: {
     alignSelf: "stretch",
@@ -8713,8 +8732,8 @@ export const styles = StyleSheet.create({
     textAlign: "center"
   },
   helpDarkGuideStepNumber: {
-    backgroundColor: "#343434",
-    color: "#e9b76a"
+    backgroundColor: theme.dark.raised,
+    color: theme.dark.bronze
   },
   helpGuideStepText: {
     color: colors.ink,
@@ -8756,8 +8775,8 @@ export const styles = StyleSheet.create({
     width: "32%"
   },
   helpDarkTabItem: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   phoneHelpTabItem: {
     minWidth: 0,
@@ -8773,7 +8792,7 @@ export const styles = StyleSheet.create({
   helpTroubleItem: {
     alignItems: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.24)",
+    borderColor: "rgba(187, 130, 74, 0.24)",
     borderRadius: 12,
     borderWidth: 1,
     flexDirection: "row",
@@ -8781,8 +8800,8 @@ export const styles = StyleSheet.create({
     padding: 11
   },
   helpDarkTroubleItem: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   feedbackCategoryRow: {
     flexDirection: "row",
@@ -8798,8 +8817,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   helpDarkCategoryChip: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   activeFeedbackCategoryChip: {
     backgroundColor: colors.oliveDark,
@@ -8857,8 +8876,8 @@ export const styles = StyleSheet.create({
     width: "100%"
   },
   accountDarkSavedDataItem: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   savedDataIcon: {
     alignItems: "center",
@@ -8869,7 +8888,7 @@ export const styles = StyleSheet.create({
     width: 32
   },
   accountDarkSavedDataIcon: {
-    backgroundColor: "#343434"
+    backgroundColor: theme.dark.raised
   },
   savedDataCopy: {
     flex: 1,
@@ -8926,7 +8945,7 @@ export const styles = StyleSheet.create({
   adminMapMetricPill: {
     alignItems: "center",
     backgroundColor: colors.sage,
-    borderColor: "rgba(102, 114, 78, 0.28)",
+    borderColor: "rgba(16, 35, 59, 0.28)",
     borderRadius: 12,
     borderWidth: 1,
     paddingHorizontal: 12,
@@ -8973,8 +8992,8 @@ export const styles = StyleSheet.create({
     position: "relative"
   },
   adminDarkMapCanvas: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.16)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.16)"
   },
   phoneAdminMapCanvas: {
     flex: 0,
@@ -9314,7 +9333,7 @@ export const styles = StyleSheet.create({
     maxWidth: "100%"
   },
   suspensionReasonChip: {
-    borderColor: "rgba(201, 103, 80, 0.35)"
+    borderColor: "rgba(187, 130, 74, 0.35)"
   },
   adminReviewBox: {
     backgroundColor: colors.panel,
@@ -9409,8 +9428,8 @@ export const styles = StyleSheet.create({
     borderColor: colors.olive
   },
   adminDarkActiveUserRow: {
-    backgroundColor: "#343434",
-    borderColor: "rgba(233, 183, 106, 0.35)"
+    backgroundColor: theme.dark.raised,
+    borderColor: "rgba(212, 167, 104, 0.35)"
   },
   adminUserMetaPills: {
     alignItems: "flex-end",
@@ -9725,7 +9744,7 @@ export const styles = StyleSheet.create({
   },
   highlightColorChoice: {
     alignItems: "center",
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
@@ -9801,7 +9820,7 @@ export const styles = StyleSheet.create({
     gap: 8
   },
   printOptionChip: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 999,
     borderWidth: 1,
@@ -9810,8 +9829,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   printDarkOptionChip: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   activePrintOptionChip: {
     backgroundColor: colors.oliveDark,
@@ -9860,7 +9879,7 @@ export const styles = StyleSheet.create({
     fontWeight: "700"
   },
   memoryPrintVersePicker: {
-    backgroundColor: "#fffaf2",
+    backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1
@@ -9880,7 +9899,7 @@ export const styles = StyleSheet.create({
   memoryPrintVerseRow: {
     alignItems: "flex-start",
     backgroundColor: "white",
-    borderColor: "rgba(108, 91, 67, 0.14)",
+    borderColor: "rgba(16, 35, 59, 0.14)",
     borderRadius: 10,
     borderWidth: 1,
     flexDirection: "row",
@@ -9907,12 +9926,12 @@ export const styles = StyleSheet.create({
     marginTop: 2
   },
   memoryDarkSubPanel: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.18)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.18)"
   },
   memoryDarkSoftPanel: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.14)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.14)"
   },
   rhythmGraceInfoBox: {
     alignItems: "flex-start",
@@ -10021,8 +10040,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   printDarkCancelButton: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.32)",
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.32)",
     borderRadius: 999,
     borderWidth: 1,
     paddingHorizontal: 16
@@ -10262,7 +10281,7 @@ export const styles = StyleSheet.create({
   },
   journalMeditationScriptureBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderColor: "rgba(187, 130, 74, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 8,
@@ -10271,8 +10290,8 @@ export const styles = StyleSheet.create({
     padding: 12
   },
   journalDarkMeditationScriptureBox: {
-    backgroundColor: "#242424",
-    borderColor: "rgba(233, 183, 106, 0.24)"
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.24)"
   },
   journalMeditationReference: {
     color: colors.ink,
@@ -10307,7 +10326,7 @@ export const styles = StyleSheet.create({
   },
   studyReviewBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.18)",
+    borderColor: "rgba(187, 130, 74, 0.18)",
     borderRadius: 12,
     borderWidth: 1,
     marginBottom: 10,
@@ -10373,7 +10392,7 @@ export const styles = StyleSheet.create({
   },
   reflectionSummaryBox: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.24)",
+    borderColor: "rgba(187, 130, 74, 0.24)",
     borderRadius: 12,
     borderWidth: 1,
     gap: 10,
@@ -10426,7 +10445,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "flex-start",
     backgroundColor: colors.panel,
-    borderColor: "rgba(201, 103, 80, 0.28)",
+    borderColor: "rgba(187, 130, 74, 0.28)",
     borderRadius: 999,
     borderWidth: 1,
     flexDirection: "row",

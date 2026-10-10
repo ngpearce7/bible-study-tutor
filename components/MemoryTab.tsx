@@ -163,7 +163,7 @@ export function MemoryTab(props: any) {
               onPress={() => setAddMemoryPanelOpen((open) => !open)}
               style={[styles.phoneMemoryHeaderAddButton, memoryDarkMode && styles.homeDarkIconBubble]}
             >
-              <Ionicons name="add-circle-outline" size={24} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+              <Ionicons name="add-circle-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
             </Pressable>
           )}
         </View>
@@ -211,7 +211,7 @@ export function MemoryTab(props: any) {
         )}
         {phoneMemoryFocusMode && (
           <View style={[styles.memoryFocusBanner, memoryDarkMode && styles.memoryDarkFocusBanner]}>
-            <Ionicons name={activeMemoryMeditationVerseId ? "leaf-outline" : "school-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+            <Ionicons name={activeMemoryMeditationVerseId ? "leaf-outline" : "school-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.memoryFocusBannerText, memoryDarkMode && styles.accountDarkText]}>
               {activeMemoryMeditationVerseId
                 ? "Meditation mode. Save or close this reflection to return to your saved list."
@@ -232,7 +232,7 @@ export function MemoryTab(props: any) {
         )}
         {(memoryVerses || []).length === 0 ? (
           <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
-            <Ionicons name="sparkles-outline" size={24} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+            <Ionicons name="sparkles-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No memory verses yet</Text>
             <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, open the Bible, select one or more verses, then tap Memory. You can also save verses while studying.` : "Open the Bible, select one or more verses, then tap Memory. You can also save verses while studying."}</Text>
             <View style={styles.emptyMemoryActions}>
@@ -254,7 +254,7 @@ export function MemoryTab(props: any) {
                     style={[styles.addMemoryHeader, phoneLayout && styles.phoneAddMemoryHeader]}
                   >
                     <View style={[styles.feedbackHeader, phoneLayout && styles.phoneAddMemoryTitleBlock]}>
-                      <Ionicons name="add-circle-outline" size={18} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                      <Ionicons name="add-circle-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                       <View style={styles.addMemoryCopy}>
                         <Text style={[styles.feedbackTitle, phoneLayout && styles.phoneAddMemoryTitle, memoryDarkMode && styles.accountDarkTitle]}>{phoneLayout ? "Add verses" : "Add memory verses"}</Text>
                         {phoneLayout && <Text style={[styles.phoneAddMemorySubtitle, memoryDarkMode && styles.accountDarkMutedText]}>From Bible or Study</Text>}
@@ -264,7 +264,7 @@ export function MemoryTab(props: any) {
                       <Ionicons
                         name={addMemoryPanelOpen ? "chevron-up-outline" : "chevron-down-outline"}
                         size={18}
-                        color={memoryDarkMode ? "#e9b76a" : colors.oliveDark}
+                        color={memoryDarkMode ? "#d4a768" : colors.oliveDark}
                       />
                     )}
                   </Pressable>
@@ -291,9 +291,9 @@ export function MemoryTab(props: any) {
                       <Pressable
                         key={key}
                         onPress={() => setMemoryView(key as MemoryView)}
-                        style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton]}
+                        style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton, memoryDarkMode && memoryView === key && styles.accountDarkActiveSegment]}
                       >
-                        <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText]}>{label}</Text>
+                        <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText, memoryDarkMode && memoryView === key && styles.studyDarkAccentText]}>{label}</Text>
                       </Pressable>
                     ))}
                   </View>
@@ -302,7 +302,7 @@ export function MemoryTab(props: any) {
                     style={[styles.memoryPrintCardsButton, phoneLayout && styles.phoneMemoryPrintIconButton, memoryDarkMode && styles.homeDarkResumeButton]}
                     accessibilityLabel={phoneLayout ? "Show memory options" : "Print memory cards"}
                   >
-                    <Ionicons name={phoneLayout ? "ellipsis-horizontal" : "print-outline"} size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Ionicons name={phoneLayout ? "ellipsis-horizontal" : "print-outline"} size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                     {!phoneLayout && <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>}
                   </Pressable>
                 </View>
@@ -316,7 +316,7 @@ export function MemoryTab(props: any) {
                       }}
                       style={styles.phoneMemoryMoreMenuItem}
                     >
-                      <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                       <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>
                     </Pressable>
                   </View>
@@ -351,7 +351,7 @@ export function MemoryTab(props: any) {
             {!phoneMemoryFocusMode && memoryView === "browse" && (
               <>
                 <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
-                  <Ionicons name="search-outline" size={18} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                  <Ionicons name="search-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                   <TextInput
                     value={memorySearch}
                     onChangeText={setMemorySearch}
@@ -361,7 +361,7 @@ export function MemoryTab(props: any) {
                   />
                   {!!memorySearch.trim() && (
                     <Pressable onPress={() => setMemorySearch("")} style={styles.clearSearchButton}>
-                      <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#c8bda9" : colors.muted} />
+                      <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#bbb8b4" : colors.muted} />
                     </Pressable>
                   )}
                 </View>
@@ -374,7 +374,7 @@ export function MemoryTab(props: any) {
                     <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
                     <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
                   </View>
-                  <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                 </Pressable>
                 {memoryBrowseFiltersOpen && (
                 <View style={[styles.memoryDiscoverBlock, styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
@@ -396,7 +396,7 @@ export function MemoryTab(props: any) {
                         {memoryCollectionFilter === "all" ? "Filter saved verses by theme" : `${activeMemoryCollectionDueCount} due for review`}
                       </Text>
                     </View>
-                    <Ionicons name={memoryCollectionPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Ionicons name={memoryCollectionPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                   </Pressable>
                   {memoryCollectionPickerOpen && (
                     <View style={[styles.memoryCollectionPickerPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
@@ -454,7 +454,7 @@ export function MemoryTab(props: any) {
                             style={[styles.mobileReaderDropdownButton, memoryDarkMode && styles.accountDarkInsetBox]}
                           >
                             <Text style={[styles.mobileReaderDropdownText, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                            <Ionicons name={memoryFilterMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={memoryDarkMode ? "#c8bda9" : colors.muted} />
+                            <Ionicons name={memoryFilterMobileMenu === section.id ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={memoryDarkMode ? "#bbb8b4" : colors.muted} />
                           </Pressable>
                           {memoryFilterMobileMenu === section.id && (
                             <View style={styles.mobileReaderBookList}>
@@ -607,7 +607,7 @@ export function MemoryTab(props: any) {
                         <Text style={[styles.memoryBrowseClearText, memoryDarkMode && styles.studyDarkAccentText]}>
                           {bulkReviewOptionsExpanded ? "Hide review options" : "More review options"}
                         </Text>
-                        <Ionicons name={bulkReviewOptionsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                        <Ionicons name={bulkReviewOptionsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                       </Pressable>
                       {bulkReviewOptionsExpanded && (
                         <View style={styles.filterRow}>
@@ -685,9 +685,9 @@ export function MemoryTab(props: any) {
                               key={key}
                               accessibilityRole="button"
                               onPress={() => setSectionSort(key as MemoryReviewSort)}
-                              style={[styles.memorySortButton, phoneLayout && styles.phoneMemorySortButton, sectionSort === key && styles.activeMemoryViewButton]}
+                              style={[styles.memorySortButton, phoneLayout && styles.phoneMemorySortButton, sectionSort === key && styles.activeMemoryViewButton, memoryDarkMode && sectionSort === key && styles.accountDarkActiveSegment]}
                             >
-                              <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, phoneLayout && styles.phoneMemorySortText, sectionSort === key && styles.activeMemoryViewText]}>{label}</Text>
+                              <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, phoneLayout && styles.phoneMemorySortText, sectionSort === key && styles.activeMemoryViewText, memoryDarkMode && sectionSort === key && styles.studyDarkAccentText]}>{label}</Text>
                             </Pressable>
                           ))}
                         </View>
@@ -739,7 +739,7 @@ export function MemoryTab(props: any) {
                         <View style={styles.journalTitleBlock}>
                           <View style={styles.memoryReferenceRow}>
                             <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
-                            <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                            <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                           </View>
                           <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
                             {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
@@ -842,10 +842,10 @@ export function MemoryTab(props: any) {
                                 labelStyle={phoneLayout && styles.phoneMemoryActionText}
                               />
                             ) : memoryPracticeLevel === 1 ? (
-                              <ResumeButton label="Ready for Step 2" icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                              <ResumeButton label="Ready for Step 2" icon="checkmark-circle-outline" onPress={submitMemoryPractice} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#d4a768" : undefined} />
                             ) : null}
                             {memoryPracticeLevel > 1 && (
-                              <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                              <ResumeButton label="Repeat" icon="refresh-outline" onPress={repeatMemoryPracticeStep} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#d4a768" : undefined} />
                             )}
                             {memoryPracticeLevel > 1 && !memoryPracticeAllCorrect && (
                               <ResumeButton
@@ -854,10 +854,10 @@ export function MemoryTab(props: any) {
                                 onPress={() => setMemoryHintsVisible((visible) => !visible)}
                                 style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
                                 labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
-                                iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                iconColor={memoryDarkMode ? "#d4a768" : undefined}
                               />
                             )}
-                            <ResumeButton label="Close" icon="close-outline" onPress={activeMemoryReviewQueueCount > 0 ? stopMemoryReviewQueue : () => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                            <ResumeButton label="Close" icon="close-outline" onPress={activeMemoryReviewQueueCount > 0 ? stopMemoryReviewQueue : () => setActiveMemoryVerseId("")} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#d4a768" : undefined} />
                           </View>
                         </View>
                       ) : meditating ? (
@@ -868,7 +868,7 @@ export function MemoryTab(props: any) {
                               <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
                             </View>
                             <Pressable onPress={closeMemoryMeditation} style={[styles.checkinIconButton, memoryDarkMode && styles.homeDarkIconBubble]} accessibilityLabel="Close meditation">
-                              <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                              <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                             </Pressable>
                           </View>
                           <Text style={[styles.memoryMeditationVerse, memoryDarkMode && styles.memoryDarkPracticeText]}>{verse.verseText}</Text>
@@ -936,14 +936,14 @@ export function MemoryTab(props: any) {
                           )}
                           <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions]}>
                             {memoryMeditationStep > 0 && (
-                              <ResumeButton label="Back" icon="arrow-back-outline" onPress={() => setMemoryMeditationStep((step) => Math.max(0, step - 1))} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                              <ResumeButton label="Back" icon="arrow-back-outline" onPress={() => setMemoryMeditationStep((step) => Math.max(0, step - 1))} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#d4a768" : undefined} />
                             )}
                             {memoryMeditationStep < 3 ? (
-                              <ResumeButton label="Next" icon="arrow-forward-outline" onPress={() => setMemoryMeditationStep((step) => Math.min(3, step + 1))} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                              <ResumeButton label="Next" icon="arrow-forward-outline" onPress={() => setMemoryMeditationStep((step) => Math.min(3, step + 1))} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#d4a768" : undefined} />
                             ) : (
                               <ResumeButton label="Save meditation" icon="journal-outline" onPress={() => saveMemoryMeditation(verse)} variant="primary" style={phoneLayout && styles.phoneMemoryActionButton} labelStyle={phoneLayout && styles.phoneMemoryActionText} />
                             )}
-                            <ResumeButton label="Close" icon="close-outline" onPress={closeMemoryMeditation} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#e9b76a" : undefined} />
+                            <ResumeButton label="Close" icon="close-outline" onPress={closeMemoryMeditation} style={[phoneLayout && styles.phoneMemoryActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={memoryDarkMode ? "#d4a768" : undefined} />
                           </View>
                         </View>
                       ) : (
@@ -960,7 +960,7 @@ export function MemoryTab(props: any) {
                           )}
                           {historyOpen && <View style={[styles.memoryVerseHistoryBox, phoneLayout && styles.phoneMemoryVerseHistoryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                             <View style={[styles.memoryVerseProgressBox, memoryDarkMode && styles.accountDarkSection]}>
-                              <Ionicons name="trending-up-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                              <Ionicons name="trending-up-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                               <View style={styles.memoryHistoryTextBlock}>
                                 <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{memoryVerseProgressMessage(verse)}</Text>
                                 <Text style={[styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>{memoryVerseProgressDetail(verse)}</Text>
@@ -984,7 +984,7 @@ export function MemoryTab(props: any) {
                               <View style={styles.memoryVerseHistoryEvents}>
                                 {verseHistory.map((item: any) => (
                                   <View key={item._id} style={styles.memoryVerseHistoryEvent}>
-                                    <Ionicons name={memoryHistoryEventIcon(item.event) as any} size={14} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                                    <Ionicons name={memoryHistoryEventIcon(item.event) as any} size={14} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                                     <Text style={[styles.muted, styles.memoryVerseHistoryEventText, memoryDarkMode && styles.accountDarkMutedText]}>
                                       {memoryHistoryEventLabel(item.event, item.practiceLevel)} - {formatMemoryHistoryDate(item.createdAt)}
                                     </Text>
@@ -994,14 +994,14 @@ export function MemoryTab(props: any) {
                             )}
                           </View>}
                           <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions, phoneLayout && styles.phoneMemoryPrimaryActions]}>
-                            <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} variant={phoneLayout ? "primary" : "default"} style={[phoneLayout && styles.phoneMemoryPracticeButton, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={phoneLayout ? "#fff" : memoryDarkMode ? "#e9b76a" : undefined} />
+                            <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} variant={phoneLayout ? "primary" : "default"} style={[phoneLayout && styles.phoneMemoryPracticeButton, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={phoneLayout ? "#fff" : memoryDarkMode ? "#d4a768" : undefined} />
                             <ResumeButton
                               label="Meditate"
                               icon="leaf-outline"
                               onPress={() => startMemoryMeditation(verse)}
                               style={[phoneLayout && styles.phoneMemoryMeditateButton, memoryDarkMode && styles.homeDarkResumeButton]}
                               labelStyle={[phoneLayout && styles.phoneMemoryActionText, memoryDarkMode && styles.homeDarkResumeButtonText]}
-                              iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                              iconColor={memoryDarkMode ? "#d4a768" : undefined}
                             />
                             {phoneLayout ? (
                               <Pressable
@@ -1010,7 +1010,7 @@ export function MemoryTab(props: any) {
                                 onPress={() => setMemoryMoreVerseId((current) => current === verseId ? "" : verseId)}
                                 style={[styles.phoneMemoryMoreButton, memoryDarkMode && styles.homeDarkResumeButton]}
                               >
-                                <Ionicons name="ellipsis-horizontal" size={18} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Ionicons name="ellipsis-horizontal" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                               </Pressable>
                             ) : (
                               <>
@@ -1020,7 +1020,7 @@ export function MemoryTab(props: any) {
                                   onPress={() => setHistoryMemoryVerseId((current) => current === verseId ? "" : verseId)}
                                   style={memoryDarkMode && styles.homeDarkResumeButton}
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                                  iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                  iconColor={memoryDarkMode ? "#d4a768" : undefined}
                                 />
                                 <ResumeButton
                                   label={reviewOpen ? "Hide review" : "Change review"}
@@ -1028,7 +1028,7 @@ export function MemoryTab(props: any) {
                                   onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
                                   style={memoryDarkMode && styles.homeDarkResumeButton}
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                                  iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                  iconColor={memoryDarkMode ? "#d4a768" : undefined}
                                 />
                                 <ResumeButton
                                   label={collectionOpen ? "Hide collections" : "Collections"}
@@ -1039,7 +1039,7 @@ export function MemoryTab(props: any) {
                                   }}
                                   style={memoryDarkMode && styles.homeDarkResumeButton}
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                                  iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                  iconColor={memoryDarkMode ? "#d4a768" : undefined}
                                 />
                                 <ResumeButton
                                   label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
@@ -1047,7 +1047,7 @@ export function MemoryTab(props: any) {
                                   onPress={() => deleteMemoryVerse(verse)}
                                   style={memoryDarkMode && styles.homeDarkResumeButton}
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                                  iconColor={memoryDarkMode ? "#e9b76a" : undefined}
+                                  iconColor={memoryDarkMode ? "#d4a768" : undefined}
                                 />
                               </>
                             )}
@@ -1062,7 +1062,7 @@ export function MemoryTab(props: any) {
                                 }}
                                 style={styles.phoneMemoryMoreMenuItem}
                               >
-                                <Ionicons name="time-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Ionicons name="time-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{historyOpen ? "Hide history" : "View history"}</Text>
                               </Pressable>
                               <Pressable
@@ -1073,7 +1073,7 @@ export function MemoryTab(props: any) {
                                 }}
                                 style={styles.phoneMemoryMoreMenuItem}
                               >
-                                <Ionicons name="calendar-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Ionicons name="calendar-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Change review date</Text>
                               </Pressable>
                               <Pressable
@@ -1085,7 +1085,7 @@ export function MemoryTab(props: any) {
                                 }}
                                 style={styles.phoneMemoryMoreMenuItem}
                               >
-                                <Ionicons name="albums-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Ionicons name="albums-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Collections</Text>
                               </Pressable>
                               <Pressable
@@ -1096,7 +1096,7 @@ export function MemoryTab(props: any) {
                                 }}
                                 style={styles.phoneMemoryMoreMenuItem}
                               >
-                                <Ionicons name="trash-outline" size={16} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                <Ionicons name="trash-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove from Memory"}</Text>
                               </Pressable>
                             </View>
@@ -1114,7 +1114,7 @@ export function MemoryTab(props: any) {
                                   }}
                                   style={[styles.reviewScheduleCloseButton, memoryDarkMode && styles.homeDarkIconBubble]}
                                 >
-                                  <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                  <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 </Pressable>
                               </View>
                               {collections.length > 0 ? (
@@ -1127,7 +1127,7 @@ export function MemoryTab(props: any) {
                                       style={[styles.memoryCollectionEditablePill, memoryDarkMode && styles.memoryDarkCollectionPill]}
                                     >
                                       <Text style={[styles.memoryCollectionEditableText, memoryDarkMode && styles.accountDarkText]}>{collection}</Text>
-                                      <Ionicons name="close-outline" size={13} color={memoryDarkMode ? "#c8bda9" : colors.oliveDark} />
+                                      <Ionicons name="close-outline" size={13} color={memoryDarkMode ? "#bbb8b4" : colors.oliveDark} />
                                     </Pressable>
                                   ))}
                                 </View>
@@ -1182,7 +1182,7 @@ export function MemoryTab(props: any) {
                                   }}
                                   style={[styles.reviewScheduleCloseButton, memoryDarkMode && styles.homeDarkIconBubble]}
                                 >
-                                  <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                  <Ionicons name="close-outline" size={17} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 </Pressable>
                               </View>
                               <View style={styles.filterRow}>
@@ -1204,7 +1204,7 @@ export function MemoryTab(props: any) {
                                 <Text style={[styles.memoryBrowseClearText, memoryDarkMode && styles.studyDarkAccentText]}>
                                   {expandedReviewOptionsVerseId === verseId ? "Hide review options" : "More review options"}
                                 </Text>
-                                <Ionicons name={expandedReviewOptionsVerseId === verseId ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                                <Ionicons name={expandedReviewOptionsVerseId === verseId ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                               </Pressable>
                               {expandedReviewOptionsVerseId === verseId && (
                                 <View style={styles.filterRow}>
@@ -1232,7 +1232,7 @@ export function MemoryTab(props: any) {
             );})}
             {memoryView === "browse" && memoryBrowseSections.length === 0 && (
               <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
-                <Ionicons name="search-outline" size={24} color={memoryDarkMode ? "#e9b76a" : colors.coral} />
+                <Ionicons name="search-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                 <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No saved verses found</Text>
                 <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>Try a book, chapter, reference, or a phrase from the verse.</Text>
               </View>

@@ -24,10 +24,10 @@ export function LegalDocument({
     <View style={[styles.legalDocBox, darkMode && styles.accountDarkLegalDocBox]}>
       <Pressable onPress={onToggle} style={styles.legalDocHeader}>
         <View style={styles.feedbackHeader}>
-          <Ionicons name={icon as any} size={18} color={darkMode ? "#e9b76a" : colors.coral} />
+          <Ionicons name={icon as any} size={18} color={darkMode ? "#d4a768" : colors.coral} />
           <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>{title}</Text>
         </View>
-        <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={darkMode ? "#c8bda9" : colors.muted} />
+        <Ionicons name={open ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={darkMode ? "#bbb8b4" : colors.muted} />
       </Pressable>
       {open && (
         <View style={styles.legalDocBody}>

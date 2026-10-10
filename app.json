@@ -20,8 +20,8 @@
       "favicon": "./assets/favicon.png",
       "name": "Bible Study Tutor",
       "shortName": "Bible Tutor",
-      "themeColor": "#F6F1E8",
-      "backgroundColor": "#F6F1E8"
+      "themeColor": "#edf1f4",
+      "backgroundColor": "#edf1f4"
     },
     "plugins": ["expo-router"],
     "experiments": {

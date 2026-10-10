@@ -90,8 +90,8 @@ export function BibleSearchPanel({
   onSummaryLayout,
   renderResultActions
 }: BibleSearchPanelProps) {
-  const iconColor = darkMode ? "#e9b76a" : colors.coral;
-  const mutedIconColor = darkMode ? "#c8bda9" : colors.muted;
+  const iconColor = darkMode ? "#d4a768" : colors.coral;
+  const mutedIconColor = darkMode ? "#bbb8b4" : colors.muted;
 
   function renderBookPicker(compact = false) {
     if (Platform.OS === "web") {
@@ -181,7 +181,7 @@ export function BibleSearchPanel({
               onPress={onClearSearch}
               style={[styles.bibleSearchClearButton, phoneLayout && styles.phoneBibleSearchButton, darkMode && styles.homeDarkResumeButton]}
             >
-              <Ionicons name="close-circle-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name="close-circle-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
               <Text style={[styles.bibleSearchClearText, darkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
             </Pressable>
           </View>

@@ -20,7 +20,7 @@ assert(app.includes("Verses supporting your interpretation") && app.includes("us
 assert(app.includes("...current.evidenceVerseKeys") && app.includes("Add selected as evidence"), "OIA evidence references must accumulate instead of replacing earlier verses.");
 assert(app.includes("It does not insert verse text, create a hyperlink, or share anything."), "OIA evidence must explain what saving a reference does not do.");
 assert(!app.includes('studyPhase === "study" && styles.attachedScriptureBox'), "The passage must remain a complete card above the instruction panel.");
-assert(app.includes('guidedStudyStepPanel: {\n    backgroundColor: "#fffefa",\n    borderRadius: 14,'), "The guided response panel must have a complete border inside its outer card.");
+assert(app.includes('guidedStudyStepPanel: {\n    backgroundColor: colors.panel,\n    borderRadius: 14,\n    borderColor: colors.line,\n    borderWidth: 1,') && app.includes('style={[styles.guidedStudyStepPanel, phoneLayout && styles.phoneGuidedStudyStepPanel, studyDarkMode && styles.studyDarkStepPanel]}'), "The guided response panel must have a complete border inside its outer card.");
 assert(app.includes("Read the nearby context") && app.includes("studyContextPassage?.verses?.map"), "COMA needs nearby context in the active step.");
 assert(methods.includes('title: "Respond"') && methods.includes("Keep the passage’s original meaning distinct from your present response."), "Inductive needs a text-grounded response step.");
 assert(app.includes("Review this action tomorrow") && app.includes('preset: "tomorrow"'), "READ needs an explicit next-day action follow-up.");

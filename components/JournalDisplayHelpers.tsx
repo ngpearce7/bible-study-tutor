@@ -166,7 +166,7 @@ export function FormattedNoteText({ styles, text, darkMode = false }: any) {
     return createElement("div", {
       style: {
         color: colors.ink,
-        ...(darkMode ? { color: "#f7eddc" } : {}),
+        ...(darkMode ? { color: "#f6f2ed" } : {}),
         fontSize: 15,
         lineHeight: "21px",
         marginBottom: 8
@@ -199,7 +199,7 @@ export function JournalMeditationScripture({ styles, text, darkMode = false }: a
   return (
     <View style={[styles.journalMeditationScriptureBox, darkMode && styles.journalDarkMeditationScriptureBox]}>
       <View style={styles.feedbackHeader}>
-        <Ionicons name="book-outline" size={16} color={darkMode ? "#e9b76a" : colors.coral} />
+        <Ionicons name="book-outline" size={16} color={darkMode ? "#d4a768" : colors.coral} />
         <Text style={[styles.lastCheckinLabel, darkMode && styles.studyDarkAccentText]}>Scripture</Text>
       </View>
       {!!referenceLine && <Text style={[styles.journalMeditationReference, darkMode && styles.accountDarkTitle]}>{referenceLine}</Text>}
@@ -210,7 +210,7 @@ export function JournalMeditationScripture({ styles, text, darkMode = false }: a
 
 export function JournalMeditationAnswer({ styles, title, text, darkMode = false }: any) {
   const icon = getMeditationAnswerIcon(title);
-  const iconColor = darkMode ? "#e9b76a" : colors.coral;
+  const iconColor = darkMode ? "#d4a768" : colors.coral;
 
   return (
     <View style={styles.journalMeditationAnswer}>
@@ -256,13 +256,13 @@ export function JournalCalendar({ styles, monthStart, items, selectedDateKey, on
     <View style={[styles.journalCalendarBox, darkMode && styles.accountDarkSection]}>
       <View style={styles.journalCalendarHeader}>
         <Pressable onPress={onPreviousMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
-          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
         <Text style={[styles.journalCalendarTitle, darkMode && styles.accountDarkTitle]}>
           {new Date(monthStart).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
         </Text>
         <Pressable onPress={onNextMonth} style={[styles.calendarMonthButton, darkMode && styles.homeDarkIconBubble]}>
-          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
       </View>
       <View style={styles.calendarWeekdayRow}>

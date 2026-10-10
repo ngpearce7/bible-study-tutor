@@ -344,7 +344,7 @@ export function HelpTab({
       <Card style={[styles.helpShareCard, phoneLayout && styles.phoneHelpShareCard, helpDarkMode && styles.accountDarkMainCard]}>
         <View style={styles.helpShareCopy}>
           <View style={styles.feedbackHeader}>
-            <Ionicons name="qr-code-outline" size={19} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+            <Ionicons name="qr-code-outline" size={19} color={helpDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.helpCardTitle, helpDarkMode && styles.accountDarkTitle]}>Share Bible Study Tutor</Text>
           </View>
           <Text style={[styles.helpShareTitle, helpDarkMode && styles.accountDarkTitle]}>Invite someone to study Scripture with you.</Text>
@@ -353,8 +353,8 @@ export function HelpTab({
           </Text>
           <Text selectable style={[styles.helpShareUrl, helpDarkMode && styles.helpDarkShareUrl]}>biblestudytutor.org</Text>
           <View style={styles.helpShareActions}>
-            <ResumeButtonComponent label="Share app" icon="share-outline" onPress={shareAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#e9b76a" : undefined} />
-            <ResumeButtonComponent label="Copy link" icon="copy-outline" onPress={copyAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#e9b76a" : undefined} />
+            <ResumeButtonComponent label="Share app" icon="share-outline" onPress={shareAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#d4a768" : undefined} />
+            <ResumeButtonComponent label="Copy link" icon="copy-outline" onPress={copyAppLink} style={[phoneLayout && styles.phoneHelpShareButton, helpDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneHelpShareButtonText, helpDarkMode && styles.homeDarkResumeButtonText]} iconColor={helpDarkMode ? "#d4a768" : undefined} />
           </View>
           {!!appShareStatus && <Text style={styles.saveStatus}>{appShareStatus}</Text>}
         </View>
@@ -370,7 +370,7 @@ export function HelpTab({
 
       <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
         <View style={styles.feedbackHeader}>
-          <Ionicons name="compass-outline" size={19} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+          <Ionicons name="compass-outline" size={19} color={helpDarkMode ? "#d4a768" : colors.coral} />
           <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>What do you need help with?</Text>
         </View>
         <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
@@ -399,7 +399,7 @@ export function HelpTab({
         {quickHelpItems.map(([number, title, body, icon]) => (
           <Card key={title} style={[styles.helpQuickCard, phoneLayout && styles.phoneHelpCard, helpDarkMode && styles.accountDarkMainCard]}>
             <View style={[styles.helpStepNumber, helpDarkMode && styles.helpDarkStepNumber]}><Text style={styles.helpStepNumberText}>{number}</Text></View>
-            <Ionicons name={icon as any} size={20} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+            <Ionicons name={icon as any} size={20} color={helpDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.helpCardTitle, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
             <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
           </Card>
@@ -415,7 +415,7 @@ export function HelpTab({
 
       <Card style={[styles.helpSectionCard, helpDarkMode && styles.accountDarkMainCard]}>
         <View style={styles.feedbackHeader}>
-          <Ionicons name="help-circle-outline" size={19} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+          <Ionicons name="help-circle-outline" size={19} color={helpDarkMode ? "#d4a768" : colors.coral} />
           <Text style={[styles.sectionTitle, helpDarkMode && styles.accountDarkTitle]}>Help from anywhere</Text>
         </View>
         <Text style={[styles.helpCardText, helpDarkMode && styles.accountDarkMutedText]}>
@@ -424,7 +424,7 @@ export function HelpTab({
         <View style={styles.helpTabGrid}>
           {contextualHelpItems.map(([title, body, icon]) => (
             <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem, helpDarkMode && styles.helpDarkTabItem]}>
-              <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#d4a768" : colors.oliveDark} />
               <View style={styles.helpTabCopy}>
                 <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
                 <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
@@ -448,10 +448,10 @@ export function HelpTab({
                   accessibilityRole={phoneLayout ? "button" : undefined}
                   accessibilityLabel={phoneLayout ? `${guideOpen ? "Collapse" : "Expand"} ${item.title}` : undefined}
                 >
-                  <Ionicons name={item.icon as any} size={18} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+                  <Ionicons name={item.icon as any} size={18} color={helpDarkMode ? "#d4a768" : colors.coral} />
                   <Text style={[styles.helpGuideTitle, helpDarkMode && styles.accountDarkTitle]}>{item.title}</Text>
                   {phoneLayout && (
-                    <Ionicons name={guideOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={helpDarkMode ? "#c8bda9" : colors.muted} />
+                    <Ionicons name={guideOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={helpDarkMode ? "#bbb8b4" : colors.muted} />
                   )}
                 </Pressable>
                 {guideOpen && (
@@ -471,7 +471,7 @@ export function HelpTab({
                       onPress={() => setTab(item.target)}
                       style={[phoneLayout && styles.phoneHelpGuideAction, helpDarkMode && styles.homeDarkResumeButton]}
                       labelStyle={[phoneLayout && styles.phoneHelpGuideActionText, helpDarkMode && styles.homeDarkResumeButtonText]}
-                      iconColor={helpDarkMode ? "#e9b76a" : undefined}
+                      iconColor={helpDarkMode ? "#d4a768" : undefined}
                     />
                   </>
                 )}
@@ -486,7 +486,7 @@ export function HelpTab({
         <View style={styles.helpTabGrid}>
           {tabHelpItems.map(([title, body, icon]) => (
             <View key={title} style={[styles.helpTabItem, phoneLayout && styles.phoneHelpTabItem, helpDarkMode && styles.helpDarkTabItem]}>
-              <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#e9b76a" : colors.oliveDark} />
+              <Ionicons name={icon as any} size={17} color={helpDarkMode ? "#d4a768" : colors.oliveDark} />
               <View style={styles.helpTabCopy}>
                 <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
                 <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>
@@ -511,7 +511,7 @@ export function HelpTab({
         <View style={styles.helpTroubleList}>
           {troubleshootingItems.map(([title, body]) => (
             <View key={title} style={[styles.helpTroubleItem, helpDarkMode && styles.helpDarkTroubleItem]}>
-              <Ionicons name="alert-circle-outline" size={17} color={helpDarkMode ? "#e9b76a" : colors.coral} />
+              <Ionicons name="alert-circle-outline" size={17} color={helpDarkMode ? "#d4a768" : colors.coral} />
               <View style={styles.helpTabCopy}>
                 <Text style={[styles.helpFaqQuestion, helpDarkMode && styles.accountDarkTitle]}>{title}</Text>
                 <Text style={[styles.helpFaqAnswer, helpDarkMode && styles.accountDarkMutedText]}>{body}</Text>

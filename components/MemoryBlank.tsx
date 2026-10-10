@@ -124,13 +124,13 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.olive
   },
   darkInput: {
-    color: "#f7eddc"
+    color: "#f6f2ed"
   },
   darkCorrectInput: {
     backgroundColor: "rgba(233, 183, 106, 0.14)",
     borderColor: "rgba(233, 183, 106, 0.34)",
-    borderBottomColor: "#e9b76a",
-    color: "#f7eddc"
+    borderBottomColor: "#d4a768",
+    color: "#f6f2ed"
   },
   incorrectInput: {
     backgroundColor: "rgba(201, 103, 80, 0.18)",

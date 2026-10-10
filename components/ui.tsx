@@ -1,20 +1,21 @@
 import { createContext, useContext, PropsWithChildren } from "react";
 import { Pressable, StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from "react-native";
+import { theme } from "./theme";
 
 export const colors = {
-  ink: "#241d19",
-  muted: "#695f55",
-  paper: "#f8f1e6",
-  panel: "#fffaf2",
-  line: "#e4d6c5",
-  olive: "#66724e",
-  oliveDark: "#39452e",
-  gold: "#c3923e",
-  coral: "#a04734",
-  blue: "#426f7d",
-  soft: "#f0eadf",
-  blush: "#f7ddd2",
-  sage: "#e5ecda"
+  ink: theme.light.ink,
+  muted: theme.light.muted,
+  paper: theme.light.page,
+  panel: theme.light.surface,
+  line: theme.light.line,
+  olive: "#6b7d8f",
+  oliveDark: theme.light.ink,
+  gold: theme.brand.bronze,
+  coral: theme.light.bronzeText,
+  blue: "#426f94",
+  soft: theme.light.soft,
+  blush: theme.light.selected,
+  sage: "#e9f0f4"
 };
 
 export const UIThemeContext = createContext(false);
@@ -27,7 +28,7 @@ export function Card({ children, style }: PropsWithChildren<{ style?: StyleProp<
 
 export function Eyebrow({ children }: PropsWithChildren) {
   const dark = useContext(UIThemeContext);
-  return <Text style={[styles.eyebrow, dark && { color: "#e9b76a" }]}>{children}</Text>;
+  return <Text style={[styles.eyebrow, dark && { color: theme.dark.bronze }]}>{children}</Text>;
 }
 
 export function AppButton({
@@ -55,13 +56,14 @@ export function AppButton({
       style={({ pressed }) => [
         styles.button,
         variant === "secondary" ? styles.secondaryButton : styles.primaryButton,
+        variant === "primary" && dark && styles.darkPrimaryButton,
         variant === "secondary" && dark && styles.darkSecondaryButton,
         pressed && styles.pressed,
         disabled && { opacity: 0.6 },
         style
       ]}
     >
-      <Text style={[variant === "secondary" ? styles.secondaryLabel : styles.primaryLabel, variant === "secondary" && dark && styles.darkSecondaryLabel, labelStyle]}>{label}</Text>
+      <Text style={[variant === "secondary" ? styles.secondaryLabel : styles.primaryLabel, variant === "primary" && dark && styles.darkPrimaryLabel, variant === "secondary" && dark && styles.darkSecondaryLabel, labelStyle]}>{label}</Text>
     </Pressable>
   );
 }
@@ -69,14 +71,14 @@ export function AppButton({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.panel,
-    borderColor: "rgba(108, 91, 67, 0.10)",
+    borderColor: theme.light.line,
     borderRadius: 16,
     borderWidth: 1,
     maxWidth: "100%",
     minWidth: 0,
     padding: 20,
-    shadowColor: "#5a3f2d",
-    shadowOpacity: 0.025,
+    shadowColor: theme.light.ink,
+    shadowOpacity: 0.045,
     shadowRadius: 16,
     shadowOffset: { width: 0, height: 8 }
   },
@@ -98,7 +100,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16
   },
   primaryButton: {
-    backgroundColor: colors.coral
+    backgroundColor: theme.brand.navy
+  },
+  darkPrimaryButton: {
+    backgroundColor: theme.dark.bronze
   },
   secondaryButton: {
     backgroundColor: "transparent",
@@ -106,16 +111,19 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   darkSecondaryButton: {
-    borderColor: "rgba(247, 237, 220, 0.22)"
+    borderColor: theme.dark.line
   },
   darkSecondaryLabel: {
-    color: "#f7eddc"
+    color: theme.dark.ink
   },
   primaryLabel: {
     color: "white",
     flexShrink: 1,
     fontWeight: "600",
     textAlign: "center"
+  },
+  darkPrimaryLabel: {
+    color: theme.dark.page
   },
   secondaryLabel: {
     color: colors.oliveDark,

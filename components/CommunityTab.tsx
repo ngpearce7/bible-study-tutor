@@ -209,25 +209,25 @@ export function CommunityTab(props: any) {
                     <Ionicons name={saveBusy ? "hourglass-outline" : "checkmark-outline"} size={16} color="white" />
                   </Pressable>
                   <Pressable onPress={itemIsPost ? cancelEditCommunityPost : cancelEditRecentCheckin} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel="Cancel edit">
-                    <Ionicons name="close-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Ionicons name="close-outline" size={16} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                   </Pressable>
                 </>
               ) : (
                 <>
                   <Pressable onPress={() => copyPastCheckinMessage(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Copy shared post" : "Copy encouragement"}>
-                    <Ionicons name="copy-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Ionicons name="copy-outline" size={16} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                   </Pressable>
                   {canEditItem && (
                     <>
                       <Pressable onPress={() => itemIsPost ? startEditCommunityPost(item) : startEditRecentCheckin(item)} style={[styles.checkinIconButton, communityDarkMode && styles.homeDarkIconBubble]} accessibilityLabel={itemIsPost ? "Edit shared post" : "Edit encouragement"}>
-                        <Ionicons name="create-outline" size={16} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                        <Ionicons name="create-outline" size={16} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                       </Pressable>
                       <Pressable
                         onPress={() => itemIsPost ? deleteCommunityPost(item._id) : deleteRecentCheckin(item)}
                         style={[styles.checkinIconButton, styles.checkinDeleteIconButton, deletePending && styles.pendingDeleteButton]}
                         accessibilityLabel={deletePending ? "Confirm delete encouragement" : itemIsPost ? "Remove shared post" : "Remove encouragement"}
                       >
-                        <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={communityDarkMode ? "#e9b76a" : colors.coral} />
+                        <Ionicons name={deletePending ? "alert-circle-outline" : "trash-outline"} size={16} color={communityDarkMode ? "#d4a768" : colors.coral} />
                       </Pressable>
                     </>
                   )}
@@ -254,9 +254,9 @@ export function CommunityTab(props: any) {
             <Pressable
               key={key}
               onPress={() => setCommunitySubView(key as "encourage" | "history")}
-              style={[styles.communitySubViewTab, communitySubView === key && styles.activeCommunitySubViewTab]}
+              style={[styles.communitySubViewTab, communitySubView === key && styles.activeCommunitySubViewTab, communityDarkMode && communitySubView === key && styles.accountDarkActiveSegment]}
             >
-              <Text style={[styles.communitySubViewTabText, communityDarkMode && styles.accountDarkMutedText, communitySubView === key && styles.activeCommunitySubViewTabText]}>{label}</Text>
+              <Text style={[styles.communitySubViewTabText, communityDarkMode && styles.accountDarkMutedText, communitySubView === key && styles.activeCommunitySubViewTabText, communityDarkMode && communitySubView === key && styles.studyDarkAccentText]}>{label}</Text>
             </Pressable>
           ))}
         </View>
@@ -270,13 +270,13 @@ export function CommunityTab(props: any) {
             style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
           >
             <View style={styles.mobileCommunityPanelTitleRow}>
-              <Ionicons name="person-add-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
+              <Ionicons name="person-add-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Friends</Text>
             </View>
             {phoneLayout && (
               <View style={styles.mobileCommunityPanelSummaryRow}>
                 <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{friendPanelSummary}</Text>
-                <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
               </View>
             )}
           </Pressable>
@@ -293,16 +293,16 @@ export function CommunityTab(props: any) {
                   <View style={[styles.circleInviteLine, phoneLayout && styles.phoneCircleInviteLine]}>
                     <Text style={[styles.circleInviteCodeText, communityDarkMode && styles.accountDarkTitle]}>{myFriendCode || "Loading..."}</Text>
                     <Pressable onPress={copyFriendCode} style={[styles.circleCopyButton, communityDarkMode && styles.homeDarkResumeButton]}>
-                      <Ionicons name="copy-outline" size={13} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                      <Ionicons name="copy-outline" size={13} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                       <Text style={[styles.circleCopyText, communityDarkMode && styles.homeDarkResumeButtonText]}>Copy</Text>
                     </Pressable>
                   </View>
                   <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>Share this code privately so another registered user can add you as a friend.</Text>
                 </View>
                 <Pressable onPress={() => toggleRememberedPanel(setFriendToolsOpen, "communityFriendToolsOpen")} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
-                  <Ionicons name="person-add-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Ionicons name="person-add-outline" size={14} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                   <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{friendToolsOpen ? "Hide friend tools" : "Add or invite"}</Text>
-                  <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Ionicons name={friendToolsOpen ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                 </Pressable>
                 {friendToolsOpen && (
                   <View style={styles.circleManagementContent}>
@@ -426,13 +426,13 @@ export function CommunityTab(props: any) {
             style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
           >
             <View style={styles.mobileCommunityPanelTitleRow}>
-              <Ionicons name="lock-closed-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
+              <Ionicons name="lock-closed-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Private circle</Text>
             </View>
             {phoneLayout && (
               <View style={styles.mobileCommunityPanelSummaryRow}>
                 <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{circlePanelSummary}</Text>
-                <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
               </View>
             )}
           </Pressable>
@@ -472,7 +472,7 @@ export function CommunityTab(props: any) {
                                 {circleIsSelected ? "Managing this circle" : "Tap to manage"} · {circle.memberCount} member{circle.memberCount === 1 ? "" : "s"} · {circle.canDelete ? "Owner" : "Member"}
                               </Text>
                             </View>
-                            <Ionicons name={circleIsSelected ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={communityDarkMode && !circleIsSelected ? "#e9b76a" : colors.oliveDark} />
+                            <Ionicons name={circleIsSelected ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={communityDarkMode && !circleIsSelected ? "#d4a768" : colors.oliveDark} />
                           </Pressable>
                           {circleIsSelected && (
                             <View style={styles.circleInlineManagement}>
@@ -482,7 +482,7 @@ export function CommunityTab(props: any) {
                               </View>
                               <View style={styles.circleManagementRow}>
                                 <Pressable onPress={() => copyCircleInviteCode(circle.inviteCode)} style={[styles.circleCopyButton, communityDarkMode && styles.homeDarkResumeButton]}>
-                                  <Ionicons name="copy-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                                  <Ionicons name="copy-outline" size={14} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                                   <Text style={[styles.circleCopyText, communityDarkMode && styles.homeDarkResumeButtonText]}>Copy invite</Text>
                                 </Pressable>
                                 {circle.canDelete ? (
@@ -521,9 +521,9 @@ export function CommunityTab(props: any) {
               )}
               <View style={[styles.circleManagementBox, communityDarkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneCircleManagementBox, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
                 <Pressable onPress={() => toggleRememberedPanel(setCircleManagerOpen, "communityCircleToolsOpen")} style={[styles.circleManagerToggle, communityDarkMode && styles.homeDarkResumeButton]}>
-                  <Ionicons name="settings-outline" size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Ionicons name="settings-outline" size={14} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                   <Text style={[styles.circleManageText, communityDarkMode && styles.homeDarkResumeButtonText]}>{circleManagerOpen || (communityCircles || []).length === 0 ? "Hide circle tools" : "Create or join"}</Text>
-                  <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                  <Ionicons name={circleManagerOpen || (communityCircles || []).length === 0 ? "chevron-up-outline" : "chevron-down-outline"} size={15} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
                 </Pressable>
                 {(circleManagerOpen || (communityCircles || []).length === 0) && (
                   <View style={styles.circleManagementContent}>
@@ -569,7 +569,7 @@ export function CommunityTab(props: any) {
                 <View style={styles.communityTargetSelectTextBlock}>
                   <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>{activeCommunityTargetName || "Choose a connection"}</Text>
                 </View>
-                <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Ionicons name={communityTargetPickerOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
               </Pressable>
               {communityTargetPickerOpen && (
                 <View style={[styles.communityTargetPickerPanel, communityDarkMode && styles.accountDarkInsetBox]}>
@@ -590,7 +590,7 @@ export function CommunityTab(props: any) {
                             }}
                             style={[styles.communityTargetOption, communityDarkMode && styles.accountDarkSection, isTarget && styles.activeCommunityTargetOption]}
                           >
-                            <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={communityDarkMode && !isTarget ? "#e9b76a" : colors.oliveDark} />
+                            <Ionicons name={isTarget ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={communityDarkMode && !isTarget ? "#d4a768" : colors.oliveDark} />
                             <View style={styles.journalTitleBlock}>
                               <Text style={[styles.communityTargetOptionTitle, communityDarkMode && styles.accountDarkTitle]}>{friend.name}</Text>
                               {!!friend.email && <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>{friend.email}</Text>}
@@ -615,7 +615,7 @@ export function CommunityTab(props: any) {
                             }}
                             style={[styles.communityTargetOption, communityDarkMode && styles.accountDarkSection, isTarget && styles.activeCommunityTargetOption]}
                           >
-                            <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={communityDarkMode && !isTarget ? "#e9b76a" : colors.oliveDark} />
+                            <Ionicons name={isTarget ? "checkmark-circle-outline" : "people-outline"} size={16} color={communityDarkMode && !isTarget ? "#d4a768" : colors.oliveDark} />
                             <View style={styles.journalTitleBlock}>
                               <Text style={[styles.communityTargetOptionTitle, communityDarkMode && styles.accountDarkTitle]}>{circle.name}</Text>
                               <Text style={[styles.circleChipMeta, communityDarkMode && styles.accountDarkMutedText]}>
@@ -680,7 +680,7 @@ export function CommunityTab(props: any) {
         ) : (
           <View style={[styles.communityHistoryPanel, communityDarkMode && styles.accountDarkSection]}>
             <View style={styles.feedbackHeader}>
-              <Ionicons name="albums-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
+              <Ionicons name="albums-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Encouragement history</Text>
             </View>
             <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
@@ -749,14 +749,14 @@ export function CommunityTab(props: any) {
       {communitySubView !== "history" && <Card style={[styles.coachCard, compactLayout && styles.fluidCard, communityDarkMode && styles.accountDarkMainCard]}>
         <View style={[styles.communityGoalBox, communityDarkMode && styles.accountDarkSection]}>
           <View style={styles.feedbackHeader}>
-            <Ionicons name="shield-checkmark-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
+            <Ionicons name="shield-checkmark-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Community boundary</Text>
           </View>
           <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
         </View>
         <View style={styles.communityDivider} />
         <View style={styles.feedbackHeader}>
-          <Ionicons name="time-outline" size={18} color={communityDarkMode ? "#e9b76a" : colors.coral} />
+          <Ionicons name="time-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Recent encouragements</Text>
         </View>
         {(checkins || []).length === 0 ? (
@@ -770,7 +770,7 @@ export function CommunityTab(props: any) {
             {(checkins || []).length > 3 && (
               <Pressable onPress={() => toggleRememberedPanel(setRecentCheckinsExpanded, "communityRecentExpanded")} style={[styles.communityShowMoreButton, communityDarkMode && styles.homeDarkResumeButton]}>
                 <Text style={[styles.communityShowMoreText, communityDarkMode && styles.homeDarkResumeButtonText]}>{recentCheckinsExpanded ? "Show latest 3" : `Show more (${(checkins || []).length - 3})`}</Text>
-                <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={communityDarkMode ? "#e9b76a" : colors.oliveDark} />
+                <Ionicons name={recentCheckinsExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
               </Pressable>
             )}
           </>

@@ -65,7 +65,7 @@ export function MemoryHistoryPanel({
         </View>
         <View style={[styles.memoryHistoryEncouragementBox, darkMode && styles.accountDarkInsetBox]}>
           <View style={styles.memoryEncouragementHeader}>
-            <Ionicons name="sparkles-outline" size={17} color={darkMode ? "#e9b76a" : colors.coral} />
+            <Ionicons name="sparkles-outline" size={17} color={darkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.memoryDiscoverLabel, darkMode && styles.studyDarkAccentText]}>Encouragement</Text>
           </View>
           {phoneLayout ? (
@@ -151,7 +151,7 @@ export function MemoryHistoryPanel({
             <Text style={[styles.memoryHistoryMoreText, darkMode && styles.homeDarkResumeButtonText]}>
               {milestonePickerOpen ? "Hide goals" : "Choose goals"}
             </Text>
-            <Ionicons name={milestonePickerOpen ? "chevron-up-outline" : "options-outline"} size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+            <Ionicons name={milestonePickerOpen ? "chevron-up-outline" : "options-outline"} size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
           </Pressable>
         </View>
         {milestonePickerOpen && (
@@ -173,7 +173,7 @@ export function MemoryHistoryPanel({
                       selected && styles.activeFilterChip
                     ]}
                   >
-                    <Ionicons name={selected ? "checkmark-circle" : "ellipse-outline"} size={15} color={selected ? "#ffffff" : darkMode ? "#e9b76a" : colors.oliveDark} />
+                    <Ionicons name={selected ? "checkmark-circle" : "ellipse-outline"} size={15} color={selected ? "#ffffff" : darkMode ? "#d4a768" : colors.oliveDark} />
                     <View style={styles.memoryHistoryTextBlock}>
                       <Text style={[styles.memoryMilestoneGoalTitle, darkMode && styles.accountDarkText, selected && styles.activeFilterText]}>{goal.label}</Text>
                       <Text style={[styles.memoryMilestoneGoalDescription, darkMode && styles.accountDarkMutedText, selected && styles.activeFilterText]}>{goal.description}</Text>
@@ -188,7 +188,7 @@ export function MemoryHistoryPanel({
         <View style={styles.memoryMilestoneList}>
           {milestones.map((milestone) => (
             <View key={milestone.id || milestone.title} style={[styles.memoryMilestoneItem, darkMode && styles.accountDarkInsetBox]}>
-              <Ionicons name={milestone.achieved ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={darkMode ? "#e9b76a" : colors.coral} />
+              <Ionicons name={milestone.achieved ? "checkmark-circle-outline" : "ellipse-outline"} size={16} color={darkMode ? "#d4a768" : colors.coral} />
               <View style={styles.memoryHistoryTextBlock}>
                 <Text style={[styles.bodyStrong, darkMode && styles.accountDarkText]}>{milestone.title}</Text>
                 <Text style={[styles.memoryVerseHistoryEventText, darkMode && styles.accountDarkMutedText]}>{milestone.description}</Text>
@@ -207,7 +207,7 @@ export function MemoryHistoryPanel({
             {visibleHistoryItems.map((item: any) => (
               <View key={item._id} style={[styles.memoryHistoryItem, darkMode && styles.accountDarkInsetBox]}>
                 <View style={[styles.memoryHistoryIcon, darkMode && styles.homeDarkIconBubble]}>
-                  <Ionicons name={memoryHistoryEventIcon(item.event) as any} size={17} color={darkMode ? "#e9b76a" : colors.coral} />
+                  <Ionicons name={memoryHistoryEventIcon(item.event) as any} size={17} color={darkMode ? "#d4a768" : colors.coral} />
                 </View>
                 <View style={styles.memoryHistoryTextBlock}>
                   <Text style={[styles.bodyStrong, darkMode && styles.accountDarkText]}>{memoryHistoryEventLabel(item.event, item.practiceLevel)}</Text>
@@ -225,7 +225,7 @@ export function MemoryHistoryPanel({
                 <Text style={[styles.memoryHistoryMoreText, darkMode && styles.homeDarkResumeButtonText]}>
                   {historyExpanded ? "Show less" : `Show more (${Math.min(historyItems.length, 30) - 10})`}
                 </Text>
-                <Ionicons name={historyExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+                <Ionicons name={historyExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
               </Pressable>
             )}
           </View>

@@ -76,16 +76,16 @@ export function BibleReaderControls({
         <Pressable accessibilityRole="button" accessibilityLabel="Choose Bible book, chapter, or translation" onPress={onBrowse} style={{ flex: 1, minWidth: 0, minHeight: 44, justifyContent: "center" }}>
           <View style={styles.readerTitleRow}>
             <Text style={[styles.stepTitle, { flexShrink: 1 }, darkMode && styles.accountDarkTitle]}>{readerReference}</Text>
-            <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
-            {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={darkMode ? "#e9b76a" : colors.coral} />}
+            <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
+            {currentChapterBookmarked && <Ionicons name="bookmark" size={17} color={darkMode ? "#d4a768" : colors.coral} />}
           </View>
           <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>{translationId.toUpperCase()} · Browse Bible</Text>
         </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel={searchOpen ? "Hide Scripture search" : "Show Scripture search"} accessibilityState={{ expanded: searchOpen }} onPress={onSearch} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}>
-          <Ionicons name="search-outline" size={21} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="search-outline" size={21} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Reader actions" accessibilityState={{ expanded: toolsOpen }} onPress={() => setToolsOpen(open => !open)} style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}>
-          <Ionicons name="ellipsis-horizontal" size={21} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="ellipsis-horizontal" size={21} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
       </View>
 
@@ -110,7 +110,7 @@ export function BibleReaderControls({
 
       {planReadingMode ? (
         <View style={[styles.readerSelectionBar, styles.readerPlanModeBar, darkMode && styles.accountDarkSection]}>
-          <Ionicons name="reader-outline" size={16} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="reader-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
           <View style={styles.readerPlanModeCopy}>
             <Text style={[styles.readerPlanModeName, darkMode && styles.readerDarkPlanModeName]}>{planReadingPlanName}</Text>
             {!!planReadingDetail && <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkMutedText]}>{planReadingDetail}</Text>}
@@ -127,7 +127,7 @@ export function BibleReaderControls({
           }}
           style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, darkMode && styles.homeDarkIconBubble]}
         >
-          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="chevron-back-outline" size={18} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
 
         <View style={[styles.readerChapterControl, phoneLayout && styles.phoneReaderChapterControl, darkMode && styles.accountDarkInsetBox]}>
@@ -159,7 +159,7 @@ export function BibleReaderControls({
           }}
           style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, darkMode && styles.homeDarkIconBubble, currentChapterRead && styles.activeReaderReadButton]}
         >
-          <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+          <Ionicons name={currentChapterRead ? "checkmark-circle" : "checkmark-circle-outline"} size={18} color={currentChapterRead ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
         </Pressable>
 
         <Pressable
@@ -171,7 +171,7 @@ export function BibleReaderControls({
           }}
           style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, darkMode && styles.homeDarkIconBubble, currentChapterBookmarked && styles.activeReaderBookmarkButton]}
         >
-          <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : (darkMode ? "#e9b76a" : colors.oliveDark)} />
+          <Ionicons name={currentChapterBookmarked ? "bookmark" : "bookmark-outline"} size={18} color={currentChapterBookmarked ? "white" : (darkMode ? "#d4a768" : colors.oliveDark)} />
         </Pressable>
 
         <Pressable
@@ -183,7 +183,7 @@ export function BibleReaderControls({
           }}
           style={[styles.readerNavIconButton, phoneLayout && styles.phoneReaderNavIconButton, darkMode && styles.homeDarkIconBubble]}
         >
-          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#e9b76a" : colors.oliveDark} />
+          <Ionicons name="chevron-forward-outline" size={18} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
       </View>
       )}

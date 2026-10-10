@@ -82,7 +82,7 @@ export function HelpScreenshot({
             {["Psalm 23", "James 1:5", "Encouragement"].map((item) => (
               <View key={item} style={[styles.helpJournalRow, darkMode && styles.helpDarkJournalRow]}>
                 <Text style={[styles.helpJournalTitle, darkMode && styles.accountDarkTitle]}>{item}</Text>
-                <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#c8bda9" : colors.muted} />
+                <Ionicons name="chevron-down-outline" size={14} color={darkMode ? "#bbb8b4" : colors.muted} />
               </View>
             ))}
           </>

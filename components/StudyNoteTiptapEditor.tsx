@@ -383,10 +383,10 @@ export function StudyNoteTiptapEditor({
   };
 
   const editorStyle = {
-    backgroundColor: darkMode ? "#242424" : "#fffaf2",
+    backgroundColor: darkMode ? "#202021" : "#fffaf2",
     border: `1px solid ${darkMode ? "rgba(233, 183, 106, 0.2)" : colors.line}`,
     borderRadius: 11,
-    color: darkMode ? "#f7eddc" : colors.ink,
+    color: darkMode ? "#f6f2ed" : colors.ink,
     marginBottom: 14,
     minHeight: studyFocusMode ? (phoneLayout ? 220 : 260) : phoneLayout ? 170 : 150,
     outline: "none",

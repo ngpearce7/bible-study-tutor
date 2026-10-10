@@ -804,8 +804,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 0
   },
   activeBibleSearchChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   bibleSearchChipText: {
     color: colors.oliveDark,
@@ -869,7 +869,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 10
   },
   activeBibleSearchSelectOption: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   bibleSearchSelectOptionText: {
     color: colors.ink,
@@ -1009,8 +1009,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 8
   },
   activeMobileReaderBookOption: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   mobileReaderBookText: {
     color: colors.ink,
@@ -1475,8 +1475,8 @@ export const styles = StyleSheet.create({
     width: 31
   },
   activeBookmarkNoteButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   readerBookmarkRemove: {
     padding: 6
@@ -1528,8 +1528,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   activeReaderBookChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   readerBookText: {
     color: colors.ink,
@@ -1659,8 +1659,8 @@ export const styles = StyleSheet.create({
     fontSize: 11
   },
   activeReaderReadButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   activeReaderBookmarkButton: {
     backgroundColor: colors.coral,
@@ -1743,8 +1743,8 @@ export const styles = StyleSheet.create({
     borderColor: colors.coral
   },
   savedMemoryButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   mobileReaderSelectionButtonText: {
     color: colors.oliveDark,
@@ -1859,8 +1859,8 @@ export const styles = StyleSheet.create({
     textAlign: "center"
   },
   readerPlanCompleteButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark,
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy,
     flexShrink: 0
   },
   readerPlanCompletedStatus: {
@@ -2264,7 +2264,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   activeCompactMethodChip: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   compactMethodText: {
     color: colors.oliveDark,
@@ -2330,8 +2330,8 @@ export const styles = StyleSheet.create({
     borderColor: colors.line
   },
   activeStudyProgressPill: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   studyProgressNumber: {
     backgroundColor: "white",
@@ -2387,7 +2387,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   activeTogglePill: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   toggleText: {
     color: colors.muted,
@@ -2846,7 +2846,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   activeCoachingToggleBadge: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   activeCoachingToggleText: {
     color: "white",
@@ -3138,7 +3138,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 13
   },
   activeCommunitySubViewTab: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   communitySubViewTabText: {
     color: colors.oliveDark,
@@ -3366,8 +3366,8 @@ export const styles = StyleSheet.create({
     width: 32
   },
   checkinSaveIconButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   checkinDeleteIconButton: {
     backgroundColor: colors.panel,
@@ -3672,8 +3672,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   activeCircleManageButton: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   circleDangerManageButton: {
     backgroundColor: colors.panel,
@@ -3735,8 +3735,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 6
   },
   activeCircleReactionChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   circleReactionText: {
     color: colors.oliveDark,
@@ -3785,8 +3785,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 8
   },
   activePartnerChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   partnerChipText: {
     color: colors.oliveDark,
@@ -4236,7 +4236,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1
   },
   memoryMarkupButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   memoryMarkupText: {
     color: "white",
@@ -4577,7 +4577,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 9
   },
   activeMethodChip: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   methodChipText: {
     color: colors.oliveDark,
@@ -5699,7 +5699,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.08)"
   },
   devotionalTextSizeButtonActive: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   devotionalTextSizeButtonActiveDark: {
     backgroundColor: theme.dark.bronze
@@ -6208,7 +6208,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10
   },
   activeAuthFlowButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   authFlowText: {
     color: colors.muted,
@@ -6446,7 +6446,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10
   },
   activeMemoryViewButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   memoryViewText: {
     color: colors.muted,
@@ -7326,7 +7326,7 @@ export const styles = StyleSheet.create({
     width: 28
   },
   activeMemoryStepButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   memoryStepText: {
     color: colors.muted,
@@ -7501,8 +7501,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 8
   },
   activeMethodFilterChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   methodFilterText: {
     color: colors.oliveDark,
@@ -7805,7 +7805,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12
   },
   activeJournalViewButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   darkActiveJournalViewButton: {
     backgroundColor: theme.dark.selected
@@ -7855,7 +7855,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   activeFilterChip: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   filterText: {
     color: colors.oliveDark,
@@ -7986,8 +7986,8 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(187, 130, 74, 0.34)"
   },
   selectedCalendarDayCell: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   inactiveCalendarDayCell: {
     opacity: 0.42
@@ -8345,8 +8345,8 @@ export const styles = StyleSheet.create({
     paddingVertical: 7
   },
   activeHelpCategoryChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   helpCategoryText: {
     color: colors.oliveDark,
@@ -8520,7 +8520,7 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(212, 167, 104, 0.18)"
   },
   helpDockButton: {
-    backgroundColor: colors.oliveDark,
+    backgroundColor: theme.brand.navy,
     borderRadius: 999,
     color: "white",
     fontSize: 11,
@@ -8823,8 +8823,8 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(212, 167, 104, 0.16)"
   },
   activeFeedbackCategoryChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   feedbackCategoryText: {
     color: colors.oliveDark,
@@ -9052,7 +9052,7 @@ export const styles = StyleSheet.create({
     width: 26
   },
   activeAdminMapHotspot: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   adminMapHotspotText: {
     color: "white",
@@ -9835,8 +9835,8 @@ export const styles = StyleSheet.create({
     borderColor: "rgba(212, 167, 104, 0.18)"
   },
   activePrintOptionChip: {
-    backgroundColor: colors.oliveDark,
-    borderColor: colors.oliveDark
+    backgroundColor: theme.brand.navy,
+    borderColor: theme.brand.navy
   },
   printOptionChipText: {
     color: colors.oliveDark,
@@ -10224,7 +10224,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 10
   },
   activePinButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   pinButtonText: {
     color: colors.oliveDark,
@@ -10243,7 +10243,7 @@ export const styles = StyleSheet.create({
     width: 32
   },
   activePinIconButton: {
-    backgroundColor: colors.oliveDark
+    backgroundColor: theme.brand.navy
   },
   pinJournalIconButton: {
     alignItems: "center",

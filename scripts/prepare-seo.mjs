@@ -3374,6 +3374,19 @@ const seoPages = [
   }
 ];
 
+seoPages.push({
+  path: "/study-examples",
+  file: "study-examples.html",
+  title: "Bible Study Examples | Worked Scripture Studies and Worksheets",
+  description: "Browse worked Bible study examples by method, passage, book, and printable worksheet. Each example shows Scripture, observations, meaning, and a possible response.",
+  heading: "Bible study examples",
+  intro: "Choose a worked study below. Each link opens the example inside its guide, with the passage, context, observations, meaning, and one possible response. Try the questions yourself before comparing your notes.",
+  sections: [],
+  related: ["/bible-study-methods", "/how-to-study-the-bible", "/printable-bible-study-worksheets"],
+  exampleDirectory: true,
+  cta: "Start a guided study"
+});
+
 mkdirSync(publicDir, { recursive: true });
 copyFileSync(join(process.cwd(), "assets", "icon.png"), join(publicDir, "icon.png"));
 copyFileSync(join(process.cwd(), "assets", "favicon.png"), join(publicDir, "favicon.png"));
@@ -3435,6 +3448,7 @@ function buildSeoPage(page, baseUrl) {
   const allExtraBlocks = withGeneratedJournalExample(page);
   const leadStudy = allExtraBlocks.find((block) => block.type === "journalExample" && block.layout === "lesson");
   const leadStudyBlock = leadStudy ? buildExtraSeoBlock(leadStudy) : "";
+  const exampleDirectoryBlock = page.exampleDirectory ? buildExampleDirectory() : "";
   const pageExtraBlocks = allExtraBlocks.filter((block) => block !== leadStudy);
   const leadHowToBlock = page.showHowToSteps && page.howToSteps?.length
     ? buildVisibleHowToSteps(page)
@@ -3572,6 +3586,13 @@ function buildSeoPage(page, baseUrl) {
       .related-grid a { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); display: grid; gap: 6px; padding: 16px; text-decoration: none; }
       .related-grid strong { color: var(--navy); font-size: 16px; }
       .related-grid span { color: var(--muted); font-size: 14px; line-height: 1.45; }
+      .example-directory { margin-top: 24px; }
+      .example-directory h2 { margin-bottom: 14px; }
+      .example-directory-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+      .example-directory-grid a { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; color: var(--ink); display: grid; gap: 6px; padding: 16px; text-decoration: none; }
+      .example-directory-grid a:hover, .example-directory-grid a:focus-visible { border-color: var(--navy); }
+      .example-directory-grid strong { color: var(--navy); }
+      .example-directory-grid span { color: var(--muted); font-size: 14px; line-height: 1.45; }
       .faq-section { margin-top: 28px; }
       .faq-list { display: grid; gap: 10px; margin-top: 14px; }
       .extra-block { margin-top: 18px; }
@@ -3620,6 +3641,7 @@ function buildSeoPage(page, baseUrl) {
           <a href="/about">About</a>
           <a href="/printable-bible-study-worksheets">Worksheets</a>
           <a href="/bible-study-methods">Methods</a>
+          <a href="/study-examples">Examples</a>
           <a href="/how-it-works">How it works</a>
           <a href="/pricing">Pricing</a>
           <a href="/faq">FAQ</a>
@@ -3635,7 +3657,7 @@ function buildSeoPage(page, baseUrl) {
         <div class="eyebrow">Bible Study Tutor</div>
         <h1 id="page-heading">${escapeHtml(page.heading)}</h1>
         <p class="intro">${escapeHtml(page.intro)}</p>
-      </section>${leadStudyBlock}${leadHowToBlock}
+      </section>${leadStudyBlock}${exampleDirectoryBlock}${leadHowToBlock}
       ${sections ? `<div class="grid">${sections}</div>` : ""}
       ${extraBlocks}
       ${faqBlock}
@@ -3655,6 +3677,32 @@ function buildSeoPage(page, baseUrl) {
   </body>
 </html>
 `;
+}
+
+function buildExampleDirectory() {
+  const groups = [
+    ["Study method examples", (path) => path === "/bible-study-methods" || path.startsWith("/bible-study-methods/")],
+    ["Passage and book examples", (path) => path.startsWith("/how-to-study-") || path === "/bible-study-for-beginners"],
+    ["Printable worksheet examples", (path) => path.startsWith("/printable-") || path === "/bible-study-app-with-printable-worksheets"],
+    ["More guided examples", () => true]
+  ];
+  const remaining = new Set(Object.keys(studyPages));
+  return groups.map(([heading, matches]) => {
+    const paths = [...remaining].filter(matches);
+    paths.forEach((path) => remaining.delete(path));
+    if (!paths.length) return "";
+    const cards = paths.map((path) => {
+      const page = seoPages.find((candidate) => candidate.path === path);
+      const guide = studyPages[path];
+      const lesson = studyLessons[guide.lesson];
+      if (!page || !lesson) throw new Error(`Study example is missing its SEO page or lesson: ${path}`);
+      return `<a href="${escapeHtml(path)}#study-example"><strong>${escapeHtml(page.heading)}</strong><span>${escapeHtml(lesson.reference)} · ${escapeHtml(lesson.translation)} · ${escapeHtml(guide.title)}</span></a>`;
+    }).join("\n          ");
+    return `<section class="example-directory" aria-labelledby="${slugifyForId(heading)}">
+        <h2 id="${slugifyForId(heading)}">${escapeHtml(heading)}</h2>
+        <div class="example-directory-grid">${cards}</div>
+      </section>`;
+  }).join("\n");
 }
 
 function buildExtraSeoBlock(block) {
@@ -3748,7 +3796,7 @@ function buildExtraSeoBlock(block) {
     const notes = (block.notes || [])
       .map(([title, body]) => `<article class="journal-note"><h3>${escapeHtml(title)}</h3>${body.split("\n\n").map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</article>`)
       .join("\n          ");
-    return `<section class="extra-block journal-example${block.layout === "lesson" ? " study-lesson" : ""}" aria-labelledby="${slugifyForId(block.title)}">
+    return `<section class="extra-block journal-example${block.layout === "lesson" ? " study-lesson" : ""}"${block.layout === "lesson" ? ' id="study-example"' : ""} aria-labelledby="${slugifyForId(block.title)}">
         <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
         ${intro}
         <div class="journal-scripture">

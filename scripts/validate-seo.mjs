@@ -31,6 +31,7 @@ for (const page of pages) {
   titles.set(title, page.path);
   descriptions.set(description, page.path);
   validateInternalLinks(page, sitemapPaths);
+  assert(page.html.includes('href="/study-examples"'), `${page.path}: study examples navigation link is missing`);
 }
 
 const worksheetPath = "/printable-bible-word-study-worksheet";
@@ -125,7 +126,12 @@ function assert(condition, message) {
 
 // Validate the published lesson rather than relying on headings or word counts alone.
 const { studyPages, studyLessons, scriptureExcerpts, buildPracticeWorksheet } = await import("./seo/study-content.mjs");
-const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features"]);
+const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features", "/study-examples"]);
+const examplesDirectory = pageFor("/study-examples");
+for (const path of Object.keys(studyPages)) {
+  assert(examplesDirectory.html.includes(`href="${path}#study-example"`), `${path}: missing from the study examples directory`);
+  assert(pageFor(path).html.includes('id="study-example"'), `${path}: worked study anchor is missing`);
+}
 const translationsUsed = new Set();
 for (const page of pages) {
   if (informationalPaths.has(page.path) || page.path === "/bible-study-app-for-churches") continue;

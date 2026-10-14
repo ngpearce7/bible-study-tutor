@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { expect, test, vi } from "vitest";
 import { bibleReadingPlans } from "./bibleReadingPlans";
 import { parseBibleReadingPlanIndex } from "./bibleReadingPlanIndex";
+import { buildReaderPlanReading, isReaderPlanReadingActive } from "./biblePlanReader";
 import compactPlanIndex from "../public/bible-reading-plan-index.json";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "./bibleLibrary";
 import { expandPlanReadingReferences } from "./biblePassage";
@@ -14,13 +15,21 @@ vi.mock("./network", () => ({ fetchWithTimeout: vi.fn() }));
 const plan = (id: string) => bibleReadingPlans.find(p => p.id === id)!;
 const chapters = (id: string) => plan(id).days.flatMap(d => expandPlanReadingReferences(d.reference).map(c => `${c.book}:${c.chapter}`));
 
-test("the compact Home schedule matches every built-in plan and reading day", () => {
-  const expected = bibleReadingPlans.map(({ days, ...metadata }) => ({
-    ...metadata,
-    days: days.map(({ day, title, reference, readerBook, readerChapter, studyReference }) =>
-      ({ day, title, reference, readerBook, readerChapter, studyReference }))
-  }));
-  expect(parseBibleReadingPlanIndex(compactPlanIndex)).toEqual(expected);
+test("the compact Home schedule preserves every built-in reading and its guidance", () => {
+  expect(parseBibleReadingPlanIndex(compactPlanIndex)).toEqual(bibleReadingPlans);
+});
+
+test("opening a guided day from the compact Home schedule retains its Bible reader guidance", () => {
+  const indexedPlans = parseBibleReadingPlanIndex(compactPlanIndex);
+  for (const [planId, dayNumber] of [["bible-story-30", 9], ["bible-365", 13]] as const) {
+    const indexedPlan = indexedPlans.find((item) => item.id === planId)!;
+    const day = indexedPlan.days[dayNumber - 1];
+    const reading = buildReaderPlanReading(day, indexedPlan.id)!;
+    expect(isReaderPlanReadingActive(indexedPlan, reading, reading.book, reading.chapter)).toBe(true);
+    expect(day.context).toBe(bibleReadingPlans.find((item) => item.id === planId)!.days[dayNumber - 1].context);
+    expect(day.devotional?.body).toBeTruthy();
+    if (planId === "bible-story-30") expect(day.observationQuestion).toBeTruthy();
+  }
 });
 
 test("content snapshots and saved day identities remain stable", () => {

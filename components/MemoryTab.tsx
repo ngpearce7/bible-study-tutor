@@ -656,7 +656,7 @@ export function MemoryTab(props: any) {
               <View key={section.title} style={[styles.memorySection, phoneLayout && styles.phoneMemorySection]}>
                 {!phoneMemoryFocusMode && (
                   <>
-                    {section.title !== "Due for Review" && (
+                    {!highlightedMemorySection && (
                       <View style={[styles.memorySectionHeader, highlightedMemorySection && styles.memorySectionHeaderFeatured, memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionHeaderFeatured]}>
                         <Text style={[styles.memorySectionTitle, highlightedMemorySection && styles.memorySectionTitleFeatured, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
                         <Text

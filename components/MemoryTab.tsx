@@ -656,21 +656,37 @@ export function MemoryTab(props: any) {
               <View key={section.title} style={[styles.memorySection, phoneLayout && styles.phoneMemorySection]}>
                 {!phoneMemoryFocusMode && (
                   <>
-                    <View style={[styles.memorySectionHeader, highlightedMemorySection && styles.memorySectionHeaderFeatured, memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionHeaderFeatured]}>
-                      <Text style={[styles.memorySectionTitle, highlightedMemorySection && styles.memorySectionTitleFeatured, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
-                      <Text
-                        style={[
-                          styles.memorySectionCount,
-                          highlightedMemorySection && styles.memorySectionCountFeatured,
-                          reviewedMemorySection && styles.memorySectionCountReviewed,
-                          memoryDarkMode && styles.memoryDarkCountPill,
-                          memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionCountFeatured,
-                          memoryDarkMode && reviewedMemorySection && styles.memoryDarkSectionCountReviewed
-                        ]}
+                    {section.title !== "Due for Review" && (
+                      <View style={[styles.memorySectionHeader, highlightedMemorySection && styles.memorySectionHeaderFeatured, memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionHeaderFeatured]}>
+                        <Text style={[styles.memorySectionTitle, highlightedMemorySection && styles.memorySectionTitleFeatured, memoryDarkMode && styles.accountDarkTitle]}>{section.title}</Text>
+                        <Text
+                          style={[
+                            styles.memorySectionCount,
+                            highlightedMemorySection && styles.memorySectionCountFeatured,
+                            reviewedMemorySection && styles.memorySectionCountReviewed,
+                            memoryDarkMode && styles.memoryDarkCountPill,
+                            memoryDarkMode && highlightedMemorySection && styles.memoryDarkSectionCountFeatured,
+                            memoryDarkMode && reviewedMemorySection && styles.memoryDarkSectionCountReviewed
+                          ]}
+                        >
+                          {section.verses.length}
+                        </Text>
+                      </View>
+                    )}
+                    {section.title === "Due for Review" && dueMemoryCount > 0 && (
+                      <Pressable
+                        accessibilityRole="button"
+                        onPress={() => startDueMemoryReviewQueue()}
+                        style={styles.phoneMemoryPrimaryReviewButton}
                       >
-                        {section.verses.length}
-                      </Text>
-                    </View>
+                        <Ionicons name="school-outline" size={16} color="#fff" />
+                        <Text style={styles.phoneMemoryPrimaryReviewText}>
+                          {activeMemoryReviewQueueCount > 1 && activeMemoryReviewQueueIndex >= 0
+                            ? `Continue review set ${activeMemoryReviewQueueIndex + 1} of ${activeMemoryReviewQueueCount}`
+                            : `Review ${dueMemoryCount} due verse${dueMemoryCount === 1 ? "" : "s"}`}
+                        </Text>
+                      </Pressable>
+                    )}
                     {highlightedMemorySection && (
                       <View style={[styles.memorySectionSortRow, memoryDarkMode && styles.accountDarkInsetBox]}>
                         <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
@@ -693,20 +709,7 @@ export function MemoryTab(props: any) {
                         </View>
                       </View>
                     )}
-                    {section.title === "Due for Review" && dueMemoryCount > 0 ? (
-                      <Pressable
-                        accessibilityRole="button"
-                        onPress={() => startDueMemoryReviewQueue()}
-                        style={styles.phoneMemoryPrimaryReviewButton}
-                      >
-                        <Ionicons name="school-outline" size={16} color="#fff" />
-                        <Text style={styles.phoneMemoryPrimaryReviewText}>
-                          {activeMemoryReviewQueueCount > 1 && activeMemoryReviewQueueIndex >= 0
-                            ? `Continue review set ${activeMemoryReviewQueueIndex + 1} of ${activeMemoryReviewQueueCount}`
-                            : `Review ${dueMemoryCount} due verse${dueMemoryCount === 1 ? "" : "s"}`}
-                        </Text>
-                      </Pressable>
-                    ) : section.title === "Reviewed" ? null : (
+                    {section.title !== "Due for Review" && section.title !== "Reviewed" && (
                       <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{section.description}</Text>
                     )}
                   </>

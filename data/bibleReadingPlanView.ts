@@ -1,4 +1,4 @@
-import type { BibleReadingPlan } from "@/data/bibleReadingPlanTypes";
+import type { BibleReadingPlan, BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
 
 export type BibleReadingPlanGroup = {
@@ -23,6 +23,14 @@ export type OtherFollowedBibleReadingPlanSummary = {
   remainingCount: number;
   progressPercent: number;
   complete: boolean;
+};
+
+export type DueBibleReadingPlanReading = {
+  planId: string;
+  planTitle: string;
+  day: BibleReadingPlanDay;
+  dateKey: string;
+  overdue: boolean;
 };
 
 export function buildBibleReadingPlanView({
@@ -129,6 +137,16 @@ export function buildBibleReadingPlanView({
       : "";
   const getPlanDayDateKey = (plan: BibleReadingPlan, day: BibleReadingPlan["days"][number]) =>
     startDates[plan.id] ? addDaysToDateKey(startDates[plan.id], day.day - 1) : "";
+  const dueReadings: DueBibleReadingPlanReading[] = activeFollowedPlans
+    .map((plan) => {
+      const day = plan.days.find((item) => !completedDaySet.has(bibleReadingPlanDayKey(plan.id, item.day)));
+      const dateKey = day ? getPlanDayDateKey(plan, day) : "";
+      return day && dateKey && dateKey <= todayDateKey
+        ? { planId: plan.id, planTitle: plan.title, day, dateKey, overdue: dateKey < todayDateKey }
+        : null;
+    })
+    .filter((reading): reading is DueBibleReadingPlanReading => reading !== null)
+    .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
   const getScheduledDayForToday = (plan: BibleReadingPlan) =>
     plan.days.find((day) => getPlanDayDateKey(plan, day) === todayDateKey) || null;
   const activeScheduledToday = activePlan ? getScheduledDayForToday(activePlan) : null;
@@ -185,6 +203,7 @@ export function buildBibleReadingPlanView({
     groups,
     completedDaySet,
     activePlan,
+    dueReadings,
     activeCompletedCount,
     activeToday,
     activeComplete,

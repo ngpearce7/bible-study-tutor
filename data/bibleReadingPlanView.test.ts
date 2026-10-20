@@ -36,6 +36,24 @@ describe("home reading plan reminder eligibility", () => {
   it("makes the next reading eligible on its scheduled local date", () => {
     expect(view([1, 2], "2026-09-19", "2026-09-21").activeReadingDue).toBe(true);
   });
+  it("includes overdue readings from other followed plans even when the selected plan is caught up", () => {
+    const wisdom = { ...plan, id: "wisdom", title: "Wisdom" };
+    const result = buildBibleReadingPlanView({
+      builtInPlans: [plan, wisdom], customPlans: [], followedPlanIds: [plan.id, wisdom.id], activePlanId: plan.id,
+      completedDayKeys: ["john:1", "john:2"],
+      startDates: { john: "2026-09-19", wisdom: "2026-09-18" },
+      selectedPlanId: plan.id, selectedDay: 3, todayDateKey: "2026-09-20",
+      addDaysToDateKey: (key, days) => {
+        const date = new Date(`${key}T12:00:00Z`);
+        date.setUTCDate(date.getUTCDate() + days);
+        return date.toISOString().slice(0, 10);
+      }
+    });
+
+    expect(result.activeReadingDue).toBe(false);
+    expect(result.dueReadings.map(({ planId, day, overdue }) => ({ planId, day: day.day, overdue })))
+      .toEqual([{ planId: "wisdom", day: 1, overdue: true }]);
+  });
 });
 
 it("identifies today's completed passage and dates the next reading", () => {

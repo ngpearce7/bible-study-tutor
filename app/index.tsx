@@ -2592,16 +2592,16 @@ function HomeScreen() {
     : (memoryVerses || []).filter((item: any) => isMemoryVerseDue(item)).length;
   const reviewedTodayCount = (memoryVerses || []).filter((item: any) => isTodayLocal(item.lastReviewedAt)).length;
   const homeContinueItems = [
-    ...(isAuthenticated && activeBibleReadingPlan && activeBibleReadingPlanToday && bibleReadingPlanView.activeReadingDue
-      ? [{
-          key: "reading-plan",
+    ...(isAuthenticated
+      ? bibleReadingPlanView.dueReadings.map((reading) => ({
+          key: `reading-plan-${reading.planId}`,
           title: "Continue reading plan",
-          detail: `${activeBibleReadingPlan.title}: Day ${activeBibleReadingPlanToday.day} · ${activeBibleReadingPlanToday.reference}`,
+          detail: `${reading.planTitle}: ${reading.overdue ? "Overdue: " : ""}Day ${reading.day.day} · ${reading.day.reference}`,
           icon: "calendar-outline",
           onPress: () => {
-            openBibleReadingPlanDayInBible(activeBibleReadingPlanToday);
+            openBibleReadingPlanDayInBible(reading.day, reading.planId);
           }
-        }]
+        }))
       : []),
     ...(isAuthenticated && dueMemoryCount > 0
       ? [{

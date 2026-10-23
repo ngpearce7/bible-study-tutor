@@ -244,8 +244,16 @@ export function CommunityTab(props: any) {
     <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, communityDarkMode && styles.accountDarkLayout]}>
       <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, communityDarkMode && styles.accountDarkMainCard]}>
         <Eyebrow>Community</Eyebrow>
-        <Text style={[styles.title, communityDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, share encouragement` : "Share encouragement"}</Text>
-        <Text style={[styles.titleSupport, communityDarkMode && styles.accountDarkMutedText]}>Community is available only with registered friends or private circles. There is no public feed or open posting.</Text>
+        <Text style={[styles.title, communityDarkMode && styles.accountDarkTitle]}>
+          {firstName
+            ? `${firstName}, ${COMMUNITY_CIRCLES_ENABLED ? "share" : "save"} encouragement`
+            : `${COMMUNITY_CIRCLES_ENABLED ? "Share" : "Save"} encouragement`}
+        </Text>
+        <Text style={[styles.titleSupport, communityDarkMode && styles.accountDarkMutedText]}>
+          {COMMUNITY_CIRCLES_ENABLED
+            ? "Community is available only with registered friends or private circles. There is no public feed or open posting."
+            : "Friend connections and private circles are not available yet. You can save encouragements privately and find them in History."}
+        </Text>
         <View style={[styles.communitySubViewTabs, communityDarkMode && styles.accountDarkSegmentedRow]}>
           {[
             ["encourage", "Encourage"],
@@ -262,7 +270,7 @@ export function CommunityTab(props: any) {
         </View>
         {communitySubView === "encourage" ? (
           <>
-        <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
+        {COMMUNITY_CIRCLES_ENABLED && <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
         <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
           <Pressable
             disabled={!phoneLayout}
@@ -553,8 +561,8 @@ export function CommunityTab(props: any) {
             </>
           )}
         </View>
-        </View>
-        <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
+        </View>}
+        {COMMUNITY_CIRCLES_ENABLED && <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
           <View style={styles.communityStepHeader}>
             <View style={[styles.communityStepBadge, communityDarkMode && styles.communityDarkStepBadge]}>
               <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>1</Text>
@@ -641,10 +649,10 @@ export function CommunityTab(props: any) {
               <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, add a registered friend or join a private circle above.` : "Add a registered friend or join a private circle above."}</Text>
             </>
           )}
-        </View>
+        </View>}
         <View style={styles.communityStepHeader}>
           <View style={[styles.communityStepBadge, communityDarkMode && styles.communityDarkStepBadge]}>
-            <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>2</Text>
+            <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>{COMMUNITY_CIRCLES_ENABLED ? "2" : "1"}</Text>
           </View>
           <View style={styles.journalTitleBlock}>
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Write one honest update</Text>
@@ -661,15 +669,17 @@ export function CommunityTab(props: any) {
         <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
           <View style={styles.communityStepHeader}>
           <View style={[styles.communityStepBadge, communityDarkMode && styles.communityDarkStepBadge]}>
-            <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>3</Text>
+            <Text style={[styles.communityStepBadgeText, communityDarkMode && styles.communityDarkStepBadgeText]}>{COMMUNITY_CIRCLES_ENABLED ? "3" : "2"}</Text>
             </View>
             <View style={styles.journalTitleBlock}>
-              <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Post encouragement</Text>
+              <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>{COMMUNITY_CIRCLES_ENABLED ? "Post encouragement" : "Save encouragement"}</Text>
             </View>
           </View>
-          <Text style={[styles.shareMessageText, communityDarkMode && styles.accountDarkText, phoneLayout && styles.phoneShareMessageText]}>{communityMessage}</Text>
+          <Text style={[styles.shareMessageText, communityDarkMode && styles.accountDarkText, phoneLayout && styles.phoneShareMessageText]}>
+            {COMMUNITY_CIRCLES_ENABLED ? communityMessage : checkinNote.trim() || "Your encouragement will appear here as you write."}
+          </Text>
           <AppButton
-            label={isSavingCheckin ? "Posting..." : "Post"}
+            label={isSavingCheckin ? (COMMUNITY_CIRCLES_ENABLED ? "Posting..." : "Saving...") : (COMMUNITY_CIRCLES_ENABLED ? "Post" : "Save privately")}
             onPress={persistCheckin}
             style={phoneLayout && styles.phoneFullWidthButton}
             labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
@@ -752,7 +762,11 @@ export function CommunityTab(props: any) {
             <Ionicons name="shield-checkmark-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Community boundary</Text>
           </View>
-          <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system.</Text>
+          <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
+            {COMMUNITY_CIRCLES_ENABLED
+              ? "Community is intentionally limited to accepted friends and invite-only circles. It is not a public timeline or open messaging system."
+              : "Your saved encouragements are private. Friend connections and private circles are not available yet."}
+          </Text>
         </View>
         <View style={styles.communityDivider} />
         <View style={styles.feedbackHeader}>

@@ -4288,13 +4288,13 @@ function HomeScreen() {
       setCommunityStatus("Write one honest update before saving.");
       return;
     }
-    if (!hasCommunityTarget) {
+    if (COMMUNITY_CIRCLES_ENABLED && !hasCommunityTarget) {
       setCommunityStatus("Add an accepted friend or join a circle before saving an encouragement.");
       return;
     }
 
     setIsSavingCheckin(true);
-    setCommunityStatus("Posting encouragement...");
+    setCommunityStatus(COMMUNITY_CIRCLES_ENABLED ? "Posting encouragement..." : "Saving encouragement...");
     const noteToSave = checkinNote.trim();
     const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && targetCircleId;
     const shouldShareWithFriends = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "friend" && targetFriendIds.length > 0;

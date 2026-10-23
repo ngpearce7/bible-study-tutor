@@ -4120,7 +4120,7 @@ function HomeScreen() {
     if (localProfileCleanupInFlight.current) return;
     if (!localProfileCleanupArmed) {
       setLocalProfileCleanupArmed(true);
-      setAdminMaintenanceStatus("Tap again to remove empty local/test profiles. Profiles with saved content will be kept.");
+      setAdminMaintenanceStatus("Tap again to clean all empty local/test profiles. Profiles with saved content will be kept.");
       return;
     }
 
@@ -4128,12 +4128,27 @@ function HomeScreen() {
     setLocalProfileCleanupBusy(true);
     setAdminMaintenanceStatus("Cleaning empty local/test profiles...");
     try {
-      const result = await cleanupEmptyLocalProfilesAsAdmin({});
+      let queued = 0;
+      let kept = 0;
+      let cursor: string | undefined;
+      let isDone = false;
+      let batches = 0;
+      while (!isDone && batches < 1000) {
+        const result = await cleanupEmptyLocalProfilesAsAdmin({ cursor });
+        queued += result.queued;
+        kept += result.kept;
+        isDone = result.isDone;
+        cursor = result.continueCursor;
+        batches += 1;
+        if (!isDone) setAdminMaintenanceStatus(`Scanning local/test profiles… ${queued} empty queued, ${kept} with saved content kept.`);
+      }
       setLocalProfileCleanupArmed(false);
       setSelectedAdminProfileId(null);
-      setAdminMaintenanceStatus(result.queued > 0
-        ? `Queued ${result.queued} empty local/test profile${result.queued === 1 ? "" : "s"} for cleanup. The directory will update as cleanup finishes. Kept ${result.kept} with saved content.`
-        : `No empty local/test profiles were queued. Kept ${result.kept} with saved content; signed-in accounts are never included.`);
+      setAdminMaintenanceStatus(!isDone
+        ? `Paused after ${batches} batches. Queued ${queued} empty profiles; run cleanup again to finish.`
+        : queued > 0
+          ? `Queued all ${queued} empty local/test profile${queued === 1 ? "" : "s"} for cleanup. The directory will update as cleanup finishes. Kept ${kept} with saved content.`
+          : `No empty local/test profiles were queued. Kept ${kept} with saved content; signed-in accounts are never included.`);
     } catch {
       setLocalProfileCleanupArmed(false);
       setAdminMaintenanceStatus("Cleanup failed. Check administrator access and that the latest Convex functions are deployed, then try again.");

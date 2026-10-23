@@ -531,7 +531,7 @@ function AdminUserDirectory({
         </Text>
         <Pressable accessibilityRole="button" accessibilityState={{ disabled: cleanupBusy, busy: cleanupBusy }} disabled={cleanupBusy} onPress={onCleanupLocalProfiles} style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton, cleanupBusy && { opacity: 0.6 }]}>
           <Ionicons name="sparkles-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
-          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{cleanupBusy ? "Cleaning profiles…" : cleanupArmed ? "Confirm cleanup of empty profiles" : "Clean empty local/test profiles"}</Text>
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{cleanupBusy ? "Cleaning profiles…" : cleanupArmed ? "Confirm cleanup of all empty profiles" : "Clean all empty local/test profiles"}</Text>
         </Pressable>
         {cleanupArmed && !cleanupBusy && <Pressable accessibilityRole="button" onPress={onCancelCleanup} style={styles.adminDirectoryShowMore}><Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Cancel cleanup</Text></Pressable>}
         {!!maintenanceStatus && <Text accessibilityLiveRegion="polite" style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>{maintenanceStatus}</Text>}

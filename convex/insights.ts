@@ -865,19 +865,19 @@ export const approveDeletionRequestAsAdmin = mutation({
 });
 
 export const cleanupEmptyLocalProfilesAsAdmin = mutation({
-  args: {},
-  returns: v.object({ queued: v.number(), kept: v.number() }),
-  handler: async (ctx) => {
+  args: { cursor: v.optional(v.string()) },
+  returns: v.object({ queued: v.number(), kept: v.number(), isDone: v.boolean(), continueCursor: v.string() }),
+  handler: async (ctx, args) => {
     const adminUserId = await requireAdminUserId(ctx);
-    const profiles = await ctx.db
+    const page = await ctx.db
       .query("profiles")
       .withIndex("by_auth_user_and_updated_at", (q) => q.eq("authUserId", undefined))
       .order("asc")
-      .take(100);
+      .paginate({ numItems: 20, cursor: args.cursor ?? null });
     let queued = 0;
     let kept = 0;
 
-    for (const profile of profiles) {
+    for (const profile of page.page) {
       const hasContent = await localProfileHasSavedContent(ctx, profile._id);
       if (hasContent) {
         kept += 1;
@@ -886,7 +886,6 @@ export const cleanupEmptyLocalProfilesAsAdmin = mutation({
 
       const job = await enqueueProfileCleanupJob(ctx, { profileId: profile._id, requestedBy: adminUserId });
       if (job.created) queued += 1;
-      if (queued >= 20) break;
     }
 
     await logAdminAction(ctx, {
@@ -895,7 +894,7 @@ export const cleanupEmptyLocalProfilesAsAdmin = mutation({
       details: `Queued ${queued} empty local/test profile${queued === 1 ? "" : "s"} for cleanup; kept ${kept} local profile${kept === 1 ? "" : "s"} with saved content`
     });
 
-    return { queued, kept };
+    return { queued, kept, isDone: page.isDone, continueCursor: page.continueCursor };
   }
 });
 

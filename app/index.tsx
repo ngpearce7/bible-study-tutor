@@ -924,7 +924,6 @@ function HomeScreen() {
   const [incomingShareSource, setIncomingShareSource] = useState("");
   const [openLegalSection, setOpenLegalSection] = useState<LegalSection>("");
   const [accountPrivacyOpen, setAccountPrivacyOpen] = useState(false);
-  const [selectedAdminRegion, setSelectedAdminRegion] = useState("Australia");
   const [selectedAdminProfileId, setSelectedAdminProfileId] = useState<any>(null);
   const [tab, setTab] = useState<Tab>("home");
   const recoveryAvailable = useRawQuery(api.accountability.recoveryAvailable, tab === "account" && !isAuthenticated && authFlow === "signIn" ? {} : "skip");
@@ -11333,7 +11332,6 @@ function HomeScreen() {
               onCancelCleanup={() => { setLocalProfileCleanupArmed(false); setAdminMaintenanceStatus(""); }}
               pendingConfirmId={pendingAdminDeletionRequestId}
               selectedProfileId={selectedAdminProfileId}
-              selectedRegion={selectedAdminRegion}
               compactLayout={compactLayout}
               phoneLayout={phoneLayout}
               darkMode={adminDarkMode}
@@ -11346,7 +11344,6 @@ function HomeScreen() {
               onLoadMoreAdminUsers={() => loadMoreAdminUsers(15)}
               onOpenAccount={() => setTab("account")}
               onSelectProfile={setSelectedAdminProfileId}
-              onSelectRegion={setSelectedAdminRegion}
               onMarkSecurityReviewed={markAdminProfileSecurityReviewed}
               onSetProfileSuspension={setAdminProfileSuspension}
               />

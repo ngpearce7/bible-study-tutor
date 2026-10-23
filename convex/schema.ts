@@ -129,6 +129,7 @@ export default defineSchema({
     .index("by_client_key", ["clientKey"])
     .index("by_recovery_digest", ["recoveryDigest"])
     .index("by_normalized_username", ["normalizedUsername"])
+    .searchIndex("search_display_name", { searchField: "displayName" })
     .index("by_friend_code", ["friendCode"])
     .index("by_updated_at", ["updatedAt"])
     .index("by_auth_user_and_updated_at", ["authUserId", "updatedAt"]),

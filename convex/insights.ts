@@ -373,13 +373,14 @@ export const adminOverview = query({
 
     const sevenDaysAgo = (args.now ?? 0) - 7 * 24 * 60 * 60 * 1000;
     const sevenDayKey = utcDayKey(sevenDaysAgo);
-    const [events, publicEvents, usageDaily, publicDaily, reliabilityDaily, feedback, profiles, studyStats, deletionRequests, securityEvents] = await Promise.all([
+    const [events, publicEvents, usageDaily, publicDaily, reliabilityDaily, feedback, newFeedbackRows, profiles, studyStats, deletionRequests, securityEvents] = await Promise.all([
       ctx.db.query("usageEvents").withIndex("by_created").order("desc").take(500),
       ctx.db.query("publicAnalyticsEvents").withIndex("by_created", (q) => q.gte("createdAt", sevenDaysAgo)).order("desc").take(5000),
       ctx.db.query("usageAnalyticsDaily").withIndex("by_day_key", (q) => q.gte("dayKey", sevenDayKey)).take(5000),
       ctx.db.query("publicAnalyticsDaily").withIndex("by_day_key", (q) => q.gte("dayKey", sevenDayKey)).take(5000),
       ctx.db.query("reliabilityDaily").withIndex("by_day_key", (q) => q.gte("dayKey", sevenDayKey)).take(5000),
       ctx.db.query("feedback").withIndex("by_created").order("desc").take(50),
+      ctx.db.query("feedback").withIndex("by_status_created", (q) => q.eq("status", "new")).take(101),
       ctx.db.query("profiles").withIndex("by_updated_at").order("desc").take(2000),
       ctx.db.query("studyStats").take(2000),
       ctx.db.query("accountDeletionRequests").withIndex("by_status_requested", (q) => q.eq("status", "pending")).order("asc").take(25),
@@ -422,7 +423,7 @@ export const adminOverview = query({
         publicPageViews7d: sumCounts(publicDaily.filter((item) => item.eventType === "public_page_view")),
         publicConversions7d: sumCounts(publicDaily.filter((item) => item.eventType !== "public_page_view")),
         feedback: feedback.length,
-        newFeedback: feedback.filter((item) => item.status === "new").length,
+        newFeedback: newFeedbackRows.length,
         appShares: sumCounts(shareEvents),
         pendingDeletionRequests: deletionRequests.length,
         securityEvents24h: securityEvents.filter((item) => item.createdAt >= oneDayAgo).length,
@@ -487,6 +488,55 @@ export const adminUsersPage = query({
       .paginate(args.paginationOpts);
     const page = await Promise.all(profilesPage.page.map((profile) => buildAdminUserRow(ctx, profile)));
     return { ...profilesPage, page };
+  }
+});
+
+export const adminSearchUsers = query({
+  args: { term: v.string() },
+  returns: v.array(adminUserRowValidator),
+  handler: async (ctx, args) => {
+    if (!(await isAdmin(ctx))) return [];
+    const term = args.term.trim().slice(0, 100);
+    if (term.length < 2) return [];
+    const profiles = term.includes("@") ? [] : await ctx.db
+      .query("profiles")
+      .withSearchIndex("search_display_name", (q) => q.search("displayName", term))
+      .take(15);
+    const profileIds = new Set(profiles.map((profile) => profile._id));
+    const email = term.toLowerCase();
+    if (email.includes("@")) {
+      const user = await ctx.db.query("users").withIndex("email", (q) => q.eq("email", email)).unique();
+      if (user) {
+        const profile = await ctx.db.query("profiles").withIndex("by_auth_user_id", (q) => q.eq("authUserId", user._id)).unique();
+        if (profile) profileIds.add(profile._id);
+      }
+    }
+    const usernameProfile = await ctx.db.query("profiles")
+      .withIndex("by_normalized_username", (q) => q.eq("normalizedUsername", email))
+      .unique();
+    if (usernameProfile) profileIds.add(usernameProfile._id);
+    const matches = await Promise.all(Array.from(profileIds).slice(0, 15).map((profileId) => ctx.db.get(profileId)));
+    return await Promise.all(matches.filter((profile): profile is Doc<"profiles"> => !!profile).map((profile) => buildAdminUserRow(ctx, profile)));
+  }
+});
+
+export const adminFeedbackPage = query({
+  args: {
+    status: v.optional(v.union(v.literal("new"), v.literal("reviewed"), v.literal("actioned"), v.literal("ignored"))),
+    paginationOpts: paginationOptsValidator
+  },
+  returns: paginationResultValidator(v.any()),
+  handler: async (ctx, args) => {
+    if (!(await isAdmin(ctx))) return { page: [], isDone: true, continueCursor: "" };
+    return args.status
+      ? await ctx.db.query("feedback")
+          .withIndex("by_status_created", (q) => q.eq("status", args.status!))
+          .order("desc")
+          .paginate(args.paginationOpts)
+      : await ctx.db.query("feedback")
+          .withIndex("by_created")
+          .order("desc")
+          .paginate(args.paginationOpts);
   }
 });
 
@@ -925,13 +975,15 @@ function buildPublicFunnel(events: Doc<"publicAnalyticsEvents">[]) {
     if (event.eventType === "study_completed") stages.studies.add(event.funnelId);
   }
   const percent = (part: number, whole: number) => whole ? Math.round((part / whole) * 1000) / 10 : 0;
+  const viewToCta = [...stages.views].filter((id) => stages.ctaActions.has(id)).length;
+  const ctaToStudy = [...stages.ctaActions].filter((id) => stages.studies.has(id)).length;
   return {
     views: stages.views.size,
     ctaActions: stages.ctaActions.size,
     accountStarts: stages.accountStarts.size,
     studies: stages.studies.size,
-    viewToCtaPercent: percent(stages.ctaActions.size, stages.views.size),
-    ctaToStudyPercent: percent(stages.studies.size, stages.ctaActions.size)
+    viewToCtaPercent: percent(viewToCta, stages.views.size),
+    ctaToStudyPercent: percent(ctaToStudy, stages.ctaActions.size)
   };
 }
 

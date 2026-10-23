@@ -138,8 +138,8 @@ export default function RootLayout() {
         <meta name="twitter:description" content={SITE_DESCRIPTION} />
         {siteImage ? <meta name="twitter:image" content={siteImage} /> : null}
         {siteUrl ? <link rel="canonical" href={siteUrl} /> : null}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="icon" href="/favicon-bookmark-cross.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/favicon-bookmark-cross.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
         {Platform.OS === "web" ? (

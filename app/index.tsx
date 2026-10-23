@@ -1014,8 +1014,6 @@ function HomeScreen() {
   const [focusedCommunityItemId, setFocusedCommunityItemId] = useState("");
   const [friendToolsOpen, setFriendToolsOpen] = useState(false);
   const [circleManagerOpen, setCircleManagerOpen] = useState(false);
-  const [mobileFriendsPanelOpen, setMobileFriendsPanelOpen] = useState(false);
-  const [mobileCirclesPanelOpen, setMobileCirclesPanelOpen] = useState(false);
   const [peoplePanelCollapsed, setPeoplePanelCollapsed] = useState(false);
   const [recentCheckinsExpanded, setRecentCheckinsExpanded] = useState(false);
   const [communitySubView, setCommunitySubView] = useState<"encourage" | "history">("encourage");
@@ -2666,22 +2664,6 @@ function HomeScreen() {
   const activeBibleReadingPlanDayWindow = activeBibleReadingPlan
     ? getBiblePlanDayWindow(activeBibleReadingPlan, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1)
     : null;
-  const friendPanelSummary = !COMMUNITY_CIRCLES_ENABLED
-    ? "Coming soon"
-    : !isAuthenticated
-      ? "Sign in to add friends"
-      : acceptedCommunityFriends.length === 0 && pendingCommunityFriendInvites.length === 0
-        ? "No friends yet"
-        : `${acceptedCommunityFriends.length} friend${acceptedCommunityFriends.length === 1 ? "" : "s"}${pendingCommunityFriendInvites.length > 0 ? ` · ${pendingCommunityFriendInvites.length} pending` : ""}`;
-  const circlePanelSummary = !COMMUNITY_CIRCLES_ENABLED
-    ? "Coming soon"
-    : !isAuthenticated
-      ? "Sign in to join circles"
-      : (communityCircles || []).length === 0
-        ? "No circles yet"
-        : `${(communityCircles || []).length} circle${(communityCircles || []).length === 1 ? "" : "s"}`;
-  const showFriendsConnectionPanel = !phoneLayout || mobileFriendsPanelOpen;
-  const showCircleConnectionPanel = !phoneLayout || mobileCirclesPanelOpen;
   const resolvedDarkMode = useAppDarkMode(appearanceMode);
   const accountDarkMode = DARK_MODE_ENABLED && resolvedDarkMode;
   const homeDarkMode = accountDarkMode;
@@ -2972,8 +2954,6 @@ function HomeScreen() {
     }
     if (uiBoolean(profileUiPreferences, "bibleSearchCriteriaOpen") !== undefined) setBibleSearchCriteriaOpen(uiBoolean(profileUiPreferences, "bibleSearchCriteriaOpen")!);
     if (uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed") !== undefined) setPeoplePanelCollapsed(uiBoolean(profileUiPreferences, "communityPeoplePanelCollapsed")!);
-    if (uiBoolean(profileUiPreferences, "communityFriendsPanelOpen") !== undefined) setMobileFriendsPanelOpen(uiBoolean(profileUiPreferences, "communityFriendsPanelOpen")!);
-    if (uiBoolean(profileUiPreferences, "communityCirclesPanelOpen") !== undefined) setMobileCirclesPanelOpen(uiBoolean(profileUiPreferences, "communityCirclesPanelOpen")!);
     if (uiBoolean(profileUiPreferences, "communityFriendToolsOpen") !== undefined) setFriendToolsOpen(uiBoolean(profileUiPreferences, "communityFriendToolsOpen")!);
     if (uiBoolean(profileUiPreferences, "communityCircleToolsOpen") !== undefined) setCircleManagerOpen(uiBoolean(profileUiPreferences, "communityCircleToolsOpen")!);
     if (uiBoolean(profileUiPreferences, "communityRecentExpanded") !== undefined) setRecentCheckinsExpanded(uiBoolean(profileUiPreferences, "communityRecentExpanded")!);
@@ -10786,10 +10766,6 @@ function HomeScreen() {
               communityDarkMode={communityDarkMode}
               firstName={firstName}
               toggleRememberedPanel={toggleRememberedPanel}
-              setMobileFriendsPanelOpen={setMobileFriendsPanelOpen}
-              friendPanelSummary={friendPanelSummary}
-              mobileFriendsPanelOpen={mobileFriendsPanelOpen}
-              showFriendsConnectionPanel={showFriendsConnectionPanel}
               COMMUNITY_CIRCLES_ENABLED={COMMUNITY_CIRCLES_ENABLED}
               isAuthenticated={isAuthenticated}
               myFriendCode={myFriendCode}
@@ -10813,10 +10789,6 @@ function HomeScreen() {
               managedCommunityFriend={managedCommunityFriend}
               friendStatus={friendStatus}
               setTab={setTab}
-              setMobileCirclesPanelOpen={setMobileCirclesPanelOpen}
-              circlePanelSummary={circlePanelSummary}
-              mobileCirclesPanelOpen={mobileCirclesPanelOpen}
-              showCirclesConnectionPanel={showCircleConnectionPanel}
               communityCircles={communityCircles}
               selectedCircleId={selectedCircleId}
               setSelectedCircleId={setSelectedCircleId}

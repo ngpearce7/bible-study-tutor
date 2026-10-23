@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -13,10 +14,6 @@ export function CommunityTab(props: any) {
     communityDarkMode,
     firstName,
     toggleRememberedPanel,
-    setMobileFriendsPanelOpen,
-    friendPanelSummary,
-    mobileFriendsPanelOpen,
-    showFriendsConnectionPanel,
     COMMUNITY_CIRCLES_ENABLED,
     isAuthenticated,
     myFriendCode,
@@ -40,10 +37,6 @@ export function CommunityTab(props: any) {
     managedCommunityFriend,
     friendStatus,
     setTab,
-    setMobileCirclesPanelOpen,
-    circlePanelSummary,
-    mobileCirclesPanelOpen,
-    showCirclesConnectionPanel,
     communityCircles,
     selectedCircleId,
     setSelectedCircleId,
@@ -113,6 +106,7 @@ export function CommunityTab(props: any) {
     deleteCommunityPost,
     deleteRecentCheckin
   } = props;
+  const [connectionView, setConnectionView] = useState<"friends" | "circles">("friends");
 
   function renderCommunityHistoryItem(item: any) {
     const sharedTo = Array.isArray(item.sharedTo) ? item.sharedTo : [];
@@ -270,25 +264,31 @@ export function CommunityTab(props: any) {
         </View>
         {communitySubView === "encourage" ? (
           <>
+        {COMMUNITY_CIRCLES_ENABLED && (
+          <View style={[styles.communitySubViewTabs, communityDarkMode && styles.accountDarkSegmentedRow]} accessibilityRole="tablist">
+            {([ ["friends", "Friends"], ["circles", "Private circles"] ] as const).map(([key, label]) => (
+              <Pressable
+                key={key}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: connectionView === key }}
+                onPress={() => setConnectionView(key)}
+                style={[styles.communitySubViewTab, connectionView === key && styles.activeCommunitySubViewTab, communityDarkMode && connectionView === key && styles.accountDarkActiveSegment]}
+              >
+                <Text style={[styles.communitySubViewTabText, communityDarkMode && styles.accountDarkMutedText, connectionView === key && styles.activeCommunitySubViewTabText, communityDarkMode && connectionView === key && styles.studyDarkAccentText]}>{label}</Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
         {COMMUNITY_CIRCLES_ENABLED && <View style={[styles.communityConnectionGrid, phoneLayout && styles.phoneCommunityConnectionGrid]}>
+        {connectionView === "friends" && (
         <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
-          <Pressable
-            disabled={!phoneLayout}
-            onPress={() => toggleRememberedPanel(setMobileFriendsPanelOpen, "communityFriendsPanelOpen")}
-            style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
-          >
+          <View style={styles.feedbackHeader}>
             <View style={styles.mobileCommunityPanelTitleRow}>
               <Ionicons name="person-add-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Friends</Text>
             </View>
-            {phoneLayout && (
-              <View style={styles.mobileCommunityPanelSummaryRow}>
-                <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{friendPanelSummary}</Text>
-                <Ionicons name={mobileFriendsPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
-              </View>
-            )}
-          </Pressable>
-          {showFriendsConnectionPanel && (
+          </View>
+          {(
             <>
               <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
                 Friends are registered Bible Study Tutor users you personally add by code or email. Share your code privately with someone you trust, then encourage one another without a public feed.
@@ -427,24 +427,16 @@ export function CommunityTab(props: any) {
             </>
           )}
         </View>
+        )}
+        {connectionView === "circles" && (
         <View style={[styles.communityCircleBox, styles.communityConnectionPanel, communityDarkMode && styles.accountDarkSection, phoneLayout && styles.phoneCommunityConnectionPanel, styles.openSection, styles.sectionDivider, communityDarkMode && styles.darkSectionDivider]}>
-          <Pressable
-            disabled={!phoneLayout}
-            onPress={() => toggleRememberedPanel(setMobileCirclesPanelOpen, "communityCirclesPanelOpen")}
-            style={[styles.feedbackHeader, phoneLayout && styles.mobileCommunityPanelHeader]}
-          >
+          <View style={styles.feedbackHeader}>
             <View style={styles.mobileCommunityPanelTitleRow}>
               <Ionicons name="lock-closed-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Private circle</Text>
             </View>
-            {phoneLayout && (
-              <View style={styles.mobileCommunityPanelSummaryRow}>
-                <Text numberOfLines={1} style={[styles.mobileCommunityPanelSummary, communityDarkMode && styles.accountDarkMutedText]}>{circlePanelSummary}</Text>
-                <Ionicons name={mobileCirclesPanelOpen ? "chevron-up-outline" : "chevron-down-outline"} size={18} color={communityDarkMode ? "#d4a768" : colors.oliveDark} />
-              </View>
-            )}
-          </Pressable>
-          {showCirclesConnectionPanel && (
+          </View>
+          {(
             <>
               <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
               {COMMUNITY_CIRCLES_ENABLED
@@ -561,6 +553,7 @@ export function CommunityTab(props: any) {
             </>
           )}
         </View>
+        )}
         </View>}
         {COMMUNITY_CIRCLES_ENABLED && <View style={[styles.communityStepBlock, phoneLayout && styles.phoneCommunityStepBlock]}>
           <View style={styles.communityStepHeader}>

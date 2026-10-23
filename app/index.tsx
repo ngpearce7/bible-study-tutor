@@ -2206,6 +2206,7 @@ function HomeScreen() {
     ).values()
   );
   const filteredCommunityHistoryCheckins = communityHistoryCheckins.filter((checkin: any) => {
+    if (!COMMUNITY_CIRCLES_ENABLED) return true;
     const sharedTo = Array.isArray(checkin.sharedTo) ? checkin.sharedTo : [];
     if (communityHistoryFilter === "private") return sharedTo.length === 0;
     if (communityHistoryFilter === "circles") {

@@ -693,8 +693,12 @@ export function CommunityTab(props: any) {
               <Ionicons name="albums-outline" size={18} color={communityDarkMode ? "#d4a768" : colors.coral} />
               <Text style={[styles.feedbackTitle, communityDarkMode && styles.accountDarkTitle]}>Encouragement history</Text>
             </View>
-            <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared.</Text>
-            <View style={styles.communityHistoryFilterRow}>
+            <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
+              {COMMUNITY_CIRCLES_ENABLED
+                ? "Review, edit, copy, or remove your saved encouragements. Circle posts stay grouped by where they were shared."
+                : "Review, edit, copy, or remove your saved encouragements."}
+            </Text>
+            {COMMUNITY_CIRCLES_ENABLED && <View style={styles.communityHistoryFilterRow}>
               {[
                 ["all", "All"],
                 ["private", "Private"],
@@ -711,8 +715,8 @@ export function CommunityTab(props: any) {
                   <Text style={[styles.filterText, communityDarkMode && styles.accountDarkMutedText, communityHistoryFilter === key && styles.activeFilterText]}>{label}</Text>
                 </Pressable>
               ))}
-            </View>
-            {communityHistoryFilter === "circles" && communityHistoryCircleOptions.length > 1 && (
+            </View>}
+            {COMMUNITY_CIRCLES_ENABLED && communityHistoryFilter === "circles" && communityHistoryCircleOptions.length > 1 && (
               <View style={styles.communityHistoryFilterRow}>
                 <Pressable
                   onPress={() => setCommunityHistoryCircleId("all")}
@@ -733,8 +737,10 @@ export function CommunityTab(props: any) {
             )}
             {communityHistoryGroups.length === 0 ? (
               <View style={[styles.emptyCommunityBox, communityDarkMode && styles.accountDarkInsetBox]}>
-                <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>No posts found</Text>
-                <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>Try another filter, or post a new encouragement or study insight.</Text>
+                <Text style={[styles.communityTitle, communityDarkMode && styles.accountDarkTitle]}>{COMMUNITY_CIRCLES_ENABLED ? "No posts found" : "No encouragements yet"}</Text>
+                <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>
+                  {COMMUNITY_CIRCLES_ENABLED ? "Try another filter, or post a new encouragement or study insight." : "Save an encouragement in the Encourage tab to see it here."}
+                </Text>
               </View>
             ) : (
               <View style={styles.communityHistoryGroupList}>

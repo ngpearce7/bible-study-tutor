@@ -646,7 +646,7 @@ export function CommunityTab(props: any) {
           ) : (
             <>
               <Text style={[styles.communityRecipientText, communityDarkMode && styles.accountDarkTitle]}>No friend or circle selected</Text>
-              <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, add a registered friend or join a private circle above.` : "Add a registered friend or join a private circle above."}</Text>
+              <Text style={[styles.helpIntro, communityDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, add a registered friend or join a private circle above to post, or save your encouragement privately.` : "Add a registered friend or join a private circle above to post, or save your encouragement privately."}</Text>
             </>
           )}
         </View>}
@@ -680,10 +680,19 @@ export function CommunityTab(props: any) {
           </Text>
           <AppButton
             label={isSavingCheckin ? (COMMUNITY_CIRCLES_ENABLED ? "Posting..." : "Saving...") : (COMMUNITY_CIRCLES_ENABLED ? "Post" : "Save privately")}
-            onPress={persistCheckin}
+            onPress={() => persistCheckin()}
             style={phoneLayout && styles.phoneFullWidthButton}
             labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
           />
+          {COMMUNITY_CIRCLES_ENABLED && (
+            <AppButton
+              label={isSavingCheckin ? "Saving..." : "Save privately"}
+              variant="secondary"
+              onPress={() => persistCheckin(true)}
+              style={phoneLayout && styles.phoneFullWidthButton}
+              labelStyle={phoneLayout && styles.phoneCommunityButtonLabel}
+            />
+          )}
           {!!communityStatus && <Text style={[styles.saveStatus, communityDarkMode && styles.accountDarkMutedText]}>{communityStatus}</Text>}
         </View>
           </>

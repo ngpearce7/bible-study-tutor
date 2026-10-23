@@ -739,7 +739,7 @@ const BIBLE_TRANSLATIONS: { id: BibleTranslationId; label: string; name: string 
   { id: "web", label: "WEB", name: "World English Bible" },
   { id: "kjv", label: "KJV", name: "King James Version" }
 ];
-const COMMUNITY_CIRCLES_ENABLED = process.env.EXPO_PUBLIC_ENABLE_COMMUNITY_CIRCLES === "true";
+const COMMUNITY_CIRCLES_ENABLED = process.env.EXPO_PUBLIC_ENABLE_COMMUNITY_CIRCLES !== "false";
 const PASSAGE_MARKUP_OPTIONS: { id: PassageMarkupKind; label: string; background: string; color: string }[] = [
   { id: "notice", label: "Notice", background: "#dfead5", color: colors.oliveDark },
   { id: "question", label: "Question", background: "#f4dfb6", color: "#6d4b16" },
@@ -4279,7 +4279,7 @@ function HomeScreen() {
     }
   }
 
-  async function persistCheckin() {
+  async function persistCheckin(privateOnly = false) {
     if (isSavingCheckin) return;
     if (!activeProfileId) {
       setCommunityStatus("The app is still connecting to your saved data. Please wait a moment and try again.");
@@ -4289,16 +4289,16 @@ function HomeScreen() {
       setCommunityStatus("Write one honest update before saving.");
       return;
     }
-    if (COMMUNITY_CIRCLES_ENABLED && !hasCommunityTarget) {
-      setCommunityStatus("Add an accepted friend or join a circle before saving an encouragement.");
+    if (COMMUNITY_CIRCLES_ENABLED && !privateOnly && !hasCommunityTarget) {
+      setCommunityStatus("Choose an accepted friend or circle before posting, or save privately.");
       return;
     }
 
     setIsSavingCheckin(true);
-    setCommunityStatus(COMMUNITY_CIRCLES_ENABLED ? "Posting encouragement..." : "Saving encouragement...");
+    setCommunityStatus(COMMUNITY_CIRCLES_ENABLED && !privateOnly ? "Posting encouragement..." : "Saving encouragement...");
     const noteToSave = checkinNote.trim();
-    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "circle" && targetCircleId;
-    const shouldShareWithFriends = COMMUNITY_CIRCLES_ENABLED && communityTargetType === "friend" && targetFriendIds.length > 0;
+    const shouldShareWithCircle = COMMUNITY_CIRCLES_ENABLED && !privateOnly && communityTargetType === "circle" && targetCircleId;
+    const shouldShareWithFriends = COMMUNITY_CIRCLES_ENABLED && !privateOnly && communityTargetType === "friend" && targetFriendIds.length > 0;
     try {
       const checkinId = await saveCheckin({ profileId: activeProfileId, mood: "encouragement", note: noteToSave, sentAt: Date.now(), localDayKey: localDateKey() });
       if (shouldShareWithCircle || shouldShareWithFriends) {

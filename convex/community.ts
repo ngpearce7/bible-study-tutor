@@ -37,7 +37,7 @@ export const myFriends = query({
         _id: row._id,
         friendProfileId: otherProfile._id,
         name: clampText(otherProfile.displayName, 80) || "Bible student",
-        email: otherUser?.email || "",
+        email: row.status === "accepted" ? otherUser?.email || "" : "",
         status: row.status,
         direction: isRequester ? "sent" : "received",
         createdAt: row.createdAt,

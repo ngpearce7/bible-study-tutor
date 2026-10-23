@@ -2615,6 +2615,9 @@ function HomeScreen() {
         }]
       : [])
   ];
+  const showHomeStarterPaths = profileMatchesActiveState && stats !== undefined &&
+    stats.sessionCount === 0 && followedBibleReadingPlanIds.length === 0 &&
+    homeMemorySummary?.dueCount === 0 && homeContinueItems.length === 0;
   const memoryHistoryItems = shouldRenderMemoryHistory ? (memoryHistory || []) : [];
   const memoryHistorySummary = useMemo(
     () => shouldRenderMemoryHistory
@@ -4244,6 +4247,22 @@ function HomeScreen() {
   function openBibleFromPublicSource(source: string) {
     trackPublicAnalytics({ eventType: "bible_reader_opened", source, ctaTarget: "/?tab=bible" });
     setTab("bible");
+  }
+
+  function openHomeStarterReading() {
+    setReaderPlanReading(null);
+    setReaderBook("John");
+    setReaderChapter(1);
+    setReaderChapterDraft("1");
+    setSelectedReaderVerses([]);
+    setReaderActionVerse(0);
+    openBibleFromPublicSource("home_starter");
+  }
+
+  function openHomeStarterPlan() {
+    setRememberedExpandedBiblePlanId("beginner-bible");
+    trackPublicAnalytics({ eventType: "plans_opened", source: "home_starter", ctaTarget: "/?tab=plans" });
+    setTab("plans");
   }
 
   async function submitUserFeedback() {
@@ -8422,6 +8441,28 @@ function HomeScreen() {
                   ))}
                 </View>
               )}
+              {showHomeStarterPaths && (
+                <View style={[styles.homeStarterPanel, homeDarkMode && styles.accountDarkMainCard]}>
+                  <Text style={[styles.homeStarterEyebrow, homeDarkMode && styles.homeDarkAccentText]}>Start here</Text>
+                  <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Choose one small step</Text>
+                  <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>You can begin without setting up everything first. Pick what you would like to do today.</Text>
+                  <View style={[styles.homeStarterChoices, phoneLayout && styles.phoneHomeStarterChoices]}>
+                    {([
+                      { key: "read", icon: "book-outline", title: "Read John 1", detail: "Open the first chapter and read at your own pace.", onPress: openHomeStarterReading },
+                      { key: "study", icon: "create-outline", title: "Try a guided study", detail: "Work through one passage with simple prompts.", onPress: () => openStudyFromPublicSource("home_starter") },
+                      { key: "plan", icon: "calendar-outline", title: "Explore a 10-day plan", detail: "Open the Beginner Bible Reading Plan.", onPress: openHomeStarterPlan }
+                    ] as const).map((choice) => (
+                      <Pressable key={choice.key} accessibilityRole="button" accessibilityLabel={choice.title} onPress={choice.onPress} style={[styles.homeStarterChoice, homeDarkMode && styles.accountDarkSection]}>
+                        <View style={styles.homeStarterChoiceHeading}>
+                          <HydrationSafeIonicon ready={iconFontReady} name={choice.icon} size={20} color={homeDarkMode ? "#d4a768" : colors.coral} />
+                          <Text style={[styles.homePathTitle, homeDarkMode && styles.accountDarkTitle]}>{choice.title}</Text>
+                        </View>
+                        <Text style={[styles.homePathDetail, homeDarkMode && styles.accountDarkMutedText]}>{choice.detail}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              )}
               <ImageBackground source={require("../assets/home-hero.jpg")} resizeMode="cover" style={[styles.homeHero, homeDarkMode && styles.homeDarkHero]} imageStyle={styles.homeHeroImage}>
                 <View style={[styles.homeHeroOverlay, homeDarkMode && styles.homeDarkHeroOverlay]} />
                 <View style={styles.homeHeroCopy}>
@@ -8468,7 +8509,7 @@ function HomeScreen() {
             </Card>
 
             <View style={[styles.homeSideColumn, stackedContentLayout && styles.fluidCard]}>
-              <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
+              {!showHomeStarterPaths && <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>Start with what you need</Text>
                 <Text style={[styles.titleSupport, homeDarkMode && styles.accountDarkMutedText]}>{firstName ? `${firstName}, choose one small next step.` : "Choose one small next step."}</Text>
                 <View style={styles.homePathList}>
@@ -8496,8 +8537,7 @@ function HomeScreen() {
                     </Pressable>
                   ))}
                 </View>
-                <HomeSemanticResourceLinks darkMode={homeDarkMode} />
-              </Card>
+              </Card>}
 
               <Card style={[styles.homeSideCard, homeDarkMode && styles.accountDarkMainCard]}>
                 <Text style={[styles.homeSideTitle, homeDarkMode && styles.accountDarkTitle]}>At a glance</Text>
@@ -8531,6 +8571,7 @@ function HomeScreen() {
                   />
                 </View>
               </Card>
+              <HomeSemanticResourceLinks darkMode={homeDarkMode} />
             </View>
           </View>
         )}

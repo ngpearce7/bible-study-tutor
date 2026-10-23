@@ -51,7 +51,7 @@ const usageBooks = new Set([
   "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon",
   "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3 John", "Jude", "Revelation"
 ]);
-const publicAnalyticsSources = new Set(["seo_page", "seo_cta", "home_hero", "home_glance", "main_menu", "study", "bible", "study_method_switcher", "share_button", "copy_link", "email", "username"]);
+const publicAnalyticsSources = new Set(["seo_page", "seo_cta", "home_hero", "home_glance", "home_starter", "main_menu", "study", "bible", "study_method_switcher", "share_button", "copy_link", "email", "username"]);
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 const adminUserRowValidator = v.object({
   profileId: v.id("profiles"),

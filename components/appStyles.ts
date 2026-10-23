@@ -268,6 +268,44 @@ export const styles = StyleSheet.create({
     padding: 0,
     shadowOpacity: 0
   },
+  homeStarterPanel: {
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 8,
+    padding: 20
+  },
+  homeStarterEyebrow: {
+    color: colors.coral,
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase"
+  },
+  homeStarterChoices: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 8
+  },
+  phoneHomeStarterChoices: {
+    flexDirection: "column"
+  },
+  homeStarterChoice: {
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flex: 1,
+    gap: 8,
+    minWidth: 0,
+    padding: 14
+  },
+  homeStarterChoiceHeading: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8
+  },
   homeHero: {
     alignItems: "center",
     backgroundColor: theme.brand.navy,

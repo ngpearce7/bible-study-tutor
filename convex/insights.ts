@@ -871,7 +871,9 @@ export const cleanupEmptyLocalProfilesAsAdmin = mutation({
     const adminUserId = await requireAdminUserId(ctx);
     const page = await ctx.db
       .query("profiles")
-      .withIndex("by_auth_user_and_updated_at", (q) => q.eq("authUserId", undefined))
+      // Keep the scan in creation order. updatedAt changes while people use the app,
+      // which can move already-scanned profiles past the pagination cursor.
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", undefined))
       .order("asc")
       .paginate({ numItems: 20, cursor: args.cursor ?? null });
     let queued = 0;

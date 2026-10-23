@@ -72,6 +72,45 @@ test("one confirmed cleanup can queue every empty local profile across pages", a
   expect(await t.run(ctx => ctx.db.query("profiles").collect())).toHaveLength(6);
 });
 
+test("cleanup scans saved profiles once even when their activity changes between pages", async () => {
+  vi.useFakeTimers();
+  const t = convexTest(schema, modules);
+  const adminId = await t.run(ctx => ctx.db.insert("users", {}));
+  process.env.ADMIN_USER_IDS = adminId;
+  const admin = t.withIdentity({ subject: `${adminId}|session` });
+  const savedIds = await t.run(async (ctx) => {
+    const ids = [];
+    for (let index = 0; index < 6; index += 1) {
+      const profileId = await ctx.db.insert("profiles", { clientKey: `saved-first-${index}`, displayName: "Saved", createdAt: index, updatedAt: index });
+      await ctx.db.insert("bibleBookmarks", { profileId, bookmarkId: `bookmark-${index}`, book: "John", chapter: 1, reference: "John 1", createdAt: "2026-10-24", updatedAt: index });
+      ids.push(profileId);
+    }
+    for (let index = 0; index < 45; index += 1) {
+      await ctx.db.insert("profiles", { clientKey: `empty-after-${index}`, displayName: "Empty", createdAt: 100 + index, updatedAt: 100 + index });
+    }
+    return ids;
+  });
+  let cursor: string | undefined;
+  let isDone = false;
+  let queued = 0;
+  let kept = 0;
+  let batches = 0;
+  while (!isDone && batches < 10) {
+    const result = await admin.mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, { cursor });
+    queued += result.queued;
+    kept += result.kept;
+    isDone = result.isDone;
+    cursor = result.continueCursor;
+    batches += 1;
+    await t.run(async (ctx) => {
+      for (const id of savedIds) await ctx.db.patch(id, { updatedAt: 1000 + batches });
+    });
+    await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+  }
+  expect({ queued, kept, batches, isDone }).toEqual({ queued: 45, kept: 6, batches: 3, isDone: true });
+  expect(await t.run(ctx => ctx.db.query("profiles").collect())).toHaveLength(6);
+});
+
 test("cleanup refuses callers without administrator access", async () => {
   const t = convexTest(schema, modules);
   const userId = await t.run(ctx => ctx.db.insert("users", {}));

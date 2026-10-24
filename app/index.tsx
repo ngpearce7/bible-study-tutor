@@ -7919,14 +7919,6 @@ function HomeScreen() {
   };
 
   const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean, planId: string) => {
-    if (planDay.deeperContext) {
-      return (
-        <View style={{ width: "100%", marginTop: 12 }}>
-          <View style={styles.planDayDevotionalToolbar}>{renderDevotionalTextSizeControl(darkMode)}</View>
-          <PlanDeeperContext day={planDay} darkMode={darkMode} textSize={devotionalTextSize} />
-        </View>
-      );
-    }
     const visibleCareNote = shouldShowBibleReadingCareNote(planDay.careNote) ? planDay.careNote : "";
     if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !planDay.deeperContext && !visibleCareNote) return null;
     const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
@@ -7962,6 +7954,10 @@ function HomeScreen() {
             <View style={styles.planDayDevotionalToolbar}>
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
+            {planDay.deeperContext ? (
+              <PlanDeeperContext day={planDay} darkMode={darkMode} textSize={devotionalTextSize} />
+            ) : (
+              <>
             {!!planDay.context && (
               <View style={styles.planDayPromptRow}>
                 <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Context</Text>
@@ -8023,6 +8019,8 @@ function HomeScreen() {
                   <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
                 </Pressable>
               </View>
+            )}
+              </>
             )}
           </View>
         )}

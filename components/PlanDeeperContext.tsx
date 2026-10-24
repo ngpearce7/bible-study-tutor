@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import type { BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
@@ -9,6 +10,7 @@ function openPassage(reference: string) {
 }
 
 export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
+  const [deeperWidth, setDeeperWidth] = useState(0);
   const deeper = day.deeperContext;
   if (!deeper) return null;
 
@@ -17,6 +19,7 @@ export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
   const muted = darkMode ? "#c4beb8" : "#53677e";
   const accent = darkMode ? "#d5a45f" : "#8d5528";
   const border = darkMode ? "#4a3e31" : "#d7e1e9";
+  const twoColumns = deeperWidth >= 620;
   const headingSize = textSize === "normal" ? 19 : textSize === "large" ? 21 : 23;
 
   const passageLink = (reference: string) => (
@@ -43,6 +46,7 @@ export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
           </View>
         )}
         <View style={styles.prompts}>
+          <Text style={[styles.label, sizing.label, { color: accent }]}>DAILY PROMPTS</Text>
           {prompt("Notice", day.observationQuestion)}
           {prompt("Reflect", day.reflectionQuestion || day.reflectionPrompt)}
           {prompt("Pray", day.prayer || day.prayerPrompt)}
@@ -51,26 +55,49 @@ export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
         </View>
       </View>
 
-      <View style={[styles.deeperSection, { borderTopColor: border }]}>
-        <Text style={[styles.heading, { color: ink, fontSize: headingSize, lineHeight: headingSize + 5 }]}>Go deeper</Text>
+      <View onLayout={(event) => setDeeperWidth(event.nativeEvent.layout.width)} style={[styles.deeperSection, !twoColumns && styles.deeperCompact, { borderColor: border, backgroundColor: darkMode ? "#292727" : "#f7f9fb" }]}>
+        <Text style={[styles.label, sizing.label, { color: accent }]}>GO DEEPER</Text>
+        <Text style={[styles.heading, { color: ink, fontSize: headingSize, lineHeight: headingSize + 5 }]}>One reading, two ways to go deeper</Text>
         <Text style={[styles.intro, sizing.copy, { color: muted }]}>Start with today's reading, then explore its setting and related passages.</Text>
-
-        <View style={styles.reading}>
-          <Text style={[styles.label, sizing.label, { color: accent }]}>READ IN CONTEXT</Text>
-          {passageLink(deeper.contextReference)}
-          <Text style={[styles.copy, sizing.copy, { color: muted }]}>{deeper.contextNote}</Text>
-        </View>
-
-        <Text style={[styles.label, styles.alongsideHeading, sizing.label, { color: accent }]}>READ ALONGSIDE</Text>
-        {deeper.connections.map((connection) => (
-          <View key={connection.reference} style={[styles.reading, styles.relatedReading, { borderTopColor: border }]}>
-            <Text style={[styles.label, sizing.label, { color: accent }]}>{connection.relationship.toUpperCase()}</Text>
-            {passageLink(connection.reference)}
-            <Text style={[styles.copy, sizing.copy, { color: muted }]}>{connection.note}</Text>
+        <View style={[styles.columns, twoColumns && styles.columnsWide]}>
+          <View style={[styles.mainColumn, twoColumns && { borderRightWidth: 1, borderRightColor: border, paddingRight: 18 }]}>
+            <Text style={[styles.label, sizing.label, { color: accent }]}>TODAY'S READING</Text>
+            <View style={styles.step}>
+              <Text style={[styles.number, { color: accent, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>1</Text>
+              <View style={styles.stepCopy}>
+                <Text style={[styles.stepTitle, sizing.copy, { color: ink }]}>Begin with {day.reference}</Text>
+                <Text style={[styles.copy, sizing.copy, { color: muted }]}>Notice the passage's own words before following a connection.</Text>
+              </View>
+            </View>
+            <View style={styles.step}>
+              <Text style={[styles.number, { color: accent, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>2</Text>
+              <View style={styles.stepCopy}>
+                <Text style={[styles.stepTitle, sizing.copy, { color: ink }]}>Read the surrounding words</Text>
+                {passageLink(deeper.contextReference)}
+                <Text style={[styles.copy, sizing.copy, { color: muted }]}>{deeper.contextNote}</Text>
+              </View>
+            </View>
+            <View style={styles.step}>
+              <Text style={[styles.number, { color: accent, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>3</Text>
+              <View style={styles.stepCopy}>
+                <Text style={[styles.stepTitle, sizing.copy, { color: ink }]}>Read alongside</Text>
+                <Text style={[styles.copy, sizing.copy, { color: muted }]}>Compare the related passages without losing the setting of today's reading.</Text>
+              </View>
+            </View>
           </View>
-        ))}
-
-        <View style={[styles.compare, { borderTopColor: border }]}>
+          <View style={[styles.sideColumn, !twoColumns && { borderTopWidth: 1, borderTopColor: border, paddingTop: 16 }]}>
+            <Text style={[styles.label, sizing.label, { color: accent }]}>READ ALONGSIDE</Text>
+            <Text style={[styles.sideHeading, { color: ink, fontSize: textSize === "normal" ? 16 : textSize === "large" ? 18 : 20 }]}>Two useful connections</Text>
+            {deeper.connections.map((connection, index) => (
+              <View key={connection.reference} style={[styles.connection, !twoColumns && styles.connectionCompact, { backgroundColor: darkMode ? "#33302d" : "#ffffff", borderLeftColor: index === 0 ? (darkMode ? "#e47f6a" : "#a74f3d") : (darkMode ? "#8db7d1" : "#285679") }]}>
+                <Text style={[styles.label, sizing.label, { color: accent }]}>{connection.relationship.toUpperCase()}</Text>
+                {passageLink(connection.reference)}
+                <Text style={[styles.copy, sizing.copy, { color: muted }]}>{connection.note}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={[styles.compare, { backgroundColor: darkMode ? "#352c25" : "#f7eee3" }]}>
           <Text style={[styles.label, sizing.label, { color: accent }]}>COMPARE THE PASSAGES</Text>
           <Text style={[styles.copy, sizing.copy, { color: ink }]}>{deeper.comparePrompt}</Text>
         </View>
@@ -89,13 +116,22 @@ const styles = StyleSheet.create({
   devotionalTitle: { fontWeight: "700" },
   prompts: { marginTop: 15, gap: 13 },
   promptRow: { gap: 2 },
-  deeperSection: { borderTopWidth: 1, marginTop: 23, paddingTop: 19 },
-  heading: { fontWeight: "700" },
+  deeperSection: { borderWidth: 1, borderRadius: 14, marginTop: 23, padding: 16 },
+  deeperCompact: { padding: 12 },
+  heading: { fontWeight: "700", marginTop: 5 },
   intro: { marginTop: 5 },
-  reading: { marginTop: 17, gap: 2 },
+  columns: { marginTop: 19, gap: 18 },
+  columnsWide: { flexDirection: "row" },
+  mainColumn: { flex: 1, minWidth: 0 },
+  sideColumn: { flex: 1, minWidth: 0 },
+  step: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginTop: 16 },
+  number: { width: 27, height: 27, borderRadius: 14, textAlign: "center", textAlignVertical: "center", overflow: "hidden", fontSize: 12, fontWeight: "700", lineHeight: 27 },
+  stepCopy: { flex: 1, minWidth: 0 },
+  stepTitle: { fontWeight: "700" },
   link: { fontWeight: "700", textDecorationLine: "underline", marginTop: 3 },
-  alongsideHeading: { marginTop: 20 },
-  relatedReading: { borderTopWidth: 1, paddingTop: 13, marginTop: 12 },
-  compare: { borderTopWidth: 1, marginTop: 18, paddingTop: 14 },
+  sideHeading: { fontWeight: "700", marginTop: 5 },
+  connection: { borderLeftWidth: 3, borderTopRightRadius: 10, borderBottomRightRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginTop: 10 },
+  connectionCompact: { paddingHorizontal: 10 },
+  compare: { borderRadius: 10, marginTop: 16, paddingHorizontal: 14, paddingVertical: 13 },
   tail: { marginTop: 16 }
 });

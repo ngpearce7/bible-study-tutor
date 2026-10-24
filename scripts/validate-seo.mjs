@@ -126,6 +126,28 @@ function assert(condition, message) {
 
 // Validate the published lesson rather than relying on headings or word counts alone.
 const { studyPages, studyLessons, scriptureExcerpts, scriptureEmphasis, buildStudyLesson, buildPracticeWorksheet } = await import("./seo/study-content.mjs");
+const publicTabs = new Set(["home", "study", "bible", "plans", "methods", "memory", "help"]);
+const appMethods = new Set([...readFileSync(join(root, "data", "methods.ts"), "utf8").matchAll(/^    id: "([^"]+)"/gm)].map((match) => match[1]));
+assert(appMethods.size > 0, "No guided study methods found in the app");
+for (const page of pages) {
+  for (const match of page.html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/g)) {
+    const href = match[1].replaceAll("&amp;", "&");
+    const url = new URL(href, siteOrigin);
+    if (url.origin !== siteOrigin || url.pathname !== "/") continue;
+    const tab = url.searchParams.get("tab");
+    const method = url.searchParams.get("method");
+    const passage = url.searchParams.get("passage");
+    if (tab) assert(publicTabs.has(tab), `${page.path}: app link opens a tab that public links cannot select: ${href}`);
+    if (method) assert(appMethods.has(method), `${page.path}: app link names an unavailable guided method: ${href}`);
+    if (passage && tab === "study" && studyPages[page.path]) {
+      const workedReference = studyLessons[studyPages[page.path].lesson].reference;
+      assert(passage === workedReference, `${page.path}: app link opens ${passage} but the worked example uses ${workedReference}`);
+    }
+    if (url.searchParams.get("print") === "worksheet") {
+      assert(tab === "study" && method && passage, `${page.path}: printable worksheet link needs a study method and passage`);
+    }
+  }
+}
 const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features", "/study-examples"]);
 const examplesDirectory = pageFor("/study-examples");
 for (const path of Object.keys(studyPages)) {

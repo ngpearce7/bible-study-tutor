@@ -293,8 +293,8 @@ const seoPages = [
         intro: "Open the Bible reader, choose a passage, and print a guided worksheet for study on paper.",
         href: "/?tab=bible",
         label: "Print a worksheet",
-        secondaryHref: "/?tab=study&method=soap&passage=Romans%208%3A1&print=worksheet",
-        secondaryLabel: "Print a Romans 8:1 worksheet"
+        secondaryHref: "/?tab=study&method=soap&passage=Romans%208%3A1-4&print=worksheet",
+        secondaryLabel: "Print a Romans 8:1-4 worksheet"
       }
     ]
   },
@@ -801,7 +801,8 @@ const seoPages = [
       ["Summarize the verse", "Write the main point of the verse in your own words while staying faithful to the passage."],
       ["Respond with clarity", "Summarize what the verse teaches, write a prayer, and note one way to remember or apply the passage."]
     ],
-    cta: "Try verse mapping",
+    cta: "Study a mapped verse",
+    primaryLabel: "Study Micah 6:6-8 with Inductive Study",
     related: ["/bible-study-methods/word-study", "/printable-bible-word-study-worksheet", "/bible-study-methods/cross-reference-study", "/printable-bible-study-journal", "/bible-study-methods/inductive"],
     schemaType: "HowTo",
     howToSteps: [
@@ -844,10 +845,10 @@ const seoPages = [
       },
       {
         type: "cta",
-        title: "Start a verse map",
-        intro: "Choose one verse in Bible Study Tutor, study it carefully, and save or print notes for review.",
-        href: "/?tab=study&method=verse-mapping",
-        label: "Start verse mapping"
+        title: "Put the verse map into practice",
+        intro: "Use this guide's verse mapping questions alongside the app's Inductive Study prompts for Micah 6:6-8.",
+        href: "/?tab=study&method=inductive&passage=Micah%206%3A6-8",
+        label: "Study Micah 6:6-8 with Inductive Study"
       }
     ]
   },
@@ -1024,7 +1025,8 @@ const seoPages = [
       ["Compare without flattening", "Let each passage speak in its own context before drawing together themes. Avoid treating every verse as if it says the same thing in the same way."],
       ["Summarize what Scripture teaches", "Look for patterns, tensions, commands, promises, and a faithful response shaped by the whole counsel of Scripture."]
     ],
-    cta: "Try topical study",
+    cta: "Try the wisdom example",
+    primaryLabel: "Study James 1:2-8 with OIA",
     related: ["/bible-study-methods/word-study", "/bible-study-methods/cross-reference-study", "/bible-study-methods/character-study", "/printable-bible-study-worksheets"],
     schemaType: "HowTo",
     howToSteps: [
@@ -1066,10 +1068,10 @@ const seoPages = [
       },
       {
         type: "cta",
-        title: "Start a topical study",
-        intro: "Choose a theme, gather passages, and use Bible Study Tutor to save notes or print a worksheet for careful comparison.",
-        href: "/?tab=study&method=topical-study",
-        label: "Start topical study"
+        title: "Study one passage before comparing themes",
+        intro: "Use this guide to trace wisdom across Scripture. In the app, begin with OIA prompts for James 1:2-8 and keep its context in view.",
+        href: "/?tab=study&method=oia&passage=James%201%3A2-8",
+        label: "Study James 1:2-8 with OIA"
       }
     ]
   },
@@ -1086,7 +1088,8 @@ const seoPages = [
       ["Look beyond the example", "A character study is not just moral advice. Ask what the account reveals about God and how it points to faithful trust and obedience."],
       ["Respond carefully", "Apply the passage in a way that honours the story’s context, not by flattening every person into a simple lesson."]
     ],
-    cta: "Start a character study",
+    cta: "Study a person in Scripture",
+    primaryLabel: "Study Luke 1:26-38 with OIA",
     related: ["/bible-study-methods/topical-study", "/bible-study-methods/inductive", "/bible-study-methods/verse-mapping", "/bible-study-methods/cross-reference-study"],
     schemaType: "HowTo",
     howToSteps: [
@@ -1128,10 +1131,10 @@ const seoPages = [
       },
       {
         type: "cta",
-        title: "Start a character study",
-        intro: "Choose a person in Scripture, gather the passages, and use Bible Study Tutor to save notes or print a study worksheet.",
-        href: "/?tab=study&method=character-study",
-        label: "Start a character study"
+        title: "Study Mary's encounter in Luke",
+        intro: "Use this guide's character study questions with the app's OIA prompts for Luke 1:26-38.",
+        href: "/?tab=study&method=oia&passage=Luke%201%3A26-38",
+        label: "Study Luke 1:26-38 with OIA"
       }
     ]
   },
@@ -1148,7 +1151,8 @@ const seoPages = [
       ["Avoid proof-texting", "Do not use related passages to override the original context. Cross references should clarify, not distract."],
       ["Return to the original passage", "Use the related passages to clarify meaning, then write a short summary of what the original passage teaches."]
     ],
-    cta: "Study cross references",
+    cta: "Study a passage with cross references",
+    primaryLabel: "Study Genesis 15:1-6 with Inductive Study",
     related: ["/bible-study-methods/verse-mapping", "/bible-study-methods/topical-study", "/how-to-study-a-bible-passage", "/bible-study-methods/word-study"],
     schemaType: "HowTo",
     howToSteps: [
@@ -1191,9 +1195,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Study cross references carefully",
-        intro: "Open a passage in Bible Study Tutor and use cross references to clarify meaning while keeping the main passage central.",
-        href: "/?tab=study&method=cross-reference-study",
-        label: "Start cross-reference study"
+        intro: "Use this page's cross-reference questions alongside the app's Inductive Study prompts for Genesis 15:1-6.",
+        href: "/?tab=study&method=inductive&passage=Genesis%2015%3A1-6",
+        label: "Study Genesis 15:1-6 with Inductive Study"
       }
     ]
   },
@@ -1767,6 +1771,8 @@ const seoPages = [
       ["Can I use the journal across devices?", "A free signed-in account helps keep saved study material available across devices."]
     ],
     cta: "Open the journal",
+    primaryHref: "/?tab=home",
+    primaryLabel: "Open the app, then choose Journal",
     related: ["/bible-study-methods", "/bible-highlighting-and-notes", "/bible-memory-verses", "/bible-study-journal"],
     extraBlocks: [
       {
@@ -1785,9 +1791,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Open your online Bible journal",
-        intro: "Use the Journal tab to revisit saved studies, notes, meditations, highlights, and Scripture reflections.",
-        href: "/?tab=journal",
-        label: "Open the journal"
+        intro: "Open Bible Study Tutor, then choose Journal to revisit saved studies, notes, meditations, highlights, and Scripture reflections.",
+        href: "/?tab=home",
+        label: "Open the app, then choose Journal"
       }
     ]
   },
@@ -1812,6 +1818,8 @@ const seoPages = [
       ["Can I use the journal without sharing publicly?", "Yes. The journal is for private study and reflection, not a public timeline."]
     ],
     cta: "Open the journal",
+    primaryHref: "/?tab=home",
+    primaryLabel: "Open the app, then choose Journal",
     related: ["/online-bible-study-journal", "/how-to-study-a-bible-passage", "/bible-highlighting-and-notes", "/bible-memory-verses"],
     extraBlocks: [
       {
@@ -1841,9 +1849,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Open your Bible study journal",
-        intro: "Save a study, revisit notes, or return to Scripture you have highlighted and bookmarked.",
-        href: "/?tab=journal",
-        label: "Open the journal"
+        intro: "Open Bible Study Tutor and choose Journal to revisit notes, highlights, bookmarks, and saved studies.",
+        href: "/?tab=home",
+        label: "Open the app, then choose Journal"
       }
     ]
   },
@@ -2682,7 +2690,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Romans",
         intro: "Open a passage from Romans in Bible Study Tutor and use inductive study or word study to move slowly through the text.",
-        href: "/?tab=study&method=inductive&passage=Romans%2012%3A1-2",
+        href: "/?tab=study&method=inductive&passage=Romans%208%3A1-4",
         label: "Start a Romans study"
       }
     ]
@@ -2807,7 +2815,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Genesis",
         intro: "Open Genesis in Bible Study Tutor and use inductive study or character study to follow the story carefully.",
-        href: "/?tab=study&method=inductive&passage=Genesis%2012%3A1-9",
+        href: "/?tab=study&method=inductive&passage=Genesis%2015%3A1-6",
         label: "Start a Genesis study"
       }
     ]
@@ -2887,7 +2895,7 @@ const seoPages = [
     sections: [
       ["Why Proverbs matters", "Proverbs connects faith with daily choices, words, habits, relationships, work, money, correction, and character."],
       ["How to approach it", "Read proverbs as wisdom sayings, not mechanical promises. Compare related sayings and notice patterns across the whole book."],
-      ["Recommended study method", "Use topical study to gather related proverbs, then use application prompts to move from insight to concrete wise practice."],
+      ["Recommended study method", "Use this site's topical study guide to gather related proverbs. In the app, OIA gives guided prompts for observing, understanding, and responding to Proverbs 3:5-8."],
       ["Suggested starter passages", "Begin with Proverbs 1:1-7, Proverbs 3:1-12, Proverbs 4:20-27, Proverbs 10, and Proverbs 31:10-31."],
       ["Links to Bible study methods", "Proverbs pairs naturally with topical study, word study, and OIA."]
     ],
@@ -2934,9 +2942,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Start studying Proverbs",
-        intro: "Open Proverbs in Bible Study Tutor and use topical study or OIA to trace wisdom into daily life.",
-        href: "/?tab=study&method=topical-study&passage=Proverbs%203%3A5-6",
-        label: "Start a Proverbs study"
+        intro: "Open Proverbs 3:5-8 with OIA in Bible Study Tutor. Use this site's topical study guide when comparing related wisdom passages.",
+        href: "/?tab=study&method=oia&passage=Proverbs%203%3A5-8",
+        label: "Study Proverbs 3:5-8 with OIA"
       }
     ]
   },
@@ -2950,7 +2958,7 @@ const seoPages = [
     sections: [
       ["Why Matthew matters", "Matthew connects Jesus with Israel's story, highlights fulfilled Scripture, and teaches what discipleship under the King looks like."],
       ["How to approach it", "Trace repeated words such as kingdom, fulfill, righteousness, disciple, and authority. Watch how Jesus teaches, heals, confronts hypocrisy, and forms His people."],
-      ["Recommended study method", "Use cross-reference study for Old Testament quotations and inductive study for teaching sections such as the Sermon on the Mount."],
+      ["Recommended study method", "Use this site's cross-reference guide for Old Testament quotations. In the app, Inductive Study provides guided prompts for a passage such as Matthew 28:16-20."],
       ["Suggested starter passages", "Begin with Matthew 5-7, Matthew 13, Matthew 16:13-28, Matthew 26-28, and Matthew 28:16-20."],
       ["Links to Bible study methods", "Matthew works well with cross-reference study, inductive study, and character study."]
     ],
@@ -2997,8 +3005,8 @@ const seoPages = [
         type: "cta",
         title: "Start studying Matthew",
         intro: "Open Matthew in Bible Study Tutor and use guided study prompts to observe, interpret, apply, and pray through the passage.",
-        href: "/?tab=study&method=cross-reference-study&passage=Matthew%2028%3A16-20",
-        label: "Start a Matthew study"
+        href: "/?tab=study&method=inductive&passage=Matthew%2028%3A16-20",
+        label: "Study Matthew 28:16-20 with Inductive Study"
       }
     ]
   },
@@ -3059,7 +3067,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Mark",
         intro: "Open Mark in Bible Study Tutor and use OIA prompts to move carefully from the text to faithful response.",
-        href: "/?tab=study&method=oia&passage=Mark%2010%3A45",
+        href: "/?tab=study&method=oia&passage=Mark%2010%3A42-45",
         label: "Start a Mark study"
       }
     ]
@@ -3074,7 +3082,7 @@ const seoPages = [
     sections: [
       ["Why Luke matters", "Luke emphasizes Jesus’ compassion, concern for the poor and outsider, prayerful dependence, and the unfolding mission of God."],
       ["How to approach it", "Notice meals, parables, reversals, references to the Spirit, prayer, women, outsiders, and the journey toward Jerusalem."],
-      ["Recommended study method", "Use character study for encounters with Jesus and topical study for themes such as mercy, prayer, and mission."],
+      ["Recommended study method", "Use this site's character study guide for encounters with Jesus. In the app, OIA provides guided prompts for Luke 19:1-10."],
       ["Suggested starter passages", "Begin with Luke 4:16-30, Luke 10:25-37, Luke 15, Luke 18:9-14, Luke 19:1-10, and Luke 24."],
       ["Links to Bible study methods", "Luke works well with character study, topical study, and Lectio Divina."]
     ],
@@ -3120,9 +3128,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Start studying Luke",
-        intro: "Open Luke in Bible Study Tutor and use character study or topical study prompts to trace mercy, mission, and discipleship.",
-        href: "/?tab=study&method=character-study&passage=Luke%2019%3A1-10",
-        label: "Start a Luke study"
+        intro: "Open Luke 19:1-10 with OIA prompts in Bible Study Tutor. Use this site's character study guide to keep Jesus and Zacchaeus in the story's context.",
+        href: "/?tab=study&method=oia&passage=Luke%2019%3A1-10",
+        label: "Study Luke 19:1-10 with OIA"
       }
     ]
   },
@@ -3183,7 +3191,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Acts",
         intro: "Open Acts in Bible Study Tutor and use inductive prompts to follow the spread of the gospel with clarity.",
-        href: "/?tab=study&method=inductive&passage=Acts%201%3A8",
+        href: "/?tab=study&method=inductive&passage=Acts%201%3A6-11",
         label: "Start an Acts study"
       }
     ]
@@ -3245,7 +3253,7 @@ const seoPages = [
         type: "cta",
         title: "Start studying Ephesians",
         intro: "Open Ephesians 4:1-6 with OIA in Bible Study Tutor, or use the word-study guide on this site to trace repeated language carefully.",
-        href: "/?tab=study&method=oia&passage=Ephesians%204%3A1-6",
+        href: "/?tab=study&method=oia&passage=Ephesians%202%3A8-10",
         label: "Study Ephesians with OIA"
       }
     ]
@@ -4006,7 +4014,7 @@ function buildAnalyticsSnippet(page, ctaHref) {
         var endpoint = ${JSON.stringify(`${analyticsSiteUrl}/analytics`)};
         var pagePath = ${JSON.stringify(page.path)};
         var ctaTarget = ${JSON.stringify(ctaHref)};
-        var methodId = ${JSON.stringify(methodIdForSeoPage(page) || new URL(ctaHref, productionSiteUrl).searchParams.get("method") || "")};
+        var methodId = ${JSON.stringify(new URL(ctaHref, productionSiteUrl).searchParams.get("method") || methodIdForSeoPage(page) || "")};
         var funnelStorageKey = "bst-public-funnel-v1";
         function funnelId() {
           try {
@@ -4055,10 +4063,10 @@ function methodIdForSeoPage(page) {
     inductive: "inductive",
     oia: "oia",
     "lectio-divina": "lectio",
-    "verse-mapping": "verse-mapping",
-    "topical-study": "topical-study",
-    "character-study": "character-study",
-    "cross-reference-study": "cross-reference-study"
+    "verse-mapping": "inductive",
+    "topical-study": "oia",
+    "character-study": "oia",
+    "cross-reference-study": "inductive"
   };
   return methodMap[methodSlug] || "";
 }
@@ -4071,23 +4079,28 @@ function getCtaHref(page, appUrl) {
 }
 
 function getAppEntryQuery(page) {
-  const starterStudyTargets = {
-    "/how-to-study-romans": ["inductive", "Romans 12:1-2"],
-    "/how-to-study-the-gospel-of-john": ["oia", "John 20:30-31"],
-    "/how-to-study-genesis": ["inductive", "Genesis 12:1-9"],
-    "/how-to-study-psalms": ["lectio", "Psalm 23:1-6"],
-    "/how-to-study-proverbs": ["topical-study", "Proverbs 3:5-6"],
-    "/how-to-study-matthew": ["cross-reference-study", "Matthew 28:16-20"],
-    "/how-to-study-mark": ["oia", "Mark 10:45"],
-    "/how-to-study-luke": ["character-study", "Luke 19:1-10"],
-    "/how-to-study-acts": ["inductive", "Acts 1:8"],
-    "/how-to-study-ephesians": ["oia", "Ephesians 4:1-6"],
-    "/how-to-study-philippians": ["soap", "Philippians 4:4-9"],
-    "/how-to-study-james": ["oia", "James 1:2-8"]
+  const starterStudyMethods = {
+    "/how-to-study-romans": "inductive",
+    "/how-to-study-the-gospel-of-john": "oia",
+    "/how-to-study-genesis": "inductive",
+    "/how-to-study-psalms": "lectio",
+    "/how-to-study-proverbs": "oia",
+    "/how-to-study-matthew": "inductive",
+    "/how-to-study-mark": "oia",
+    "/how-to-study-luke": "oia",
+    "/how-to-study-acts": "inductive",
+    "/how-to-study-ephesians": "oia",
+    "/how-to-study-philippians": "soap",
+    "/how-to-study-james": "oia",
+    "/bible-study-methods/verse-mapping": "inductive",
+    "/bible-study-methods/topical-study": "oia",
+    "/bible-study-methods/character-study": "oia",
+    "/bible-study-methods/cross-reference-study": "inductive"
   };
-  const starterStudyTarget = starterStudyTargets[page.path];
-  if (starterStudyTarget) {
-    const [methodId, passage] = starterStudyTarget;
+  const methodId = starterStudyMethods[page.path];
+  if (methodId) {
+    const passage = studyLessons[studyPages[page.path]?.lesson]?.reference;
+    if (!passage) throw new Error(`Missing worked passage for ${page.path}`);
     return `tab=study&method=${methodId}&passage=${encodeURIComponent(passage)}`;
   }
   if (page.path === "/bible-study-methods") return "tab=methods";
@@ -4099,10 +4112,10 @@ function getAppEntryQuery(page) {
       inductive: "inductive",
       oia: "oia",
       "lectio-divina": "lectio",
-      "verse-mapping": "verse-mapping",
-      "topical-study": "topical-study",
-      "character-study": "character-study",
-      "cross-reference-study": "cross-reference-study"
+      "verse-mapping": "inductive",
+      "topical-study": "oia",
+      "character-study": "oia",
+      "cross-reference-study": "inductive"
     };
     const methodId = methodMap[methodSlug] || "";
     return methodId ? `tab=study&method=${methodId}` : "tab=methods";

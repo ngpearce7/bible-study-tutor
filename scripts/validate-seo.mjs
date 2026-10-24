@@ -132,6 +132,21 @@ for (const path of Object.keys(studyPages)) {
   assert(examplesDirectory.html.includes(`href="${path}#study-example"`), `${path}: missing from the study examples directory`);
   assert(pageFor(path).html.includes('id="study-example"'), `${path}: worked study anchor is missing`);
 }
+const featuredExamples = [
+  ["/how-to-study-psalms", "Psalm 23:1-6", "lectio"],
+  ["/how-to-study-philippians", "Philippians 4:4-9", "soap"],
+  ["/how-to-study-james", "James 1:2-8", "oia"]
+];
+for (const [path, reference, method] of featuredExamples) {
+  const page = pageFor(path);
+  assert(studyLessons[studyPages[path].lesson].reference === reference, `${path}: worked example must match the invited passage`);
+  const href = `${siteOrigin}/?tab=study&amp;method=${method}&amp;passage=${encodeURIComponent(reference)}`;
+  assert(page.html.includes(`href="${href}"`), `${path}: guided study must open the matching passage and method`);
+  assert(page.html.includes(`href="${href}&amp;print=worksheet"`), `${path}: printable study must use the matching passage and method`);
+  const lessonHtml = page.html.slice(page.html.indexOf('id="study-example"'));
+  assert(lessonHtml.indexOf('class="example-next-step"') > lessonHtml.indexOf('class="journal-scripture"'), `${path}: invitation must follow the passage`);
+  assert(lessonHtml.indexOf('class="example-next-step"') < lessonHtml.indexOf('class="journal-notes"'), `${path}: invitation must precede the worked answers`);
+}
 const translationsUsed = new Set();
 for (const page of pages) {
   if (informationalPaths.has(page.path) || page.path === "/bible-study-app-for-churches") continue;

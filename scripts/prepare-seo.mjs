@@ -2827,6 +2827,8 @@ const seoPages = [
       ["Links to Bible study methods", "Psalms works well with Lectio Divina, SOAP, word study, and topical study."]
     ],
     cta: "Start a guided study",
+    featuredExample: true,
+    primaryLabel: "Try Psalm 23 yourself",
     related: ["/bible-study-methods/lectio-divina", "/bible-study-methods/soap", "/bible-study-methods/word-study", "/printable-bible-study-journal"],
     schemaType: "HowTo",
     howToSteps: [
@@ -2869,9 +2871,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Start studying Psalms",
-        intro: "Open a psalm in Bible Study Tutor and use Lectio Divina, SOAP, or journaling to pray through the passage.",
-        href: "/?tab=study&method=lectio&passage=Psalm%2023",
-        label: "Start a Psalms study"
+        intro: "Open Psalm 23:1-6 with Lectio Divina in Bible Study Tutor. Read the whole poem and write your own response before comparing it with the worked example.",
+        href: "/?tab=study&method=lectio&passage=Psalm%2023%3A1-6",
+        label: "Try Psalm 23 yourself"
       }
     ]
   },
@@ -3276,6 +3278,8 @@ const seoPages = [
       ["Which method should I use for Philippians?", "SOAP works well for devotional reflection, and word study helps trace repeated themes across the letter."]
     ],
     cta: "Start a guided study",
+    featuredExample: true,
+    primaryLabel: "Try Philippians 4:4-9 yourself",
     related: ["/bible-study-methods/soap", "/bible-study-methods/word-study", "/bible-study-methods/lectio-divina"],
     extraBlocks: [
       {
@@ -3304,9 +3308,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Start studying Philippians",
-        intro: "Open Philippians in Bible Study Tutor and use SOAP prompts for prayerful, practical reflection.",
+        intro: "Open Philippians 4:4-9 with SOAP prompts in Bible Study Tutor. Name what Paul asks the church to do before writing your own prayer and response.",
         href: "/?tab=study&method=soap&passage=Philippians%204%3A4-9",
-        label: "Start a Philippians study"
+        label: "Try Philippians 4:4-9 yourself"
       }
     ]
   },
@@ -3338,6 +3342,8 @@ const seoPages = [
       ["What study method works best for James?", "Topical study is useful for themes like speech and wisdom, while OIA keeps each passage connected to faithful application."]
     ],
     cta: "Start a guided study",
+    featuredExample: true,
+    primaryLabel: "Try James 1:2-8 yourself",
     related: ["/bible-study-methods/topical-study", "/bible-study-methods/oia", "/bible-study-methods/soap"],
     extraBlocks: [
       {
@@ -3366,9 +3372,9 @@ const seoPages = [
       {
         type: "cta",
         title: "Start studying James",
-        intro: "Open James in Bible Study Tutor and use OIA or topical study prompts to turn careful reading into practical obedience.",
+        intro: "Open James 1:2-8 with OIA prompts in Bible Study Tutor. Trace the link between trials, steadfastness, and asking God for wisdom before choosing a response.",
         href: "/?tab=study&method=oia&passage=James%201%3A2-8",
-        label: "Start a James study"
+        label: "Try James 1:2-8 yourself"
       }
     ]
   }
@@ -3449,7 +3455,12 @@ function buildSeoPage(page, baseUrl) {
     .filter(Boolean);
   const allExtraBlocks = withGeneratedJournalExample(page);
   const leadStudy = allExtraBlocks.find((block) => block.type === "journalExample" && block.layout === "lesson");
-  const leadStudyBlock = leadStudy ? buildExtraSeoBlock(leadStudy) : "";
+  const featuredExampleAction = page.featuredExample ? {
+    href: ctaHref,
+    label: ctaLabel,
+    question: studyPages[page.path]?.question
+  } : null;
+  const leadStudyBlock = leadStudy ? buildExtraSeoBlock(leadStudy, featuredExampleAction) : "";
   const exampleDirectoryBlock = page.exampleDirectory ? buildExampleDirectory() : "";
   const pageExtraBlocks = allExtraBlocks.filter((block) => block !== leadStudy);
   const leadHowToBlock = page.showHowToSteps && page.howToSteps?.length
@@ -3619,6 +3630,10 @@ function buildSeoPage(page, baseUrl) {
       .study-lesson .journal-note { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 22px 0; }
       .study-lesson .journal-note h3 { font-size: 20px; }
       .study-lesson .journal-note p + p { margin-top: 14px; }
+      .example-next-step { background: #ecf3f8; border: 1px solid var(--line); border-radius: 12px; margin-top: 16px; padding: 18px; }
+      .example-next-step h3 { color: var(--navy); font-size: 19px; margin: 0 0 8px; }
+      .example-next-step p + p { margin-top: 8px; }
+      .example-next-step .cta-actions { margin-top: 14px; }
       .journal-note h3 { color: var(--navy); font-size: 15px; margin: 0 0 7px; }
       .extra-cta { align-items: flex-start; display: grid; gap: 14px; }
       .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -3708,7 +3723,7 @@ function buildExampleDirectory() {
   }).join("\n");
 }
 
-function buildExtraSeoBlock(block) {
+function buildExtraSeoBlock(block, featuredExampleAction = null) {
   const intro = block.intro ? `<p>${escapeHtml(block.intro)}</p>` : "";
 
   if (block.type === "example" || block.type === "previews") {
@@ -3799,6 +3814,17 @@ function buildExtraSeoBlock(block) {
     const notes = (block.notes || [])
       .map(([title, body]) => `<article class="journal-note"><h3>${escapeHtml(title)}</h3>${body.split("\n\n").map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}</article>`)
       .join("\n          ");
+    const nextStep = featuredExampleAction && block.layout === "lesson"
+      ? `<div class="example-next-step" aria-labelledby="example-next-step-heading">
+          <h3 id="example-next-step-heading">Try this passage yourself</h3>
+          <p>${escapeHtml(featuredExampleAction.question)}</p>
+          <p>Read the passage above and make your own notes before comparing them with the worked study below. The guided study opens this passage and method; the worksheet prepares the same passage for study on paper.</p>
+          <div class="cta-actions">
+            <a class="button" href="${escapeHtml(featuredExampleAction.href)}">${escapeHtml(featuredExampleAction.label)}</a>
+            <a class="button secondary" href="${escapeHtml(`${featuredExampleAction.href}&print=worksheet`)}">Prepare a printable worksheet</a>
+          </div>
+        </div>`
+      : "";
     return `<section class="extra-block journal-example${block.layout === "lesson" ? " study-lesson" : ""}"${block.layout === "lesson" ? ' id="study-example"' : ""} aria-labelledby="${slugifyForId(block.title)}">
         <h2 id="${slugifyForId(block.title)}">${escapeHtml(block.title)}</h2>
         ${intro}
@@ -3807,6 +3833,7 @@ function buildExtraSeoBlock(block) {
           <p class="scripture-text">${block.scriptureHtml || ""}</p>
           ${block.sourceUrl ? `<p class="scripture-source"><a href="${escapeHtml(block.sourceUrl)}">Scripture text source</a> · Public domain</p>` : ""}
         </div>
+        ${nextStep}
         <div class="journal-notes">
           ${notes}
         </div>
@@ -3979,7 +4006,7 @@ function buildAnalyticsSnippet(page, ctaHref) {
         var endpoint = ${JSON.stringify(`${analyticsSiteUrl}/analytics`)};
         var pagePath = ${JSON.stringify(page.path)};
         var ctaTarget = ${JSON.stringify(ctaHref)};
-        var methodId = ${JSON.stringify(methodIdForSeoPage(page))};
+        var methodId = ${JSON.stringify(methodIdForSeoPage(page) || new URL(ctaHref, productionSiteUrl).searchParams.get("method") || "")};
         var funnelStorageKey = "bst-public-funnel-v1";
         function funnelId() {
           try {
@@ -3990,9 +4017,9 @@ function buildAnalyticsSnippet(page, ctaHref) {
             return value;
           } catch (error) { return undefined; }
         }
-        function track(eventType, source) {
+        function track(eventType, source, target) {
           try {
-            var payload = JSON.stringify({ eventType: eventType, pagePath: pagePath, ctaTarget: ctaTarget, methodId: methodId || undefined, source: source, funnelId: funnelId() });
+            var payload = JSON.stringify({ eventType: eventType, pagePath: pagePath, ctaTarget: target || ctaTarget, methodId: methodId || undefined, source: source, funnelId: funnelId() });
             if (navigator.sendBeacon) {
               navigator.sendBeacon(endpoint, new Blob([payload], { type: "text/plain" }));
               return;
@@ -4002,8 +4029,12 @@ function buildAnalyticsSnippet(page, ctaHref) {
         }
         track("public_page_view", "seo_page");
         document.addEventListener("click", function (event) {
-          var link = event.target && event.target.closest ? event.target.closest(".cta-section .button") : null;
-          if (link) track(${JSON.stringify(eventType)}, "seo_cta");
+          var link = event.target && event.target.closest ? event.target.closest(".example-next-step .button, .extra-cta .button, .cta-section .button") : null;
+          if (!link) return;
+          var target = link.getAttribute("href") || ctaTarget;
+          var isWorksheet = /[?&]print=worksheet(?:&|$)/.test(target);
+          var source = link.closest(".example-next-step") ? "worked_example" : link.closest(".extra-cta") ? "inline_cta" : "seo_cta";
+          track(isWorksheet ? "worksheet_cta_clicked" : ${JSON.stringify(eventType)}, source, target);
         });
       })();
     </script>`;
@@ -4044,7 +4075,7 @@ function getAppEntryQuery(page) {
     "/how-to-study-romans": ["inductive", "Romans 12:1-2"],
     "/how-to-study-the-gospel-of-john": ["oia", "John 20:30-31"],
     "/how-to-study-genesis": ["inductive", "Genesis 12:1-9"],
-    "/how-to-study-psalms": ["lectio", "Psalm 23"],
+    "/how-to-study-psalms": ["lectio", "Psalm 23:1-6"],
     "/how-to-study-proverbs": ["topical-study", "Proverbs 3:5-6"],
     "/how-to-study-matthew": ["cross-reference-study", "Matthew 28:16-20"],
     "/how-to-study-mark": ["oia", "Mark 10:45"],

@@ -271,7 +271,7 @@ export function BibleReaderPassage({
         })}
 
         {matchesActiveReadingPlanDay && activeReadingPlanDay && (
-          <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection]}>
+          <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, activeReadingPlanDay.deeperContext && { borderWidth: 0, borderRadius: 0, backgroundColor: "transparent", padding: 0 }]}>
             <View style={styles.readerPlanCompletionCopy}>
               <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
               <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
@@ -281,7 +281,7 @@ export function BibleReaderPassage({
                   : ""}
               </Text>
               {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.deeperContext || visibleActiveCareNote) && (
-                <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                <View style={activeReadingPlanDay.deeperContext ? { marginTop: 12, width: "100%" } : [styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
                   {activeReadingPlanDay.deeperContext ? (
                     <>
                       <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>

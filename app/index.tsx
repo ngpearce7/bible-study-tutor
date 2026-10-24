@@ -7921,7 +7921,7 @@ function HomeScreen() {
   const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean, planId: string) => {
     if (planDay.deeperContext) {
       return (
-        <View style={[styles.planDayDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+        <View style={{ width: "100%", marginTop: 12 }}>
           <View style={styles.planDayDevotionalToolbar}>{renderDevotionalTextSizeControl(darkMode)}</View>
           <PlanDeeperContext day={planDay} darkMode={darkMode} textSize={devotionalTextSize} />
         </View>

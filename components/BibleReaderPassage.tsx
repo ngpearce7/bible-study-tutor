@@ -328,7 +328,7 @@ export function BibleReaderPassage({
         </Text>
       </View>
       {matchesActiveReadingPlanDay && activeReadingPlanDay && (
-        <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, activeReadingPlanDay.deeperContext && { borderColor: darkMode ? "#735a3a" : "#c7d8e3", padding: phoneLayout ? 14 : 18 }]}>
+        <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, activeReadingPlanDay.deeperContext && { borderColor: darkMode ? "#735a3a" : "#c7d8e3", padding: phoneLayout ? 10 : 18 }]}>
           <View style={styles.readerPlanCompletionCopy}>
             <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
             <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>

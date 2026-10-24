@@ -59,7 +59,7 @@ export function PlanDeeperContext({ day, darkMode, textSize, translation }: Prop
         <Text style={[styles.heading, { color: ink, fontSize: headingSize, lineHeight: headingSize + 5 }]}>One reading, two ways to go deeper</Text>
         <Text style={[styles.intro, sizing.copy, { color: muted }]}>Start with today's reading, then explore its setting and related passages.</Text>
         <View style={[styles.columns, twoColumns && styles.columnsWide]}>
-          <View style={[styles.mainColumn, twoColumns && { borderRightWidth: 1, borderRightColor: border, paddingRight: 18 }]}>
+          <View style={[styles.mainColumn, twoColumns && styles.wideColumn, twoColumns && { borderRightWidth: 1, borderRightColor: border, paddingRight: 18 }]}>
             <Text style={[styles.label, sizing.label, { color: accent }]}>TODAY'S READING</Text>
             <View style={styles.step}>
               <Text style={[styles.number, { color: accent, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>1</Text>
@@ -84,7 +84,7 @@ export function PlanDeeperContext({ day, darkMode, textSize, translation }: Prop
               </View>
             </View>
           </View>
-          <View style={[styles.sideColumn, !twoColumns && { borderTopWidth: 1, borderTopColor: border, paddingTop: 16 }]}>
+          <View style={[styles.sideColumn, twoColumns && styles.wideColumn, !twoColumns && { borderTopWidth: 1, borderTopColor: border, paddingTop: 16 }]}>
             <Text style={[styles.label, sizing.label, { color: accent }]}>READ ALONGSIDE</Text>
             <Text style={[styles.sideHeading, { color: ink, fontSize: textSize === "normal" ? 16 : textSize === "large" ? 18 : 20 }]}>Two useful connections</Text>
             {deeper.connections.map((connection, index) => (
@@ -127,13 +127,14 @@ const styles = StyleSheet.create({
   prompts: { marginTop: 15, gap: 13 },
   promptRow: { gap: 2 },
   deeperSection: { borderWidth: 1, borderRadius: 14, marginTop: 23, padding: 16 },
-  deeperCompact: { padding: 12 },
+  deeperCompact: { padding: 10 },
   heading: { fontWeight: "700", marginTop: 5 },
   intro: { marginTop: 5 },
   columns: { marginTop: 19, gap: 18 },
   columnsWide: { flexDirection: "row" },
-  mainColumn: { flex: 1, minWidth: 0 },
-  sideColumn: { flex: 1, minWidth: 0 },
+  mainColumn: { minWidth: 0 },
+  sideColumn: { minWidth: 0 },
+  wideColumn: { flex: 1 },
   step: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginTop: 16 },
   number: { width: 27, height: 27, borderRadius: 14, textAlign: "center", textAlignVertical: "center", overflow: "hidden", fontSize: 12, fontWeight: "700", lineHeight: 27 },
   stepCopy: { flex: 1, minWidth: 0 },

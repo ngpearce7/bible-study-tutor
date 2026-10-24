@@ -5,7 +5,7 @@ export type BibleReadingPlanDeeperContext = {
   contextNote: string;
   connections: {
     reference: string;
-    relationship: "close parallel" | "shared theme" | "later use";
+    relationship: "close parallel" | "shared theme" | "later use" | "earlier source" | "cross-reference";
     note: string;
   }[];
   comparePrompt: string;

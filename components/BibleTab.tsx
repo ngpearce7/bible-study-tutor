@@ -123,6 +123,7 @@ export function BibleTab({
   readerMemoryVerseKeys,
   activeReadingPlanDay,
   activeReadingPlanName,
+  activeReadingPlanDayCount,
   activeReadingPlanDayCompleted,
   devotionalTextSize,
   onDevotionalTextSizeChange,
@@ -296,6 +297,7 @@ export function BibleTab({
           matchesActiveReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
           activeReadingPlanDay={activeReadingPlanDay}
           activeReadingPlanName={activeReadingPlanName}
+          activeReadingPlanDayCount={activeReadingPlanDayCount}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
           bibleTranslation={bibleTranslation}
           devotionalTextSize={devotionalTextSize}

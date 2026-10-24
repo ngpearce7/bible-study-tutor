@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { type BibleApiTranslationId, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
+import { hasPlanDeeperContext } from "@/data/biblePlanDeeperContext";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
 import { colors } from "@/components/ui";
@@ -21,6 +22,7 @@ type BibleReaderPassageProps = {
   matchesActiveReadingPlanDay: boolean;
   activeReadingPlanDay?: BibleReadingPlanDay | null;
   activeReadingPlanName?: string;
+  activeReadingPlanDayCount: number;
   activeReadingPlanDayCompleted?: boolean;
   bibleTranslation: "bsb" | BibleApiTranslationId;
   devotionalTextSize?: DevotionalTextSize;
@@ -72,6 +74,7 @@ export function BibleReaderPassage({
   matchesActiveReadingPlanDay,
   activeReadingPlanDay,
   activeReadingPlanName,
+  activeReadingPlanDayCount,
   activeReadingPlanDayCompleted,
   bibleTranslation,
   devotionalTextSize = "normal",
@@ -328,7 +331,7 @@ export function BibleReaderPassage({
         </Text>
       </View>
       {matchesActiveReadingPlanDay && activeReadingPlanDay && (
-        <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, activeReadingPlanDay.deeperContext && { borderColor: darkMode ? "#735a3a" : "#c7d8e3", padding: phoneLayout ? 10 : 18 }]}>
+        <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) && { borderColor: darkMode ? "#735a3a" : "#c7d8e3", padding: phoneLayout ? 10 : 18 }]}>
           <View style={styles.readerPlanCompletionCopy}>
             <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
             <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
@@ -337,12 +340,12 @@ export function BibleReaderPassage({
                 ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                 : ""}
             </Text>
-            {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.deeperContext || visibleActiveCareNote) && (
-              <View style={activeReadingPlanDay.deeperContext ? { marginTop: 12, width: "100%" } : [styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
-                {activeReadingPlanDay.deeperContext ? (
+            {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) || visibleActiveCareNote) && (
+              <View style={hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) ? { marginTop: 12, width: "100%" } : [styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                {hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) ? (
                   <>
                     <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>
-                    <PlanDeeperContext day={activeReadingPlanDay} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
+                    <PlanDeeperContext day={activeReadingPlanDay} planDayCount={activeReadingPlanDayCount} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
                   </>
                 ) : (
                   <>
@@ -403,6 +406,8 @@ export function BibleReaderPassage({
                     <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
                   </View>
                 )}
+                  </>
+                )}
                 {!!visibleActiveCareNote && (
                   <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
                     <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
@@ -419,8 +424,6 @@ export function BibleReaderPassage({
                       </Pressable>
                     )}
                   </View>
-                )}
-                  </>
                 )}
               </View>
             )}

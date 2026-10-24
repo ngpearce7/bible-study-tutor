@@ -12,6 +12,7 @@ export type StudyCrossReference = {
   title: string;
   reason: string;
   source?: "curated" | "crossreferences.org";
+  anchor?: string;
 };
 
 const CONTEXT_VERSES_BEFORE = 2;
@@ -108,7 +109,7 @@ export function getStudyCrossReferences(reference: string): StudyCrossReference[
   return matches?.references.map((item) => ({ ...item, source: "curated" as const })) || [];
 }
 
-export async function loadStudyCrossReferences(reference: string): Promise<StudyCrossReference[]> {
+export async function loadStudyCrossReferences(reference: string, limit = 12): Promise<StudyCrossReference[]> {
   const parsed = parseBsbPassageReference(reference);
   if (!parsed) return getStudyCrossReferences(reference);
 
@@ -135,12 +136,13 @@ export async function loadStudyCrossReferences(reference: string): Promise<Study
           reason: typeof entry?.a === "string" && entry.a.trim()
             ? `Connected through “${entry.a.trim()}”.`
             : "A related passage from the Treasury of Scripture Knowledge tradition.",
-          source: "crossreferences.org"
+          source: "crossreferences.org",
+          anchor: typeof entry?.a === "string" ? entry.a.trim() : ""
         });
       }
     }
 
-    return mergeCrossReferences(getStudyCrossReferences(reference), references).slice(0, 12);
+    return mergeCrossReferences(getStudyCrossReferences(reference), references).slice(0, limit);
   } catch (error) {
     return getStudyCrossReferences(reference);
   }

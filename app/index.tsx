@@ -8,6 +8,7 @@ import { sanitizeEditorHtml } from "@/data/noteHtml";
 import { scriptureDisplayColor } from "@/data/noteTheme";
 import { styles } from "@/components/appStyles";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
+import { hasPlanDeeperContext } from "@/data/biblePlanDeeperContext";
 import { createReaderSyncQueue } from "@/data/readerSync";
 import { hydratePrivateStorage, readRecoveryValue, writeRecoveryValue, removeRecoveryValue } from "@/data/privateStorage";
 import { setStorageProfile, importLegacyDevicePreferences } from "@/data/feedbackPreferences";
@@ -7919,8 +7920,9 @@ function HomeScreen() {
   };
 
   const renderPlanDayDevotional = (planDay: BibleReadingPlanDay, darkMode: boolean, planId: string) => {
+    const planDayCount = allBibleReadingPlans.find((plan) => plan.id === planId)?.days.length || 0;
     const visibleCareNote = shouldShowBibleReadingCareNote(planDay.careNote) ? planDay.careNote : "";
-    if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !planDay.deeperContext && !visibleCareNote) return null;
+    if (!planDay.context && !planDay.devotional && !planDay.observationQuestion && !planDay.reflectionQuestion && !planDay.reflectionPrompt && !planDay.prayer && !planDay.prayerPrompt && !planDay.gentleAction && !planDay.studyMethod && !hasPlanDeeperContext(planDay, planDayCount) && !visibleCareNote) return null;
     const devotionalTextSizing = DEVOTIONAL_TEXT_SIZE_STYLES[devotionalTextSize] || DEVOTIONAL_TEXT_SIZE_STYLES.normal;
     const guidanceKey = `${planId}:${planDay.day}`;
     const guidanceOpen = !!expandedBiblePlanGuidance[guidanceKey];
@@ -7954,8 +7956,8 @@ function HomeScreen() {
             <View style={styles.planDayDevotionalToolbar}>
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
-            {planDay.deeperContext ? (
-              <PlanDeeperContext day={planDay} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
+            {hasPlanDeeperContext(planDay, planDayCount) ? (
+              <PlanDeeperContext day={planDay} planDayCount={planDayCount} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
             ) : (
               <>
             {!!planDay.context && (
@@ -8005,6 +8007,8 @@ function HomeScreen() {
                 <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
               </View>
             )}
+              </>
+            )}
             {!!visibleCareNote && (
               <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
                 <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
@@ -8019,8 +8023,6 @@ function HomeScreen() {
                   <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
                 </Pressable>
               </View>
-            )}
-              </>
             )}
           </View>
         )}
@@ -9895,6 +9897,7 @@ function HomeScreen() {
               readerMatchesActiveBibleReadingPlanDay={readerMatchesActiveBibleReadingPlanDay}
               activeReadingPlanDay={readerActiveBibleReadingPlanDay}
               activeReadingPlanName={readerBibleReadingPlan?.title || ""}
+              activeReadingPlanDayCount={readerBibleReadingPlan?.days.length || 0}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
               devotionalTextSize={devotionalTextSize}
               onDevotionalTextSizeChange={setRememberedDevotionalTextSize}

@@ -1,5 +1,5 @@
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS } from "@/data/bibleLibrary";
-import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
+import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay, type BibleReadingPlanDeeperContext } from "@/data/bibleReadingPlanTypes";
 export { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay, type BibleReadingPlanSource } from "@/data/bibleReadingPlanTypes";
 
 type ChapterRef = { book: string; chapter: number };
@@ -3835,6 +3835,124 @@ function withCuratedDevotionals(plan: BibleReadingPlan): BibleReadingPlan {
   };
 }
 
+// Keep these links tied to this plan, so shared devotional notes in other plans stay unchanged.
+const wisdomDeeperContext: Record<number, BibleReadingPlanDeeperContext> = {
+  1: {
+    contextReference: "1 Kings 3:1-15", contextNote: "Read Solomon's request within the account of his early reign; the wisdom sought is for governing God's people.",
+    connections: [
+      { reference: "2 Chronicles 1:7-12", relationship: "close parallel", note: "Chronicles also recounts Solomon asking God for wisdom to govern." },
+      { reference: "James 1:5", relationship: "shared theme", note: "James urges believers facing trials to ask God for wisdom; his setting is different from Solomon's kingship." }
+    ], comparePrompt: "What is each person asking wisdom for, and what does each passage say about God as giver?"
+  },
+  2: {
+    contextReference: "Psalm 1:1-6", contextNote: "Read the whole psalm: two ways of life are contrasted, and delight in the LORD's instruction shapes the first way.",
+    connections: [
+      { reference: "Jeremiah 17:7-8", relationship: "shared theme", note: "A tree planted by water also pictures a life of trust, though Jeremiah addresses a different setting." },
+      { reference: "Matthew 7:13-14", relationship: "shared theme", note: "Jesus speaks of two ways; compare the outcomes without treating the images as identical." }
+    ], comparePrompt: "What distinguishes the two ways in the psalm, and what does each related passage add?"
+  },
+  3: {
+    contextReference: "Psalm 119:89-112", contextNote: "This part of the psalm joins love for God's instruction to learning, obedience, and guidance amid trouble.",
+    connections: [
+      { reference: "Psalm 119:9-16", relationship: "shared theme", note: "Earlier in the same psalm, treasuring God's word is linked with keeping one's way." },
+      { reference: "2 Timothy 3:14-17", relationship: "shared theme", note: "Paul describes Scripture's role in teaching and equipping God's servant." }
+    ], comparePrompt: "How does each passage connect receiving God's word with the way a person lives?"
+  },
+  4: {
+    contextReference: "Proverbs 1:1-7", contextNote: "The book's opening states its purpose and puts reverence for the LORD at the beginning of knowledge.",
+    connections: [
+      { reference: "Proverbs 9:10", relationship: "shared theme", note: "Another proverb places the fear of the LORD at wisdom's beginning." },
+      { reference: "James 1:5", relationship: "shared theme", note: "James points readers who lack wisdom to God, its generous giver." }
+    ], comparePrompt: "How do reverence, teachability, and asking God relate without becoming the same idea?"
+  },
+  5: {
+    contextReference: "Proverbs 2:1-22", contextNote: "Follow the chapter's movement from seeking wisdom to its protection, moral discernment, and the paths it helps one avoid.",
+    connections: [
+      { reference: "Proverbs 8:10-11", relationship: "shared theme", note: "Wisdom is valued above riches in another wisdom saying." },
+      { reference: "James 1:5", relationship: "shared theme", note: "James also directs those who lack wisdom toward God; Proverbs emphasizes receiving and seeking it." }
+    ], comparePrompt: "What does Proverbs 2 ask the learner to do, and who ultimately gives wisdom?"
+  },
+  6: {
+    contextReference: "Proverbs 3:1-12", contextNote: "Read the call to trust within the wider instruction to remember, honor, and heed the LORD, including His correction.",
+    connections: [
+      { reference: "Psalm 37:3-5", relationship: "shared theme", note: "The psalm also calls for trust in the LORD and a committed way of life." },
+      { reference: "Hebrews 12:5-11", relationship: "later use", note: "Hebrews cites Proverbs 3:11-12 while explaining God's fatherly discipline to believers." }
+    ], comparePrompt: "How do trusting God's direction and accepting His correction belong together here?"
+  },
+  7: {
+    contextReference: "Proverbs 4:20-27", contextNote: "Notice how hearing instruction, guarding the heart, truthful speech, and a straight path belong to one appeal.",
+    connections: [
+      { reference: "Luke 6:43-45", relationship: "shared theme", note: "Jesus links what comes from the mouth with what is stored in the heart." },
+      { reference: "Philippians 4:8-9", relationship: "shared theme", note: "Paul connects disciplined attention with putting what is learned into practice." }
+    ], comparePrompt: "Which actions flow from the heart in Proverbs, and how do the other passages describe that connection?"
+  },
+  8: {
+    contextReference: "Proverbs 8:1-21", contextNote: "Wisdom speaks as a person in this poem, calling people to prize instruction and righteous judgment above wealth.",
+    connections: [
+      { reference: "Proverbs 3:13-18", relationship: "shared theme", note: "This poem also describes wisdom's value as greater than material gain." },
+      { reference: "James 3:13-18", relationship: "shared theme", note: "James asks what wisdom from above looks like in conduct and relationships." }
+    ], comparePrompt: "How do these passages describe wisdom's value and the life it produces?"
+  },
+  9: {
+    contextReference: "Ecclesiastes 3:1-15", contextNote: "Read the poem of seasons alongside the writer's reflection on God's work and the limits of human understanding.",
+    connections: [
+      { reference: "Ecclesiastes 8:16-17", relationship: "shared theme", note: "The writer again acknowledges that people cannot fully discover God's work." },
+      { reference: "James 4:13-15", relationship: "shared theme", note: "James urges humility about future plans and dependence on God's will." }
+    ], comparePrompt: "What can people do faithfully, and what remains beyond their control or understanding?"
+  },
+  10: {
+    contextReference: "Matthew 7:21-29", contextNote: "Read Jesus' two builders as the conclusion to the Sermon on the Mount, following His warning about merely saying 'Lord.'",
+    connections: [
+      { reference: "Luke 6:46-49", relationship: "close parallel", note: "Luke records Jesus' similar image of builders and the difference between hearing and doing." },
+      { reference: "James 1:22-25", relationship: "shared theme", note: "James also contrasts hearing God's word with acting on it; he uses a mirror rather than a house." }
+    ], comparePrompt: "What do the builders and James's hearer each reveal about hearing without doing?"
+  },
+  11: {
+    contextReference: "James 1:2-8", contextNote: "James's invitation to ask for wisdom follows his call to persevere through trials; keep that immediate need in view.",
+    connections: [
+      { reference: "1 Kings 3:9-12", relationship: "shared theme", note: "Solomon asks God for discernment in a distinct task: ruling Israel." },
+      { reference: "Proverbs 2:1-6", relationship: "shared theme", note: "Proverbs describes seeking wisdom and says that the LORD gives it." }
+    ], comparePrompt: "What circumstances lead to asking or seeking wisdom in each passage?"
+  },
+  12: {
+    contextReference: "James 3:1-18", contextNote: "Read the contrast between two kinds of wisdom after James's warning about the tongue and its destructive power.",
+    connections: [
+      { reference: "Matthew 5:9", relationship: "shared theme", note: "Jesus blesses peacemakers; James describes peaceable wisdom and a harvest of righteousness." },
+      { reference: "Galatians 5:22-23", relationship: "shared theme", note: "The Spirit's fruit includes traits that overlap with James's description; the passages make different arguments." }
+    ], comparePrompt: "Which qualities in James show where wisdom comes from, and how are they visible in relationships?"
+  },
+  13: {
+    contextReference: "Colossians 3:1-17", contextNote: "The call to compassion, forgiveness, peace, and thanksgiving belongs to Paul's account of new life in Christ.",
+    connections: [
+      { reference: "Ephesians 4:1-3", relationship: "shared theme", note: "Paul also urges humility, patience, love, and unity in another letter." },
+      { reference: "Ephesians 5:18-20", relationship: "shared theme", note: "Singing and thanksgiving also appear in this description of communal worship." }
+    ], comparePrompt: "What practices shape a community in Colossians, and which appear in Ephesians?"
+  },
+  14: {
+    contextReference: "2 Timothy 3:10-17", contextNote: "Paul encourages Timothy to continue in what he learned amid opposition, then describes Scripture's teaching and equipping role.",
+    connections: [
+      { reference: "Psalm 119:105", relationship: "shared theme", note: "The psalm pictures God's word as guidance for the path ahead." },
+      { reference: "James 1:22-25", relationship: "shared theme", note: "James stresses responding to the received word in action, not hearing alone." }
+    ], comparePrompt: "How do these passages move from receiving Scripture to living faithfully?"
+  }
+};
+
+function withWisdomDeeperContext(plan: BibleReadingPlan): BibleReadingPlan {
+  return {
+    ...plan,
+    days: plan.days.map((day) => ({
+      ...day,
+      deeperContext: wisdomDeeperContext[day.day],
+      ...(day.day === 10 && day.devotional ? {
+        devotional: {
+          ...day.devotional,
+          body: "The storm exposes the difference between hearing Jesus' words and doing them. His closing illustration invites a concrete response to His teaching, grounded in trust in Him."
+        }
+      } : {})
+    }))
+  };
+}
+
 function withContextOverrides(plan: BibleReadingPlan): BibleReadingPlan {
   const contextOverrides = contextOverridesByPlan[plan.id] || {};
   if (Object.keys(contextOverrides).length === 0) return plan;
@@ -4541,7 +4659,7 @@ const originalBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeguards(
     ["James 2:14-18", "James", 2, "Faith made visible"],
     ["1 Peter 1:3-9", "1 Peter", 1, "Faith through trials"]
   ], "Gospel")),
-  withCuratedDevotionals(planFromReferences("fourteen-days-wisdom", "14 Days on Wisdom", "Two weeks of readings for wise choices, words, and priorities.", [
+  withWisdomDeeperContext(withCuratedDevotionals(planFromReferences("fourteen-days-wisdom", "14 Days on Wisdom", "Two weeks of readings for wise choices, words, and priorities.", [
     ["1 Kings 3:5-14", "1 Kings", 3, "Ask for wisdom"],
     ["Psalm 1:1-6", "Psalms", 1, "The way of wisdom"],
     ["Psalm 119:97-105", "Psalms", 119, "A lamp to my feet"],
@@ -4556,7 +4674,7 @@ const originalBibleReadingPlans: BibleReadingPlan[] = withPlanContentSafeguards(
     ["James 3:13-18", "James", 3, "Wisdom from above"],
     ["Colossians 3:12-17", "Colossians", 3, "Wise community life"],
     ["2 Timothy 3:14-17", "2 Timothy", 3, "Scripture equips"]
-  ], "Wisdom")),
+  ], "Wisdom"))),
   withPastoralCareNote(withCuratedDevotionals(planFromReferences("fourteen-days-grief-comfort", "14 Days on Grief and Comfort", "Gentle readings for sorrow, hope, and God's nearness.", [
     ["Psalm 13:1-6", "Psalms", 13, "How long, O Lord"],
     ["Psalm 23:1-6", "Psalms", 23, "The Shepherd's comfort"],

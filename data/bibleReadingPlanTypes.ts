@@ -1,5 +1,16 @@
 export type BibleReadingPlanSource = "built-in" | "custom";
 
+export type BibleReadingPlanDeeperContext = {
+  contextReference: string;
+  contextNote: string;
+  connections: {
+    reference: string;
+    relationship: "close parallel" | "shared theme" | "later use";
+    note: string;
+  }[];
+  comparePrompt: string;
+};
+
 export type BibleReadingPlanDay = {
   day: number;
   title: string;
@@ -8,6 +19,7 @@ export type BibleReadingPlanDay = {
   readerChapter: number;
   studyReference: string;
   context?: string;
+  deeperContext?: BibleReadingPlanDeeperContext;
   devotional?: {
     title: string;
     body: string;

@@ -2,7 +2,9 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
+import { PlanDeeperContext } from "@/components/PlanDeeperContext";
 import { colors } from "@/components/ui";
 
 type BibleReaderPassageProps = {
@@ -17,24 +19,7 @@ type BibleReaderPassageProps = {
   readerReference: string;
   memoryVerseKeys: Set<string>;
   matchesActiveReadingPlanDay: boolean;
-  activeReadingPlanDay?: {
-    reference: string;
-    guidanceKind?: "guided-devotional" | "reading-guidance";
-    context?: string;
-    devotional?: {
-      title: string;
-      body: string;
-      source?: string;
-    };
-    observationQuestion?: string;
-    reflectionQuestion?: string;
-    reflectionPrompt?: string;
-    prayer?: string;
-    prayerPrompt?: string;
-    gentleAction?: string;
-    studyMethod?: string;
-    careNote?: string;
-  } | null;
+  activeReadingPlanDay?: BibleReadingPlanDay | null;
   activeReadingPlanName?: string;
   activeReadingPlanDayCompleted?: boolean;
   devotionalTextSize?: DevotionalTextSize;
@@ -295,7 +280,7 @@ export function BibleReaderPassage({
                   ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                   : ""}
               </Text>
-              {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || visibleActiveCareNote) && (
+              {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.deeperContext || visibleActiveCareNote) && (
                 <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
                   {!activeReadingPlanDay.context && (
                     <View style={styles.planDayDevotionalToolbar}>
@@ -353,6 +338,9 @@ export function BibleReaderPassage({
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
                     </View>
+                  )}
+                  {!!activeReadingPlanDay.deeperContext && (
+                    <PlanDeeperContext context={activeReadingPlanDay.deeperContext} darkMode={darkMode} textSize={devotionalTextSize} />
                   )}
                   {!!visibleActiveCareNote && (
                     <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>

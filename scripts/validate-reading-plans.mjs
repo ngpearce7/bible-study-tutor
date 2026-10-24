@@ -723,10 +723,34 @@ function printDuplicateContextReport() {
 
 const seenIds = new Set();
 const devotionalBodiesByText = new Map();
+const wisdomPlan = bibleReadingPlans.find((plan) => plan.id === "fourteen-days-wisdom");
+if (!wisdomPlan || wisdomPlan.days.length !== 14) {
+  errors.push("14 Days on Wisdom must contain 14 readings with curated connections.");
+} else {
+  for (const day of wisdomPlan.days) {
+    const deeper = day.deeperContext;
+    if (!deeper?.contextReference || !deeper.contextNote || deeper.connections?.length !== 2 || !deeper.comparePrompt) {
+      errors.push(`14 Days on Wisdom day ${day.day}: incomplete deeper context.`);
+      continue;
+    }
+    if (deeper.connections.some((connection) => !connection.reference || !connection.note || !["close parallel", "shared theme", "later use"].includes(connection.relationship))) {
+      errors.push(`14 Days on Wisdom day ${day.day}: incomplete or unlabelled passage connection.`);
+    }
+  }
+  const builders = wisdomPlan.days.find((day) => day.day === 10)?.deeperContext;
+  if (builders?.contextReference !== "Matthew 7:21-29" ||
+      !builders.connections.some((connection) => connection.reference === "Luke 6:46-49" && connection.relationship === "close parallel") ||
+      !builders.connections.some((connection) => connection.reference === "James 1:22-25" && connection.relationship === "shared theme")) {
+    errors.push("14 Days on Wisdom day 10 must distinguish Luke's parallel from James's shared theme.");
+  }
+}
 for (const plan of bibleReadingPlans) {
   inventory.builtInPlans += 1;
   if (seenIds.has(plan.id)) errors.push(`${plan.id}: duplicate plan id.`);
   seenIds.add(plan.id);
+  if (plan.id !== "fourteen-days-wisdom" && plan.days.some((day) => day.deeperContext)) {
+    errors.push(`${plan.id}: deeper context should be limited to the Wisdom pilot.`);
+  }
   checkPlan(plan);
   for (const day of plan.days) {
     if (generatedSectionGuidancePlanIds.has(plan.id) || intentionalDevotionalReusePlanIds.has(plan.id)) continue;

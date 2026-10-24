@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { buildStudyLesson, buildPracticeWorksheet, studyPages, studyLessons } from "./seo/study-content.mjs";
+import { buildMethodComparisonGuide, methodComparisonStyles, methodComparisonScript } from "./seo/method-comparison.mjs";
 
 const publicDir = join(process.cwd(), "public");
 const productionSiteUrl = "https://biblestudytutor.org";
@@ -320,8 +321,15 @@ const seoPages = [
       ["Can Bible study methods be printed?", "Yes. You can print worksheets using guided methods so the same passage can be studied on paper."]
     ],
     cta: "Choose a study method",
-    related: ["/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive", "/bible-study-methods/oia", "/printable-bible-word-study-worksheet", "/printable-bible-study-worksheets"],
+    related: ["/bible-study-methods/compare", "/how-to-study-the-bible", "/bible-study-methods/soap", "/bible-study-methods/inductive", "/bible-study-methods/oia", "/printable-bible-word-study-worksheet", "/printable-bible-study-worksheets"],
     extraBlocks: [
+      {
+        type: "cta",
+        title: "Not sure which method fits?",
+        intro: "Compare the guided methods by time, focus, and the kind of question you want to ask. A simple filter helps you choose without learning every acronym first.",
+        href: "/bible-study-methods/compare",
+        label: "Compare study methods"
+      },
       {
         type: "previews",
         title: "How to choose a method",
@@ -354,6 +362,25 @@ const seoPages = [
         label: "Choose a study method"
       }
     ]
+  },
+  {
+    path: "/bible-study-methods/compare",
+    file: "bible-study-methods/compare.html",
+    title: "Compare Bible Study Methods | A Simple Beginner’s Guide",
+    description: "Compare seven Bible study methods in plain language. Filter by your goal, see how each method works, and choose a guided study without feeling overwhelmed.",
+    heading: "Which Bible study method should I use?",
+    intro: "Start with the passage, then pick a way to study it. Compare seven guided methods by time, focus, and the questions they ask. Try the goal filter below if the choices feel overwhelming.",
+    sections: [],
+    methodComparison: true,
+    related: ["/bible-study-for-beginners", "/bible-study-methods", "/bible-study-methods/oia", "/bible-study-methods/soap", "/bible-study-methods/inductive", "/study-examples"],
+    faq: [
+      ["What is the easiest Bible study method for a beginner?", "READ is a short daily starting point. OIA is a strong first method if you want to learn the difference between observation, meaning, and application. SOAP is helpful when you want to write and pray through a short passage."],
+      ["Are Bible study methods different interpretations of the Bible?", "No. Methods are different sets of questions for reading and responding. Read the passage in context and let its meaning guide your conclusions, whichever method you choose."],
+      ["Do I need to finish one method before trying another?", "No. Try a short passage with one method, then use another method later. You can return to the same passage and ask different questions without changing its meaning."],
+      ["Which method works best for a small group?", "OIA gives a group a simple observe, interpret, apply sequence. COMA adds an explicit context step, which can help when discussing a teaching passage."],
+    ],
+    schemaType: "FAQPage",
+    cta: "Choose a guided method",
   },
   {
     path: "/how-to-study-the-bible",
@@ -1306,7 +1333,7 @@ const seoPages = [
       ["Keep a record", "Save studies to your journal so your understanding, prayers, and next steps are easy to revisit later."]
     ],
     cta: "Open guided study",
-    related: ["/how-to-study-the-bible", "/how-to-study-a-bible-passage", "/bible-study-methods/soap", "/printable-soap-bible-study-worksheet"],
+    related: ["/bible-study-methods/compare", "/how-to-study-the-bible", "/how-to-study-a-bible-passage", "/bible-study-methods/soap", "/printable-soap-bible-study-worksheet"],
     schemaType: "HowTo",
     howToSteps: [
       "Choose a short passage from a Gospel, Psalm, or New Testament letter.",
@@ -3520,9 +3547,11 @@ function buildSeoPage(page, baseUrl) {
       }
     `
     : "";
-  const pageSpecificStyles = tableStyles || worksheetStyles
-    ? `<style>${tableStyles}${worksheetStyles}</style>`
+  const comparisonStyles = page.methodComparison ? methodComparisonStyles : "";
+  const pageSpecificStyles = tableStyles || worksheetStyles || comparisonStyles
+    ? `<style>${tableStyles}${worksheetStyles}${comparisonStyles}</style>`
     : "";
+  const comparisonBlock = page.methodComparison ? buildMethodComparisonGuide() : "";
   const sections = page.sections
     .map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`)
     .join("\n");
@@ -3683,7 +3712,7 @@ function buildSeoPage(page, baseUrl) {
         <div class="eyebrow">Bible Study Tutor</div>
         <h1 id="page-heading">${escapeHtml(page.heading)}</h1>
         <p class="intro">${escapeHtml(page.intro)}</p>
-      </section>${leadStudyBlock}${exampleDirectoryBlock}${leadHowToBlock}
+      </section>${comparisonBlock}${leadStudyBlock}${exampleDirectoryBlock}${leadHowToBlock}
       ${sections ? `<div class="grid">${sections}</div>` : ""}
       ${extraBlocks}
       ${faqBlock}
@@ -3700,6 +3729,7 @@ function buildSeoPage(page, baseUrl) {
         <span><a href="/">Bible Study Tutor</a></span>
       </div>
     </footer>
+    ${page.methodComparison ? methodComparisonScript : ""}
   </body>
 </html>
 `;

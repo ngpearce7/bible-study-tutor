@@ -148,7 +148,18 @@ for (const page of pages) {
     }
   }
 }
-const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features", "/study-examples"]);
+const informationalPaths = new Set(["/about", "/how-it-works", "/pricing", "/faq", "/features", "/study-examples", "/bible-study-methods/compare"]);
+const comparison = pageFor("/bible-study-methods/compare");
+assert(count(comparison.html, 'class="method-card"') === 7, "method comparison must show all seven guided methods without JavaScript");
+assert(count(comparison.html, '<button type="button" class="method-filter') === 7, "method comparison must include seven goal filters");
+assert(comparison.html.includes('id="method-table-heading"'), "method comparison table is missing");
+assert(comparison.html.includes('id="method-example-heading"'), "same-passage comparison is missing");
+assert(pageFor("/bible-study-methods").html.includes('href="/bible-study-methods/compare"'), "methods index must link to comparison");
+for (const method of ["read", "oia", "soap", "lectio", "hear", "coma", "inductive"]) {
+  assert(comparison.html.includes(`id="method-${method}"`), `method comparison is missing ${method}`);
+  assert(comparison.html.includes(`href="/?tab=study&amp;method=${method}"`), `method comparison must open ${method} in the app`);
+}
+validateVisibleFaqSchema(comparison);
 const examplesDirectory = pageFor("/study-examples");
 for (const path of Object.keys(studyPages)) {
   assert(examplesDirectory.html.includes(`href="${path}#study-example"`), `${path}: missing from the study examples directory`);

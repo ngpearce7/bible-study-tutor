@@ -1,64 +1,99 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
-import type { BibleReadingPlanDeeperContext } from "@/data/bibleReadingPlanTypes";
+import type { BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 
-type Props = {
-  context: BibleReadingPlanDeeperContext;
-  darkMode: boolean;
-  textSize: DevotionalTextSize;
-};
+type Props = { day: BibleReadingPlanDay; darkMode: boolean; textSize: DevotionalTextSize };
 
 function openPassage(reference: string) {
-  const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(reference)}&version=WEB`;
-  void Linking.openURL(url);
+  void Linking.openURL(`https://www.biblegateway.com/passage/?search=${encodeURIComponent(reference)}&version=WEB`);
 }
 
-export function PlanDeeperContext({ context, darkMode, textSize }: Props) {
-  const [expanded, setExpanded] = useState(false);
+export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
+  const context = day.deeperContext;
+  const [width, setWidth] = useState(0);
+  const [whyOpen, setWhyOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  if (!context) return null;
+
   const sizing = DEVOTIONAL_TEXT_SIZE_STYLES[textSize];
-  const ink = darkMode ? "#f5f0e9" : "#172536";
-  const muted = darkMode ? "#c8c1b9" : "#53677e";
-  const accent = darkMode ? "#d4a768" : "#8d5528";
+  const ink = darkMode ? "#f2efeb" : "#172536";
+  const muted = darkMode ? "#c4beb8" : "#53677e";
+  const gold = darkMode ? "#d5a45f" : "#8d5528";
+  const inset = darkMode ? "#292929" : "#f3f7fa";
+  const border = darkMode ? "#4a3e31" : "#d7e1e9";
+  const twoColumns = width >= 620;
+  const passageLink = (reference: string) => (
+    <Pressable accessibilityRole="link" accessibilityLabel={`Read ${reference} on Bible Gateway`} onPress={() => openPassage(reference)}>
+      <Text style={[styles.link, sizing.copy, { color: ink }]}>{reference} ↗</Text>
+    </Pressable>
+  );
+
   return (
-    <View style={[styles.box, darkMode && styles.boxDark]}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${expanded ? "Hide" : "Explore"} passage connections`}
-        accessibilityState={{ expanded }}
-        onPress={() => setExpanded((value) => !value)}
-        style={styles.toggle}
-      >
-        <View style={styles.toggleCopy}>
-          <Text style={[styles.title, sizing.label, { color: accent }]}>EXPLORE CONNECTIONS</Text>
-          {!expanded && <Text style={[styles.body, sizing.copy, { color: muted }]}>Context, related passages, and one comparison question</Text>}
-        </View>
-        <Ionicons name={expanded ? "chevron-up" : "chevron-down"} size={19} color={accent} />
-      </Pressable>
-      {expanded && (
-        <View style={styles.content}>
-          <Text style={[styles.disclaimer, sizing.copy, { color: muted }]}>Start with today's passage. These readings add context or invite comparison. References open Bible Gateway in a browser.</Text>
-          <View style={styles.row}>
-            <Text style={[styles.label, sizing.label, { color: accent }]}>READ IN CONTEXT</Text>
-            <Pressable accessibilityRole="link" accessibilityLabel={`Read ${context.contextReference} on Bible Gateway`} onPress={() => openPassage(context.contextReference)}>
-              <Text style={[styles.reference, sizing.copy, { color: ink }]}>{context.contextReference} ↗</Text>
-            </Pressable>
-            <Text style={[styles.body, sizing.copy, { color: muted }]}>{context.contextNote}</Text>
+    <View onLayout={(event) => setWidth(event.nativeEvent.layout.width)} style={styles.root}>
+      <Text style={[styles.kicker, sizing.label, { color: gold }]}>FOCUSED PLAN READING · {day.reference.toUpperCase()}</Text>
+      <Text style={[styles.heading, sizing.title, { color: ink }]}>One reading, two ways to go deeper</Text>
+      <Text style={[styles.intro, sizing.copy, { color: muted }]}>Begin with today's passage. Then read its setting and two related passages.</Text>
+      <View style={[styles.columns, twoColumns && styles.columnsWide]}>
+        <View style={[styles.mainColumn, twoColumns && { borderRightWidth: 1, borderRightColor: border, paddingRight: 18 }]}>
+          <Text style={[styles.kicker, sizing.label, { color: gold }]}>TODAY'S READING</Text>
+          <View style={styles.step}>
+            <Text style={[styles.number, { color: gold, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>1</Text>
+            <View style={styles.stepCopy}>
+              <Text style={[styles.stepTitle, sizing.copy, { color: ink }]}>Observe {day.reference}</Text>
+              <Text style={[styles.body, sizing.copy, { color: muted }]}>{context.observationNote}</Text>
+            </View>
           </View>
-          {context.connections.map((connection) => (
-            <View key={`${connection.reference}:${connection.relationship}`} style={styles.row}>
-              <Text style={[styles.label, sizing.label, { color: accent }]}>{connection.relationship.toUpperCase()}</Text>
-              <Pressable accessibilityRole="link" accessibilityLabel={`Read ${connection.reference} on Bible Gateway`} onPress={() => openPassage(connection.reference)}>
-                <Text style={[styles.reference, sizing.copy, { color: ink }]}>{connection.reference} ↗</Text>
-              </Pressable>
+          <View style={styles.step}>
+            <Text style={[styles.number, { color: gold, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>2</Text>
+            <View style={styles.stepCopy}>
+              <Text style={[styles.stepTitle, sizing.copy, { color: ink }]}>Read the surrounding words</Text>
+              <Text style={[styles.body, sizing.copy, { color: muted }]}>{context.contextNote}</Text>
+              {passageLink(context.contextReference)}
+            </View>
+          </View>
+          <View style={styles.step}>
+            <Text style={[styles.number, { color: gold, backgroundColor: darkMode ? "#51402c" : "#f0dfca" }]}>3</Text>
+            <View style={styles.stepCopy}>
+              <Text style={[styles.stepTitle, sizing.copy, { color: ink }]}>Choose a response</Text>
+              <Text style={[styles.body, sizing.copy, { color: muted }]}>{day.gentleAction}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={[styles.sideColumn, !twoColumns && { borderTopWidth: 1, borderTopColor: border, paddingTop: 16 }]}>
+          <Text style={[styles.kicker, sizing.label, { color: gold }]}>READ ALONGSIDE</Text>
+          <Text style={[styles.sideHeading, sizing.title, { color: ink }]}>Two useful connections</Text>
+          {context.connections.map((connection, index) => (
+            <View key={connection.reference} style={[styles.connection, { backgroundColor: inset, borderLeftColor: index === 0 ? (darkMode ? "#e47f6a" : "#a74f3d") : (darkMode ? "#8db7d1" : "#285679") }]}>
+              <Text style={[styles.connectionLabel, sizing.label, { color: gold }]}>{connection.relationship.toUpperCase()}</Text>
+              {passageLink(connection.reference)}
               <Text style={[styles.body, sizing.copy, { color: muted }]}>{connection.note}</Text>
             </View>
           ))}
-          <View style={styles.compare}>
-            <Text style={[styles.label, sizing.label, { color: accent }]}>COMPARE THE PASSAGES</Text>
-            <Text style={[styles.body, sizing.copy, { color: ink }]}>{context.comparePrompt}</Text>
-          </View>
+          <Pressable accessibilityRole="button" accessibilityState={{ expanded: whyOpen }} onPress={() => setWhyOpen((open) => !open)} style={[styles.toggle, { borderTopColor: border }]}>
+            <Text style={[styles.toggleText, sizing.copy, { color: gold }]}>Why these two passages?</Text>
+            <Ionicons name={whyOpen ? "chevron-up" : "chevron-down"} size={16} color={gold} />
+          </Pressable>
+          {whyOpen && <Text style={[styles.body, sizing.copy, { color: muted }]}>A close parallel recounts a related teaching. A shared theme approaches the same question from another setting. A later use shows how a later writer applies an earlier passage. Read each passage in its own context.</Text>}
+        </View>
+      </View>
+      <View style={[styles.compare, { backgroundColor: darkMode ? "#352c25" : "#f7eee3" }]}>
+        <Text style={[styles.connectionLabel, sizing.label, { color: gold }]}>COMPARISON PROMPT</Text>
+        <Text style={[styles.body, sizing.copy, { color: ink }]}>{context.comparePrompt}</Text>
+      </View>
+      <Text style={[styles.tail, sizing.copy, { color: muted }]}>Connections suggest further reading; today's passage remains the starting point. Links open Bible Gateway.</Text>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: moreOpen }} onPress={() => setMoreOpen((open) => !open)} style={[styles.toggle, { borderTopColor: border }]}>
+        <Text style={[styles.toggleText, sizing.copy, { color: gold }]}>{moreOpen ? "Hide daily prompts" : "More daily prompts"}</Text>
+        <Ionicons name={moreOpen ? "chevron-up" : "chevron-down"} size={16} color={gold} />
+      </Pressable>
+      {moreOpen && (
+        <View style={styles.moreContent}>
+          {!!day.devotional?.body && <Text style={[styles.body, sizing.copy, { color: muted }]}>{day.devotional.body}</Text>}
+          {!!day.observationQuestion && <Text style={[styles.body, sizing.copy, { color: muted }]}><Text style={{ color: gold, fontWeight: "700" }}>NOTICE  </Text>{day.observationQuestion}</Text>}
+          {!!(day.reflectionQuestion || day.reflectionPrompt) && <Text style={[styles.body, sizing.copy, { color: muted }]}><Text style={{ color: gold, fontWeight: "700" }}>REFLECT  </Text>{day.reflectionQuestion || day.reflectionPrompt}</Text>}
+          {!!(day.prayer || day.prayerPrompt) && <Text style={[styles.body, sizing.copy, { color: muted }]}><Text style={{ color: gold, fontWeight: "700" }}>PRAY  </Text>{day.prayer || day.prayerPrompt}</Text>}
+          {!!day.studyMethod && <Text style={[styles.body, sizing.copy, { color: muted }]}><Text style={{ color: gold, fontWeight: "700" }}>STUDY DEEPER  </Text>{day.studyMethod}</Text>}
         </View>
       )}
     </View>
@@ -66,16 +101,26 @@ export function PlanDeeperContext({ context, darkMode, textSize }: Props) {
 }
 
 const styles = StyleSheet.create({
-  box: { marginTop: 16, borderWidth: 1, borderColor: "#d7e1e9", borderRadius: 14, backgroundColor: "#f5f8fa", overflow: "hidden" },
-  boxDark: { borderColor: "#4c443c", backgroundColor: "#292727" },
-  toggle: { flexDirection: "row", alignItems: "center", padding: 14, minHeight: 60 },
-  toggleCopy: { flex: 1, paddingRight: 12 },
-  title: { fontWeight: "700", letterSpacing: 0.4 },
-  content: { paddingHorizontal: 14, paddingBottom: 15 },
-  disclaimer: { marginBottom: 6 },
-  row: { paddingVertical: 12, borderTopWidth: 1, borderTopColor: "#a4a4a444" },
-  label: { fontWeight: "700", marginBottom: 5 },
-  reference: { fontWeight: "700", textDecorationLine: "underline", marginBottom: 4 },
-  body: { lineHeight: 23 },
-  compare: { paddingTop: 13, borderTopWidth: 1, borderTopColor: "#a4a4a444" }
+  root: { width: "100%" },
+  kicker: { fontSize: 11, fontWeight: "700", letterSpacing: 0.7 },
+  heading: { fontSize: 21, fontWeight: "700", marginTop: 6, marginBottom: 8 },
+  intro: { lineHeight: 23 },
+  columns: { marginTop: 19, gap: 18 },
+  columnsWide: { flexDirection: "row" },
+  mainColumn: { flex: 1, minWidth: 0 },
+  sideColumn: { flex: 1, minWidth: 0 },
+  step: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginTop: 16 },
+  number: { width: 27, height: 27, borderRadius: 14, textAlign: "center", textAlignVertical: "center", overflow: "hidden", fontSize: 12, fontWeight: "700", lineHeight: 27 },
+  stepCopy: { flex: 1, minWidth: 0 },
+  stepTitle: { fontWeight: "700" },
+  body: { lineHeight: 21, marginTop: 4 },
+  link: { fontWeight: "700", textDecorationLine: "underline", marginTop: 5 },
+  sideHeading: { fontSize: 16, fontWeight: "700", marginTop: 5 },
+  connection: { borderLeftWidth: 3, borderTopRightRadius: 10, borderBottomRightRadius: 10, paddingHorizontal: 14, paddingVertical: 11, marginTop: 10 },
+  connectionLabel: { fontSize: 10, fontWeight: "700", letterSpacing: 0.7 },
+  toggle: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: 1, marginTop: 14, paddingTop: 10, minHeight: 44 },
+  toggleText: { fontWeight: "700" },
+  compare: { borderRadius: 10, marginTop: 16, paddingHorizontal: 14, paddingVertical: 13 },
+  tail: { fontSize: 12, marginTop: 12 },
+  moreContent: { gap: 10, paddingBottom: 4 }
 });

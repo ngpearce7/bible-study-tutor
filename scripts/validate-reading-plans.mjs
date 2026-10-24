@@ -729,7 +729,7 @@ if (!wisdomPlan || wisdomPlan.days.length !== 14) {
 } else {
   for (const day of wisdomPlan.days) {
     const deeper = day.deeperContext;
-    if (!deeper?.contextReference || !deeper.contextNote || deeper.connections?.length !== 2 || !deeper.comparePrompt) {
+    if (!deeper?.contextReference || !deeper.contextNote || !deeper.observationNote || deeper.connections?.length !== 2 || !deeper.comparePrompt) {
       errors.push(`14 Days on Wisdom day ${day.day}: incomplete deeper context.`);
       continue;
     }

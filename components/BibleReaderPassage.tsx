@@ -282,6 +282,13 @@ export function BibleReaderPassage({
               </Text>
               {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.deeperContext || visibleActiveCareNote) && (
                 <View style={[styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                  {activeReadingPlanDay.deeperContext ? (
+                    <>
+                      <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>
+                      <PlanDeeperContext day={activeReadingPlanDay} darkMode={darkMode} textSize={devotionalTextSize} />
+                    </>
+                  ) : (
+                    <>
                   {!activeReadingPlanDay.context && (
                     <View style={styles.planDayDevotionalToolbar}>
                       {devotionalTextSizeControl}
@@ -339,9 +346,6 @@ export function BibleReaderPassage({
                       <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
                     </View>
                   )}
-                  {!!activeReadingPlanDay.deeperContext && (
-                    <PlanDeeperContext context={activeReadingPlanDay.deeperContext} darkMode={darkMode} textSize={devotionalTextSize} />
-                  )}
                   {!!visibleActiveCareNote && (
                     <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
                       <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
@@ -358,6 +362,8 @@ export function BibleReaderPassage({
                         </Pressable>
                       )}
                     </View>
+                  )}
+                    </>
                   )}
                 </View>
               )}

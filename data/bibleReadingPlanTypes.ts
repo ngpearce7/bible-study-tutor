@@ -3,6 +3,7 @@ export type BibleReadingPlanSource = "built-in" | "custom";
 export type BibleReadingPlanDeeperContext = {
   contextReference: string;
   contextNote: string;
+  observationNote: string;
   connections: {
     reference: string;
     relationship: "close parallel" | "shared theme" | "later use";

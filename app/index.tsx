@@ -112,7 +112,7 @@ function HomeSemanticResourceLinks({ darkMode = false }: { darkMode?: boolean })
   if (Platform.OS !== "web") return null;
 
   const links = [
-    ["/bible-study-methods", "Choose a study method", "Compare Bible study methods before beginning a passage."],
+    ["/bible-study-methods/compare", "Compare study methods", "Find a simple study method that fits the time and goal of your next passage."],
     ["/printable-bible-study-worksheets", "Print a worksheet", "Prepare a paper worksheet for personal study, church groups, or youth groups."],
     ["/bible-study-app-for-churches", "For churches", "See ways churches and small groups can use Bible Study Tutor responsibly."],
     ["/bible-study-methods/word-study", "Learn word study", "Study key words while keeping the meaning anchored in context."]
@@ -10462,6 +10462,15 @@ function HomeScreen() {
             <Eyebrow>Practice library</Eyebrow>
             <Text style={[styles.title, methodsDarkMode && styles.accountDarkTitle]}>Choose how you want to learn</Text>
             <Text style={[styles.titleSupport, methodsDarkMode && styles.accountDarkMutedText]}>Tap the info button to see when to use a method, how it works, and a worked example.</Text>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => Linking.openURL("https://biblestudytutor.org/bible-study-methods/compare")}
+              style={[styles.methodToolbarButton, methodsDarkMode && styles.homeDarkResumeButton, { alignSelf: "flex-start", marginBottom: 16 }]}
+            >
+              <Ionicons name="git-compare-outline" size={16} color={methodsDarkMode ? "#d4a768" : colors.oliveDark} />
+              <Text style={[styles.methodToolbarButtonText, methodsDarkMode && styles.homeDarkResumeButtonText]}>Compare all methods</Text>
+              <Ionicons name="open-outline" size={14} color={methodsDarkMode ? "#d4a768" : colors.oliveDark} />
+            </Pressable>
             <View style={[styles.currentMethodStrip, methodsDarkMode && styles.accountDarkSection]}>
               <View style={styles.currentMethodCopy}>
                 <Text style={[styles.methodInfoLabel, methodsDarkMode && styles.studyDarkAccentText]}>Current method</Text>

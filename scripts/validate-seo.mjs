@@ -32,6 +32,7 @@ for (const page of pages) {
   descriptions.set(description, page.path);
   validateInternalLinks(page, sitemapPaths);
   assert(page.html.includes('href="/study-examples"'), `${page.path}: study examples navigation link is missing`);
+  assert(page.html.includes('<a href="/bible-study-methods/compare">Compare methods</a>'), `${page.path}: method comparison navigation link is missing`);
 }
 
 const worksheetPath = "/printable-bible-word-study-worksheet";

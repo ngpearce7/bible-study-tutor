@@ -270,141 +270,6 @@ export function BibleReaderPassage({
           );
         })}
 
-        {matchesActiveReadingPlanDay && activeReadingPlanDay && (
-          <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, activeReadingPlanDay.deeperContext && { borderWidth: 0, borderRadius: 0, backgroundColor: "transparent", padding: 0 }]}>
-            <View style={styles.readerPlanCompletionCopy}>
-              <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
-              <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
-                {activeReadingPlanDayCompleted ? `${activeReadingPlanLabel} is complete.` : activeReadingPlanLabel}
-                {planReadingMode && !activeReadingPlanDayCompleted
-                  ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
-                  : ""}
-              </Text>
-              {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.deeperContext || visibleActiveCareNote) && (
-                <View style={activeReadingPlanDay.deeperContext ? { marginTop: 12, width: "100%" } : [styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
-                  {activeReadingPlanDay.deeperContext ? (
-                    <>
-                      <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>
-                      <PlanDeeperContext day={activeReadingPlanDay} darkMode={darkMode} textSize={devotionalTextSize} />
-                    </>
-                  ) : (
-                    <>
-                  {!activeReadingPlanDay.context && (
-                    <View style={styles.planDayDevotionalToolbar}>
-                      {devotionalTextSizeControl}
-                    </View>
-                  )}
-                  {!!activeReadingPlanDay.context && (
-                    <View style={styles.planDayPromptRow}>
-                      <View style={styles.planDayPromptHeaderRow}>
-                        <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>
-                          {activeReadingPlanDay.guidanceKind === "reading-guidance" ? "Reading guidance" : "Context"}
-                        </Text>
-                        {devotionalTextSizeControl}
-                      </View>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>
-                    </View>
-                  )}
-                  {!!activeReadingPlanDay.devotional && (
-                    <>
-                      <View style={styles.planDayDevotionalHeader}>
-                        <View style={styles.planDayDevotionalTitleRow}>
-                          <Ionicons name="leaf-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
-                          <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
-                        </View>
-                      </View>
-                      <Text style={[styles.planDayDevotionalText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
-                    </>
-                  )}
-                  {!!activeReadingPlanDay.observationQuestion && (
-                    <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.observationQuestion}</Text>
-                    </View>
-                  )}
-                  {!!(activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt) && (
-                    <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt}</Text>
-                    </View>
-                  )}
-                  {!!(activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt) && (
-                    <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt}</Text>
-                    </View>
-                  )}
-                  {!!activeReadingPlanDay.gentleAction && (
-                    <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.gentleAction}</Text>
-                    </View>
-                  )}
-                  {!!activeReadingPlanDay.studyMethod && (
-                    <View style={styles.planDayPromptRow}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
-                    </View>
-                  )}
-                  {!!visibleActiveCareNote && (
-                    <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
-                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
-                      <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{visibleActiveCareNote}</Text>
-                      {!!onAcknowledgeCareNote && (
-                        <Pressable
-                          accessibilityRole="button"
-                          accessibilityLabel="Acknowledge this care note"
-                          onPress={() => onAcknowledgeCareNote(visibleActiveCareNote)}
-                          style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
-                        >
-                          <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
-                          <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
-                        </Pressable>
-                      )}
-                    </View>
-                  )}
-                    </>
-                  )}
-                </View>
-              )}
-            </View>
-            <View style={[styles.inlineReaderActions, styles.readerPlanCompletionActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
-              {showExitPlanReadingButton && (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={exitPlanReadingAccessibilityLabel}
-                  onPress={onExitPlanReading}
-                  style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionExitButton, darkMode && styles.homeDarkResumeButton]}
-                >
-                  <Ionicons name="close-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
-                  <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>{exitPlanReadingLabel}</Text>
-                </Pressable>
-              )}
-              {activeReadingPlanDayCompleted ? (
-                <View
-                  accessibilityRole="text"
-                  style={[
-                    styles.readerPlanCompletedStatus,
-                    darkMode && styles.readerPlanCompletedStatusDark
-                  ]}
-                >
-                  <Ionicons name="checkmark-circle" size={15} color={darkMode ? "#b8d992" : colors.oliveDark} />
-                  <Text style={[styles.readerPlanCompletedStatusText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.readerPlanCompletedStatusTextDark]}>{phoneLayout ? "Complete" : "Reading complete"}</Text>
-                </View>
-              ) : (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
-                  onPress={onMarkActiveReadingPlanDayComplete}
-                  style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton, styles.readerPlanCompleteButton]}
-                >
-                  <Ionicons name="checkmark-circle-outline" size={15} color="white" />
-                  <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>{phoneLayout ? "Complete" : (planReadingMode ? "Complete reading" : "Mark today complete")}</Text>
-                </Pressable>
-              )}
-            </View>
-          </View>
-        )}
 
         {planReadingMode && planReadingHasMultipleParts ? (
           <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
@@ -460,6 +325,142 @@ export function BibleReaderPassage({
           {passage.translation_name} · {passage.translation_note || "Public Domain"}
         </Text>
       </View>
+      {matchesActiveReadingPlanDay && activeReadingPlanDay && (
+        <View style={[styles.readerPlanCompletionBox, phoneLayout && styles.phoneReaderPlanCompletionBox, darkMode && styles.accountDarkSection, activeReadingPlanDay.deeperContext && { borderColor: darkMode ? "#735a3a" : "#c7d8e3", padding: phoneLayout ? 14 : 18 }]}>
+          <View style={styles.readerPlanCompletionCopy}>
+            <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>{planReadingMode ? "Focused plan reading" : "Reading plan"}</Text>
+            <Text style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
+              {activeReadingPlanDayCompleted ? `${activeReadingPlanLabel} is complete.` : activeReadingPlanLabel}
+              {planReadingMode && !activeReadingPlanDayCompleted
+                ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
+                : ""}
+            </Text>
+            {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || activeReadingPlanDay.deeperContext || visibleActiveCareNote) && (
+              <View style={activeReadingPlanDay.deeperContext ? { marginTop: 12, width: "100%" } : [styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
+                {activeReadingPlanDay.deeperContext ? (
+                  <>
+                    <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>
+                    <PlanDeeperContext day={activeReadingPlanDay} darkMode={darkMode} textSize={devotionalTextSize} />
+                  </>
+                ) : (
+                  <>
+                {!activeReadingPlanDay.context && (
+                  <View style={styles.planDayDevotionalToolbar}>
+                    {devotionalTextSizeControl}
+                  </View>
+                )}
+                {!!activeReadingPlanDay.context && (
+                  <View style={styles.planDayPromptRow}>
+                    <View style={styles.planDayPromptHeaderRow}>
+                      <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>
+                        {activeReadingPlanDay.guidanceKind === "reading-guidance" ? "Reading guidance" : "Context"}
+                      </Text>
+                      {devotionalTextSizeControl}
+                    </View>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.context}</Text>
+                  </View>
+                )}
+                {!!activeReadingPlanDay.devotional && (
+                  <>
+                    <View style={styles.planDayDevotionalHeader}>
+                      <View style={styles.planDayDevotionalTitleRow}>
+                        <Ionicons name="leaf-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
+                        <Text style={[styles.planDayDevotionalTitle, devotionalTextSizing.title, darkMode && styles.accountDarkTitle]}>{activeReadingPlanDay.devotional.title}</Text>
+                      </View>
+                    </View>
+                    <Text style={[styles.planDayDevotionalText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.devotional.body}</Text>
+                  </>
+                )}
+                {!!activeReadingPlanDay.observationQuestion && (
+                  <View style={styles.planDayPromptRow}>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Notice</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.observationQuestion}</Text>
+                  </View>
+                )}
+                {!!(activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt) && (
+                  <View style={styles.planDayPromptRow}>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Reflect</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt}</Text>
+                  </View>
+                )}
+                {!!(activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt) && (
+                  <View style={styles.planDayPromptRow}>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Pray</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt}</Text>
+                  </View>
+                )}
+                {!!activeReadingPlanDay.gentleAction && (
+                  <View style={styles.planDayPromptRow}>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Next step</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.gentleAction}</Text>
+                  </View>
+                )}
+                {!!activeReadingPlanDay.studyMethod && (
+                  <View style={styles.planDayPromptRow}>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
+                  </View>
+                )}
+                {!!visibleActiveCareNote && (
+                  <View style={[styles.planDayPromptRow, styles.planDayCareNoteBox, darkMode && styles.planDayCareNoteBoxDark]}>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Care note</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{visibleActiveCareNote}</Text>
+                    {!!onAcknowledgeCareNote && (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel="Acknowledge this care note"
+                        onPress={() => onAcknowledgeCareNote(visibleActiveCareNote)}
+                        style={[styles.careNoteAcknowledgeButton, darkMode && styles.homeDarkResumeButton]}
+                      >
+                        <Ionicons name="checkmark-circle-outline" size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
+                        <Text style={[styles.careNoteAcknowledgeText, darkMode && styles.homeDarkResumeButtonText]}>I understand</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                )}
+                  </>
+                )}
+              </View>
+            )}
+          </View>
+          <View style={[styles.inlineReaderActions, styles.readerPlanCompletionActions, phoneLayout && styles.phoneReaderPlanCompletionActions]}>
+            {showExitPlanReadingButton && (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={exitPlanReadingAccessibilityLabel}
+                onPress={onExitPlanReading}
+                style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionExitButton, darkMode && styles.homeDarkResumeButton]}
+              >
+                <Ionicons name="close-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
+                <Text style={[styles.inlineReaderBookmarkText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.homeDarkResumeButtonText]}>{exitPlanReadingLabel}</Text>
+              </Pressable>
+            )}
+            {activeReadingPlanDayCompleted ? (
+              <View
+                accessibilityRole="text"
+                style={[
+                  styles.readerPlanCompletedStatus,
+                  darkMode && styles.readerPlanCompletedStatusDark
+                ]}
+              >
+                <Ionicons name="checkmark-circle" size={15} color={darkMode ? "#b8d992" : colors.oliveDark} />
+                <Text style={[styles.readerPlanCompletedStatusText, phoneLayout && styles.phoneReaderPlanCompletionButtonText, darkMode && styles.readerPlanCompletedStatusTextDark]}>{phoneLayout ? "Complete" : "Reading complete"}</Text>
+              </View>
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Mark ${activeReadingPlanDay.reference} complete in the active reading plan`}
+                onPress={onMarkActiveReadingPlanDayComplete}
+                style={[styles.inlineReaderBookmarkButton, phoneLayout && styles.phoneReaderPlanCompletionPrimaryButton, styles.readerPlanCompleteButton]}
+              >
+                <Ionicons name="checkmark-circle-outline" size={15} color="white" />
+                <Text style={[styles.activeReaderReadButtonText, phoneLayout && styles.phoneReaderPlanCompletionButtonText]}>{phoneLayout ? "Complete" : (planReadingMode ? "Complete reading" : "Mark today complete")}</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+      )}
+
       {!!memoryStatus && <Text style={styles.saveStatus}>{memoryStatus}</Text>}
     </>
   );

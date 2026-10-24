@@ -1848,6 +1848,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: "column",
     gap: 12,
+    marginTop: 14,
     padding: 10
   },
   phoneReaderPlanCompletionBox: {

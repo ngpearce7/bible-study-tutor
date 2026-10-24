@@ -297,6 +297,7 @@ export function BibleTab({
           activeReadingPlanDay={activeReadingPlanDay}
           activeReadingPlanName={activeReadingPlanName}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
+          bibleTranslation={bibleTranslation}
           devotionalTextSize={devotionalTextSize}
           onDevotionalTextSizeChange={onDevotionalTextSizeChange}
           onAcknowledgeCareNote={onAcknowledgeCareNote}

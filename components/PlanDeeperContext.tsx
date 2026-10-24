@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { PlanRelatedPassage } from "@/components/PlanRelatedPassage";
+import type { BibleApiTranslationId } from "@/data/biblePassage";
 import type { BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 
-type Props = { day: BibleReadingPlanDay; darkMode: boolean; textSize: DevotionalTextSize };
+type Props = { day: BibleReadingPlanDay; darkMode: boolean; textSize: DevotionalTextSize; translation: "bsb" | BibleApiTranslationId };
 
-function openPassage(reference: string) {
-  void Linking.openURL(`https://www.biblegateway.com/passage/?search=${encodeURIComponent(reference)}&version=WEB`);
-}
-
-export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
+export function PlanDeeperContext({ day, darkMode, textSize, translation }: Props) {
   const [deeperWidth, setDeeperWidth] = useState(0);
+  const [relatedReference, setRelatedReference] = useState("");
   const deeper = day.deeperContext;
   if (!deeper) return null;
 
@@ -23,8 +22,8 @@ export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
   const headingSize = textSize === "normal" ? 19 : textSize === "large" ? 21 : 23;
 
   const passageLink = (reference: string) => (
-    <Pressable accessibilityRole="link" accessibilityLabel={`Read ${reference} on Bible Gateway`} onPress={() => openPassage(reference)}>
-      <Text style={[styles.link, sizing.copy, { color: ink }]}>{reference} ↗</Text>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Read ${reference} in Bible reader`} onPress={() => setRelatedReference(reference)}>
+      <Text style={[styles.link, sizing.copy, { color: ink }]}>{reference} ›</Text>
     </Pressable>
   );
   const prompt = (label: string, value?: string) => value ? (
@@ -101,8 +100,19 @@ export function PlanDeeperContext({ day, darkMode, textSize }: Props) {
           <Text style={[styles.label, sizing.label, { color: accent }]}>COMPARE THE PASSAGES</Text>
           <Text style={[styles.copy, sizing.copy, { color: ink }]}>{deeper.comparePrompt}</Text>
         </View>
-        <Text style={[styles.tail, sizing.copy, { color: muted }]}>These connections are further reading; today's passage remains the starting point. Links open Bible Gateway.</Text>
+        <Text style={[styles.tail, sizing.copy, { color: muted }]}>These connections are further reading; today's passage remains the starting point.</Text>
       </View>
+      {!!relatedReference && (
+        <PlanRelatedPassage
+          key={relatedReference}
+          reference={relatedReference}
+          dayReference={day.reference}
+          dayNumber={day.day}
+          translation={translation}
+          darkMode={darkMode}
+          onClose={() => setRelatedReference("")}
+        />
+      )}
     </View>
   );
 }

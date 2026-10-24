@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { type BibleApiTranslationId, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
@@ -22,6 +22,7 @@ type BibleReaderPassageProps = {
   activeReadingPlanDay?: BibleReadingPlanDay | null;
   activeReadingPlanName?: string;
   activeReadingPlanDayCompleted?: boolean;
+  bibleTranslation: "bsb" | BibleApiTranslationId;
   devotionalTextSize?: DevotionalTextSize;
   onDevotionalTextSizeChange?: (size: DevotionalTextSize) => void;
   onAcknowledgeCareNote?: (careNote: string) => void;
@@ -72,6 +73,7 @@ export function BibleReaderPassage({
   activeReadingPlanDay,
   activeReadingPlanName,
   activeReadingPlanDayCompleted,
+  bibleTranslation,
   devotionalTextSize = "normal",
   onDevotionalTextSizeChange,
   onAcknowledgeCareNote,
@@ -340,7 +342,7 @@ export function BibleReaderPassage({
                 {activeReadingPlanDay.deeperContext ? (
                   <>
                     <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>
-                    <PlanDeeperContext day={activeReadingPlanDay} darkMode={darkMode} textSize={devotionalTextSize} />
+                    <PlanDeeperContext day={activeReadingPlanDay} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
                   </>
                 ) : (
                   <>

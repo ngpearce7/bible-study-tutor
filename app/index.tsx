@@ -7955,7 +7955,7 @@ function HomeScreen() {
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
             {planDay.deeperContext ? (
-              <PlanDeeperContext day={planDay} darkMode={darkMode} textSize={devotionalTextSize} />
+              <PlanDeeperContext day={planDay} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
             ) : (
               <>
             {!!planDay.context && (

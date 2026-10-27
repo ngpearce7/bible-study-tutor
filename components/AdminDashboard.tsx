@@ -572,17 +572,6 @@ function AdminUserDirectory({
                 <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`${statsProfileId === user.profileId ? "Hide" : "Show"} activity stats for ${user.displayName || "Bible student"}, ${activityTotalLabel} saved items`}
-                  accessibilityState={{ expanded: statsProfileId === user.profileId }}
-                  onPress={() => setStatsProfileId((current) => current === user.profileId ? null : user.profileId)}
-                  style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
-                >
-                  <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Stats</Text>
-                  <Text style={[styles.adminStatsCountPill, darkMode && styles.adminDarkStatsCountPill]}>{activityTotalLabel}</Text>
-                  <Ionicons name={statsProfileId === user.profileId ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
                   onPress={() => {
                     if (user.suspendedAt) {
                       setReasonProfileId(null);
@@ -594,6 +583,17 @@ function AdminUserDirectory({
                   style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
                 >
                   <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{user.suspendedAt ? "Restore" : "Suspend"}</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${statsProfileId === user.profileId ? "Hide" : "Show"} activity stats for ${user.displayName || "Bible student"}, ${activityTotalLabel} saved items`}
+                  accessibilityState={{ expanded: statsProfileId === user.profileId }}
+                  onPress={() => setStatsProfileId((current) => current === user.profileId ? null : user.profileId)}
+                  style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
+                >
+                  <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Stats</Text>
+                  <Text style={[styles.adminStatsCountPill, darkMode && styles.adminDarkStatsCountPill]}>{activityTotalLabel}</Text>
+                  <Ionicons name={statsProfileId === user.profileId ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
                 </Pressable>
                 {reasonProfileId === user.profileId && (
                   <SuspensionReasonPicker

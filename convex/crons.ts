@@ -10,4 +10,11 @@ crons.interval(
   {}
 );
 
+crons.interval(
+  "clean inactive empty local profiles",
+  { hours: 168 },
+  internal.insights.cleanupInactiveEmptyLocalProfiles,
+  {}
+);
+
 export default crons;

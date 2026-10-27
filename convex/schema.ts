@@ -123,7 +123,9 @@ export default defineSchema({
     securityReviewedBy: v.optional(v.id("users")),
     securityReviewNote: v.optional(v.string()),
     createdAt: v.number(),
-    updatedAt: v.number()
+    updatedAt: v.number(),
+    lastSeenAt: v.optional(v.number()),
+    retentionGraceStartedAt: v.optional(v.number())
   })
     .index("by_auth_user_id", ["authUserId"])
     .index("by_client_key", ["clientKey"])
@@ -560,6 +562,7 @@ export default defineSchema({
     postId: v.optional(v.id("communityPosts")),
     deletionRequestId: v.optional(v.id("accountDeletionRequests")),
     requestedBy: v.optional(v.id("users")),
+    cleanupReason: v.optional(v.literal("automatic_empty_local")),
     phase: v.string(),
     status: v.union(v.literal("pending"), v.literal("running"), v.literal("complete"), v.literal("failed")),
     attempts: v.optional(v.number()),

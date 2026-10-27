@@ -24,6 +24,7 @@ const studyMethodState = v.object({
 });
 const reviewPreset = v.union(v.literal("tomorrow"), v.literal("three-days"), v.literal("next-week"), v.literal("next-month"));
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
+const LOCAL_LAST_SEEN_WRITE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
 function usernameFromCredential(value?: string) {
   const email = (value || "").trim().toLowerCase();
@@ -98,7 +99,12 @@ export const ensureProfile = mutation({
           .withIndex("by_client_key", (q) => q.eq("clientKey", localClientKey))
           .first()
       : null;
-    if (existingLocalProfile && !authUserId) return existingLocalProfile._id;
+    if (existingLocalProfile && !authUserId) {
+      if (!existingLocalProfile.lastSeenAt || now - existingLocalProfile.lastSeenAt >= LOCAL_LAST_SEEN_WRITE_INTERVAL_MS) {
+        await ctx.db.patch(existingLocalProfile._id, { lastSeenAt: now });
+      }
+      return existingLocalProfile._id;
+    }
 
     const existingDeviceProfile = existingLocalProfile || (clientKey
       ? await ctx.db
@@ -143,7 +149,12 @@ export const ensureProfile = mutation({
 
         if (existingDeviceProfile.authUserId === authUserId) return existingDeviceProfile._id;
       } else {
-        if (!existingDeviceProfile.authUserId) return existingDeviceProfile._id;
+        if (!existingDeviceProfile.authUserId) {
+          if (!existingDeviceProfile.lastSeenAt || now - existingDeviceProfile.lastSeenAt >= LOCAL_LAST_SEEN_WRITE_INTERVAL_MS) {
+            await ctx.db.patch(existingDeviceProfile._id, { lastSeenAt: now });
+          }
+          return existingDeviceProfile._id;
+        }
       }
     }
 
@@ -155,7 +166,8 @@ export const ensureProfile = mutation({
       normalizedUsername: authUsername || undefined,
       accountLoginKind: authLoginKind,
       createdAt: now,
-      updatedAt: now
+      updatedAt: now,
+      lastSeenAt: authUserId ? undefined : now
     });
     await maybeNotifyFirstNonAdminRegistration(ctx, {
       profileId,

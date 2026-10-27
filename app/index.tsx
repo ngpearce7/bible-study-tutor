@@ -41,7 +41,7 @@ import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyR
 import { useAction, usePaginatedQuery, useQuery as useRawQuery } from "convex/react";
 import { useMutation, useQuery } from "@/data/profileClient";
 import { Component, Suspense, createElement, lazy, memo, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
-import { Alert, Animated, Easing, Image, ImageBackground, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
+import { Alert, Animated, AppState, Easing, Image, ImageBackground, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
 
 type Tab = "home" | "study" | "bible" | "plans" | "methods" | "memory" | "accountability" | "journal" | "account" | "help" | "admin";
 type ProfileConnectionState = "idle" | "loading" | "ready" | "error";
@@ -1783,6 +1783,23 @@ function HomeScreen() {
   }, [circleStatus]);
 
   const activeProfileId = profileAuthState === isAuthenticated ? profileId : null;
+
+  useEffect(() => {
+    if (!activeProfileId || isAuthenticated) return;
+    const refreshLastUse = () => {
+      if (Platform.OS === "web" && typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      getDeviceKey().then((clientKey) => ensureProfile({ clientKey })).catch(() => undefined);
+    };
+    const onAppStateChange = (state: string) => { if (state === "active") refreshLastUse(); };
+    const appStateSubscription = Platform.OS === "web" ? null : AppState.addEventListener("change", onAppStateChange);
+    if (Platform.OS === "web" && typeof document !== "undefined") document.addEventListener("visibilitychange", refreshLastUse);
+    const interval = setInterval(refreshLastUse, 12 * 60 * 60 * 1000);
+    return () => {
+      if (Platform.OS === "web" && typeof document !== "undefined") document.removeEventListener("visibilitychange", refreshLastUse);
+      appStateSubscription?.remove();
+      clearInterval(interval);
+    };
+  }, [activeProfileId, ensureProfile, isAuthenticated]);
 
   useEffect(() => {
     const nextProfileKey = activeProfileId ? String(activeProfileId) : "";
@@ -10944,6 +10961,7 @@ function HomeScreen() {
                 ) : (
                   <>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{authFlow === "signIn" ? "Welcome back. Sign in to access your saved studies and reading progress." : "Create a free account to keep your studies and reading progress across devices."}</Text>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Empty local profiles may be removed after 60 days without a recorded online visit. Local profiles with saved work are kept. Returning after an empty profile is removed starts a new local profile.</Text>
                     {authFlow === "signUp" && <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.feedbackHeader}>
                         <Ionicons name="gift-outline" size={18} color={accountDarkMode ? "#d4a768" : colors.coral} />

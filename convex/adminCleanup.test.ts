@@ -2,7 +2,7 @@
 import { convexTest } from "convex-test";
 import { afterEach, expect, test, vi } from "vitest";
 import schema from "./schema";
-import { api } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 const modules = import.meta.glob("./**/*.ts");
 afterEach(() => { delete process.env.ADMIN_USER_IDS; vi.useRealTimers(); });
 
@@ -117,4 +117,74 @@ test("cleanup refuses callers without administrator access", async () => {
   await expect(t.mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, {})).rejects.toThrow("Unauthorized");
   await expect(t.withIdentity({ subject: `${userId}|session` }).mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, {})).rejects.toThrow("Unauthorized");
   expect(await t.run(ctx => ctx.db.query("cleanupJobs").collect())).toEqual([]);
+});
+
+test("automatic cleanup gives legacy profiles a full grace period and preserves saved work", async () => {
+  vi.useFakeTimers();
+  const now = new Date("2026-10-27T00:00:00.000Z").getTime();
+  vi.setSystemTime(now);
+  const t = convexTest(schema, modules);
+  const ids = await t.run(async (ctx) => {
+    const old = now - 90 * 24 * 60 * 60 * 1000;
+    const legacy = await ctx.db.insert("profiles", { clientKey: "local:legacy", displayName: "Legacy", createdAt: old, updatedAt: old });
+    const stale = await ctx.db.insert("profiles", { clientKey: "local:stale", displayName: "Stale", createdAt: old, updatedAt: old, lastSeenAt: old });
+    const recent = await ctx.db.insert("profiles", { clientKey: "local:recent", displayName: "Recent", createdAt: now, updatedAt: now, lastSeenAt: now });
+    const saved = await ctx.db.insert("profiles", { clientKey: "local:saved", displayName: "Saved", createdAt: old, updatedAt: old, lastSeenAt: old });
+    await ctx.db.insert("bibleBookmarks", { profileId: saved, bookmarkId: "one", book: "John", chapter: 1, reference: "John 1", createdAt: "2026-10-27", updatedAt: old });
+    const recovered = await ctx.db.insert("profiles", { clientKey: "local:recovered", displayName: "Recovered", createdAt: old, updatedAt: old, lastSeenAt: old, recoveryDigest: "digest" });
+    const userId = await ctx.db.insert("users", {});
+    const signed = await ctx.db.insert("profiles", { authUserId: userId, clientKey: `auth:${userId}`, displayName: "Signed", createdAt: old, updatedAt: old });
+    return { legacy, stale, recent, saved, recovered, signed };
+  });
+  await t.mutation(internal.insights.cleanupInactiveEmptyLocalProfiles, {});
+  await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+  await t.run(async (ctx) => {
+    expect(await ctx.db.get(ids.stale)).toBeNull();
+    for (const id of [ids.legacy, ids.recent, ids.saved, ids.recovered, ids.signed]) expect(await ctx.db.get(id)).not.toBeNull();
+    expect((await ctx.db.get(ids.legacy))?.retentionGraceStartedAt).toBe(now);
+  });
+  vi.setSystemTime(now + 61 * 24 * 60 * 60 * 1000);
+  await t.mutation(internal.insights.cleanupInactiveEmptyLocalProfiles, {});
+  await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+  await t.run(async (ctx) => {
+    expect(await ctx.db.get(ids.legacy)).toBeNull();
+    expect(await ctx.db.get(ids.saved)).not.toBeNull();
+    expect(await ctx.db.get(ids.recovered)).not.toBeNull();
+    expect(await ctx.db.get(ids.signed)).not.toBeNull();
+  });
+});
+
+test("automatic cleanup stops if an empty local profile returns or saves work before deletion", async () => {
+  vi.useFakeTimers();
+  const now = new Date("2026-10-27T00:00:00.000Z").getTime();
+  vi.setSystemTime(now);
+  const t = convexTest(schema, modules);
+  const old = now - 90 * 24 * 60 * 60 * 1000;
+  const ids = await t.run(async (ctx) => ({
+    returned: await ctx.db.insert("profiles", { clientKey: "local:returning", displayName: "Returning", createdAt: old, updatedAt: old, lastSeenAt: old }),
+    saved: await ctx.db.insert("profiles", { clientKey: "local:saving", displayName: "Saving", createdAt: old, updatedAt: old, lastSeenAt: old })
+  }));
+  await t.mutation(internal.insights.cleanupInactiveEmptyLocalProfiles, {});
+  await t.mutation(api.study.ensureProfile, { clientKey: "returning" });
+  await t.run((ctx) => ctx.db.insert("bibleBookmarks", { profileId: ids.saved, bookmarkId: "new", book: "John", chapter: 1, reference: "John 1", createdAt: "2026-10-27", updatedAt: now }));
+  await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+  await t.run(async (ctx) => {
+    expect(await ctx.db.get(ids.returned)).not.toBeNull();
+    expect(await ctx.db.get(ids.saved)).not.toBeNull();
+  });
+});
+
+test("opening a local profile updates last use at most once per day", async () => {
+  vi.useFakeTimers();
+  const now = new Date("2026-10-27T00:00:00.000Z").getTime();
+  vi.setSystemTime(now);
+  const t = convexTest(schema, modules);
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey: "last-use" });
+  expect((await t.run(ctx => ctx.db.get(profileId)))?.lastSeenAt).toBe(now);
+  vi.setSystemTime(now + 12 * 60 * 60 * 1000);
+  await t.mutation(api.study.ensureProfile, { clientKey: "last-use" });
+  expect((await t.run(ctx => ctx.db.get(profileId)))?.lastSeenAt).toBe(now);
+  vi.setSystemTime(now + 25 * 60 * 60 * 1000);
+  await t.mutation(api.study.ensureProfile, { clientKey: "last-use" });
+  expect((await t.run(ctx => ctx.db.get(profileId)))?.lastSeenAt).toBe(now + 25 * 60 * 60 * 1000);
 });

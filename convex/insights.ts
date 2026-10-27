@@ -32,6 +32,7 @@ const reliabilityErrorCode = v.union(v.literal("network"), v.literal("http_4xx")
 const RAW_USAGE_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 const RAW_PUBLIC_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
 const RAW_RELIABILITY_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
+const EMPTY_LOCAL_RETENTION_MS = 60 * 24 * 60 * 60 * 1000;
 const usageEventTypes = new Set([
   "app_shared", "bible_reading_plan_caught_up", "bible_reading_plan_created", "bible_reading_plan_day_completed",
   "bible_reading_plan_day_uncompleted", "bible_reading_plan_opened", "bible_reading_plan_restarted", "bible_reading_plan_selected",
@@ -900,6 +901,36 @@ export const cleanupEmptyLocalProfilesAsAdmin = mutation({
   }
 });
 
+// Older profiles receive a full grace period from the first scheduled scan.
+// Only profiles with no saved work enter the automatic deletion path.
+export const cleanupInactiveEmptyLocalProfiles = internalMutation({
+  args: { cursor: v.optional(v.string()) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const page = await ctx.db.query("profiles")
+      .withIndex("by_auth_user_id", (q) => q.eq("authUserId", undefined))
+      .order("asc")
+      .paginate({ numItems: 10, cursor: args.cursor ?? null });
+
+    for (const profile of page.page) {
+      if (!profile.lastSeenAt && !profile.retentionGraceStartedAt) {
+        await ctx.db.patch(profile._id, { retentionGraceStartedAt: now });
+        continue;
+      }
+      const lastUseOrGrace = Math.max(profile.lastSeenAt ?? 0, profile.retentionGraceStartedAt ?? 0);
+      if (now - lastUseOrGrace < EMPTY_LOCAL_RETENTION_MS) continue;
+      if (await localProfileHasSavedContent(ctx, profile._id)) continue;
+      await enqueueProfileCleanupJob(ctx, { profileId: profile._id, cleanupReason: "automatic_empty_local" });
+    }
+
+    if (!page.isDone) {
+      await ctx.scheduler.runAfter(0, internal.insights.cleanupInactiveEmptyLocalProfiles, { cursor: page.continueCursor });
+    }
+    return null;
+  }
+});
+
 
 
 async function requireAdminUserId(ctx: QueryCtx | MutationCtx) {
@@ -1244,6 +1275,7 @@ function clampNumber(value: number | undefined, min: number, max: number) {
 async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"profiles">) {
   const profile = await ctx.db.get(profileId);
   if (profile?.authUserId) return true;
+  if (profile?.recoveryDigest) return true;
   // Legacy reader state predates the separate reader tables.
   const legacy = profile?.bibleReaderState;
   if (legacy && ((legacy.history?.length ?? 0) > 0 || Object.values(legacy.readChapters ?? {}).some((chapters) => chapters.length > 0) || (legacy.bookmarks?.length ?? 0) > 0 || legacy.readingPlanProgress?.activePlanId || (legacy.readingPlanProgress?.followedPlanIds?.length ?? 0) > 0 || (legacy.readingPlanProgress?.completedDays?.length ?? 0) > 0 || (legacy.readingPlanProgress?.customPlans?.length ?? 0) > 0)) return true;
@@ -1335,6 +1367,7 @@ async function enqueueProfileCleanupJob(
     authUserId?: Id<"users">;
     deletionRequestId?: Id<"accountDeletionRequests">;
     requestedBy?: Id<"users">;
+    cleanupReason?: "automatic_empty_local";
   }
 ) {
   const pending = await ctx.db
@@ -1367,6 +1400,7 @@ async function enqueueProfileCleanupJob(
     authUserId: args.authUserId,
     deletionRequestId: args.deletionRequestId,
     requestedBy: args.requestedBy,
+    cleanupReason: args.cleanupReason,
     phase: PROFILE_CLEANUP_PHASES[0],
     status: "pending",
     createdAt: now,
@@ -1382,6 +1416,15 @@ export const runCleanupJob = internalMutation({
   handler: async (ctx, args) => {
     const job = await ctx.db.get(args.jobId);
     if (!job || job.status === "complete") return null;
+
+    if (job.cleanupReason === "automatic_empty_local") {
+      const profile = job.profileId ? await ctx.db.get(job.profileId) : null;
+      const lastUseOrGrace = Math.max(profile?.lastSeenAt ?? 0, profile?.retentionGraceStartedAt ?? 0);
+      if (!profile || profile.authUserId || Date.now() - lastUseOrGrace < EMPTY_LOCAL_RETENTION_MS || await localProfileHasSavedContent(ctx, profile._id)) {
+        await ctx.db.patch(job._id, { status: "complete", updatedAt: Date.now() });
+        return null;
+      }
+    }
 
     await ctx.db.patch(job._id, { status: "running", lastError: undefined, updatedAt: Date.now() });
     try {

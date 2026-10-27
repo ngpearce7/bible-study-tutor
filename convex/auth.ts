@@ -4,6 +4,7 @@ import { convexAuth } from "@convex-dev/auth/server";
 import Apple from "@auth/core/providers/apple";
 import Google from "@auth/core/providers/google";
 import { Password } from "@convex-dev/auth/providers/Password";
+import { assertCurrentTermsAcceptance, CURRENT_TERMS_VERSION } from "../data/accountTerms";
 
 const USERNAME_AUTH_DOMAIN = "username.biblestudytutor.local";
 
@@ -23,6 +24,7 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
       reset: passwordReset,
       crypto: passwordCrypto,
       profile(params) {
+        assertCurrentTermsAcceptance(params.flow, params.termsAccepted, params.termsVersion);
         const requestedUsername = normalizeUsername(String(params.username || ""));
         const isUsernameAccount = params.authMode === "username" || !!requestedUsername;
         if (isUsernameAccount && !/^[a-z0-9][a-z0-9._-]{2,23}$/.test(requestedUsername)) {
@@ -35,7 +37,8 @@ export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
 
         return {
           email: email.slice(0, 254),
-          name: name || (isUsernameAccount ? requestedUsername : email)
+          name: name || (isUsernameAccount ? requestedUsername : email),
+          ...(params.flow === "signUp" ? { termsAcceptedAt: Date.now(), termsVersion: CURRENT_TERMS_VERSION } : {})
         };
       }
     })

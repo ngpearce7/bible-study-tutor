@@ -6269,6 +6269,31 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     marginTop: -6
   },
+  authTermsBox: {
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 14,
+    padding: 12
+  },
+  authTermsChoice: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 10
+  },
+  authTermsText: {
+    color: colors.ink,
+    flex: 1,
+    flexShrink: 1,
+    fontSize: 14,
+    lineHeight: 20
+  },
+  authTermsLinks: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 16
+  },
   accountOptionGrid: {
     minWidth: 0,
     gap: 10

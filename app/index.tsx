@@ -24,6 +24,7 @@ import { buildBibleReadingPlanView } from "@/data/bibleReadingPlanView";
 import { loadBibleReadingPlanIndex } from "@/data/bibleReadingPlanIndex";
 import { bibleSearchModeLabel, buildBibleSearchBookOptions, buildBibleSearchQueries, buildBibleSearchSections, dedupeBibleSearchResults, fetchBibleSearchResults, filterBibleSearchResultsForMode, formatSearchDuration, rankBibleSearchResults, type BibleSearchMode, type BibleSearchResult, type BibleSearchScope } from "@/data/bibleSearch";
 import { getDeviceKey } from "@/data/deviceKey";
+import { CURRENT_TERMS_VERSION } from "@/data/accountTerms";
 import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES } from "@/data/devotionalTypography";
 
@@ -915,6 +916,7 @@ function HomeScreen() {
   const [authName, setAuthName] = useState("");
   const [authIdentifier, setAuthIdentifier] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [authTermsAccepted, setAuthTermsAccepted] = useState(false);
   const [authStatus, setAuthStatus] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
   const [importStatus, setImportStatus] = useState("");
@@ -4202,6 +4204,10 @@ function HomeScreen() {
       setAuthStatus("Add your name so the tutor can feel more personal.");
       return;
     }
+    if (authFlow === "signUp" && !authTermsAccepted) {
+      setAuthStatus("Please read and agree to the Terms of Service and Privacy Policy before creating an account.");
+      return;
+    }
 
     setAuthBusy(true);
     setAuthStatus("");
@@ -4217,8 +4223,13 @@ function HomeScreen() {
         flow: authFlow
       };
       if (credentialMode === "username") signInParams.username = username;
+      if (authFlow === "signUp") {
+        signInParams.termsAccepted = "true";
+        signInParams.termsVersion = CURRENT_TERMS_VERSION;
+      }
       await signIn("password", signInParams);
       if (authFlow === "signUp") setDisplayName(name);
+      if (authFlow === "signUp") setAuthTermsAccepted(false);
       setAuthPassword("");
       setAuthStatus(authFlow === "signIn" ? "Signed in" : "Account created");
     } catch {
@@ -6301,9 +6312,9 @@ function HomeScreen() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), 50);
   }
 
-  function openPrivacyPolicyFromAccountIntro() {
+  function openLegalDocumentFromAccountIntro(kind: "privacy" | "terms") {
     setRememberedAccountPrivacyOpen(true);
-    setRememberedOpenLegalSection("privacy");
+    setRememberedOpenLegalSection(kind);
     const scrollToLegal = () => {
       appScrollRef.current?.scrollTo?.({ y: Math.max(0, accountLegalYRef.current - (phoneLayout ? 82 : 18)), animated: true });
     };
@@ -10977,13 +10988,13 @@ function HomeScreen() {
                           <Text style={[styles.freeAccountBenefitText, accountDarkMode && styles.accountDarkText]}>{benefit}</Text>
                         </View>
                       ))}
-                      <Pressable onPress={openPrivacyPolicyFromAccountIntro} style={styles.freeAccountPrivacyLink}>
+                      <Pressable onPress={() => openLegalDocumentFromAccountIntro("privacy")} style={styles.freeAccountPrivacyLink}>
                         <Ionicons name="shield-checkmark-outline" size={15} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
                         <Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read the Privacy Policy</Text>
                       </Pressable>
                     </View>}
                     <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
-                      <Pressable accessibilityRole="button" accessibilityLabel="Sign in to an existing account" disabled={authBusy} accessibilityState={{ selected: authFlow === "signIn", disabled: authBusy }} onPress={() => { setAuthFlow("signIn"); setAuthStatus(""); setAuthPassword(""); }} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Sign in to an existing account" disabled={authBusy} accessibilityState={{ selected: authFlow === "signIn", disabled: authBusy }} onPress={() => { setAuthFlow("signIn"); setAuthStatus(""); setAuthPassword(""); setAuthTermsAccepted(false); }} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
                       </Pressable>
                       <Pressable accessibilityRole="button" accessibilityLabel="Create a free account" disabled={authBusy} accessibilityState={{ selected: authFlow === "signUp", disabled: authBusy }} onPress={() => { setAuthFlow("signUp"); setAuthStatus(""); setAuthPassword(""); }} style={[styles.authFlowButton, authFlow === "signUp" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signUp" && styles.accountDarkActiveSegment]}>
@@ -11027,6 +11038,25 @@ function HomeScreen() {
                       placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
                       style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                     />
+                    {authFlow === "signUp" && (
+                      <View style={[styles.authTermsBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Pressable
+                          accessibilityRole="checkbox"
+                          accessibilityLabel="Agree to the Terms of Service and Privacy Policy"
+                          accessibilityState={{ checked: authTermsAccepted }}
+                          onPress={() => setAuthTermsAccepted((accepted) => !accepted)}
+                          style={styles.authTermsChoice}
+                        >
+                          <Ionicons name={authTermsAccepted ? "checkbox" : "square-outline"} size={24} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+                          <Text style={[styles.authTermsText, accountDarkMode && styles.accountDarkText]}>I agree to the Terms of Service and Privacy Policy. I understand that, if inactive-account cleanup is introduced, my account may be deleted after at least three years without signing in.</Text>
+                        </Pressable>
+                        <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>Username-only accounts without a verified contact email cannot receive email reminders.</Text>
+                        <View style={styles.authTermsLinks}>
+                          <Pressable accessibilityRole="link" onPress={() => openLegalDocumentFromAccountIntro("terms")}><Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read Terms of Service</Text></Pressable>
+                          <Pressable accessibilityRole="link" onPress={() => openLegalDocumentFromAccountIntro("privacy")}><Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read Privacy Policy</Text></Pressable>
+                        </View>
+                      </View>
+                    )}
                     <AppButton label={authBusy ? (authFlow === "signIn" ? "Signing in…" : "Creating account…") : authFlow === "signIn" ? "Sign in" : "Create account"} disabled={authBusy} onPress={submitAuth} />
                     {!!authStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{authStatus}</Text>}
                     {authFlow === "signIn" && <View style={styles.accountRecoveryOptions}>

@@ -99,6 +99,19 @@ const bibleReaderState = v.object({
 
 export default defineSchema({
   ...authTables,
+  users: defineTable({
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.number()),
+    isAnonymous: v.optional(v.boolean()),
+    termsAcceptedAt: v.optional(v.number()),
+    termsVersion: v.optional(v.string())
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
   profiles: defineTable({
     authUserId: v.optional(v.id("users")),
     clientKey: v.string(),

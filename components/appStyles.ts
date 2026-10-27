@@ -9447,17 +9447,37 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 6
   },
+  adminStatsCountPill: {
+    backgroundColor: colors.soft,
+    borderRadius: 999,
+    color: colors.ink,
+    fontSize: 12,
+    fontWeight: "700",
+    minWidth: 24,
+    overflow: "hidden",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    textAlign: "center"
+  },
+  adminDarkStatsCountPill: {
+    backgroundColor: "#39424c",
+    color: "#f2efeb"
+  },
   adminUserRow: {
-    alignItems: "center",
     backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
+    gap: 10,
+    minWidth: 0,
+    padding: 10
+  },
+  adminUserRowTop: {
+    alignItems: "center",
     flexDirection: "row",
     gap: 10,
     justifyContent: "space-between",
-    minWidth: 0,
-    padding: 10
+    minWidth: 0
   },
   phoneAdminUserRow: {
     alignItems: "stretch",
@@ -9482,6 +9502,23 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start"
+  },
+  adminUserStats: {
+    borderTopWidth: 1,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingTop: 10
+  },
+  adminUserStat: {
+    backgroundColor: colors.soft,
+    borderRadius: 9,
+    flexBasis: 125,
+    flexGrow: 1,
+    gap: 2,
+    minWidth: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 9
   },
   adminUserDetailBox: {
     gap: 10,

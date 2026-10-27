@@ -212,7 +212,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Ionicons name="people-outline" size={18} color={colors.coral} />
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
           </View>
-          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>A privacy-safe list of profiles, account status, and activity counts.</Text>
+          <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Stats totals saved activity; use Active 7d to find recently active profiles.</Text>
           <AdminUserDirectory styles={styles} users={adminUsers} canLoadMore={adminUsersCanLoadMore} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} cleanupArmed={cleanupArmed} cleanupBusy={cleanupBusy} onCancelCleanup={onCancelCleanup} onSelect={onSelectProfile} onLoadMore={onLoadMoreAdminUsers} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
@@ -452,6 +452,7 @@ function AdminUserDirectory({
   const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion" | "suspended">("all");
   const [visibleCount, setVisibleCount] = useState(15);
   const [reasonProfileId, setReasonProfileId] = useState<any>(null);
+  const [statsProfileId, setStatsProfileId] = useState<string | null>(null);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
   const filteredUsers = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
@@ -539,54 +540,87 @@ function AdminUserDirectory({
 
       {visibleUsers.length === 0 ? (
         <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No users match this search or filter.</Text>
-      ) : visibleUsers.map((user) => (
-        <Pressable
-          key={user.profileId}
-          onPress={() => onSelect(user.profileId)}
-          style={[styles.adminUserRow, darkMode && styles.accountDarkInsetBox, phoneLayout && styles.phoneAdminUserRow, selectedProfileId === user.profileId && styles.activeAdminUserRow, darkMode && selectedProfileId === user.profileId && styles.adminDarkActiveUserRow]}
-        >
-          <View style={styles.journalTitleBlock}>
-            <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{user.displayName || "Bible student"}</Text>
-            <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
-              {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
-            </Text>
-            {!!user.suspendedAt && !!user.suspensionReason && (
-              <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{user.suspensionReason}</Text>
+      ) : visibleUsers.map((user) => {
+        const activityStats: [string, number][] = [
+          ["Completed studies", user.studies || 0],
+          ["Memory verses", user.memoryVerses || 0],
+          ["Encouragements", user.checkins || 0],
+          ["Study drafts", user.drafts || 0],
+          ["Feedback", user.feedback || 0]
+        ];
+        const activityTotal = activityStats.reduce((total, [, count]) => total + count, 0);
+        const activityTotalLabel = `${activityTotal}${activityStats.some(([label, count]) => label !== "Completed studies" && count >= 500) ? "+" : ""}`;
+        return (
+          <View
+            key={user.profileId}
+            style={[styles.adminUserRow, darkMode && styles.accountDarkInsetBox, selectedProfileId === user.profileId && styles.activeAdminUserRow, darkMode && selectedProfileId === user.profileId && styles.adminDarkActiveUserRow]}
+          >
+            <View style={[styles.adminUserRowTop, phoneLayout && styles.phoneAdminUserRow]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`View user summary for ${user.displayName || "Bible student"}`} onPress={() => onSelect(user.profileId)} style={styles.journalTitleBlock}>
+                <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{user.displayName || "Bible student"}</Text>
+                <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
+                  {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
+                </Text>
+                {!!user.suspendedAt && !!user.suspensionReason && (
+                  <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{user.suspensionReason}</Text>
+                )}
+              </Pressable>
+              <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
+                {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
+                {!!user.securityReviewedAt && <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>Reviewed</Text>}
+                {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
+                <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`${statsProfileId === user.profileId ? "Hide" : "Show"} activity stats for ${user.displayName || "Bible student"}, ${activityTotalLabel} saved items`}
+                  accessibilityState={{ expanded: statsProfileId === user.profileId }}
+                  onPress={() => setStatsProfileId((current) => current === user.profileId ? null : user.profileId)}
+                  style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
+                >
+                  <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Stats</Text>
+                  <Text style={[styles.adminStatsCountPill, darkMode && styles.adminDarkStatsCountPill]}>{activityTotalLabel}</Text>
+                  <Ionicons name={statsProfileId === user.profileId ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => {
+                    if (user.suspendedAt) {
+                      setReasonProfileId(null);
+                      onSetSuspension({ profileId: user.profileId, suspended: false });
+                      return;
+                    }
+                    setReasonProfileId((current: any) => (current === user.profileId ? null : user.profileId));
+                  }}
+                  style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
+                >
+                  <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{user.suspendedAt ? "Restore" : "Suspend"}</Text>
+                </Pressable>
+                {reasonProfileId === user.profileId && (
+                  <SuspensionReasonPicker
+                    styles={styles}
+                    darkMode={darkMode}
+                    onCancel={() => setReasonProfileId(null)}
+                    onChoose={(reason) => {
+                      setReasonProfileId(null);
+                      onSetSuspension({ profileId: user.profileId, suspended: true, reason });
+                    }}
+                  />
+                )}
+              </View>
+            </View>
+            {statsProfileId === user.profileId && (
+              <View style={[styles.adminUserStats, { borderTopColor: darkMode ? "#4a3e31" : colors.line }]}>
+                {activityStats.map(([label, count]) => (
+                  <View key={label} style={[styles.adminUserStat, darkMode && styles.accountDarkInsetBox]}>
+                    <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{label === "Completed studies" ? count : count >= 500 ? "500+" : count}</Text>
+                    <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{label}</Text>
+                  </View>
+                ))}
+              </View>
             )}
           </View>
-          <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
-            {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
-            {!!user.securityReviewedAt && <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>Reviewed</Text>}
-            {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
-            <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
-            <Text style={[styles.readerBookmarkCount, darkMode && styles.memoryDarkCountPill]}>{user.studies}</Text>
-            <Pressable
-              onPress={() => {
-                if (user.suspendedAt) {
-                  setReasonProfileId(null);
-                  onSetSuspension({ profileId: user.profileId, suspended: false });
-                  return;
-                }
-                setReasonProfileId((current: any) => (current === user.profileId ? null : user.profileId));
-              }}
-              style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
-            >
-              <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{user.suspendedAt ? "Restore" : "Suspend"}</Text>
-            </Pressable>
-            {reasonProfileId === user.profileId && (
-              <SuspensionReasonPicker
-                styles={styles}
-                darkMode={darkMode}
-                onCancel={() => setReasonProfileId(null)}
-                onChoose={(reason) => {
-                  setReasonProfileId(null);
-                  onSetSuspension({ profileId: user.profileId, suspended: true, reason });
-                }}
-              />
-            )}
-          </View>
-        </Pressable>
-      ))}
+        );
+      })}
 
       {(visibleCount < filteredUsers.length || (searchQuery.length < 2 && canLoadMore)) && (
         <Pressable

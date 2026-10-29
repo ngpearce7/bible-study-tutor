@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildBibleReadingPlanView } from "./bibleReadingPlanView";
+import { followBibleReadingPlanState } from "./bibleReadingPlanActions";
 import type { BibleReadingPlan } from "./bibleReadingPlanTypes";
 
 const plan: BibleReadingPlan = {
@@ -19,6 +20,30 @@ function view(completed: number[], startDate = "2026-09-19", todayDateKey = "202
   });
 }
 describe("home reading plan reminder eligibility", () => {
+  it("schedules Day 1 for the selected follow date", () => {
+    for (const [startDate, dueToday] of [["2026-09-20", true], ["2026-09-21", false]] as const) {
+      const followed = followBibleReadingPlanState({
+        planId: plan.id, allPlans: [plan], followedPlanIds: [], activePlanId: "",
+        startDates: {}, completedDayKeys: [], todayKey: startDate
+      });
+      expect(followed?.blocked).toBe(false);
+      if (!followed || followed.blocked) continue;
+      expect(followed.startDates[plan.id]).toBe(startDate);
+      const result = buildBibleReadingPlanView({
+        builtInPlans: [plan], customPlans: [], followedPlanIds: followed.followedPlanIds,
+        activePlanId: followed.activePlanId, completedDayKeys: [], startDates: followed.startDates,
+        selectedPlanId: plan.id, selectedDay: 1, todayDateKey: "2026-09-20",
+        addDaysToDateKey: (key, days) => {
+          const date = new Date(`${key}T12:00:00Z`);
+          date.setUTCDate(date.getUTCDate() + days);
+          return date.toISOString().slice(0, 10);
+        }
+      });
+      expect(result.activeToday?.day).toBe(1);
+      expect(result.activeTodayDateKey).toBe(startDate);
+      expect(result.activeReadingDue).toBe(dueToday);
+    }
+  });
   it("hides tomorrow's reading after today's reading is finished", () => {
     expect(view([1, 2]).activeToday?.day).toBe(3);
     expect(view([1, 2]).activeReadingDue).toBe(false);

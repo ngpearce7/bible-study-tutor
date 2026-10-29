@@ -1198,6 +1198,7 @@ function HomeScreen() {
   const [customBiblePlanDaysText, setCustomBiblePlanDaysText] = useState("");
   const [customBiblePlanStatus, setCustomBiblePlanStatus] = useState("");
   const [biblePlanStatus, setBiblePlanStatus] = useState("");
+  const [pendingBiblePlanStartId, setPendingBiblePlanStartId] = useState("");
   const [pendingBiblePlanReadAhead, setPendingBiblePlanReadAhead] = useState<PendingBiblePlanReadAhead | null>(null);
   const [pendingBiblePlanContinueCheck, setPendingBiblePlanContinueCheck] = useState<PendingBiblePlanContinueCheck | null>(null);
   const [pendingBiblePlanContinuePrompt, setPendingBiblePlanContinuePrompt] = useState<PendingBiblePlanContinuePrompt | null>(null);
@@ -6468,7 +6469,7 @@ function HomeScreen() {
     });
   }
 
-  function selectBibleReadingPlan(planId: string, resumeFromSavedProgress = false) {
+  function selectBibleReadingPlan(planId: string, resumeFromSavedProgress = false, startDateKey = localDateKey()) {
     const nextState = followBibleReadingPlanState({
       planId,
       allPlans: allBibleReadingPlans,
@@ -6476,7 +6477,7 @@ function HomeScreen() {
       activePlanId: activeBibleReadingPlanId,
       startDates: bibleReadingPlanStartDates,
       completedDayKeys: completedBibleReadingPlanDays,
-      todayKey: localDateKey()
+      todayKey: startDateKey
     });
     if (!nextState) return;
     if (nextState.blocked) {
@@ -6493,7 +6494,9 @@ function HomeScreen() {
     setRememberedExpandedBiblePlanId(nextState.activePlanId);
     setRememberedPlanSelectedDay(nextState.activePlanId, 0);
     setBibleReadingPlanStartDates(nextStartDates);
-    setBiblePlanStatus(resumeFromSavedProgress ? `${resumedPlan?.title || "Reading plan"} resumed from the next unread day.` : "");
+    setBiblePlanStatus(resumeFromSavedProgress
+      ? `${resumedPlan?.title || "Reading plan"} resumed from the next unread day.`
+      : `Day 1 of ${allBibleReadingPlans.find((plan) => plan.id === planId)?.title || "this plan"} starts ${startDateKey === localDateKey() ? "today" : "tomorrow"} (${formatPlanDayDate(startDateKey)}).`);
     persistBibleReadingPlanProgress(nextState.activePlanId, completedBibleReadingPlanDays, customBibleReadingPlans, nextStartDates, nextState.followedPlanIds);
     trackUsage(resumeFromSavedProgress ? "bible_reading_plan_resumed" : "bible_reading_plan_selected", { reference: nextState.activePlanId, tab: "plans" });
   }
@@ -10291,7 +10294,7 @@ function HomeScreen() {
                       <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={`${planPaused ? "Resume" : "Follow"} ${plan.title}`}
-                        onPress={() => selectBibleReadingPlan(plan.id, planPaused)}
+                        onPress={() => planPaused ? selectBibleReadingPlan(plan.id, true) : setPendingBiblePlanStartId(plan.id)}
                         style={[styles.planCardActionChip, styles.planCardPrimaryChip, plansDarkMode && styles.planCardPrimaryChipDark]}
                       >
                         <Ionicons name="calendar-outline" size={13} color={plansDarkMode ? "#dce7c8" : colors.oliveDark} />
@@ -12245,6 +12248,58 @@ function HomeScreen() {
           </View>
         </View>
       )}
+      {pendingBiblePlanStartId && (() => {
+        const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanStartId);
+        if (!plan) return null;
+        const today = localDateKey();
+        const tomorrow = addDaysToDateKey(today, 1);
+        const chooseStart = (dateKey: string) => {
+          setPendingBiblePlanStartId("");
+          selectBibleReadingPlan(plan.id, false, dateKey);
+        };
+        return (
+          <View {...modalAccessibilityProps("Choose reading plan start date")} style={styles.printOptionsOverlay}>
+            <Pressable accessibilityLabel="Cancel following plan" style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingBiblePlanStartId("")} />
+            <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+              <View style={styles.printOptionsHeader}>
+                <View style={styles.printOptionsTitleBlock}>
+                  <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>When would you like to start?</Text>
+                  <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>{plan.title} · {plan.days.length} days</Text>
+                </View>
+                <Pressable accessibilityRole="button" accessibilityLabel="Cancel following plan" onPress={() => setPendingBiblePlanStartId("")} style={styles.markupCloseButton}>
+                  <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#bbb8b4" : colors.muted} />
+                </Pressable>
+              </View>
+              <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+                Choose when Day 1 is due. The rest of the readings will follow on consecutive days.
+              </Text>
+              <View style={styles.planStartChoices}>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Start today, ${formatPlanDayDate(today)}`} onPress={() => chooseStart(today)} style={[styles.planStartChoice, accountDarkMode && styles.planStartChoiceDark]}>
+                  <Ionicons name="sunny-outline" size={21} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+                  <View style={styles.planStartChoiceCopy}>
+                    <Text style={[styles.planStartChoiceTitle, accountDarkMode && styles.accountDarkTitle]}>Start today</Text>
+                    <Text style={[styles.planStartChoiceDate, accountDarkMode && styles.accountDarkMutedText]}>Day 1 · {formatPlanDayDate(today)}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward-outline" size={18} color={accountDarkMode ? "#d4a768" : colors.muted} />
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel={`Start tomorrow, ${formatPlanDayDate(tomorrow)}`} onPress={() => chooseStart(tomorrow)} style={[styles.planStartChoice, accountDarkMode && styles.planStartChoiceDark]}>
+                  <Ionicons name="calendar-outline" size={21} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+                  <View style={styles.planStartChoiceCopy}>
+                    <Text style={[styles.planStartChoiceTitle, accountDarkMode && styles.accountDarkTitle]}>Start tomorrow</Text>
+                    <Text style={[styles.planStartChoiceDate, accountDarkMode && styles.accountDarkMutedText]}>Day 1 · {formatPlanDayDate(tomorrow)}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward-outline" size={18} color={accountDarkMode ? "#d4a768" : colors.muted} />
+                </Pressable>
+              </View>
+              <View style={styles.printOptionsActions}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Cancel following plan" onPress={() => setPendingBiblePlanStartId("")} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                  <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        );
+      })()}
       {pendingBiblePlanReadAhead && (() => {
         const plan = allBibleReadingPlans.find((item) => item.id === pendingBiblePlanReadAhead.planId);
         if (!plan) return null;

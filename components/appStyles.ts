@@ -9872,6 +9872,39 @@ export const styles = StyleSheet.create({
     marginTop: 68,
     width: "92%"
   },
+  planStartChoices: {
+    gap: 10
+  },
+  planStartChoice: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 12,
+    minHeight: 68,
+    paddingHorizontal: 14,
+    paddingVertical: 10
+  },
+  planStartChoiceDark: {
+    backgroundColor: theme.dark.surface,
+    borderColor: "rgba(212, 167, 104, 0.32)"
+  },
+  planStartChoiceCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  planStartChoiceTitle: {
+    color: colors.ink,
+    fontSize: 15,
+    fontWeight: "700"
+  },
+  planStartChoiceDate: {
+    color: colors.muted,
+    fontSize: 13,
+    marginTop: 3
+  },
   rhythmGraceCard: {
     gap: 13
   },

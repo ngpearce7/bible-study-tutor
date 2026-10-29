@@ -16,8 +16,6 @@ type BibleReaderControlsProps = {
   searchOpen: boolean;
   planReadingMode?: boolean;
   planReadingLabel?: string;
-  planReadingCompleted?: boolean;
-  planReadingDay?: number;
   chapterDraft: string;
   chapterCount: number;
   selectedVerseCount: number;
@@ -50,8 +48,6 @@ export function BibleReaderControls({
   searchOpen,
   planReadingMode,
   planReadingLabel,
-  planReadingCompleted,
-  planReadingDay,
   chapterDraft,
   chapterCount,
   selectedVerseCount,
@@ -114,11 +110,10 @@ export function BibleReaderControls({
 
       {planReadingMode ? (
         <View style={[styles.readerSelectionBar, styles.readerPlanModeBar, darkMode && styles.accountDarkSection]}>
-          <Ionicons name={planReadingCompleted ? "checkmark-circle" : "reader-outline"} size={17} color={darkMode ? "#d4a768" : colors.oliveDark} />
+          <Ionicons name="reader-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
           <View style={styles.readerPlanModeCopy}>
             <Text style={[styles.readerPlanModeName, darkMode && styles.readerDarkPlanModeName]}>{planReadingPlanName}</Text>
             {!!planReadingDetail && <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkMutedText]}>{planReadingDetail}</Text>}
-            {planReadingCompleted && <Text style={[styles.readerPlanCompletedHeaderText, darkMode && styles.accountDarkText]}>{planReadingDay ? `Day ${planReadingDay} complete` : "Reading complete"}</Text>}
           </View>
         </View>
       ) : (

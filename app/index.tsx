@@ -6819,6 +6819,9 @@ function HomeScreen() {
           : ""
       });
     }
+    const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
+    setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
+    if (completedFocusedReading) scrollReaderToTop();
     if (options.promptForNextDueReading && plan) {
       queueBiblePlanContinueCheck(plan, planDay);
     }
@@ -9935,8 +9938,6 @@ function HomeScreen() {
               readerChapterDraft={readerChapterDraft}
               readerChapterCount={readerChapterCount}
               planReadingLabel={readerPlanReadingLabel}
-              planReadingCompleted={readerActiveBibleReadingPlanDayComplete}
-              planReadingDay={readerActiveBibleReadingPlanDay?.day || 0}
               selectedReaderVerses={selectedReaderVerses}
               currentChapterRead={currentChapterRead}
               currentChapterBookmarked={currentChapterBookmarked}

@@ -2143,12 +2143,6 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     lineHeight: 20
   },
-  readerPlanCompletedHeaderText: {
-    color: colors.oliveDark,
-    fontSize: 13,
-    fontWeight: "700",
-    marginTop: 3
-  },
   readerDarkPlanModeName: {
     color: "#e17d67"
   },

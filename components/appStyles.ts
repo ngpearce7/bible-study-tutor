@@ -21,6 +21,45 @@ export const styles = StyleSheet.create({
   },
   quickNav: { flexDirection: "row", backgroundColor: colors.panel, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 12, borderTopWidth: 1, borderTopColor: "rgba(108,91,67,0.12)", gap: 4 },
   quickNavItem: { flex: 1, minHeight: 44, alignItems: "center", justifyContent: "center", borderRadius: 10 },
+  readingCompletionToast: {
+    alignItems: "flex-start",
+    alignSelf: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.oliveDark,
+    borderRadius: 14,
+    borderWidth: 1,
+    bottom: 24,
+    elevation: 12,
+    flexDirection: "row",
+    gap: 12,
+    left: 16,
+    maxWidth: 440,
+    padding: 14,
+    position: "absolute",
+    right: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 18,
+    zIndex: 540
+  },
+  phoneReadingCompletionToast: { bottom: 84 },
+  readingCompletionToastDark: {
+    backgroundColor: theme.dark.surface,
+    borderColor: "#d4a768"
+  },
+  readingCompletionToastIcon: {
+    alignItems: "center",
+    backgroundColor: theme.light.soft,
+    borderRadius: 999,
+    height: 34,
+    justifyContent: "center",
+    width: 34
+  },
+  readingCompletionToastIconDark: { backgroundColor: "#353428" },
+  readingCompletionToastCopy: { flex: 1, gap: 2, minWidth: 0 },
+  readingCompletionToastTitle: { color: colors.ink, fontSize: 16, fontWeight: "700" },
+  readingCompletionToastText: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   screen: {
     backgroundColor: colors.paper,
     flex: 1,
@@ -2103,6 +2142,12 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     lineHeight: 20
+  },
+  readerPlanCompletedHeaderText: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "700",
+    marginTop: 3
   },
   readerDarkPlanModeName: {
     color: "#e17d67"

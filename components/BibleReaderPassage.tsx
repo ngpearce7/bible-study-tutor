@@ -132,8 +132,8 @@ export function BibleReaderPassage({
     activeReadingPlanDay?.careNote && (shouldShowCareNote ? shouldShowCareNote(activeReadingPlanDay.careNote) : true)
       ? activeReadingPlanDay.careNote
       : "";
-  const exitPlanReadingLabel = phoneLayout ? "Cancel" : "Cancel reading";
-  const exitPlanReadingAccessibilityLabel = "Cancel focused plan reading";
+  const exitPlanReadingLabel = activeReadingPlanDayCompleted ? "Return to chapter" : phoneLayout ? "Cancel" : "Cancel reading";
+  const exitPlanReadingAccessibilityLabel = activeReadingPlanDayCompleted ? "Return to full Bible chapter" : "Cancel focused plan reading";
   const activeReadingPlanLabel = activeReadingPlanDay
     ? planReadingMode && activeReadingPlanName?.trim()
       ? `${activeReadingPlanDay.reference} - ${activeReadingPlanName.trim()}`

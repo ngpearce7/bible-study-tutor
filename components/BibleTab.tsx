@@ -102,6 +102,8 @@ export function BibleTab({
   readerChapterDraft,
   readerChapterCount,
   planReadingLabel,
+  planReadingCompleted,
+  planReadingDay,
   selectedReaderVerses,
   currentChapterRead,
   currentChapterBookmarked,
@@ -264,6 +266,8 @@ export function BibleTab({
           searchOpen={!bibleSearchCollapsed}
           planReadingMode={planReadingMode}
           planReadingLabel={planReadingLabel}
+          planReadingCompleted={planReadingCompleted}
+          planReadingDay={planReadingDay}
           chapterDraft={readerChapterDraft}
           chapterCount={readerChapterCount}
           selectedVerseCount={selectedReaderVerses.length}

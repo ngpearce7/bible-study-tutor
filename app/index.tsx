@@ -1198,6 +1198,7 @@ function HomeScreen() {
   const [customBiblePlanDaysText, setCustomBiblePlanDaysText] = useState("");
   const [customBiblePlanStatus, setCustomBiblePlanStatus] = useState("");
   const [biblePlanStatus, setBiblePlanStatus] = useState("");
+  const [readingCompletionNotice, setReadingCompletionNotice] = useState<{ planTitle: string; day: number; progress: string; nextReading: string } | null>(null);
   const [pendingBiblePlanStartId, setPendingBiblePlanStartId] = useState("");
   const [pendingBiblePlanReadAhead, setPendingBiblePlanReadAhead] = useState<PendingBiblePlanReadAhead | null>(null);
   const [pendingBiblePlanContinueCheck, setPendingBiblePlanContinueCheck] = useState<PendingBiblePlanContinueCheck | null>(null);
@@ -1260,6 +1261,7 @@ function HomeScreen() {
   const memoryBlankFocusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const memoryBlankVisibilityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const planCelebrationPulse = useRef(new Animated.Value(0)).current;
+  const readingCompletionNoticeOpacity = useRef(new Animated.Value(0)).current;
   const planCelebrationParticles = useRef(Array.from({ length: 12 }, () => new Animated.Value(0))).current;
   const accountLegalYRef = useRef(0);
   const bibleSearchSummaryYRef = useRef(0);
@@ -6768,6 +6770,8 @@ function HomeScreen() {
     }
     const nextState = completeBibleReadingPlanDayState({ plan, planDay, planId, completedDayKeys: completedBibleReadingPlanDays });
     if (!nextState) return;
+    const wasDayComplete = completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(planId, planDay.day));
+    if (wasDayComplete) return;
     const wasPlanComplete = !!plan && plan.days.length > 0 && plan.days.every((day) => completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(planId, day.day)));
     const planJustCompleted = !!plan && !nextState.nextIncomplete && !wasPlanComplete;
     const nextCompletionDates =
@@ -6801,9 +6805,20 @@ function HomeScreen() {
       ? `${planDay.reference} completed. Next reading: ${nextState.nextIncomplete.reference}.`
       : `${plan?.title || "Reading plan"} complete.`;
     setBiblePlanStatus(nextStatus);
-    const completedFocusedReading = readerPlanReading?.planId === planId && readerPlanReading.day === planDay.day;
-    setReaderPlanReading((current) => current?.planId === planId && current.day === planDay.day ? null : current);
-    if (completedFocusedReading) scrollReaderToTop();
+    if (tab === "bible" && plan && !planJustCompleted) {
+      const completedCount = plan.days.filter((day) => nextState.completedDays.includes(bibleReadingPlanDayKey(planId, day.day))).length;
+      const nextDateKey = nextState.nextIncomplete && bibleReadingPlanStartDates[planId]
+        ? addDaysToDateKey(bibleReadingPlanStartDates[planId], nextState.nextIncomplete.day - 1)
+        : "";
+      setReadingCompletionNotice({
+        planTitle: plan.title,
+        day: planDay.day,
+        progress: `${completedCount} of ${plan.days.length} readings finished`,
+        nextReading: nextState.nextIncomplete
+          ? `Next reading: ${nextDateKey ? `${formatPlanDayRelativeDate(nextDateKey).toLowerCase()} · ` : ""}Day ${nextState.nextIncomplete.day}`
+          : ""
+      });
+    }
     if (options.promptForNextDueReading && plan) {
       queueBiblePlanContinueCheck(plan, planDay);
     }
@@ -7767,6 +7782,20 @@ function HomeScreen() {
     if (!completedBibleReadingPlanDaySet.has(missedDayKey)) return;
     setPendingBiblePlanReadAhead(null);
   }, [completedBibleReadingPlanDaySet, pendingBiblePlanReadAhead]);
+
+  useEffect(() => {
+    if (!readingCompletionNotice) return;
+    readingCompletionNoticeOpacity.setValue(0);
+    Animated.timing(readingCompletionNoticeOpacity, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+    const hideTimer = setTimeout(() => {
+      Animated.timing(readingCompletionNoticeOpacity, { toValue: 0, duration: 350, useNativeDriver: true })
+        .start(({ finished }) => { if (finished) setReadingCompletionNotice(null); });
+    }, 4500);
+    return () => {
+      clearTimeout(hideTimer);
+      readingCompletionNoticeOpacity.stopAnimation();
+    };
+  }, [readingCompletionNotice, readingCompletionNoticeOpacity]);
 
   useEffect(() => {
     if (!devotionalTextSizeOptionsOpen) return;
@@ -9906,6 +9935,8 @@ function HomeScreen() {
               readerChapterDraft={readerChapterDraft}
               readerChapterCount={readerChapterCount}
               planReadingLabel={readerPlanReadingLabel}
+              planReadingCompleted={readerActiveBibleReadingPlanDayComplete}
+              planReadingDay={readerActiveBibleReadingPlanDay?.day || 0}
               selectedReaderVerses={selectedReaderVerses}
               currentChapterRead={currentChapterRead}
               currentChapterBookmarked={currentChapterBookmarked}
@@ -11617,6 +11648,24 @@ function HomeScreen() {
             </Pressable>
           ))}
         </View>
+        </Animated.View>
+      )}
+
+      {tab === "bible" && readingCompletionNotice && (
+        <Animated.View
+          pointerEvents="none"
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          style={[styles.readingCompletionToast, phoneLayout && styles.phoneReadingCompletionToast, bibleDarkMode && styles.readingCompletionToastDark, { opacity: readingCompletionNoticeOpacity }]}
+        >
+          <View style={[styles.readingCompletionToastIcon, bibleDarkMode && styles.readingCompletionToastIconDark]}>
+            <Ionicons name="checkmark" size={20} color={bibleDarkMode ? "#d4a768" : colors.oliveDark} />
+          </View>
+          <View style={styles.readingCompletionToastCopy}>
+            <Text style={[styles.readingCompletionToastTitle, bibleDarkMode && styles.accountDarkTitle]}>Day {readingCompletionNotice.day} complete</Text>
+            <Text style={[styles.readingCompletionToastText, bibleDarkMode && styles.accountDarkMutedText]}>{readingCompletionNotice.planTitle} · {readingCompletionNotice.progress}</Text>
+            {!!readingCompletionNotice.nextReading && <Text style={[styles.readingCompletionToastText, bibleDarkMode && styles.accountDarkMutedText]}>{readingCompletionNotice.nextReading}</Text>}
+          </View>
         </Animated.View>
       )}
 

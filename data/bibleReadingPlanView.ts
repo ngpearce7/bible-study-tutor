@@ -1,5 +1,5 @@
 import type { BibleReadingPlan, BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
-import { MAX_FOLLOWED_BIBLE_READING_PLANS, bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
+import { bibleReadingPlanDayKey } from "@/data/bibleReadingPlanProgress";
 
 export type BibleReadingPlanGroup = {
   id: "paused" | "custom" | "start" | "books" | "life" | "story" | "whole" | "intensive";
@@ -66,7 +66,9 @@ export function buildBibleReadingPlanView({
   const planIsComplete = (plan: BibleReadingPlan) =>
     plan.days.length > 0 &&
     plan.days.every((day) => completedDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)));
-  const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan)).slice(0, MAX_FOLLOWED_BIBLE_READING_PLANS);
+  // The follow limit applies when adding a plan. Never hide saved plans if an
+  // older or synced profile already has more than the current limit.
+  const activeFollowedPlans = followedPlans.filter((plan) => !planIsComplete(plan));
   const completedFollowedPlans = allPlans
     .filter(planIsComplete)
     .sort((a, b) => {

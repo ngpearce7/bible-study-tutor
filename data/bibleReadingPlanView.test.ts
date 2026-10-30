@@ -129,4 +129,16 @@ describe("saved reading-plan progress", () => {
     expect(result.activeToday?.day).toBe(3);
     expect(result.groups.find((group) => group.id === "paused")).toBeUndefined();
   });
+
+  it("keeps every saved followed plan visible even when an older profile exceeds the follow limit", () => {
+    const extraPlans = ["john", "romans-16", "psalms", "wisdom"].map((id) => ({ ...plan, id, title: id, browseGroup: "books" as const }));
+    const result = buildBibleReadingPlanView({
+      builtInPlans: extraPlans, customPlans: [], followedPlanIds: extraPlans.map((item) => item.id),
+      activePlanId: "john", completedDayKeys: [], startDates: {}, selectedPlanId: "", selectedDay: 0,
+      todayDateKey: "2026-09-21", addDaysToDateKey: (key) => key
+    });
+    expect(result.activeFollowedPlans.map((item) => item.id)).toEqual(["john", "romans-16", "psalms", "wisdom"]);
+    expect(result.otherFollowedPlans.map((item) => item.id)).toContain("romans-16");
+    expect(result.groups.flatMap((group) => group.plans)).toEqual([]);
+  });
 });

@@ -276,10 +276,10 @@ export const styles = StyleSheet.create({
     paddingBottom: Platform.OS === "web" ? 32 : 220
   },
   contentWithMobileReaderDock: {
-    paddingBottom: 172
+    paddingBottom: 230
   },
   contentWithMobileReaderNoteDock: {
-    paddingBottom: 292
+    paddingBottom: 350
   },
   layout: {
     flexDirection: "row",
@@ -1865,7 +1865,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 10
   },
   phoneReaderPassageWithSelectionDock: {
-    paddingBottom: 146
+    paddingBottom: 200
   },
   readerBottomNav: {
     borderTopColor: colors.line,

@@ -394,6 +394,16 @@ export default defineSchema({
   })
     .index("by_profile", ["profileId"])
     .index("by_profile_and_bookmark_id", ["profileId", "bookmarkId"]),
+  bibleVerseHighlights: defineTable({
+    profileId: v.id("profiles"),
+    book: v.string(),
+    chapter: v.number(),
+    verse: v.number(),
+    color: v.union(v.literal("gold"), v.literal("blue"), v.literal("green")),
+    updatedAt: v.number()
+  })
+    .index("by_profile", ["profileId"])
+    .index("by_profile_and_book_and_chapter_and_verse", ["profileId", "book", "chapter", "verse"]),
   customBibleReadingPlans: defineTable({
     profileId: v.id("profiles"),
     planId: v.string(),

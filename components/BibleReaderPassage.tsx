@@ -1,11 +1,12 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { type BibleApiTranslationId, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { hasPlanDeeperContext } from "@/data/biblePlanDeeperContext";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
+import { VerseHighlightActions, type VerseHighlightColor } from "@/components/VerseHighlightActions";
 import { colors } from "@/components/ui";
 
 type BibleReaderPassageProps = {
@@ -16,6 +17,7 @@ type BibleReaderPassageProps = {
   status: string;
   memoryStatus: string;
   selectedVerses: number[];
+  verseHighlightColors: Record<number, VerseHighlightColor>;
   activeActionVerse: number;
   readerReference: string;
   memoryVerseKeys: Set<string>;
@@ -24,7 +26,6 @@ type BibleReaderPassageProps = {
   activeReadingPlanName?: string;
   activeReadingPlanDayCount: number;
   activeReadingPlanDayCompleted?: boolean;
-  bibleTranslation: "bsb" | BibleApiTranslationId;
   devotionalTextSize?: DevotionalTextSize;
   onDevotionalTextSizeChange?: (size: DevotionalTextSize) => void;
   onAcknowledgeCareNote?: (careNote: string) => void;
@@ -48,10 +49,12 @@ type BibleReaderPassageProps = {
   onPrintWorksheet: () => void;
   onSaveMemory: () => void;
   onClearSelection: () => void;
+  onHighlightSelection: (color: VerseHighlightColor | null) => void;
   onMoveChapter: (direction: -1 | 1) => void;
   onToggleChapterRead: () => void;
   onMarkActiveReadingPlanDayComplete: () => void;
   onExitPlanReading: () => void;
+  onOpenRelatedPassage: (reference: string, day: BibleReadingPlanDay) => void;
   isVerseBookmarked: (verseNumber: number) => boolean;
   isVerseNoted: (verseNumber: number) => boolean;
 };
@@ -68,6 +71,7 @@ export function BibleReaderPassage({
   status,
   memoryStatus,
   selectedVerses,
+  verseHighlightColors,
   activeActionVerse,
   readerReference,
   memoryVerseKeys,
@@ -76,7 +80,6 @@ export function BibleReaderPassage({
   activeReadingPlanName,
   activeReadingPlanDayCount,
   activeReadingPlanDayCompleted,
-  bibleTranslation,
   devotionalTextSize = "normal",
   onDevotionalTextSizeChange,
   onAcknowledgeCareNote,
@@ -100,10 +103,12 @@ export function BibleReaderPassage({
   onPrintWorksheet,
   onSaveMemory,
   onClearSelection,
+  onHighlightSelection,
   onMoveChapter,
   onToggleChapterRead,
   onMarkActiveReadingPlanDayComplete,
   onExitPlanReading,
+  onOpenRelatedPassage,
   isVerseBookmarked,
   isVerseNoted
 }: BibleReaderPassageProps) {
@@ -206,6 +211,7 @@ export function BibleReaderPassage({
       >
         {passage.verses.map((verse) => {
           const selected = selectedVerses.includes(verse.verse);
+          const highlightColor = verseHighlightColors[verse.verse];
           return (
             <View
               key={`${verse.chapter}-${verse.verse}`}
@@ -219,6 +225,9 @@ export function BibleReaderPassage({
                   styles.readerVerseRow,
                   phoneLayout && styles.phoneReaderVerseRow,
                   darkMode && styles.bibleDarkVerseRow,
+                  highlightColor && { backgroundColor: darkMode
+                    ? { gold: "#4d3e29", blue: "#253f4d", green: "#2d4534" }[highlightColor]
+                    : { gold: "#fff0c7", blue: "#e4f2fb", green: "#e6f2df" }[highlightColor] },
                   selected && styles.selectedReaderVerseRow
                 ]}
               >
@@ -268,6 +277,9 @@ export function BibleReaderPassage({
                     <Pressable onPress={onClearSelection} style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton]}>
                       <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                     </Pressable>
+                  </View>
+                  <View style={{ marginTop: 8 }}>
+                    <VerseHighlightActions darkMode={darkMode} onChoose={onHighlightSelection} />
                   </View>
                 </View>
               )}
@@ -345,7 +357,7 @@ export function BibleReaderPassage({
                 {hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) ? (
                   <>
                     <View style={styles.planDayDevotionalToolbar}>{devotionalTextSizeControl}</View>
-                    <PlanDeeperContext day={activeReadingPlanDay} planDayCount={activeReadingPlanDayCount} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
+                    <PlanDeeperContext day={activeReadingPlanDay} planDayCount={activeReadingPlanDayCount} darkMode={darkMode} textSize={devotionalTextSize} onOpenRelatedPassage={(reference) => onOpenRelatedPassage(reference, activeReadingPlanDay)} />
                   </>
                 ) : (
                   <>

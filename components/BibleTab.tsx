@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 import { Card } from "@/components/ui";
 import { BibleReaderControls } from "@/components/BibleReaderControls";
@@ -12,6 +12,9 @@ export function BibleTab({
   compactLayout,
   phoneLayout,
   bibleDarkMode,
+  relatedPassageReference,
+  relatedPlanDay,
+  onReturnToPlan,
   readerNavCollapsed,
   translations,
   bibleTranslation,
@@ -103,11 +106,13 @@ export function BibleTab({
   readerChapterCount,
   planReadingLabel,
   selectedReaderVerses,
+  verseHighlightColors,
   currentChapterRead,
   currentChapterBookmarked,
   readerIconTooltip,
   onStudyReaderChapter,
   onClearReaderSelection,
+  onHighlightSelection,
   onMoveReaderChapter,
   onChapterDraftChange,
   onCommitChapter,
@@ -137,6 +142,7 @@ export function BibleTab({
   planReadingFullChapter,
   onMarkActiveReadingPlanDayComplete,
   onExitPlanReading,
+  onOpenRelatedPassage,
   currentSelectionBookmarked,
   currentSelectionBookmark,
   selectedReaderVersesAlreadyInMemory,
@@ -218,6 +224,17 @@ export function BibleTab({
       />}
 
       <Card style={[styles.bibleReaderContentCard, compactLayout && styles.fluidCard, bibleDarkMode && styles.accountDarkMainCard]}>
+        {!!relatedPassageReference && (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 14, marginBottom: 14, borderWidth: 1, borderRadius: 12, borderColor: bibleDarkMode ? "#735a3a" : "#c7d8e3", backgroundColor: bibleDarkMode ? "#292727" : "#f7f9fb" }}>
+            <View style={{ flex: 1, minWidth: 180 }}>
+              <Text style={{ color: bibleDarkMode ? "#d5a45f" : "#8d5528", fontSize: 12, fontWeight: "700", letterSpacing: 0.5 }}>GO DEEPER · {relatedPassageReference}</Text>
+              <Text style={{ color: bibleDarkMode ? "#c4beb8" : "#53677e", marginTop: 4 }}>Tap verses to bookmark, add notes, or study them.</Text>
+            </View>
+            <Pressable accessibilityRole="button" accessibilityLabel={`Back to plan Day ${relatedPlanDay}`} onPress={onReturnToPlan} style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderRadius: 9, borderColor: bibleDarkMode ? "#735a3a" : "#c7d8e3" }}>
+              <Text style={{ color: bibleDarkMode ? "#d5a45f" : "#285679", fontWeight: "700" }}>‹ Back to Day {relatedPlanDay}</Text>
+            </Pressable>
+          </View>
+        )}
         {!bibleSearchCollapsed && <BibleSearchPanel
           styles={styles}
           darkMode={bibleDarkMode}
@@ -291,6 +308,7 @@ export function BibleTab({
           status={readerStatus}
           memoryStatus={readerMemoryStatus}
           selectedVerses={selectedReaderVerses}
+          verseHighlightColors={verseHighlightColors}
           activeActionVerse={activeReaderActionVerse}
           readerReference={readerStudyReference}
           memoryVerseKeys={readerMemoryVerseKeys}
@@ -299,7 +317,6 @@ export function BibleTab({
           activeReadingPlanName={activeReadingPlanName}
           activeReadingPlanDayCount={activeReadingPlanDayCount}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
-          bibleTranslation={bibleTranslation}
           devotionalTextSize={devotionalTextSize}
           onDevotionalTextSizeChange={onDevotionalTextSizeChange}
           onAcknowledgeCareNote={onAcknowledgeCareNote}
@@ -323,10 +340,12 @@ export function BibleTab({
           onPrintWorksheet={onPrintWorksheet}
           onSaveMemory={onSaveMemory}
           onClearSelection={onClearReaderSelection}
+          onHighlightSelection={onHighlightSelection}
           onMoveChapter={onMoveReaderChapter}
           onToggleChapterRead={onToggleChapterRead}
           onMarkActiveReadingPlanDayComplete={onMarkActiveReadingPlanDayComplete}
           onExitPlanReading={onExitPlanReading}
+          onOpenRelatedPassage={onOpenRelatedPassage}
           isVerseBookmarked={isVerseBookmarked}
           isVerseNoted={isVerseNoted}
         />

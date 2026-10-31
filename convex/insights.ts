@@ -1281,7 +1281,7 @@ async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"prof
   if (legacy && ((legacy.history?.length ?? 0) > 0 || Object.values(legacy.readChapters ?? {}).some((chapters) => chapters.length > 0) || (legacy.bookmarks?.length ?? 0) > 0 || legacy.readingPlanProgress?.activePlanId || (legacy.readingPlanProgress?.followedPlanIds?.length ?? 0) > 0 || (legacy.readingPlanProgress?.completedDays?.length ?? 0) > 0 || (legacy.readingPlanProgress?.customPlans?.length ?? 0) > 0)) return true;
   const reader = await ctx.db.query("bibleReaderStates").withIndex("by_profile", (q) => q.eq("profileId", profileId)).first();
   if (reader && ((reader.history?.length ?? 0) > 0 || Object.values(reader.readChapters ?? {}).some((chapters) => chapters.length > 0) || reader.activePlanId || (reader.followedPlanIds?.length ?? 0) > 0 || Object.keys(reader.completedPlanDates ?? {}).length > 0)) return true;
-  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests, bookmarks, customPlans, completions] = await Promise.all([
+  const [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests, bookmarks, highlights, customPlans, completions] = await Promise.all([
     ctx.db.query("sessions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("drafts").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("checkins").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
@@ -1296,11 +1296,12 @@ async function localProfileHasSavedContent(ctx: MutationCtx, profileId: Id<"prof
     ctx.db.query("communityReactions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("bibleBookmarks").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
+    ctx.db.query("bibleVerseHighlights").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("customBibleReadingPlans").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1),
     ctx.db.query("bibleReadingPlanCompletions").withIndex("by_profile", (q) => q.eq("profileId", profileId)).take(1)
   ]);
 
-  return [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests, bookmarks, customPlans, completions].some((items) => items.length > 0);
+  return [sessions, drafts, checkins, memoryVerses, memoryHistory, feedback, circles, members, requestedFriends, receivedFriends, posts, reactions, deletionRequests, bookmarks, highlights, customPlans, completions].some((items) => items.length > 0);
 }
 
 const CLEANUP_BATCH_SIZE = 40;
@@ -1322,6 +1323,7 @@ type ProfileCleanupPhase =
   | "usageEvents"
   | "securityEvents"
   | "bookmarks"
+  | "highlights"
   | "customPlans"
   | "planCompletions"
   | "dailyStats"
@@ -1349,6 +1351,7 @@ const PROFILE_CLEANUP_PHASES: ProfileCleanupPhase[] = [
   "usageEvents",
   "securityEvents",
   "bookmarks",
+  "highlights",
   "customPlans",
   "planCompletions",
   "dailyStats",
@@ -1547,6 +1550,8 @@ async function cleanupProfilePhase(ctx: MutationCtx, job: Doc<"cleanupJobs">) {
     if (await deleteProfileBatch(ctx, "securityEvents", "by_profile_created", profileId)) return false;
   } else if (phase === "bookmarks") {
     if (await deleteProfileBatch(ctx, "bibleBookmarks", "by_profile", profileId)) return false;
+  } else if (phase === "highlights") {
+    if (await deleteProfileBatch(ctx, "bibleVerseHighlights", "by_profile", profileId)) return false;
   } else if (phase === "customPlans") {
     if (await deleteProfileBatch(ctx, "customBibleReadingPlans", "by_profile", profileId)) return false;
   } else if (phase === "planCompletions") {
@@ -1594,7 +1599,7 @@ async function cleanupProfilePhase(ctx: MutationCtx, job: Doc<"cleanupJobs">) {
 
 async function deleteProfileBatch(
   ctx: MutationCtx,
-  table: "communityReactions" | "communityMembers" | "sessions" | "drafts" | "checkins" | "memoryVerses" | "memoryHistory" | "feedback" | "usageEvents" | "securityEvents" | "bibleBookmarks" | "customBibleReadingPlans" | "bibleReadingPlanCompletions" | "studyDailyStats" | "adminNotificationState",
+  table: "communityReactions" | "communityMembers" | "sessions" | "drafts" | "checkins" | "memoryVerses" | "memoryHistory" | "feedback" | "usageEvents" | "securityEvents" | "bibleBookmarks" | "bibleVerseHighlights" | "customBibleReadingPlans" | "bibleReadingPlanCompletions" | "studyDailyStats" | "adminNotificationState",
   index: string,
   profileId: Id<"profiles">
 ) {

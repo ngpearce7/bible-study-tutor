@@ -11,6 +11,7 @@
 import type * as accountability from "../accountability.js";
 import type * as adminNotifications from "../adminNotifications.js";
 import type * as auth from "../auth.js";
+import type * as bibleHighlights from "../bibleHighlights.js";
 import type * as community from "../community.js";
 import type * as crons from "../crons.js";
 import type * as http from "../http.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   accountability: typeof accountability;
   adminNotifications: typeof adminNotifications;
   auth: typeof auth;
+  bibleHighlights: typeof bibleHighlights;
   community: typeof community;
   crons: typeof crons;
   http: typeof http;

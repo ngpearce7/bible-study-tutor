@@ -15,8 +15,9 @@ import { setStorageProfile, importLegacyDevicePreferences } from "@/data/feedbac
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
+import { VerseHighlightActions, type VerseHighlightColor } from "@/components/VerseHighlightActions";
 import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, createCustomBibleReadingPlanState, deleteCustomBibleReadingPlanState, followBibleReadingPlanState, stopFollowingBibleReadingPlanState, uncompleteBibleReadingPlanDayState } from "@/data/bibleReadingPlanActions";
-import { fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { expandPlanReadingReferences, fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
@@ -860,6 +861,7 @@ function HomeScreen() {
   const saveUiPreference = useMutation(api.accountability.saveUiPreference);
   const saveMemoryMilestoneGoals = useMutation(api.accountability.saveMemoryMilestoneGoals);
   const saveBibleReaderState = useMutation(api.accountability.saveBibleReaderState);
+  const setBibleVerseHighlights = useMutation(api.bibleHighlights.setHighlights);
   const ensureStudyStats = useMutation(api.statistics.ensureStats);
   const changePassword = useAction(api.accountability.changePassword);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
@@ -898,6 +900,7 @@ function HomeScreen() {
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
+  const [deviceClientKey, setDeviceClientKey] = useState("");
   const [profileAuthState, setProfileAuthState] = useState<boolean | null>(null);
   const [displayName, setDisplayName] = useState("Bible student");
   const [accountEmail, setAccountEmail] = useState("");
@@ -1175,6 +1178,7 @@ function HomeScreen() {
   const [readerStatus, setReaderStatus] = useState("Loading chapter...");
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
   const [readerPlanReading, setReaderPlanReading] = useState<ReaderPlanReading | null>(null);
+  const [relatedPlanReturn, setRelatedPlanReturn] = useState<{ planId: string; day: number; sourceTab: "plans" | "bible"; reference: string; scrollY: number } | null>(null);
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(true);
   const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState("");
@@ -1473,6 +1477,7 @@ function HomeScreen() {
 
     getDeviceKey()
       .then((clientKey) => {
+        setDeviceClientKey(clientKey);
         const requestedDisplayName = authName.trim();
         return ensureProfile({
           clientKey,
@@ -1878,6 +1883,12 @@ function HomeScreen() {
     api.accountability.bibleReaderState,
     activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip"
   );
+  const chapterVerseHighlights = useQuery(
+    api.bibleHighlights.chapterHighlights,
+    activeProfileId && deviceClientKey && tab === "bible"
+      ? { profileId: activeProfileId, clientKey: isAuthenticated ? undefined : deviceClientKey, book: readerBook, chapter: readerChapter }
+      : "skip"
+  );
   const profileAppearanceMode = (profile as any)?.appearanceMode;
   const profileMatchesActiveState =
     !!activeProfileId &&
@@ -2269,6 +2280,7 @@ function HomeScreen() {
   const shouldPrepareBibleUi = tab === "bible";
   const readerReference = `${readerBook} ${readerChapter}`;
   const readerStudyReference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
+  const verseHighlightColors = Object.fromEntries((chapterVerseHighlights || []).map(({ verse, color }) => [verse, color])) as Record<number, VerseHighlightColor>;
   const filteredReaderBooks = shouldPrepareBibleUi ? bibleBooks.filter((book) => book.toLowerCase().includes(readerBookSearch.trim().toLowerCase())) : [];
   const readerBookSections = shouldPrepareBibleUi ? [
     { title: "Old Testament", books: OLD_TESTAMENT_BOOKS.filter((book) => filteredReaderBooks.includes(book)) },
@@ -6669,6 +6681,7 @@ function HomeScreen() {
     const nextPlanReading = planId ? buildReaderPlanReading(planDay, planId) : null;
     const nextBook = nextPlanReading?.book || planDay.readerBook;
     const nextChapter = nextPlanReading?.chapter || Math.max(1, Math.round(Number(planDay.readerChapter) || 1));
+    setRelatedPlanReturn(null);
     setReaderBook(nextBook);
     setReaderChapter(nextChapter);
     setReaderChapterDraft(String(nextChapter));
@@ -6683,6 +6696,60 @@ function HomeScreen() {
     scrollReaderToTop();
     trackUsage("bible_reading_plan_opened", { reference: nextPlanReading?.reference || planDay.reference, tab: "bible", book: nextBook, chapter: nextChapter });
     return true;
+  }
+
+  function openGoDeeperPassage(reference: string, planId: string, planDay: BibleReadingPlanDay) {
+    const firstChunk = expandPlanReadingReferences(reference)[0];
+    const book = firstChunk ? readerBookFromReferenceBook(firstChunk.book) : "";
+    if (!firstChunk || !bibleBooks.includes(book)) {
+      setBiblePlanStatus(`Could not open ${reference} in the Bible reader.`);
+      return;
+    }
+    setRelatedPlanReturn({ planId, day: planDay.day, sourceTab: tab === "plans" ? "plans" : "bible", reference, scrollY: appScrollYRef.current });
+    setReaderPlanReading(null);
+    setReaderBook(book);
+    setReaderChapter(firstChunk.chapter);
+    setReaderChapterDraft(String(firstChunk.chapter));
+    clearReaderSelection();
+    setPendingReaderFocusVerse(firstChunk.startVerse || 0);
+    if (phoneLayout) {
+      setRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed", true);
+      setExpandedMobileReaderBook("");
+      setReaderMobileMenu(null);
+    }
+    setTab("bible");
+    scrollReaderToTop();
+  }
+
+  async function highlightSelectedReaderVerses(color: "gold" | "blue" | "green" | null) {
+    if (!activeProfileId || !deviceClientKey || selectedReaderVerses.length === 0) return;
+    try {
+      await setBibleVerseHighlights({
+        profileId: activeProfileId,
+        clientKey: isAuthenticated ? undefined : deviceClientKey,
+        book: readerBook,
+        chapter: readerChapter,
+        verses: selectedReaderVerses,
+        color
+      });
+      clearReaderSelection();
+    } catch {
+      setReaderMemoryStatus("Could not save highlight. Try again.");
+    }
+  }
+
+  function returnFromGoDeeperPassage() {
+    if (!relatedPlanReturn) return;
+    const { planId, day, sourceTab, scrollY } = relatedPlanReturn;
+    setRelatedPlanReturn(null);
+    if (sourceTab === "plans") {
+      setTab("plans");
+      setTimeout(() => appScrollRef.current?.scrollTo?.({ y: scrollY, animated: false }), 80);
+      return;
+    }
+    const planDay = allBibleReadingPlans.find((plan) => plan.id === planId)?.days.find((item) => item.day === day);
+    if (planDay) openBibleReadingPlanDay(planDay, planId, { skipOverdueGuard: true });
+    else setTab("plans");
   }
 
   function openPendingMissedBiblePlanDay(prompt: PendingBiblePlanReadAhead) {
@@ -8020,7 +8087,7 @@ function HomeScreen() {
               {renderDevotionalTextSizeControl(darkMode)}
             </View>
             {hasPlanDeeperContext(planDay, planDayCount) ? (
-              <PlanDeeperContext day={planDay} planDayCount={planDayCount} darkMode={darkMode} textSize={devotionalTextSize} translation={bibleTranslation} />
+              <PlanDeeperContext day={planDay} planDayCount={planDayCount} darkMode={darkMode} textSize={devotionalTextSize} onOpenRelatedPassage={(reference) => openGoDeeperPassage(reference, planId, planDay)} />
             ) : (
               <>
             {!!planDay.context && (
@@ -9818,6 +9885,9 @@ function HomeScreen() {
               compactLayout={compactLayout}
               phoneLayout={phoneLayout}
               bibleDarkMode={bibleDarkMode}
+              relatedPassageReference={relatedPlanReturn?.reference || ""}
+              relatedPlanDay={relatedPlanReturn?.day || 0}
+              onReturnToPlan={returnFromGoDeeperPassage}
               readerNavCollapsed={readerNavCollapsed}
               translations={BIBLE_TRANSLATIONS}
               bibleTranslation={bibleTranslation}
@@ -9938,11 +10008,13 @@ function HomeScreen() {
               readerChapterCount={readerChapterCount}
               planReadingLabel={readerPlanReadingLabel}
               selectedReaderVerses={selectedReaderVerses}
+              verseHighlightColors={verseHighlightColors}
               currentChapterRead={currentChapterRead}
               currentChapterBookmarked={currentChapterBookmarked}
               readerIconTooltip={readerIconTooltip}
               onStudyReaderChapter={openReaderChapterInStudy}
               onClearReaderSelection={clearReaderSelection}
+              onHighlightSelection={highlightSelectedReaderVerses}
               onMoveReaderChapter={moveReaderChapter}
               onChapterDraftChange={setReaderChapterDraft}
               onCommitChapter={commitReaderChapter}
@@ -9973,6 +10045,7 @@ function HomeScreen() {
               planReadingFullChapter={readerPlanChunkIsFullCurrentChapter}
               onMarkActiveReadingPlanDayComplete={markCurrentBibleReadingPlanDayComplete}
               onExitPlanReading={exitBibleReadingPlanMode}
+              onOpenRelatedPassage={(reference: string, day: BibleReadingPlanDay) => openGoDeeperPassage(reference, readerBibleReadingPlan?.id || "", day)}
               currentSelectionBookmarked={currentSelectionBookmarked}
               currentSelectionBookmark={currentSelectionBookmark}
               selectedReaderVersesAlreadyInMemory={selectedReaderVersesAlreadyInMemory}
@@ -11704,6 +11777,9 @@ function HomeScreen() {
             >
               <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#bbb8b4" : colors.muted} />
             </Pressable>
+          </View>
+          <View style={{ marginTop: 8 }}>
+            <VerseHighlightActions darkMode={bibleDarkMode} onChoose={highlightSelectedReaderVerses} />
           </View>
           {currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id && (
             <View style={[styles.mobileReaderNoteEditor, bibleDarkMode && styles.bibleDarkMobileNoteEditor]}>

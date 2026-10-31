@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { PlanRelatedPassage } from "@/components/PlanRelatedPassage";
-import type { BibleApiTranslationId } from "@/data/biblePassage";
 import { hasCuratedPlanConnections, hasPlanDeeperContext, planContextReference, selectPlanCrossReferences } from "@/data/biblePlanDeeperContext";
 import type { BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 import { getStudyCrossReferences, loadStudyCrossReferences, type StudyCrossReference } from "@/data/studyContext";
 
-type Props = { day: BibleReadingPlanDay; planDayCount: number; darkMode: boolean; textSize: DevotionalTextSize; translation: "bsb" | BibleApiTranslationId };
+type Props = {
+  day: BibleReadingPlanDay;
+  planDayCount: number;
+  darkMode: boolean;
+  textSize: DevotionalTextSize;
+  onOpenRelatedPassage: (reference: string) => void;
+};
 
-export function PlanDeeperContext({ day, planDayCount, darkMode, textSize, translation }: Props) {
+export function PlanDeeperContext({ day, planDayCount, darkMode, textSize, onOpenRelatedPassage }: Props) {
   const [deeperWidth, setDeeperWidth] = useState(0);
-  const [relatedReference, setRelatedReference] = useState("");
   const [suggestionResult, setSuggestionResult] = useState<{ reference: string; items: StudyCrossReference[]; loading: boolean }>(() => ({
     reference: day.reference,
     items: getStudyCrossReferences(day.reference),
@@ -51,7 +54,7 @@ export function PlanDeeperContext({ day, planDayCount, darkMode, textSize, trans
   const headingSize = textSize === "normal" ? 19 : textSize === "large" ? 21 : 23;
 
   const passageLink = (reference: string) => (
-    <Pressable accessibilityRole="button" accessibilityLabel={`Read ${reference} in Bible reader`} onPress={() => setRelatedReference(reference)}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Read ${reference} in Bible reader`} onPress={() => onOpenRelatedPassage(reference)}>
       <Text style={[styles.link, sizing.copy, { color: ink }]}>{reference} ›</Text>
     </Pressable>
   );
@@ -132,17 +135,6 @@ export function PlanDeeperContext({ day, planDayCount, darkMode, textSize, trans
         </View>
         <Text style={[styles.tail, sizing.copy, { color: muted }]}>{isCurated ? "These connections are further reading; today's passage remains the starting point." : "These suggestions come from the app's cross-reference index. Compare each passage in its own setting; today's reading remains the starting point."}</Text>
       </View>
-      {!!relatedReference && (
-        <PlanRelatedPassage
-          key={relatedReference}
-          reference={relatedReference}
-          dayReference={day.reference}
-          dayNumber={day.day}
-          translation={translation}
-          darkMode={darkMode}
-          onClose={() => setRelatedReference("")}
-        />
-      )}
     </View>
   );
 }

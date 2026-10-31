@@ -17,6 +17,8 @@ test("cleanup removes empty guests and preserves accounts and saved reader conte
     const empty = await make("empty");
     const bookmark = await make("bookmark");
     await ctx.db.insert("bibleBookmarks", { profileId: bookmark, bookmarkId: "one", book: "John", chapter: 1, reference: "John 1", createdAt: "2026-09-27", updatedAt: 1 });
+    const highlighted = await make("highlighted");
+    await ctx.db.insert("bibleVerseHighlights", { profileId: highlighted, book: "John", chapter: 1, verse: 1, color: "gold", updatedAt: 1 });
     const plan = await make("plan");
     await ctx.db.insert("bibleReadingPlanCompletions", { profileId: plan, planId: "john", completedDays: [1], updatedAt: 1 });
     const reader = await make("reader");
@@ -25,18 +27,18 @@ test("cleanup removes empty guests and preserves accounts and saved reader conte
     await ctx.db.patch(legacy, { bibleReaderState: { readingPlanProgress: { activePlanId: "john", completedDays: [], customPlans: [] } } });
     const signed = await make("signed");
     await ctx.db.patch(signed, { authUserId: adminId });
-    return { empty, bookmark, plan, reader, legacy, signed };
+    return { empty, bookmark, highlighted, plan, reader, legacy, signed };
   });
-  await expect(admin.mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, {})).resolves.toMatchObject({ queued: 1, kept: 4, isDone: true });
+  await expect(admin.mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, {})).resolves.toMatchObject({ queued: 1, kept: 5, isDone: true });
   await t.finishAllScheduledFunctions(() => vi.runAllTimers());
   await t.run(async ctx => {
     expect(await ctx.db.get(ids.empty)).toBeNull();
-    for (const id of [ids.bookmark, ids.plan, ids.reader, ids.legacy, ids.signed]) expect(await ctx.db.get(id)).not.toBeNull();
+    for (const id of [ids.bookmark, ids.highlighted, ids.plan, ids.reader, ids.legacy, ids.signed]) expect(await ctx.db.get(id)).not.toBeNull();
     const jobs = await ctx.db.query("cleanupJobs").collect();
     expect(jobs).toHaveLength(1);
     expect(jobs[0].status).toBe("complete");
   });
-  await expect(admin.mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, {})).resolves.toMatchObject({ queued: 0, kept: 4, isDone: true });
+  await expect(admin.mutation(api.insights.cleanupEmptyLocalProfilesAsAdmin, {})).resolves.toMatchObject({ queued: 0, kept: 5, isDone: true });
 });
 
 test("one confirmed cleanup can queue every empty local profile across pages", async () => {

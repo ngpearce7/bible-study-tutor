@@ -291,6 +291,7 @@ export function BibleTab({
           onSearch={onToggleBibleSearchCollapsed}
           searchOpen={!bibleSearchCollapsed}
           planReadingMode={planReadingMode}
+          relatedPassageMode={!!relatedPassageReference}
           planReadingLabel={planReadingLabel}
           chapterDraft={readerChapterDraft}
           chapterCount={readerChapterCount}
@@ -334,6 +335,7 @@ export function BibleTab({
           onAcknowledgeCareNote={onAcknowledgeCareNote}
           shouldShowCareNote={shouldShowCareNote}
           planReadingMode={planReadingMode}
+          relatedPassageMode={!!relatedPassageReference}
               planReadingCanMovePrevious={planReadingCanMovePrevious}
               planReadingCanMoveNext={planReadingCanMoveNext}
               planReadingChunkLabel={planReadingChunkLabel}

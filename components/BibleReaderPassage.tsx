@@ -32,6 +32,7 @@ type BibleReaderPassageProps = {
   onAcknowledgeCareNote?: (careNote: string) => void;
   shouldShowCareNote?: (careNote?: string) => boolean;
   planReadingMode?: boolean;
+  relatedPassageMode?: boolean;
   planReadingCanMovePrevious?: boolean;
   planReadingCanMoveNext?: boolean;
   planReadingChunkLabel?: string;
@@ -87,6 +88,7 @@ export function BibleReaderPassage({
   onAcknowledgeCareNote,
   shouldShowCareNote,
   planReadingMode,
+  relatedPassageMode,
   planReadingCanMovePrevious,
   planReadingCanMoveNext,
   planReadingChunkLabel,
@@ -317,7 +319,7 @@ export function BibleReaderPassage({
               <Ionicons name="chevron-forward-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />
             </Pressable>
           </View>
-        ) : !planReadingMode ? (
+        ) : !planReadingMode && !relatedPassageMode ? (
         <View style={[styles.readerBottomNav, darkMode && styles.bibleDarkDividerSection]}>
           <Pressable onPress={() => onMoveChapter(-1)} style={[styles.readerBottomNavButton, darkMode && styles.homeDarkResumeButton]}>
             <Ionicons name="chevron-back-outline" size={15} color={darkMode ? "#d4a768" : colors.oliveDark} />

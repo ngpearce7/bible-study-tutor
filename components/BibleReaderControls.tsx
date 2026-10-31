@@ -15,6 +15,7 @@ type BibleReaderControlsProps = {
   onSearch: () => void;
   searchOpen: boolean;
   planReadingMode?: boolean;
+  relatedPassageMode?: boolean;
   planReadingLabel?: string;
   chapterDraft: string;
   chapterCount: number;
@@ -47,6 +48,7 @@ export function BibleReaderControls({
   onSearch,
   searchOpen,
   planReadingMode,
+  relatedPassageMode,
   planReadingLabel,
   chapterDraft,
   chapterCount,
@@ -90,7 +92,7 @@ export function BibleReaderControls({
       </View>
 
       {toolsOpen && <View style={{ gap: 8 }}>
-        <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : "Study this chapter"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
+        <AppButton label={selectedVerseCount ? "Study selected" : planReadingMode ? "Study reading" : relatedPassageMode ? "Study passage" : "Study this chapter"} variant="secondary" onPress={onStudy} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
         <AppButton label="Reader help" variant="secondary" onPress={onHelp} style={darkMode && styles.homeDarkResumeButton} labelStyle={darkMode && styles.homeDarkResumeButtonText} />
       </View>}
 
@@ -116,7 +118,7 @@ export function BibleReaderControls({
             {!!planReadingDetail && <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkMutedText]}>{planReadingDetail}</Text>}
           </View>
         </View>
-      ) : (
+      ) : relatedPassageMode ? null : (
       <View style={[styles.readerNavigationRow, phoneLayout && styles.phoneReaderNavigationRow]}>
         <Pressable
           accessibilityRole="button"
@@ -190,7 +192,7 @@ export function BibleReaderControls({
 
       {Platform.OS === "web" && !!tooltip && <Text style={styles.readerIconTooltip}>{tooltip}</Text>}
 
-      {!planReadingMode && toolsOpen && <View style={styles.readerProgressRow}>
+      {!planReadingMode && !relatedPassageMode && toolsOpen && <View style={styles.readerProgressRow}>
         <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>
           {`${readerReference.split(" ").slice(0, -1).join(" ") || readerReference}: ${currentBookReadChapterCount} of ${chapterCount} chapter${chapterCount === 1 ? "" : "s"} marked read`}
         </Text>

@@ -7378,7 +7378,13 @@ function HomeScreen() {
   }
 
   function openReaderChapterInStudy() {
-    const studyReference = readerPlanReadingActive && readerPlanReading?.reference ? readerPlanReading.reference : readerStudyReference;
+    const studyReference = selectedReaderVerses.length
+      ? readerStudyReference
+      : readerPlanReadingActive && readerPlanReading?.reference
+        ? readerPlanReading.reference
+        : readerLoadRequest.mode === "related"
+          ? readerLoadRequest.reference
+          : readerStudyReference;
     requestStudyTransition(`study ${studyReference} from the Bible reader`, () => {
       setPassage(studyReference);
       setPassageQuery(studyReference);
@@ -7387,7 +7393,7 @@ function HomeScreen() {
       setStudyPhase("study");
       setSavedStudySummary(null);
       setLoadedDraftKey("");
-      setSaveStatus(selectedReaderVerses.length ? "Selected verses loaded from Bible reader" : "Chapter loaded from Bible reader");
+      setSaveStatus(selectedReaderVerses.length ? "Selected verses loaded from Bible reader" : readerLoadRequest.mode === "related" ? "Linked passage loaded from Bible reader" : "Chapter loaded from Bible reader");
       clearReaderSelection();
       setTab("study");
     });

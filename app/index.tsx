@@ -1180,7 +1180,7 @@ function HomeScreen() {
   const [readerStatus, setReaderStatus] = useState("Loading chapter...");
   const [readerMemoryStatus, setReaderMemoryStatus] = useState("");
   const [readerPlanReading, setReaderPlanReading] = useState<ReaderPlanReading | null>(null);
-  const [relatedPlanReturn, setRelatedPlanReturn] = useState<{ planId: string; day: number; sourceTab: "plans" | "bible"; reference: string; scrollY: number } | null>(null);
+  const [relatedPlanReturn, setRelatedPlanReturn] = useState<{ planId: string; day: number; sourceTab: "plans" | "bible"; reference: string; scrollY: number; wholeChapter: boolean } | null>(null);
   const [readerBookSearch, setReaderBookSearch] = useState("");
   const [readerNavCollapsed, setReaderNavCollapsed] = useState(true);
   const [activeBibleReadingPlanId, setActiveBibleReadingPlanId] = useState("");
@@ -2437,7 +2437,7 @@ function HomeScreen() {
     readerPlanReadingActive && readerBibleReadingPlan && readerActiveBibleReadingPlanDay
       ? `${readerBibleReadingPlan.title} - Day ${readerActiveBibleReadingPlanDay.day}, ${readerActiveBibleReadingPlanDay.title || readerActiveBibleReadingPlanDay.reference}`
       : "";
-  const readerLoadRequest = buildReaderLoadRequest(readerPlanReadingActive, readerPlanReading, `${readerBook} ${readerChapter}`);
+  const readerLoadRequest = buildReaderLoadRequest(readerPlanReadingActive, readerPlanReading, `${readerBook} ${readerChapter}`, relatedPlanReturn?.reference, relatedPlanReturn?.wholeChapter);
   const currentChapterBookmarked = bibleBookmarks.some((bookmark) => bookmark.reference === buildReaderStudyReference(readerBook, readerChapter, []) && bookmark.bookmarked !== false);
   const currentSelectionBookmark = selectedReaderVerses.length > 0
     ? bibleBookmarks.find((bookmark) => bookmark.reference === readerStudyReference)
@@ -3419,13 +3419,13 @@ function HomeScreen() {
 
     const controller = new AbortController();
     const { mode, reference } = readerLoadRequest;
-    setReaderStatus(mode === "plan" ? "Loading plan reading..." : "Loading chapter...");
+    setReaderStatus(mode === "plan" ? "Loading plan reading..." : mode === "related" ? "Loading linked passage..." : "Loading chapter...");
     setReaderPassage(null);
 
     void (async () => {
       try {
         const data =
-          mode === "plan"
+          mode === "plan" || mode === "related"
             ? await fetchBiblePlanReadingPassage(reference, bibleTranslation, controller.signal)
             : bibleTranslation === "bsb"
             ? await fetchBsbPassage(reference, controller.signal)
@@ -3436,7 +3436,7 @@ function HomeScreen() {
       } catch {
         if (controller.signal.aborted) return;
         if (readerPassageRequestIdRef.current !== requestId) return;
-        setReaderStatus(mode === "plan" ? "I couldn't load that plan reading. Exit plan reading or try again." : "I couldn't load that chapter. Try again or choose another chapter.");
+        setReaderStatus(mode === "plan" ? "I couldn't load that plan reading. Exit plan reading or try again." : mode === "related" ? "I couldn't load that linked passage. Try the whole chapter." : "I couldn't load that chapter. Try again or choose another chapter.");
       }
     })();
 
@@ -6722,19 +6722,33 @@ function HomeScreen() {
       setBiblePlanStatus(`Could not open ${reference} in the Bible reader.`);
       return;
     }
-    setRelatedPlanReturn({ planId, day: planDay.day, sourceTab: tab === "plans" ? "plans" : "bible", reference, scrollY: appScrollYRef.current });
+    setRelatedPlanReturn({ planId, day: planDay.day, sourceTab: tab === "plans" ? "plans" : "bible", reference, scrollY: appScrollYRef.current, wholeChapter: false });
     setReaderPlanReading(null);
     setReaderBook(book);
     setReaderChapter(firstChunk.chapter);
     setReaderChapterDraft(String(firstChunk.chapter));
     clearReaderSelection();
-    setPendingReaderFocusVerse(firstChunk.startVerse || 0);
+    setPendingReaderFocusVerse(0);
     if (phoneLayout) {
       setRememberedPanel(setReaderNavCollapsed, "bibleReaderNavCollapsed", true);
       setExpandedMobileReaderBook("");
       setReaderMobileMenu(null);
     }
     setTab("bible");
+    scrollReaderToTop();
+  }
+
+  function toggleGoDeeperWholeChapter() {
+    if (!relatedPlanReturn) return;
+    const firstChunk = expandPlanReadingReferences(relatedPlanReturn.reference)[0];
+    if (!firstChunk) return;
+    setRelatedPlanReturn((current) => current ? { ...current, wholeChapter: !current.wholeChapter } : current);
+    if (relatedPlanReturn.wholeChapter) {
+      setReaderBook(readerBookFromReferenceBook(firstChunk.book));
+      setReaderChapter(firstChunk.chapter);
+      setReaderChapterDraft(String(firstChunk.chapter));
+    }
+    clearReaderSelection();
     scrollReaderToTop();
   }
 
@@ -9904,6 +9918,8 @@ function HomeScreen() {
               bibleDarkMode={bibleDarkMode}
               relatedPassageReference={relatedPlanReturn?.reference || ""}
               relatedPlanDay={relatedPlanReturn?.day || 0}
+              relatedPassageFocused={readerLoadRequest.mode === "related"}
+              onToggleRelatedPassage={toggleGoDeeperWholeChapter}
               onReturnToPlan={returnFromGoDeeperPassage}
               readerNavCollapsed={readerNavCollapsed}
               translations={BIBLE_TRANSLATIONS}

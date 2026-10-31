@@ -24,7 +24,7 @@ function readerBookFromReferenceBook(book: string) {
 }
 
 export type ReaderLoadRequest = {
-  mode: "chapter" | "plan";
+  mode: "chapter" | "plan" | "related";
   reference: string;
 };
 
@@ -90,9 +90,17 @@ export function getReaderPlanDayForChapter(
 export function buildReaderLoadRequest(
   readerPlanReadingActive: boolean,
   readerPlanReading: ReaderPlanReading | null | undefined,
-  chapterReference: string
+  chapterReference: string,
+  relatedReference = "",
+  showRelatedWholeChapter = false
 ): ReaderLoadRequest {
   const chunk = getReaderPlanReadingChunk(readerPlanReading);
+  const relatedChunk = relatedReference ? expandPlanReadingReferences(relatedReference)[0] : undefined;
+  if (!readerPlanReadingActive && relatedChunk && !showRelatedWholeChapter &&
+    chapterReference === `${readerBookFromReferenceBook(relatedChunk.book)} ${relatedChunk.chapter}` &&
+    (relatedChunk.startVerse || relatedChunk.endVerse)) {
+    return { mode: "related", reference: relatedChunk.reference };
+  }
   return {
     mode: readerPlanReadingActive ? "plan" : "chapter",
     reference: readerPlanReadingActive ? chunk?.reference || readerPlanReading?.reference.trim() || chapterReference : chapterReference

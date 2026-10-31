@@ -5,6 +5,7 @@ import { BibleReaderControls } from "@/components/BibleReaderControls";
 import { BibleReaderNavigator } from "@/components/BibleReaderNavigator";
 import { BibleReaderPassage } from "@/components/BibleReaderPassage";
 import { BibleSearchPanel } from "@/components/BibleSearchPanel";
+import { expandPlanReadingReferences } from "@/data/biblePassage";
 
 export function BibleTab({
   styles,
@@ -14,6 +15,8 @@ export function BibleTab({
   bibleDarkMode,
   relatedPassageReference,
   relatedPlanDay,
+  relatedPassageFocused,
+  onToggleRelatedPassage,
   onReturnToPlan,
   readerNavCollapsed,
   translations,
@@ -157,7 +160,9 @@ export function BibleTab({
   isVerseBookmarked,
   isVerseNoted
 }: any) {
-  const displayedReaderReference = planReadingMode && readerPassage?.reference ? readerPassage.reference : readerStudyReference;
+  const displayedReaderReference = (planReadingMode || relatedPassageFocused) && readerPassage?.reference ? readerPassage.reference : readerStudyReference;
+  const linkedChunk = relatedPassageReference ? expandPlanReadingReferences(relatedPassageReference)[0] : undefined;
+  const linkedVerseRange = !!(linkedChunk?.startVerse || linkedChunk?.endVerse);
 
   return (
     <View style={[styles.bibleReaderLayout, compactLayout && styles.stackedLayout, bibleDarkMode && styles.accountDarkLayout]}>
@@ -229,11 +234,16 @@ export function BibleTab({
           <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 14, marginBottom: 14, borderWidth: 1, borderRadius: 12, borderColor: bibleDarkMode ? "#735a3a" : "#c7d8e3", backgroundColor: bibleDarkMode ? "#292727" : "#f7f9fb" }}>
             <View style={{ flex: 1, minWidth: 180 }}>
               <Text style={{ color: bibleDarkMode ? "#d5a45f" : "#8d5528", fontSize: 12, fontWeight: "700", letterSpacing: 0.5 }}>GO DEEPER · {relatedPassageReference}</Text>
-              <Text style={{ color: bibleDarkMode ? "#c4beb8" : "#53677e", marginTop: 4 }}>Tap verses to bookmark, add notes, or study them.</Text>
+              <Text style={{ color: bibleDarkMode ? "#c4beb8" : "#53677e", marginTop: 4 }}>{relatedPassageFocused ? "Showing the linked verses. Tap a verse to bookmark, highlight, add notes, or study it." : "Showing the whole chapter for context. Tap a verse to bookmark, highlight, add notes, or study it."}</Text>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel={`Back to plan Day ${relatedPlanDay}`} onPress={onReturnToPlan} style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderRadius: 9, borderColor: bibleDarkMode ? "#735a3a" : "#c7d8e3" }}>
-              <Text style={{ color: bibleDarkMode ? "#d5a45f" : "#285679", fontWeight: "700" }}>‹ Back to Day {relatedPlanDay}</Text>
-            </Pressable>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+              {linkedVerseRange && <Pressable accessibilityRole="button" accessibilityLabel={relatedPassageFocused ? "Read whole chapter for context" : "Show linked verses"} onPress={onToggleRelatedPassage} style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderRadius: 9, borderColor: bibleDarkMode ? "#735a3a" : "#c7d8e3" }}>
+                <Text style={{ color: bibleDarkMode ? "#d5a45f" : "#285679", fontWeight: "700" }}>{relatedPassageFocused ? "Read whole chapter" : "Show linked verses"}</Text>
+              </Pressable>}
+              <Pressable accessibilityRole="button" accessibilityLabel={`Back to plan Day ${relatedPlanDay}`} onPress={onReturnToPlan} style={{ minHeight: 44, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderRadius: 9, borderColor: bibleDarkMode ? "#735a3a" : "#c7d8e3" }}>
+                <Text style={{ color: bibleDarkMode ? "#d5a45f" : "#285679", fontWeight: "700" }}>‹ Back to Day {relatedPlanDay}</Text>
+              </Pressable>
+            </View>
           </View>
         )}
         {!bibleSearchCollapsed && <BibleSearchPanel

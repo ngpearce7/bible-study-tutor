@@ -40,7 +40,7 @@ import { AppButton, Card, Eyebrow, colors, UIThemeContext } from "@/components/u
 import { theme } from "@/components/theme";
 import type { AdminStats } from "@/components/AdminDashboard";
 import { CustomStudyReviewControl, FormattedNoteText } from "@/components/StudyReviewHelpers";
-import { useAction, usePaginatedQuery, useQuery as useRawQuery } from "convex/react";
+import { useAction, useConvex, usePaginatedQuery, useQuery as useRawQuery } from "convex/react";
 import { useMutation, useQuery } from "@/data/profileClient";
 import { Component, Suspense, createElement, lazy, memo, useEffect, useMemo, useRef, useState, type Dispatch, type ErrorInfo, type ReactNode, type SetStateAction } from "react";
 import { Alert, Animated, AppState, Easing, Image, ImageBackground, Keyboard, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from "react-native";
@@ -862,6 +862,7 @@ function HomeScreen() {
   const saveMemoryMilestoneGoals = useMutation(api.accountability.saveMemoryMilestoneGoals);
   const saveBibleReaderState = useMutation(api.accountability.saveBibleReaderState);
   const setBibleVerseHighlights = useMutation(api.bibleHighlights.setHighlights);
+  const convexClient = useConvex();
   const ensureStudyStats = useMutation(api.statistics.ensureStats);
   const changePassword = useAction(api.accountability.changePassword);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
@@ -901,6 +902,7 @@ function HomeScreen() {
   const { signIn, signOut } = useAuthActions();
   const [profileId, setProfileId] = useState<any>(null);
   const [deviceClientKey, setDeviceClientKey] = useState("");
+  const [highlightServiceReadyProfileId, setHighlightServiceReadyProfileId] = useState("");
   const [profileAuthState, setProfileAuthState] = useState<boolean | null>(null);
   const [displayName, setDisplayName] = useState("Bible student");
   const [accountEmail, setAccountEmail] = useState("");
@@ -1883,9 +1885,24 @@ function HomeScreen() {
     api.accountability.bibleReaderState,
     activeProfileId && isAuthenticated ? { profileId: activeProfileId } : "skip"
   );
+  useEffect(() => {
+    if (!activeProfileId || !deviceClientKey || tab !== "bible") return;
+    let cancelled = false;
+    convexClient.query(api.bibleHighlights.chapterHighlights, {
+      profileId: activeProfileId,
+      clientKey: isAuthenticated ? undefined : deviceClientKey,
+      book: readerBook,
+      chapter: readerChapter
+    }).then(() => {
+      if (!cancelled) setHighlightServiceReadyProfileId(String(activeProfileId));
+    }).catch(() => {
+      if (!cancelled) setHighlightServiceReadyProfileId("");
+    });
+    return () => { cancelled = true; };
+  }, [activeProfileId, deviceClientKey, isAuthenticated, tab, convexClient]);
   const chapterVerseHighlights = useQuery(
     api.bibleHighlights.chapterHighlights,
-    activeProfileId && deviceClientKey && tab === "bible"
+    activeProfileId && deviceClientKey && tab === "bible" && highlightServiceReadyProfileId === String(activeProfileId)
       ? { profileId: activeProfileId, clientKey: isAuthenticated ? undefined : deviceClientKey, book: readerBook, chapter: readerChapter }
       : "skip"
   );
@@ -10008,6 +10025,7 @@ function HomeScreen() {
               readerChapterCount={readerChapterCount}
               planReadingLabel={readerPlanReadingLabel}
               selectedReaderVerses={selectedReaderVerses}
+              highlightServiceAvailable={highlightServiceReadyProfileId === String(activeProfileId)}
               verseHighlightColors={verseHighlightColors}
               currentChapterRead={currentChapterRead}
               currentChapterBookmarked={currentChapterBookmarked}
@@ -11778,9 +11796,9 @@ function HomeScreen() {
               <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#bbb8b4" : colors.muted} />
             </Pressable>
           </View>
-          <View style={{ marginTop: 8 }}>
+          {highlightServiceReadyProfileId === String(activeProfileId) && <View style={{ marginTop: 8 }}>
             <VerseHighlightActions darkMode={bibleDarkMode} onChoose={highlightSelectedReaderVerses} />
-          </View>
+          </View>}
           {currentSelectionBookmark && activeBookmarkNoteId === currentSelectionBookmark.id && (
             <View style={[styles.mobileReaderNoteEditor, bibleDarkMode && styles.bibleDarkMobileNoteEditor]}>
               <TextInput

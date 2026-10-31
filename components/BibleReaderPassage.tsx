@@ -17,6 +17,7 @@ type BibleReaderPassageProps = {
   status: string;
   memoryStatus: string;
   selectedVerses: number[];
+  highlightServiceAvailable: boolean;
   verseHighlightColors: Record<number, VerseHighlightColor>;
   activeActionVerse: number;
   readerReference: string;
@@ -71,6 +72,7 @@ export function BibleReaderPassage({
   status,
   memoryStatus,
   selectedVerses,
+  highlightServiceAvailable,
   verseHighlightColors,
   activeActionVerse,
   readerReference,
@@ -278,9 +280,9 @@ export function BibleReaderPassage({
                       <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
                     </Pressable>
                   </View>
-                  <View style={{ marginTop: 8 }}>
+                  {highlightServiceAvailable && <View style={{ marginTop: 8 }}>
                     <VerseHighlightActions darkMode={darkMode} onChoose={onHighlightSelection} />
-                  </View>
+                  </View>}
                 </View>
               )}
             </View>

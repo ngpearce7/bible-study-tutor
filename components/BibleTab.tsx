@@ -106,6 +106,7 @@ export function BibleTab({
   readerChapterCount,
   planReadingLabel,
   selectedReaderVerses,
+  highlightServiceAvailable,
   verseHighlightColors,
   currentChapterRead,
   currentChapterBookmarked,
@@ -308,6 +309,7 @@ export function BibleTab({
           status={readerStatus}
           memoryStatus={readerMemoryStatus}
           selectedVerses={selectedReaderVerses}
+          highlightServiceAvailable={highlightServiceAvailable}
           verseHighlightColors={verseHighlightColors}
           activeActionVerse={activeReaderActionVerse}
           readerReference={readerStudyReference}

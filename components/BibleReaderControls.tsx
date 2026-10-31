@@ -98,14 +98,18 @@ export function BibleReaderControls({
 
       {selectedVerseCount > 0 && (
         <View style={[styles.readerSelectionBar, darkMode && styles.accountDarkSection]}>
-          <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>{`${selectedVerseCount} verse${selectedVerseCount === 1 ? "" : "s"} selected`}</Text>
+          <View style={{ flex: 1, minWidth: 160 }}>
+            <Text style={[styles.readerSelectionText, darkMode && styles.accountDarkTitle]}>{`${selectedVerseCount} verse${selectedVerseCount === 1 ? "" : "s"} selected`}</Text>
+            <Text style={[styles.readerProgressText, darkMode && styles.accountDarkMutedText]}>Tap a selected verse again to deselect it.</Text>
+          </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Clear selected Bible verses"
+            accessibilityLabel="Deselect all selected Bible verses"
             onPress={onClearSelection}
-            style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton]}
+            style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton, { flexDirection: "row", gap: 4, minHeight: 44 }]}
           >
-            <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
+            <Ionicons name="close-outline" size={17} color={darkMode ? "#d4a768" : colors.muted} />
+            <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Deselect</Text>
           </Pressable>
         </View>
       )}

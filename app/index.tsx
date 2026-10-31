@@ -11812,10 +11812,13 @@ function HomeScreen() {
               </Text>
             </Pressable>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Deselect all selected Bible verses"
               onPress={clearReaderSelection}
-              style={[styles.mobileReaderSelectionIconButton, bibleDarkMode && styles.homeDarkIconBubble]}
+              style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton]}
             >
               <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#bbb8b4" : colors.muted} />
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Deselect</Text>
             </Pressable>
           </View>
           {highlightServiceReadyProfileId === String(activeProfileId) && <View style={{ marginTop: 8 }}>

@@ -278,8 +278,9 @@ export function BibleReaderPassage({
                       <Ionicons name="sparkles-outline" size={14} color="white" />
                       <Text style={styles.memoryReaderButtonText}>{selectedVersesAlreadyInMemory ? "In Memory" : "Memory"}</Text>
                     </Pressable>
-                    <Pressable onPress={onClearSelection} style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton]}>
-                      <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Clear</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Deselect all selected Bible verses" onPress={onClearSelection} style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton, { flexDirection: "row", gap: 4, minHeight: 44 }]}>
+                      <Ionicons name="close-outline" size={17} color={darkMode ? "#d4a768" : colors.muted} />
+                      <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Deselect</Text>
                     </Pressable>
                   </View>
                   {highlightServiceAvailable && <View style={{ marginTop: 8 }}>

@@ -8443,7 +8443,6 @@ function HomeScreen() {
           <>
             <TodayRhythmCard
               profileId={profileMatchesActiveState ? activeProfileId : null}
-              timezoneOffsetMinutes={timezoneOffsetMinutes}
               providedStats={shouldLoadStudyStats ? stats : undefined}
               queryOwnStats={!shouldLoadStudyStats}
               progress={progress}
@@ -12584,7 +12583,6 @@ function formatAdminDate(value?: number) {
 
 const TodayRhythmCard = memo(function TodayRhythmCard({
   profileId,
-  timezoneOffsetMinutes,
   providedStats,
   queryOwnStats,
   progress,
@@ -12593,7 +12591,6 @@ const TodayRhythmCard = memo(function TodayRhythmCard({
   friendlyName
 }: {
   profileId: any;
-  timezoneOffsetMinutes: number;
   providedStats: any;
   queryOwnStats: boolean;
   progress: number;
@@ -12603,11 +12600,12 @@ const TodayRhythmCard = memo(function TodayRhythmCard({
 }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const timer = setInterval(() => setNow(Date.now()), 60_000); return () => clearInterval(timer); }, []);
+  const statsDayNow = new Date(now).setHours(12, 0, 0, 0);
   const isolatedStats = useQuery(
     api.study.stats,
-    queryOwnStats && profileId ? { profileId, timezoneOffsetMinutes, now } : "skip"
+    queryOwnStats && profileId ? { profileId, timezoneOffsetMinutes: new Date(now).getTimezoneOffset(), now: statsDayNow } : "skip"
   );
-  const currentStats = providedStats ?? isolatedStats;
+  const currentStats = useRefreshingValue(profileId ? String(profileId) : null, providedStats ?? isolatedStats);
 
   return (
     <Card style={[styles.todayCard, darkMode && styles.accountDarkMainCard]}>

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryCollectionCards, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
@@ -17,6 +17,9 @@ export function MemoryTab(props: any) {
   const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [collectionCreationError, setCollectionCreationError] = useState("");
+  const [arrangingCollections, setArrangingCollections] = useState(false);
+  const draggedCollection = useRef("");
+  const CollectionWrapper = Platform.OS === "web" ? "div" : View;
   const {
     activeMemoryCollectionDueCount,
     activeMemoryCollectionName,
@@ -62,6 +65,7 @@ export function MemoryTab(props: any) {
     memoryCollectionFilter,
     memoryCollectionsHome,
     memoryCollectionOptions,
+    memoryCollectionOrder,
     memoryCollectionPickerOpen,
     memoryDarkMode,
     memoryFilterMobileMenu,
@@ -110,6 +114,7 @@ export function MemoryTab(props: any) {
     reviewedTodayCount,
     saveMemoryMeditation,
     saveMemoryVerseCollections,
+    saveMemoryCollectionOrder,
     scheduleFilteredMemoryReview,
     scheduleMemoryVerseReview,
     selectMemoryFilterBook,
@@ -162,11 +167,30 @@ export function MemoryTab(props: any) {
   const activeCollectionName = memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
     ? "Due for Review"
     : memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
-  const collectionCards = buildMemoryCollectionCards(memoryVerses || []);
+  const collectionCards = buildMemoryCollectionCards(memoryVerses || [], memoryCollectionOrder);
+  const customCollectionNames = collectionCards.filter((collection) => collection.key.startsWith("custom:")).map((collection) => collection.name);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
     `${verse.reference} ${verse.verseText}`.toLowerCase().includes(newCollectionSearch.trim().toLowerCase())
   ).slice(0, 12);
   const selectedCollectionVerse = savedMemoryVerses.find((verse: any) => String(verse._id) === newCollectionVerseId);
+
+  function chooseMemoryCollection(name: string) {
+    clearMemoryBrowseFilters();
+    setMemoryCollectionFilter(name);
+    setMemoryCollectionPickerOpen(false);
+    setMemoryBrowseFiltersOpen(false);
+  }
+
+  function moveCollection(source: string, target: string) {
+    if (!source || !target || source === target) return;
+    const next = [...customCollectionNames];
+    const from = next.indexOf(source);
+    const to = next.indexOf(target);
+    if (from < 0 || to < 0) return;
+    next.splice(from, 1);
+    next.splice(to, 0, source);
+    saveMemoryCollectionOrder(next);
+  }
 
   async function createCollection() {
     const name = newCollectionName.trim().replace(/\s+/g, " ");
@@ -196,7 +220,7 @@ export function MemoryTab(props: any) {
     setNewCollectionSearch("");
     setNewCollectionVerseId("");
     setNewCollectionOpen(false);
-    setMemoryCollectionFilter(name);
+    chooseMemoryCollection(name);
     setMemoryCollectionsHome(false);
   }
 
@@ -479,13 +503,50 @@ export function MemoryTab(props: any) {
                   )}
                 </View>
                 {memoryCollectionsHome && (
-                  <View style={styles.memoryCollectionFolderGrid}>
-                    {collectionCards.map((collection: any) => (
-                      <Pressable
+                  <>
+                    {customCollectionNames.length > 1 && (
+                      <View style={styles.memoryCollectionArrangeRow}>
+                        {arrangingCollections && <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>Drag collections or use the arrows. Due for Review and All Verses stay first.</Text>}
+                        <AppButton
+                          label={arrangingCollections ? "Done arranging" : "Arrange collections"}
+                          variant="secondary"
+                          onPress={() => setArrangingCollections((current) => !current)}
+                          style={memoryDarkMode && styles.homeDarkResumeButton}
+                          labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                        />
+                      </View>
+                    )}
+                    <View style={styles.memoryCollectionFolderGrid}>
+                    {collectionCards.map((collection: any) => {
+                      const isCustom = collection.key.startsWith("custom:");
+                      const customIndex = customCollectionNames.indexOf(collection.name);
+                      return (
+                      <CollectionWrapper
                         key={collection.key}
+                        style={styles.memoryCollectionWrapper}
+                        draggable={Platform.OS === "web" && arrangingCollections && isCustom}
+                        onDragStart={Platform.OS === "web" ? (event: any) => {
+                          if (!arrangingCollections || !isCustom) return;
+                          draggedCollection.current = collection.name;
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setData("text/plain", collection.name);
+                        } : undefined}
+                        onDragOver={Platform.OS === "web" ? (event: any) => {
+                          if (arrangingCollections && isCustom && draggedCollection.current) event.preventDefault();
+                        } : undefined}
+                        onDrop={Platform.OS === "web" ? (event: any) => {
+                          if (!arrangingCollections || !isCustom) return;
+                          event.preventDefault();
+                          moveCollection(draggedCollection.current, collection.name);
+                          draggedCollection.current = "";
+                        } : undefined}
+                        onDragEnd={Platform.OS === "web" ? () => { draggedCollection.current = ""; } : undefined}
+                      >
+                      <Pressable
                         accessibilityRole="button"
                         accessibilityLabel={`Open ${collection.name}, ${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? `, ${collection.dueCount} due` : ""}`}
                         onPress={() => {
+                          if (arrangingCollections) return;
                           clearMemoryBrowseFilters();
                           setMemorySearch("");
                           setNewCollectionOpen(false);
@@ -493,7 +554,7 @@ export function MemoryTab(props: any) {
                           if (collection.key.startsWith("custom:")) setMemoryCollectionFilter(collection.name);
                           setMemoryCollectionsHome(false);
                         }}
-                        style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection]}
+                        style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, arrangingCollections && isCustom && styles.memoryCollectionDraggable]}
                       >
                         <View style={styles.memoryCollectionCardHeader}>
                           <Ionicons name={collection.key === "due" ? "school-outline" : collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
@@ -508,8 +569,31 @@ export function MemoryTab(props: any) {
                           {collection.count} verse{collection.count === 1 ? "" : "s"}
                         </Text>
                       </Pressable>
-                    ))}
-                  </View>
+                      {arrangingCollections && isCustom && (
+                        <View style={styles.memoryCollectionArrangeControls}>
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Move ${collection.name} earlier`}
+                            accessibilityState={{ disabled: customIndex === 0 }}
+                            disabled={customIndex === 0}
+                            onPress={() => moveCollection(collection.name, customCollectionNames[customIndex - 1])}
+                            style={[styles.memoryCollectionMoveButton, customIndex === 0 && styles.memoryCollectionMoveDisabled]}
+                          ><Ionicons name="arrow-back-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Move ${collection.name} later`}
+                            accessibilityState={{ disabled: customIndex === customCollectionNames.length - 1 }}
+                            disabled={customIndex === customCollectionNames.length - 1}
+                            onPress={() => moveCollection(collection.name, customCollectionNames[customIndex + 1])}
+                            style={[styles.memoryCollectionMoveButton, customIndex === customCollectionNames.length - 1 && styles.memoryCollectionMoveDisabled]}
+                          ><Ionicons name="arrow-forward-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
+                        </View>
+                      )}
+                      </CollectionWrapper>
+                      );
+                    })}
+                    </View>
+                  </>
                 )}
                 {newCollectionOpen && memoryCollectionsHome && (
                   <View style={[styles.memoryNewCollectionBox, memoryDarkMode && styles.accountDarkSection]}>
@@ -608,9 +692,7 @@ export function MemoryTab(props: any) {
                       <Pressable
                         accessibilityRole="button"
                         onPress={() => {
-                          setMemoryCollectionFilter("all");
-                          setMemoryCollectionPickerOpen(false);
-                          setMemoryBrowseFiltersOpen(false);
+                          chooseMemoryCollection("all");
                         }}
                         style={styles.memoryCollectionPickerItem}
                       >
@@ -622,9 +704,7 @@ export function MemoryTab(props: any) {
                           key={collection.name}
                           accessibilityRole="button"
                           onPress={() => {
-                            setMemoryCollectionFilter(collection.name);
-                            setMemoryCollectionPickerOpen(false);
-                            setMemoryBrowseFiltersOpen(false);
+                            chooseMemoryCollection(collection.name);
                           }}
                           style={styles.memoryCollectionPickerItem}
                         >

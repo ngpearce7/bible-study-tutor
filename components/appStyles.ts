@@ -6612,6 +6612,18 @@ export const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 16
   },
+  memoryCollectionArrangeRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "flex-end",
+    marginBottom: 10
+  },
+  memoryCollectionWrapper: {
+    minWidth: 0,
+    width: "48%"
+  },
   memoryCollectionFolder: {
     backgroundColor: colors.panel,
     borderColor: colors.line,
@@ -6620,7 +6632,28 @@ export const styles = StyleSheet.create({
     gap: 5,
     minHeight: 92,
     padding: 13,
-    width: "48%"
+    width: "100%"
+  },
+  memoryCollectionDraggable: {
+    borderColor: colors.blue
+  },
+  memoryCollectionArrangeControls: {
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "flex-end",
+    marginTop: 6
+  },
+  memoryCollectionMoveButton: {
+    alignItems: "center",
+    borderColor: colors.line,
+    borderRadius: 8,
+    borderWidth: 1,
+    height: 34,
+    justifyContent: "center",
+    width: 40
+  },
+  memoryCollectionMoveDisabled: {
+    opacity: 0.35
   },
   memoryCollectionCardHeader: {
     alignItems: "flex-start",

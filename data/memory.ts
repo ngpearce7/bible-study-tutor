@@ -912,13 +912,26 @@ export function buildMemoryCollectionOptions(verses: any[]) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function buildMemoryCollectionCards(verses: any[]) {
+export function memoryVersesForCollectionFilters(verses: any[], collectionName: string, status: MemoryBrowseStatusFilter) {
+  const active = collectionName === "all" && (status === "all" || status === "archived")
+    ? verses
+    : verses.filter((verse) => !verse.archivedAt);
+  const inCollection = collectionName === "all"
+    ? active
+    : active.filter((verse) => getMemoryVerseCollections(verse).includes(collectionName));
+  return inCollection.filter((verse) => matchesMemoryStatusFilter(verse, status));
+}
+
+export function buildMemoryCollectionCards(verses: any[], customOrder: string[] = []) {
   const active = verses.filter((verse) => !verse.archivedAt);
   const due = active.filter(isMemoryVerseDue);
+  const order = new Map(customOrder.map((name, index) => [name, index]));
   return [
     ...(due.length ? [{ key: "due", name: "Due for Review", count: due.length, dueCount: due.length }] : []),
     { key: "all", name: "All Verses", count: verses.length, dueCount: due.length },
-    ...buildMemoryCollectionOptions(active).map((collection) => ({
+    ...buildMemoryCollectionOptions(active).sort((a, b) =>
+      (order.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.name) ?? Number.MAX_SAFE_INTEGER)
+    ).map((collection) => ({
       key: `custom:${collection.name}`,
       name: collection.name,
       count: collection.count,

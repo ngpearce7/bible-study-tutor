@@ -29,7 +29,7 @@ import { CURRENT_TERMS_VERSION } from "@/data/accountTerms";
 import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES } from "@/data/devotionalTypography";
 
-import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, memoryVersesForCollectionFilters, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, getReaderPlanReadingChunk, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
@@ -416,6 +416,7 @@ type UiPreferenceKey =
   | "memoryBookFilter"
   | "memoryChapterFilter"
   | "memoryCollectionFilter"
+  | "memoryCollectionOrder"
   | "plansOpenSections"
   | "plansExpandedPlanId"
   | "plansCompletedOpen"
@@ -711,6 +712,7 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "memoryBookFilter",
   "memoryChapterFilter",
   "memoryCollectionFilter",
+  "memoryCollectionOrder",
   "plansOpenSections",
   "plansExpandedPlanId",
   "plansCompletedOpen",
@@ -1050,6 +1052,7 @@ function HomeScreen() {
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
   const [memoryCollectionFilter, setMemoryCollectionFilter] = useState("all");
   const [memoryCollectionsHome, setMemoryCollectionsHome] = useState(true);
+  const [memoryCollectionOrder, setMemoryCollectionOrder] = useState<string[]>([]);
   const [memoryCollectionPickerOpen, setMemoryCollectionPickerOpen] = useState(false);
   const [memoryBrowseFiltersOpen, setMemoryBrowseFiltersOpen] = useState(false);
   const [expandedMemoryFilterBook, setExpandedMemoryFilterBook] = useState("");
@@ -2608,8 +2611,11 @@ function HomeScreen() {
   const activeMemoryCollectionDueCount = memoryCollectionFilter === "all"
     ? 0
     : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
-  const memoryBookOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryBookOptions(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
-  const memoryChapterOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter) : [], [memoryBookFilter, memoryVerses, shouldPrepareMemoryUi]);
+  const memoryFilterVerses = useMemo(() => shouldPrepareMemoryUi
+    ? memoryVersesForCollectionFilters(memoryVerses || [], memoryCollectionFilter, memoryBrowseStatusFilter)
+    : [], [memoryBrowseStatusFilter, memoryCollectionFilter, memoryVerses, shouldPrepareMemoryUi]);
+  const memoryBookOptions = useMemo(() => buildMemoryBookOptions(memoryFilterVerses), [memoryFilterVerses]);
+  const memoryChapterOptions = useMemo(() => buildMemoryChapterOptions(memoryFilterVerses, memoryBookFilter), [memoryBookFilter, memoryFilterVerses]);
   const memoryBookCounts = useMemo(() => new Map(memoryBookOptions.map((book) => [book.book, book.count])), [memoryBookOptions]);
   const memoryBookSections = useMemo(
     () => [
@@ -2621,10 +2627,10 @@ function HomeScreen() {
   const memoryChaptersByBook = useMemo(() => {
     const chapters = new Map<string, ReturnType<typeof buildMemoryChapterOptions>>();
     memoryBookOptions.forEach((book) => {
-      chapters.set(book.book, buildMemoryChapterOptions(memoryVerses || [], book.book));
+      chapters.set(book.book, buildMemoryChapterOptions(memoryFilterVerses, book.book));
     });
     return chapters;
-  }, [memoryBookOptions, memoryVerses]);
+  }, [memoryBookOptions, memoryFilterVerses]);
   const activeMemoryChapterLabel = memoryChapterOptions.find((chapter) => chapter.key === memoryChapterFilter)?.label || "";
   const memoryBrowseStatusLabel =
     memoryBrowseStatusFilter === "due"
@@ -2990,6 +2996,7 @@ function HomeScreen() {
     const syncedMemoryBookFilter = uiMemoryBookFilter(profileUiPreferences);
     const syncedMemoryChapterFilter = uiMemoryChapterFilter(profileUiPreferences);
     const syncedMemoryCollectionFilter = uiMemoryCollectionFilter(profileUiPreferences);
+    const syncedMemoryCollectionOrder = uiStringList(profileUiPreferences, "memoryCollectionOrder");
     const syncedPlanOpenSections = uiPlanOpenSections(profileUiPreferences);
     const syncedPlanExpandedPlanId = uiPlanExpandedPlanId(profileUiPreferences);
     const syncedPlanSelectedDay = uiPlanSelectedDay(profileUiPreferences);
@@ -3055,6 +3062,7 @@ function HomeScreen() {
     if (syncedMemoryBookFilter) setMemoryBookFilter(syncedMemoryBookFilter);
     if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
     if (syncedMemoryCollectionFilter) setMemoryCollectionFilter(syncedMemoryCollectionFilter);
+    setMemoryCollectionOrder(syncedMemoryCollectionOrder || []);
     if (syncedPlanOpenSections) {
       setOpenBiblePlanSections(restoreBiblePlanSections(syncedPlanOpenSections));
     }
@@ -7629,6 +7637,13 @@ function HomeScreen() {
     persistUiPreference("memoryCollectionFilter", normalized);
   }
 
+  function saveMemoryCollectionOrder(nextOrder: string[]) {
+    const validNames = new Set(memoryCollectionOptions.map((collection) => collection.name));
+    const normalized = Array.from(new Set(nextOrder.filter((name) => validNames.has(name)))).slice(0, 80);
+    setMemoryCollectionOrder(normalized);
+    persistUiPreference("memoryCollectionOrder", normalized);
+  }
+
   function setRememberedPlanSelectedDay(planId: string, day: number) {
     if (!isSafePlanId(planId)) return;
     if (day <= 0) {
@@ -10973,6 +10988,8 @@ function HomeScreen() {
               memoryCollectionFilter={memoryCollectionFilter}
               memoryCollectionsHome={memoryCollectionsHome}
               memoryCollectionOptions={memoryCollectionOptions}
+              memoryCollectionOrder={memoryCollectionOrder}
+              saveMemoryCollectionOrder={saveMemoryCollectionOrder}
               memoryCollectionPickerOpen={memoryCollectionPickerOpen}
               memoryDarkMode={memoryDarkMode}
               memoryFilterMobileMenu={memoryFilterMobileMenu}
@@ -14114,6 +14131,10 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (typeof item === "string" && item.length <= 80 && !item.startsWith("$") && !item.startsWith("_")) preferences[key] = item.trim() || "all";
       return;
     }
+    if (key === "memoryCollectionOrder") {
+      if (Array.isArray(item)) preferences[key] = Array.from(new Set(item.filter((name): name is string => typeof name === "string" && name.length <= 80 && !name.startsWith("$") && !name.startsWith("_")))).slice(0, 80);
+      return;
+    }
     if (key === "plansOpenSections") {
       if (Array.isArray(item)) preferences[key] = normalizePlanSectionIds(item);
       return;
@@ -14394,7 +14415,7 @@ function normalizeCustomWritingPrompts(value: unknown[]) {
   ).slice(0, 12);
 }
 
-function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "customWritingPrompts" | "rhythmGraceHandledDates") {
+function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "customWritingPrompts" | "rhythmGraceHandledDates" | "memoryCollectionOrder") {
   const value = preferences[key];
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : undefined;
 }

@@ -156,7 +156,7 @@ export function MemoryTab(props: any) {
     visibleMemorySections
   } = props;
 
-  const savedMemoryVerses = memoryVerses || [];
+  const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
     `${verse.reference} ${verse.verseText}`.toLowerCase().includes(newCollectionSearch.trim().toLowerCase())
   ).slice(0, 12);
@@ -324,11 +324,16 @@ export function MemoryTab(props: any) {
                   <View style={[styles.memoryViewToggle, styles.memoryModeToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                     {[
                       ["browse", "Verses"],
-                      ["history", "History"]
+                      ["history", "History"],
+                      ["archive", "Archive"]
                     ].map(([key, label]) => (
                       <Pressable
                         key={key}
-                        onPress={() => setMemoryView(key as MemoryView)}
+                        onPress={() => {
+                          setMemorySearch("");
+                          setMemoryBrowseFiltersOpen(false);
+                          setMemoryView(key as MemoryView);
+                        }}
                         style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton, memoryDarkMode && memoryView === key && styles.accountDarkActiveSegment]}
                       >
                         <Text style={[styles.memoryViewText, memoryDarkMode && styles.accountDarkMutedText, memoryView === key && styles.activeMemoryViewText, memoryDarkMode && memoryView === key && styles.studyDarkAccentText]}>{label}</Text>
@@ -554,31 +559,18 @@ export function MemoryTab(props: any) {
                       <Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#bbb8b4" : colors.muted} />
                     </Pressable>
                   )}
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={memoryBrowseFiltersOpen ? "Hide verse filters" : "Filter verses"}
+                    onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
+                    style={styles.clearSearchButton}
+                  >
+                    <Ionicons name="options-outline" size={20} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                  </Pressable>
                 </View>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => setMemoryBrowseStatusFilter(memoryBrowseStatusFilter === "archived" ? "all" : "archived")}
-                  style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
-                >
-                  <View style={styles.memoryHistoryTextBlock}>
-                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>
-                      {memoryBrowseStatusFilter === "archived" ? "Clear archived filter" : `Archived verses (${(memoryVerses || []).filter((verse: any) => Boolean(verse.archivedAt)).length})`}
-                    </Text>
-                    <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>Saved for later, with no scheduled reviews</Text>
-                  </View>
-                  <Ionicons name={memoryBrowseStatusFilter === "archived" ? "arrow-back-outline" : "archive-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
-                </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
-                  style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
-                >
-                  <View style={styles.memoryHistoryTextBlock}>
-                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Filters</Text>
-                    <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{memoryBrowseFilterSummary}</Text>
-                  </View>
-                  <Ionicons name={memoryBrowseFiltersOpen ? "chevron-up-outline" : "options-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
-                </Pressable>
+                {memoryBrowseFilterSummary !== "All saved verses" && (
+                  <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>Showing: {memoryBrowseFilterSummary}</Text>
+                )}
                 {memoryBrowseFiltersOpen && (
                 <View style={[styles.memoryDiscoverBlock, styles.phoneMemoryBrowseFiltersPanel, memoryDarkMode && styles.accountDarkSection]}>
                   <View style={styles.memoryBrowseFilterHeader}>
@@ -613,7 +605,7 @@ export function MemoryTab(props: any) {
                         style={styles.memoryCollectionPickerItem}
                       >
                         <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>All collections</Text>
-                        <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{(memoryVerses || []).length} saved verses</Text>
+                        <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{savedMemoryVerses.length} saved verses</Text>
                       </Pressable>
                       {memoryCollectionOptions.map((collection) => (
                         <Pressable
@@ -766,8 +758,7 @@ export function MemoryTab(props: any) {
                       ["all", "All"],
                       ["due", "Due"],
                       ["learning", "Reviewed"],
-                      ["memorized", "Memorized"],
-                      ["archived", "Archived"]
+                      ["memorized", "Memorized"]
                     ].map(([key, label]) => (
                       <Pressable
                         key={key}
@@ -833,6 +824,13 @@ export function MemoryTab(props: any) {
                 )}
               </>
             )}
+            {memoryView === "archive" && (
+              <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
+                <Ionicons name="search-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                <TextInput value={memorySearch} onChangeText={setMemorySearch} placeholder="Search archived verses" placeholderTextColor={memoryDarkMode ? "#8f8678" : undefined} style={[styles.journalSearchInput, memoryDarkMode && styles.accountDarkText]} />
+                {!!memorySearch.trim() && <Pressable accessibilityRole="button" accessibilityLabel="Clear search" onPress={() => setMemorySearch("")} style={styles.clearSearchButton}><Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#bbb8b4" : colors.muted} /></Pressable>}
+              </View>
+            )}
             {visibleMemorySections.map((section) => {
               const highlightedMemorySection = section.title === "Due for Review" || section.title === "Reviewed";
               const reviewedMemorySection = section.title === "Reviewed";
@@ -858,20 +856,6 @@ export function MemoryTab(props: any) {
                           {section.verses.length}
                         </Text>
                       </View>
-                    )}
-                    {section.title === "Due for Review" && dueMemoryCount > 0 && (
-                      <Pressable
-                        accessibilityRole="button"
-                        onPress={() => startDueMemoryReviewQueue()}
-                        style={styles.phoneMemoryPrimaryReviewButton}
-                      >
-                        <Ionicons name="school-outline" size={16} color="#fff" />
-                        <Text style={styles.phoneMemoryPrimaryReviewText}>
-                          {activeMemoryReviewQueueCount > 1 && activeMemoryReviewQueueIndex >= 0
-                            ? `Continue review set ${activeMemoryReviewQueueIndex + 1} of ${activeMemoryReviewQueueCount}`
-                            : `Review ${dueMemoryCount} due verse${dueMemoryCount === 1 ? "" : "s"}`}
-                        </Text>
-                      </Pressable>
                     )}
                     {highlightedMemorySection && (
                       <View style={[styles.memorySectionSortRow, memoryDarkMode && styles.accountDarkInsetBox]}>
@@ -1438,7 +1422,14 @@ export function MemoryTab(props: any) {
                 })}
               </View>
             );})}
-            {memoryView === "browse" && memoryBrowseSections.length === 0 && (
+            {memoryView === "archive" && visibleMemorySections.length === 0 && (
+              <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
+                <Ionicons name="archive-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No archived verses</Text>
+                <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>Verses you archive will appear here and can be restored later.</Text>
+              </View>
+            )}
+            {memoryView === "browse" && visibleMemorySections.length === 0 && (
               <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                 <Ionicons name="search-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                 <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No saved verses found</Text>

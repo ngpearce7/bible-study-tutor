@@ -127,7 +127,16 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Memory verses help",
       icon: "albums-outline",
       summary: "Verses brings review practice, collections, and your saved Scripture together.",
-      tips: ["Start a review from the due prompt, or practise any verse from its card.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Use Filters for Testament, book, chapter, review status, and bulk review dates. The menu beside the view tabs has print cards."]
+      tips: ["Start a review from the due prompt, or practise any verse from its card.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
+    };
+  }
+
+  if (tab === "memory" && context.memoryView === "archive") {
+    return {
+      title: "Memory archive help",
+      icon: "archive-outline",
+      summary: "Archived verses stay saved without scheduled reviews.",
+      tips: ["Open a verse and choose Restore to return it to reviews.", "Notes and Memory history stay with an archived verse.", "Use search to find a verse in your archive."]
     };
   }
 

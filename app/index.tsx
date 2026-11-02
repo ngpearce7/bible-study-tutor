@@ -361,7 +361,7 @@ function safeSetLocalStorageValue(key: string, value: string) {
 type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
-type MemoryView = "review" | "browse" | "history";
+type MemoryView = "review" | "browse" | "history" | "archive";
 type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "collection" | "custom";
 type MemoryCollectionPrompt = {
   source: "study" | "bible";
@@ -2601,13 +2601,13 @@ function HomeScreen() {
   const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
-  const memoryCollectionOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryCollectionOptions(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
+  const memoryCollectionOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)) : [], [memoryVerses, shouldPrepareMemoryUi]);
   const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All collections" : memoryCollectionFilter;
   const activeMemoryCollectionDueCount = memoryCollectionFilter === "all"
     ? 0
     : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
-  const memoryBookOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryBookOptions(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
-  const memoryChapterOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter) : [], [memoryBookFilter, memoryVerses, shouldPrepareMemoryUi]);
+  const memoryBookOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryBookOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)) : [], [memoryVerses, shouldPrepareMemoryUi]);
+  const memoryChapterOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryChapterOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt), memoryBookFilter) : [], [memoryBookFilter, memoryVerses, shouldPrepareMemoryUi]);
   const memoryBookCounts = useMemo(() => new Map(memoryBookOptions.map((book) => [book.book, book.count])), [memoryBookOptions]);
   const memoryBookSections = useMemo(
     () => [
@@ -2619,7 +2619,7 @@ function HomeScreen() {
   const memoryChaptersByBook = useMemo(() => {
     const chapters = new Map<string, ReturnType<typeof buildMemoryChapterOptions>>();
     memoryBookOptions.forEach((book) => {
-      chapters.set(book.book, buildMemoryChapterOptions(memoryVerses || [], book.book));
+      chapters.set(book.book, buildMemoryChapterOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt), book.book));
     });
     return chapters;
   }, [memoryBookOptions, memoryVerses]);
@@ -2641,7 +2641,7 @@ function HomeScreen() {
     memoryBrowseStatusLabel
   ].filter(Boolean).join(" · ") || "All saved verses";
   const memoryBrowseSections = useMemo(
-    () => shouldPrepareMemoryUi ? buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter) : [],
+    () => shouldPrepareMemoryUi ? buildMemoryBrowseSections((memoryVerses || []).filter((verse: any) => !verse.archivedAt), memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter) : [],
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses, shouldPrepareMemoryUi]
   );
   const dueMemoryCount = tab === "home"
@@ -2741,23 +2741,20 @@ function HomeScreen() {
   const phoneMemoryFocusMode = tab === "memory" && !!activeMemoryVerseId && (phoneLayout || activeMemoryReviewQueueCount > 0);
   const practiceViewport = usePracticeViewport(phoneLayout && phoneMemoryFocusMode);
   const memoryFinishRef = useRef<View>(null);
-  const browseMemoryDisplaySections = memoryBrowseStatusFilter === "due" || memoryBrowseStatusFilter === "learning"
-    ? [{
-        title: memoryBrowseStatusFilter === "due" ? "Due for Review" : "Reviewed",
-        description: "",
-        verses: sortMemoryReviewVerses(
-          memoryBrowseSections.flatMap((section) => section.verses),
-          memoryBrowseStatusFilter === "due" ? "Due for Review" : "Reviewed",
-          memoryBrowseStatusFilter === "due" ? dueMemoryReviewSort : reviewedMemoryReviewSort
-        )
-      }]
-    : memoryBrowseSections;
-  const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : browseMemoryDisplaySections)
+  const browseMemoryDisplaySections = buildMemoryQueueSections(memoryBrowseSections.flatMap((section) => section.verses));
+  const archivedMemorySections = shouldPrepareMemoryUi ? [{
+    title: "Archived verses",
+    description: "Saved without scheduled reviews. Restore a verse to review it again.",
+    verses: buildMemoryBrowseSections(memoryVerses || [], memorySearchTerm, "all", "all", "archived")
+      .flatMap((section) => section.verses)
+      .sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0))
+  }] : [];
+  const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "archive" ? archivedMemorySections : memoryView === "review" ? memoryQueueSections : browseMemoryDisplaySections)
     .map((section) => ({
       ...section,
       verses: phoneMemoryFocusMode
         ? section.verses.filter((verse: any) => String(verse._id) === (activeMemoryVerseId || activeMemoryMeditationVerseId))
-        : memoryView === "review"
+        : memoryView === "review" || memoryView === "browse"
           ? sortMemoryReviewVerses(section.verses, section.title, section.title === "Reviewed" ? reviewedMemoryReviewSort : dueMemoryReviewSort)
         : section.verses
     }))
@@ -2773,7 +2770,7 @@ function HomeScreen() {
     if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
     if (printSet === "reviewed") return saved.filter((verse: any) => !verse.archivedAt && !isMemoryVerseDue(verse));
     if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
-    if (printSet === "current") return memoryView === "browse" ? currentBrowseMemoryVerses : visibleMemorySections.flatMap((section) => section.verses);
+    if (printSet === "current") return visibleMemorySections.flatMap((section) => section.verses);
     return saved;
   }
   const memoryPrintCandidateVerses = useMemo(() => getMemoryPrintCandidateVerses(memoryPrintSet), [currentBrowseMemoryVerses, memoryPrintCollectionFilter, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
@@ -3039,8 +3036,8 @@ function HomeScreen() {
       saveStoredMemoryReviewSorts({ due: syncedDueSort || dueMemoryReviewSort, reviewed: syncedReviewedSort }).catch(() => undefined);
     }
     if (syncedMemoryView) setMemoryView(syncedMemoryView === "review" ? "browse" : syncedMemoryView);
-    if (uiBoolean(profileUiPreferences, "memoryBrowseFiltersOpen") !== undefined) setMemoryBrowseFiltersOpen(uiBoolean(profileUiPreferences, "memoryBrowseFiltersOpen")!);
-    if (syncedMemoryStatusFilter) setMemoryBrowseStatusFilter(syncedMemoryStatusFilter);
+    setMemoryBrowseFiltersOpen(false);
+    if (syncedMemoryStatusFilter) setMemoryBrowseStatusFilter(syncedMemoryStatusFilter === "archived" ? "all" : syncedMemoryStatusFilter);
     if (syncedMemoryBookFilter) setMemoryBookFilter(syncedMemoryBookFilter);
     if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
     if (syncedMemoryCollectionFilter) setMemoryCollectionFilter(syncedMemoryCollectionFilter);
@@ -6277,7 +6274,7 @@ function HomeScreen() {
       setMemoryMoreVerseId("");
       setPendingMemoryVerseAction(null);
       setMemoryStatus(type === "archive"
-        ? `${verse.reference} archived. Find it in Browse → Archived to restore it.`
+        ? `${verse.reference} archived. Find it in the Archive tab to restore it.`
         : `${verse.reference} removed from Memory.`);
     } catch {
       setMemoryVerseActionError(`Could not ${type} this verse. Please try again.`);
@@ -12250,7 +12247,7 @@ function HomeScreen() {
             </View>
             <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
               {pendingMemoryVerseAction.type === "archive"
-                ? "This stops scheduled reviews and moves the verse to Browse → Archived. Your verse, note, and Memory history stay saved. You can restore it whenever you wish."
+                ? "This stops scheduled reviews and moves the verse to the Archive tab. Your verse, note, and Memory history stay saved. You can restore it whenever you wish."
                 : "This deletes the saved verse, its note, and its linked Memory history. You cannot undo this. If you only want to stop reviews, archive the verse instead."}
             </Text>
             {!!memoryVerseActionError && <Text accessibilityLiveRegion="assertive" style={styles.warningText}>{memoryVerseActionError}</Text>}
@@ -14059,7 +14056,7 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       return;
     }
     if (key === "memoryView") {
-      if (item === "review" || item === "browse" || item === "history") preferences[key] = item;
+      if (item === "review" || item === "browse" || item === "history" || item === "archive") preferences[key] = item;
       return;
     }
     if (key === "memoryBrowseStatusFilter") {
@@ -14188,7 +14185,7 @@ function uiDevotionalTextSize(preferences: UiPreferenceMap) {
 
 function uiMemoryView(preferences: UiPreferenceMap) {
   const value = preferences.memoryView;
-  return value === "review" || value === "browse" || value === "history" ? value : undefined;
+  return value === "review" || value === "browse" || value === "history" || value === "archive" ? value : undefined;
 }
 
 function uiMemoryBrowseStatusFilter(preferences: UiPreferenceMap) {

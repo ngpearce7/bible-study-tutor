@@ -12433,15 +12433,16 @@ function HomeScreen() {
                               <View style={{ flex: 1, minWidth: 0 }}>
                                 <View style={styles.memoryNewCollectionVerseHeading}>
                                   <Text numberOfLines={1} style={[styles.bodyStrong, styles.memoryNewCollectionVerseReference, accountDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
-                                  {existingCollections.length > 0 && (
+                                  {existingCollections.map((collection: string, index: number) => (
                                     <Text
-                                      accessibilityLabel={`Already in ${existingCollections.join(", ")}`}
+                                      key={`${collection}-${index}`}
+                                      accessibilityLabel={`Already in ${collection}`}
                                       numberOfLines={1}
                                       style={[styles.memoryNewCollectionMembership, accountDarkMode && styles.memoryDarkCollectionPill]}
                                     >
-                                      {existingCollections[0]}{existingCollections.length > 1 ? ` +${existingCollections.length - 1}` : ""}
+                                      {collection}
                                     </Text>
-                                  )}
+                                  ))}
                                 </View>
                                 <Text numberOfLines={1} style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{verse.verseText}</Text>
                               </View>

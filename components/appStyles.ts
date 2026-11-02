@@ -6806,6 +6806,7 @@ export const styles = StyleSheet.create({
   memoryNewCollectionVerseHeading: {
     alignItems: "center",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 7,
     minWidth: 0
   },
@@ -6815,6 +6816,7 @@ export const styles = StyleSheet.create({
   memoryVerseMetaRow: {
     alignItems: "center",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 6,
     minWidth: 0
   },

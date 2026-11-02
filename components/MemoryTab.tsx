@@ -1159,15 +1159,16 @@ export function MemoryTab(props: any) {
                             <Text numberOfLines={1} style={[styles.muted, styles.memoryVerseMetaTranslation, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
                               {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
                             </Text>
-                            {!cardExpanded && otherCollections.length > 0 && (
+                            {!cardExpanded && otherCollections.map((collection: string, index: number) => (
                               <Text
-                                accessibilityLabel={`Also in ${otherCollections.join(", ")}`}
+                                key={`${collection}-${index}`}
+                                accessibilityLabel={`Also in ${collection}`}
                                 numberOfLines={1}
                                 style={[styles.memoryNewCollectionMembership, memoryDarkMode && styles.memoryDarkCollectionPill]}
                               >
-                                {otherCollections[0]}{otherCollections.length > 1 ? ` +${otherCollections.length - 1}` : ""}
+                                {collection}
                               </Text>
-                            )}
+                            ))}
                           </View>
                         </View>
                         <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>

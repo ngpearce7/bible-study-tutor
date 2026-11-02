@@ -1,4 +1,4 @@
-export type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized";
+export type MemoryBrowseStatusFilter = "all" | "due" | "learning" | "memorized" | "archived";
 export type MemoryReviewPreset =
   | "later-today"
   | "daily"
@@ -197,7 +197,8 @@ export function isMemoryVerseMemorized(verse: { status: string; reviewCount?: nu
   return verse.status === "memorized" && (verse.reviewCount || 0) >= 2;
 }
 
-export function isMemoryVerseDue(verse: { nextReviewAt?: number }) {
+export function isMemoryVerseDue(verse: { nextReviewAt?: number; archivedAt?: number }) {
+  if (verse.archivedAt) return false;
   if (!verse.nextReviewAt) return true;
   return startOfLocalDay(verse.nextReviewAt) <= startOfLocalDay(Date.now());
 }
@@ -357,13 +358,14 @@ export function memoryVerseProgressDetail(verse: {
 }
 
 export function buildNeglectedMemoryVerses(
-  verses: { reference: string; lastReviewedAt?: number; createdAt?: number; reviewCount?: number }[],
+  verses: { reference: string; lastReviewedAt?: number; createdAt?: number; reviewCount?: number; archivedAt?: number }[],
   limit = 3
 ) {
   const now = Date.now();
   const day = 1000 * 60 * 60 * 24;
 
   return verses
+    .filter((verse) => !verse.archivedAt)
     .map((verse) => {
       const lastTouchedAt = verse.lastReviewedAt || verse.createdAt || 0;
       const daysSinceReview = lastTouchedAt ? Math.floor((now - lastTouchedAt) / day) : 0;
@@ -857,7 +859,7 @@ export function buildMemoryQueueSections(verses: any[]) {
   const byReviewTime = (a: any, b: any) => (a.nextReviewAt || 0) - (b.nextReviewAt || 0) || (b.updatedAt || 0) - (a.updatedAt || 0);
   const byRecent = (a: any, b: any) => (b.updatedAt || 0) - (a.updatedAt || 0);
   const due = verses.filter(isMemoryVerseDue).sort(byReviewTime);
-  const reviewed = verses.filter((verse) => !isMemoryVerseDue(verse)).sort(byRecent);
+  const reviewed = verses.filter((verse) => !verse.archivedAt && !isMemoryVerseDue(verse)).sort(byRecent);
 
   return [
     { title: "Due for Review", description: "Start here. These verses are ready for today’s review.", verses: due },
@@ -961,6 +963,8 @@ function matchesMemorySearch(verse: any, searchTerm: string) {
 
 function matchesMemoryStatusFilter(verse: any, statusFilter: MemoryBrowseStatusFilter) {
   if (statusFilter === "all") return true;
+  if (statusFilter === "archived") return Boolean(verse.archivedAt);
+  if (verse.archivedAt) return false;
   if (statusFilter === "memorized") return isMemoryVerseMemorized(verse);
   if (statusFilter === "due") return isMemoryVerseDue(verse);
   return !isMemoryVerseDue(verse);

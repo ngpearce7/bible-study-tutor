@@ -885,6 +885,8 @@ function HomeScreen() {
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
+  const archiveMemoryVerse = useMutation(api.memory.archive);
+  const restoreMemoryVerse = useMutation(api.memory.restore);
   const scheduleMemoryReview = useMutation(api.memory.scheduleReview);
   const updateMemoryCollections = useMutation(api.memory.updateCollections);
   const recordMemoryHistoryEvent = useMutation(api.memory.recordHistoryEvent);
@@ -1094,7 +1096,9 @@ function HomeScreen() {
   const [memoryHintLevels, setMemoryHintLevels] = useState<Record<number, number>>({});
   const [memoryStepTwoOffset, setMemoryStepTwoOffset] = useState(0);
   const [memoryPracticeFocusKey, setMemoryPracticeFocusKey] = useState(0);
-  const [pendingDeleteMemoryVerseId, setPendingDeleteMemoryVerseId] = useState("");
+  const [pendingMemoryVerseAction, setPendingMemoryVerseAction] = useState<{ verse: any; type: "archive" | "remove" } | null>(null);
+  const [memoryVerseActionSaving, setMemoryVerseActionSaving] = useState(false);
+  const [memoryVerseActionError, setMemoryVerseActionError] = useState("");
   const memoryBlankInputRefs = useRef<Record<number, TextInput | null>>({});
   const [passageStatus, setPassageStatus] = useState("Loading passage...");
   const [passageReloadKey, setPassageReloadKey] = useState(0);
@@ -2627,6 +2631,8 @@ function HomeScreen() {
         ? "Reviewed"
         : memoryBrowseStatusFilter === "memorized"
           ? "Memorized"
+          : memoryBrowseStatusFilter === "archived"
+            ? "Archived"
           : "";
   const memoryBrowseFilterSummary = [
     memoryCollectionFilter !== "all" ? memoryCollectionFilter : "",
@@ -2754,7 +2760,7 @@ function HomeScreen() {
   function getMemoryPrintCandidateVerses(printSet: MemoryPrintSet) {
     const saved = memoryVerses || [];
     if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
-    if (printSet === "reviewed") return saved.filter((verse: any) => !isMemoryVerseDue(verse));
+    if (printSet === "reviewed") return saved.filter((verse: any) => !verse.archivedAt && !isMemoryVerseDue(verse));
     if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
     if (printSet === "current") return memoryView === "browse" ? currentBrowseMemoryVerses : visibleMemorySections.flatMap((section) => section.verses);
     return saved;
@@ -6231,22 +6237,43 @@ function HomeScreen() {
     }
   }
 
-  async function deleteMemoryVerse(verse: any) {
-    if (!activeProfileId) return;
-
+  async function confirmMemoryVerseAction(type = pendingMemoryVerseAction?.type) {
+    if (!activeProfileId || !pendingMemoryVerseAction || !type || memoryVerseActionSaving) return;
+    const verse = pendingMemoryVerseAction.verse;
     const verseId = String(verse._id);
-    if (pendingDeleteMemoryVerseId !== verseId) {
-      setPendingDeleteMemoryVerseId(verseId);
-      setMemoryStatus("Tap Confirm remove to delete this memory verse.");
-      return;
+    setMemoryVerseActionError("");
+    setMemoryVerseActionSaving(true);
+    try {
+      const changed = type === "archive"
+        ? await archiveMemoryVerse({ profileId: activeProfileId, memoryVerseId: verse._id })
+        : await removeMemoryVerse({ profileId: activeProfileId, memoryVerseId: verse._id });
+      if (!changed) throw new Error("Verse no longer available");
+      if (activeMemoryVerseId === verseId) setActiveMemoryVerseId("");
+      if (activeMemoryMeditationVerseId === verseId) closeMemoryMeditation();
+      setMemoryReviewQueueIds((current) => current.filter((id) => id !== verseId));
+      setMemoryMoreVerseId("");
+      setPendingMemoryVerseAction(null);
+      setMemoryStatus(type === "archive"
+        ? `${verse.reference} archived. Find it in Browse → Archived to restore it.`
+        : `${verse.reference} removed from Memory.`);
+    } catch {
+      setMemoryVerseActionError(`Could not ${type} this verse. Please try again.`);
+      setMemoryStatus(`Could not ${type} ${verse.reference}. Please try again.`);
+    } finally {
+      setMemoryVerseActionSaving(false);
     }
+  }
 
-    await removeMemoryVerse({ profileId: activeProfileId, memoryVerseId: verse._id });
-    if (activeMemoryVerseId === verseId) setActiveMemoryVerseId("");
-    if (activeMemoryMeditationVerseId === verseId) closeMemoryMeditation();
-    setMemoryReviewQueueIds((current) => current.filter((id) => id !== verseId));
-    setPendingDeleteMemoryVerseId("");
-    setMemoryStatus("Memory verse removed");
+  async function restoreArchivedMemoryVerse(verse: any) {
+    if (!activeProfileId) return;
+    try {
+      const restored = await restoreMemoryVerse({ profileId: activeProfileId, memoryVerseId: verse._id });
+      if (!restored) throw new Error("Verse no longer available");
+      setMemoryMoreVerseId("");
+      setMemoryStatus(`${verse.reference} restored. It is ready to review again.`);
+    } catch {
+      setMemoryStatus(`Could not restore ${verse.reference}. Please try again.`);
+    }
   }
 
   async function scheduleMemoryVerseReview(verse: any, preset: MemoryReviewPreset) {
@@ -6266,7 +6293,7 @@ function HomeScreen() {
 
   async function scheduleFilteredMemoryReview(preset: MemoryReviewPreset) {
     if (!activeProfileId) return;
-    const filteredVerses = currentBrowseMemoryVerses;
+    const filteredVerses = currentBrowseMemoryVerses.filter((verse: any) => !verse.archivedAt);
     if (filteredVerses.length === 0) {
       setMemoryStatus("No filtered verses to update.");
       return;
@@ -10862,7 +10889,8 @@ function HomeScreen() {
               continueMemoryPractice={continueMemoryPractice}
               currentBrowseMemoryVerses={currentBrowseMemoryVerses}
               currentBrowseReviewPreset={currentBrowseReviewPreset}
-              deleteMemoryVerse={deleteMemoryVerse}
+              requestMemoryVerseAction={(verse: any, type: "archive" | "remove") => { setMemoryVerseActionError(""); setPendingMemoryVerseAction({ verse, type }); }}
+              restoreArchivedMemoryVerse={restoreArchivedMemoryVerse}
               dueMemoryCount={dueMemoryCount}
               dueMemoryReviewSort={dueMemoryReviewSort}
               expandedMemoryFilterBook={expandedMemoryFilterBook}
@@ -10925,7 +10953,6 @@ function HomeScreen() {
               neglectedMemoryVerses={neglectedMemoryVerses}
               openMemoryBookCollectionBuilder={openMemoryBookCollectionBuilder}
               openMemoryPrintOptions={openMemoryPrintOptions}
-              pendingDeleteMemoryVerseId={pendingDeleteMemoryVerseId}
               phoneLayout={phoneLayout}
               phoneMemoryFocusMode={phoneMemoryFocusMode}
               removeMemoryVerseCollection={removeMemoryVerseCollection}
@@ -12178,6 +12205,44 @@ function HomeScreen() {
                   {memoryBookCollectionSaving ? "Creating..." : "Create collection"}
                 </Text>
               </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
+      {pendingMemoryVerseAction && (
+        <View {...modalAccessibilityProps(pendingMemoryVerseAction.type === "archive" ? "Archive memory verse" : "Remove memory verse")} style={styles.printOptionsOverlay}>
+          <Pressable accessibilityLabel="Cancel memory verse action" style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]} onPress={() => !memoryVerseActionSaving && setPendingMemoryVerseAction(null)} />
+          <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>
+                  {pendingMemoryVerseAction.type === "archive" ? "Archive this verse?" : "Remove this verse permanently?"}
+                </Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>{pendingMemoryVerseAction.verse.reference}</Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Cancel memory verse action" onPress={() => !memoryVerseActionSaving && setPendingMemoryVerseAction(null)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#bbb8b4" : colors.muted} />
+              </Pressable>
+            </View>
+            <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>
+              {pendingMemoryVerseAction.type === "archive"
+                ? "This stops scheduled reviews and moves the verse to Browse → Archived. Your verse, note, and Memory history stay saved. You can restore it whenever you wish."
+                : "This deletes the saved verse, its note, and its linked Memory history. You cannot undo this. If you only want to stop reviews, archive the verse instead."}
+            </Text>
+            {!!memoryVerseActionError && <Text accessibilityLiveRegion="assertive" style={styles.warningText}>{memoryVerseActionError}</Text>}
+            <View style={styles.printOptionsActions}>
+              <Pressable accessibilityRole="button" onPress={() => setPendingMemoryVerseAction(null)} disabled={memoryVerseActionSaving} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+              </Pressable>
+              {pendingMemoryVerseAction.type === "remove" && (
+                <AppButton label="Archive instead" variant="secondary" onPress={() => void confirmMemoryVerseAction("archive")} disabled={memoryVerseActionSaving} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
+              )}
+              <AppButton
+                label={memoryVerseActionSaving ? "Saving…" : pendingMemoryVerseAction.type === "archive" ? "Archive verse" : "Remove permanently"}
+                onPress={() => void confirmMemoryVerseAction()}
+                disabled={memoryVerseActionSaving}
+                style={pendingMemoryVerseAction.type === "remove" ? styles.memoryRemoveConfirmButton : undefined}
+              />
             </View>
           </View>
         </View>
@@ -14104,7 +14169,7 @@ function uiMemoryView(preferences: UiPreferenceMap) {
 
 function uiMemoryBrowseStatusFilter(preferences: UiPreferenceMap) {
   const value = preferences.memoryBrowseStatusFilter;
-  return value === "all" || value === "due" || value === "learning" || value === "memorized" ? value : undefined;
+  return value === "all" || value === "due" || value === "learning" || value === "memorized" || value === "archived" ? value : undefined;
 }
 
 function uiMemoryBookFilter(preferences: UiPreferenceMap) {

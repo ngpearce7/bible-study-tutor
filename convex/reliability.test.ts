@@ -106,6 +106,36 @@ test("home memory count respects the local due-day boundary and profile access",
   await expect(t.query(api.memory.homeSummary, { profileId, dueThrough })).rejects.toThrow("Unauthorized");
 });
 
+test("archived memory verses leave reviews, restore, and can be removed with their history", async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-11-02T09:00:00Z"));
+  const t = convexTest(schema, modules);
+  const clientKey = "memory-archive-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const otherProfileId = await t.mutation(api.study.ensureProfile, { clientKey: "other-memory-device" });
+  const memoryVerseId = await t.mutation(api.memory.saveVerse, {
+    profileId, clientKey, reference: "James 1:22", verseText: "Be doers of the word", translationName: "BSB", note: "Remember to act"
+  });
+  const dueThrough = Date.now() + 86400000;
+  expect(await t.query(api.memory.homeSummary, { profileId, clientKey, dueThrough })).toEqual({ dueCount: 1 });
+  await expect(t.mutation(api.memory.archive, { profileId: otherProfileId, clientKey: "other-memory-device", memoryVerseId })).resolves.toBe(false);
+  expect(await t.mutation(api.memory.archive, { profileId, clientKey, memoryVerseId })).toBe(true);
+  expect(await t.query(api.memory.homeSummary, { profileId, clientKey, dueThrough })).toEqual({ dueCount: 0 });
+  expect((await t.query(api.memory.list, { profileId, clientKey }))[0]).toMatchObject({ archivedAt: expect.any(Number), note: "Remember to act" });
+  expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId })).toHaveLength(1);
+  expect(await t.mutation(api.memory.restore, { profileId, clientKey, memoryVerseId })).toBe(true);
+  expect(await t.query(api.memory.homeSummary, { profileId, clientKey, dueThrough })).toEqual({ dueCount: 1 });
+  await t.run(async (ctx) => {
+    for (let index = 0; index < 105; index += 1) {
+      await ctx.db.insert("memoryHistory", { profileId, memoryVerseId, reference: "James 1:22", event: "reviewed", createdAt: index });
+    }
+  });
+  expect(await t.mutation(api.memory.remove, { profileId, clientKey, memoryVerseId })).toBe(true);
+  await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+  expect(await t.query(api.memory.list, { profileId, clientKey })).toHaveLength(0);
+  expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId })).toHaveLength(0);
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

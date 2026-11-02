@@ -297,6 +297,7 @@ export default defineSchema({
     nextReviewAt: v.optional(v.number()),
     reviewPreset: v.optional(v.string()),
     reviewIntervalDays: v.optional(v.number()),
+    archivedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number()
   })

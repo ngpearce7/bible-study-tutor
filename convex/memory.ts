@@ -1,7 +1,8 @@
 import { authorizeProfileAccess } from "./profileAccess";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
 import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { assertCollectionLimit, assertProfileCanWrite, enforceRecentLimit } from "./security";
 import { recordStudyActivity } from "./statisticsModel";
@@ -158,7 +159,7 @@ export const homeSummary = query({
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
       .take(500);
     return {
-      dueCount: verses.filter((verse) => !verse.nextReviewAt || verse.nextReviewAt < args.dueThrough).length
+      dueCount: verses.filter((verse) => !verse.archivedAt && (!verse.nextReviewAt || verse.nextReviewAt < args.dueThrough)).length
     };
   }
 });
@@ -184,7 +185,7 @@ export const recordPractice = mutation({
     await enforceRecentLimit(ctx, args.profileId, recentHistory, "createdAt", { max: 240, windowMs: 60 * 60 * 1000, label: "Memory practice" });
 
     const verse = await ctx.db.get(args.memoryVerseId);
-    if (!verse || verse.profileId !== args.profileId) return false;
+    if (!verse || verse.profileId !== args.profileId || verse.archivedAt) return false;
 
     const now = Date.now();
     const currentPracticeLevel = Math.max(1, Math.min(3, Math.round(args.practiceLevel || 1)));
@@ -221,13 +222,47 @@ export const recordPractice = mutation({
   }
 });
 
+export const archive = mutation({
+  args: {
+    clientKey: v.optional(v.string()),
+    profileId: v.id("profiles"),
+    memoryVerseId: v.id("memoryVerses")
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
+    assertProfileCanWrite(profile);
+    const verse = await ctx.db.get(args.memoryVerseId);
+    if (!verse || verse.profileId !== args.profileId) return false;
+    if (!verse.archivedAt) await ctx.db.patch(verse._id, { archivedAt: Date.now(), updatedAt: Date.now() });
+    return true;
+  }
+});
+
+export const restore = mutation({
+  args: {
+    clientKey: v.optional(v.string()),
+    profileId: v.id("profiles"),
+    memoryVerseId: v.id("memoryVerses")
+  },
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
+    assertProfileCanWrite(profile);
+    const verse = await ctx.db.get(args.memoryVerseId);
+    if (!verse || verse.profileId !== args.profileId) return false;
+    if (verse.archivedAt) await ctx.db.patch(verse._id, { archivedAt: undefined, nextReviewAt: Date.now(), updatedAt: Date.now() });
+    return true;
+  }
+});
+
 export const remove = mutation({
   args: {
     clientKey: v.optional(v.string()),
     profileId: v.id("profiles"),
     memoryVerseId: v.id("memoryVerses")
   },
-  returns: v.any(),
+  returns: v.boolean(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
     assertProfileCanWrite(profile);
@@ -235,18 +270,31 @@ export const remove = mutation({
     const verse = await ctx.db.get(args.memoryVerseId);
     if (!verse || verse.profileId !== args.profileId) return false;
 
-    await insertMemoryHistory(ctx, {
-      profileId: args.profileId,
-      memoryVerseId: args.memoryVerseId,
-      reference: verse.reference,
-      event: "removed",
-      practiceLevel: verse.practiceLevel,
-      reviewCount: verse.reviewCount,
-      nextReviewAt: verse.nextReviewAt,
-      createdAt: Date.now()
-    });
+    const history = await ctx.db.query("memoryHistory")
+      .withIndex("by_profile_memoryVerse_created", (q) => q.eq("profileId", args.profileId).eq("memoryVerseId", args.memoryVerseId))
+      .take(100);
+    for (const item of history) await ctx.db.delete(item._id);
     await ctx.db.delete(args.memoryVerseId);
+    if (history.length === 100) {
+      await ctx.scheduler.runAfter(0, internal.memory.deleteRemovedVerseHistoryBatch, {
+        profileId: args.profileId,
+        memoryVerseId: args.memoryVerseId
+      });
+    }
     return true;
+  }
+});
+
+export const deleteRemovedVerseHistoryBatch = internalMutation({
+  args: { profileId: v.id("profiles"), memoryVerseId: v.id("memoryVerses") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const history = await ctx.db.query("memoryHistory")
+      .withIndex("by_profile_memoryVerse_created", (q) => q.eq("profileId", args.profileId).eq("memoryVerseId", args.memoryVerseId))
+      .take(100);
+    for (const item of history) await ctx.db.delete(item._id);
+    if (history.length === 100) await ctx.scheduler.runAfter(0, internal.memory.deleteRemovedVerseHistoryBatch, args);
+    return null;
   }
 });
 
@@ -262,7 +310,7 @@ export const scheduleReview = mutation({
     await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
 
     const verse = await ctx.db.get(args.memoryVerseId);
-    if (!verse || verse.profileId !== args.profileId) return false;
+    if (!verse || verse.profileId !== args.profileId || verse.archivedAt) return false;
 
     const now = Date.now();
     const reviewIntervalDays = reviewPresetDays(args.preset);

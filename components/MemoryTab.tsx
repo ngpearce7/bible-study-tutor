@@ -29,7 +29,8 @@ export function MemoryTab(props: any) {
     continueMemoryPractice,
     currentBrowseMemoryVerses,
     currentBrowseReviewPreset,
-    deleteMemoryVerse,
+    requestMemoryVerseAction,
+    restoreArchivedMemoryVerse,
     dueMemoryCount,
     dueMemoryReviewSort,
     expandedMemoryFilterBook,
@@ -92,7 +93,6 @@ export function MemoryTab(props: any) {
     neglectedMemoryVerses,
     openMemoryBookCollectionBuilder,
     openMemoryPrintOptions,
-    pendingDeleteMemoryVerseId,
     phoneLayout,
     phoneMemoryFocusMode,
     removeMemoryVerseCollection,
@@ -367,6 +367,19 @@ export function MemoryTab(props: any) {
                 </View>
                 <Pressable
                   accessibilityRole="button"
+                  onPress={() => setMemoryBrowseStatusFilter(memoryBrowseStatusFilter === "archived" ? "all" : "archived")}
+                  style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
+                >
+                  <View style={styles.memoryHistoryTextBlock}>
+                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>
+                      {memoryBrowseStatusFilter === "archived" ? "Clear archived filter" : `Archived verses (${(memoryVerses || []).filter((verse: any) => Boolean(verse.archivedAt)).length})`}
+                    </Text>
+                    <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>Saved for later, with no scheduled reviews</Text>
+                  </View>
+                  <Ionicons name={memoryBrowseStatusFilter === "archived" ? "arrow-back-outline" : "archive-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
                   onPress={() => setMemoryBrowseFiltersOpen((open) => !open)}
                   style={[styles.memoryBrowseFiltersToggle, memoryDarkMode && styles.accountDarkSection]}
                 >
@@ -563,7 +576,8 @@ export function MemoryTab(props: any) {
                       ["all", "All"],
                       ["due", "Due"],
                       ["learning", "Reviewed"],
-                      ["memorized", "Memorized"]
+                      ["memorized", "Memorized"],
+                      ["archived", "Archived"]
                     ].map(([key, label]) => (
                       <Pressable
                         key={key}
@@ -577,13 +591,13 @@ export function MemoryTab(props: any) {
                       </Pressable>
                     ))}
                   </View>
-                  {currentBrowseMemoryVerses.length > 0 && (
+                  {currentBrowseMemoryVerses.some((verse: any) => !verse.archivedAt) && (
                     <View style={[styles.memoryBulkReviewBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.reviewScheduleHeader}>
                         <View style={styles.memoryHistoryTextBlock}>
                           <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Change review schedule</Text>
                           <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                            Applies to {currentBrowseMemoryVerses.length} filtered verse{currentBrowseMemoryVerses.length === 1 ? "" : "s"}
+                            Applies to {currentBrowseMemoryVerses.filter((verse: any) => !verse.archivedAt).length} filtered verse{currentBrowseMemoryVerses.filter((verse: any) => !verse.archivedAt).length === 1 ? "" : "s"}
                           </Text>
                         </View>
                       </View>
@@ -755,7 +769,7 @@ export function MemoryTab(props: any) {
                             minimumFontScale={0.76}
                             style={[styles.reviewDatePill, memoryDarkMode && styles.memoryDarkReviewPill, phoneLayout && styles.phoneMemoryHeaderPill, isMemoryVerseDue(verse) && styles.dueReviewDatePill, memoryDarkMode && isMemoryVerseDue(verse) && styles.memoryDarkDueReviewPill]}
                           >
-                            {memoryReviewDateLabel(verse.nextReviewAt)}
+                            {verse.archivedAt ? "Archived" : memoryReviewDateLabel(verse.nextReviewAt)}
                           </Text>
                         </View>
                       </Pressable>
@@ -997,7 +1011,7 @@ export function MemoryTab(props: any) {
                             )}
                           </View>}
                           <View style={[styles.journalActions, phoneLayout && styles.phoneMemoryActions, phoneLayout && styles.phoneMemoryPrimaryActions]}>
-                            <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} variant={phoneLayout ? "primary" : "default"} style={[phoneLayout && styles.phoneMemoryPracticeButton, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={phoneLayout ? "#fff" : memoryDarkMode ? "#d4a768" : undefined} />
+                            {!verse.archivedAt && <ResumeButton label={phoneLayout && isMemoryVerseDue(verse) ? "Review now" : "Practice"} icon="school-outline" onPress={() => startMemoryPractice(verse)} variant={phoneLayout ? "primary" : "default"} style={[phoneLayout && styles.phoneMemoryPracticeButton, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phoneMemoryActionText, !phoneLayout && memoryDarkMode && styles.homeDarkResumeButtonText]} iconColor={phoneLayout ? "#fff" : memoryDarkMode ? "#d4a768" : undefined} />}
                             <ResumeButton
                               label="Meditate"
                               icon="leaf-outline"
@@ -1025,14 +1039,14 @@ export function MemoryTab(props: any) {
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                                   iconColor={memoryDarkMode ? "#d4a768" : undefined}
                                 />
-                                <ResumeButton
+                                {!verse.archivedAt && <ResumeButton
                                   label={reviewOpen ? "Hide review" : "Change review"}
                                   icon="calendar-outline"
                                   onPress={() => setReviewScheduleVerseId((current) => current === verseId ? "" : verseId)}
                                   style={memoryDarkMode && styles.homeDarkResumeButton}
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                                   iconColor={memoryDarkMode ? "#d4a768" : undefined}
-                                />
+                                />}
                                 <ResumeButton
                                   label={collectionOpen ? "Hide collections" : "Collections"}
                                   icon="albums-outline"
@@ -1045,9 +1059,17 @@ export function MemoryTab(props: any) {
                                   iconColor={memoryDarkMode ? "#d4a768" : undefined}
                                 />
                                 <ResumeButton
-                                  label={pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove"}
+                                  label={verse.archivedAt ? "Restore" : "Archive"}
+                                  icon={verse.archivedAt ? "refresh-outline" : "archive-outline"}
+                                  onPress={() => verse.archivedAt ? restoreArchivedMemoryVerse(verse) : requestMemoryVerseAction(verse, "archive")}
+                                  style={memoryDarkMode && styles.homeDarkResumeButton}
+                                  labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                                  iconColor={memoryDarkMode ? "#d4a768" : undefined}
+                                />
+                                <ResumeButton
+                                  label="Remove"
                                   icon="trash-outline"
-                                  onPress={() => deleteMemoryVerse(verse)}
+                                  onPress={() => requestMemoryVerseAction(verse, "remove")}
                                   style={memoryDarkMode && styles.homeDarkResumeButton}
                                   labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                                   iconColor={memoryDarkMode ? "#d4a768" : undefined}
@@ -1071,6 +1093,17 @@ export function MemoryTab(props: any) {
                               <Pressable
                                 accessibilityRole="button"
                                 onPress={() => {
+                                  setMemoryMoreVerseId("");
+                                  verse.archivedAt ? restoreArchivedMemoryVerse(verse) : requestMemoryVerseAction(verse, "archive");
+                                }}
+                                style={styles.phoneMemoryMoreMenuItem}
+                              >
+                                <Ionicons name={verse.archivedAt ? "refresh-outline" : "archive-outline"} size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                                <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{verse.archivedAt ? "Restore to reviews" : "Archive from reviews"}</Text>
+                              </Pressable>
+                              {!verse.archivedAt && <Pressable
+                                accessibilityRole="button"
+                                onPress={() => {
                                   setReviewScheduleVerseId((current) => current === verseId ? "" : verseId);
                                   setMemoryMoreVerseId("");
                                 }}
@@ -1078,7 +1111,7 @@ export function MemoryTab(props: any) {
                               >
                                 <Ionicons name="calendar-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                                 <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Change review date</Text>
-                              </Pressable>
+                              </Pressable>}
                               <Pressable
                                 accessibilityRole="button"
                                 onPress={() => {
@@ -1095,12 +1128,12 @@ export function MemoryTab(props: any) {
                                 accessibilityRole="button"
                                 onPress={() => {
                                   setMemoryMoreVerseId("");
-                                  deleteMemoryVerse(verse);
+                                  requestMemoryVerseAction(verse, "remove");
                                 }}
                                 style={styles.phoneMemoryMoreMenuItem}
                               >
                                 <Ionicons name="trash-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
-                                <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>{pendingDeleteMemoryVerseId === verseId ? "Confirm remove" : "Remove from Memory"}</Text>
+                                <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Remove permanently</Text>
                               </Pressable>
                             </View>
                           )}
@@ -1172,7 +1205,7 @@ export function MemoryTab(props: any) {
                               )}
                             </View>
                           )}
-                          {reviewOpen && (
+                          {reviewOpen && !verse.archivedAt && (
                             <View style={[styles.reviewScheduleBox, memoryDarkMode && styles.accountDarkInsetBox]}>
                               <View style={styles.reviewScheduleHeader}>
                                 <Text style={[styles.memoryDiscoverLabel, memoryDarkMode && styles.studyDarkAccentText]}>Review schedule</Text>

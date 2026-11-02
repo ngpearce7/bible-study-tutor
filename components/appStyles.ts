@@ -10214,6 +10214,9 @@ export const styles = StyleSheet.create({
     minHeight: 38,
     paddingHorizontal: 12
   },
+  memoryRemoveConfirmButton: {
+    backgroundColor: "#a3382d"
+  },
   printDarkCancelButton: {
     backgroundColor: theme.dark.surface,
     borderColor: "rgba(212, 167, 104, 0.32)",

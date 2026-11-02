@@ -191,6 +191,33 @@ test("empty Memory collections persist and can be renamed without a verse", asyn
   expect(preferences?.memoryCollectionOrder).toEqual(["Trust"]);
 });
 
+test("creating a collection can attach selected active verses atomically", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "selected-memory-collection-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const otherProfileId = await t.mutation(api.study.ensureProfile, { clientKey: "other-selected-memory-device" });
+  const [firstId, secondId, archivedId, otherId] = await t.run(async (ctx) => {
+    const insert = (owner: typeof profileId, reference: string, archivedAt?: number) => ctx.db.insert("memoryVerses", {
+      profileId: owner, reference, verseText: reference, translationName: "BSB",
+      status: "new" as const, practiceLevel: 1, reviewCount: 0, createdAt: 1, updatedAt: 1,
+      ...(archivedAt ? { archivedAt } : {})
+    });
+    return [
+      await insert(profileId, "Romans 5:8"),
+      await insert(profileId, "James 1:22"),
+      await insert(profileId, "Matthew 4:4", 1),
+      await insert(otherProfileId, "Psalm 23:1")
+    ];
+  });
+  await expect(t.mutation(api.memory.createCollection, { profileId, clientKey, name: "Promises", memoryVerseIds: [firstId, otherId] })).rejects.toThrow("no longer in All Verses");
+  await expect(t.mutation(api.memory.createCollection, { profileId, clientKey, name: "Promises", memoryVerseIds: [archivedId] })).rejects.toThrow("no longer in All Verses");
+  expect((await t.run(async (ctx) => (await ctx.db.get(profileId))?.uiPreferences))?.memoryCollectionNames).toBeUndefined();
+  expect(await t.mutation(api.memory.createCollection, { profileId, clientKey, name: "Promises", memoryVerseIds: [firstId, secondId] })).toBe("Promises");
+  const verses = await t.query(api.memory.list, { profileId, clientKey });
+  expect(verses.filter((verse) => [firstId, secondId].includes(verse._id)).every((verse) => verse.collections?.includes("Promises"))).toBe(true);
+  expect(verses.find((verse) => verse._id === archivedId)?.collections).toBeUndefined();
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

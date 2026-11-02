@@ -372,7 +372,12 @@ export const updateCollections = mutation({
 });
 
 export const createCollection = mutation({
-  args: { clientKey: v.optional(v.string()), profileId: v.id("profiles"), name: v.string() },
+  args: {
+    clientKey: v.optional(v.string()),
+    profileId: v.id("profiles"),
+    name: v.string(),
+    memoryVerseIds: v.optional(v.array(v.id("memoryVerses")))
+  },
   returns: v.string(),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
@@ -386,20 +391,37 @@ export const createCollection = mutation({
     const verses = await ctx.db.query("memoryVerses")
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
       .take(501);
-    assertCollectionLimit(verses.length, 500, "Saved memory verse");
+    if (verses.length > 500) throw new Error("Saved memory verse limit reached.");
     if (savedNames.some((existing) => existing.toLowerCase() === name.toLowerCase()) ||
       verses.some((verse) => (verse.collections || []).some((existing) => existing.toLowerCase() === name.toLowerCase()))) {
       throw new Error("A collection with that name already exists.");
     }
     assertCollectionLimit(savedNames.length, 80, "Memory collection");
+    const selectedIds = Array.from(new Set(args.memoryVerseIds || []));
+    if (selectedIds.length > 50) throw new Error("Choose up to 50 saved verses for one collection.");
+    const selected = selectedIds.map((id) => verses.find((verse) => verse._id === id));
+    if (selected.some((verse) => !verse || verse.archivedAt)) {
+      throw new Error("One of the selected verses is no longer in All Verses. Refresh and try again.");
+    }
+    if (selected.some((verse) => verse && (verse.collections || []).length >= 8)) {
+      throw new Error("A selected verse already belongs to the maximum of 8 collections.");
+    }
     const order = Array.isArray(preferences.memoryCollectionOrder) ? preferences.memoryCollectionOrder : [];
+    const now = Date.now();
+    for (const verse of selected) {
+      if (!verse) continue;
+      await ctx.db.patch(verse._id, {
+        collections: cleanCollections([...(verse.collections || []), name]),
+        updatedAt: now
+      });
+    }
     await ctx.db.patch(args.profileId, {
       uiPreferences: {
         ...preferences,
         memoryCollectionNames: [...savedNames, name],
         memoryCollectionOrder: [...order.filter((existing) => existing !== name), name].slice(0, 80)
       },
-      updatedAt: Date.now()
+      updatedAt: now
     });
     return name;
   }

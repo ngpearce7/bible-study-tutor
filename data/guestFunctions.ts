@@ -19,6 +19,8 @@ export const guestFunctions = new Set([
   "memory:remove",
   "memory:scheduleReview",
   "memory:updateCollections",
+  "memory:createCollection",
+  "memory:renameCollection",
   "memory:listHistory",
   "memory:recordHistoryEvent",
   "memory:stats",

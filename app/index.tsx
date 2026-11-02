@@ -15,6 +15,7 @@ import { setStorageProfile, importLegacyDevicePreferences } from "@/data/feedbac
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { VerseHighlightActions, type VerseHighlightColor } from "@/components/VerseHighlightActions";
 import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, createCustomBibleReadingPlanState, deleteCustomBibleReadingPlanState, followBibleReadingPlanState, stopFollowingBibleReadingPlanState, uncompleteBibleReadingPlanDayState } from "@/data/bibleReadingPlanActions";
 import { expandPlanReadingReferences, fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
@@ -1071,6 +1072,9 @@ function HomeScreen() {
   const [memoryBookCollectionOpen, setMemoryBookCollectionOpen] = useState(false);
   const [memoryCollectionCreateMode, setMemoryCollectionCreateMode] = useState<"folder" | "book">("folder");
   const [memoryFolderName, setMemoryFolderName] = useState("");
+  const [memoryFolderAddVersesOpen, setMemoryFolderAddVersesOpen] = useState(false);
+  const [memoryFolderSelectedVerseIds, setMemoryFolderSelectedVerseIds] = useState<Id<"memoryVerses">[]>([]);
+  const [memoryFolderVerseSearch, setMemoryFolderVerseSearch] = useState("");
   const [memoryBookCollectionDraft, setMemoryBookCollectionDraft] = useState<MemoryBookCollectionDraft>({
     book: "Romans",
     mode: "whole",
@@ -2624,6 +2628,12 @@ function HomeScreen() {
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
   const memoryCollectionOptions = useMemo(() => buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt), memoryCollectionNames), [memoryVerses, memoryCollectionNames]);
+  const memoryFolderVerseMatches = useMemo(() => {
+    const search = memoryFolderVerseSearch.trim().toLowerCase();
+    return (memoryVerses || [])
+      .filter((verse: any) => !verse.archivedAt && (!search || `${verse.reference} ${verse.verseText}`.toLowerCase().includes(search)));
+  }, [memoryVerses, memoryFolderVerseSearch]);
+  const memoryFolderVerseChoices = memoryFolderVerseMatches.slice(0, 100);
   const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All verses" : memoryCollectionFilter;
   const activeMemoryCollectionDueCount = dueMemoryVersesForCollection(memoryVerses || [], memoryCollectionFilter).length;
   const memoryFilterVerses = useMemo(() => shouldPrepareMemoryUi
@@ -5629,6 +5639,9 @@ function HomeScreen() {
     setMemoryBookCollectionStatus("");
     setMemoryCollectionCreateMode("folder");
     setMemoryFolderName("");
+    setMemoryFolderAddVersesOpen(false);
+    setMemoryFolderSelectedVerseIds([]);
+    setMemoryFolderVerseSearch("");
     setMemoryBookCollectionOpen(true);
   }
 
@@ -5646,10 +5659,12 @@ function HomeScreen() {
     setMemoryBookCollectionSaving(true);
     setMemoryBookCollectionStatus("");
     try {
-      await createMemoryCollectionMutation({ profileId: activeProfileId, name });
+      await createMemoryCollectionMutation({ profileId: activeProfileId, name, memoryVerseIds: memoryFolderSelectedVerseIds });
       setMemoryCollectionNames((names) => [...names, name]);
       setMemoryCollectionOrder((order) => [...order.filter((item) => item !== name), name]);
-      setMemoryStatus(`${name} collection created. Add verses whenever you are ready.`);
+      setMemoryStatus(memoryFolderSelectedVerseIds.length
+        ? `${name} collection created with ${memoryFolderSelectedVerseIds.length} saved verse${memoryFolderSelectedVerseIds.length === 1 ? "" : "s"}.`
+        : `${name} collection created. Add verses whenever you are ready.`);
       setMemoryBookCollectionOpen(false);
       setMemoryCollectionsHome(true);
       setRememberedMemoryView("browse");
@@ -12336,7 +12351,7 @@ function HomeScreen() {
               <View style={styles.printOptionsTitleBlock}>
                 <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Create collection</Text>
                 <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
-                  {memoryCollectionCreateMode === "folder" ? "Name a collection now and add verses whenever you are ready." : "Choose a Bible book or chapter range. Each chapter becomes one saved Memory section."}
+                  {memoryCollectionCreateMode === "folder" ? "Name a collection. You can add saved verses now or later." : "Choose a Bible book or chapter range. Each chapter becomes one saved Memory section."}
                 </Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Close collection creator" disabled={memoryBookCollectionSaving} onPress={() => setMemoryBookCollectionOpen(false)} style={styles.markupCloseButton}>
@@ -12345,7 +12360,7 @@ function HomeScreen() {
             </View>
 
             <View style={[styles.printOptionChipRow, styles.printOptionGroup]}>
-              {([ ["folder", "Empty collection"], ["book", "From Bible book"] ] as const).map(([mode, label]) => (
+              {([ ["folder", "Collection folder"], ["book", "From Bible book"] ] as const).map(([mode, label]) => (
                 <Pressable
                   key={mode}
                   accessibilityRole="button"
@@ -12360,7 +12375,7 @@ function HomeScreen() {
             </View>
 
             {memoryCollectionCreateMode === "folder" ? (
-              <View style={styles.printOptionGroup}>
+              <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={styles.memoryBookCollectionContent} keyboardShouldPersistTaps="handled">
                 <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection name</Text>
                 <TextInput
                   value={memoryFolderName}
@@ -12370,9 +12385,66 @@ function HomeScreen() {
                   placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
                   style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                 />
-                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>You can add verses from the Bible reader or a verse’s Collections menu.</Text>
+                {(memoryVerses || []).some((verse: any) => !verse.archivedAt) && (
+                  <>
+                    <Pressable
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: memoryFolderAddVersesOpen }}
+                      onPress={() => {
+                        if (memoryFolderAddVersesOpen) setMemoryFolderSelectedVerseIds([]);
+                        setMemoryFolderAddVersesOpen((open) => !open);
+                      }}
+                      style={[styles.memoryNewCollectionChoice, accountDarkMode && styles.accountDarkInsetBox]}
+                    >
+                      <Ionicons name={memoryFolderAddVersesOpen ? "checkbox-outline" : "square-outline"} size={22} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+                      <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText, { flex: 1 }]}>Add saved verses now</Text>
+                      {!!memoryFolderSelectedVerseIds.length && <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{memoryFolderSelectedVerseIds.length} selected</Text>}
+                    </Pressable>
+                    {memoryFolderAddVersesOpen && (
+                      <View style={styles.printOptionGroup}>
+                        <TextInput
+                          value={memoryFolderVerseSearch}
+                          onChangeText={setMemoryFolderVerseSearch}
+                          placeholder="Search All Verses"
+                          accessibilityLabel="Search saved memory verses"
+                          placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                          style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                        />
+                        <ScrollView style={styles.memoryNewCollectionChoices} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+                          {memoryFolderVerseChoices.map((verse: any) => {
+                            const selected = memoryFolderSelectedVerseIds.includes(verse._id);
+                            return <Pressable
+                              key={String(verse._id)}
+                              accessibilityRole="checkbox"
+                              accessibilityState={{ checked: selected }}
+                              accessibilityLabel={`${verse.reference}, ${selected ? "selected" : "not selected"}`}
+                              onPress={() => {
+                                if (!selected && memoryFolderSelectedVerseIds.length >= 50) {
+                                  setMemoryBookCollectionStatus("Choose up to 50 saved verses for one collection.");
+                                  return;
+                                }
+                                setMemoryBookCollectionStatus("");
+                                setMemoryFolderSelectedVerseIds((ids) => selected ? ids.filter((id) => id !== verse._id) : [...ids, verse._id]);
+                              }}
+                              style={[styles.memoryNewCollectionChoice, selected && styles.memoryNewCollectionChoiceSelected, accountDarkMode && styles.accountDarkInsetBox]}
+                            >
+                              <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+                              <View style={{ flex: 1, minWidth: 0 }}>
+                                <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
+                                <Text numberOfLines={1} style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{verse.verseText}</Text>
+                              </View>
+                            </Pressable>;
+                          })}
+                          {memoryFolderVerseChoices.length === 0 && <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>No saved verses match that search.</Text>}
+                        </ScrollView>
+                        {memoryFolderVerseMatches.length > 100 && <Text style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>Showing the first 100 matches. Search to find other verses.</Text>}
+                      </View>
+                    )}
+                  </>
+                )}
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>You can add more later from the Bible reader or a verse’s Collections menu.</Text>
                 {!!memoryBookCollectionStatus && <Text style={[styles.saveStatus, accountDarkMode && styles.accountDarkMutedText]} accessibilityRole="alert">{memoryBookCollectionStatus}</Text>}
-              </View>
+              </ScrollView>
             ) : (
 
             <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={styles.memoryBookCollectionContent} keyboardShouldPersistTaps="handled">

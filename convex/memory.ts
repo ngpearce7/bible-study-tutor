@@ -44,6 +44,7 @@ export const saveVerse = mutation({
     verseText: v.string(),
     translationName: v.string(),
     note: v.optional(v.string()),
+    collections: v.optional(v.array(v.string())),
     localDayKey: v.optional(v.string())
   },
   returns: v.any(),
@@ -59,6 +60,7 @@ export const saveVerse = mutation({
     };
 
     const now = Date.now();
+    const selectedCollections = cleanCollections(args.collections || []);
     const existing = await ctx.db
       .query("memoryVerses")
       .withIndex("by_profile_reference", (q) => q.eq("profileId", args.profileId).eq("reference", cleaned.reference))
@@ -75,6 +77,7 @@ export const saveVerse = mutation({
         verseText: cleaned.verseText,
         translationName: cleaned.translationName,
         note: cleaned.note,
+        ...(selectedCollections.length ? { collections: cleanCollections([...(existing.collections || []), ...selectedCollections]) } : {}),
         updatedAt: now
       });
       await insertMemoryHistory(ctx, {
@@ -105,6 +108,7 @@ export const saveVerse = mutation({
 
     const memoryVerseId = await ctx.db.insert("memoryVerses", {
       ...cleaned,
+      ...(selectedCollections.length ? { collections: selectedCollections } : {}),
       status: "new",
       practiceLevel: 1,
       reviewCount: 0,

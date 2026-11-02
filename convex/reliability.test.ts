@@ -70,6 +70,19 @@ test("a rhythm longer than the daily query window keeps its full count", async (
   expect((await t.query(api.study.stats, { profileId, clientKey, now: today })).currentStreak).toBe(400);
 });
 
+test("saving a memory verse assigns collections atomically and preserves existing collections", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "memory-collection-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const args = { profileId, clientKey, reference: "Isaiah 46:4", verseText: "I will sustain you.", translationName: "BSB" };
+  const verseId = await t.mutation(api.memory.saveVerse, { ...args, collections: ["Promises", "Trust"] });
+  expect((await t.query(api.memory.list, { profileId, clientKey })).find((verse) => verse._id === verseId)?.collections).toEqual(["Promises", "Trust"]);
+  await t.mutation(api.memory.saveVerse, { ...args, collections: ["Identity"] });
+  const verses = await t.query(api.memory.list, { profileId, clientKey });
+  expect(verses).toHaveLength(1);
+  expect(verses[0].collections).toEqual(["Promises", "Trust", "Identity"]);
+});
+
 test("memory list includes older saved verses beyond the former 50-verse window", async () => {
   const t = convexTest(schema, modules);
   const clientKey = "many-verses-device";

@@ -104,12 +104,12 @@ export function BibleReaderControls({
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Deselect all selected Bible verses"
+            accessibilityLabel="Cancel Bible verse selection"
             onPress={onClearSelection}
             style={[styles.clearMarkupButton, darkMode && styles.homeDarkResumeButton, { flexDirection: "row", gap: 4, minHeight: 44 }]}
           >
             <Ionicons name="close-outline" size={17} color={darkMode ? "#d4a768" : colors.muted} />
-            <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Deselect</Text>
+            <Text style={[styles.clearMarkupText, darkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
           </Pressable>
         </View>
       )}

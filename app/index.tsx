@@ -371,7 +371,9 @@ type MemoryCollectionPrompt = {
   verses: BibleVerse[];
   note?: string;
   collectionName: string;
+  selectedCollections: string[];
 };
+type MemoryAssignPrompt = Pick<MemoryCollectionPrompt, "source" | "reference" | "translationName" | "verses" | "note" | "selectedCollections">;
 type MemoryBookCollectionDraft = {
   book: string;
   mode: "whole" | "range";
@@ -1060,6 +1062,8 @@ function HomeScreen() {
   const [memoryFilterMobileMenu, setMemoryFilterMobileMenu] = useState<MemoryFilterMobileMenu>(null);
   const [memoryCollectionPrompt, setMemoryCollectionPrompt] = useState<MemoryCollectionPrompt | null>(null);
   const [memoryCollectionPromptSaving, setMemoryCollectionPromptSaving] = useState(false);
+  const [memoryAssignPrompt, setMemoryAssignPrompt] = useState<MemoryAssignPrompt | null>(null);
+  const [memoryAssignPromptSaving, setMemoryAssignPromptSaving] = useState(false);
   const [memoryBookCollectionOpen, setMemoryBookCollectionOpen] = useState(false);
   const [memoryBookCollectionDraft, setMemoryBookCollectionDraft] = useState<MemoryBookCollectionDraft>({
     book: "Romans",
@@ -2613,7 +2617,7 @@ function HomeScreen() {
   const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
-  const memoryCollectionOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)) : [], [memoryVerses, shouldPrepareMemoryUi]);
+  const memoryCollectionOptions = useMemo(() => buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)), [memoryVerses]);
   const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All verses" : memoryCollectionFilter;
   const activeMemoryCollectionDueCount = dueMemoryVersesForCollection(memoryVerses || [], memoryCollectionFilter).length;
   const memoryFilterVerses = useMemo(() => shouldPrepareMemoryUi
@@ -5472,7 +5476,70 @@ function HomeScreen() {
 
   function prepareMemoryCollectionPrompt(source: "study" | "bible", reference: string, translationName: string, verses: BibleVerse[], note?: string) {
     const collectionName = defaultMemoryCollectionName(reference, verses);
-    setMemoryCollectionPrompt({ source, reference, translationName, verses, note, collectionName });
+    setMemoryCollectionPrompt({ source, reference, translationName, verses, note, collectionName, selectedCollections: [] });
+  }
+
+  function prepareMemoryAssignPrompt(source: "study" | "bible", reference: string, translationName: string, verses: BibleVerse[], note?: string) {
+    setMemoryAssignPrompt({ source, reference, translationName, verses, note, selectedCollections: [] });
+  }
+
+  function renderMemoryCollectionChoices(selectedCollections: string[], onToggle: (name: string) => void, limit: number) {
+    if (!memoryCollectionOptions.length) return null;
+    return (
+      <View style={styles.printOptionGroup}>
+        <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Add to collections (optional)</Text>
+        <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>All Verses is included automatically. Select any other collections you want.</Text>
+        <ScrollView style={{ flexGrow: 0, maxHeight: 180 }}>
+          <View style={styles.printOptionChipRow}>
+            {memoryCollectionOptions.map((collection) => {
+              const selected = selectedCollections.includes(collection.name);
+              return (
+                <Pressable
+                  key={collection.name}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: selected, disabled: !selected && selectedCollections.length >= limit }}
+                  disabled={!selected && selectedCollections.length >= limit}
+                  onPress={() => onToggle(collection.name)}
+                  style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, selected && styles.activePrintOptionChip, { flexDirection: "row", alignItems: "center", gap: 6 }]}
+                >
+                  {selected && <Ionicons name="checkmark" size={14} color="white" />}
+                  <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, selected && styles.activePrintOptionChipText]}>{collection.name}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        </ScrollView>
+        {selectedCollections.length >= limit && <Text style={[styles.printOptionsHintText, accountDarkMode && styles.accountDarkMutedText]}>You can add a verse to up to {limit} {limit === 1 ? "collection" : "collections"} here.</Text>}
+      </View>
+    );
+  }
+
+  async function saveMemoryAssignment(request: MemoryAssignPrompt) {
+    if (!activeProfileId || memoryAssignPromptSaving) return;
+    const statusSetter = request.source === "bible" ? setReaderMemoryStatus : setMemoryStatus;
+    setMemoryAssignPromptSaving(true);
+    statusSetter("Saving to Memory...");
+    try {
+      await saveMemoryVerse({
+        profileId: activeProfileId,
+        localDayKey: localDateKey(),
+        reference: request.reference,
+        verseText: request.verses.map((verse) => verse.text.trim()).join(" "),
+        translationName: request.translationName,
+        note: request.note || undefined,
+        collections: request.selectedCollections
+      });
+      const message = `${request.reference} was added to Memory${request.selectedCollections.length ? ` in ${request.selectedCollections.join(", ")}` : ""}.`;
+      statusSetter(message);
+      setMemoryStatus(message);
+      trackUsage("memory_saved", { reference: request.reference, translation: request.translationName, tab: request.source });
+      if (request.source === "study") setSelectedVerseKeys([]);
+      setMemoryAssignPrompt(null);
+    } catch {
+      statusSetter("Could not save to Memory. Check your connection and try again.");
+    } finally {
+      setMemoryAssignPromptSaving(false);
+    }
   }
 
   async function saveMemorySelectionAsOne(request: MemoryCollectionPrompt) {
@@ -5488,7 +5555,8 @@ function HomeScreen() {
         reference: request.reference,
         verseText: text,
         translationName: request.translationName,
-        note: request.note || undefined
+        note: request.note || undefined,
+        collections: request.selectedCollections
       });
       statusSetter(`${request.reference} was recently added.`);
       setMemoryStatus(`${request.reference} was recently added.`);
@@ -5521,18 +5589,14 @@ function HomeScreen() {
     try {
       for (const section of sections) {
         const sectionReference = buildMemorySectionReference(section);
-        const memoryVerseId = await saveMemoryVerse({
+        await saveMemoryVerse({
           profileId: activeProfileId,
           localDayKey: localDateKey(),
           reference: sectionReference,
           verseText: section.map((verse) => verse.text.trim()).join(" "),
           translationName: request.translationName,
-          note: request.note || undefined
-        });
-        await updateMemoryCollections({
-          profileId: activeProfileId,
-          memoryVerseId,
-          collections: [collectionName]
+          note: request.note || undefined,
+          collections: [collectionName, ...request.selectedCollections]
         });
       }
 
@@ -5643,6 +5707,10 @@ function HomeScreen() {
 
   async function saveSelectedVersesToMemory() {
     if (!activeProfileId || selectedVerses.length === 0 || !passageText) return;
+    if (memoryVerses === undefined) {
+      setMemoryStatus("Your Memory collections are still loading. Try again in a moment.");
+      return;
+    }
     if (selectedVersesAlreadyInMemory) {
       setMemoryStatus("Already in Memory");
       return;
@@ -5655,6 +5723,10 @@ function HomeScreen() {
       .join("\n");
     if (shouldOfferMemoryCollectionSplit(selectedVerses)) {
       prepareMemoryCollectionPrompt("study", reference, passageText.translation_name, selectedVerses, note || undefined);
+      return;
+    }
+    if (memoryCollectionOptions.length > 0) {
+      prepareMemoryAssignPrompt("study", reference, passageText.translation_name, selectedVerses, note || undefined);
       return;
     }
     setMemoryStatus("Saving verse to Memory...");
@@ -5681,6 +5753,10 @@ function HomeScreen() {
       return;
     }
     if (!readerPassage || selectedReaderVerses.length === 0) return;
+    if (memoryVerses === undefined) {
+      setReaderMemoryStatus("Your Memory collections are still loading. Try again in a moment.");
+      return;
+    }
     if (selectedReaderVersesAlreadyInMemory) {
       setReaderMemoryStatus("Already in Memory");
       setMemoryStatus("Already in Memory");
@@ -5692,6 +5768,10 @@ function HomeScreen() {
     const reference = buildReaderStudyReference(readerBook, readerChapter, selectedReaderVerses);
     if (shouldOfferMemoryCollectionSplit(verses)) {
       prepareMemoryCollectionPrompt("bible", reference, readerPassage.translation_name, verses);
+      return;
+    }
+    if (memoryCollectionOptions.length > 0) {
+      prepareMemoryAssignPrompt("bible", reference, readerPassage.translation_name, verses);
       return;
     }
 
@@ -11931,12 +12011,12 @@ function HomeScreen() {
             </Pressable>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Deselect all selected Bible verses"
+              accessibilityLabel="Cancel Bible verse selection"
               onPress={clearReaderSelection}
               style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton]}
             >
               <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#bbb8b4" : colors.muted} />
-              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Deselect</Text>
+              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
             </Pressable>
           </View>
           {highlightServiceReadyProfileId === String(activeProfileId) && <View style={{ marginTop: 8 }}>
@@ -12071,6 +12151,40 @@ function HomeScreen() {
           </View>
         </View>
       )}
+      {memoryAssignPrompt && (
+        <View {...modalAccessibilityProps("Add verse to Memory")} style={styles.printOptionsOverlay}>
+          <Pressable
+            style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]}
+            onPress={() => !memoryAssignPromptSaving && setMemoryAssignPrompt(null)}
+          />
+          <View style={[styles.printOptionsCard, styles.memoryCollectionPromptCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard, { maxHeight: "86%" }]}>
+            <View style={styles.printOptionsHeader}>
+              <View style={styles.printOptionsTitleBlock}>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Add to Memory</Text>
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>{memoryAssignPrompt.reference}</Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close Memory collection choices" disabled={memoryAssignPromptSaving} onPress={() => setMemoryAssignPrompt(null)} style={styles.markupCloseButton}>
+                <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#bbb8b4" : colors.muted} />
+              </Pressable>
+            </View>
+            {renderMemoryCollectionChoices(memoryAssignPrompt.selectedCollections, (name) => setMemoryAssignPrompt((current) => current ? {
+              ...current,
+              selectedCollections: current.selectedCollections.includes(name)
+                ? current.selectedCollections.filter((item) => item !== name)
+                : [...current.selectedCollections, name]
+            } : current), 8)}
+            <View style={[styles.printOptionsActions, phoneLayout && styles.phoneMemoryVerseActionButtons]}>
+              <Pressable disabled={memoryAssignPromptSaving} onPress={() => setMemoryAssignPrompt(null)} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
+                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
+              </Pressable>
+              <Pressable disabled={memoryAssignPromptSaving} onPress={() => saveMemoryAssignment(memoryAssignPrompt)} style={[styles.resumeButton, styles.primaryResumeButton, phoneLayout && styles.phonePrintOpenButton, memoryAssignPromptSaving && styles.disabledButton]}>
+                <Ionicons name="sparkles-outline" size={17} color="white" />
+                <Text style={[styles.primaryResumeButtonText, phoneLayout && styles.phonePrintOpenButtonText]}>{memoryAssignPromptSaving ? "Saving..." : "Save to Memory"}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      )}
       {memoryCollectionPrompt && (
         <View {...modalAccessibilityProps("Memory collection")} style={styles.printOptionsOverlay}>
           <Pressable
@@ -12107,6 +12221,13 @@ function HomeScreen() {
                 style={[styles.input, accountDarkMode && styles.accountDarkInput]}
               />
             </View>
+
+            {renderMemoryCollectionChoices(memoryCollectionPrompt.selectedCollections, (name) => setMemoryCollectionPrompt((current) => current ? {
+              ...current,
+              selectedCollections: current.selectedCollections.includes(name)
+                ? current.selectedCollections.filter((item) => item !== name)
+                : [...current.selectedCollections, name]
+            } : current), 7)}
 
             <View style={[styles.memoryCollectionPromptSummary, accountDarkMode && styles.memoryDarkSoftPanel]}>
               <Ionicons name="albums-outline" size={20} color={accountDarkMode ? "#d4a768" : colors.coral} />

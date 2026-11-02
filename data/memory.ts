@@ -918,9 +918,7 @@ export function buildMemoryCollectionOptions(verses: any[]) {
 }
 
 export function memoryVersesForCollectionFilters(verses: any[], collectionName: string, status: MemoryBrowseStatusFilter) {
-  const active = collectionName === "all" && (status === "all" || status === "archived")
-    ? verses
-    : verses.filter((verse) => !verse.archivedAt);
+  const active = verses.filter((verse) => !verse.archivedAt);
   const inCollection = collectionName === "all"
     ? active
     : active.filter((verse) => getMemoryVerseCollections(verse).includes(collectionName));
@@ -932,7 +930,7 @@ export function buildMemoryCollectionCards(verses: any[], customOrder: string[] 
   const due = active.filter(isMemoryVerseDue);
   const order = new Map(customOrder.map((name, index) => [name, index]));
   return [
-    { key: "all", name: "All Verses", count: verses.length, dueCount: due.length },
+    { key: "all", name: "All Verses", count: active.length, dueCount: due.length },
     ...buildMemoryCollectionOptions(active).sort((a, b) =>
       (order.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.name) ?? Number.MAX_SAFE_INTEGER)
     ).map((collection) => ({

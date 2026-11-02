@@ -892,6 +892,7 @@ function HomeScreen() {
   const restoreMemoryVerse = useMutation(api.memory.restore);
   const scheduleMemoryReview = useMutation(api.memory.scheduleReview);
   const updateMemoryCollections = useMutation(api.memory.updateCollections);
+  const renameMemoryCollectionMutation = useMutation(api.memory.renameCollection);
   const recordMemoryHistoryEvent = useMutation(api.memory.recordHistoryEvent);
   const submitFeedback = useMutation(api.insights.submitFeedback);
   const recordUsage = useMutation(api.insights.recordUsage);
@@ -2654,7 +2655,7 @@ function HomeScreen() {
   ].filter(Boolean).join(" · ") || "All saved verses";
   const memoryBrowseSections = useMemo(
     () => shouldPrepareMemoryUi ? buildMemoryBrowseSections(
-      memoryCollectionFilter === "all" && memoryBrowseStatusFilter === "all" ? memoryVerses || [] : (memoryVerses || []).filter((verse: any) => !verse.archivedAt),
+      (memoryVerses || []).filter((verse: any) => !verse.archivedAt),
       memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter
     ) : [],
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses, shouldPrepareMemoryUi]
@@ -2757,15 +2758,7 @@ function HomeScreen() {
   const practiceViewport = usePracticeViewport(phoneLayout && phoneMemoryFocusMode);
   const memoryFinishRef = useRef<View>(null);
   const browseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
-  const browseArchivedVerses = browseMemoryVerses.filter((verse: any) => verse.archivedAt);
-  const browseMemoryDisplaySections = [
-    ...buildMemoryQueueSections(browseMemoryVerses),
-    ...(browseArchivedVerses.length ? [{
-      title: "Archived",
-      description: "Saved without scheduled reviews. Restore a verse to review it again.",
-      verses: browseArchivedVerses.sort((a: any, b: any) => (b.archivedAt || 0) - (a.archivedAt || 0))
-    }] : [])
-  ];
+  const browseMemoryDisplaySections = buildMemoryQueueSections(browseMemoryVerses);
   const archivedMemorySections = shouldPrepareMemoryUi ? [{
     title: "Archived verses",
     description: "Saved without scheduled reviews. Restore a verse to review it again.",
@@ -2791,11 +2784,12 @@ function HomeScreen() {
     : "";
   function getMemoryPrintCandidateVerses(printSet: MemoryPrintSet) {
     const saved = memoryVerses || [];
+    const active = saved.filter((verse: any) => !verse.archivedAt);
     if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
-    if (printSet === "reviewed") return saved.filter((verse: any) => !verse.archivedAt && !isMemoryVerseDue(verse));
-    if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? saved : saved.filter((verse: any) => !verse.archivedAt && getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
+    if (printSet === "reviewed") return active.filter((verse: any) => !isMemoryVerseDue(verse));
+    if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? active : active.filter((verse: any) => getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
     if (printSet === "current") return visibleMemorySections.flatMap((section) => section.verses);
-    return saved;
+    return active;
   }
   const memoryPrintCandidateVerses = useMemo(() => getMemoryPrintCandidateVerses(memoryPrintSet), [currentBrowseMemoryVerses, memoryPrintCollectionFilter, memoryPrintSet, memoryVerses, memoryView, visibleMemorySections]);
   const memoryPrintVerses = useMemo(() => {
@@ -5848,7 +5842,7 @@ function HomeScreen() {
       setMemoryStatus("Add a memory verse before printing cards.");
       return;
     }
-    const savedMemoryVerses = memoryVerses || [];
+    const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
     const initialSet: MemoryPrintSet = memoryView === "browse" && memoryCollectionsHome
       ? "all"
       : memoryView === "browse"
@@ -5880,8 +5874,8 @@ function HomeScreen() {
 
   function changeMemoryPrintCollection(collectionName: string) {
     setMemoryPrintCollectionFilter(collectionName);
-    const saved = memoryVerses || [];
-    const verses = collectionName === "all" ? saved : saved.filter((verse: any) => !verse.archivedAt && getMemoryVerseCollections(verse).includes(collectionName));
+    const saved = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
+    const verses = collectionName === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(collectionName));
     setRememberedMemoryPrintSet("collection");
     setMemoryPrintSelectedVerseIds(verses.map((verse: any) => String(verse._id)));
   }
@@ -6067,6 +6061,19 @@ function HomeScreen() {
       setMemoryStatus(`Could not update collections for ${verse.reference}.`);
       return false;
     }
+  }
+
+  async function renameMemoryCollection(oldName: string, newName: string) {
+    if (!activeProfileId) throw new Error("Your profile is still loading. Try again in a moment.");
+    const positions = new Map(memoryCollectionOrder.map((name, index) => [name, index]));
+    const order = [...memoryCollectionOptions]
+      .sort((a, b) => (positions.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (positions.get(b.name) ?? Number.MAX_SAFE_INTEGER))
+      .map((collection) => collection.name === oldName ? newName : collection.name);
+    const result = await renameMemoryCollectionMutation({ profileId: activeProfileId, oldName, newName, order });
+    setMemoryCollectionOrder(order);
+    if (memoryCollectionFilter === oldName) setMemoryCollectionFilter(newName);
+    setMemoryStatus(`Renamed ${oldName} to ${newName} for ${result.renamedCount} verse${result.renamedCount === 1 ? "" : "s"}.`);
+    return result;
   }
 
   function addMemoryVerseCollection(verse: any) {
@@ -11035,6 +11042,7 @@ function HomeScreen() {
               phoneLayout={phoneLayout}
               phoneMemoryFocusMode={phoneMemoryFocusMode}
               removeMemoryVerseCollection={removeMemoryVerseCollection}
+              renameMemoryCollection={renameMemoryCollection}
               repeatMemoryPracticeStep={repeatMemoryPracticeStep}
               reviewScheduleVerseId={reviewScheduleVerseId}
               ResumeButton={ResumeButton}

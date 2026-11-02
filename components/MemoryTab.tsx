@@ -17,6 +17,11 @@ export function MemoryTab(props: any) {
   const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [collectionCreationError, setCollectionCreationError] = useState("");
+  const [collectionMenuName, setCollectionMenuName] = useState("");
+  const [renameCollectionFrom, setRenameCollectionFrom] = useState("");
+  const [renameCollectionDraft, setRenameCollectionDraft] = useState("");
+  const [renameCollectionError, setRenameCollectionError] = useState("");
+  const [renamingCollection, setRenamingCollection] = useState(false);
   const [pendingSharedReview, setPendingSharedReview] = useState<{ verses: any[]; preset: string; bulk: boolean } | null>(null);
   const [rememberSharedReviewWarning, setRememberSharedReviewWarning] = useState(false);
   const sharedReviewWarningSkippedForProfile = useRef("");
@@ -124,6 +129,7 @@ export function MemoryTab(props: any) {
     phoneLayout,
     phoneMemoryFocusMode,
     removeMemoryVerseCollection,
+    renameMemoryCollection,
     repeatMemoryPracticeStep,
     reviewScheduleVerseId,
     ResumeButton,
@@ -382,6 +388,36 @@ export function MemoryTab(props: any) {
     setMemoryCollectionsHome(false);
   }
 
+  async function confirmCollectionRename() {
+    const name = renameCollectionDraft.trim().replace(/\s+/g, " ");
+    if (!name || name.length > 40) {
+      setRenameCollectionError("Enter a name of up to 40 characters.");
+      return;
+    }
+    if (["all verses", "due for review"].includes(name.toLowerCase())) {
+      setRenameCollectionError("That name is reserved. Choose another name.");
+      return;
+    }
+    if (memoryCollectionOptions.some((collection: any) => collection.name !== renameCollectionFrom && collection.name.toLowerCase() === name.toLowerCase())) {
+      setRenameCollectionError("A collection with that name already exists.");
+      return;
+    }
+    if (name === renameCollectionFrom) {
+      setRenameCollectionFrom("");
+      return;
+    }
+    setRenamingCollection(true);
+    setRenameCollectionError("");
+    try {
+      await renameMemoryCollection(renameCollectionFrom, name);
+      setRenameCollectionFrom("");
+    } catch (error: any) {
+      setRenameCollectionError(String(error?.message || "Could not rename this collection. Please try again."));
+    } finally {
+      setRenamingCollection(false);
+    }
+  }
+
   return (
     <View style={[styles.layout, styles.memoryLayout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
       <Card style={[styles.mainCard, styles.memoryMainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
@@ -429,7 +465,7 @@ export function MemoryTab(props: any) {
               </View>
             )}
             {(memoryVerses || []).length > 0 && <View style={[styles.metricGrid, styles.memoryCompactMetricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
-              <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+              <Metric value={savedMemoryVerses.length} label="saved" compact={phoneLayout} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
               <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
               <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
             </View>}
@@ -728,6 +764,16 @@ export function MemoryTab(props: any) {
                               </Text>
                             </View>
                           </Pressable>
+                          {isCustom && !reorderMode && (
+                            <Pressable
+                              accessibilityRole="button"
+                              accessibilityLabel={`More options for ${collection.name}`}
+                              onPress={() => setCollectionMenuName(collection.name)}
+                              style={[styles.memoryCollectionMenuButton, memoryDarkMode && styles.homeDarkIconBubble]}
+                            >
+                              <Ionicons name="ellipsis-horizontal" size={19} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                            </Pressable>
+                          )}
                           {reorderMode && isCustom && (Platform.OS === "web" ? (
                             <div
                               role="button"
@@ -1722,6 +1768,53 @@ export function MemoryTab(props: any) {
           </View>
         )}
       </Card>
+      <Modal transparent visible={!!(collectionMenuName || renameCollectionFrom)} animationType="fade" onRequestClose={() => {
+        if (renamingCollection) return;
+        setCollectionMenuName("");
+        setRenameCollectionFrom("");
+      }}>
+        <View accessibilityLabel={renameCollectionFrom ? "Rename collection" : "Collection options"} accessibilityViewIsModal style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
+          <Pressable accessibilityLabel="Close collection options" style={[styles.printOptionsScrim, memoryDarkMode && styles.printDarkOptionsScrim]} onPress={() => {
+            if (renamingCollection) return;
+            setCollectionMenuName("");
+            setRenameCollectionFrom("");
+          }} />
+          <View style={[styles.printOptionsCard, memoryDarkMode && styles.accountDarkMainCard]}>
+            {renameCollectionFrom ? (
+              <>
+                <Text style={[styles.printOptionsTitle, memoryDarkMode && styles.accountDarkTitle]}>Rename collection</Text>
+                <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>This changes the collection name for all its verses, including any in Archive.</Text>
+                <TextInput
+                  accessibilityLabel="New collection name"
+                  autoFocus
+                  value={renameCollectionDraft}
+                  onChangeText={(value) => { setRenameCollectionDraft(value); setRenameCollectionError(""); }}
+                  maxLength={40}
+                  onSubmitEditing={confirmCollectionRename}
+                  style={[styles.input, memoryDarkMode && styles.accountDarkInput]}
+                />
+                {!!renameCollectionError && <Text accessibilityRole="alert" style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{renameCollectionError}</Text>}
+                <View style={[styles.printOptionsActions, phoneLayout && styles.memoryRenamePhoneActions]}>
+                  <AppButton label="Cancel" variant="secondary" onPress={() => setRenameCollectionFrom("")} disabled={renamingCollection} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label={renamingCollection ? "Saving..." : "Save name"} onPress={confirmCollectionRename} disabled={renamingCollection} />
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.printOptionsTitle, memoryDarkMode && styles.accountDarkTitle]}>{collectionMenuName}</Text>
+                <AppButton label="Rename collection" onPress={() => {
+                  const name = collectionMenuName;
+                  setCollectionMenuName("");
+                  setRenameCollectionFrom(name);
+                  setRenameCollectionDraft(name);
+                  setRenameCollectionError("");
+                }} />
+                <AppButton label="Cancel" variant="secondary" onPress={() => setCollectionMenuName("")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
       <Modal transparent visible={!!pendingSharedReview} animationType="fade" onRequestClose={() => setPendingSharedReview(null)}>
         <View accessibilityLabel="Shared memory verse review warning" accessibilityViewIsModal style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
           <Pressable accessibilityLabel="Cancel review change" style={[styles.printOptionsScrim, memoryDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingSharedReview(null)} />

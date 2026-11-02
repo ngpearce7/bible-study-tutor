@@ -136,6 +136,35 @@ test("archived memory verses leave reviews, restore, and can be removed with the
   expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId })).toHaveLength(0);
 });
 
+test("renaming a collection updates active and archived verses and keeps its order", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "rename-memory-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  await t.run(async (ctx) => {
+    await ctx.db.patch(profileId, { uiPreferences: { memoryCollectionOrder: ["Trust", "Promises"], memoryCollectionFilter: "Trust" } });
+    for (const [index, collections, archivedAt] of [
+      [0, ["Trust", "Promises"], undefined],
+      [1, ["Trust"], 1],
+      [2, ["Promises"], undefined]
+    ] as const) {
+      await ctx.db.insert("memoryVerses", {
+        profileId, reference: `Romans 8:${index + 1}`, verseText: `Verse ${index + 1}`,
+        translationName: "BSB", collections: [...collections], archivedAt,
+        status: "new", practiceLevel: 1, reviewCount: 0, createdAt: index, updatedAt: index
+      });
+    }
+  });
+  await expect(t.mutation(api.memory.renameCollection, { profileId, clientKey: "wrong-device", oldName: "Trust", newName: "Identity", order: ["Identity", "Promises"] })).rejects.toThrow("Unauthorized");
+  await expect(t.mutation(api.memory.renameCollection, { profileId, clientKey, oldName: "Trust", newName: "Promises", order: ["Promises"] })).rejects.toThrow("already exists");
+  expect(await t.mutation(api.memory.renameCollection, { profileId, clientKey, oldName: "Trust", newName: "Identity", order: ["Identity", "Promises"] })).toEqual({ renamedCount: 2 });
+  const verses = await t.query(api.memory.list, { profileId, clientKey });
+  expect(verses.find((verse) => verse.reference === "Romans 8:1")?.collections).toEqual(["Identity", "Promises"]);
+  expect(verses.find((verse) => verse.reference === "Romans 8:2")?.collections).toEqual(["Identity"]);
+  const preferences = await t.run(async (ctx) => (await ctx.db.get(profileId))?.uiPreferences);
+  expect(preferences?.memoryCollectionOrder).toEqual(["Identity", "Promises"]);
+  expect(preferences?.memoryCollectionFilter).toBe("Identity");
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

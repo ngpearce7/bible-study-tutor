@@ -6727,6 +6727,16 @@ export const styles = StyleSheet.create({
     top: 10,
     width: 38
   },
+  memoryCollectionMenuButton: {
+    alignItems: "center",
+    borderRadius: 8,
+    bottom: 8,
+    height: 36,
+    justifyContent: "center",
+    position: "absolute",
+    right: 8,
+    width: 36
+  },
   memoryCollectionCardHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
@@ -6739,6 +6749,11 @@ export const styles = StyleSheet.create({
     gap: 6,
     justifyContent: "space-between",
     marginTop: "auto"
+  },
+  memoryRenamePhoneActions: {
+    alignItems: "stretch",
+    flexDirection: "column-reverse",
+    width: "100%"
   },
   memoryCollectionTopDuePill: {
     position: "absolute",

@@ -367,6 +367,59 @@ export const updateCollections = mutation({
   }
 });
 
+export const renameCollection = mutation({
+  args: {
+    clientKey: v.optional(v.string()),
+    profileId: v.id("profiles"),
+    oldName: v.string(),
+    newName: v.string(),
+    order: v.array(v.string())
+  },
+  returns: v.object({ renamedCount: v.number() }),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
+    assertProfileCanWrite(profile);
+    const oldName = args.oldName.trim().replace(/\s+/g, " ");
+    const newName = args.newName.trim().replace(/\s+/g, " ");
+    if (!oldName || !newName || newName.length > 40 || ["all verses", "due for review"].includes(newName.toLowerCase())) {
+      throw new Error("Choose a collection name of up to 40 characters.");
+    }
+
+    const verses = await ctx.db.query("memoryVerses")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .take(501);
+    assertCollectionLimit(verses.length, 500, "Saved memory verse");
+    const matching = verses.filter((verse) => (verse.collections || []).includes(oldName));
+    if (!matching.some((verse) => !verse.archivedAt)) throw new Error("Collection no longer exists.");
+    if (verses.some((verse) => (verse.collections || []).some((name) => name !== oldName && name.toLowerCase() === newName.toLowerCase()))) {
+      throw new Error("A collection with that name already exists.");
+    }
+
+    const activeNames = new Set(verses.filter((verse) => !verse.archivedAt)
+      .flatMap((verse) => verse.collections || [])
+      .map((name) => name === oldName ? newName : name));
+    const order = Array.from(new Set(args.order
+      .map((name) => name === oldName ? newName : name.trim())
+      .filter((name) => activeNames.has(name)))).slice(0, 80);
+    const now = Date.now();
+    for (const verse of matching) {
+      await ctx.db.patch(verse._id, {
+        collections: cleanCollections((verse.collections || []).map((name) => name === oldName ? newName : name))
+      });
+    }
+    const preferences = profile.uiPreferences || {};
+    await ctx.db.patch(args.profileId, {
+      uiPreferences: {
+        ...preferences,
+        memoryCollectionOrder: order,
+        ...(preferences.memoryCollectionFilter === oldName ? { memoryCollectionFilter: newName } : {})
+      },
+      updatedAt: now
+    });
+    return { renamedCount: matching.length };
+  }
+});
+
 export const listHistory = query({
   args: {
     clientKey: v.optional(v.string()),

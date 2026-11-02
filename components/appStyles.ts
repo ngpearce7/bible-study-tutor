@@ -10401,6 +10401,14 @@ export const styles = StyleSheet.create({
     gap: 10,
     justifyContent: "flex-end"
   },
+  phoneMemoryVerseActionButtons: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    flexWrap: "nowrap"
+  },
+  phoneMemoryVerseActionButton: {
+    width: "100%"
+  },
   rhythmGraceActions: {
     justifyContent: "space-between"
   },

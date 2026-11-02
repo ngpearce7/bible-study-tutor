@@ -12310,18 +12310,16 @@ function HomeScreen() {
                 : "This deletes the saved verse, its note, and its linked Memory history. You cannot undo this. If you only want to stop reviews, archive the verse instead."}
             </Text>
             {!!memoryVerseActionError && <Text accessibilityLiveRegion="assertive" style={styles.warningText}>{memoryVerseActionError}</Text>}
-            <View style={styles.printOptionsActions}>
-              <Pressable accessibilityRole="button" onPress={() => setPendingMemoryVerseAction(null)} disabled={memoryVerseActionSaving} style={[styles.printOptionsCancelButton, accountDarkMode && styles.printDarkCancelButton]}>
-                <Text style={[styles.printOptionsCancelText, accountDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
-              </Pressable>
+            <View style={[styles.printOptionsActions, phoneLayout && styles.phoneMemoryVerseActionButtons]}>
+              <AppButton label="Cancel" variant="secondary" onPress={() => setPendingMemoryVerseAction(null)} disabled={memoryVerseActionSaving} style={[phoneLayout && styles.phoneMemoryVerseActionButton, accountDarkMode && styles.homeDarkResumeButton]} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
               {pendingMemoryVerseAction.type === "remove" && (
-                <AppButton label="Archive instead" variant="secondary" onPress={() => void confirmMemoryVerseAction("archive")} disabled={memoryVerseActionSaving} style={accountDarkMode && styles.homeDarkResumeButton} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
+                <AppButton label="Archive instead" variant="secondary" onPress={() => void confirmMemoryVerseAction("archive")} disabled={memoryVerseActionSaving} style={[phoneLayout && styles.phoneMemoryVerseActionButton, accountDarkMode && styles.homeDarkResumeButton]} labelStyle={accountDarkMode && styles.homeDarkResumeButtonText} />
               )}
               <AppButton
                 label={memoryVerseActionSaving ? "Saving…" : pendingMemoryVerseAction.type === "archive" ? "Archive verse" : "Remove permanently"}
                 onPress={() => void confirmMemoryVerseAction()}
                 disabled={memoryVerseActionSaving}
-                style={pendingMemoryVerseAction.type === "remove" ? styles.memoryRemoveConfirmButton : undefined}
+                style={[phoneLayout && styles.phoneMemoryVerseActionButton, pendingMemoryVerseAction.type === "remove" && styles.memoryRemoveConfirmButton]}
               />
             </View>
           </View>

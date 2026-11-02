@@ -6687,6 +6687,15 @@ export const styles = StyleSheet.create({
     borderColor: colors.blue,
     borderWidth: 2
   },
+  memoryCollectionDraggingPlaceholder: {
+    opacity: 0.3
+  },
+  memorySharedReviewRememberRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 9,
+    minHeight: 44
+  },
   memoryCollectionDragHandle: {
     alignItems: "center",
     backgroundColor: colors.panel,

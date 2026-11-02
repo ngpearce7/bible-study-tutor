@@ -1,7 +1,7 @@
 // @ts-nocheck
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Suspense, useRef, useState } from "react";
-import { Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryCollectionCards, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -17,17 +17,23 @@ export function MemoryTab(props: any) {
   const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [collectionCreationError, setCollectionCreationError] = useState("");
+  const [pendingSharedReview, setPendingSharedReview] = useState<{ verses: any[]; preset: string; bulk: boolean } | null>(null);
+  const [rememberSharedReviewWarning, setRememberSharedReviewWarning] = useState(false);
+  const sharedReviewWarningSkippedForProfile = useRef("");
   const [reorderMode, setReorderMode] = useState(false);
   const reorderModeRef = useRef(false);
   const [draftCollectionOrder, setDraftCollectionOrder] = useState<string[]>([]);
   const [dragOverCollection, setDragOverCollection] = useState("");
+  const [dragPreview, setDragPreview] = useState<{ name: string; x: number; y: number; width: number; height: number; offsetX: number; offsetY: number } | null>(null);
   const pointerDrag = useRef({ name: "", x: 0, y: 0, moved: false });
   const dragTarget = useRef("");
+  const lastDragTarget = useRef("");
   const collectionRefs = useRef<Record<string, any>>({});
   const collectionBounds = useRef<Record<string, { x: number; y: number; width: number; height: number }>>({});
   const CollectionWrapper = Platform.OS === "web" ? "div" : View;
   const {
     activeMemoryCollectionDueCount,
+    activeProfileId,
     activeMemoryCollectionName,
     activeMemoryMeditationVerseId,
     activeMemoryReviewQueueCount,
@@ -123,6 +129,9 @@ export function MemoryTab(props: any) {
     saveMemoryCollectionOrder,
     scheduleFilteredMemoryReview,
     scheduleMemoryVerseReview,
+    sharedReviewWarningDismissed,
+    saveSharedReviewWarningDismissed,
+    resetSharedReviewWarningDismissed,
     selectMemoryFilterBook,
     selectMemoryFilterChapter,
     setActiveMemoryVerseId,
@@ -178,6 +187,28 @@ export function MemoryTab(props: any) {
   ).slice(0, 12);
   const selectedCollectionVerse = savedMemoryVerses.find((verse: any) => String(verse._id) === newCollectionVerseId);
 
+  function requestReviewScheduleChange(verses: any[], preset: string, bulk = false) {
+    const shared = verses.filter((verse: any) => getMemoryVerseCollections(verse).length > 1);
+    if (shared.length && !sharedReviewWarningDismissed && sharedReviewWarningSkippedForProfile.current !== String(activeProfileId)) {
+      setRememberSharedReviewWarning(false);
+      setPendingSharedReview({ verses, preset, bulk });
+      return;
+    }
+    if (bulk) scheduleFilteredMemoryReview(preset);
+    else scheduleMemoryVerseReview(verses[0], preset);
+  }
+
+  function confirmSharedReviewChange() {
+    if (!pendingSharedReview) return;
+    if (rememberSharedReviewWarning) {
+      sharedReviewWarningSkippedForProfile.current = String(activeProfileId);
+      saveSharedReviewWarningDismissed();
+    }
+    if (pendingSharedReview.bulk) scheduleFilteredMemoryReview(pendingSharedReview.preset);
+    else scheduleMemoryVerseReview(pendingSharedReview.verses[0], pendingSharedReview.preset);
+    setPendingSharedReview(null);
+  }
+
   function chooseMemoryCollection(name: string) {
     clearMemoryBrowseFilters();
     setMemoryCollectionFilter(name);
@@ -224,7 +255,21 @@ export function MemoryTab(props: any) {
   function finishCollectionDrag() {
     pointerDrag.current = { name: "", x: 0, y: 0, moved: false };
     dragTarget.current = "";
+    lastDragTarget.current = "";
     setDragOverCollection("");
+    setDragPreview(null);
+  }
+
+  function previewCollectionMove(source: string, target: string) {
+    setDragOverCollection(target && target !== source ? target : "");
+    if (!target) {
+      lastDragTarget.current = "";
+      return;
+    }
+    if (target === source) return;
+    if (lastDragTarget.current === target) return;
+    lastDragTarget.current = target;
+    moveCollection(source, target);
   }
 
   function measureNativeCollections() {
@@ -419,6 +464,16 @@ export function MemoryTab(props: any) {
                       <Ionicons name="albums-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                       <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Create book collection</Text>
                     </Pressable>
+                    {sharedReviewWarningDismissed && (
+                      <Pressable accessibilityRole="button" onPress={() => {
+                        sharedReviewWarningSkippedForProfile.current = "";
+                        resetSharedReviewWarningDismissed();
+                        setMemoryToolbarMoreOpen(false);
+                      }} style={styles.phoneMemoryMoreMenuItem}>
+                        <Ionicons name="information-circle-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                        <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Show shared review reminder</Text>
+                      </Pressable>
+                    )}
                   </View>
                 )}
               </>
@@ -562,7 +617,7 @@ export function MemoryTab(props: any) {
                               if (isCustom) setMemoryCollectionFilter(collection.name);
                               setMemoryCollectionsHome(false);
                             }}
-                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, reorderMode && isCustom && styles.memoryCollectionEditing, dragOverCollection === collection.name && styles.memoryCollectionDropTarget]}
+                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, reorderMode && isCustom && styles.memoryCollectionEditing, dragOverCollection === collection.name && styles.memoryCollectionDropTarget, dragPreview?.name === collection.name && styles.memoryCollectionDraggingPlaceholder]}
                           >
                             <View style={styles.memoryCollectionCardHeader}>
                               <Ionicons name={collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
@@ -599,16 +654,20 @@ export function MemoryTab(props: any) {
                                 event.stopPropagation();
                                 event.currentTarget.setPointerCapture?.(event.pointerId);
                                 pointerDrag.current = { name: collection.name, x: event.clientX, y: event.clientY, moved: false };
+                                const rect = event.currentTarget.closest("[data-memory-collection]")?.getBoundingClientRect();
+                                if (rect) setDragPreview({ name: collection.name, x: rect.left, y: rect.top, width: rect.width, height: rect.height, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top });
                               }}
                               onPointerMove={(event: any) => {
                                 if (pointerDrag.current.name !== collection.name) return;
                                 if (Math.hypot(event.clientX - pointerDrag.current.x, event.clientY - pointerDrag.current.y) > 8) pointerDrag.current.moved = true;
-                                if (pointerDrag.current.moved) setDragOverCollection(collectionAtPointer(event.clientX, event.clientY));
+                                if (pointerDrag.current.moved) {
+                                  setDragPreview((current) => current ? { ...current, x: event.clientX - current.offsetX, y: event.clientY - current.offsetY } : null);
+                                  previewCollectionMove(collection.name, collectionAtPointer(event.clientX, event.clientY));
+                                }
                               }}
                               onPointerUp={(event: any) => {
                                 if (pointerDrag.current.name !== collection.name) return;
-                                const target = collectionAtPointer(event.clientX, event.clientY);
-                                if (pointerDrag.current.moved) moveCollection(collection.name, target);
+                                if (pointerDrag.current.moved) previewCollectionMove(collection.name, collectionAtPointer(event.clientX, event.clientY));
                                 finishCollectionDrag();
                               }}
                               onPointerCancel={finishCollectionDrag}
@@ -635,11 +694,10 @@ export function MemoryTab(props: any) {
                                 if (Math.hypot(x - pointerDrag.current.x, y - pointerDrag.current.y) > 8) pointerDrag.current.moved = true;
                                 if (pointerDrag.current.moved) {
                                   dragTarget.current = nativeCollectionAtPointer(x, y);
-                                  setDragOverCollection(dragTarget.current);
+                                  previewCollectionMove(collection.name, dragTarget.current);
                                 }
                               }}
                               onResponderRelease={() => {
-                                if (pointerDrag.current.moved) moveCollection(collection.name, dragTarget.current);
                                 finishCollectionDrag();
                               }}
                               onResponderTerminate={finishCollectionDrag}
@@ -649,6 +707,20 @@ export function MemoryTab(props: any) {
                         </CollectionWrapper>
                       );
                     })}
+                    {Platform.OS === "web" && dragPreview && pointerDrag.current.moved && (
+                      <div aria-hidden="true" style={{ position: "fixed", left: dragPreview.x, top: dragPreview.y, width: dragPreview.width, height: dragPreview.height, zIndex: 600, pointerEvents: "none", filter: "drop-shadow(0 12px 16px rgba(17, 39, 60, 0.2))" }}>
+                        <View style={[styles.memoryCollectionFolder, styles.memoryCollectionEditing, memoryDarkMode && styles.accountDarkSection, { height: "100%" }]}>
+                          <Ionicons name="folder-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                          <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{dragPreview.name}</Text>
+                          <View style={styles.memoryCollectionCardFooter}>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{collectionCards.find((item) => item.name === dragPreview.name)?.count || 0} verses</Text>
+                            {(collectionCards.find((item) => item.name === dragPreview.name)?.dueCount || 0) > 0 && (
+                              <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>{collectionCards.find((item) => item.name === dragPreview.name)?.dueCount} due now</Text>
+                            )}
+                          </View>
+                        </View>
+                      </div>
+                    )}
                   </View>
                 )}
                 {newCollectionOpen && memoryCollectionsHome && (
@@ -923,7 +995,7 @@ export function MemoryTab(props: any) {
                           <Pressable
                             key={option.id}
                             accessibilityRole="button"
-                            onPress={() => scheduleFilteredMemoryReview(option.id)}
+                            onPress={() => requestReviewScheduleChange(currentBrowseMemoryVerses.filter((verse: any) => !verse.archivedAt), option.id, true)}
                             style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, currentBrowseReviewPreset === option.id && styles.activeFilterChip]}
                           >
                             <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, currentBrowseReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
@@ -946,7 +1018,7 @@ export function MemoryTab(props: any) {
                             <Pressable
                               key={option.id}
                               accessibilityRole="button"
-                              onPress={() => scheduleFilteredMemoryReview(option.id)}
+                              onPress={() => requestReviewScheduleChange(currentBrowseMemoryVerses.filter((verse: any) => !verse.archivedAt), option.id, true)}
                               style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, currentBrowseReviewPreset === option.id && styles.activeFilterChip]}
                             >
                               <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, currentBrowseReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
@@ -1519,7 +1591,7 @@ export function MemoryTab(props: any) {
                                 {COMMON_MEMORY_REVIEW_OPTIONS.map((option) => (
                                   <Pressable
                                     key={option.id}
-                                    onPress={() => scheduleMemoryVerseReview(verse, option.id)}
+                                    onPress={() => requestReviewScheduleChange([verse], option.id)}
                                     style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, selectedReviewPreset === option.id && styles.activeFilterChip]}
                                   >
                                     <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, selectedReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
@@ -1541,7 +1613,7 @@ export function MemoryTab(props: any) {
                                   {MORE_MEMORY_REVIEW_OPTIONS.map((option) => (
                                     <Pressable
                                       key={option.id}
-                                      onPress={() => scheduleMemoryVerseReview(verse, option.id)}
+                                      onPress={() => requestReviewScheduleChange([verse], option.id)}
                                       style={[styles.filterChip, memoryDarkMode && styles.printDarkOptionChip, selectedReviewPreset === option.id && styles.activeFilterChip]}
                                     >
                                       <Text style={[styles.filterText, memoryDarkMode && styles.accountDarkMutedText, selectedReviewPreset === option.id && styles.activeFilterText]}>{option.label}</Text>
@@ -1577,6 +1649,27 @@ export function MemoryTab(props: any) {
           </View>
         )}
       </Card>
+      <Modal transparent visible={!!pendingSharedReview} animationType="fade" onRequestClose={() => setPendingSharedReview(null)}>
+        <View accessibilityLabel="Shared memory verse review warning" accessibilityViewIsModal style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
+          <Pressable accessibilityLabel="Cancel review change" style={[styles.printOptionsScrim, memoryDarkMode && styles.printDarkOptionsScrim]} onPress={() => setPendingSharedReview(null)} />
+          <View style={[styles.printOptionsCard, memoryDarkMode && styles.accountDarkMainCard]}>
+            <Text style={[styles.printOptionsTitle, memoryDarkMode && styles.accountDarkTitle]}>This changes the verse everywhere</Text>
+            <Text style={[styles.helpIntro, memoryDarkMode && styles.accountDarkMutedText]}>
+              {pendingSharedReview?.bulk
+                ? `${pendingSharedReview.verses.filter((verse: any) => getMemoryVerseCollections(verse).length > 1).length} of the selected verses belong to multiple collections. Their review dates will change in every collection where they appear.`
+                : `${pendingSharedReview?.verses[0]?.reference || "This verse"} belongs to ${getMemoryVerseCollections(pendingSharedReview?.verses[0]).join(", ")}. Changing its review date here changes it in those collections too.`}
+            </Text>
+            <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: rememberSharedReviewWarning }} onPress={() => setRememberSharedReviewWarning((current) => !current)} style={styles.memorySharedReviewRememberRow}>
+              <Ionicons name={rememberSharedReviewWarning ? "checkbox-outline" : "square-outline"} size={23} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+              <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Don’t show this again</Text>
+            </Pressable>
+            <View style={styles.printOptionsActions}>
+              <AppButton label="Cancel" variant="secondary" onPress={() => setPendingSharedReview(null)} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+              <AppButton label="Change review timing" onPress={confirmSharedReviewChange} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
 
   );

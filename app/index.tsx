@@ -417,6 +417,7 @@ type UiPreferenceKey =
   | "memoryChapterFilter"
   | "memoryCollectionFilter"
   | "memoryCollectionOrder"
+  | "memorySharedReviewWarningDismissed"
   | "plansOpenSections"
   | "plansExpandedPlanId"
   | "plansCompletedOpen"
@@ -713,6 +714,7 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "memoryChapterFilter",
   "memoryCollectionFilter",
   "memoryCollectionOrder",
+  "memorySharedReviewWarningDismissed",
   "plansOpenSections",
   "plansExpandedPlanId",
   "plansCompletedOpen",
@@ -10946,6 +10948,7 @@ function HomeScreen() {
               <LazyMemoryTab
               contextHelpControl={renderContextHelpButton()}
               activeMemoryCollectionDueCount={activeMemoryCollectionDueCount}
+              activeProfileId={activeProfileId}
               activeMemoryCollectionName={activeMemoryCollectionName}
               activeMemoryMeditationVerseId={activeMemoryMeditationVerseId}
               activeMemoryReviewQueueCount={activeMemoryReviewQueueCount}
@@ -11041,6 +11044,9 @@ function HomeScreen() {
               saveMemoryVerseCollections={saveMemoryVerseCollections}
               scheduleFilteredMemoryReview={scheduleFilteredMemoryReview}
               scheduleMemoryVerseReview={scheduleMemoryVerseReview}
+              sharedReviewWarningDismissed={uiBoolean(profileUiPreferences, "memorySharedReviewWarningDismissed") === true}
+              saveSharedReviewWarningDismissed={() => persistUiPreference("memorySharedReviewWarningDismissed", true)}
+              resetSharedReviewWarningDismissed={() => persistUiPreference("memorySharedReviewWarningDismissed", false)}
               selectMemoryFilterBook={selectMemoryFilterBook}
               selectMemoryFilterChapter={selectMemoryFilterChapter}
               setActiveMemoryVerseId={setActiveMemoryVerseId}

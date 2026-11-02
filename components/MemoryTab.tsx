@@ -383,9 +383,6 @@ export function MemoryTab(props: any) {
                           ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
                           : "No verses are due today. You can practise any saved verse whenever you like.")}
                   </Text>
-                  {dueMemoryCount > 0 && (
-                    <AppButton label={`Review ${dueMemoryCount} due verse${dueMemoryCount === 1 ? "" : "s"}`} onPress={() => startDueMemoryReviewQueue()} />
-                  )}
                 </View>
               </View>
             )}
@@ -490,17 +487,12 @@ export function MemoryTab(props: any) {
                     </View>
                   )
                 )}
-                {memoryCollectionFilter !== "all" && (
+                {(memoryCollectionFilter === "all" ? dueMemoryCount : activeMemoryCollectionDueCount) > 0 && (
                   <View style={styles.memoryCollectionDetailActions}>
-                    {activeMemoryCollectionDueCount > 0 && (
-                      <AppButton
-                        label={`Review ${activeMemoryCollectionDueCount} due`}
-                        onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
-                      />
-                    )}
-                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
-                      To add or remove a verse, open its ⋯ menu and choose Collections.
-                    </Text>
+                    <AppButton
+                      label={`Review ${memoryCollectionFilter === "all" ? dueMemoryCount : activeMemoryCollectionDueCount} due`}
+                      onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
+                    />
                   </View>
                 )}
                 {newCollectionOpen && memoryCollectionFilter === "all" && (
@@ -626,16 +618,6 @@ export function MemoryTab(props: any) {
                         <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Add a verse to a collection from its More menu.</Text>
                       )}
                     </View>
-                  )}
-                  {memoryCollectionFilter !== "all" && activeMemoryCollectionDueCount > 0 && (
-                    <Pressable
-                      accessibilityRole="button"
-                      onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
-                      style={styles.memoryCollectionReviewButton}
-                    >
-                      <Ionicons name="school-outline" size={16} color="#fff" />
-                      <Text style={styles.phoneMemoryPrimaryReviewText}>Review {activeMemoryCollectionDueCount} due</Text>
-                    </Pressable>
                   )}
                   <Text style={[styles.memoryFilterByLabel, memoryDarkMode && styles.accountDarkMutedText]}>Filter by:</Text>
                   {memoryBookSections.length === 0 ? (

@@ -411,7 +411,6 @@ type UiPreferenceKey =
   | "memoryDueSort"
   | "memoryReviewedSort"
   | "memoryView"
-  | "memoryBrowseFiltersOpen"
   | "memoryBrowseStatusFilter"
   | "memoryBookFilter"
   | "memoryChapterFilter"
@@ -708,7 +707,6 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "memoryDueSort",
   "memoryReviewedSort",
   "memoryView",
-  "memoryBrowseFiltersOpen",
   "memoryBrowseStatusFilter",
   "memoryBookFilter",
   "memoryChapterFilter",
@@ -3063,7 +3061,6 @@ function HomeScreen() {
       saveStoredMemoryReviewSorts({ due: syncedDueSort || dueMemoryReviewSort, reviewed: syncedReviewedSort }).catch(() => undefined);
     }
     if (syncedMemoryView) setMemoryView(syncedMemoryView === "review" ? "browse" : syncedMemoryView);
-    setMemoryBrowseFiltersOpen(false);
     if (syncedMemoryStatusFilter) setMemoryBrowseStatusFilter(syncedMemoryStatusFilter === "archived" ? "all" : syncedMemoryStatusFilter);
     if (syncedMemoryBookFilter) setMemoryBookFilter(syncedMemoryBookFilter);
     if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
@@ -3105,6 +3102,10 @@ function HomeScreen() {
       saveStoredCustomWritingPrompts(normalizedPrompts).catch(() => undefined);
     }
   }, [profile, profileUiPreferences]);
+
+  useEffect(() => {
+    setMemoryBrowseFiltersOpen(false);
+  }, [activeProfileId]);
 
   useEffect(() => {
     if (!profileMatchesActiveState || !isAuthenticated || !profile || readerSyncError) return;
@@ -7612,11 +7613,7 @@ function HomeScreen() {
   }
 
   function setRememberedMemoryBrowseFiltersOpen(nextValue: SetStateAction<boolean>) {
-    setMemoryBrowseFiltersOpen((current) => {
-      const next = typeof nextValue === "function" ? (nextValue as (value: boolean) => boolean)(current) : nextValue;
-      persistUiPreference("memoryBrowseFiltersOpen", next);
-      return next;
-    });
+    setMemoryBrowseFiltersOpen(nextValue);
   }
 
   function setRememberedMemoryBrowseStatusFilter(nextFilter: MemoryBrowseStatusFilter) {

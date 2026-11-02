@@ -185,6 +185,9 @@ export function MemoryTab(props: any) {
   const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
   const activeCollectionName = memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
   const collectionDueCount = activeMemoryCollectionDueCount;
+  const collectionSavedCount = memoryCollectionFilter === "all"
+    ? savedMemoryVerses.length
+    : (memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count ?? 0);
   const collectionCards = buildMemoryCollectionCards(memoryVerses || [], reorderMode ? draftCollectionOrder : memoryCollectionOrder);
   const customCollectionNames = collectionCards.filter((collection) => collection.key.startsWith("custom:")).map((collection) => collection.name);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
@@ -538,7 +541,7 @@ export function MemoryTab(props: any) {
                 )}
               </>
             )}
-            {!phoneMemoryFocusMode && memoryView === "browse" && (memoryCollectionsHome || !!memoryStatus) && (
+            {!phoneMemoryFocusMode && memoryView === "browse" && memoryCollectionsHome && (
               <View style={[styles.memoryReviewCompactRow, phoneLayout && styles.phoneMemoryReviewCompactRow]}>
                 <View style={[styles.memoryReviewPromptBox, styles.memoryReviewCompactBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
                   <Ionicons
@@ -595,18 +598,14 @@ export function MemoryTab(props: any) {
             {!phoneMemoryFocusMode && memoryView === "browse" && (
               <>
                 <View style={[styles.memoryCollectionsHeader, styles.memoryCollectionsHeaderCompact]}>
-                  <View style={styles.memoryCollectionsTitleBlock}>
+                  {memoryCollectionsHome && <View style={styles.memoryCollectionsTitleBlock}>
                     <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>
-                      {memoryCollectionsHome ? "My collections" : activeCollectionName}
+                      My collections
                     </Text>
                     <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
-                      {memoryCollectionsHome
-                        ? reorderMode ? "Drag a handle to reorder. All Verses stays first." : "Keep verses together by theme or Bible book."
-                        : memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
-                          ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} ready for review`
-                          : `${memoryCollectionFilter === "all" ? (memoryVerses || []).length : memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count || 0} saved verses in this collection`}
+                      {reorderMode ? "Drag a handle to reorder. All Verses stays first." : "Keep verses together by theme or Bible book."}
                     </Text>
-                  </View>
+                  </View>}
                   {memoryCollectionsHome ? (
                     reorderMode ? (
                       <AppButton label="Done" onPress={finishCollectionReorder} />
@@ -634,7 +633,7 @@ export function MemoryTab(props: any) {
                       </View>
                     )
                   ) : (
-                    <View style={[styles.memoryCollectionHeaderActions, phoneLayout && styles.phoneMemoryCollectionDetailActions]}>
+                    <View style={[styles.memoryCollectionHeaderActions, styles.memoryCollectionBackActions, phoneLayout && styles.phoneMemoryCollectionDetailActions]}>
                       <AppButton
                         label="My collections"
                         variant="secondary"
@@ -646,16 +645,37 @@ export function MemoryTab(props: any) {
                         style={memoryDarkMode && styles.homeDarkResumeButton}
                         labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                       />
-                      {collectionDueCount > 0 && (
-                        <AppButton
-                          label="Review all due verses"
-                          onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
-                          style={phoneLayout && styles.phoneMemoryReviewActionButton}
-                        />
-                      )}
                     </View>
                   )}
                 </View>
+                {!memoryCollectionsHome && (
+                  <View style={[styles.memoryReviewCompactRow, phoneLayout && styles.phoneMemoryReviewCompactRow]}>
+                    <View style={[styles.memoryReviewPromptBox, styles.memoryReviewCompactBox, styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
+                      <Ionicons name={collectionDueCount > 0 ? "school-outline" : "sparkles-outline"} size={20} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                      <View style={styles.memoryReviewPromptContent}>
+                        <Text style={[styles.feedbackTitle, memoryDarkMode && styles.studyDarkAccentText]}>{activeCollectionName}</Text>
+                        <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
+                          {collectionDueCount > 0
+                            ? `${collectionDueCount} verse${collectionDueCount === 1 ? " is" : "s are"} ready for review today.`
+                            : "No verses are due for review in this collection today."}
+                        </Text>
+                        <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                          {collectionSavedCount} saved verses in this collection
+                        </Text>
+                        {!!memoryStatus && memoryStatus !== "reviewed-today" && (
+                          <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{memoryStatus}</Text>
+                        )}
+                      </View>
+                    </View>
+                    {collectionDueCount > 0 && (
+                      <AppButton
+                        label="Review all due verses"
+                        onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
+                        style={phoneLayout && styles.phoneMemoryReviewActionButton}
+                      />
+                    )}
+                  </View>
+                )}
                 {memoryCollectionsHome && (
                   <View style={styles.memoryCollectionFolderGrid}>
                     {collectionCards.map((collection: any) => {

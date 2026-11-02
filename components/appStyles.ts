@@ -6638,6 +6638,9 @@ export const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8
   },
+  memoryCollectionBackActions: {
+    marginLeft: "auto"
+  },
   phoneMemoryCollectionDetailActions: {
     alignItems: "stretch",
     width: "100%"

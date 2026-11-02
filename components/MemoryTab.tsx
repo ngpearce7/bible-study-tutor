@@ -1133,6 +1133,7 @@ export function MemoryTab(props: any) {
                   const collectionOpen = collectionMemoryVerseId === verseId;
                   const moreOpen = memoryMoreVerseId === verseId;
                   const collections = getMemoryVerseCollections(verse);
+                  const otherCollections = collections.filter((collection: string) => collection !== memoryCollectionFilter);
                   const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen || collectionOpen || moreOpen;
                   const verseHistory = memoryHistoryItems
                     .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
@@ -1154,9 +1155,20 @@ export function MemoryTab(props: any) {
                             <Text numberOfLines={1} style={[styles.cardTitle, styles.memoryReferenceTitle, memoryDarkMode && styles.accountDarkTitle]}>{verse.reference}</Text>
                             <Ionicons name={cardExpanded ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                           </View>
-                          <Text numberOfLines={1} style={[styles.muted, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
-                            {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
-                          </Text>
+                          <View style={styles.memoryVerseMetaRow}>
+                            <Text numberOfLines={1} style={[styles.muted, styles.memoryVerseMetaTranslation, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
+                              {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
+                            </Text>
+                            {!cardExpanded && otherCollections.length > 0 && (
+                              <Text
+                                accessibilityLabel={`Also in ${otherCollections.join(", ")}`}
+                                numberOfLines={1}
+                                style={[styles.memoryNewCollectionMembership, memoryDarkMode && styles.memoryDarkCollectionPill]}
+                              >
+                                {otherCollections[0]}{otherCollections.length > 1 ? ` +${otherCollections.length - 1}` : ""}
+                              </Text>
+                            )}
+                          </View>
                         </View>
                         <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
                           <Text

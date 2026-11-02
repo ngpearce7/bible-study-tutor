@@ -6803,6 +6803,36 @@ export const styles = StyleSheet.create({
   memoryNewCollectionChoiceSelected: {
     backgroundColor: colors.soft
   },
+  memoryNewCollectionVerseHeading: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 7,
+    minWidth: 0
+  },
+  memoryNewCollectionVerseReference: {
+    flexShrink: 1
+  },
+  memoryVerseMetaRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 6,
+    minWidth: 0
+  },
+  memoryVerseMetaTranslation: {
+    flexShrink: 1
+  },
+  memoryNewCollectionMembership: {
+    backgroundColor: colors.sage,
+    borderRadius: 999,
+    color: colors.oliveDark,
+    flexShrink: 1,
+    fontSize: 11,
+    fontWeight: "600",
+    maxWidth: 150,
+    overflow: "hidden",
+    paddingHorizontal: 8,
+    paddingVertical: 3
+  },
   phoneMemoryBrowseFiltersPanel: {
     gap: 7,
     padding: 10
@@ -9966,6 +9996,14 @@ export const styles = StyleSheet.create({
   memoryBookCollectionContent: {
     gap: 14,
     paddingBottom: 4
+  },
+  memoryCollectionFolderContent: {
+    paddingHorizontal: 4
+  },
+  memoryCollectionNameInput: {
+    alignSelf: "stretch",
+    minWidth: 0,
+    width: "100%"
   },
   memoryBookDropdownStack: {
     gap: 8

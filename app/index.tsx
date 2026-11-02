@@ -12375,7 +12375,7 @@ function HomeScreen() {
             </View>
 
             {memoryCollectionCreateMode === "folder" ? (
-              <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={styles.memoryBookCollectionContent} keyboardShouldPersistTaps="handled">
+              <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={[styles.memoryBookCollectionContent, styles.memoryCollectionFolderContent]} keyboardShouldPersistTaps="handled">
                 <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection name</Text>
                 <TextInput
                   value={memoryFolderName}
@@ -12383,7 +12383,7 @@ function HomeScreen() {
                   placeholder="For example, Promises"
                   maxLength={40}
                   placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
-                  style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                  style={[styles.input, styles.memoryCollectionNameInput, accountDarkMode && styles.accountDarkInput]}
                 />
                 {(memoryVerses || []).some((verse: any) => !verse.archivedAt) && (
                   <>
@@ -12408,11 +12408,12 @@ function HomeScreen() {
                           placeholder="Search All Verses"
                           accessibilityLabel="Search saved memory verses"
                           placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
-                          style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                          style={[styles.input, styles.memoryCollectionNameInput, accountDarkMode && styles.accountDarkInput]}
                         />
                         <ScrollView style={styles.memoryNewCollectionChoices} nestedScrollEnabled keyboardShouldPersistTaps="handled">
                           {memoryFolderVerseChoices.map((verse: any) => {
                             const selected = memoryFolderSelectedVerseIds.includes(verse._id);
+                            const existingCollections = getMemoryVerseCollections(verse);
                             return <Pressable
                               key={String(verse._id)}
                               accessibilityRole="checkbox"
@@ -12430,7 +12431,18 @@ function HomeScreen() {
                             >
                               <Ionicons name={selected ? "checkbox-outline" : "square-outline"} size={20} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
                               <View style={{ flex: 1, minWidth: 0 }}>
-                                <Text style={[styles.bodyStrong, accountDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
+                                <View style={styles.memoryNewCollectionVerseHeading}>
+                                  <Text numberOfLines={1} style={[styles.bodyStrong, styles.memoryNewCollectionVerseReference, accountDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
+                                  {existingCollections.length > 0 && (
+                                    <Text
+                                      accessibilityLabel={`Already in ${existingCollections.join(", ")}`}
+                                      numberOfLines={1}
+                                      style={[styles.memoryNewCollectionMembership, accountDarkMode && styles.memoryDarkCollectionPill]}
+                                    >
+                                      {existingCollections[0]}{existingCollections.length > 1 ? ` +${existingCollections.length - 1}` : ""}
+                                    </Text>
+                                  )}
+                                </View>
                                 <Text numberOfLines={1} style={[styles.muted, accountDarkMode && styles.accountDarkMutedText]}>{verse.verseText}</Text>
                               </View>
                             </Pressable>;

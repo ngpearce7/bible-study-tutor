@@ -10019,6 +10019,27 @@ export const styles = StyleSheet.create({
   memoryDarkCollectionFormError: {
     color: "#f7a99a"
   },
+  memoryCollectionDeleteOption: {
+    alignItems: "flex-start",
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    padding: 12
+  },
+  memoryCollectionDeleteOptionSelected: {
+    borderColor: colors.oliveDark,
+    borderWidth: 2
+  },
+  memoryCollectionDeleteOptionText: {
+    flex: 1,
+    gap: 4,
+    minWidth: 0
+  },
+  memoryCollectionDeleteButton: {
+    backgroundColor: "#a33c31"
+  },
   memoryBookDropdownStack: {
     gap: 8
   },

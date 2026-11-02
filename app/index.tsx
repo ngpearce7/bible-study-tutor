@@ -899,6 +899,7 @@ function HomeScreen() {
   const scheduleMemoryReview = useMutation(api.memory.scheduleReview);
   const updateMemoryCollections = useMutation(api.memory.updateCollections);
   const renameMemoryCollectionMutation = useMutation(api.memory.renameCollection);
+  const deleteMemoryCollectionMutation = useMutation(api.memory.deleteCollection);
   const recordMemoryHistoryEvent = useMutation(api.memory.recordHistoryEvent);
   const submitFeedback = useMutation(api.insights.submitFeedback);
   const recordUsage = useMutation(api.insights.recordUsage);
@@ -6228,6 +6229,19 @@ function HomeScreen() {
     return result;
   }
 
+  async function deleteMemoryCollection(name: string, mode: "keep-verses" | "delete-exclusive-verses", expectedVerseIds: Id<"memoryVerses">[], expectedExclusiveIds: Id<"memoryVerses">[]) {
+    if (!activeProfileId) throw new Error("Your profile is still loading. Try again in a moment.");
+    const result = await deleteMemoryCollectionMutation({ profileId: activeProfileId, name, mode, expectedVerseIds, expectedExclusiveIds });
+    setMemoryCollectionNames((names) => names.filter((item) => item !== name));
+    setMemoryCollectionOrder((order) => order.filter((item) => item !== name));
+    if (memoryCollectionFilter === name) setMemoryCollectionFilter("all");
+    setMemoryCollectionsHome(true);
+    setMemoryStatus(result.deletedCount > 0
+      ? `${name} deleted. ${result.deletedCount} verse${result.deletedCount === 1 ? "" : "s"} found only there were removed; shared verses remain saved.`
+      : `${name} deleted. All verses remain saved.`);
+    return result;
+  }
+
   function addMemoryVerseCollection(verse: any) {
     const newCollection = memoryCollectionDraft.trim().replace(/\s+/g, " ");
     if (!newCollection) return;
@@ -11196,6 +11210,7 @@ function HomeScreen() {
               phoneMemoryFocusMode={phoneMemoryFocusMode}
               removeMemoryVerseCollection={removeMemoryVerseCollection}
               renameMemoryCollection={renameMemoryCollection}
+              deleteMemoryCollection={deleteMemoryCollection}
               repeatMemoryPracticeStep={repeatMemoryPracticeStep}
               reviewScheduleVerseId={reviewScheduleVerseId}
               ResumeButton={ResumeButton}

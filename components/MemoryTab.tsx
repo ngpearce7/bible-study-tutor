@@ -16,6 +16,10 @@ export function MemoryTab(props: any) {
   const [renameCollectionDraft, setRenameCollectionDraft] = useState("");
   const [renameCollectionError, setRenameCollectionError] = useState("");
   const [renamingCollection, setRenamingCollection] = useState(false);
+  const [deleteCollectionName, setDeleteCollectionName] = useState("");
+  const [deleteCollectionMode, setDeleteCollectionMode] = useState<"keep-verses" | "delete-exclusive-verses">("keep-verses");
+  const [deletingCollection, setDeletingCollection] = useState(false);
+  const [deleteCollectionError, setDeleteCollectionError] = useState("");
   const [pendingSharedReview, setPendingSharedReview] = useState<{ verses: any[]; preset: string; bulk: boolean } | null>(null);
   const [rememberSharedReviewWarning, setRememberSharedReviewWarning] = useState(false);
   const sharedReviewWarningSkippedForProfile = useRef("");
@@ -53,6 +57,7 @@ export function MemoryTab(props: any) {
     compactLayout,
     continueMemoryPractice,
     currentBrowseMemoryVerses,
+    deleteMemoryCollection,
     currentBrowseReviewPreset,
     requestMemoryVerseAction,
     restoreArchivedMemoryVerse,
@@ -373,6 +378,27 @@ export function MemoryTab(props: any) {
       setRenameCollectionError(String(error?.message || "Could not rename this collection. Please try again."));
     } finally {
       setRenamingCollection(false);
+    }
+  }
+
+  const collectionVersesToDelete = deleteCollectionName
+    ? (memoryVerses || []).filter((verse: any) => getMemoryVerseCollections(verse).includes(deleteCollectionName))
+    : [];
+  const exclusiveCollectionVerses = collectionVersesToDelete.filter((verse: any) =>
+    getMemoryVerseCollections(verse).filter((name: string) => name !== deleteCollectionName).length === 0
+  );
+
+  async function confirmCollectionDelete() {
+    if (!deleteCollectionName || deletingCollection) return;
+    setDeletingCollection(true);
+    setDeleteCollectionError("");
+    try {
+      await deleteMemoryCollection(deleteCollectionName, exclusiveCollectionVerses.length ? deleteCollectionMode : "keep-verses", collectionVersesToDelete.map((verse: any) => verse._id), exclusiveCollectionVerses.map((verse: any) => verse._id));
+      setDeleteCollectionName("");
+    } catch (error: any) {
+      setDeleteCollectionError(String(error?.message || "Could not delete this collection. Please try again."));
+    } finally {
+      setDeletingCollection(false);
     }
   }
 
@@ -1692,19 +1718,49 @@ export function MemoryTab(props: any) {
           </View>
         )}
       </Card>
-      <Modal transparent visible={!!(collectionMenuName || renameCollectionFrom)} animationType="fade" onRequestClose={() => {
-        if (renamingCollection) return;
+      <Modal transparent visible={!!(collectionMenuName || renameCollectionFrom || deleteCollectionName)} animationType="fade" onRequestClose={() => {
+        if (renamingCollection || deletingCollection) return;
         setCollectionMenuName("");
         setRenameCollectionFrom("");
+        setDeleteCollectionName("");
       }}>
-        <View accessibilityLabel={renameCollectionFrom ? "Rename collection" : "Collection options"} accessibilityViewIsModal style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
+        <View accessibilityLabel={deleteCollectionName ? "Delete collection" : renameCollectionFrom ? "Rename collection" : "Collection options"} accessibilityViewIsModal style={[styles.printOptionsOverlay, styles.editorDialogOverlay]}>
           <Pressable accessibilityLabel="Close collection options" style={[styles.printOptionsScrim, memoryDarkMode && styles.printDarkOptionsScrim]} onPress={() => {
-            if (renamingCollection) return;
+            if (renamingCollection || deletingCollection) return;
             setCollectionMenuName("");
             setRenameCollectionFrom("");
+            setDeleteCollectionName("");
           }} />
           <View style={[styles.printOptionsCard, memoryDarkMode && styles.accountDarkMainCard]}>
-            {renameCollectionFrom ? (
+            {deleteCollectionName ? (
+              <>
+                <Text style={[styles.printOptionsTitle, memoryDarkMode && styles.accountDarkTitle]}>Delete “{deleteCollectionName}”?</Text>
+                <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                  {collectionVersesToDelete.length} verse{collectionVersesToDelete.length === 1 ? "" : "s"} in this collection, including any archived verses. Choose what happens to them.
+                </Text>
+                <Pressable accessibilityRole="radio" accessibilityState={{ checked: deleteCollectionMode === "keep-verses" }} onPress={() => setDeleteCollectionMode("keep-verses")} style={[styles.memoryCollectionDeleteOption, deleteCollectionMode === "keep-verses" && styles.memoryCollectionDeleteOptionSelected, memoryDarkMode && styles.accountDarkInsetBox]}>
+                  <Ionicons name={deleteCollectionMode === "keep-verses" ? "radio-button-on" : "radio-button-off"} size={21} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                  <View style={styles.memoryCollectionDeleteOptionText}>
+                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Keep all verses</Text>
+                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Remove this collection only. Every verse, note, and review history stays in Memory.</Text>
+                  </View>
+                </Pressable>
+                {exclusiveCollectionVerses.length > 0 && <Pressable accessibilityRole="radio" accessibilityState={{ checked: deleteCollectionMode === "delete-exclusive-verses" }} onPress={() => setDeleteCollectionMode("delete-exclusive-verses")} style={[styles.memoryCollectionDeleteOption, deleteCollectionMode === "delete-exclusive-verses" && styles.memoryCollectionDeleteOptionSelected, memoryDarkMode && styles.accountDarkInsetBox]}>
+                  <Ionicons name={deleteCollectionMode === "delete-exclusive-verses" ? "radio-button-on" : "radio-button-off"} size={21} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                  <View style={styles.memoryCollectionDeleteOptionText}>
+                    <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>Delete verses only in this collection</Text>
+                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                      Permanently delete {exclusiveCollectionVerses.length} verse{exclusiveCollectionVerses.length === 1 ? "" : "s"} found nowhere else, with their notes and Memory history. {collectionVersesToDelete.length - exclusiveCollectionVerses.length} shared verse{collectionVersesToDelete.length - exclusiveCollectionVerses.length === 1 ? "" : "s"} will stay saved in other collections.
+                    </Text>
+                  </View>
+                </Pressable>}
+                {!!deleteCollectionError && <Text accessibilityRole="alert" style={styles.memoryCollectionFormError}>{deleteCollectionError}</Text>}
+                <View style={[styles.printOptionsActions, phoneLayout && styles.memoryRenamePhoneActions]}>
+                  <AppButton label="Cancel" variant="secondary" onPress={() => setDeleteCollectionName("")} disabled={deletingCollection} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label={deletingCollection ? "Deleting..." : deleteCollectionMode === "keep-verses" ? "Delete collection" : "Delete collection and verses"} onPress={confirmCollectionDelete} disabled={deletingCollection} style={styles.memoryCollectionDeleteButton} />
+                </View>
+              </>
+            ) : renameCollectionFrom ? (
               <>
                 <Text style={[styles.printOptionsTitle, memoryDarkMode && styles.accountDarkTitle]}>Rename collection</Text>
                 <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>This changes the collection name for all its verses, including any in Archive.</Text>
@@ -1733,6 +1789,13 @@ export function MemoryTab(props: any) {
                   setRenameCollectionDraft(name);
                   setRenameCollectionError("");
                 }} />
+                <AppButton label="Delete collection" variant="secondary" onPress={() => {
+                  const name = collectionMenuName;
+                  setCollectionMenuName("");
+                  setDeleteCollectionName(name);
+                  setDeleteCollectionMode("keep-verses");
+                  setDeleteCollectionError("");
+                }} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
                 <AppButton label="Cancel" variant="secondary" onPress={() => setCollectionMenuName("")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
               </>
             )}

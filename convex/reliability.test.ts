@@ -218,6 +218,57 @@ test("creating a collection can attach selected active verses atomically", async
   expect(verses.find((verse) => verse._id === archivedId)?.collections).toBeUndefined();
 });
 
+test("deleting a Memory collection keeps its verses by default", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "delete-collection-keep-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const verseId = await t.mutation(api.memory.saveVerse, {
+    profileId, clientKey, reference: "Psalm 23:1", verseText: "The LORD is my shepherd", translationName: "BSB", collections: ["Trust"], note: "Keep this"
+  });
+  await t.mutation(api.memory.createCollection, { profileId, clientKey, name: "Empty" });
+  await expect(t.mutation(api.memory.deleteCollection, {
+    profileId, clientKey: "wrong-device", name: "Trust", mode: "keep-verses", expectedVerseIds: [verseId], expectedExclusiveIds: [verseId]
+  })).rejects.toThrow("Unauthorized");
+  await expect(t.mutation(api.memory.deleteCollection, {
+    profileId, clientKey, name: "Trust", mode: "keep-verses", expectedVerseIds: [], expectedExclusiveIds: []
+  })).rejects.toThrow("changed");
+  expect(await t.mutation(api.memory.deleteCollection, {
+    profileId, clientKey, name: "Trust", mode: "keep-verses", expectedVerseIds: [verseId], expectedExclusiveIds: [verseId]
+  })).toEqual({ keptCount: 1, deletedCount: 0 });
+  expect((await t.query(api.memory.list, { profileId, clientKey }))[0]).toMatchObject({ _id: verseId, note: "Keep this", collections: [] });
+  expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId: verseId })).toHaveLength(1);
+  expect(await t.mutation(api.memory.deleteCollection, {
+    profileId, clientKey, name: "Empty", mode: "keep-verses", expectedVerseIds: [], expectedExclusiveIds: []
+  })).toEqual({ keptCount: 0, deletedCount: 0 });
+  expect((await t.run(async (ctx) => (await ctx.db.get(profileId))?.uiPreferences))?.memoryCollectionNames).toEqual([]);
+});
+
+test("deleting contained verses preserves shared verses and clears exclusive verse history", async () => {
+  vi.useFakeTimers();
+  const t = convexTest(schema, modules);
+  const clientKey = "delete-collection-verses-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const exclusiveId = await t.mutation(api.memory.saveVerse, {
+    profileId, clientKey, reference: "James 1:22", verseText: "Be doers", translationName: "BSB", collections: ["Trust"]
+  });
+  const sharedId = await t.mutation(api.memory.saveVerse, {
+    profileId, clientKey, reference: "Romans 15:13", verseText: "May the God of hope", translationName: "BSB", collections: ["Trust", "Promises"]
+  });
+  const archivedId = await t.mutation(api.memory.saveVerse, {
+    profileId, clientKey, reference: "Psalm 28:7", verseText: "My heart trusts", translationName: "BSB", collections: ["Trust"]
+  });
+  await t.mutation(api.memory.archive, { profileId, clientKey, memoryVerseId: archivedId });
+  expect(await t.mutation(api.memory.deleteCollection, {
+    profileId, clientKey, name: "Trust", mode: "delete-exclusive-verses", expectedVerseIds: [exclusiveId, sharedId, archivedId], expectedExclusiveIds: [exclusiveId, archivedId]
+  })).toEqual({ keptCount: 1, deletedCount: 2 });
+  await t.finishAllScheduledFunctions(() => vi.runAllTimers());
+  expect((await t.query(api.memory.list, { profileId, clientKey })).map((verse) => verse._id)).toEqual([sharedId]);
+  expect((await t.query(api.memory.list, { profileId, clientKey }))[0].collections).toEqual(["Promises"]);
+  expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId: exclusiveId })).toHaveLength(0);
+  expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId: archivedId })).toHaveLength(0);
+  expect(await t.query(api.memory.listHistory, { profileId, clientKey, memoryVerseId: sharedId })).toHaveLength(1);
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

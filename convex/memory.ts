@@ -485,6 +485,71 @@ export const renameCollection = mutation({
   }
 });
 
+export const deleteCollection = mutation({
+  args: {
+    clientKey: v.optional(v.string()),
+    profileId: v.id("profiles"),
+    name: v.string(),
+    mode: v.union(v.literal("keep-verses"), v.literal("delete-exclusive-verses")),
+    expectedVerseIds: v.array(v.id("memoryVerses")),
+    expectedExclusiveIds: v.array(v.id("memoryVerses"))
+  },
+  returns: v.object({ keptCount: v.number(), deletedCount: v.number() }),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
+    assertProfileCanWrite(profile);
+    const name = args.name.trim();
+    if (!name || ["all verses", "due for review"].includes(name.toLowerCase())) {
+      throw new Error("That collection cannot be deleted.");
+    }
+    const preferences = profile.uiPreferences || {};
+    const savedNames = Array.isArray(preferences.memoryCollectionNames) ? preferences.memoryCollectionNames : [];
+    const verses = await ctx.db.query("memoryVerses")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .take(501);
+    assertCollectionLimit(verses.length, 500, "Saved memory verse");
+    const matching = verses.filter((verse) => (verse.collections || []).includes(name));
+    if (!savedNames.includes(name) && matching.length === 0) throw new Error("Collection no longer exists.");
+    const exclusive = matching.filter((verse) => (verse.collections || []).filter((collection) => collection !== name).length === 0);
+    const sameIds = (actual: Id<"memoryVerses">[], expected: Id<"memoryVerses">[]) => {
+      if (actual.length !== expected.length) return false;
+      const actualSorted = actual.map(String).sort();
+      const expectedSorted = expected.map(String).sort();
+      return actualSorted.every((id, index) => id === expectedSorted[index]);
+    };
+    if (!sameIds(matching.map((verse) => verse._id), args.expectedVerseIds) ||
+      !sameIds(exclusive.map((verse) => verse._id), args.expectedExclusiveIds)) {
+      throw new Error("This collection changed. Review its verses and try again.");
+    }
+
+    const now = Date.now();
+    let deletedCount = 0;
+    for (const verse of matching) {
+      const remaining = (verse.collections || []).filter((collection) => collection !== name);
+      if (args.mode === "delete-exclusive-verses" && remaining.length === 0) {
+        await ctx.db.delete(verse._id);
+        await ctx.scheduler.runAfter(0, internal.memory.deleteRemovedVerseHistoryBatch, {
+          profileId: args.profileId,
+          memoryVerseId: verse._id
+        });
+        deletedCount += 1;
+      } else {
+        await ctx.db.patch(verse._id, { collections: remaining, updatedAt: now });
+      }
+    }
+    await ctx.db.patch(args.profileId, {
+      uiPreferences: {
+        ...preferences,
+        memoryCollectionNames: savedNames.filter((savedName) => savedName !== name),
+        memoryCollectionOrder: (Array.isArray(preferences.memoryCollectionOrder) ? preferences.memoryCollectionOrder : []).filter((savedName) => savedName !== name),
+        ...(preferences.memoryCollectionFilter === name ? { memoryCollectionFilter: "all" } : {})
+      },
+      updatedAt: now
+    });
+    return { keptCount: matching.length - deletedCount, deletedCount };
+  }
+});
+
 export const listHistory = query({
   args: {
     clientKey: v.optional(v.string()),

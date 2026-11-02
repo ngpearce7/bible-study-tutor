@@ -159,7 +159,6 @@ export function MemoryTab(props: any) {
   } = props;
 
   const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
-  const reviewCount = memoryCollectionsHome || memoryCollectionFilter === "all" ? dueMemoryCount : activeMemoryCollectionDueCount;
   const activeCollectionName = memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
     ? "Due for Review"
     : memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
@@ -383,33 +382,35 @@ export function MemoryTab(props: any) {
               </>
             )}
             {!phoneMemoryFocusMode && memoryView === "browse" && (
-              <View style={[styles.memoryReviewPromptBox, phoneLayout && styles.phoneMemoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
-                <Ionicons
-                  name={memoryStatus ? "checkmark-circle-outline" : reviewCount > 0 ? "school-outline" : "sparkles-outline"}
-                  size={20}
-                  color={memoryDarkMode ? "#d4a768" : colors.coral}
-                />
-                <View style={[styles.memoryReviewPromptContent, phoneLayout && styles.phoneMemoryReviewPromptContent]}>
-                  <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
-                    {memoryStatus === "reviewed-today"
-                      ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
-                      : memoryStatus || (reviewCount > 0
-                        ? `${reviewCount} verse${reviewCount === 1 ? " is" : "s are"} ready for review today${!memoryCollectionsHome && memoryCollectionFilter !== "all" ? ` in ${memoryCollectionFilter}` : ""}.`
-                        : !memoryCollectionsHome && memoryCollectionFilter !== "all"
-                          ? `No verses in ${memoryCollectionFilter} are due today.`
-                        : reviewedTodayCount > 0
-                          ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
-                          : "No verses are due today. You can practise any saved verse whenever you like.")}
-                  </Text>
-                </View>
-                {reviewCount > 0 && (
-                  <AppButton
-                    label={`Review ${reviewCount} due`}
-                    onPress={() => startDueMemoryReviewQueue(memoryCollectionsHome ? "all" : memoryCollectionFilter)}
-                    style={phoneLayout && styles.phoneMemoryReviewPromptButton}
+              <>
+                <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
+                  <Ionicons
+                    name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}
+                    size={20}
+                    color={memoryDarkMode ? "#d4a768" : colors.coral}
                   />
+                  <View style={styles.memoryReviewPromptContent}>
+                    <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
+                      {memoryStatus === "reviewed-today"
+                        ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
+                        : memoryStatus || (dueMemoryCount > 0
+                          ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today.`
+                          : reviewedTodayCount > 0
+                            ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
+                            : "No verses are due today. You can practise any saved verse whenever you like.")}
+                    </Text>
+                  </View>
+                </View>
+                {dueMemoryCount > 0 && (
+                  <View style={styles.memoryReviewActionRow}>
+                    <AppButton
+                      label="Review all due verses"
+                      onPress={() => startDueMemoryReviewQueue()}
+                      style={phoneLayout && styles.phoneMemoryReviewActionButton}
+                    />
+                  </View>
                 )}
-              </View>
+              </>
             )}
             {!phoneMemoryFocusMode && memoryView === "history" && (
               <Suspense fallback={<Card style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory history...</Text></Card>}>
@@ -494,12 +495,17 @@ export function MemoryTab(props: any) {
                         }}
                         style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection]}
                       >
-                        <Ionicons name={collection.key === "due" ? "school-outline" : collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                        <View style={styles.memoryCollectionCardHeader}>
+                          <Ionicons name={collection.key === "due" ? "school-outline" : collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                          {collection.dueCount > 0 && (
+                            <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
+                              {collection.dueCount} due now
+                            </Text>
+                          )}
+                        </View>
                         <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
                         <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                          {collection.key === "due"
-                            ? `${collection.count} due now`
-                            : `${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? ` · ${collection.dueCount} due` : ""}`}
+                          {collection.count} verse{collection.count === 1 ? "" : "s"}
                         </Text>
                       </Pressable>
                     ))}

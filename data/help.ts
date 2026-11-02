@@ -127,7 +127,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Memory verses help",
       icon: "albums-outline",
       summary: "Verses opens with your collections, including All Verses and Due for Review when a review is ready.",
-      tips: ["Use the review button in the message panel, or open a collection to practise an individual verse.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
+      tips: ["Use Review all due verses below the message to review every due verse, or open a collection to practise an individual verse.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
     };
   }
 

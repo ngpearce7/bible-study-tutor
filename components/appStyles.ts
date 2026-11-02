@@ -6479,14 +6479,12 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 12
   },
-  phoneMemoryReviewPromptBox: {
-    flexWrap: "wrap"
+  memoryReviewActionRow: {
+    alignItems: "flex-end",
+    marginTop: 10
   },
-  phoneMemoryReviewPromptContent: {
-    minWidth: 180
-  },
-  phoneMemoryReviewPromptButton: {
-    marginLeft: "auto"
+  phoneMemoryReviewActionButton: {
+    width: "100%"
   },
   memoryReviewSuccessBox: {
     backgroundColor: "#edf5df",
@@ -6623,6 +6621,11 @@ export const styles = StyleSheet.create({
     minHeight: 92,
     padding: 13,
     width: "48%"
+  },
+  memoryCollectionCardHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   memoryCollectionEmpty: {
     backgroundColor: colors.panel,

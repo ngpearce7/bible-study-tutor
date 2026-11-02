@@ -178,6 +178,19 @@ test("renaming a collection updates active and archived verses and keeps its ord
   expect(preferences?.memoryCollectionFilter).toBe("Identity");
 });
 
+test("empty Memory collections persist and can be renamed without a verse", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "empty-memory-collection-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  await expect(t.mutation(api.memory.createCollection, { profileId, clientKey: "wrong-device", name: "Promises" })).rejects.toThrow("Unauthorized");
+  expect(await t.mutation(api.memory.createCollection, { profileId, clientKey, name: "Promises" })).toBe("Promises");
+  await expect(t.mutation(api.memory.createCollection, { profileId, clientKey, name: "promises" })).rejects.toThrow("already exists");
+  expect(await t.mutation(api.memory.renameCollection, { profileId, clientKey, oldName: "Promises", newName: "Trust", order: ["Trust"] })).toEqual({ renamedCount: 0 });
+  const preferences = await t.run(async (ctx) => (await ctx.db.get(profileId))?.uiPreferences);
+  expect(preferences?.memoryCollectionNames).toEqual(["Trust"]);
+  expect(preferences?.memoryCollectionOrder).toEqual(["Trust"]);
+});
+
 test("recovery code consumption, password update and session revocation are atomic", async () => {
   const t = convexTest(schema, modules);
   const { userId, accountId, profileId } = await t.run(async ctx => {

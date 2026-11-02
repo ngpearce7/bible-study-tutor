@@ -11,12 +11,6 @@ import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
 
 export function MemoryTab(props: any) {
   const PracticeGrid = Platform.OS === "web" && props.phoneLayout ? StableMemoryInput : View;
-  const [newCollectionOpen, setNewCollectionOpen] = useState(false);
-  const [newCollectionName, setNewCollectionName] = useState("");
-  const [newCollectionSearch, setNewCollectionSearch] = useState("");
-  const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
-  const [creatingCollection, setCreatingCollection] = useState(false);
-  const [collectionCreationError, setCollectionCreationError] = useState("");
   const [collectionMenuName, setCollectionMenuName] = useState("");
   const [renameCollectionFrom, setRenameCollectionFrom] = useState("");
   const [renameCollectionDraft, setRenameCollectionDraft] = useState("");
@@ -87,6 +81,7 @@ export function MemoryTab(props: any) {
     memoryCollectionFilter,
     memoryCollectionsHome,
     memoryCollectionOptions,
+    memoryCollectionNames,
     memoryCollectionOrder,
     memoryCollectionPickerOpen,
     memoryDarkMode,
@@ -124,7 +119,7 @@ export function MemoryTab(props: any) {
     Metric,
     moveMemoryPracticeStep,
     neglectedMemoryVerses,
-    openMemoryBookCollectionBuilder,
+    openMemoryCollectionBuilder,
     openMemoryPrintOptions,
     phoneLayout,
     phoneMemoryFocusMode,
@@ -195,12 +190,8 @@ export function MemoryTab(props: any) {
   const collectionSavedCount = memoryCollectionFilter === "all"
     ? savedMemoryVerses.length
     : (memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count ?? 0);
-  const collectionCards = buildMemoryCollectionCards(memoryVerses || [], reorderMode ? draftCollectionOrder : memoryCollectionOrder);
+  const collectionCards = buildMemoryCollectionCards(memoryVerses || [], reorderMode ? draftCollectionOrder : memoryCollectionOrder, memoryCollectionNames);
   const customCollectionNames = collectionCards.filter((collection) => collection.key.startsWith("custom:")).map((collection) => collection.name);
-  const collectionChoices = savedMemoryVerses.filter((verse: any) =>
-    `${verse.reference} ${verse.verseText}`.toLowerCase().includes(newCollectionSearch.trim().toLowerCase())
-  ).slice(0, 12);
-  const selectedCollectionVerse = savedMemoryVerses.find((verse: any) => String(verse._id) === newCollectionVerseId);
 
   useEffect(() => () => webDragCleanup.current?.(), []);
 
@@ -249,12 +240,11 @@ export function MemoryTab(props: any) {
     setDraftCollectionOrder(customCollectionNames);
     reorderModeRef.current = true;
     setReorderMode(true);
-    setNewCollectionOpen(false);
   }
 
   function finishCollectionReorder() {
     if (!reorderModeRef.current) return;
-    if (draftCollectionOrder.join("\u0000") !== buildMemoryCollectionCards(memoryVerses || [], memoryCollectionOrder)
+    if (draftCollectionOrder.join("\u0000") !== buildMemoryCollectionCards(memoryVerses || [], memoryCollectionOrder, memoryCollectionNames)
       .filter((collection) => collection.key.startsWith("custom:"))
       .map((collection) => collection.name).join("\u0000")) {
       saveMemoryCollectionOrder(draftCollectionOrder);
@@ -354,38 +344,6 @@ export function MemoryTab(props: any) {
       const bounds = collectionBounds.current[name];
       return bounds && x >= bounds.x && x <= bounds.x + bounds.width && y >= bounds.y && y <= bounds.y + bounds.height;
     }) || "";
-  }
-
-  async function createCollection() {
-    const name = newCollectionName.trim().replace(/\s+/g, " ");
-    if (!name || !selectedCollectionVerse || creatingCollection) {
-      setCollectionCreationError("Enter a name and choose a verse to start this collection.");
-      return;
-    }
-    if (["all verses", "due for review"].includes(name.toLowerCase())) {
-      setCollectionCreationError("This collection name is reserved. Choose another name.");
-      return;
-    }
-    if (memoryCollectionOptions.some((option: any) => option.name.toLowerCase() === name.toLowerCase())) {
-      setCollectionCreationError("A collection with this name already exists.");
-      return;
-    }
-    setCreatingCollection(true);
-    setCollectionCreationError("");
-    const saved = await saveMemoryVerseCollections(selectedCollectionVerse, [
-      ...getMemoryVerseCollections(selectedCollectionVerse), name
-    ]);
-    setCreatingCollection(false);
-    if (!saved) {
-      setCollectionCreationError("Could not create the collection. Please try again.");
-      return;
-    }
-    setNewCollectionName("");
-    setNewCollectionSearch("");
-    setNewCollectionVerseId("");
-    setNewCollectionOpen(false);
-    chooseMemoryCollection(name);
-    setMemoryCollectionsHome(false);
   }
 
   async function confirmCollectionRename() {
@@ -492,7 +450,7 @@ export function MemoryTab(props: any) {
             )}
           </View>
         )}
-        {(memoryVerses || []).length === 0 ? (
+        {(memoryVerses || []).length === 0 && memoryCollectionOptions.length === 0 ? (
           <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
             <Ionicons name="sparkles-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
             <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No memory verses yet</Text>
@@ -500,7 +458,7 @@ export function MemoryTab(props: any) {
             <View style={styles.emptyMemoryActions}>
               <AppButton label="Open Bible" onPress={() => setTab("bible")} />
               <AppButton label="Open Study" variant="secondary" onPress={() => setTab("study")} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
-              <AppButton label="Create collection" variant="secondary" onPress={openMemoryBookCollectionBuilder} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+              <AppButton label="Create collection" variant="secondary" onPress={openMemoryCollectionBuilder} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
             </View>
           </View>
         ) : (
@@ -557,12 +515,12 @@ export function MemoryTab(props: any) {
                       accessibilityRole="button"
                       onPress={() => {
                         setMemoryToolbarMoreOpen(false);
-                        openMemoryBookCollectionBuilder();
+                        openMemoryCollectionBuilder();
                       }}
                       style={styles.phoneMemoryMoreMenuItem}
                     >
                       <Ionicons name="albums-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
-                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Create book collection</Text>
+                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>New collection</Text>
                     </Pressable>
                     {sharedReviewWarningDismissed && (
                       <Pressable accessibilityRole="button" onPress={() => {
@@ -659,11 +617,7 @@ export function MemoryTab(props: any) {
                         <AppButton
                           label="New collection"
                           variant="secondary"
-                          onPress={() => {
-                            setCollectionCreationError("");
-                            setNewCollectionVerseId(String(savedMemoryVerses[0]?._id || ""));
-                            setNewCollectionOpen((open) => !open);
-                          }}
+                          onPress={openMemoryCollectionBuilder}
                           style={memoryDarkMode && styles.homeDarkResumeButton}
                           labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                         />
@@ -743,7 +697,6 @@ export function MemoryTab(props: any) {
                               if (reorderModeRef.current) return;
                               clearMemoryBrowseFilters();
                               setMemorySearch("");
-                              setNewCollectionOpen(false);
                               if (isCustom) setMemoryCollectionFilter(collection.name);
                               setMemoryCollectionsHome(false);
                             }}
@@ -841,48 +794,6 @@ export function MemoryTab(props: any) {
                       </div>
                     )}
                   </CollectionGrid>
-                )}
-                {newCollectionOpen && memoryCollectionsHome && (
-                  <View style={[styles.memoryNewCollectionBox, memoryDarkMode && styles.accountDarkSection]}>
-                    <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Create a collection</Text>
-                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
-                      Choose one verse to start it. You can add more verses later from their ⋯ menu.
-                    </Text>
-                    <TextInput
-                      value={newCollectionName}
-                      onChangeText={setNewCollectionName}
-                      placeholder="Name, such as Promises"
-                      maxLength={80}
-                      style={[styles.input, memoryDarkMode && styles.accountDarkInput]}
-                    />
-                    {savedMemoryVerses.length > 1 && (
-                      <TextInput
-                        value={newCollectionSearch}
-                        onChangeText={setNewCollectionSearch}
-                        placeholder="Find a verse to add"
-                        style={[styles.input, memoryDarkMode && styles.accountDarkInput]}
-                      />
-                    )}
-                    <ScrollView style={styles.memoryNewCollectionChoices} nestedScrollEnabled>
-                      {collectionChoices.map((verse: any) => (
-                        <Pressable
-                          key={String(verse._id)}
-                          accessibilityRole="radio"
-                          accessibilityState={{ checked: newCollectionVerseId === String(verse._id) }}
-                          onPress={() => setNewCollectionVerseId(String(verse._id))}
-                          style={[styles.memoryNewCollectionChoice, newCollectionVerseId === String(verse._id) && styles.memoryNewCollectionChoiceSelected, memoryDarkMode && styles.accountDarkInsetBox]}
-                        >
-                          <Ionicons name={newCollectionVerseId === String(verse._id) ? "radio-button-on-outline" : "radio-button-off-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
-                          <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
-                        </Pressable>
-                      ))}
-                    </ScrollView>
-                    {!!collectionCreationError && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]} accessibilityRole="alert">{collectionCreationError}</Text>}
-                    <View style={styles.memoryCollectionDetailActions}>
-                      <AppButton label={creatingCollection ? "Creating..." : "Create collection"} onPress={createCollection} disabled={creatingCollection} />
-                      <AppButton label="Cancel" variant="secondary" onPress={() => setNewCollectionOpen(false)} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
-                    </View>
-                  </View>
                 )}
                 {!memoryCollectionsHome && (
                 <>

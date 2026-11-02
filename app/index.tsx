@@ -418,6 +418,7 @@ type UiPreferenceKey =
   | "memoryChapterFilter"
   | "memoryCollectionFilter"
   | "memoryCollectionOrder"
+  | "memoryCollectionNames"
   | "memorySharedReviewWarningDismissed"
   | "plansOpenSections"
   | "plansExpandedPlanId"
@@ -714,6 +715,7 @@ const UI_PREFERENCE_KEYS: UiPreferenceKey[] = [
   "memoryChapterFilter",
   "memoryCollectionFilter",
   "memoryCollectionOrder",
+  "memoryCollectionNames",
   "memorySharedReviewWarningDismissed",
   "plansOpenSections",
   "plansExpandedPlanId",
@@ -888,6 +890,7 @@ function HomeScreen() {
   const leaveCommunityCircle = useMutation(api.community.leaveCircle);
   const deleteCommunityCircle = useMutation(api.community.deleteCircle);
   const saveMemoryVerse = useMutation(api.memory.saveVerse);
+  const createMemoryCollectionMutation = useMutation(api.memory.createCollection);
   const recordMemoryPractice = useMutation(api.memory.recordPractice);
   const removeMemoryVerse = useMutation(api.memory.remove);
   const archiveMemoryVerse = useMutation(api.memory.archive);
@@ -1056,6 +1059,7 @@ function HomeScreen() {
   const [memoryCollectionFilter, setMemoryCollectionFilter] = useState("all");
   const [memoryCollectionsHome, setMemoryCollectionsHome] = useState(true);
   const [memoryCollectionOrder, setMemoryCollectionOrder] = useState<string[]>([]);
+  const [memoryCollectionNames, setMemoryCollectionNames] = useState<string[]>([]);
   const [memoryCollectionPickerOpen, setMemoryCollectionPickerOpen] = useState(false);
   const [memoryBrowseFiltersOpen, setMemoryBrowseFiltersOpen] = useState(false);
   const [expandedMemoryFilterBook, setExpandedMemoryFilterBook] = useState("");
@@ -1065,6 +1069,8 @@ function HomeScreen() {
   const [memoryAssignPrompt, setMemoryAssignPrompt] = useState<MemoryAssignPrompt | null>(null);
   const [memoryAssignPromptSaving, setMemoryAssignPromptSaving] = useState(false);
   const [memoryBookCollectionOpen, setMemoryBookCollectionOpen] = useState(false);
+  const [memoryCollectionCreateMode, setMemoryCollectionCreateMode] = useState<"folder" | "book">("folder");
+  const [memoryFolderName, setMemoryFolderName] = useState("");
   const [memoryBookCollectionDraft, setMemoryBookCollectionDraft] = useState<MemoryBookCollectionDraft>({
     book: "Romans",
     mode: "whole",
@@ -2617,7 +2623,7 @@ function HomeScreen() {
   const activeMemoryReviewQueueIndex = activeMemoryVerseId ? memoryReviewQueueIds.findIndex((id) => id === activeMemoryVerseId) : -1;
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
-  const memoryCollectionOptions = useMemo(() => buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)), [memoryVerses]);
+  const memoryCollectionOptions = useMemo(() => buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt), memoryCollectionNames), [memoryVerses, memoryCollectionNames]);
   const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All verses" : memoryCollectionFilter;
   const activeMemoryCollectionDueCount = dueMemoryVersesForCollection(memoryVerses || [], memoryCollectionFilter).length;
   const memoryFilterVerses = useMemo(() => shouldPrepareMemoryUi
@@ -2999,6 +3005,7 @@ function HomeScreen() {
     const syncedMemoryChapterFilter = uiMemoryChapterFilter(profileUiPreferences);
     const syncedMemoryCollectionFilter = uiMemoryCollectionFilter(profileUiPreferences);
     const syncedMemoryCollectionOrder = uiStringList(profileUiPreferences, "memoryCollectionOrder");
+    const syncedMemoryCollectionNames = uiStringList(profileUiPreferences, "memoryCollectionNames");
     const syncedPlanOpenSections = uiPlanOpenSections(profileUiPreferences);
     const syncedPlanExpandedPlanId = uiPlanExpandedPlanId(profileUiPreferences);
     const syncedPlanSelectedDay = uiPlanSelectedDay(profileUiPreferences);
@@ -3064,6 +3071,7 @@ function HomeScreen() {
     if (syncedMemoryChapterFilter) setMemoryChapterFilter(syncedMemoryChapterFilter);
     if (syncedMemoryCollectionFilter) setMemoryCollectionFilter(syncedMemoryCollectionFilter);
     setMemoryCollectionOrder(syncedMemoryCollectionOrder || []);
+    setMemoryCollectionNames(syncedMemoryCollectionNames || []);
     if (syncedPlanOpenSections) {
       setOpenBiblePlanSections(restoreBiblePlanSections(syncedPlanOpenSections));
     }
@@ -5617,9 +5625,39 @@ function HomeScreen() {
     }
   }
 
-  function openMemoryBookCollectionBuilder() {
+  function openMemoryCollectionBuilder() {
     setMemoryBookCollectionStatus("");
+    setMemoryCollectionCreateMode("folder");
+    setMemoryFolderName("");
     setMemoryBookCollectionOpen(true);
+  }
+
+  async function createEmptyMemoryCollection() {
+    if (!activeProfileId || memoryBookCollectionSaving) return;
+    const name = memoryFolderName.trim().replace(/\s+/g, " ");
+    if (!name || name.length > 40 || isReservedMemoryCollectionName(name)) {
+      setMemoryBookCollectionStatus("Choose a collection name of up to 40 characters.");
+      return;
+    }
+    if (memoryCollectionOptions.some((collection) => collection.name.toLowerCase() === name.toLowerCase())) {
+      setMemoryBookCollectionStatus("A collection with that name already exists.");
+      return;
+    }
+    setMemoryBookCollectionSaving(true);
+    setMemoryBookCollectionStatus("");
+    try {
+      await createMemoryCollectionMutation({ profileId: activeProfileId, name });
+      setMemoryCollectionNames((names) => [...names, name]);
+      setMemoryCollectionOrder((order) => [...order.filter((item) => item !== name), name]);
+      setMemoryStatus(`${name} collection created. Add verses whenever you are ready.`);
+      setMemoryBookCollectionOpen(false);
+      setMemoryCollectionsHome(true);
+      setRememberedMemoryView("browse");
+    } catch (error: any) {
+      setMemoryBookCollectionStatus(String(error?.message || "Could not create that collection. Please try again."));
+    } finally {
+      setMemoryBookCollectionSaving(false);
+    }
   }
 
   function updateMemoryBookCollectionBook(book: string) {
@@ -5652,8 +5690,12 @@ function HomeScreen() {
     const chapters = Array.from({ length: endChapter - startChapter + 1 }, (_, index) => startChapter + index);
     const collectionName = (memoryBookCollectionDraft.collectionName || `${normalizeBibleBookName(book)} ${startChapter}-${endChapter}`).trim();
 
-    if (isReservedMemoryCollectionName(collectionName)) {
-      setMemoryBookCollectionStatus("That name is used by an automatic collection. Choose another name.");
+    if (!collectionName || collectionName.length > 40 || isReservedMemoryCollectionName(collectionName)) {
+      setMemoryBookCollectionStatus("Choose a collection name of up to 40 characters.");
+      return;
+    }
+    if (memoryCollectionOptions.some((collection) => collection.name.toLowerCase() === collectionName.toLowerCase())) {
+      setMemoryBookCollectionStatus("A collection with that name already exists.");
       return;
     }
     if (chapters.length > 40) {
@@ -5664,7 +5706,12 @@ function HomeScreen() {
     setMemoryBookCollectionSaving(true);
     setMemoryBookCollectionStatus(`Creating ${collectionName}...`);
 
+    let collectionCreated = false;
     try {
+      await createMemoryCollectionMutation({ profileId: activeProfileId, name: collectionName });
+      collectionCreated = true;
+      setMemoryCollectionNames((names) => [...names, collectionName]);
+      setMemoryCollectionOrder((order) => [...order.filter((item) => item !== collectionName), collectionName]);
       for (const chapter of chapters) {
         const reference = buildReaderStudyReference(book, chapter, []);
         const controller = new AbortController();
@@ -5699,7 +5746,9 @@ function HomeScreen() {
         book
       });
     } catch {
-      setMemoryBookCollectionStatus("Could not create that collection. Try a smaller chapter range.");
+      setMemoryBookCollectionStatus(collectionCreated
+        ? "The collection was created, but its chapters could not all be saved. Check My collections before trying again."
+        : "Could not create that collection. Please try again.");
     } finally {
       setMemoryBookCollectionSaving(false);
     }
@@ -6151,6 +6200,7 @@ function HomeScreen() {
       .map((collection) => collection.name === oldName ? newName : collection.name);
     const result = await renameMemoryCollectionMutation({ profileId: activeProfileId, oldName, newName, order });
     setMemoryCollectionOrder(order);
+    setMemoryCollectionNames((names) => names.map((name) => name === oldName ? newName : name));
     if (memoryCollectionFilter === oldName) setMemoryCollectionFilter(newName);
     setMemoryStatus(`Renamed ${oldName} to ${newName} for ${result.renamedCount} verse${result.renamedCount === 1 ? "" : "s"}.`);
     return result;
@@ -11117,7 +11167,8 @@ function HomeScreen() {
               Metric={Metric}
               moveMemoryPracticeStep={moveMemoryPracticeStep}
               neglectedMemoryVerses={neglectedMemoryVerses}
-              openMemoryBookCollectionBuilder={openMemoryBookCollectionBuilder}
+              openMemoryCollectionBuilder={openMemoryCollectionBuilder}
+              memoryCollectionNames={memoryCollectionNames}
               openMemoryPrintOptions={openMemoryPrintOptions}
               phoneLayout={phoneLayout}
               phoneMemoryFocusMode={phoneMemoryFocusMode}
@@ -12268,7 +12319,7 @@ function HomeScreen() {
         </View>
       )}
       {memoryBookCollectionOpen && (
-        <View {...modalAccessibilityProps("Bible book collection")} style={styles.printOptionsOverlay}>
+        <View {...modalAccessibilityProps("Create Memory collection")} style={styles.printOptionsOverlay}>
           <Pressable
             style={[styles.printOptionsScrim, accountDarkMode && styles.printDarkOptionsScrim]}
             onPress={() => !memoryBookCollectionSaving && setMemoryBookCollectionOpen(false)}
@@ -12283,15 +12334,46 @@ function HomeScreen() {
           >
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
-                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Create Memory collection</Text>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Create collection</Text>
                 <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
-                  Choose a Bible book or chapter range. Each chapter becomes one saved Memory section in the collection.
+                  {memoryCollectionCreateMode === "folder" ? "Name a collection now and add verses whenever you are ready." : "Choose a Bible book or chapter range. Each chapter becomes one saved Memory section."}
                 </Text>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Close Bible book collection" disabled={memoryBookCollectionSaving} onPress={() => setMemoryBookCollectionOpen(false)} style={styles.markupCloseButton}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close collection creator" disabled={memoryBookCollectionSaving} onPress={() => setMemoryBookCollectionOpen(false)} style={styles.markupCloseButton}>
                 <Ionicons name="close-outline" size={19} color={accountDarkMode ? "#bbb8b4" : colors.muted} />
               </Pressable>
             </View>
+
+            <View style={[styles.printOptionChipRow, styles.printOptionGroup]}>
+              {([ ["folder", "Empty collection"], ["book", "From Bible book"] ] as const).map(([mode, label]) => (
+                <Pressable
+                  key={mode}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: memoryCollectionCreateMode === mode }}
+                  disabled={memoryBookCollectionSaving}
+                  onPress={() => { setMemoryCollectionCreateMode(mode); setMemoryBookCollectionStatus(""); }}
+                  style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryCollectionCreateMode === mode && styles.activePrintOptionChip]}
+                >
+                  <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryCollectionCreateMode === mode && styles.activePrintOptionChipText]}>{label}</Text>
+                </Pressable>
+              ))}
+            </View>
+
+            {memoryCollectionCreateMode === "folder" ? (
+              <View style={styles.printOptionGroup}>
+                <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection name</Text>
+                <TextInput
+                  value={memoryFolderName}
+                  onChangeText={setMemoryFolderName}
+                  placeholder="For example, Promises"
+                  maxLength={40}
+                  placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
+                  style={[styles.input, accountDarkMode && styles.accountDarkInput]}
+                />
+                <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>You can add verses from the Bible reader or a verse’s Collections menu.</Text>
+                {!!memoryBookCollectionStatus && <Text style={[styles.saveStatus, accountDarkMode && styles.accountDarkMutedText]} accessibilityRole="alert">{memoryBookCollectionStatus}</Text>}
+              </View>
+            ) : (
 
             <ScrollView style={styles.memoryBookCollectionScroll} contentContainerStyle={styles.memoryBookCollectionContent} keyboardShouldPersistTaps="handled">
               <View style={styles.printOptionGroup}>
@@ -12385,6 +12467,7 @@ function HomeScreen() {
                   value={memoryBookCollectionDraft.collectionName}
                   onChangeText={(collectionName) => setMemoryBookCollectionDraft((current) => ({ ...current, collectionName }))}
                   placeholder="Romans"
+                  maxLength={40}
                   placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
                   style={[styles.input, accountDarkMode && styles.accountDarkInput]}
                 />
@@ -12398,6 +12481,7 @@ function HomeScreen() {
               </View>
               {!!memoryBookCollectionStatus && <Text style={[styles.saveStatus, accountDarkMode && styles.accountDarkMutedText]}>{memoryBookCollectionStatus}</Text>}
             </ScrollView>
+            )}
 
             <View style={styles.printOptionsActions}>
               <Pressable
@@ -12409,12 +12493,12 @@ function HomeScreen() {
               </Pressable>
               <Pressable
                 disabled={memoryBookCollectionSaving}
-                onPress={createMemoryCollectionFromBible}
+                onPress={memoryCollectionCreateMode === "folder" ? createEmptyMemoryCollection : createMemoryCollectionFromBible}
                 style={[styles.resumeButton, styles.primaryResumeButton, phoneLayout && styles.phonePrintOpenButton, memoryBookCollectionSaving && styles.disabledButton]}
               >
                 <Ionicons name="folder-open-outline" size={17} color="white" />
                 <Text style={[styles.primaryResumeButtonText, phoneLayout && styles.phonePrintOpenButtonText]}>
-                  {memoryBookCollectionSaving ? "Creating..." : "Create collection"}
+                  {memoryBookCollectionSaving ? "Creating..." : memoryCollectionCreateMode === "folder" ? "Create collection" : "Create from Bible"}
                 </Text>
               </Pressable>
             </View>
@@ -14264,7 +14348,7 @@ function normalizeUiPreferences(value: unknown): UiPreferenceMap {
       if (typeof item === "string" && item.length <= 80 && !item.startsWith("$") && !item.startsWith("_")) preferences[key] = item.trim() || "all";
       return;
     }
-    if (key === "memoryCollectionOrder") {
+    if (key === "memoryCollectionOrder" || key === "memoryCollectionNames") {
       if (Array.isArray(item)) preferences[key] = Array.from(new Set(item.filter((name): name is string => typeof name === "string" && name.length <= 80 && !name.startsWith("$") && !name.startsWith("_")))).slice(0, 80);
       return;
     }
@@ -14548,7 +14632,7 @@ function normalizeCustomWritingPrompts(value: unknown[]) {
   ).slice(0, 12);
 }
 
-function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "customWritingPrompts" | "rhythmGraceHandledDates" | "memoryCollectionOrder") {
+function uiStringList(preferences: UiPreferenceMap, key: "pinnedJournalEntryIds" | "customWritingPrompts" | "rhythmGraceHandledDates" | "memoryCollectionOrder" | "memoryCollectionNames") {
   const value = preferences[key];
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : undefined;
 }

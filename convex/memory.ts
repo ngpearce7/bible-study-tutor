@@ -371,6 +371,40 @@ export const updateCollections = mutation({
   }
 });
 
+export const createCollection = mutation({
+  args: { clientKey: v.optional(v.string()), profileId: v.id("profiles"), name: v.string() },
+  returns: v.string(),
+  handler: async (ctx, args) => {
+    const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
+    assertProfileCanWrite(profile);
+    const name = args.name.trim().replace(/\s+/g, " ");
+    if (!name || name.length > 40 || ["all verses", "due for review"].includes(name.toLowerCase())) {
+      throw new Error("Choose a collection name of up to 40 characters.");
+    }
+    const preferences = profile.uiPreferences || {};
+    const savedNames = Array.isArray(preferences.memoryCollectionNames) ? preferences.memoryCollectionNames : [];
+    const verses = await ctx.db.query("memoryVerses")
+      .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
+      .take(501);
+    assertCollectionLimit(verses.length, 500, "Saved memory verse");
+    if (savedNames.some((existing) => existing.toLowerCase() === name.toLowerCase()) ||
+      verses.some((verse) => (verse.collections || []).some((existing) => existing.toLowerCase() === name.toLowerCase()))) {
+      throw new Error("A collection with that name already exists.");
+    }
+    assertCollectionLimit(savedNames.length, 80, "Memory collection");
+    const order = Array.isArray(preferences.memoryCollectionOrder) ? preferences.memoryCollectionOrder : [];
+    await ctx.db.patch(args.profileId, {
+      uiPreferences: {
+        ...preferences,
+        memoryCollectionNames: [...savedNames, name],
+        memoryCollectionOrder: [...order.filter((existing) => existing !== name), name].slice(0, 80)
+      },
+      updatedAt: Date.now()
+    });
+    return name;
+  }
+});
+
 export const renameCollection = mutation({
   args: {
     clientKey: v.optional(v.string()),
@@ -393,15 +427,20 @@ export const renameCollection = mutation({
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
       .take(501);
     assertCollectionLimit(verses.length, 500, "Saved memory verse");
+    const preferences = profile.uiPreferences || {};
+    const savedNames = Array.isArray(preferences.memoryCollectionNames) ? preferences.memoryCollectionNames : [];
     const matching = verses.filter((verse) => (verse.collections || []).includes(oldName));
-    if (!matching.some((verse) => !verse.archivedAt)) throw new Error("Collection no longer exists.");
-    if (verses.some((verse) => (verse.collections || []).some((name) => name !== oldName && name.toLowerCase() === newName.toLowerCase()))) {
+    if (!savedNames.includes(oldName) && !matching.some((verse) => !verse.archivedAt)) throw new Error("Collection no longer exists.");
+    if (savedNames.some((name) => name !== oldName && name.toLowerCase() === newName.toLowerCase()) ||
+      verses.some((verse) => (verse.collections || []).some((name) => name !== oldName && name.toLowerCase() === newName.toLowerCase()))) {
       throw new Error("A collection with that name already exists.");
     }
 
+    const nextSavedNames = savedNames.map((name) => name === oldName ? newName : name);
     const activeNames = new Set(verses.filter((verse) => !verse.archivedAt)
       .flatMap((verse) => verse.collections || [])
       .map((name) => name === oldName ? newName : name));
+    nextSavedNames.forEach((name) => activeNames.add(name));
     const order = Array.from(new Set(args.order
       .map((name) => name === oldName ? newName : name.trim())
       .filter((name) => activeNames.has(name)))).slice(0, 80);
@@ -411,10 +450,10 @@ export const renameCollection = mutation({
         collections: cleanCollections((verse.collections || []).map((name) => name === oldName ? newName : name))
       });
     }
-    const preferences = profile.uiPreferences || {};
     await ctx.db.patch(args.profileId, {
       uiPreferences: {
         ...preferences,
+        memoryCollectionNames: nextSavedNames,
         memoryCollectionOrder: order,
         ...(preferences.memoryCollectionFilter === oldName ? { memoryCollectionFilter: newName } : {})
       },

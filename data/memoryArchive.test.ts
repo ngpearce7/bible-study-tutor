@@ -31,6 +31,13 @@ test("custom collection order keeps automatic collections fixed", () => {
     .toEqual(["All Verses", "Trust", "Promises"]);
 });
 
+test("empty named collections remain available before verses are added", () => {
+  const cards = buildMemoryCollectionCards([], ["Promises", "Trust"], ["Trust", "Promises"]);
+  expect(cards.map((card) => [card.name, card.count])).toEqual([
+    ["All Verses", 0], ["Promises", 0], ["Trust", 0]
+  ]);
+});
+
 test("review queue includes only due verses from the opened collection", () => {
   const shared = { _id: "shared", collections: ["Promises", "Trust"], nextReviewAt: Date.now() - 1000 };
   const other = { _id: "other", collections: ["Trust"], nextReviewAt: Date.now() - 1000 };

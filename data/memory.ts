@@ -904,8 +904,8 @@ export function buildMemoryBrowseSections(verses: any[], searchTerm: string, boo
   }));
 }
 
-export function buildMemoryCollectionOptions(verses: any[]) {
-  const counts = new Map<string, number>();
+export function buildMemoryCollectionOptions(verses: any[], savedNames: string[] = []) {
+  const counts = new Map<string, number>(savedNames.map((name) => [name, 0]));
   verses.forEach((verse) => {
     getMemoryVerseCollections(verse).forEach((collection: string) => {
       counts.set(collection, (counts.get(collection) || 0) + 1);
@@ -925,13 +925,13 @@ export function memoryVersesForCollectionFilters(verses: any[], collectionName: 
   return inCollection.filter((verse) => matchesMemoryStatusFilter(verse, status));
 }
 
-export function buildMemoryCollectionCards(verses: any[], customOrder: string[] = []) {
+export function buildMemoryCollectionCards(verses: any[], customOrder: string[] = [], savedNames: string[] = []) {
   const active = verses.filter((verse) => !verse.archivedAt);
   const due = active.filter(isMemoryVerseDue);
   const order = new Map(customOrder.map((name, index) => [name, index]));
   return [
     { key: "all", name: "All Verses", count: active.length, dueCount: due.length },
-    ...buildMemoryCollectionOptions(active).sort((a, b) =>
+    ...buildMemoryCollectionOptions(active, savedNames).sort((a, b) =>
       (order.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.name) ?? Number.MAX_SAFE_INTEGER)
     ).map((collection) => ({
       key: `custom:${collection.name}`,

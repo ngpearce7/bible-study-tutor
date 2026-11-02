@@ -362,6 +362,7 @@ type StudyPhase = "study" | "review" | "saved";
 type JournalFilter = "all" | "pinned" | "drafts" | "studies" | "meditations" | "checkins" | "highlights" | "reviews";
 type JournalView = "list" | "calendar" | "scripture";
 type MemoryView = "review" | "browse" | "history" | "archive";
+const isReservedMemoryCollectionName = (name: string) => ["all verses", "due for review"].includes(name.trim().toLowerCase());
 type MemoryPrintSet = "due" | "reviewed" | "all" | "current" | "collection" | "custom";
 type MemoryCollectionPrompt = {
   source: "study" | "bible";
@@ -1048,6 +1049,7 @@ function HomeScreen() {
   const [memoryChapterFilter, setMemoryChapterFilter] = useState("all");
   const [memoryBrowseStatusFilter, setMemoryBrowseStatusFilter] = useState<MemoryBrowseStatusFilter>("all");
   const [memoryCollectionFilter, setMemoryCollectionFilter] = useState("all");
+  const [memoryCollectionsHome, setMemoryCollectionsHome] = useState(true);
   const [memoryCollectionPickerOpen, setMemoryCollectionPickerOpen] = useState(false);
   const [memoryBrowseFiltersOpen, setMemoryBrowseFiltersOpen] = useState(false);
   const [expandedMemoryFilterBook, setExpandedMemoryFilterBook] = useState("");
@@ -2602,12 +2604,12 @@ function HomeScreen() {
   const activeMemoryReviewQueueCount = memoryReviewQueueIds.length;
   const memorySearchTerm = memorySearch.trim().toLowerCase();
   const memoryCollectionOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)) : [], [memoryVerses, shouldPrepareMemoryUi]);
-  const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All collections" : memoryCollectionFilter;
+  const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All verses" : memoryCollectionFilter;
   const activeMemoryCollectionDueCount = memoryCollectionFilter === "all"
     ? 0
     : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
-  const memoryBookOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryBookOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)) : [], [memoryVerses, shouldPrepareMemoryUi]);
-  const memoryChapterOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryChapterOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt), memoryBookFilter) : [], [memoryBookFilter, memoryVerses, shouldPrepareMemoryUi]);
+  const memoryBookOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryBookOptions(memoryVerses || []) : [], [memoryVerses, shouldPrepareMemoryUi]);
+  const memoryChapterOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryChapterOptions(memoryVerses || [], memoryBookFilter) : [], [memoryBookFilter, memoryVerses, shouldPrepareMemoryUi]);
   const memoryBookCounts = useMemo(() => new Map(memoryBookOptions.map((book) => [book.book, book.count])), [memoryBookOptions]);
   const memoryBookSections = useMemo(
     () => [
@@ -2619,7 +2621,7 @@ function HomeScreen() {
   const memoryChaptersByBook = useMemo(() => {
     const chapters = new Map<string, ReturnType<typeof buildMemoryChapterOptions>>();
     memoryBookOptions.forEach((book) => {
-      chapters.set(book.book, buildMemoryChapterOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt), book.book));
+      chapters.set(book.book, buildMemoryChapterOptions(memoryVerses || [], book.book));
     });
     return chapters;
   }, [memoryBookOptions, memoryVerses]);
@@ -2641,7 +2643,10 @@ function HomeScreen() {
     memoryBrowseStatusLabel
   ].filter(Boolean).join(" · ") || "All saved verses";
   const memoryBrowseSections = useMemo(
-    () => shouldPrepareMemoryUi ? buildMemoryBrowseSections((memoryVerses || []).filter((verse: any) => !verse.archivedAt), memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter) : [],
+    () => shouldPrepareMemoryUi ? buildMemoryBrowseSections(
+      memoryCollectionFilter === "all" && memoryBrowseStatusFilter === "all" ? memoryVerses || [] : (memoryVerses || []).filter((verse: any) => !verse.archivedAt),
+      memorySearchTerm, memoryBookFilter, memoryChapterFilter, memoryBrowseStatusFilter, memoryCollectionFilter
+    ) : [],
     [memoryBookFilter, memoryBrowseStatusFilter, memoryChapterFilter, memoryCollectionFilter, memorySearchTerm, memoryVerses, shouldPrepareMemoryUi]
   );
   const dueMemoryCount = tab === "home"
@@ -2741,7 +2746,16 @@ function HomeScreen() {
   const phoneMemoryFocusMode = tab === "memory" && !!activeMemoryVerseId && (phoneLayout || activeMemoryReviewQueueCount > 0);
   const practiceViewport = usePracticeViewport(phoneLayout && phoneMemoryFocusMode);
   const memoryFinishRef = useRef<View>(null);
-  const browseMemoryDisplaySections = buildMemoryQueueSections(memoryBrowseSections.flatMap((section) => section.verses));
+  const browseMemoryVerses = memoryBrowseSections.flatMap((section) => section.verses);
+  const browseArchivedVerses = browseMemoryVerses.filter((verse: any) => verse.archivedAt);
+  const browseMemoryDisplaySections = [
+    ...buildMemoryQueueSections(browseMemoryVerses),
+    ...(browseArchivedVerses.length ? [{
+      title: "Archived",
+      description: "Saved without scheduled reviews. Restore a verse to review it again.",
+      verses: browseArchivedVerses.sort((a: any, b: any) => (b.archivedAt || 0) - (a.archivedAt || 0))
+    }] : [])
+  ];
   const archivedMemorySections = shouldPrepareMemoryUi ? [{
     title: "Archived verses",
     description: "Saved without scheduled reviews. Restore a verse to review it again.",
@@ -2754,7 +2768,7 @@ function HomeScreen() {
       ...section,
       verses: phoneMemoryFocusMode
         ? section.verses.filter((verse: any) => String(verse._id) === (activeMemoryVerseId || activeMemoryMeditationVerseId))
-        : memoryView === "review" || memoryView === "browse"
+        : (memoryView === "review" || memoryView === "browse") && (section.title === "Due for Review" || section.title === "Reviewed")
           ? sortMemoryReviewVerses(section.verses, section.title, section.title === "Reviewed" ? reviewedMemoryReviewSort : dueMemoryReviewSort)
         : section.verses
     }))
@@ -2769,7 +2783,7 @@ function HomeScreen() {
     const saved = memoryVerses || [];
     if (printSet === "due") return saved.filter((verse: any) => isMemoryVerseDue(verse));
     if (printSet === "reviewed") return saved.filter((verse: any) => !verse.archivedAt && !isMemoryVerseDue(verse));
-    if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
+    if (printSet === "collection") return memoryPrintCollectionFilter === "all" ? saved : saved.filter((verse: any) => !verse.archivedAt && getMemoryVerseCollections(verse).includes(memoryPrintCollectionFilter));
     if (printSet === "current") return visibleMemorySections.flatMap((section) => section.verses);
     return saved;
   }
@@ -5488,6 +5502,10 @@ function HomeScreen() {
     const statusSetter = request.source === "bible" ? setReaderMemoryStatus : setMemoryStatus;
 
     if (!sections.length) return;
+    if (isReservedMemoryCollectionName(collectionName)) {
+      statusSetter("That name is used by an automatic collection. Choose another name.");
+      return;
+    }
     setMemoryCollectionPromptSaving(true);
     statusSetter(`Creating ${collectionName} collection...`);
 
@@ -5561,6 +5579,10 @@ function HomeScreen() {
     const chapters = Array.from({ length: endChapter - startChapter + 1 }, (_, index) => startChapter + index);
     const collectionName = (memoryBookCollectionDraft.collectionName || `${normalizeBibleBookName(book)} ${startChapter}-${endChapter}`).trim();
 
+    if (isReservedMemoryCollectionName(collectionName)) {
+      setMemoryBookCollectionStatus("That name is used by an automatic collection. Choose another name.");
+      return;
+    }
     if (chapters.length > 40) {
       setMemoryBookCollectionStatus("Choose 40 chapters or fewer at a time so the app can create the collection safely.");
       return;
@@ -5812,14 +5834,16 @@ function HomeScreen() {
       return;
     }
     const savedMemoryVerses = memoryVerses || [];
-    const initialSet: MemoryPrintSet = memoryView === "browse"
+    const initialSet: MemoryPrintSet = memoryView === "browse" && memoryCollectionsHome
+      ? "all"
+      : memoryView === "browse"
       ? memoryCollectionFilter !== "all"
         ? "collection"
-        : "current"
+        : memoryBrowseStatusFilter === "due" ? "due" : "current"
       : dueMemoryCount > 0 ? "due" : "all";
     const initialCollectionFilter = memoryView === "browse" && memoryCollectionFilter !== "all" ? memoryCollectionFilter : "all";
     const initialVerses = initialSet === "collection"
-      ? savedMemoryVerses.filter((verse: any) => getMemoryVerseCollections(verse).includes(initialCollectionFilter))
+      ? savedMemoryVerses.filter((verse: any) => !verse.archivedAt && getMemoryVerseCollections(verse).includes(initialCollectionFilter))
       : initialSet === "current"
         ? currentBrowseMemoryVerses
         : getMemoryPrintCandidateVerses(initialSet);
@@ -5842,7 +5866,7 @@ function HomeScreen() {
   function changeMemoryPrintCollection(collectionName: string) {
     setMemoryPrintCollectionFilter(collectionName);
     const saved = memoryVerses || [];
-    const verses = collectionName === "all" ? saved : saved.filter((verse: any) => getMemoryVerseCollections(verse).includes(collectionName));
+    const verses = collectionName === "all" ? saved : saved.filter((verse: any) => !verse.archivedAt && getMemoryVerseCollections(verse).includes(collectionName));
     setRememberedMemoryPrintSet("collection");
     setMemoryPrintSelectedVerseIds(verses.map((verse: any) => String(verse._id)));
   }
@@ -5976,10 +6000,11 @@ function HomeScreen() {
 
   function startMemoryPractice(verse: any, options?: { preserveReviewQueue?: boolean }) {
     if (!options?.preserveReviewQueue) setMemoryReviewQueueIds([]);
-    if (!currentBrowseMemoryVerses.some((item: any) => String(item._id) === String(verse._id))) {
+    if (!options?.preserveReviewQueue && !currentBrowseMemoryVerses.some((item: any) => String(item._id) === String(verse._id))) {
       clearMemoryBrowseFilters();
       setMemorySearch("");
     }
+    setMemoryCollectionsHome(false);
     setRememberedMemoryView("browse");
     setActiveMemoryVerseId(String(verse._id));
     setActiveMemoryMeditationVerseId("");
@@ -6000,6 +6025,11 @@ function HomeScreen() {
       .filter((verse: any) => collectionName === "all" || getMemoryVerseCollections(verse).includes(collectionName));
     if (!dueVerses.length) return;
 
+    clearMemoryBrowseFilters();
+    setRememberedMemoryCollectionFilter(collectionName);
+    setRememberedMemoryBrowseStatusFilter("due");
+    setMemorySearch("");
+    setMemoryCollectionsHome(false);
     setMemoryReviewQueueIds(dueVerses.map((verse: any) => String(verse._id)));
     setRememberedMemoryView("browse");
     startMemoryPractice(dueVerses[0], { preserveReviewQueue: true });
@@ -6028,6 +6058,10 @@ function HomeScreen() {
   function addMemoryVerseCollection(verse: any) {
     const newCollection = memoryCollectionDraft.trim().replace(/\s+/g, " ");
     if (!newCollection) return;
+    if (isReservedMemoryCollectionName(newCollection)) {
+      setMemoryStatus("That name is used by an automatic collection. Choose another name.");
+      return;
+    }
     Keyboard.dismiss();
     const collections = getMemoryVerseCollections(verse);
     saveMemoryVerseCollections(verse, [...collections, newCollection]);
@@ -6046,6 +6080,7 @@ function HomeScreen() {
     setMemoryHintsVisible(false);
     setMemoryHintLevels({});
     setMemoryStatus("Review set stopped. You can continue any due verse when you are ready.");
+    setMemoryCollectionsHome(true);
     scrollMemoryToTop();
   }
 
@@ -6056,6 +6091,7 @@ function HomeScreen() {
       setMemorySearch("");
     }
     setRememberedMemoryView("browse");
+    setMemoryCollectionsHome(false);
     setMemoryReviewQueueIds([]);
     setActiveMemoryVerseId("");
     setActiveMemoryMeditationVerseId(verseId);
@@ -6170,6 +6206,7 @@ function HomeScreen() {
       }
       setMemoryReviewQueueIds([]);
       setMemoryStatus("reviewed-today");
+      if (memoryReviewQueueIds.length > 0) setMemoryCollectionsHome(true);
       scrollMemoryToTop();
       return;
     }
@@ -10934,6 +10971,7 @@ function HomeScreen() {
               memoryChaptersByBook={memoryChaptersByBook}
               memoryCollectionDraft={memoryCollectionDraft}
               memoryCollectionFilter={memoryCollectionFilter}
+              memoryCollectionsHome={memoryCollectionsHome}
               memoryCollectionOptions={memoryCollectionOptions}
               memoryCollectionPickerOpen={memoryCollectionPickerOpen}
               memoryDarkMode={memoryDarkMode}
@@ -11000,6 +11038,7 @@ function HomeScreen() {
               setMemoryBrowseStatusFilter={setRememberedMemoryBrowseStatusFilter}
               setMemoryCollectionDraft={setMemoryCollectionDraft}
               setMemoryCollectionFilter={setRememberedMemoryCollectionFilter}
+              setMemoryCollectionsHome={setMemoryCollectionsHome}
               setMemoryCollectionPickerOpen={setMemoryCollectionPickerOpen}
               setMemoryFilterMobileMenu={setMemoryFilterMobileMenu}
               setMemoryHintsVisible={setMemoryHintsVisible}
@@ -12301,7 +12340,7 @@ function HomeScreen() {
                     ["reviewed", "Reviewed"],
                     ["all", "All saved"],
                     ["collection", "Collection"],
-                    ["current", memoryView === "browse" ? "Current browse results" : "Current view"],
+                    ["current", memoryView === "browse" ? "Current verse list" : "Current view"],
                     ["custom", "Custom"]
                   ].map(([key, label]) => (
                     <Pressable

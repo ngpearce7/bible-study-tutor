@@ -912,6 +912,21 @@ export function buildMemoryCollectionOptions(verses: any[]) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+export function buildMemoryCollectionCards(verses: any[]) {
+  const active = verses.filter((verse) => !verse.archivedAt);
+  const due = active.filter(isMemoryVerseDue);
+  return [
+    ...(due.length ? [{ key: "due", name: "Due for Review", count: due.length, dueCount: due.length }] : []),
+    { key: "all", name: "All Verses", count: verses.length, dueCount: due.length },
+    ...buildMemoryCollectionOptions(active).map((collection) => ({
+      key: `custom:${collection.name}`,
+      name: collection.name,
+      count: collection.count,
+      dueCount: due.filter((verse) => getMemoryVerseCollections(verse).includes(collection.name)).length
+    }))
+  ];
+}
+
 export function getMemoryVerseCollections(verse: any) {
   return Array.isArray(verse?.collections)
     ? verse.collections.map((collection: unknown) => String(collection || "").trim()).filter(Boolean)

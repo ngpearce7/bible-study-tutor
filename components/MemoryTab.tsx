@@ -3,7 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Suspense, useState } from "react";
 import { Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
-import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
+import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryCollectionCards, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
 import { StableMemoryInput } from "./StableMemoryInput";
 import { MemoryBlank } from "@/components/MemoryBlank";
@@ -60,6 +60,7 @@ export function MemoryTab(props: any) {
     memoryChaptersByBook,
     memoryCollectionDraft,
     memoryCollectionFilter,
+    memoryCollectionsHome,
     memoryCollectionOptions,
     memoryCollectionPickerOpen,
     memoryDarkMode,
@@ -125,6 +126,7 @@ export function MemoryTab(props: any) {
     setMemoryBrowseStatusFilter,
     setMemoryCollectionDraft,
     setMemoryCollectionFilter,
+    setMemoryCollectionsHome,
     setMemoryCollectionPickerOpen,
     setMemoryFilterMobileMenu,
     setMemoryHintsVisible,
@@ -157,6 +159,11 @@ export function MemoryTab(props: any) {
   } = props;
 
   const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
+  const reviewCount = memoryCollectionsHome || memoryCollectionFilter === "all" ? dueMemoryCount : activeMemoryCollectionDueCount;
+  const activeCollectionName = memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
+    ? "Due for Review"
+    : memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
+  const collectionCards = buildMemoryCollectionCards(memoryVerses || []);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
     `${verse.reference} ${verse.verseText}`.toLowerCase().includes(newCollectionSearch.trim().toLowerCase())
   ).slice(0, 12);
@@ -166,6 +173,10 @@ export function MemoryTab(props: any) {
     const name = newCollectionName.trim().replace(/\s+/g, " ");
     if (!name || !selectedCollectionVerse || creatingCollection) {
       setCollectionCreationError("Enter a name and choose a verse to start this collection.");
+      return;
+    }
+    if (["all verses", "due for review"].includes(name.toLowerCase())) {
+      setCollectionCreationError("This name is used by an automatic collection. Choose another name.");
       return;
     }
     if (memoryCollectionOptions.some((option: any) => option.name.toLowerCase() === name.toLowerCase())) {
@@ -187,6 +198,7 @@ export function MemoryTab(props: any) {
     setNewCollectionVerseId("");
     setNewCollectionOpen(false);
     setMemoryCollectionFilter(name);
+    setMemoryCollectionsHome(false);
   }
 
   return (
@@ -332,6 +344,10 @@ export function MemoryTab(props: any) {
                         onPress={() => {
                           setMemorySearch("");
                           setMemoryBrowseFiltersOpen(false);
+                          if (key === "browse") {
+                            clearMemoryBrowseFilters();
+                            setMemoryCollectionsHome(true);
+                          }
                           setMemoryView(key as MemoryView);
                         }}
                         style={[styles.memoryViewButton, memoryView === key && styles.activeMemoryViewButton, memoryDarkMode && memoryView === key && styles.accountDarkActiveSegment]}
@@ -367,23 +383,32 @@ export function MemoryTab(props: any) {
               </>
             )}
             {!phoneMemoryFocusMode && memoryView === "browse" && (
-              <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
+              <View style={[styles.memoryReviewPromptBox, phoneLayout && styles.phoneMemoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
                 <Ionicons
-                  name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}
+                  name={memoryStatus ? "checkmark-circle-outline" : reviewCount > 0 ? "school-outline" : "sparkles-outline"}
                   size={20}
                   color={memoryDarkMode ? "#d4a768" : colors.coral}
                 />
-                <View style={styles.memoryReviewPromptContent}>
+                <View style={[styles.memoryReviewPromptContent, phoneLayout && styles.phoneMemoryReviewPromptContent]}>
                   <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
                     {memoryStatus === "reviewed-today"
                       ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
-                      : memoryStatus || (dueMemoryCount > 0
-                        ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today.`
+                      : memoryStatus || (reviewCount > 0
+                        ? `${reviewCount} verse${reviewCount === 1 ? " is" : "s are"} ready for review today${!memoryCollectionsHome && memoryCollectionFilter !== "all" ? ` in ${memoryCollectionFilter}` : ""}.`
+                        : !memoryCollectionsHome && memoryCollectionFilter !== "all"
+                          ? `No verses in ${memoryCollectionFilter} are due today.`
                         : reviewedTodayCount > 0
                           ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
                           : "No verses are due today. You can practise any saved verse whenever you like.")}
                   </Text>
                 </View>
+                {reviewCount > 0 && (
+                  <AppButton
+                    label={`Review ${reviewCount} due`}
+                    onPress={() => startDueMemoryReviewQueue(memoryCollectionsHome ? "all" : memoryCollectionFilter)}
+                    style={phoneLayout && styles.phoneMemoryReviewPromptButton}
+                  />
+                )}
               </View>
             )}
             {!phoneMemoryFocusMode && memoryView === "history" && (
@@ -416,15 +441,17 @@ export function MemoryTab(props: any) {
                 <View style={styles.memoryCollectionsHeader}>
                   <View style={styles.memoryCollectionsTitleBlock}>
                     <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>
-                      {memoryCollectionFilter === "all" ? "My collections" : memoryCollectionFilter}
+                      {memoryCollectionsHome ? "My collections" : activeCollectionName}
                     </Text>
                     <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
-                      {memoryCollectionFilter === "all"
+                      {memoryCollectionsHome
                         ? "Group verses by theme or Bible book. Collections are optional."
-                        : `${memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count || 0} saved verses in this collection`}
+                        : memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
+                          ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} ready for review`
+                          : `${memoryCollectionFilter === "all" ? (memoryVerses || []).length : memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count || 0} saved verses in this collection`}
                     </Text>
                   </View>
-                  {memoryCollectionFilter === "all" ? (
+                  {memoryCollectionsHome ? (
                     <AppButton
                       label="New collection"
                       variant="secondary"
@@ -438,64 +465,47 @@ export function MemoryTab(props: any) {
                     />
                   ) : (
                     <AppButton
-                      label="All verses"
+                      label="My collections"
                       variant="secondary"
                       onPress={() => {
                         clearMemoryBrowseFilters();
                         setMemorySearch("");
+                        setMemoryCollectionsHome(true);
                       }}
                       style={memoryDarkMode && styles.homeDarkResumeButton}
                       labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                     />
                   )}
                 </View>
-                {memoryCollectionFilter === "all" && (
-                  memoryCollectionOptions.length > 0 ? (
-                    <View style={styles.memoryCollectionFolderGrid}>
-                      {memoryCollectionOptions.map((collection: any) => {
-                        const collectionDue = savedMemoryVerses.filter((verse: any) =>
-                          isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(collection.name)
-                        ).length;
-                        return (
-                          <Pressable
-                            key={collection.name}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Open ${collection.name} collection, ${collection.count} verses${collectionDue ? `, ${collectionDue} due` : ""}`}
-                            onPress={() => {
-                              clearMemoryBrowseFilters();
-                              setMemorySearch("");
-                              setMemoryCollectionFilter(collection.name);
-                            }}
-                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection]}
-                          >
-                            <Ionicons name="folder-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
-                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
-                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                              {collection.count} verse{collection.count === 1 ? "" : "s"}{collectionDue ? ` · ${collectionDue} due` : ""}
-                            </Text>
-                          </Pressable>
-                        );
-                      })}
-                    </View>
-                  ) : (
-                    <View style={[styles.memoryCollectionEmpty, memoryDarkMode && styles.accountDarkSection]}>
-                      <Ionicons name="folder-open-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
-                      <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>No collections yet</Text>
-                      <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
-                        Your verses are already saved. Create a collection when you want to organise them.
-                      </Text>
-                    </View>
-                  )
-                )}
-                {(memoryCollectionFilter === "all" ? dueMemoryCount : activeMemoryCollectionDueCount) > 0 && (
-                  <View style={styles.memoryCollectionDetailActions}>
-                    <AppButton
-                      label={`Review ${memoryCollectionFilter === "all" ? dueMemoryCount : activeMemoryCollectionDueCount} due`}
-                      onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
-                    />
+                {memoryCollectionsHome && (
+                  <View style={styles.memoryCollectionFolderGrid}>
+                    {collectionCards.map((collection: any) => (
+                      <Pressable
+                        key={collection.key}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Open ${collection.name}, ${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? `, ${collection.dueCount} due` : ""}`}
+                        onPress={() => {
+                          clearMemoryBrowseFilters();
+                          setMemorySearch("");
+                          setNewCollectionOpen(false);
+                          if (collection.key === "due") setMemoryBrowseStatusFilter("due");
+                          if (collection.key.startsWith("custom:")) setMemoryCollectionFilter(collection.name);
+                          setMemoryCollectionsHome(false);
+                        }}
+                        style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection]}
+                      >
+                        <Ionicons name={collection.key === "due" ? "school-outline" : collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                        <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
+                        <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                          {collection.key === "due"
+                            ? `${collection.count} due now`
+                            : `${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? ` · ${collection.dueCount} due` : ""}`}
+                        </Text>
+                      </Pressable>
+                    ))}
                   </View>
                 )}
-                {newCollectionOpen && memoryCollectionFilter === "all" && (
+                {newCollectionOpen && memoryCollectionsHome && (
                   <View style={[styles.memoryNewCollectionBox, memoryDarkMode && styles.accountDarkSection]}>
                     <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Create a collection</Text>
                     <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
@@ -537,6 +547,8 @@ export function MemoryTab(props: any) {
                     </View>
                   </View>
                 )}
+                {!memoryCollectionsHome && (
+                <>
                 <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
                   <Ionicons name="search-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                   <TextInput
@@ -596,7 +608,7 @@ export function MemoryTab(props: any) {
                         }}
                         style={styles.memoryCollectionPickerItem}
                       >
-                        <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>All collections</Text>
+                        <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>All verses</Text>
                         <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{savedMemoryVerses.length} saved verses</Text>
                       </Pressable>
                       {memoryCollectionOptions.map((collection) => (
@@ -804,6 +816,8 @@ export function MemoryTab(props: any) {
                   )}
                 </View>
                 )}
+                </>
+                )}
               </>
             )}
             {memoryView === "archive" && (
@@ -813,7 +827,7 @@ export function MemoryTab(props: any) {
                 {!!memorySearch.trim() && <Pressable accessibilityRole="button" accessibilityLabel="Clear search" onPress={() => setMemorySearch("")} style={styles.clearSearchButton}><Ionicons name="close-outline" size={18} color={memoryDarkMode ? "#bbb8b4" : colors.muted} /></Pressable>}
               </View>
             )}
-            {visibleMemorySections.map((section) => {
+            {(memoryView !== "browse" || !memoryCollectionsHome || phoneMemoryFocusMode) && visibleMemorySections.map((section) => {
               const highlightedMemorySection = section.title === "Due for Review" || section.title === "Reviewed";
               const reviewedMemorySection = section.title === "Reviewed";
               const sectionSort = reviewedMemorySection ? reviewedMemoryReviewSort : dueMemoryReviewSort;
@@ -1411,7 +1425,7 @@ export function MemoryTab(props: any) {
                 <Text style={[styles.emptyJournalText, memoryDarkMode && styles.accountDarkMutedText]}>Verses you archive will appear here and can be restored later.</Text>
               </View>
             )}
-            {memoryView === "browse" && visibleMemorySections.length === 0 && (
+            {memoryView === "browse" && !memoryCollectionsHome && visibleMemorySections.length === 0 && (
               <View style={[styles.emptyJournalBox, memoryDarkMode && styles.accountDarkSection]}>
                 <Ionicons name="search-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                 <Text style={[styles.emptyJournalTitle, memoryDarkMode && styles.accountDarkTitle]}>No saved verses found</Text>

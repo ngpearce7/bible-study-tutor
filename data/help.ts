@@ -126,8 +126,8 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
     return {
       title: "Memory verses help",
       icon: "albums-outline",
-      summary: "Verses brings review practice, collections, and your saved Scripture together.",
-      tips: ["Start a review from the due prompt, or practise any verse from its card.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
+      summary: "Verses opens with your collections, including All Verses and Due for Review when a review is ready.",
+      tips: ["Use the review button in the message panel, or open a collection to practise an individual verse.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
     };
   }
 
@@ -252,8 +252,8 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       summary: "Memory helps you keep saved verses through review, meditation, history, and printable verse cards.",
       tips: [
         "Save verses from Bible or Study first.",
-        "Use Due for Review when you want today’s practice list.",
-        "Use Browse to filter by collection, Testament, book, chapter, status, or review schedule.",
+        "Open Due for Review for today’s practice list, or All Verses for every saved verse, including archived ones.",
+        "Open a collection to filter by Testament, book, chapter, status, or review schedule.",
         "Use Practice for the three-step review flow, or Meditate to slow down with one verse.",
         "Use Print cards to download editable cards for carrying, sharing, or placing around the house."
       ]

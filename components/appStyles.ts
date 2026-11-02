@@ -6471,13 +6471,22 @@ export const styles = StyleSheet.create({
     padding: 8
   },
   memoryReviewPromptBox: {
-    alignItems: "flex-start",
+    alignItems: "center",
     borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
     gap: 10,
     paddingHorizontal: 13,
     paddingVertical: 12
+  },
+  phoneMemoryReviewPromptBox: {
+    flexWrap: "wrap"
+  },
+  phoneMemoryReviewPromptContent: {
+    minWidth: 180
+  },
+  phoneMemoryReviewPromptButton: {
+    marginLeft: "auto"
   },
   memoryReviewSuccessBox: {
     backgroundColor: "#edf5df",

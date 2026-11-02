@@ -716,16 +716,16 @@ export function MemoryTab(props: any) {
                             <View style={styles.memoryCollectionCardHeader}>
                               <Ionicons name={collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                             </View>
+                            {collection.dueCount > 0 && !(reorderMode && isCustom) && (
+                              <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, styles.memoryCollectionTopDuePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
+                                {collection.dueCount} due now
+                              </Text>
+                            )}
                             <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
-                            <View style={[styles.memoryCollectionCardFooter, phoneLayout && styles.phoneMemoryCollectionCardFooter]}>
+                            <View style={styles.memoryCollectionCardFooter}>
                               <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
                                 {collection.count} verse{collection.count === 1 ? "" : "s"}
                               </Text>
-                              {collection.dueCount > 0 && (
-                                <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, phoneLayout && styles.phoneMemoryCollectionDuePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
-                                  {collection.dueCount} due now
-                                </Text>
-                              )}
                             </View>
                           </Pressable>
                           {reorderMode && isCustom && (Platform.OS === "web" ? (
@@ -784,12 +784,12 @@ export function MemoryTab(props: any) {
                       <div aria-hidden="true" style={{ position: "fixed", left: dragPreview.x, top: dragPreview.y, width: dragPreview.width, height: dragPreview.height, zIndex: 600, pointerEvents: "none", filter: "drop-shadow(0 12px 16px rgba(17, 39, 60, 0.2))" }}>
                         <View style={[styles.memoryCollectionFolder, styles.memoryCollectionEditing, memoryDarkMode && styles.accountDarkSection, { height: "100%" }]}>
                           <Ionicons name="folder-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                          {(collectionCards.find((item) => item.name === dragPreview.name)?.dueCount || 0) > 0 && (
+                            <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, styles.memoryCollectionTopDuePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>{collectionCards.find((item) => item.name === dragPreview.name)?.dueCount} due now</Text>
+                          )}
                           <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{dragPreview.name}</Text>
-                          <View style={[styles.memoryCollectionCardFooter, phoneLayout && styles.phoneMemoryCollectionCardFooter]}>
+                          <View style={styles.memoryCollectionCardFooter}>
                             <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{collectionCards.find((item) => item.name === dragPreview.name)?.count || 0} verses</Text>
-                            {(collectionCards.find((item) => item.name === dragPreview.name)?.dueCount || 0) > 0 && (
-                              <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, phoneLayout && styles.phoneMemoryCollectionDuePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>{collectionCards.find((item) => item.name === dragPreview.name)?.dueCount} due now</Text>
-                            )}
                           </View>
                         </View>
                       </div>

@@ -6447,6 +6447,12 @@ export const styles = StyleSheet.create({
   memoryList: {
     gap: 16
   },
+  memoryLayout: {
+    width: "100%"
+  },
+  memoryMainCard: {
+    width: "100%"
+  },
   phoneMemoryHeaderRow: {
     alignItems: "center",
     flexDirection: "row",

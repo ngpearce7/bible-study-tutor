@@ -383,8 +383,8 @@ export function MemoryTab(props: any) {
   }
 
   return (
-    <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
-      <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
+    <View style={[styles.layout, styles.memoryLayout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
+      <Card style={[styles.mainCard, styles.memoryMainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
         <View style={styles.phoneMemoryHeaderRow}>
           <Eyebrow>Memory</Eyebrow>
           {!activeMemoryVerseId && props.contextHelpControl}

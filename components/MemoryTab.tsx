@@ -17,8 +17,10 @@ export function MemoryTab(props: any) {
   const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [collectionCreationError, setCollectionCreationError] = useState("");
-  const [arrangingCollections, setArrangingCollections] = useState(false);
-  const draggedCollection = useRef("");
+  const [activeReorderCollection, setActiveReorderCollection] = useState("");
+  const [reorderMenuCollection, setReorderMenuCollection] = useState("");
+  const [dragOverCollection, setDragOverCollection] = useState("");
+  const pointerDrag = useRef({ name: "", x: 0, y: 0, moved: false });
   const CollectionWrapper = Platform.OS === "web" ? "div" : View;
   const {
     activeMemoryCollectionDueCount,
@@ -164,9 +166,7 @@ export function MemoryTab(props: any) {
   } = props;
 
   const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
-  const activeCollectionName = memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
-    ? "Due for Review"
-    : memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
+  const activeCollectionName = memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
   const collectionCards = buildMemoryCollectionCards(memoryVerses || [], memoryCollectionOrder);
   const customCollectionNames = collectionCards.filter((collection) => collection.key.startsWith("custom:")).map((collection) => collection.name);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
@@ -190,6 +190,16 @@ export function MemoryTab(props: any) {
     next.splice(from, 1);
     next.splice(to, 0, source);
     saveMemoryCollectionOrder(next);
+  }
+
+  function collectionAtPointer(x: number, y: number) {
+    if (typeof document === "undefined") return "";
+    return document.elementFromPoint(x, y)?.closest("[data-memory-collection]")?.getAttribute("data-memory-collection") || "";
+  }
+
+  function finishCollectionDrag() {
+    pointerDrag.current = { name: "", x: 0, y: 0, moved: false };
+    setDragOverCollection("");
   }
 
   async function createCollection() {
@@ -230,14 +240,15 @@ export function MemoryTab(props: any) {
         <View style={styles.phoneMemoryHeaderRow}>
           <Eyebrow>Memory</Eyebrow>
           {!activeMemoryVerseId && props.contextHelpControl}
-          {phoneLayout && !phoneMemoryFocusMode && (
+          {!phoneMemoryFocusMode && (memoryVerses || []).length > 0 && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={addMemoryPanelOpen ? "Hide add memory verse options" : "Add memory verses"}
               onPress={() => setAddMemoryPanelOpen((open) => !open)}
-              style={[styles.phoneMemoryHeaderAddButton, memoryDarkMode && styles.homeDarkIconBubble]}
+              style={[styles.phoneMemoryHeaderAddButton, !phoneLayout && styles.memoryHeaderAddButton, memoryDarkMode && styles.homeDarkIconBubble]}
             >
-              <Ionicons name="add-circle-outline" size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+              <Ionicons name={addMemoryPanelOpen ? "close-circle-outline" : "add-circle-outline"} size={24} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+              {!phoneLayout && <Text style={[styles.memoryHeaderAddLabel, memoryDarkMode && styles.accountDarkText]}>Add verses</Text>}
             </Pressable>
           )}
         </View>
@@ -245,11 +256,11 @@ export function MemoryTab(props: any) {
         {!phoneMemoryFocusMode && (
           <>
             {!phoneLayout && <Text style={[styles.titleSupport, styles.memoryTitleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>}
-            {phoneLayout && addMemoryPanelOpen && (
-              <View style={[styles.phoneMemoryHeaderAddPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
+            {addMemoryPanelOpen && (
+              <View style={[styles.phoneMemoryHeaderAddPanel, styles.memoryAddMenuPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
                 <View style={styles.phoneAddMemoryActions}>
                   <AppButton
-                    label="Bible"
+                    label="Find in Bible"
                     onPress={() => {
                       setAddMemoryPanelOpen(false);
                       setTab("bible");
@@ -257,7 +268,7 @@ export function MemoryTab(props: any) {
                     style={styles.phoneMemoryAddActionButton}
                   />
                   <AppButton
-                    label="Study"
+                    label="Open Study"
                     variant="secondary"
                     onPress={() => {
                       setAddMemoryPanelOpen(false);
@@ -266,20 +277,13 @@ export function MemoryTab(props: any) {
                     style={[styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
                     labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
                   />
-                  <AppButton
-                    label="Collection"
-                    variant="secondary"
-                    onPress={openMemoryBookCollectionBuilder}
-                    style={[styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                    labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                  />
                 </View>
               </View>
             )}
-            {(memoryVerses || []).length > 0 && <View style={[styles.metricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
-              <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-              <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
-              <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={memoryDarkMode && styles.homeDarkMetric} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+            {(memoryVerses || []).length > 0 && <View style={[styles.metricGrid, styles.memoryCompactMetricGrid, phoneLayout && styles.phoneMemoryMetricGrid]}>
+              <Metric value={(memoryVerses || []).length} label="saved" compact={phoneLayout} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+              <Metric value={dueMemoryCount} label="due now" compact={phoneLayout} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
+              <Metric value={reviewedTodayCount} label="reviewed today" compact={phoneLayout} labelLines={2} style={[styles.memoryCompactMetric, memoryDarkMode && styles.homeDarkMetric]} valueStyle={memoryDarkMode && styles.homeDarkMetricValue} labelStyle={memoryDarkMode && styles.accountDarkMutedText} />
             </View>}
           </>
         )}
@@ -317,42 +321,6 @@ export function MemoryTab(props: any) {
           </View>
         ) : (
           <View style={styles.memoryList}>
-            {!phoneLayout && !phoneMemoryFocusMode && memoryView !== "history" && (
-              <View style={[styles.addMemoryBox, phoneLayout && styles.phoneAddMemoryBox, memoryDarkMode && styles.accountDarkSection]}>
-                <View style={styles.addMemoryCopy}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={phoneLayout ? (addMemoryPanelOpen ? "Hide add memory verse options" : "Show add memory verse options") : undefined}
-                    disabled={!phoneLayout}
-                    onPress={() => setAddMemoryPanelOpen((open) => !open)}
-                    style={[styles.addMemoryHeader, phoneLayout && styles.phoneAddMemoryHeader]}
-                  >
-                    <View style={[styles.feedbackHeader, phoneLayout && styles.phoneAddMemoryTitleBlock]}>
-                      <Ionicons name="add-circle-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
-                      <View style={styles.addMemoryCopy}>
-                        <Text style={[styles.feedbackTitle, phoneLayout && styles.phoneAddMemoryTitle, memoryDarkMode && styles.accountDarkTitle]}>{phoneLayout ? "Add verses" : "Add memory verses"}</Text>
-                        {phoneLayout && <Text style={[styles.phoneAddMemorySubtitle, memoryDarkMode && styles.accountDarkMutedText]}>From Bible or Study</Text>}
-                      </View>
-                    </View>
-                    {phoneLayout && (
-                      <Ionicons
-                        name={addMemoryPanelOpen ? "chevron-up-outline" : "chevron-down-outline"}
-                        size={18}
-                        color={memoryDarkMode ? "#d4a768" : colors.oliveDark}
-                      />
-                    )}
-                  </Pressable>
-                  {!phoneLayout && <Text style={[styles.addMemoryText, memoryDarkMode && styles.accountDarkMutedText]}>Open the Bible, select one or more verses, then tap Memory. You can also save verses from Study.</Text>}
-                </View>
-                {(!phoneLayout || addMemoryPanelOpen) && (
-                  <View style={[styles.emptyMemoryActions, phoneLayout && styles.phoneAddMemoryActions]}>
-                    <AppButton label={phoneLayout ? "Bible" : "Find in Bible"} onPress={() => setTab("bible")} style={phoneLayout && styles.phoneMemoryAddActionButton} />
-                    <AppButton label={phoneLayout ? "Study" : "Open Study"} variant="secondary" onPress={() => setTab("study")} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
-                    <AppButton label="Collection" variant="secondary" onPress={openMemoryBookCollectionBuilder} style={[phoneLayout && styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
-                  </View>
-                )}
-              </View>
-            )}
             {!phoneMemoryFocusMode && (
               <>
                 <View style={[styles.memoryModeToolbar, phoneLayout && styles.phoneMemoryModeToolbar]}>
@@ -380,15 +348,14 @@ export function MemoryTab(props: any) {
                     ))}
                   </View>
                   <Pressable
-                    onPress={() => phoneLayout ? setMemoryToolbarMoreOpen((open) => !open) : openMemoryPrintOptions()}
+                    onPress={() => setMemoryToolbarMoreOpen((open) => !open)}
                     style={[styles.memoryPrintCardsButton, phoneLayout && styles.phoneMemoryPrintIconButton, memoryDarkMode && styles.homeDarkResumeButton]}
-                    accessibilityLabel={phoneLayout ? "Show memory options" : "Print memory cards"}
+                    accessibilityLabel={memoryToolbarMoreOpen ? "Hide memory options" : "Show memory options"}
                   >
-                    <Ionicons name={phoneLayout ? "ellipsis-horizontal" : "print-outline"} size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
-                    {!phoneLayout && <Text style={[styles.memoryPrintCardsButtonText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>}
+                    <Ionicons name="ellipsis-horizontal" size={20} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                   </Pressable>
                 </View>
-                {phoneLayout && memoryToolbarMoreOpen && (
+                {memoryToolbarMoreOpen && (
                   <View style={[styles.phoneMemoryToolbarMoreMenu, memoryDarkMode && styles.accountDarkInsetBox]}>
                     <Pressable
                       accessibilityRole="button"
@@ -401,13 +368,24 @@ export function MemoryTab(props: any) {
                       <Ionicons name="print-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
                       <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Print cards</Text>
                     </Pressable>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => {
+                        setMemoryToolbarMoreOpen(false);
+                        openMemoryBookCollectionBuilder();
+                      }}
+                      style={styles.phoneMemoryMoreMenuItem}
+                    >
+                      <Ionicons name="albums-outline" size={16} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} />
+                      <Text style={[styles.phoneMemoryMoreMenuText, memoryDarkMode && styles.homeDarkResumeButtonText]}>Create book collection</Text>
+                    </Pressable>
                   </View>
                 )}
               </>
             )}
             {!phoneMemoryFocusMode && memoryView === "browse" && (
-              <>
-                <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
+              <View style={[styles.memoryReviewCompactRow, phoneLayout && styles.phoneMemoryReviewCompactRow]}>
+                <View style={[styles.memoryReviewPromptBox, styles.memoryReviewCompactBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
                   <Ionicons
                     name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}
                     size={20}
@@ -426,15 +404,13 @@ export function MemoryTab(props: any) {
                   </View>
                 </View>
                 {dueMemoryCount > 0 && (
-                  <View style={styles.memoryReviewActionRow}>
-                    <AppButton
-                      label="Review all due verses"
-                      onPress={() => startDueMemoryReviewQueue()}
-                      style={phoneLayout && styles.phoneMemoryReviewActionButton}
-                    />
-                  </View>
+                  <AppButton
+                    label="Review all due verses"
+                    onPress={() => startDueMemoryReviewQueue()}
+                    style={phoneLayout && styles.phoneMemoryReviewActionButton}
+                  />
                 )}
-              </>
+              </View>
             )}
             {!phoneMemoryFocusMode && memoryView === "history" && (
               <Suspense fallback={<Card style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory history...</Text></Card>}>
@@ -463,14 +439,14 @@ export function MemoryTab(props: any) {
             )}
             {!phoneMemoryFocusMode && memoryView === "browse" && (
               <>
-                <View style={styles.memoryCollectionsHeader}>
+                <View style={[styles.memoryCollectionsHeader, styles.memoryCollectionsHeaderCompact]}>
                   <View style={styles.memoryCollectionsTitleBlock}>
                     <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>
                       {memoryCollectionsHome ? "My collections" : activeCollectionName}
                     </Text>
                     <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
                       {memoryCollectionsHome
-                        ? "Group verses by theme or Bible book. Collections are optional."
+                        ? "Keep verses together by theme or Bible book."
                         : memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
                           ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} ready for review`
                           : `${memoryCollectionFilter === "all" ? (memoryVerses || []).length : memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count || 0} saved verses in this collection`}
@@ -503,97 +479,122 @@ export function MemoryTab(props: any) {
                   )}
                 </View>
                 {memoryCollectionsHome && (
-                  <>
-                    {customCollectionNames.length > 1 && (
-                      <View style={styles.memoryCollectionArrangeRow}>
-                        {arrangingCollections && <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>Drag collections or use the arrows. Due for Review and All Verses stay first.</Text>}
-                        <AppButton
-                          label={arrangingCollections ? "Done arranging" : "Arrange collections"}
-                          variant="secondary"
-                          onPress={() => setArrangingCollections((current) => !current)}
-                          style={memoryDarkMode && styles.homeDarkResumeButton}
-                          labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                        />
-                      </View>
-                    )}
-                    <View style={styles.memoryCollectionFolderGrid}>
+                  <View style={styles.memoryCollectionFolderGrid}>
                     {collectionCards.map((collection: any) => {
                       const isCustom = collection.key.startsWith("custom:");
                       const customIndex = customCollectionNames.indexOf(collection.name);
+                      const showHandle = isCustom && customCollectionNames.length > 1 && activeReorderCollection === collection.name;
                       return (
-                      <CollectionWrapper
-                        key={collection.key}
-                        style={styles.memoryCollectionWrapper}
-                        draggable={Platform.OS === "web" && arrangingCollections && isCustom}
-                        onDragStart={Platform.OS === "web" ? (event: any) => {
-                          if (!arrangingCollections || !isCustom) return;
-                          draggedCollection.current = collection.name;
-                          event.dataTransfer.effectAllowed = "move";
-                          event.dataTransfer.setData("text/plain", collection.name);
-                        } : undefined}
-                        onDragOver={Platform.OS === "web" ? (event: any) => {
-                          if (arrangingCollections && isCustom && draggedCollection.current) event.preventDefault();
-                        } : undefined}
-                        onDrop={Platform.OS === "web" ? (event: any) => {
-                          if (!arrangingCollections || !isCustom) return;
-                          event.preventDefault();
-                          moveCollection(draggedCollection.current, collection.name);
-                          draggedCollection.current = "";
-                        } : undefined}
-                        onDragEnd={Platform.OS === "web" ? () => { draggedCollection.current = ""; } : undefined}
-                      >
-                      <Pressable
-                        accessibilityRole="button"
-                        accessibilityLabel={`Open ${collection.name}, ${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? `, ${collection.dueCount} due` : ""}`}
-                        onPress={() => {
-                          if (arrangingCollections) return;
-                          clearMemoryBrowseFilters();
-                          setMemorySearch("");
-                          setNewCollectionOpen(false);
-                          if (collection.key === "due") setMemoryBrowseStatusFilter("due");
-                          if (collection.key.startsWith("custom:")) setMemoryCollectionFilter(collection.name);
-                          setMemoryCollectionsHome(false);
-                        }}
-                        style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, arrangingCollections && isCustom && styles.memoryCollectionDraggable]}
-                      >
-                        <View style={styles.memoryCollectionCardHeader}>
-                          <Ionicons name={collection.key === "due" ? "school-outline" : collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
-                          {collection.dueCount > 0 && (
-                            <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
-                              {collection.dueCount} due now
+                        <CollectionWrapper
+                          key={collection.key}
+                          style={styles.memoryCollectionWrapper}
+                          data-memory-collection={isCustom ? collection.name : undefined}
+                          onMouseEnter={Platform.OS === "web" && isCustom ? () => {
+                            if (!pointerDrag.current.name) setActiveReorderCollection(collection.name);
+                          } : undefined}
+                          onMouseLeave={Platform.OS === "web" && isCustom ? () => {
+                            if (reorderMenuCollection !== collection.name && !pointerDrag.current.name) setActiveReorderCollection("");
+                          } : undefined}
+                          onContextMenu={Platform.OS === "web" && isCustom ? (event: any) => {
+                            event.preventDefault();
+                            setActiveReorderCollection(collection.name);
+                          } : undefined}
+                        >
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel={`Open ${collection.name}, ${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? `, ${collection.dueCount} due` : ""}`}
+                            onFocus={isCustom ? () => setActiveReorderCollection(collection.name) : undefined}
+                            onLongPress={isCustom ? () => setActiveReorderCollection(collection.name) : undefined}
+                            onPress={() => {
+                              clearMemoryBrowseFilters();
+                              setMemorySearch("");
+                              setNewCollectionOpen(false);
+                              setActiveReorderCollection("");
+                              setReorderMenuCollection("");
+                              if (isCustom) setMemoryCollectionFilter(collection.name);
+                              setMemoryCollectionsHome(false);
+                            }}
+                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, dragOverCollection === collection.name && styles.memoryCollectionDropTarget]}
+                          >
+                            <View style={styles.memoryCollectionCardHeader}>
+                              <Ionicons name={collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                              {collection.dueCount > 0 && (
+                                <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
+                                  {collection.dueCount} due now
+                                </Text>
+                              )}
+                            </View>
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                              {collection.count} verse{collection.count === 1 ? "" : "s"}
                             </Text>
+                          </Pressable>
+                          {showHandle && (Platform.OS === "web" ? (
+                            <div
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Reorder ${collection.name}. Drag or press Enter for move options.`}
+                              style={{ ...(styles.memoryCollectionDragHandle as any), ...(memoryDarkMode ? styles.accountDarkInsetBox as any : {}), touchAction: "none", cursor: "grab" }}
+                              onKeyDown={(event: any) => {
+                                if (event.key === "Enter" || event.key === " ") {
+                                  event.preventDefault();
+                                  setReorderMenuCollection((current) => current === collection.name ? "" : collection.name);
+                                }
+                              }}
+                              onPointerDown={(event: any) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                event.currentTarget.setPointerCapture?.(event.pointerId);
+                                pointerDrag.current = { name: collection.name, x: event.clientX, y: event.clientY, moved: false };
+                              }}
+                              onPointerMove={(event: any) => {
+                                if (pointerDrag.current.name !== collection.name) return;
+                                if (Math.hypot(event.clientX - pointerDrag.current.x, event.clientY - pointerDrag.current.y) > 8) pointerDrag.current.moved = true;
+                                if (pointerDrag.current.moved) setDragOverCollection(collectionAtPointer(event.clientX, event.clientY));
+                              }}
+                              onPointerUp={(event: any) => {
+                                if (pointerDrag.current.name !== collection.name) return;
+                                const target = collectionAtPointer(event.clientX, event.clientY);
+                                if (pointerDrag.current.moved) {
+                                  moveCollection(collection.name, target);
+                                  setReorderMenuCollection("");
+                                } else setReorderMenuCollection((current) => current === collection.name ? "" : collection.name);
+                                finishCollectionDrag();
+                              }}
+                              onPointerCancel={finishCollectionDrag}
+                            ><Ionicons name="reorder-three-outline" size={22} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></div>
+                          ) : (
+                            <Pressable
+                              accessibilityRole="button"
+                              accessibilityLabel={`Reorder ${collection.name}`}
+                              onPress={() => setReorderMenuCollection((current) => current === collection.name ? "" : collection.name)}
+                              style={[styles.memoryCollectionDragHandle, memoryDarkMode && styles.accountDarkInsetBox]}
+                            ><Ionicons name="reorder-three-outline" size={22} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
+                          ))}
+                          {reorderMenuCollection === collection.name && isCustom && (
+                            <View style={styles.memoryCollectionArrangeControls}>
+                              <Pressable
+                                accessibilityRole="button"
+                                accessibilityLabel={`Move ${collection.name} earlier`}
+                                accessibilityState={{ disabled: customIndex === 0 }}
+                                disabled={customIndex === 0}
+                                onPress={() => moveCollection(collection.name, customCollectionNames[customIndex - 1])}
+                                style={[styles.memoryCollectionMoveButton, customIndex === 0 && styles.memoryCollectionMoveDisabled]}
+                              ><Ionicons name="arrow-back-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /><Text style={[styles.memoryCollectionMoveLabel, memoryDarkMode && styles.accountDarkText]}>Earlier</Text></Pressable>
+                              <Pressable
+                                accessibilityRole="button"
+                                accessibilityLabel={`Move ${collection.name} later`}
+                                accessibilityState={{ disabled: customIndex === customCollectionNames.length - 1 }}
+                                disabled={customIndex === customCollectionNames.length - 1}
+                                onPress={() => moveCollection(collection.name, customCollectionNames[customIndex + 1])}
+                                style={[styles.memoryCollectionMoveButton, customIndex === customCollectionNames.length - 1 && styles.memoryCollectionMoveDisabled]}
+                              ><Text style={[styles.memoryCollectionMoveLabel, memoryDarkMode && styles.accountDarkText]}>Later</Text><Ionicons name="arrow-forward-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
+                            </View>
                           )}
-                        </View>
-                        <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
-                        <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                          {collection.count} verse{collection.count === 1 ? "" : "s"}
-                        </Text>
-                      </Pressable>
-                      {arrangingCollections && isCustom && (
-                        <View style={styles.memoryCollectionArrangeControls}>
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel={`Move ${collection.name} earlier`}
-                            accessibilityState={{ disabled: customIndex === 0 }}
-                            disabled={customIndex === 0}
-                            onPress={() => moveCollection(collection.name, customCollectionNames[customIndex - 1])}
-                            style={[styles.memoryCollectionMoveButton, customIndex === 0 && styles.memoryCollectionMoveDisabled]}
-                          ><Ionicons name="arrow-back-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
-                          <Pressable
-                            accessibilityRole="button"
-                            accessibilityLabel={`Move ${collection.name} later`}
-                            accessibilityState={{ disabled: customIndex === customCollectionNames.length - 1 }}
-                            disabled={customIndex === customCollectionNames.length - 1}
-                            onPress={() => moveCollection(collection.name, customCollectionNames[customIndex + 1])}
-                            style={[styles.memoryCollectionMoveButton, customIndex === customCollectionNames.length - 1 && styles.memoryCollectionMoveDisabled]}
-                          ><Ionicons name="arrow-forward-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
-                        </View>
-                      )}
-                      </CollectionWrapper>
+                        </CollectionWrapper>
                       );
                     })}
-                    </View>
-                  </>
+                  </View>
                 )}
                 {newCollectionOpen && memoryCollectionsHome && (
                   <View style={[styles.memoryNewCollectionBox, memoryDarkMode && styles.accountDarkSection]}>

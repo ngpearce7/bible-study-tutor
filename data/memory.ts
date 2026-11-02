@@ -927,7 +927,6 @@ export function buildMemoryCollectionCards(verses: any[], customOrder: string[] 
   const due = active.filter(isMemoryVerseDue);
   const order = new Map(customOrder.map((name, index) => [name, index]));
   return [
-    ...(due.length ? [{ key: "due", name: "Due for Review", count: due.length, dueCount: due.length }] : []),
     { key: "all", name: "All Verses", count: verses.length, dueCount: due.length },
     ...buildMemoryCollectionOptions(active).sort((a, b) =>
       (order.get(a.name) ?? Number.MAX_SAFE_INTEGER) - (order.get(b.name) ?? Number.MAX_SAFE_INTEGER)

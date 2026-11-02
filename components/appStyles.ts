@@ -6461,6 +6461,20 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     width: 44
   },
+  memoryHeaderAddButton: {
+    borderColor: colors.line,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    height: 38,
+    paddingHorizontal: 12,
+    width: "auto"
+  },
+  memoryHeaderAddLabel: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "700"
+  },
   phoneMemoryHeaderAddPanel: {
     backgroundColor: colors.panel,
     borderColor: colors.line,
@@ -6469,6 +6483,11 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     marginTop: 8,
     padding: 8
+  },
+  memoryAddMenuPanel: {
+    alignSelf: "flex-end",
+    maxWidth: 360,
+    width: "100%"
   },
   memoryReviewPromptBox: {
     alignItems: "center",
@@ -6479,9 +6498,18 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 12
   },
-  memoryReviewActionRow: {
-    alignItems: "flex-end",
-    marginTop: 10
+  memoryReviewCompactRow: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10
+  },
+  phoneMemoryReviewCompactRow: {
+    alignItems: "stretch",
+    flexDirection: "column"
+  },
+  memoryReviewCompactBox: {
+    flex: 1,
+    minWidth: 180
   },
   phoneMemoryReviewActionButton: {
     width: "100%"
@@ -6601,6 +6629,9 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     marginTop: 16
   },
+  memoryCollectionsHeaderCompact: {
+    marginTop: 4
+  },
   memoryCollectionsTitleBlock: {
     flex: 1,
     gap: 4,
@@ -6612,16 +6643,9 @@ export const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 16
   },
-  memoryCollectionArrangeRow: {
-    alignItems: "center",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-    justifyContent: "flex-end",
-    marginBottom: 10
-  },
   memoryCollectionWrapper: {
     minWidth: 0,
+    position: "relative",
     width: "48%"
   },
   memoryCollectionFolder: {
@@ -6634,11 +6658,26 @@ export const styles = StyleSheet.create({
     padding: 13,
     width: "100%"
   },
-  memoryCollectionDraggable: {
-    borderColor: colors.blue
+  memoryCollectionDropTarget: {
+    borderColor: colors.blue,
+    borderWidth: 2
+  },
+  memoryCollectionDragHandle: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 8,
+    borderWidth: 1,
+    bottom: 10,
+    height: 34,
+    justifyContent: "center",
+    position: "absolute",
+    right: 10,
+    width: 38
   },
   memoryCollectionArrangeControls: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     justifyContent: "flex-end",
     marginTop: 6
@@ -6648,9 +6687,17 @@ export const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
+    flexDirection: "row",
+    gap: 4,
     height: 34,
     justifyContent: "center",
-    width: 40
+    minWidth: 80,
+    paddingHorizontal: 6
+  },
+  memoryCollectionMoveLabel: {
+    color: colors.ink,
+    fontSize: 11,
+    fontWeight: "600"
   },
   memoryCollectionMoveDisabled: {
     opacity: 0.35
@@ -7907,13 +7954,19 @@ export const styles = StyleSheet.create({
     gap: 10,
     marginBottom: 16
   },
+  memoryCompactMetricGrid: {
+    marginBottom: 4
+  },
+  memoryCompactMetric: {
+    padding: 10
+  },
   memoryTitleSupport: {
     marginBottom: 12
   },
   phoneMemoryMetricGrid: {
     flexWrap: "nowrap",
     gap: 6,
-    marginBottom: 20,
+    marginBottom: 8,
     marginTop: 6
   },
   metric: {
@@ -10800,14 +10853,16 @@ export const styles = StyleSheet.create({
     padding: 8
   },
   phoneMemoryToolbarMoreMenu: {
-    alignSelf: "stretch",
+    alignSelf: "flex-end",
     backgroundColor: colors.panel,
     borderColor: colors.line,
     borderRadius: 12,
     borderWidth: 1,
     gap: 2,
+    maxWidth: 260,
     marginTop: -4,
-    padding: 8
+    padding: 8,
+    width: "100%"
   },
   phoneMemoryMoreMenuItem: {
     alignItems: "center",

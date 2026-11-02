@@ -126,8 +126,8 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
     return {
       title: "Memory verses help",
       icon: "albums-outline",
-      summary: "Verses opens with your collections, including All Verses and Due for Review when a review is ready.",
-      tips: ["Use Review all due verses below the message to review every due verse, or open a collection to practise an individual verse.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it. Use Arrange collections to change their order.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
+      summary: "Verses opens with All Verses and your optional collections. Due verses are available through the review button or filters.",
+      tips: ["Use Review all due verses to start a review session, or open All Verses and choose the Due filter to browse them.", "Create a collection from a saved verse, then use each verse’s options menu to add or remove it. Long press a collection to reveal its reorder handle; on desktop, hover or focus it.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
     };
   }
 
@@ -252,10 +252,10 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       summary: "Memory helps you keep saved verses through review, meditation, history, and printable verse cards.",
       tips: [
         "Save verses from Bible or Study first.",
-        "Open Due for Review for today’s practice list, or All Verses for every saved verse, including archived ones.",
+        "Use Review all due verses to practise today’s verses, or open All Verses and choose the Due filter to browse them.",
         "Open a collection to filter by Testament, book, chapter, status, or review schedule.",
         "Use Practice for the three-step review flow, or Meditate to slow down with one verse.",
-        "Use Print cards to download editable cards for carrying, sharing, or placing around the house."
+        "Open the ⋯ menu for Print cards and the book collection builder."
       ]
     },
     accountability: {

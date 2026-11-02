@@ -11,14 +11,14 @@ test("archived verses stay browseable but never enter review queues", () => {
   expect(buildMemoryBrowseSections([active, archived], "", "all", "all", "memorized").flatMap((section) => section.verses)).toEqual([active]);
 });
 
-test("automatic collection cards lead with due verses, then all saved verses", () => {
+test("collection cards lead with all saved verses and omit archived custom collections", () => {
   const due = { reference: "Romans 5:8", collections: ["Promises"], nextReviewAt: Date.now() - 1000 };
   const later = { reference: "James 1:22", collections: ["Trust"], nextReviewAt: Date.now() + 3 * 86_400_000 };
   const archived = { reference: "Matthew 4:4", collections: ["Old"], archivedAt: Date.now(), nextReviewAt: Date.now() - 1000 };
   const cards = buildMemoryCollectionCards([due, later, archived]);
 
-  expect(cards.map((card) => card.name)).toEqual(["Due for Review", "All Verses", "Promises", "Trust"]);
-  expect(cards.map((card) => card.count)).toEqual([1, 3, 1, 1]);
+  expect(cards.map((card) => card.name)).toEqual(["All Verses", "Promises", "Trust"]);
+  expect(cards.map((card) => card.count)).toEqual([3, 1, 1]);
   expect(cards.find((card) => card.name === "Promises")?.dueCount).toBe(1);
   expect(buildMemoryCollectionCards([later, archived]).map((card) => card.name)).toEqual(["All Verses", "Trust"]);
 });
@@ -27,7 +27,7 @@ test("custom collection order keeps automatic collections fixed", () => {
   const due = { reference: "Romans 5:8", collections: ["Promises"], nextReviewAt: Date.now() - 1000 };
   const later = { reference: "James 1:22", collections: ["Trust"], nextReviewAt: Date.now() + 3 * 86_400_000 };
   expect(buildMemoryCollectionCards([due, later], ["Trust", "Promises"]).map((card) => card.name))
-    .toEqual(["Due for Review", "All Verses", "Trust", "Promises"]);
+    .toEqual(["All Verses", "Trust", "Promises"]);
 });
 
 test("book filters only offer books within the open collection", () => {

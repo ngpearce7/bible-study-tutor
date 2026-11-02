@@ -998,16 +998,17 @@ function memoryReferenceSuffix(reference: string) {
 }
 
 export function buildMemoryPracticeTokens(text: string, level: number, stepTwoOffset: number) {
+  let wordIndex = 0;
   return text
     .trim()
     .split(/\s+/)
     .filter(Boolean)
-    .map((word, index) => ({
-      index,
-      text: word,
-      answer: word,
-      blank: level >= 3 || (level === 2 && index % 2 === stepTwoOffset)
-    }));
+    .map((word, index) => {
+      const isWord = normalizeMemoryAnswer(word).length > 0;
+      const blank = isWord && (level >= 3 || (level === 2 && wordIndex % 2 === stepTwoOffset));
+      if (isWord) wordIndex += 1;
+      return { index, text: word, answer: word, blank };
+    });
 }
 
 export function memoryAnswerIsReference(answer: string) {

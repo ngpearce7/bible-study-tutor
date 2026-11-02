@@ -1072,6 +1072,7 @@ function HomeScreen() {
   const [memoryBookCollectionOpen, setMemoryBookCollectionOpen] = useState(false);
   const [memoryCollectionCreateMode, setMemoryCollectionCreateMode] = useState<"folder" | "book">("folder");
   const [memoryFolderName, setMemoryFolderName] = useState("");
+  const [memoryFolderNameError, setMemoryFolderNameError] = useState("");
   const [memoryFolderAddVersesOpen, setMemoryFolderAddVersesOpen] = useState(false);
   const [memoryFolderSelectedVerseIds, setMemoryFolderSelectedVerseIds] = useState<Id<"memoryVerses">[]>([]);
   const [memoryFolderVerseSearch, setMemoryFolderVerseSearch] = useState("");
@@ -5637,6 +5638,7 @@ function HomeScreen() {
 
   function openMemoryCollectionBuilder() {
     setMemoryBookCollectionStatus("");
+    setMemoryFolderNameError("");
     setMemoryCollectionCreateMode("folder");
     setMemoryFolderName("");
     setMemoryFolderAddVersesOpen(false);
@@ -5648,14 +5650,19 @@ function HomeScreen() {
   async function createEmptyMemoryCollection() {
     if (!activeProfileId || memoryBookCollectionSaving) return;
     const name = memoryFolderName.trim().replace(/\s+/g, " ");
-    if (!name || name.length > 40 || isReservedMemoryCollectionName(name)) {
-      setMemoryBookCollectionStatus("Choose a collection name of up to 40 characters.");
+    if (!name) {
+      setMemoryFolderNameError("Enter a collection name before creating it.");
+      return;
+    }
+    if (name.length > 40 || isReservedMemoryCollectionName(name)) {
+      setMemoryFolderNameError("Choose a different collection name of up to 40 characters.");
       return;
     }
     if (memoryCollectionOptions.some((collection) => collection.name.toLowerCase() === name.toLowerCase())) {
-      setMemoryBookCollectionStatus("A collection with that name already exists.");
+      setMemoryFolderNameError("A collection with that name already exists.");
       return;
     }
+    setMemoryFolderNameError("");
     setMemoryBookCollectionSaving(true);
     setMemoryBookCollectionStatus("");
     try {
@@ -12366,7 +12373,7 @@ function HomeScreen() {
                   accessibilityRole="button"
                   accessibilityState={{ selected: memoryCollectionCreateMode === mode }}
                   disabled={memoryBookCollectionSaving}
-                  onPress={() => { setMemoryCollectionCreateMode(mode); setMemoryBookCollectionStatus(""); }}
+                  onPress={() => { setMemoryCollectionCreateMode(mode); setMemoryBookCollectionStatus(""); setMemoryFolderNameError(""); }}
                   style={[styles.printOptionChip, accountDarkMode && styles.printDarkOptionChip, memoryCollectionCreateMode === mode && styles.activePrintOptionChip]}
                 >
                   <Text style={[styles.printOptionChipText, accountDarkMode && styles.accountDarkMutedText, memoryCollectionCreateMode === mode && styles.activePrintOptionChipText]}>{label}</Text>
@@ -12379,11 +12386,11 @@ function HomeScreen() {
                 <Text style={[styles.printOptionLabel, accountDarkMode && styles.studyDarkAccentText]}>Collection name</Text>
                 <TextInput
                   value={memoryFolderName}
-                  onChangeText={setMemoryFolderName}
+                  onChangeText={(value) => { setMemoryFolderName(value); setMemoryFolderNameError(""); }}
                   placeholder="For example, Promises"
                   maxLength={40}
                   placeholderTextColor={accountDarkMode ? "#8f8678" : colors.muted}
-                  style={[styles.input, styles.memoryCollectionNameInput, accountDarkMode && styles.accountDarkInput]}
+                  style={[styles.input, styles.memoryCollectionNameInput, accountDarkMode && styles.accountDarkInput, !!memoryFolderNameError && styles.memoryCollectionNameInputError]}
                 />
                 {(memoryVerses || []).some((verse: any) => !verse.archivedAt) && (
                   <>
@@ -12456,7 +12463,6 @@ function HomeScreen() {
                   </>
                 )}
                 <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>You can add more later from the Bible reader or a verse’s Collections menu.</Text>
-                {!!memoryBookCollectionStatus && <Text style={[styles.saveStatus, accountDarkMode && styles.accountDarkMutedText]} accessibilityRole="alert">{memoryBookCollectionStatus}</Text>}
               </ScrollView>
             ) : (
 
@@ -12566,6 +12572,12 @@ function HomeScreen() {
               </View>
               {!!memoryBookCollectionStatus && <Text style={[styles.saveStatus, accountDarkMode && styles.accountDarkMutedText]}>{memoryBookCollectionStatus}</Text>}
             </ScrollView>
+            )}
+
+            {memoryCollectionCreateMode === "folder" && !!(memoryFolderNameError || memoryBookCollectionStatus) && (
+              <Text style={[styles.memoryCollectionFormError, accountDarkMode && styles.memoryDarkCollectionFormError]} accessibilityRole="alert">
+                {memoryFolderNameError || memoryBookCollectionStatus}
+              </Text>
             )}
 
             <View style={styles.printOptionsActions}>

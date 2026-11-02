@@ -10007,6 +10007,18 @@ export const styles = StyleSheet.create({
     minWidth: 0,
     width: "100%"
   },
+  memoryCollectionNameInputError: {
+    borderColor: "#a33c31",
+    borderWidth: 2
+  },
+  memoryCollectionFormError: {
+    color: "#a33c31",
+    fontSize: 13,
+    fontWeight: "600"
+  },
+  memoryDarkCollectionFormError: {
+    color: "#f7a99a"
+  },
   memoryBookDropdownStack: {
     gap: 8
   },

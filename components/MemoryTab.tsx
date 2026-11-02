@@ -1,6 +1,6 @@
 // @ts-nocheck
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Modal, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, buildMemoryCollectionCards, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
@@ -26,6 +26,10 @@ export function MemoryTab(props: any) {
   const [dragOverCollection, setDragOverCollection] = useState("");
   const [dragPreview, setDragPreview] = useState<{ name: string; x: number; y: number; width: number; height: number; offsetX: number; offsetY: number } | null>(null);
   const pointerDrag = useRef({ name: "", x: 0, y: 0, moved: false });
+  const webDragPointerId = useRef<number | null>(null);
+  const webDragCleanup = useRef<(() => void) | null>(null);
+  const webDragUpdate = useRef<(source: string, x: number, y: number) => void>(() => {});
+  const webDragFinish = useRef<() => void>(() => {});
   const dragTarget = useRef("");
   const lastDragTarget = useRef("");
   const collectionRefs = useRef<Record<string, any>>({});
@@ -188,6 +192,8 @@ export function MemoryTab(props: any) {
   ).slice(0, 12);
   const selectedCollectionVerse = savedMemoryVerses.find((verse: any) => String(verse._id) === newCollectionVerseId);
 
+  useEffect(() => () => webDragCleanup.current?.(), []);
+
   function requestReviewScheduleChange(verses: any[], preset: string, bulk = false) {
     const shared = verses.filter((verse: any) => getMemoryVerseCollections(verse).length > 1);
     if (shared.length && !sharedReviewWarningDismissed && sharedReviewWarningSkippedForProfile.current !== String(activeProfileId)) {
@@ -254,6 +260,9 @@ export function MemoryTab(props: any) {
   }
 
   function finishCollectionDrag() {
+    webDragCleanup.current?.();
+    webDragCleanup.current = null;
+    webDragPointerId.current = null;
     pointerDrag.current = { name: "", x: 0, y: 0, moved: false };
     dragTarget.current = "";
     lastDragTarget.current = "";
@@ -271,6 +280,56 @@ export function MemoryTab(props: any) {
     if (lastDragTarget.current === target) return;
     lastDragTarget.current = target;
     moveCollection(source, target);
+  }
+
+  webDragUpdate.current = (source: string, x: number, y: number) => {
+    if (pointerDrag.current.name !== source) return;
+    if (Math.hypot(x - pointerDrag.current.x, y - pointerDrag.current.y) > 8) pointerDrag.current.moved = true;
+    if (!pointerDrag.current.moved) return;
+    setDragPreview((current) => current ? { ...current, x: x - current.offsetX, y: y - current.offsetY } : null);
+    previewCollectionMove(source, collectionAtPointer(x, y));
+  };
+  webDragFinish.current = finishCollectionDrag;
+
+  function startWebCollectionDrag(event: any, name: string) {
+    if (event.isPrimary === false || (event.pointerType === "mouse" && event.button !== 0)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    finishCollectionDrag();
+    const pointerId = event.pointerId;
+    const rect = event.currentTarget.closest("[data-memory-collection]")?.getBoundingClientRect();
+    if (!rect) return;
+    webDragPointerId.current = pointerId;
+    pointerDrag.current = { name, x: event.clientX, y: event.clientY, moved: false };
+    setDragPreview({ name, x: rect.left, y: rect.top, width: rect.width, height: rect.height, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top });
+
+    const onMove = (moveEvent: PointerEvent) => {
+      if (moveEvent.pointerId !== webDragPointerId.current) return;
+      moveEvent.preventDefault();
+      webDragUpdate.current(name, moveEvent.clientX, moveEvent.clientY);
+    };
+    const onEnd = (endEvent: PointerEvent) => {
+      if (endEvent.pointerId !== webDragPointerId.current) return;
+      webDragUpdate.current(name, endEvent.clientX, endEvent.clientY);
+      webDragFinish.current();
+    };
+    const onCancel = (cancelEvent: PointerEvent) => {
+      if (cancelEvent.pointerId === webDragPointerId.current) webDragFinish.current();
+    };
+    const onBlur = () => webDragFinish.current();
+    const onVisibilityChange = () => { if (document.hidden) webDragFinish.current(); };
+    window.addEventListener("pointermove", onMove, { capture: true, passive: false });
+    window.addEventListener("pointerup", onEnd, true);
+    window.addEventListener("pointercancel", onCancel, true);
+    window.addEventListener("blur", onBlur);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    webDragCleanup.current = () => {
+      window.removeEventListener("pointermove", onMove, true);
+      window.removeEventListener("pointerup", onEnd, true);
+      window.removeEventListener("pointercancel", onCancel, true);
+      window.removeEventListener("blur", onBlur);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }
 
   function measureNativeCollections() {
@@ -659,28 +718,7 @@ export function MemoryTab(props: any) {
                                   moveCollection(collection.name, customCollectionNames[customIndex + 1]);
                                 }
                               }}
-                              onPointerDown={(event: any) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                                event.currentTarget.setPointerCapture?.(event.pointerId);
-                                pointerDrag.current = { name: collection.name, x: event.clientX, y: event.clientY, moved: false };
-                                const rect = event.currentTarget.closest("[data-memory-collection]")?.getBoundingClientRect();
-                                if (rect) setDragPreview({ name: collection.name, x: rect.left, y: rect.top, width: rect.width, height: rect.height, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top });
-                              }}
-                              onPointerMove={(event: any) => {
-                                if (pointerDrag.current.name !== collection.name) return;
-                                if (Math.hypot(event.clientX - pointerDrag.current.x, event.clientY - pointerDrag.current.y) > 8) pointerDrag.current.moved = true;
-                                if (pointerDrag.current.moved) {
-                                  setDragPreview((current) => current ? { ...current, x: event.clientX - current.offsetX, y: event.clientY - current.offsetY } : null);
-                                  previewCollectionMove(collection.name, collectionAtPointer(event.clientX, event.clientY));
-                                }
-                              }}
-                              onPointerUp={(event: any) => {
-                                if (pointerDrag.current.name !== collection.name) return;
-                                if (pointerDrag.current.moved) previewCollectionMove(collection.name, collectionAtPointer(event.clientX, event.clientY));
-                                finishCollectionDrag();
-                              }}
-                              onPointerCancel={finishCollectionDrag}
+                              onPointerDown={(event: any) => startWebCollectionDrag(event, collection.name)}
                             ><Ionicons name="reorder-three-outline" size={22} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></div>
                           ) : (
                             <View

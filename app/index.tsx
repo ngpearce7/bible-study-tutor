@@ -1787,6 +1787,12 @@ function HomeScreen() {
   }, [communityStatus]);
 
   useEffect(() => {
+    if (!memoryStatus) return;
+    const timeout = setTimeout(() => setMemoryStatus(""), 10000);
+    return () => clearTimeout(timeout);
+  }, [memoryStatus]);
+
+  useEffect(() => {
     if (!friendStatus || communityStatusShouldHold(friendStatus)) return;
     const timeout = setTimeout(() => {
       setFriendStatus("");

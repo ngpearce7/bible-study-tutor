@@ -17,10 +17,14 @@ export function MemoryTab(props: any) {
   const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
   const [creatingCollection, setCreatingCollection] = useState(false);
   const [collectionCreationError, setCollectionCreationError] = useState("");
-  const [activeReorderCollection, setActiveReorderCollection] = useState("");
-  const [reorderMenuCollection, setReorderMenuCollection] = useState("");
+  const [reorderMode, setReorderMode] = useState(false);
+  const reorderModeRef = useRef(false);
+  const [draftCollectionOrder, setDraftCollectionOrder] = useState<string[]>([]);
   const [dragOverCollection, setDragOverCollection] = useState("");
   const pointerDrag = useRef({ name: "", x: 0, y: 0, moved: false });
+  const dragTarget = useRef("");
+  const collectionRefs = useRef<Record<string, any>>({});
+  const collectionBounds = useRef<Record<string, { x: number; y: number; width: number; height: number }>>({});
   const CollectionWrapper = Platform.OS === "web" ? "div" : View;
   const {
     activeMemoryCollectionDueCount,
@@ -167,7 +171,7 @@ export function MemoryTab(props: any) {
 
   const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
   const activeCollectionName = memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
-  const collectionCards = buildMemoryCollectionCards(memoryVerses || [], memoryCollectionOrder);
+  const collectionCards = buildMemoryCollectionCards(memoryVerses || [], reorderMode ? draftCollectionOrder : memoryCollectionOrder);
   const customCollectionNames = collectionCards.filter((collection) => collection.key.startsWith("custom:")).map((collection) => collection.name);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
     `${verse.reference} ${verse.verseText}`.toLowerCase().includes(newCollectionSearch.trim().toLowerCase())
@@ -189,7 +193,27 @@ export function MemoryTab(props: any) {
     if (from < 0 || to < 0) return;
     next.splice(from, 1);
     next.splice(to, 0, source);
-    saveMemoryCollectionOrder(next);
+    setDraftCollectionOrder(next);
+  }
+
+  function startCollectionReorder() {
+    if (customCollectionNames.length < 2 || reorderModeRef.current) return;
+    setDraftCollectionOrder(customCollectionNames);
+    reorderModeRef.current = true;
+    setReorderMode(true);
+    setNewCollectionOpen(false);
+  }
+
+  function finishCollectionReorder() {
+    if (!reorderModeRef.current) return;
+    if (draftCollectionOrder.join("\u0000") !== buildMemoryCollectionCards(memoryVerses || [], memoryCollectionOrder)
+      .filter((collection) => collection.key.startsWith("custom:"))
+      .map((collection) => collection.name).join("\u0000")) {
+      saveMemoryCollectionOrder(draftCollectionOrder);
+    }
+    reorderModeRef.current = false;
+    setReorderMode(false);
+    finishCollectionDrag();
   }
 
   function collectionAtPointer(x: number, y: number) {
@@ -199,7 +223,22 @@ export function MemoryTab(props: any) {
 
   function finishCollectionDrag() {
     pointerDrag.current = { name: "", x: 0, y: 0, moved: false };
+    dragTarget.current = "";
     setDragOverCollection("");
+  }
+
+  function measureNativeCollections() {
+    collectionBounds.current = {};
+    customCollectionNames.forEach((name) => collectionRefs.current[name]?.measureInWindow?.((x: number, y: number, width: number, height: number) => {
+      collectionBounds.current[name] = { x, y, width, height };
+    }));
+  }
+
+  function nativeCollectionAtPointer(x: number, y: number) {
+    return customCollectionNames.find((name) => {
+      const bounds = collectionBounds.current[name];
+      return bounds && x >= bounds.x && x <= bounds.x + bounds.width && y >= bounds.y && y <= bounds.y + bounds.height;
+    }) || "";
   }
 
   async function createCollection() {
@@ -209,7 +248,7 @@ export function MemoryTab(props: any) {
       return;
     }
     if (["all verses", "due for review"].includes(name.toLowerCase())) {
-      setCollectionCreationError("This name is used by an automatic collection. Choose another name.");
+      setCollectionCreationError("This collection name is reserved. Choose another name.");
       return;
     }
     if (memoryCollectionOptions.some((option: any) => option.name.toLowerCase() === name.toLowerCase())) {
@@ -333,6 +372,7 @@ export function MemoryTab(props: any) {
                       <Pressable
                         key={key}
                         onPress={() => {
+                          if (reorderModeRef.current) finishCollectionReorder();
                           setMemorySearch("");
                           setMemoryBrowseFiltersOpen(false);
                           if (key === "browse") {
@@ -446,24 +486,38 @@ export function MemoryTab(props: any) {
                     </Text>
                     <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
                       {memoryCollectionsHome
-                        ? "Keep verses together by theme or Bible book."
+                        ? reorderMode ? "Drag a handle to reorder. All Verses stays first." : "Keep verses together by theme or Bible book."
                         : memoryBrowseStatusFilter === "due" && memoryCollectionFilter === "all"
                           ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} ready for review`
                           : `${memoryCollectionFilter === "all" ? (memoryVerses || []).length : memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count || 0} saved verses in this collection`}
                     </Text>
                   </View>
                   {memoryCollectionsHome ? (
-                    <AppButton
-                      label="New collection"
-                      variant="secondary"
-                      onPress={() => {
-                        setCollectionCreationError("");
-                        setNewCollectionVerseId(String(savedMemoryVerses[0]?._id || ""));
-                        setNewCollectionOpen((open) => !open);
-                      }}
-                      style={memoryDarkMode && styles.homeDarkResumeButton}
-                      labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                    />
+                    reorderMode ? (
+                      <AppButton label="Done" onPress={finishCollectionReorder} />
+                    ) : (
+                      <View style={styles.memoryCollectionHeaderActions}>
+                        {customCollectionNames.length > 1 && (
+                          <Pressable
+                            accessibilityRole="button"
+                            accessibilityLabel="Reorder collections"
+                            onPress={startCollectionReorder}
+                            style={[styles.memoryCollectionReorderButton, memoryDarkMode && styles.homeDarkResumeButton]}
+                          ><Ionicons name="reorder-three-outline" size={19} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /><Text style={[styles.memoryCollectionReorderLabel, memoryDarkMode && styles.accountDarkText]}>Reorder</Text></Pressable>
+                        )}
+                        <AppButton
+                          label="New collection"
+                          variant="secondary"
+                          onPress={() => {
+                            setCollectionCreationError("");
+                            setNewCollectionVerseId(String(savedMemoryVerses[0]?._id || ""));
+                            setNewCollectionOpen((open) => !open);
+                          }}
+                          style={memoryDarkMode && styles.homeDarkResumeButton}
+                          labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                        />
+                      </View>
+                    )
                   ) : (
                     <AppButton
                       label="My collections"
@@ -483,62 +537,61 @@ export function MemoryTab(props: any) {
                     {collectionCards.map((collection: any) => {
                       const isCustom = collection.key.startsWith("custom:");
                       const customIndex = customCollectionNames.indexOf(collection.name);
-                      const showHandle = isCustom && customCollectionNames.length > 1 && activeReorderCollection === collection.name;
                       return (
                         <CollectionWrapper
                           key={collection.key}
                           style={styles.memoryCollectionWrapper}
                           data-memory-collection={isCustom ? collection.name : undefined}
-                          onMouseEnter={Platform.OS === "web" && isCustom ? () => {
-                            if (!pointerDrag.current.name) setActiveReorderCollection(collection.name);
-                          } : undefined}
-                          onMouseLeave={Platform.OS === "web" && isCustom ? () => {
-                            if (reorderMenuCollection !== collection.name && !pointerDrag.current.name) setActiveReorderCollection("");
-                          } : undefined}
                           onContextMenu={Platform.OS === "web" && isCustom ? (event: any) => {
                             event.preventDefault();
-                            setActiveReorderCollection(collection.name);
+                            startCollectionReorder();
                           } : undefined}
                         >
                           <Pressable
+                            ref={(node: any) => { if (isCustom) collectionRefs.current[collection.name] = node; }}
                             accessibilityRole="button"
-                            accessibilityLabel={`Open ${collection.name}, ${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? `, ${collection.dueCount} due` : ""}`}
-                            onFocus={isCustom ? () => setActiveReorderCollection(collection.name) : undefined}
-                            onLongPress={isCustom ? () => setActiveReorderCollection(collection.name) : undefined}
+                            accessibilityLabel={`${reorderMode ? "Reordering" : "Open"} ${collection.name}, ${collection.count} verse${collection.count === 1 ? "" : "s"}${collection.dueCount ? `, ${collection.dueCount} due` : ""}`}
+                            accessibilityState={{ disabled: reorderMode }}
+                            disabled={reorderMode}
+                            onLongPress={isCustom && !reorderMode ? startCollectionReorder : undefined}
                             onPress={() => {
+                              if (reorderModeRef.current) return;
                               clearMemoryBrowseFilters();
                               setMemorySearch("");
                               setNewCollectionOpen(false);
-                              setActiveReorderCollection("");
-                              setReorderMenuCollection("");
                               if (isCustom) setMemoryCollectionFilter(collection.name);
                               setMemoryCollectionsHome(false);
                             }}
-                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, dragOverCollection === collection.name && styles.memoryCollectionDropTarget]}
+                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, reorderMode && isCustom && styles.memoryCollectionEditing, dragOverCollection === collection.name && styles.memoryCollectionDropTarget]}
                           >
                             <View style={styles.memoryCollectionCardHeader}>
                               <Ionicons name={collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                            </View>
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
+                            <View style={styles.memoryCollectionCardFooter}>
+                              <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                                {collection.count} verse{collection.count === 1 ? "" : "s"}
+                              </Text>
                               {collection.dueCount > 0 && (
                                 <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
                                   {collection.dueCount} due now
                                 </Text>
                               )}
                             </View>
-                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
-                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
-                              {collection.count} verse{collection.count === 1 ? "" : "s"}
-                            </Text>
                           </Pressable>
-                          {showHandle && (Platform.OS === "web" ? (
+                          {reorderMode && isCustom && (Platform.OS === "web" ? (
                             <div
                               role="button"
                               tabIndex={0}
-                              aria-label={`Reorder ${collection.name}. Drag or press Enter for move options.`}
+                              aria-label={`Drag ${collection.name} to reorder. Use arrow keys to move it.`}
                               style={{ ...(styles.memoryCollectionDragHandle as any), ...(memoryDarkMode ? styles.accountDarkInsetBox as any : {}), touchAction: "none", cursor: "grab" }}
                               onKeyDown={(event: any) => {
-                                if (event.key === "Enter" || event.key === " ") {
+                                if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
                                   event.preventDefault();
-                                  setReorderMenuCollection((current) => current === collection.name ? "" : collection.name);
+                                  moveCollection(collection.name, customCollectionNames[customIndex - 1]);
+                                } else if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                                  event.preventDefault();
+                                  moveCollection(collection.name, customCollectionNames[customIndex + 1]);
                                 }
                               }}
                               onPointerDown={(event: any) => {
@@ -555,42 +608,44 @@ export function MemoryTab(props: any) {
                               onPointerUp={(event: any) => {
                                 if (pointerDrag.current.name !== collection.name) return;
                                 const target = collectionAtPointer(event.clientX, event.clientY);
-                                if (pointerDrag.current.moved) {
-                                  moveCollection(collection.name, target);
-                                  setReorderMenuCollection("");
-                                } else setReorderMenuCollection((current) => current === collection.name ? "" : collection.name);
+                                if (pointerDrag.current.moved) moveCollection(collection.name, target);
                                 finishCollectionDrag();
                               }}
                               onPointerCancel={finishCollectionDrag}
                             ><Ionicons name="reorder-three-outline" size={22} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></div>
                           ) : (
-                            <Pressable
-                              accessibilityRole="button"
-                              accessibilityLabel={`Reorder ${collection.name}`}
-                              onPress={() => setReorderMenuCollection((current) => current === collection.name ? "" : collection.name)}
+                            <View
+                              accessibilityRole="adjustable"
+                              accessibilityLabel={`Reorder ${collection.name}. Drag to move, or use accessibility actions.`}
+                              accessibilityActions={[{ name: "decrement", label: "Move earlier" }, { name: "increment", label: "Move later" }]}
+                              onAccessibilityAction={(event: any) => {
+                                if (event.nativeEvent.actionName === "decrement") moveCollection(collection.name, customCollectionNames[customIndex - 1]);
+                                if (event.nativeEvent.actionName === "increment") moveCollection(collection.name, customCollectionNames[customIndex + 1]);
+                              }}
+                              onStartShouldSetResponder={() => true}
+                              onMoveShouldSetResponder={() => true}
+                              onResponderGrant={(event: any) => {
+                                measureNativeCollections();
+                                pointerDrag.current = { name: collection.name, x: event.nativeEvent.pageX, y: event.nativeEvent.pageY, moved: false };
+                              }}
+                              onResponderMove={(event: any) => {
+                                if (pointerDrag.current.name !== collection.name) return;
+                                const x = event.nativeEvent.pageX;
+                                const y = event.nativeEvent.pageY;
+                                if (Math.hypot(x - pointerDrag.current.x, y - pointerDrag.current.y) > 8) pointerDrag.current.moved = true;
+                                if (pointerDrag.current.moved) {
+                                  dragTarget.current = nativeCollectionAtPointer(x, y);
+                                  setDragOverCollection(dragTarget.current);
+                                }
+                              }}
+                              onResponderRelease={() => {
+                                if (pointerDrag.current.moved) moveCollection(collection.name, dragTarget.current);
+                                finishCollectionDrag();
+                              }}
+                              onResponderTerminate={finishCollectionDrag}
                               style={[styles.memoryCollectionDragHandle, memoryDarkMode && styles.accountDarkInsetBox]}
-                            ><Ionicons name="reorder-three-outline" size={22} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
+                            ><Ionicons name="reorder-three-outline" size={22} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></View>
                           ))}
-                          {reorderMenuCollection === collection.name && isCustom && (
-                            <View style={styles.memoryCollectionArrangeControls}>
-                              <Pressable
-                                accessibilityRole="button"
-                                accessibilityLabel={`Move ${collection.name} earlier`}
-                                accessibilityState={{ disabled: customIndex === 0 }}
-                                disabled={customIndex === 0}
-                                onPress={() => moveCollection(collection.name, customCollectionNames[customIndex - 1])}
-                                style={[styles.memoryCollectionMoveButton, customIndex === 0 && styles.memoryCollectionMoveDisabled]}
-                              ><Ionicons name="arrow-back-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /><Text style={[styles.memoryCollectionMoveLabel, memoryDarkMode && styles.accountDarkText]}>Earlier</Text></Pressable>
-                              <Pressable
-                                accessibilityRole="button"
-                                accessibilityLabel={`Move ${collection.name} later`}
-                                accessibilityState={{ disabled: customIndex === customCollectionNames.length - 1 }}
-                                disabled={customIndex === customCollectionNames.length - 1}
-                                onPress={() => moveCollection(collection.name, customCollectionNames[customIndex + 1])}
-                                style={[styles.memoryCollectionMoveButton, customIndex === customCollectionNames.length - 1 && styles.memoryCollectionMoveDisabled]}
-                              ><Text style={[styles.memoryCollectionMoveLabel, memoryDarkMode && styles.accountDarkText]}>Later</Text><Ionicons name="arrow-forward-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.oliveDark} /></Pressable>
-                            </View>
-                          )}
                         </CollectionWrapper>
                       );
                     })}

@@ -127,7 +127,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Memory verses help",
       icon: "albums-outline",
       summary: "Verses opens with All Verses and your optional collections. Due verses are available through the review button or filters.",
-      tips: ["Use Review all due verses to start a review session, or open All Verses and choose the Due filter to browse them.", "Create a collection from a saved verse, then use each verse’s options menu to add or remove it. Long press a collection to reveal its reorder handle; on desktop, hover or focus it.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
+      tips: ["Use Review all due verses to start a review session, or open All Verses and choose the Due filter to browse them.", "Create a collection from a saved verse, then use each verse’s options menu to add or remove it. Long press a collection or choose Reorder to show grab handles; choose Done to save the order.", "Inside a collection, tap the filter icon beside search for book, chapter, review status, and bulk review dates. Archived verses have their own tab."]
     };
   }
 

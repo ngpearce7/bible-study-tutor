@@ -6445,7 +6445,7 @@ export const styles = StyleSheet.create({
     marginTop: 2
   },
   memoryList: {
-    gap: 12
+    gap: 16
   },
   phoneMemoryHeaderRow: {
     alignItems: "center",
@@ -6630,7 +6630,28 @@ export const styles = StyleSheet.create({
     marginTop: 16
   },
   memoryCollectionsHeaderCompact: {
-    marginTop: 4
+    marginTop: 8
+  },
+  memoryCollectionHeaderActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 8
+  },
+  memoryCollectionReorderButton: {
+    alignItems: "center",
+    borderColor: colors.line,
+    borderRadius: 11,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 4,
+    height: 46,
+    justifyContent: "center",
+    paddingHorizontal: 11
+  },
+  memoryCollectionReorderLabel: {
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "700"
   },
   memoryCollectionsTitleBlock: {
     flex: 1,
@@ -6654,11 +6675,15 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     gap: 5,
-    minHeight: 92,
+    minHeight: 100,
     padding: 13,
     width: "100%"
   },
   memoryCollectionDropTarget: {
+    borderColor: colors.blue,
+    borderWidth: 2
+  },
+  memoryCollectionEditing: {
     borderColor: colors.blue,
     borderWidth: 2
   },
@@ -6668,44 +6693,25 @@ export const styles = StyleSheet.create({
     borderColor: colors.line,
     borderRadius: 8,
     borderWidth: 1,
-    bottom: 10,
     height: 34,
     justifyContent: "center",
     position: "absolute",
     right: 10,
+    top: 10,
     width: 38
-  },
-  memoryCollectionArrangeControls: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    justifyContent: "flex-end",
-    marginTop: 6
-  },
-  memoryCollectionMoveButton: {
-    alignItems: "center",
-    borderColor: colors.line,
-    borderRadius: 8,
-    borderWidth: 1,
-    flexDirection: "row",
-    gap: 4,
-    height: 34,
-    justifyContent: "center",
-    minWidth: 80,
-    paddingHorizontal: 6
-  },
-  memoryCollectionMoveLabel: {
-    color: colors.ink,
-    fontSize: 11,
-    fontWeight: "600"
-  },
-  memoryCollectionMoveDisabled: {
-    opacity: 0.35
   },
   memoryCollectionCardHeader: {
     alignItems: "flex-start",
     flexDirection: "row",
     justifyContent: "space-between"
+  },
+  memoryCollectionCardFooter: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    justifyContent: "space-between",
+    marginTop: "auto"
   },
   memoryCollectionEmpty: {
     backgroundColor: colors.panel,
@@ -7955,7 +7961,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16
   },
   memoryCompactMetricGrid: {
-    marginBottom: 4
+    marginBottom: 12
   },
   memoryCompactMetric: {
     padding: 10
@@ -7966,7 +7972,7 @@ export const styles = StyleSheet.create({
   phoneMemoryMetricGrid: {
     flexWrap: "nowrap",
     gap: 6,
-    marginBottom: 8,
+    marginBottom: 14,
     marginTop: 6
   },
   metric: {

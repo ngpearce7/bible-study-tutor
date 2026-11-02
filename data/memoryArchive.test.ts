@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryCollectionCards, buildMemoryQueueSections, isMemoryVerseDue, memoryVersesForCollectionFilters } from "./memory";
+import { buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryCollectionCards, buildMemoryQueueSections, dueMemoryVersesForCollection, isMemoryVerseDue, memoryVersesForCollectionFilters } from "./memory";
 
 test("archived verses stay browseable but never enter review queues", () => {
   const active = { _id: "active", reference: "James 1:22", verseText: "Be doers", status: "memorized", reviewCount: 3, nextReviewAt: undefined, updatedAt: 1 };
@@ -28,6 +28,16 @@ test("custom collection order keeps automatic collections fixed", () => {
   const later = { reference: "James 1:22", collections: ["Trust"], nextReviewAt: Date.now() + 3 * 86_400_000 };
   expect(buildMemoryCollectionCards([due, later], ["Trust", "Promises"]).map((card) => card.name))
     .toEqual(["All Verses", "Trust", "Promises"]);
+});
+
+test("review queue includes only due verses from the opened collection", () => {
+  const shared = { _id: "shared", collections: ["Promises", "Trust"], nextReviewAt: Date.now() - 1000 };
+  const other = { _id: "other", collections: ["Trust"], nextReviewAt: Date.now() - 1000 };
+  const later = { _id: "later", collections: ["Promises"], nextReviewAt: Date.now() + 3 * 86_400_000 };
+  const archived = { _id: "archived", collections: ["Promises"], archivedAt: Date.now(), nextReviewAt: Date.now() - 1000 };
+  expect(dueMemoryVersesForCollection([shared, other, later, archived], "Promises")).toEqual([shared]);
+  expect(dueMemoryVersesForCollection([shared, other, later, archived], "Trust")).toEqual([shared, other]);
+  expect(dueMemoryVersesForCollection([shared, other, later, archived], "all")).toEqual([shared, other]);
 });
 
 test("book filters only offer books within the open collection", () => {

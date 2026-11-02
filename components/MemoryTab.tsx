@@ -180,6 +180,7 @@ export function MemoryTab(props: any) {
 
   const savedMemoryVerses = (memoryVerses || []).filter((verse: any) => !verse.archivedAt);
   const activeCollectionName = memoryCollectionFilter === "all" ? "All Verses" : memoryCollectionFilter;
+  const collectionDueCount = activeMemoryCollectionDueCount;
   const collectionCards = buildMemoryCollectionCards(memoryVerses || [], reorderMode ? draftCollectionOrder : memoryCollectionOrder);
   const customCollectionNames = collectionCards.filter((collection) => collection.key.startsWith("custom:")).map((collection) => collection.name);
   const collectionChoices = savedMemoryVerses.filter((verse: any) =>
@@ -478,7 +479,7 @@ export function MemoryTab(props: any) {
                 )}
               </>
             )}
-            {!phoneMemoryFocusMode && memoryView === "browse" && (
+            {!phoneMemoryFocusMode && memoryView === "browse" && (memoryCollectionsHome || !!memoryStatus) && (
               <View style={[styles.memoryReviewCompactRow, phoneLayout && styles.phoneMemoryReviewCompactRow]}>
                 <View style={[styles.memoryReviewPromptBox, styles.memoryReviewCompactBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
                   <Ionicons
@@ -498,7 +499,7 @@ export function MemoryTab(props: any) {
                     </Text>
                   </View>
                 </View>
-                {dueMemoryCount > 0 && (
+                {memoryCollectionsHome && dueMemoryCount > 0 && (
                   <AppButton
                     label="Review all due verses"
                     onPress={() => startDueMemoryReviewQueue()}
@@ -574,17 +575,26 @@ export function MemoryTab(props: any) {
                       </View>
                     )
                   ) : (
-                    <AppButton
-                      label="My collections"
-                      variant="secondary"
-                      onPress={() => {
-                        clearMemoryBrowseFilters();
-                        setMemorySearch("");
-                        setMemoryCollectionsHome(true);
-                      }}
-                      style={memoryDarkMode && styles.homeDarkResumeButton}
-                      labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
-                    />
+                    <View style={[styles.memoryCollectionHeaderActions, phoneLayout && styles.phoneMemoryCollectionDetailActions]}>
+                      <AppButton
+                        label="My collections"
+                        variant="secondary"
+                        onPress={() => {
+                          clearMemoryBrowseFilters();
+                          setMemorySearch("");
+                          setMemoryCollectionsHome(true);
+                        }}
+                        style={memoryDarkMode && styles.homeDarkResumeButton}
+                        labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                      />
+                      {collectionDueCount > 0 && (
+                        <AppButton
+                          label="Review all due verses"
+                          onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
+                          style={phoneLayout && styles.phoneMemoryReviewActionButton}
+                        />
+                      )}
+                    </View>
                   )}
                 </View>
                 {memoryCollectionsHome && (

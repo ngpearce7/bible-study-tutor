@@ -29,7 +29,7 @@ import { CURRENT_TERMS_VERSION } from "@/data/accountTerms";
 import { getActiveCheckinPartnerId, getPinnedJournalEntries, getStoredAppearanceMode, getStoredBibleBookmarks, getStoredBibleReadChapters, getStoredBibleReaderHistory, getStoredBibleReaderPosition, getStoredBibleReadingPlanProgress, getStoredBibleTranslation, getStoredCheckinPartners, getStoredCollapsedStudyPanels, getStoredCustomWritingPrompts, getStoredDevotionalTextSize, getStoredMemoryReviewSorts, getStoredStudyFocusMode, getStoredTutorCoachingEnabled, saveActiveCheckinPartnerId, savePinnedJournalEntries, saveStoredAppearanceMode, saveStoredBibleBookmarks, saveStoredBibleReadChapters, saveStoredBibleReaderHistory, saveStoredBibleReaderPosition, saveStoredBibleReadingPlanProgress, saveStoredBibleTranslation, saveStoredCheckinPartners, saveStoredCollapsedStudyPanels, saveStoredCustomWritingPrompts, saveStoredDevotionalTextSize, saveStoredMemoryReviewSorts, saveStoredStudyFocusMode, saveStoredTutorCoachingEnabled, type StoredAppearanceMode, type StoredBibleBookmark, type StoredBibleReadChapters, type StoredBibleReaderHistoryItem, type StoredCheckinPartner, type StoredDevotionalTextSize, type StoredMemoryReviewSort } from "@/data/feedbackPreferences";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES } from "@/data/devotionalTypography";
 
-import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, memoryVersesForCollectionFilters, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
+import { DEFAULT_MEMORY_MILESTONE_IDS, buildMemoryBookOptions, buildMemoryBrowseSections, buildMemoryChapterOptions, buildMemoryCollectionOptions, buildMemoryHistoryEncouragement, buildMemoryHistorySummary, buildMemoryMilestones, buildMemoryPracticeText, buildMemoryPracticeTokens, buildMemoryQueueSections, buildMemoryReference, buildMemoryVerseKeySet, buildMemoryWeeklyScripture, buildMemoryWeeklySummary, buildNeglectedMemoryVerses, clampMemoryPracticeLevel, dueMemoryVersesForCollection, getMemoryVerseCollections, isMemoryVerseDue, isMemoryVerseMemorized, isTodayLocal, memoryProgressLabel, memoryVersesForCollectionFilters, neglectedMemoryVerseLabel, normalizeMemoryAnswer, normalizeMemoryMilestoneIds, parseMemoryReference, reviewPresetForStoredRhythm, reviewPresetLabel, type MemoryBrowseStatusFilter, type MemoryMilestoneGoalId, type MemoryReviewPreset } from "@/data/memory";
 import { methods } from "@/data/methods";
 import { buildReaderLoadRequest, buildReaderPlanReading, getReaderPlanDayForChapter, getReaderPlanReadingChunk, isReaderPlanReadingActive, type ReaderPlanReading } from "@/data/biblePlanReader";
 import type { MemoryCardLayout, WorksheetWritingSpace } from "@/data/printableWorksheet";
@@ -2610,9 +2610,7 @@ function HomeScreen() {
   const memorySearchTerm = memorySearch.trim().toLowerCase();
   const memoryCollectionOptions = useMemo(() => shouldPrepareMemoryUi ? buildMemoryCollectionOptions((memoryVerses || []).filter((verse: any) => !verse.archivedAt)) : [], [memoryVerses, shouldPrepareMemoryUi]);
   const activeMemoryCollectionName = memoryCollectionFilter === "all" ? "All verses" : memoryCollectionFilter;
-  const activeMemoryCollectionDueCount = memoryCollectionFilter === "all"
-    ? 0
-    : (memoryVerses || []).filter((verse: any) => isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(memoryCollectionFilter)).length;
+  const activeMemoryCollectionDueCount = dueMemoryVersesForCollection(memoryVerses || [], memoryCollectionFilter).length;
   const memoryFilterVerses = useMemo(() => shouldPrepareMemoryUi
     ? memoryVersesForCollectionFilters(memoryVerses || [], memoryCollectionFilter, memoryBrowseStatusFilter)
     : [], [memoryBrowseStatusFilter, memoryCollectionFilter, memoryVerses, shouldPrepareMemoryUi]);
@@ -6031,8 +6029,7 @@ function HomeScreen() {
   }
 
   function startDueMemoryReviewQueue(collectionName = "all") {
-    const dueVerses = (buildMemoryQueueSections(memoryVerses || []).find((section) => section.title === "Due for Review")?.verses || [])
-      .filter((verse: any) => collectionName === "all" || getMemoryVerseCollections(verse).includes(collectionName));
+    const dueVerses = dueMemoryVersesForCollection(memoryVerses || [], collectionName);
     if (!dueVerses.length) return;
 
     clearMemoryBrowseFilters();

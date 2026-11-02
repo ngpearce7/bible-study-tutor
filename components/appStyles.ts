@@ -6635,7 +6635,12 @@ export const styles = StyleSheet.create({
   memoryCollectionHeaderActions: {
     alignItems: "center",
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8
+  },
+  phoneMemoryCollectionDetailActions: {
+    alignItems: "stretch",
+    width: "100%"
   },
   memoryCollectionReorderButton: {
     alignItems: "center",

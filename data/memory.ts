@@ -867,6 +867,11 @@ export function buildMemoryQueueSections(verses: any[]) {
   ].filter((section) => section.verses.length > 0);
 }
 
+export function dueMemoryVersesForCollection(verses: any[], collectionName = "all") {
+  return (buildMemoryQueueSections(verses).find((section) => section.title === "Due for Review")?.verses || [])
+    .filter((verse) => collectionName === "all" || getMemoryVerseCollections(verse).includes(collectionName));
+}
+
 export function buildMemoryBrowseSections(verses: any[], searchTerm: string, bookFilter: string, chapterFilter: string, statusFilter: MemoryBrowseStatusFilter, collectionFilter = "all") {
   const filtered = verses
     .filter((verse) => matchesMemorySearch(verse, searchTerm))

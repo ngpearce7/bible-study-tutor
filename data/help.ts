@@ -124,10 +124,10 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
 
   if (tab === "memory" && context.memoryView === "browse") {
     return {
-      title: "Memory browse help",
+      title: "Memory verses help",
       icon: "albums-outline",
-      summary: "Browse helps you find saved verses by collection, Testament, book, chapter, and review status.",
-      tips: ["Use collections for themes like Identity, Prayer, or Promises.", "Filter first, then use bulk review options if you want to change several review dates.", "Use the menu beside the view tabs to print memory cards."]
+      summary: "Verses brings review practice, collections, and your saved Scripture together.",
+      tips: ["Start a review from the due prompt, or practise any verse from its card.", "Collections are optional. Create one from a saved verse, then use each verse’s options menu to add or remove it.", "Use Filters for Testament, book, chapter, review status, and bulk review dates. The menu beside the view tabs has print cards."]
     };
   }
 

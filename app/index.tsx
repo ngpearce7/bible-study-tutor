@@ -1039,7 +1039,7 @@ function HomeScreen() {
   const [passageMarkupNotes, setPassageMarkupNotes] = useState<PassageMarkupNoteMap>({});
   const [selectedVerseKeys, setSelectedVerseKeys] = useState<string[]>([]);
   const [memoryStatus, setMemoryStatus] = useState("");
-  const [memoryView, setMemoryView] = useState<MemoryView>("review");
+  const [memoryView, setMemoryView] = useState<MemoryView>("browse");
   const [dueMemoryReviewSort, setDueMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
   const [reviewedMemoryReviewSort, setReviewedMemoryReviewSort] = useState<MemoryReviewSort>("oldest");
   const [memoryReviewSortsHydrated, setMemoryReviewSortsHydrated] = useState(false);
@@ -2668,7 +2668,7 @@ function HomeScreen() {
           icon: "school-outline",
           onPress: () => {
             setPendingHomeMemoryReviewProfileId(String(activeProfileId));
-            setRememberedMemoryView("review");
+            setRememberedMemoryView("browse");
             setTab("memory");
           }
         }]
@@ -2741,7 +2741,18 @@ function HomeScreen() {
   const phoneMemoryFocusMode = tab === "memory" && !!activeMemoryVerseId && (phoneLayout || activeMemoryReviewQueueCount > 0);
   const practiceViewport = usePracticeViewport(phoneLayout && phoneMemoryFocusMode);
   const memoryFinishRef = useRef<View>(null);
-  const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : memoryBrowseSections)
+  const browseMemoryDisplaySections = memoryBrowseStatusFilter === "due" || memoryBrowseStatusFilter === "learning"
+    ? [{
+        title: memoryBrowseStatusFilter === "due" ? "Due for Review" : "Reviewed",
+        description: "",
+        verses: sortMemoryReviewVerses(
+          memoryBrowseSections.flatMap((section) => section.verses),
+          memoryBrowseStatusFilter === "due" ? "Due for Review" : "Reviewed",
+          memoryBrowseStatusFilter === "due" ? dueMemoryReviewSort : reviewedMemoryReviewSort
+        )
+      }]
+    : memoryBrowseSections;
+  const visibleMemorySections = shouldPrepareMemoryUi ? (memoryView === "history" ? [] : memoryView === "review" ? memoryQueueSections : browseMemoryDisplaySections)
     .map((section) => ({
       ...section,
       verses: phoneMemoryFocusMode
@@ -3027,7 +3038,7 @@ function HomeScreen() {
       setReviewedMemoryReviewSort(syncedReviewedSort);
       saveStoredMemoryReviewSorts({ due: syncedDueSort || dueMemoryReviewSort, reviewed: syncedReviewedSort }).catch(() => undefined);
     }
-    if (syncedMemoryView) setMemoryView(syncedMemoryView);
+    if (syncedMemoryView) setMemoryView(syncedMemoryView === "review" ? "browse" : syncedMemoryView);
     if (uiBoolean(profileUiPreferences, "memoryBrowseFiltersOpen") !== undefined) setMemoryBrowseFiltersOpen(uiBoolean(profileUiPreferences, "memoryBrowseFiltersOpen")!);
     if (syncedMemoryStatusFilter) setMemoryBrowseStatusFilter(syncedMemoryStatusFilter);
     if (syncedMemoryBookFilter) setMemoryBookFilter(syncedMemoryBookFilter);
@@ -5968,6 +5979,11 @@ function HomeScreen() {
 
   function startMemoryPractice(verse: any, options?: { preserveReviewQueue?: boolean }) {
     if (!options?.preserveReviewQueue) setMemoryReviewQueueIds([]);
+    if (!currentBrowseMemoryVerses.some((item: any) => String(item._id) === String(verse._id))) {
+      clearMemoryBrowseFilters();
+      setMemorySearch("");
+    }
+    setRememberedMemoryView("browse");
     setActiveMemoryVerseId(String(verse._id));
     setActiveMemoryMeditationVerseId("");
     setMemoryPracticeLevel(isMemoryVerseMemorized(verse) ? 1 : clampMemoryPracticeLevel(verse.practiceLevel || 1));
@@ -5988,12 +6004,12 @@ function HomeScreen() {
     if (!dueVerses.length) return;
 
     setMemoryReviewQueueIds(dueVerses.map((verse: any) => String(verse._id)));
-    setRememberedMemoryView("review");
+    setRememberedMemoryView("browse");
     startMemoryPractice(dueVerses[0], { preserveReviewQueue: true });
   }
 
   async function saveMemoryVerseCollections(verse: any, nextCollections: string[]) {
-    if (!activeProfileId) return;
+    if (!activeProfileId) return false;
     const verseId = String(verse._id);
     try {
       await updateMemoryCollections({
@@ -6005,8 +6021,10 @@ function HomeScreen() {
       setMemoryCollectionDraft("");
       setMemoryMoreVerseId("");
       setMemoryStatus(`${verse.reference} collections updated.`);
+      return true;
     } catch {
       setMemoryStatus(`Could not update collections for ${verse.reference}.`);
+      return false;
     }
   }
 
@@ -6036,6 +6054,11 @@ function HomeScreen() {
 
   function startMemoryMeditation(verse: any) {
     const verseId = String(verse._id);
+    if (!currentBrowseMemoryVerses.some((item: any) => String(item._id) === verseId)) {
+      clearMemoryBrowseFilters();
+      setMemorySearch("");
+    }
+    setRememberedMemoryView("browse");
     setMemoryReviewQueueIds([]);
     setActiveMemoryVerseId("");
     setActiveMemoryMeditationVerseId(verseId);
@@ -7536,8 +7559,9 @@ function HomeScreen() {
   }
 
   function setRememberedMemoryView(nextView: MemoryView) {
-    setMemoryView(nextView);
-    persistUiPreference("memoryView", nextView);
+    const normalizedView = nextView === "review" ? "browse" : nextView;
+    setMemoryView(normalizedView);
+    persistUiPreference("memoryView", normalizedView);
   }
 
   function setRememberedMemoryBrowseFiltersOpen(nextValue: SetStateAction<boolean>) {

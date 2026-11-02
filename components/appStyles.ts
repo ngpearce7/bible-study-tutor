@@ -6494,6 +6494,11 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
     lineHeight: 20
   },
+  memoryReviewPromptContent: {
+    alignItems: "flex-start",
+    flex: 1,
+    gap: 10
+  },
   memoryViewToggle: {
     backgroundColor: colors.soft,
     borderRadius: 999,
@@ -6579,6 +6584,79 @@ export const styles = StyleSheet.create({
     minHeight: 46,
     paddingHorizontal: 12,
     paddingVertical: 8
+  },
+  memoryCollectionsHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    justifyContent: "space-between",
+    marginBottom: 12,
+    marginTop: 16
+  },
+  memoryCollectionsTitleBlock: {
+    flex: 1,
+    gap: 4,
+    minWidth: 190
+  },
+  memoryCollectionFolderGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16
+  },
+  memoryCollectionFolder: {
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 5,
+    minHeight: 92,
+    padding: 13,
+    width: "48%"
+  },
+  memoryCollectionEmpty: {
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 7,
+    marginBottom: 16,
+    padding: 16
+  },
+  memoryCollectionDetailActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginBottom: 16
+  },
+  memoryNewCollectionBox: {
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 12,
+    borderWidth: 1,
+    gap: 10,
+    marginBottom: 16,
+    padding: 16
+  },
+  memoryNewCollectionChoices: {
+    gap: 6,
+    maxHeight: 245,
+    overflow: "hidden"
+  },
+  memoryNewCollectionChoice: {
+    alignItems: "center",
+    borderColor: colors.line,
+    borderRadius: 9,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 9,
+    minHeight: 43,
+    paddingHorizontal: 10
+  },
+  memoryNewCollectionChoiceSelected: {
+    backgroundColor: colors.soft
   },
   phoneMemoryBrowseFiltersPanel: {
     gap: 7,

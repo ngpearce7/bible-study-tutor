@@ -1,7 +1,7 @@
 // @ts-nocheck
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Suspense } from "react";
-import { Platform, Pressable, Text, TextInput, View } from "react-native";
+import { Suspense, useState } from "react";
+import { Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 import { COMMON_MEMORY_REVIEW_OPTIONS, MORE_MEMORY_REVIEW_OPTIONS, formatMemoryHistoryDate, getMemoryVerseCollections, isMemoryVerseDue, memoryHistoryEventIcon, memoryHistoryEventLabel, memoryPracticeLabel, memoryReviewDateLabel, memoryVerseProgressDetail, memoryVerseProgressMessage, normalizeMemoryAnswer, reviewPresetForStoredRhythm } from "@/data/memory";
 import { AppButton, Card, Eyebrow, colors } from "@/components/ui";
@@ -11,6 +11,12 @@ import { MemoryHistoryPanel } from "@/components/MemoryHistoryPanel";
 
 export function MemoryTab(props: any) {
   const PracticeGrid = Platform.OS === "web" && props.phoneLayout ? StableMemoryInput : View;
+  const [newCollectionOpen, setNewCollectionOpen] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [newCollectionSearch, setNewCollectionSearch] = useState("");
+  const [newCollectionVerseId, setNewCollectionVerseId] = useState("");
+  const [creatingCollection, setCreatingCollection] = useState(false);
+  const [collectionCreationError, setCollectionCreationError] = useState("");
   const {
     activeMemoryCollectionDueCount,
     activeMemoryCollectionName,
@@ -150,6 +156,39 @@ export function MemoryTab(props: any) {
     visibleMemorySections
   } = props;
 
+  const savedMemoryVerses = memoryVerses || [];
+  const collectionChoices = savedMemoryVerses.filter((verse: any) =>
+    `${verse.reference} ${verse.verseText}`.toLowerCase().includes(newCollectionSearch.trim().toLowerCase())
+  ).slice(0, 12);
+  const selectedCollectionVerse = savedMemoryVerses.find((verse: any) => String(verse._id) === newCollectionVerseId);
+
+  async function createCollection() {
+    const name = newCollectionName.trim().replace(/\s+/g, " ");
+    if (!name || !selectedCollectionVerse || creatingCollection) {
+      setCollectionCreationError("Enter a name and choose a verse to start this collection.");
+      return;
+    }
+    if (memoryCollectionOptions.some((option: any) => option.name.toLowerCase() === name.toLowerCase())) {
+      setCollectionCreationError("A collection with this name already exists.");
+      return;
+    }
+    setCreatingCollection(true);
+    setCollectionCreationError("");
+    const saved = await saveMemoryVerseCollections(selectedCollectionVerse, [
+      ...getMemoryVerseCollections(selectedCollectionVerse), name
+    ]);
+    setCreatingCollection(false);
+    if (!saved) {
+      setCollectionCreationError("Could not create the collection. Please try again.");
+      return;
+    }
+    setNewCollectionName("");
+    setNewCollectionSearch("");
+    setNewCollectionVerseId("");
+    setNewCollectionOpen(false);
+    setMemoryCollectionFilter(name);
+  }
+
   return (
     <View style={[styles.layout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
       <Card style={[styles.mainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
@@ -284,8 +323,7 @@ export function MemoryTab(props: any) {
                 <View style={[styles.memoryModeToolbar, phoneLayout && styles.phoneMemoryModeToolbar]}>
                   <View style={[styles.memoryViewToggle, styles.memoryModeToggle, memoryDarkMode && styles.accountDarkSegmentedRow]}>
                     {[
-                      ["review", "Review"],
-                      ["browse", "Browse"],
+                      ["browse", "Verses"],
                       ["history", "History"]
                     ].map(([key, label]) => (
                       <Pressable
@@ -323,6 +361,29 @@ export function MemoryTab(props: any) {
                 )}
               </>
             )}
+            {!phoneMemoryFocusMode && memoryView === "browse" && (
+              <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
+                <Ionicons
+                  name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}
+                  size={20}
+                  color={memoryDarkMode ? "#d4a768" : colors.coral}
+                />
+                <View style={styles.memoryReviewPromptContent}>
+                  <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
+                    {memoryStatus === "reviewed-today"
+                      ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
+                      : memoryStatus || (dueMemoryCount > 0
+                        ? `${dueMemoryCount} verse${dueMemoryCount === 1 ? " is" : "s are"} ready for review today.`
+                        : reviewedTodayCount > 0
+                          ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
+                          : "No verses are due today. You can practise any saved verse whenever you like.")}
+                  </Text>
+                  {dueMemoryCount > 0 && (
+                    <AppButton label={`Review ${dueMemoryCount} due verse${dueMemoryCount === 1 ? "" : "s"}`} onPress={() => startDueMemoryReviewQueue()} />
+                  )}
+                </View>
+              </View>
+            )}
             {!phoneMemoryFocusMode && memoryView === "history" && (
               <Suspense fallback={<Card style={[styles.memoryHistorySummaryBox, memoryDarkMode && styles.accountDarkMainCard]}><Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>Loading memory history...</Text></Card>}>
                 <MemoryHistoryPanel
@@ -350,6 +411,135 @@ export function MemoryTab(props: any) {
             )}
             {!phoneMemoryFocusMode && memoryView === "browse" && (
               <>
+                <View style={styles.memoryCollectionsHeader}>
+                  <View style={styles.memoryCollectionsTitleBlock}>
+                    <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>
+                      {memoryCollectionFilter === "all" ? "My collections" : memoryCollectionFilter}
+                    </Text>
+                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                      {memoryCollectionFilter === "all"
+                        ? "Group verses by theme or Bible book. Collections are optional."
+                        : `${memoryCollectionOptions.find((option: any) => option.name === memoryCollectionFilter)?.count || 0} saved verses in this collection`}
+                    </Text>
+                  </View>
+                  {memoryCollectionFilter === "all" ? (
+                    <AppButton
+                      label="New collection"
+                      variant="secondary"
+                      onPress={() => {
+                        setCollectionCreationError("");
+                        setNewCollectionVerseId(String(savedMemoryVerses[0]?._id || ""));
+                        setNewCollectionOpen((open) => !open);
+                      }}
+                      style={memoryDarkMode && styles.homeDarkResumeButton}
+                      labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                    />
+                  ) : (
+                    <AppButton
+                      label="All verses"
+                      variant="secondary"
+                      onPress={() => {
+                        clearMemoryBrowseFilters();
+                        setMemorySearch("");
+                      }}
+                      style={memoryDarkMode && styles.homeDarkResumeButton}
+                      labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText}
+                    />
+                  )}
+                </View>
+                {memoryCollectionFilter === "all" && (
+                  memoryCollectionOptions.length > 0 ? (
+                    <View style={styles.memoryCollectionFolderGrid}>
+                      {memoryCollectionOptions.map((collection: any) => {
+                        const collectionDue = savedMemoryVerses.filter((verse: any) =>
+                          isMemoryVerseDue(verse) && getMemoryVerseCollections(verse).includes(collection.name)
+                        ).length;
+                        return (
+                          <Pressable
+                            key={collection.name}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Open ${collection.name} collection, ${collection.count} verses${collectionDue ? `, ${collectionDue} due` : ""}`}
+                            onPress={() => {
+                              clearMemoryBrowseFilters();
+                              setMemorySearch("");
+                              setMemoryCollectionFilter(collection.name);
+                            }}
+                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection]}
+                          >
+                            <Ionicons name="folder-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                            <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
+                            <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
+                              {collection.count} verse{collection.count === 1 ? "" : "s"}{collectionDue ? ` · ${collectionDue} due` : ""}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ) : (
+                    <View style={[styles.memoryCollectionEmpty, memoryDarkMode && styles.accountDarkSection]}>
+                      <Ionicons name="folder-open-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                      <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>No collections yet</Text>
+                      <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                        Your verses are already saved. Create a collection when you want to organise them.
+                      </Text>
+                    </View>
+                  )
+                )}
+                {memoryCollectionFilter !== "all" && (
+                  <View style={styles.memoryCollectionDetailActions}>
+                    {activeMemoryCollectionDueCount > 0 && (
+                      <AppButton
+                        label={`Review ${activeMemoryCollectionDueCount} due`}
+                        onPress={() => startDueMemoryReviewQueue(memoryCollectionFilter)}
+                      />
+                    )}
+                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                      To add or remove a verse, open its ⋯ menu and choose Collections.
+                    </Text>
+                  </View>
+                )}
+                {newCollectionOpen && memoryCollectionFilter === "all" && (
+                  <View style={[styles.memoryNewCollectionBox, memoryDarkMode && styles.accountDarkSection]}>
+                    <Text style={[styles.feedbackTitle, memoryDarkMode && styles.accountDarkTitle]}>Create a collection</Text>
+                    <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>
+                      Choose one verse to start it. You can add more verses later from their ⋯ menu.
+                    </Text>
+                    <TextInput
+                      value={newCollectionName}
+                      onChangeText={setNewCollectionName}
+                      placeholder="Name, such as Promises"
+                      maxLength={80}
+                      style={[styles.input, memoryDarkMode && styles.accountDarkInput]}
+                    />
+                    {savedMemoryVerses.length > 1 && (
+                      <TextInput
+                        value={newCollectionSearch}
+                        onChangeText={setNewCollectionSearch}
+                        placeholder="Find a verse to add"
+                        style={[styles.input, memoryDarkMode && styles.accountDarkInput]}
+                      />
+                    )}
+                    <ScrollView style={styles.memoryNewCollectionChoices} nestedScrollEnabled>
+                      {collectionChoices.map((verse: any) => (
+                        <Pressable
+                          key={String(verse._id)}
+                          accessibilityRole="radio"
+                          accessibilityState={{ checked: newCollectionVerseId === String(verse._id) }}
+                          onPress={() => setNewCollectionVerseId(String(verse._id))}
+                          style={[styles.memoryNewCollectionChoice, newCollectionVerseId === String(verse._id) && styles.memoryNewCollectionChoiceSelected, memoryDarkMode && styles.accountDarkInsetBox]}
+                        >
+                          <Ionicons name={newCollectionVerseId === String(verse._id) ? "radio-button-on-outline" : "radio-button-off-outline"} size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
+                          <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{verse.reference}</Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                    {!!collectionCreationError && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]} accessibilityRole="alert">{collectionCreationError}</Text>}
+                    <View style={styles.memoryCollectionDetailActions}>
+                      <AppButton label={creatingCollection ? "Creating..." : "Create collection"} onPress={createCollection} disabled={creatingCollection} />
+                      <AppButton label="Cancel" variant="secondary" onPress={() => setNewCollectionOpen(false)} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                    </View>
+                  </View>
+                )}
                 <View style={[styles.journalSearchBox, memoryDarkMode && styles.accountDarkInput]}>
                   <Ionicons name="search-outline" size={18} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                   <TextInput
@@ -642,24 +832,6 @@ export function MemoryTab(props: any) {
                 </View>
                 )}
               </>
-            )}
-            {!phoneMemoryFocusMode && memoryView === "review" && (
-              <View style={[styles.memoryReviewPromptBox, memoryStatus ? styles.memoryReviewSuccessBox : styles.memoryReviewEncourageBox, memoryDarkMode && styles.accountDarkSection]}>
-                <Ionicons
-                  name={memoryStatus ? "checkmark-circle-outline" : dueMemoryCount > 0 ? "school-outline" : "sparkles-outline"}
-                  size={20}
-                  color={memoryStatus ? colors.oliveDark : colors.coral}
-                />
-                <Text style={[styles.memoryReviewPromptText, memoryDarkMode && styles.accountDarkText]}>
-                  {memoryStatus === "reviewed-today"
-                    ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${Math.max(reviewedTodayCount, 1)} verse${Math.max(reviewedTodayCount, 1) === 1 ? "" : "s"} today.`
-                    : memoryStatus || (reviewedTodayCount > 0
-                    ? `Well done${firstName ? `, ${firstName}` : ""}. You reviewed ${reviewedTodayCount} verse${reviewedTodayCount === 1 ? "" : "s"} today.`
-                    : dueMemoryCount > 0
-                      ? `${firstName ? `${firstName}, you have ` : ""}${dueMemoryCount} verse${dueMemoryCount === 1 ? "" : "s"} ready for review today. Start with one and build from there.`
-                      : `${firstName ? `${firstName}, none` : "None"} of your saved verses are due for review. You can still practise any verse whenever you want.`)}
-                </Text>
-              </View>
             )}
             {visibleMemorySections.map((section) => {
               const highlightedMemorySection = section.title === "Due for Review" || section.title === "Reviewed";

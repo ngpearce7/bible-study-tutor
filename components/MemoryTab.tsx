@@ -35,6 +35,7 @@ export function MemoryTab(props: any) {
   const collectionRefs = useRef<Record<string, any>>({});
   const collectionBounds = useRef<Record<string, { x: number; y: number; width: number; height: number }>>({});
   const CollectionWrapper = Platform.OS === "web" ? "div" : View;
+  const CollectionGrid = Platform.OS === "web" ? "div" : View;
   const {
     activeMemoryCollectionDueCount,
     activeProfileId,
@@ -677,14 +678,18 @@ export function MemoryTab(props: any) {
                   </View>
                 )}
                 {memoryCollectionsHome && (
-                  <View style={styles.memoryCollectionFolderGrid}>
+                  <CollectionGrid style={Platform.OS === "web"
+                    ? { ...(styles.memoryCollectionFolderGrid as any), display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gridAutoRows: "1fr", alignItems: "stretch" }
+                    : styles.memoryCollectionFolderGrid}>
                     {collectionCards.map((collection: any) => {
                       const isCustom = collection.key.startsWith("custom:");
                       const customIndex = customCollectionNames.indexOf(collection.name);
                       return (
                         <CollectionWrapper
                           key={collection.key}
-                          style={styles.memoryCollectionWrapper}
+                          style={Platform.OS === "web"
+                            ? { ...(styles.memoryCollectionWrapper as any), width: "100%", height: "100%" }
+                            : styles.memoryCollectionWrapper}
                           data-memory-collection={isCustom ? collection.name : undefined}
                           onContextMenu={Platform.OS === "web" && isCustom ? (event: any) => {
                             event.preventDefault();
@@ -706,18 +711,18 @@ export function MemoryTab(props: any) {
                               if (isCustom) setMemoryCollectionFilter(collection.name);
                               setMemoryCollectionsHome(false);
                             }}
-                            style={[styles.memoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, reorderMode && isCustom && styles.memoryCollectionEditing, dragOverCollection === collection.name && styles.memoryCollectionDropTarget, dragPreview?.name === collection.name && styles.memoryCollectionDraggingPlaceholder]}
+                            style={[styles.memoryCollectionFolder, Platform.OS === "web" && { height: "100%" }, phoneLayout && Platform.OS !== "web" && styles.phoneMemoryCollectionFolder, memoryDarkMode && styles.accountDarkSection, reorderMode && isCustom && styles.memoryCollectionEditing, dragOverCollection === collection.name && styles.memoryCollectionDropTarget, dragPreview?.name === collection.name && styles.memoryCollectionDraggingPlaceholder]}
                           >
                             <View style={styles.memoryCollectionCardHeader}>
                               <Ionicons name={collection.key === "all" ? "albums-outline" : "folder-outline"} size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                             </View>
                             <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{collection.name}</Text>
-                            <View style={styles.memoryCollectionCardFooter}>
+                            <View style={[styles.memoryCollectionCardFooter, phoneLayout && styles.phoneMemoryCollectionCardFooter]}>
                               <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>
                                 {collection.count} verse{collection.count === 1 ? "" : "s"}
                               </Text>
                               {collection.dueCount > 0 && (
-                                <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
+                                <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, phoneLayout && styles.phoneMemoryCollectionDuePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>
                                   {collection.dueCount} due now
                                 </Text>
                               )}
@@ -780,16 +785,16 @@ export function MemoryTab(props: any) {
                         <View style={[styles.memoryCollectionFolder, styles.memoryCollectionEditing, memoryDarkMode && styles.accountDarkSection, { height: "100%" }]}>
                           <Ionicons name="folder-outline" size={21} color={memoryDarkMode ? "#d4a768" : colors.coral} />
                           <Text style={[styles.bodyStrong, memoryDarkMode && styles.accountDarkText]}>{dragPreview.name}</Text>
-                          <View style={styles.memoryCollectionCardFooter}>
+                          <View style={[styles.memoryCollectionCardFooter, phoneLayout && styles.phoneMemoryCollectionCardFooter]}>
                             <Text style={[styles.memoryHistoryDate, memoryDarkMode && styles.accountDarkMutedText]}>{collectionCards.find((item) => item.name === dragPreview.name)?.count || 0} verses</Text>
                             {(collectionCards.find((item) => item.name === dragPreview.name)?.dueCount || 0) > 0 && (
-                              <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>{collectionCards.find((item) => item.name === dragPreview.name)?.dueCount} due now</Text>
+                              <Text style={[styles.reviewDatePill, styles.dueReviewDatePill, phoneLayout && styles.phoneMemoryCollectionDuePill, memoryDarkMode && styles.memoryDarkDueReviewPill]}>{collectionCards.find((item) => item.name === dragPreview.name)?.dueCount} due now</Text>
                             )}
                           </View>
                         </View>
                       </div>
                     )}
-                  </View>
+                  </CollectionGrid>
                 )}
                 {newCollectionOpen && memoryCollectionsHome && (
                   <View style={[styles.memoryNewCollectionBox, memoryDarkMode && styles.accountDarkSection]}>

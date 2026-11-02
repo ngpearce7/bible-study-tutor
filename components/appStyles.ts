@@ -6687,6 +6687,9 @@ export const styles = StyleSheet.create({
     padding: 13,
     width: "100%"
   },
+  phoneMemoryCollectionFolder: {
+    height: 154
+  },
   memoryCollectionDropTarget: {
     borderColor: colors.blue,
     borderWidth: 2
@@ -6729,6 +6732,14 @@ export const styles = StyleSheet.create({
     gap: 6,
     justifyContent: "space-between",
     marginTop: "auto"
+  },
+  phoneMemoryCollectionCardFooter: {
+    alignItems: "stretch",
+    flexDirection: "column",
+    flexWrap: "nowrap"
+  },
+  phoneMemoryCollectionDuePill: {
+    alignSelf: "flex-end"
   },
   memoryCollectionEmpty: {
     backgroundColor: colors.panel,

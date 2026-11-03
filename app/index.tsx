@@ -1637,7 +1637,8 @@ function HomeScreen() {
     () => new Set(customBibleReadingPlans.map((plan) => plan.id)),
     [customBibleReadingPlans]
   );
-  const needsBuiltInBibleReadingPlans = tab === "plans";
+  const needsBuiltInBibleReadingPlans = tab === "plans" ||
+    (tab === "bible" && !!readerPlanReading?.planId && !customBibleReadingPlanIdSet.has(readerPlanReading.planId));
   const needsBuiltInBibleReadingPlanIndex = tab !== "plans" && !bibleReadingPlanCorpus &&
     [activeBibleReadingPlanId, ...followedBibleReadingPlanIds].some((planId) => planId && !customBibleReadingPlanIdSet.has(planId));
 
@@ -10348,6 +10349,10 @@ function HomeScreen() {
               activeReadingPlanName={readerBibleReadingPlan?.title || ""}
               activeReadingPlanDayCount={readerBibleReadingPlan?.days.length || 0}
               activeReadingPlanDayCompleted={readerActiveBibleReadingPlanDayComplete}
+              planGuidanceStatus={readerPlanReadingActive && !bibleReadingPlanCorpus && readerPlanReading?.planId && !customBibleReadingPlanIdSet.has(readerPlanReading.planId)
+                ? bibleReadingPlanCorpusStatus === "error" ? "error" : "loading"
+                : undefined}
+              onRetryPlanGuidance={() => { setBibleReadingPlanCorpusStatus("idle"); setBibleReadingPlanLoadAttempt((attempt) => attempt + 1); }}
               devotionalTextSize={devotionalTextSize}
               onDevotionalTextSizeChange={setRememberedDevotionalTextSize}
               onAcknowledgeCareNote={acknowledgeBibleReadingCareNote}

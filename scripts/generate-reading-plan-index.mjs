@@ -23,12 +23,9 @@ const plans = compiledModule.exports.bibleReadingPlans;
 if (!Array.isArray(plans) || !plans.length) throw new Error("Reading-plan library is empty");
 const compactPlans = plans.map(({ days, ...metadata }) => ({
   ...metadata,
-  days: days.map(({ day, title, reference, readerBook, readerChapter, studyReference, ...guidance }) => {
-    const entry = [title, reference, readerBook, readerChapter, studyReference];
-    if (Object.keys(guidance).length) entry.push(guidance);
-    return entry;
-  })
+  days: days.map(({ title, reference, readerBook, readerChapter, studyReference }) =>
+    [title, reference, readerBook, readerChapter, studyReference])
 }));
-const output = { version: 1, plans: compactPlans };
+const output = { version: 2, plans: compactPlans };
 writeFileSync(join(root, "public", "bible-reading-plan-index.json"), `${JSON.stringify(output)}\n`);
 console.log(`Generated reading-plan index for ${plans.length} plans.`);

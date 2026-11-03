@@ -7,17 +7,17 @@ type CompactIndex = { version: number; plans: CompactPlan[] };
 
 export function parseBibleReadingPlanIndex(value: unknown): BibleReadingPlan[] {
   const index = value as CompactIndex;
-  if (index?.version !== 1 || !Array.isArray(index.plans)) throw new Error("Reading-plan index is invalid");
+  if ((index?.version !== 1 && index?.version !== 2) || !Array.isArray(index.plans)) throw new Error("Reading-plan index is invalid");
   return index.plans.map(({ days, ...metadata }) => {
     if (!metadata.id || !Array.isArray(days)) throw new Error("Reading-plan index is incomplete");
     return {
       ...metadata,
-      days: days.map((entry, index) => {
-        if (!Array.isArray(entry) || (entry.length !== 5 && entry.length !== 6) || typeof entry[1] !== "string" || typeof entry[3] !== "number" || (entry.length === 6 && (!entry[5] || typeof entry[5] !== "object" || Array.isArray(entry[5])))) {
+      days: days.map((entry, dayIndex) => {
+        if (!Array.isArray(entry) || (index.version === 2 ? entry.length !== 5 : (entry.length !== 5 && entry.length !== 6)) || typeof entry[1] !== "string" || typeof entry[3] !== "number" || (entry.length === 6 && (!entry[5] || typeof entry[5] !== "object" || Array.isArray(entry[5])))) {
           throw new Error("Reading-plan day is invalid");
         }
         return {
-          day: index + 1,
+          day: dayIndex + 1,
           title: entry[0],
           reference: entry[1],
           readerBook: entry[2],

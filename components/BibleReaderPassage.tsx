@@ -27,6 +27,8 @@ type BibleReaderPassageProps = {
   activeReadingPlanName?: string;
   activeReadingPlanDayCount: number;
   activeReadingPlanDayCompleted?: boolean;
+  planGuidanceStatus?: "loading" | "error";
+  onRetryPlanGuidance?: () => void;
   devotionalTextSize?: DevotionalTextSize;
   onDevotionalTextSizeChange?: (size: DevotionalTextSize) => void;
   onAcknowledgeCareNote?: (careNote: string) => void;
@@ -83,6 +85,8 @@ export function BibleReaderPassage({
   activeReadingPlanName,
   activeReadingPlanDayCount,
   activeReadingPlanDayCompleted,
+  planGuidanceStatus,
+  onRetryPlanGuidance,
   devotionalTextSize = "normal",
   onDevotionalTextSizeChange,
   onAcknowledgeCareNote,
@@ -357,6 +361,18 @@ export function BibleReaderPassage({
                 ? focusedPlanReadingNote ? ` ${focusedPlanReadingNote}` : ""
                 : ""}
             </Text>
+            {planGuidanceStatus && (
+              <View style={{ marginTop: 12 }}>
+                <Text accessibilityLiveRegion="polite" style={[styles.muted, darkMode && styles.accountDarkMutedText]}>
+                  {planGuidanceStatus === "error" ? "Reading guidance could not be loaded." : "Loading reading guidance…"}
+                </Text>
+                {planGuidanceStatus === "error" && onRetryPlanGuidance && (
+                  <Pressable accessibilityRole="button" onPress={onRetryPlanGuidance} style={{ marginTop: 8 }}>
+                    <Text style={[styles.readerBookSectionTitle, darkMode && styles.studyDarkAccentText]}>Try again</Text>
+                  </Pressable>
+                )}
+              </View>
+            )}
             {(activeReadingPlanDay.context || activeReadingPlanDay.devotional || activeReadingPlanDay.observationQuestion || activeReadingPlanDay.reflectionQuestion || activeReadingPlanDay.reflectionPrompt || activeReadingPlanDay.prayer || activeReadingPlanDay.prayerPrompt || activeReadingPlanDay.gentleAction || activeReadingPlanDay.studyMethod || hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) || visibleActiveCareNote) && (
               <View style={hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) ? { marginTop: 12, width: "100%" } : [styles.readerPlanDevotionalBox, darkMode && styles.planDayDevotionalBoxDark]}>
                 {hasPlanDeeperContext(activeReadingPlanDay, activeReadingPlanDayCount) ? (

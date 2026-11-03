@@ -134,6 +134,8 @@ export function BibleTab({
   activeReadingPlanName,
   activeReadingPlanDayCount,
   activeReadingPlanDayCompleted,
+  planGuidanceStatus,
+  onRetryPlanGuidance,
   devotionalTextSize,
   onDevotionalTextSizeChange,
   onAcknowledgeCareNote,
@@ -330,6 +332,8 @@ export function BibleTab({
           activeReadingPlanName={activeReadingPlanName}
           activeReadingPlanDayCount={activeReadingPlanDayCount}
           activeReadingPlanDayCompleted={activeReadingPlanDayCompleted}
+          planGuidanceStatus={planGuidanceStatus}
+          onRetryPlanGuidance={onRetryPlanGuidance}
           devotionalTextSize={devotionalTextSize}
           onDevotionalTextSizeChange={onDevotionalTextSizeChange}
           onAcknowledgeCareNote={onAcknowledgeCareNote}

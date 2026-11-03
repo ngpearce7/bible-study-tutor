@@ -10040,6 +10040,9 @@ export const styles = StyleSheet.create({
   memoryCollectionDeleteButton: {
     backgroundColor: "#a33c31"
   },
+  memoryCollectionDeletePhoneButton: {
+    width: "100%"
+  },
   memoryBookDropdownStack: {
     gap: 8
   },

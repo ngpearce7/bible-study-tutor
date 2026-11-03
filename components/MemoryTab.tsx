@@ -1159,7 +1159,6 @@ export function MemoryTab(props: any) {
                   const collectionOpen = collectionMemoryVerseId === verseId;
                   const moreOpen = memoryMoreVerseId === verseId;
                   const collections = getMemoryVerseCollections(verse);
-                  const otherCollections = collections.filter((collection: string) => collection !== memoryCollectionFilter);
                   const cardExpanded = expandedMemoryVerseIds.includes(verseId) || practicing || meditating || reviewOpen || historyOpen || collectionOpen || moreOpen;
                   const verseHistory = memoryHistoryItems
                     .filter((item: any) => String(item.memoryVerseId || "") === verseId || item.reference === verse.reference)
@@ -1185,16 +1184,6 @@ export function MemoryTab(props: any) {
                             <Text numberOfLines={1} style={[styles.muted, styles.memoryVerseMetaTranslation, phoneLayout && styles.memoryTranslationLabel, memoryDarkMode && styles.accountDarkMutedText]}>
                               {phoneLayout ? shortBibleTranslationName(verse.translationName) : verse.translationName}
                             </Text>
-                            {!cardExpanded && otherCollections.map((collection: string, index: number) => (
-                              <Text
-                                key={`${collection}-${index}`}
-                                accessibilityLabel={`Also in ${collection}`}
-                                numberOfLines={1}
-                                style={[styles.memoryNewCollectionMembership, memoryDarkMode && styles.memoryDarkCollectionPill]}
-                              >
-                                {collection}
-                              </Text>
-                            ))}
                           </View>
                         </View>
                         <View style={[styles.memoryHeaderBadges, phoneLayout && styles.phoneMemoryHeaderBadges]}>
@@ -1404,10 +1393,9 @@ export function MemoryTab(props: any) {
                           {!!verse.note && <Text style={[styles.muted, memoryDarkMode && styles.accountDarkMutedText]}>{verse.note}</Text>}
                           {collections.length > 0 && (
                             <View style={styles.memoryCollectionPillRow}>
-                              {collections.slice(0, 3).map((collection: string) => (
+                              {collections.map((collection: string) => (
                                 <Text key={collection} style={[styles.memoryCollectionPill, memoryDarkMode && styles.memoryDarkCollectionPill]}>{collection}</Text>
                               ))}
-                              {collections.length > 3 && <Text style={[styles.memoryCollectionPill, memoryDarkMode && styles.memoryDarkCollectionPill]}>+{collections.length - 3}</Text>}
                             </View>
                           )}
                           {historyOpen && <View style={[styles.memoryVerseHistoryBox, phoneLayout && styles.phoneMemoryVerseHistoryBox, memoryDarkMode && styles.accountDarkInsetBox]}>
@@ -1756,8 +1744,8 @@ export function MemoryTab(props: any) {
                 </Pressable>}
                 {!!deleteCollectionError && <Text accessibilityRole="alert" style={styles.memoryCollectionFormError}>{deleteCollectionError}</Text>}
                 <View style={[styles.printOptionsActions, phoneLayout && styles.memoryRenamePhoneActions]}>
-                  <AppButton label="Cancel" variant="secondary" onPress={() => setDeleteCollectionName("")} disabled={deletingCollection} style={memoryDarkMode && styles.homeDarkResumeButton} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
-                  <AppButton label={deletingCollection ? "Deleting..." : deleteCollectionMode === "keep-verses" ? "Delete collection" : "Delete collection and verses"} onPress={confirmCollectionDelete} disabled={deletingCollection} style={styles.memoryCollectionDeleteButton} />
+                  <AppButton label="Cancel" variant="secondary" onPress={() => setDeleteCollectionName("")} disabled={deletingCollection} style={[phoneLayout && styles.memoryCollectionDeletePhoneButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+                  <AppButton label={deletingCollection ? "Deleting..." : deleteCollectionMode === "keep-verses" ? "Delete collection" : "Delete collection and verses"} onPress={confirmCollectionDelete} disabled={deletingCollection} style={[styles.memoryCollectionDeleteButton, phoneLayout && styles.memoryCollectionDeletePhoneButton]} />
                 </View>
               </>
             ) : renameCollectionFrom ? (

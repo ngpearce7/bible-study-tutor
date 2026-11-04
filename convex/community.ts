@@ -358,10 +358,11 @@ export const joinCircle = mutation({
     profileId: v.id("profiles"),
     inviteCode: v.string()
   },
-  returns: v.object({
-    status: v.union(v.literal("joined"), v.literal("invalid"), v.literal("rate-limited")),
-    circleId: v.union(v.id("communityCircles"), v.null())
-  }),
+  // Keep the successful result compatible with clients published before join feedback was added.
+  returns: v.union(v.id("communityCircles"), v.object({
+    status: v.union(v.literal("invalid"), v.literal("rate-limited")),
+    circleId: v.null()
+  })),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -392,7 +393,7 @@ export const joinCircle = mutation({
       .query("communityMembers")
       .withIndex("by_circle_and_profile", (q) => q.eq("circleId", circle._id).eq("profileId", profile._id))
       .unique();
-    if (existing) return { status: "joined" as const, circleId: circle._id };
+    if (existing) return circle._id;
 
     await ctx.db.insert("communityMembers", {
       circleId: circle._id,
@@ -402,7 +403,7 @@ export const joinCircle = mutation({
       joinedAt: Date.now()
     });
     await ctx.db.patch(profile._id, { circleJoinFailedAttempts: 0, circleJoinAttemptWindowStartedAt: now });
-    return { status: "joined" as const, circleId: circle._id };
+    return circle._id;
   }
 });
 

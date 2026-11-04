@@ -78,7 +78,7 @@ describe("private friend connections", () => {
       name: "Study group"
     });
     await expect(chrisSession.query(api.community.feed, { profileId: chris.profileId, circleId })).rejects.toThrow("not a member");
-    await bethSession.mutation(api.community.joinCircle, { profileId: beth.profileId, inviteCode });
+    expect(await bethSession.mutation(api.community.joinCircle, { profileId: beth.profileId, inviteCode })).toBe(circleId);
     await ariSession.mutation(api.community.shareInsight, { profileId: ari.profileId, circleId, note: "A thought" });
     expect(await bethSession.query(api.community.feed, { profileId: beth.profileId, circleId })).toHaveLength(1);
     await expect(chrisSession.query(api.community.feed, { profileId: chris.profileId, circleId })).rejects.toThrow("not a member");

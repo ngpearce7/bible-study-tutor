@@ -867,6 +867,19 @@ export function buildMemoryQueueSections(verses: any[]) {
   ].filter((section) => section.verses.length > 0);
 }
 
+export function includeActiveMemoryPracticeVerse<T extends { _id: unknown }>(
+  sections: { title: string; description: string; verses: T[] }[],
+  activeVerse?: T
+) {
+  if (!activeVerse || sections.some((section) => section.verses.some((verse) => String(verse._id) === String(activeVerse._id)))) {
+    return sections;
+  }
+  return [
+    { title: "Current practice", description: "Finish this verse to continue your review.", verses: [activeVerse] },
+    ...sections
+  ];
+}
+
 export function dueMemoryVersesForCollection(verses: any[], collectionName = "all") {
   return (buildMemoryQueueSections(verses).find((section) => section.title === "Due for Review")?.verses || [])
     .filter((verse) => collectionName === "all" || getMemoryVerseCollections(verse).includes(collectionName));

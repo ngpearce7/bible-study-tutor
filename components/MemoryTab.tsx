@@ -462,7 +462,7 @@ export function MemoryTab(props: any) {
               {activeMemoryMeditationVerseId
                 ? "Meditation mode. Save or close this reflection to return to your saved list."
                 : activeMemoryReviewQueueCount > 1 && activeMemoryReviewQueueIndex >= 0
-                  ? `Review set ${activeMemoryReviewQueueIndex + 1} of ${activeMemoryReviewQueueCount}. Finish this verse to open the next one.`
+                  ? `Review set ${activeMemoryReviewQueueIndex + 1} of ${activeMemoryReviewQueueCount}. ${activeMemoryReviewQueueIndex + 1 === activeMemoryReviewQueueCount ? "Finish this verse to complete the set." : "Finish this verse to open the next one."}`
                   : "Practice mode. Close or finish this verse to return to your saved list."}
             </Text>
             {activeMemoryReviewQueueCount > 0 && (

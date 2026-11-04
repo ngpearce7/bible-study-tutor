@@ -109,4 +109,33 @@ describe("private friend connections", () => {
       profileId: guest.profileId, inviteCode
     })).toMatchObject({ status: "rate-limited", circleId: null });
   });
+
+  test("email invites do not reveal registration and limit unsuccessful lookups", async () => {
+    const t = convexTest(schema, modules);
+    const [sender, recipient] = await t.run(async (ctx) => Promise.all([
+      ["Sender", "sender@example.org"], ["Recipient", "recipient@example.org"]
+    ].map(async ([name, email]) => {
+      const userId = await ctx.db.insert("users", { email });
+      const profileId = await ctx.db.insert("profiles", {
+        authUserId: userId, clientKey: `auth:${name}`, displayName: name, createdAt: 1, updatedAt: 1
+      });
+      return { userId, profileId };
+    })));
+    const senderSession = t.withIdentity({ subject: `${sender.userId}|session` });
+    expect(await senderSession.mutation(api.community.inviteFriendByEmail, {
+      profileId: sender.profileId, email: "recipient@example.org"
+    })).toBe("submitted");
+    expect(await senderSession.mutation(api.community.inviteFriendByEmail, {
+      profileId: sender.profileId, email: "missing@example.org"
+    })).toBe("submitted");
+    for (let attempt = 2; attempt < 20; attempt += 1) {
+      expect(await senderSession.mutation(api.community.inviteFriendByEmail, {
+        profileId: sender.profileId, email: `missing${attempt}@example.org`
+      })).toBe("submitted");
+    }
+    expect(await senderSession.mutation(api.community.inviteFriendByEmail, {
+      profileId: sender.profileId, email: "recipient@example.org"
+    })).toBe("rate-limited");
+    expect(await senderSession.query(api.community.myFriends, { profileId: sender.profileId })).toHaveLength(1);
+  });
 });

@@ -54,7 +54,7 @@ export const inviteFriendByEmail = mutation({
     profileId: v.id("profiles"),
     email: v.string()
   },
-  returns: v.any(),
+  returns: v.union(v.literal("submitted"), v.literal("rate-limited")),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -62,20 +62,30 @@ export const inviteFriendByEmail = mutation({
     const email = clampText(args.email, 254).toLowerCase();
     if (!email) throw new Error("Add your friend's account email.");
 
+    // Count every lookup, including misses, so email addresses cannot be probed without limit.
+    const now = Date.now();
+    const windowStartedAt = profile.friendInviteLookupWindowStartedAt || now;
+    const lookupCount = now - windowStartedAt < 24 * 60 * 60 * 1000 ? profile.friendInviteLookupCount || 0 : 0;
+    if (lookupCount >= 20) return "rate-limited";
+    await ctx.db.patch(profile._id, {
+      friendInviteLookupWindowStartedAt: lookupCount === 0 ? now : windowStartedAt,
+      friendInviteLookupCount: lookupCount + 1
+    });
+
     const targetUser = await ctx.db
       .query("users")
       .withIndex("email", (q) => q.eq("email", email))
       .unique();
-    if (!targetUser) throw new Error("No registered user found with that email.");
-    if (targetUser._id === authUserId) throw new Error("You cannot add yourself as a friend.");
+    if (!targetUser || targetUser._id === authUserId) return "submitted";
 
     const targetProfile = await ctx.db
       .query("profiles")
       .withIndex("by_auth_user_id", (q) => q.eq("authUserId", targetUser._id))
       .unique();
-    if (!targetProfile) throw new Error("That user has not finished setting up a profile yet.");
+    if (!targetProfile) return "submitted";
 
-    return await createOrAcceptFriendship(ctx, profile, authUserId, targetProfile, targetUser._id);
+    await createOrAcceptFriendship(ctx, profile, authUserId, targetProfile, targetUser._id);
+    return "submitted";
   }
 });
 

@@ -4511,14 +4511,18 @@ function HomeScreen() {
       return;
     }
 
-    setFriendStatus("Looking for that registered user...");
+    setFriendStatus("Sending invite...");
     try {
-      await inviteCommunityFriend({ profileId: activeProfileId, email });
+      const result = await inviteCommunityFriend({ profileId: activeProfileId, email });
+      if (result === "rate-limited") {
+        setFriendStatus("You've reached today's invite limit. Please try again tomorrow.");
+        return;
+      }
       setFriendEmail("");
-      setFriendStatus("Friend invite saved. They will appear as a friend once accepted.");
+      setFriendStatus("If this person has an account, your invitation will appear for them.");
       trackUsage("community_friend_invited", { tab: "accountability" });
     } catch {
-      setFriendStatus("Could not add that friend. Check they have registered with that email.");
+      setFriendStatus("Could not send the invitation. Please try again.");
     }
   }
 

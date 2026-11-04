@@ -123,6 +123,8 @@ export default defineSchema({
     friendCode: v.optional(v.string()),
     circleJoinAttemptWindowStartedAt: v.optional(v.number()),
     circleJoinFailedAttempts: v.optional(v.number()),
+    friendInviteLookupWindowStartedAt: v.optional(v.number()),
+    friendInviteLookupCount: v.optional(v.number()),
     weeklyGoal: v.optional(v.string()),
     accountabilityPartner: v.optional(v.string()),
     preferredMethodId: v.optional(v.string()),

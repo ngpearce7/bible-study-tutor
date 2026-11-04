@@ -121,6 +121,8 @@ export default defineSchema({
     normalizedUsername: v.optional(v.string()),
     accountLoginKind: v.optional(v.union(v.literal("email"), v.literal("username"), v.literal("oauth"))),
     friendCode: v.optional(v.string()),
+    circleJoinAttemptWindowStartedAt: v.optional(v.number()),
+    circleJoinFailedAttempts: v.optional(v.number()),
     weeklyGoal: v.optional(v.string()),
     accountabilityPartner: v.optional(v.string()),
     preferredMethodId: v.optional(v.string()),

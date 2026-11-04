@@ -329,7 +329,7 @@ export const createCircle = mutation({
       createdAt: now,
       updatedAt: now
     });
-    const inviteCode = buildInviteCode(circleId);
+    const inviteCode = await createUniqueCircleInviteCode(ctx);
     await ctx.db.patch(circleId, { inviteCode });
     await ctx.db.insert("communityMembers", {
       circleId,
@@ -348,7 +348,10 @@ export const joinCircle = mutation({
     profileId: v.id("profiles"),
     inviteCode: v.string()
   },
-  returns: v.any(),
+  returns: v.object({
+    status: v.union(v.literal("joined"), v.literal("invalid"), v.literal("rate-limited")),
+    circleId: v.union(v.id("communityCircles"), v.null())
+  }),
   handler: async (ctx, args) => {
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
@@ -358,18 +361,28 @@ export const joinCircle = mutation({
       .withIndex("by_profile", (q) => q.eq("profileId", args.profileId))
       .take(51);
     assertCollectionLimit(memberships.length, 50, "Circle membership");
+    const now = Date.now();
+    const windowStartedAt = profile.circleJoinAttemptWindowStartedAt || now;
+    const failedAttempts = now - windowStartedAt < 60 * 60 * 1000 ? profile.circleJoinFailedAttempts || 0 : 0;
+    if (failedAttempts >= 10) return { status: "rate-limited" as const, circleId: null };
     const inviteCode = clampText(args.inviteCode, 40).toUpperCase();
     const circle = await ctx.db
       .query("communityCircles")
       .withIndex("by_invite_code", (q) => q.eq("inviteCode", inviteCode))
       .unique();
-    if (!circle) throw new Error("Circle invite code not found.");
+    if (!circle) {
+      await ctx.db.patch(profile._id, {
+        circleJoinAttemptWindowStartedAt: failedAttempts === 0 ? now : windowStartedAt,
+        circleJoinFailedAttempts: failedAttempts + 1
+      });
+      return { status: "invalid" as const, circleId: null };
+    }
 
     const existing = await ctx.db
       .query("communityMembers")
       .withIndex("by_circle_and_profile", (q) => q.eq("circleId", circle._id).eq("profileId", profile._id))
       .unique();
-    if (existing) return circle._id;
+    if (existing) return { status: "joined" as const, circleId: circle._id };
 
     await ctx.db.insert("communityMembers", {
       circleId: circle._id,
@@ -378,7 +391,8 @@ export const joinCircle = mutation({
       role: "member",
       joinedAt: Date.now()
     });
-    return circle._id;
+    await ctx.db.patch(profile._id, { circleJoinFailedAttempts: 0, circleJoinAttemptWindowStartedAt: now });
+    return { status: "joined" as const, circleId: circle._id };
   }
 });
 
@@ -753,8 +767,15 @@ function reactionSummary(reactions: Doc<"communityReactions">[]) {
   };
 }
 
-function buildInviteCode(circleId: Id<"communityCircles">) {
-  return String(circleId).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase();
+async function createUniqueCircleInviteCode(ctx: MutationCtx) {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const code = crypto.randomUUID().replace(/-/g, "").toUpperCase();
+    const existing = await ctx.db.query("communityCircles")
+      .withIndex("by_invite_code", (q) => q.eq("inviteCode", code))
+      .unique();
+    if (!existing) return code;
+  }
+  throw new Error("Could not create a circle invite code. Try again.");
 }
 
 function buildFriendCode(profileId: Id<"profiles">) {

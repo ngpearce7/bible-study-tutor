@@ -83,4 +83,30 @@ describe("private friend connections", () => {
     expect(await bethSession.query(api.community.feed, { profileId: beth.profileId, circleId })).toHaveLength(1);
     await expect(chrisSession.query(api.community.feed, { profileId: chris.profileId, circleId })).rejects.toThrow("not a member");
   });
+
+  test("circle codes are random and failed guesses are limited per profile", async () => {
+    const t = convexTest(schema, modules);
+    const [owner, guest] = await t.run(async (ctx) => Promise.all(["Owner", "Guest"].map(async (name) => {
+      const userId = await ctx.db.insert("users", {});
+      const profileId = await ctx.db.insert("profiles", {
+        authUserId: userId, clientKey: `auth:${name}`, displayName: name, createdAt: 1, updatedAt: 1
+      });
+      return { userId, profileId };
+    })));
+    const ownerSession = t.withIdentity({ subject: `${owner.userId}|session` });
+    const guestSession = t.withIdentity({ subject: `${guest.userId}|session` });
+    const { circleId, inviteCode } = await ownerSession.mutation(api.community.createCircle, {
+      profileId: owner.profileId, name: "Study group"
+    });
+    expect(inviteCode).toMatch(/^[A-F0-9]{32}$/);
+    expect(inviteCode).not.toBe(String(circleId).replace(/[^a-z0-9]/gi, "").slice(-8).toUpperCase());
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      expect(await guestSession.mutation(api.community.joinCircle, {
+        profileId: guest.profileId, inviteCode: `WRONG${attempt}`
+      })).toMatchObject({ status: "invalid", circleId: null });
+    }
+    expect(await guestSession.mutation(api.community.joinCircle, {
+      profileId: guest.profileId, inviteCode
+    })).toMatchObject({ status: "rate-limited", circleId: null });
+  });
 });

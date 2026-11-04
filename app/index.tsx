@@ -4592,7 +4592,16 @@ function HomeScreen() {
 
     setCircleStatus("Joining circle...");
     try {
-      const circleId = await joinCommunityCircle({ profileId: activeProfileId, inviteCode });
+      const result = await joinCommunityCircle({ profileId: activeProfileId, inviteCode });
+      if (result.status === "rate-limited") {
+        setCircleStatus("Too many incorrect codes. Please try again in an hour.");
+        return;
+      }
+      if (result.status !== "joined" || !result.circleId) {
+        setCircleStatus("That invite code did not work.");
+        return;
+      }
+      const circleId = result.circleId;
       setSelectedCircleId(circleId);
       setTargetCircleId(circleId);
       setCommunityTargetType("circle");

@@ -4116,7 +4116,7 @@ function HomeScreen() {
       });
       setAccountStatus("Account details saved");
     } catch {
-      setAccountStatus("Could not save those details. Check the email is not already in use.");
+      setAccountStatus("Could not save those details. Please try again.");
     }
   }
 
@@ -11545,19 +11545,22 @@ function HomeScreen() {
                       <Text style={[styles.signedInBadgeText, accountDarkMode && styles.accountDarkBadgeText]}>{`Username: @${profile.authUsername}`}</Text>
                     </View>
                   )}
-                  <TextInput
-                    accessibilityLabel={profile?.authUsername ? "Optional contact email" : "Email address"}
+                  {!!accountEmail && <TextInput
+                    accessibilityLabel="Account email (read only)"
                     value={accountEmail}
-                    onChangeText={setAccountEmail}
+                    editable={false}
                     autoCapitalize="none"
                     keyboardType="email-address"
-                    placeholder={profile?.authUsername ? "Optional contact email" : "Email"}
-                    placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
                     style={[styles.input, accountDarkMode && styles.accountDarkInput]}
-                  />
+                  />}
+                  {!profile?.authUsername && !!accountEmail && (
+                    <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
+                      Email changes are temporarily unavailable while we add address verification.
+                    </Text>
+                  )}
                   {!!profile?.authUsername && (
                     <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
-                      This contact email does not enable email password recovery for a username account. Save a recovery code to recover your account.
+                      Username accounts use a recovery code for account recovery. A contact email cannot be added here yet.
                     </Text>
                   )}
                   <AppButton label="Save details" onPress={persistAccountSettings} />

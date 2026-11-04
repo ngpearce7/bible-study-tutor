@@ -132,6 +132,14 @@ export const saveAccountSettings = mutation({
     const nextName = clampText(args.displayName, 80) || "Bible student";
     const nextEmail = clampText(args.email, 254).toLowerCase();
 
+    if (authUserId) {
+      const authUser = await ctx.db.get(authUserId);
+      const currentEmail = visibleAuthEmail(authUser?.email) || "";
+      if (nextEmail !== currentEmail) {
+        throw new Error("Changing an account email requires verification and is temporarily unavailable.");
+      }
+    }
+
     await ctx.db.patch(args.profileId, {
       displayName: nextName,
       weeklyGoal: clampOptionalText(args.weeklyGoal, 300),
@@ -144,38 +152,7 @@ export const saveAccountSettings = mutation({
     if (!authUserId) return;
 
     const authUser = await ctx.db.get(authUserId);
-    const passwordAccount = await ctx.db
-      .query("authAccounts")
-      .withIndex("userIdAndProvider", (q) => q.eq("userId", authUserId).eq("provider", "password"))
-      .unique();
-    const isUsernameAccount = !!usernameFromCredential(passwordAccount?.providerAccountId || authUser?.email);
-    const userPatch: { name: string; email?: string } = { name: nextName };
-
-    if (nextEmail && nextEmail !== authUser?.email?.toLowerCase()) {
-      if (!passwordAccount) throw new Error("Email changes are only available for email and password accounts.");
-
-      const existingUser = await ctx.db
-        .query("users")
-        .withIndex("email", (q) => q.eq("email", nextEmail))
-        .unique();
-      if (existingUser && existingUser._id !== authUserId) throw new Error("That email is already used by another account.");
-
-      if (!isUsernameAccount) {
-        const existingAccount = await ctx.db
-          .query("authAccounts")
-          .withIndex("providerAndAccountId", (q) => q.eq("provider", "password").eq("providerAccountId", nextEmail))
-          .unique();
-        if (existingAccount && existingAccount.userId !== authUserId) throw new Error("That email is already used by another account.");
-
-        await ctx.db.patch(passwordAccount._id, {
-          providerAccountId: nextEmail,
-          emailVerified: undefined
-        });
-      }
-      userPatch.email = nextEmail;
-    }
-
-    await ctx.db.patch(authUserId, userPatch);
+    await ctx.db.patch(authUserId, { name: nextName });
   }
 });
 

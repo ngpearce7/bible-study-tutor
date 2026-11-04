@@ -37,6 +37,26 @@ describe("profile boundaries", () => {
     process.env.ADMIN_USER_IDS = userId;
     expect(await caller.query(api.insights.adminOverview, {})).not.toBeNull();
   });
+  test("account settings cannot move an email credential without address verification", async () => {
+    const t = convexTest(schema, modules);
+    const { userId, profileId, accountId } = await t.run(async (ctx) => {
+      const userId = await ctx.db.insert("users", { name: "Reader", email: "reader@example.org" });
+      const profileId = await ctx.db.insert("profiles", { authUserId: userId, clientKey: "auth:reader", displayName: "Reader", createdAt: 1, updatedAt: 1 });
+      const accountId = await ctx.db.insert("authAccounts", { userId, provider: "password", providerAccountId: "reader@example.org", secret: "hash" });
+      return { userId, profileId, accountId };
+    });
+    const signed = t.withIdentity({ subject: `${userId}|session` });
+    await expect(signed.mutation(api.accountability.saveAccountSettings, { profileId, displayName: "Updated", email: "other@example.org" })).rejects.toThrow("requires verification");
+    await t.run(async (ctx) => {
+      expect((await ctx.db.get(userId))?.email).toBe("reader@example.org");
+      expect((await ctx.db.get(accountId))?.providerAccountId).toBe("reader@example.org");
+      expect((await ctx.db.get(profileId))?.displayName).toBe("Reader");
+    });
+    await signed.mutation(api.accountability.saveAccountSettings, { profileId, displayName: "Updated", email: "reader@example.org" });
+    await t.run(async (ctx) => {
+      expect((await ctx.db.get(profileId))?.displayName).toBe("Updated");
+    });
+  });
 });
 
 test("admin search and feedback queue cover records outside the loaded directory", async () => {

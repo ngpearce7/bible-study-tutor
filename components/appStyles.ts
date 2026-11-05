@@ -6225,6 +6225,25 @@ export const styles = StyleSheet.create({
     gap: 14,
     padding: 18
   },
+  accountEmailVerifiedNotice: {
+    alignItems: "center",
+    alignSelf: "stretch",
+    backgroundColor: "#eef6e6",
+    borderColor: "#c7d9b4",
+    borderRadius: 12,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 10,
+    marginVertical: 12,
+    padding: 14
+  },
+  accountEmailVerifiedText: {
+    color: colors.ink,
+    flexShrink: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    lineHeight: 21
+  },
   emailVerificationDescription: {
     color: colors.muted,
     fontSize: 14,

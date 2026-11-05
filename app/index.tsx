@@ -11526,13 +11526,19 @@ function HomeScreen() {
                       </View>
                     </View>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`${accountIdentityLabel}. New studies, drafts, and encouragements can follow this account across devices.`}</Text>
+                    {accountIdentity?.authLoginKind === "email" && accountIdentity.emailVerified && (
+                      <View style={[styles.accountEmailVerifiedNotice, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Ionicons name="checkmark-circle" size={20} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
+                        <Text accessibilityLiveRegion="polite" style={[styles.accountEmailVerifiedText, accountDarkMode && styles.accountDarkText]}>Email confirmed. Your address is verified.</Text>
+                      </View>
+                    )}
                     {legacyEmailGraceStart && (
                       <View style={[styles.freeAccountBox, styles.emailVerificationCard, accountDarkMode && styles.accountDarkInsetBox]}>
                         <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{legacyVerificationOpen ? "Check your inbox" : "Confirm your email"}</Text>
                         <Text style={[styles.emailVerificationDescription, accountDarkMode && styles.accountDarkMutedText]}>
                           {legacyVerificationOpen
                             ? `We sent an 8-digit code to ${accountIdentity?.authEmail || "your account email"}. Enter it below to confirm your address.`
-                            : `Confirm ${accountIdentity?.authEmail || "your account email"} to use email-based friend invitations. Your studies and reading progress remain available while you do this.`}
+                            : `Confirm that you can receive messages at ${accountIdentity?.authEmail || "your account email"}. This helps keep account and recovery emails tied to the right address. It also enables email-based invitations.`}
                         </Text>
                         {!legacyVerificationOpen ? (
                           <AppButton label={legacyVerificationBusy ? "Sending code…" : "Verify email"} disabled={legacyVerificationBusy} onPress={() => { void sendLegacyVerificationCode(); }} />

@@ -6459,6 +6459,10 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 2
   },
+  memoryDesktopHeaderRow: {
+    position: "relative",
+    zIndex: 2
+  },
   phoneMemoryHeaderAddButton: {
     alignItems: "center",
     borderRadius: 999,
@@ -6494,6 +6498,14 @@ export const styles = StyleSheet.create({
     alignSelf: "flex-end",
     maxWidth: 360,
     width: "100%"
+  },
+  memoryDesktopAddMenuPanel: {
+    position: "absolute",
+    right: 0,
+    top: 44,
+    width: 320,
+    maxWidth: "100%",
+    zIndex: 3
   },
   memoryReviewPromptBox: {
     alignItems: "center",

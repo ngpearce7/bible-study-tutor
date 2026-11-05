@@ -405,7 +405,7 @@ export function MemoryTab(props: any) {
   return (
     <View style={[styles.layout, styles.memoryLayout, compactLayout && styles.stackedLayout, communitySubView === "history" && styles.focusLayout, memoryDarkMode && styles.accountDarkLayout]}>
       <Card style={[styles.mainCard, styles.memoryMainCard, compactLayout && styles.fluidCard, communitySubView === "history" && styles.focusMainCard, memoryDarkMode && styles.accountDarkMainCard]}>
-        <View style={styles.phoneMemoryHeaderRow}>
+        <View style={[styles.phoneMemoryHeaderRow, !phoneLayout && styles.memoryDesktopHeaderRow]}>
           <Eyebrow>Memory</Eyebrow>
           {!activeMemoryVerseId && props.contextHelpControl}
           {!phoneMemoryFocusMode && (memoryVerses || []).length > 0 && (
@@ -419,12 +419,20 @@ export function MemoryTab(props: any) {
               {!phoneLayout && <Text style={[styles.memoryHeaderAddLabel, memoryDarkMode && styles.accountDarkText]}>Add verses</Text>}
             </Pressable>
           )}
+          {addMemoryPanelOpen && !phoneLayout && (
+            <View style={[styles.phoneMemoryHeaderAddPanel, styles.memoryDesktopAddMenuPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
+              <View style={styles.phoneAddMemoryActions}>
+                <AppButton label="Find in Bible" onPress={() => { setAddMemoryPanelOpen(false); setTab("bible"); }} style={styles.phoneMemoryAddActionButton} />
+                <AppButton label="Open Study" variant="secondary" onPress={() => { setAddMemoryPanelOpen(false); setTab("study"); }} style={[styles.phoneMemoryAddActionButton, memoryDarkMode && styles.homeDarkResumeButton]} labelStyle={memoryDarkMode && styles.homeDarkResumeButtonText} />
+              </View>
+            </View>
+          )}
         </View>
         <Text style={[styles.title, memoryDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, memorize saved verses` : "Memorize saved verses"}</Text>
         {!phoneMemoryFocusMode && (
           <>
             {!phoneLayout && <Text style={[styles.titleSupport, styles.memoryTitleSupport, memoryDarkMode && styles.accountDarkMutedText]}>Hide a little at a time and carry Scripture with you through the day.</Text>}
-            {addMemoryPanelOpen && (
+            {addMemoryPanelOpen && phoneLayout && (
               <View style={[styles.phoneMemoryHeaderAddPanel, styles.memoryAddMenuPanel, memoryDarkMode && styles.accountDarkInsetBox]}>
                 <View style={styles.phoneAddMemoryActions}>
                   <AppButton

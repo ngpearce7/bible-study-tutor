@@ -4,6 +4,7 @@ import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { action, internalMutation, internalQuery, mutation } from "./_generated/server";
+import { verificationEmailTemplate } from "./verificationEmailTemplate";
 
 const CODE_LIFETIME_MS = 15 * 60 * 1000;
 const REQUEST_WINDOW_MS = 60 * 60 * 1000;
@@ -36,8 +37,7 @@ export const requestExistingEmailVerification = action({
       body: JSON.stringify({
         from,
         to: [email],
-        subject: "Confirm your Bible Study Tutor email",
-        text: `Bible Study Tutor\n\nYour verification code is ${code}.\n\nEnter it in the Account screen to confirm your email. It expires in 15 minutes. Your Bible study and reading progress remain available while you verify.\n\nIf you did not ask for this code, you can ignore this email.\n\nhttps://biblestudytutor.org`
+        ...verificationEmailTemplate(code, "account")
       })
     });
     if (!response.ok) throw new Error("Email delivery failed. Please try again later.");
@@ -85,8 +85,7 @@ export const requestEmailChange = action({
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from, to: [normalized], subject: "Confirm your new Bible Study Tutor email",
-        text: `Bible Study Tutor\n\nYour code to confirm this new email address is ${code}.\n\nEnter it in the Account screen within 15 minutes. Your current sign-in address will stay the same until you confirm. If you did not request this change, you can ignore this email.\n\nhttps://biblestudytutor.org`
+        from, to: [normalized], ...verificationEmailTemplate(code, "change-address")
       })
     });
     if (!response.ok) throw new Error("Email delivery failed. Please try again later.");

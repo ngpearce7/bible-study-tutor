@@ -29,6 +29,7 @@ import type * as security from "../security.js";
 import type * as statistics from "../statistics.js";
 import type * as statisticsModel from "../statisticsModel.js";
 import type * as study from "../study.js";
+import type * as verificationEmailTemplate from "../verificationEmailTemplate.js";
 import type * as verifiedPassword from "../verifiedPassword.js";
 
 import type {
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   statistics: typeof statistics;
   statisticsModel: typeof statisticsModel;
   study: typeof study;
+  verificationEmailTemplate: typeof verificationEmailTemplate;
   verifiedPassword: typeof verifiedPassword;
 }>;
 

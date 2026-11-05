@@ -1,4 +1,5 @@
 import Resend from "@auth/core/providers/resend";
+import { verificationEmailTemplate } from "./verificationEmailTemplate";
 
 export const passwordVerifyMaxAge = 15 * 60;
 
@@ -22,9 +23,7 @@ export const passwordVerify = Resend({
       body: JSON.stringify({
         from,
         to: [identifier],
-        subject: "Verify your Bible Study Tutor email",
-        text: `Bible Study Tutor\n\nYour verification code is ${token}.\n\nEnter this code in the app to finish setting up your account. It expires in 15 minutes. If you did not ask for this, you can ignore this email.\n\nhttps://biblestudytutor.org`,
-        html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:28px;color:#172536"><h1 style="font-size:24px">Verify your email</h1><p>Enter this code in Bible Study Tutor to finish setting up your account:</p><p style="font-size:26px;font-weight:bold;letter-spacing:4px">${token.replace(/[&<>"']/g, "")}</p><p>The code expires in 15 minutes. If you did not ask for this, you can ignore this email.</p></div>`
+        ...verificationEmailTemplate(token, "new-account")
       })
     });
     if (!response.ok) throw new Error("Email delivery failed. Please try again later.");

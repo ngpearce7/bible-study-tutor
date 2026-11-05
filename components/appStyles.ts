@@ -6221,6 +6221,31 @@ export const styles = StyleSheet.create({
     marginVertical: 12,
     padding: 12
   },
+  emailVerificationCard: {
+    gap: 14,
+    padding: 18
+  },
+  emailVerificationDescription: {
+    color: colors.muted,
+    fontSize: 14,
+    lineHeight: 21
+  },
+  emailVerificationStatus: {
+    color: colors.ink,
+    fontSize: 13,
+    lineHeight: 19
+  },
+  emailVerificationTextAction: {
+    alignSelf: "flex-start",
+    minHeight: 40,
+    justifyContent: "center"
+  },
+  emailVerificationTextActionLabel: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "600",
+    textDecorationLine: "underline"
+  },
   freeAccountBenefitRow: {
     alignItems: "flex-start",
     flexDirection: "row",

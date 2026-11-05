@@ -947,6 +947,12 @@ function HomeScreen() {
   const [legacyVerificationOpen, setLegacyVerificationOpen] = useState(false);
   const [legacyVerificationBusy, setLegacyVerificationBusy] = useState(false);
   const [legacyVerificationStatus, setLegacyVerificationStatus] = useState("");
+  const [legacyVerificationCanResend, setLegacyVerificationCanResend] = useState(true);
+  useEffect(() => {
+    if (legacyVerificationCanResend) return;
+    const timeout = setTimeout(() => setLegacyVerificationCanResend(true), 60_000);
+    return () => clearTimeout(timeout);
+  }, [legacyVerificationCanResend]);
   const [emailChangeOpen, setEmailChangeOpen] = useState(false);
   const [emailChangeAddress, setEmailChangeAddress] = useState("");
   const [emailChangePassword, setEmailChangePassword] = useState("");
@@ -4300,6 +4306,23 @@ function HomeScreen() {
       setAdminMaintenanceStatus("Profile security activity marked reviewed.");
     } catch {
       setAdminMaintenanceStatus("Could not mark that profile reviewed. Make sure Convex has the latest functions deployed.");
+    }
+  }
+
+  async function sendLegacyVerificationCode() {
+    if (legacyVerificationBusy) return;
+    setLegacyVerificationBusy(true);
+    setLegacyVerificationStatus("");
+    try {
+      await requestExistingEmailVerification({});
+      setLegacyVerificationOpen(true);
+      setLegacyVerificationCode("");
+      setLegacyVerificationCanResend(false);
+      setLegacyVerificationStatus("Code sent. Check your inbox. It expires in 15 minutes.");
+    } catch (error) {
+      setLegacyVerificationStatus(error instanceof Error ? error.message : "Could not send the code. Try again later.");
+    } finally {
+      setLegacyVerificationBusy(false);
     }
   }
 
@@ -11504,45 +11527,42 @@ function HomeScreen() {
                     </View>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`${accountIdentityLabel}. New studies, drafts, and encouragements can follow this account across devices.`}</Text>
                     {legacyEmailGraceStart && (
-                      <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
-                        {legacyEmailNoticeStage > (accountIdentity?.emailVerificationNoticeStageDismissed || 0) && (
+                      <View style={[styles.freeAccountBox, styles.emailVerificationCard, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{legacyVerificationOpen ? "Check your inbox" : "Confirm your email"}</Text>
+                        <Text style={[styles.emailVerificationDescription, accountDarkMode && styles.accountDarkMutedText]}>
+                          {legacyVerificationOpen
+                            ? `We sent an 8-digit code to ${accountIdentity?.authEmail || "your account email"}. Enter it below to confirm your address.`
+                            : `Confirm ${accountIdentity?.authEmail || "your account email"} to use email-based friend invitations. Your studies and reading progress remain available while you do this.`}
+                        </Text>
+                        {!legacyVerificationOpen ? (
+                          <AppButton label={legacyVerificationBusy ? "Sending code…" : "Verify email"} disabled={legacyVerificationBusy} onPress={() => { void sendLegacyVerificationCode(); }} />
+                        ) : (
                           <>
-                            <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Confirm your email when you have a moment</Text>
-                            <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>
-                              {legacyEmailNoticeStage === 4
-                                ? "Your 90-day window has ended. Your Bible, studies, plans and Memory are still here. Please confirm your email to use email-based friend invitations."
-                                : `You have ${Math.max(0, 90 - legacyEmailGraceDays)} days to confirm your email. Your studies and reading progress remain available. We will only show another reminder closer to the deadline.`}
-                            </Text>
-                            <AppButton label="Not now" onPress={() => { void dismissEmailVerificationNotice({ stage: legacyEmailNoticeStage }); }} />
-                          </>
-                        )}
-                        <AppButton label={legacyVerificationOpen ? "Hide verification" : "Verify email"} onPress={() => { setLegacyVerificationOpen(!legacyVerificationOpen); setLegacyVerificationStatus(""); }} />
-                        {legacyVerificationOpen && (
-                          <>
-                            <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>{`We will send a code to ${accountIdentity?.authEmail || "your account email"}.`}</Text>
-                            <AppButton label={legacyVerificationBusy ? "Sending…" : "Send code"} disabled={legacyVerificationBusy} onPress={async () => {
-                              setLegacyVerificationBusy(true);
-                              setLegacyVerificationStatus("");
-                              try { await requestExistingEmailVerification({}); setLegacyVerificationStatus("Code sent. It expires in 15 minutes."); }
-                              catch (error) { setLegacyVerificationStatus(error instanceof Error ? error.message : "Could not send the code. Try again later."); }
-                              finally { setLegacyVerificationBusy(false); }
-                            }} />
-                            <TextInput accessibilityLabel="Email verification code" value={legacyVerificationCode} onChangeText={setLegacyVerificationCode} keyboardType="number-pad" autoCapitalize="none" placeholder="8-digit code" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
-                            <AppButton label={legacyVerificationBusy ? "Checking…" : "Confirm code"} disabled={legacyVerificationBusy} onPress={async () => {
+                            <Text style={[styles.authFieldLabel, accountDarkMode && styles.accountDarkText]}>Confirmation code</Text>
+                            <TextInput accessibilityLabel="Email verification code" value={legacyVerificationCode} onChangeText={setLegacyVerificationCode} keyboardType="number-pad" autoComplete="one-time-code" textContentType="oneTimeCode" maxLength={8} autoCapitalize="none" placeholder="8-digit code" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                            <AppButton label={legacyVerificationBusy ? "Confirming…" : "Confirm email"} disabled={legacyVerificationBusy || !/^\d{8}$/.test(legacyVerificationCode.trim())} onPress={async () => {
                               setLegacyVerificationBusy(true);
                               setLegacyVerificationStatus("");
                               try {
                                 const verified = await confirmExistingEmailVerification({ code: legacyVerificationCode.trim() });
-                                if (!verified) { setLegacyVerificationStatus("That code did not match. Please check it and try again."); return; }
+                                if (!verified) { setLegacyVerificationStatus("That code did not match. Check the email and try again."); return; }
                                 setLegacyVerificationCode("");
                                 setLegacyVerificationOpen(false);
                                 setLegacyVerificationStatus("Email confirmed. Thank you!");
                               } catch (error) { setLegacyVerificationStatus(error instanceof Error ? error.message : "Could not confirm the code."); }
                               finally { setLegacyVerificationBusy(false); }
                             }} />
+                            <Pressable accessibilityRole="button" disabled={legacyVerificationBusy || !legacyVerificationCanResend} onPress={() => { void sendLegacyVerificationCode(); }} style={styles.emailVerificationTextAction}>
+                              <Text style={[styles.emailVerificationTextActionLabel, accountDarkMode && styles.accountDarkBadgeText]}>{legacyVerificationCanResend ? "Didn't get the code? Send another" : "You can request another code in one minute"}</Text>
+                            </Pressable>
                           </>
                         )}
-                        {!!legacyVerificationStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{legacyVerificationStatus}</Text>}
+                        {!!legacyVerificationStatus && <Text accessibilityLiveRegion="polite" style={[styles.emailVerificationStatus, accountDarkMode && styles.accountDarkText]}>{legacyVerificationStatus}</Text>}
+                        {legacyEmailNoticeStage > (accountIdentity?.emailVerificationNoticeStageDismissed || 0) && !legacyVerificationOpen && (
+                          <Pressable accessibilityRole="button" onPress={() => { void dismissEmailVerificationNotice({ stage: legacyEmailNoticeStage }); }} style={styles.emailVerificationTextAction}>
+                            <Text style={[styles.emailVerificationTextActionLabel, accountDarkMode && styles.accountDarkBadgeText]}>Remind me later</Text>
+                          </Pressable>
+                        )}
                       </View>
                     )}
                     {accountIdentity?.authLoginKind === "email" && (

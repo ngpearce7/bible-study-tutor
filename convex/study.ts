@@ -56,6 +56,13 @@ export const ensureProfile = mutation({
     const passwordCredential = authAccounts[0]?.providerAccountId;
     const authUsername = usernameFromCredential(passwordCredential || authUser?.email);
     const authLoginKind = authUsername ? "username" : authUserId ? (authAccounts[0] ? "email" : "oauth") : undefined;
+    // Existing email accounts start their grace period on their first authenticated
+    // visit after this rollout. New email accounts verify before signing in.
+    if (authUserId && authUser && authLoginKind === "email" &&
+        !authAccounts[0]?.emailVerified && !authUser.emailVerificationTime &&
+        !authUser.emailVerificationRequiredAt && !authUser.emailVerificationGraceStartedAt) {
+      await ctx.db.patch(authUserId, { emailVerificationGraceStartedAt: now });
+    }
     const authProfileName = clampText(authUser?.name || authUser?.email || "", 80);
     const profileName = clampText(args.displayName || authProfileName, 80) || "Bible student";
 

@@ -449,7 +449,7 @@ type MemoryFilterMobileMenu = "old" | "new" | null;
 const DARK_MODE_ENABLED = true;
 type AnswerMap = Record<string, string>;
 type BibleTranslationId = "bsb" | "web" | "kjv";
-type AuthFlow = "signIn" | "signUp";
+type AuthFlow = "signIn" | "signUp" | "verifyEmail";
 type LegalSection = "privacy" | "terms" | "";
 type PassageMarkupKind = "notice" | "question" | "truth" | "apply";
 type MethodRecommendationId = "quick" | "pray" | "deep" | "reflect" | "group";
@@ -873,6 +873,11 @@ function HomeScreen() {
   const convexClient = useConvex();
   const ensureStudyStats = useMutation(api.statistics.ensureStats);
   const changePassword = useAction(api.accountability.changePassword);
+  const requestExistingEmailVerification = useAction(api.emailVerification.requestExistingEmailVerification);
+  const confirmExistingEmailVerification = useMutation(api.emailVerification.confirmExistingEmailVerification);
+  const dismissEmailVerificationNotice = useMutation(api.emailVerification.dismissEmailVerificationNotice);
+  const requestEmailChange = useAction(api.emailVerification.requestEmailChange);
+  const confirmEmailChange = useMutation(api.emailVerification.confirmEmailChange);
   const saveCheckin = useMutation(api.accountability.saveCheckin);
   const deleteCheckinMutation = useMutation(api.accountability.deleteCheckin);
   const updateCheckin = useMutation(api.accountability.updateCheckin);
@@ -934,6 +939,21 @@ function HomeScreen() {
   const [authName, setAuthName] = useState("");
   const [authIdentifier, setAuthIdentifier] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [authVerificationCode, setAuthVerificationCode] = useState("");
+  const [authCorrectionOpen, setAuthCorrectionOpen] = useState(false);
+  const [authCorrectionEmail, setAuthCorrectionEmail] = useState("");
+  const [authCorrectionPassword, setAuthCorrectionPassword] = useState("");
+  const [legacyVerificationCode, setLegacyVerificationCode] = useState("");
+  const [legacyVerificationOpen, setLegacyVerificationOpen] = useState(false);
+  const [legacyVerificationBusy, setLegacyVerificationBusy] = useState(false);
+  const [legacyVerificationStatus, setLegacyVerificationStatus] = useState("");
+  const [emailChangeOpen, setEmailChangeOpen] = useState(false);
+  const [emailChangeAddress, setEmailChangeAddress] = useState("");
+  const [emailChangePassword, setEmailChangePassword] = useState("");
+  const [emailChangeCode, setEmailChangeCode] = useState("");
+  const [emailChangeSent, setEmailChangeSent] = useState(false);
+  const [emailChangeBusy, setEmailChangeBusy] = useState(false);
+  const [emailChangeStatus, setEmailChangeStatus] = useState("");
   const [authTermsAccepted, setAuthTermsAccepted] = useState(false);
   const [authStatus, setAuthStatus] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
@@ -1910,6 +1930,10 @@ function HomeScreen() {
 
   const profileSummary = useQuery(api.accountability.profile, activeProfileId ? { profileId: activeProfileId } : "skip");
   const accountIdentity = useQuery(api.accountability.accountIdentity, activeProfileId && tab === "account" ? { profileId: activeProfileId } : "skip");
+  const legacyEmailGraceStart = accountIdentity?.authLoginKind === "email" && !accountIdentity.emailVerified
+    ? accountIdentity.emailVerificationGraceStartedAt : undefined;
+  const legacyEmailGraceDays = legacyEmailGraceStart ? Math.max(0, Math.floor((Date.now() - legacyEmailGraceStart) / 86_400_000)) : 0;
+  const legacyEmailNoticeStage = !legacyEmailGraceStart ? 0 : legacyEmailGraceDays >= 90 ? 4 : legacyEmailGraceDays >= 83 ? 3 : legacyEmailGraceDays >= 60 ? 2 : 1;
   const profile = useMemo(
     () => profileSummary ? { ...profileSummary, ...(accountIdentity || {}) } : profileSummary,
     [accountIdentity, profileSummary]
@@ -4282,6 +4306,32 @@ function HomeScreen() {
   async function submitAuth() {
     if (authBusy) return;
     Keyboard.dismiss();
+    if (authFlow === "verifyEmail") {
+      if (!authVerificationCode.trim()) {
+        setAuthStatus("Enter the code from your email.");
+        return;
+      }
+      setAuthBusy(true);
+      setAuthStatus("");
+      try {
+        const signedIn = await signIn("password", {
+          email: authIdentifier.trim().toLowerCase(),
+          flow: "email-verification",
+          code: authVerificationCode.trim()
+        });
+        if (!signedIn) {
+          setAuthStatus("That code did not work. Check the email and try again.");
+          return;
+        }
+        setAuthVerificationCode("");
+        setAuthPassword("");
+        setAuthFlow("signIn");
+        setAuthStatus("Email verified. You are signed in.");
+      } catch {
+        setAuthStatus("That code is invalid or has expired. Check the email or sign in again for a new code.");
+      } finally { setAuthBusy(false); }
+      return;
+    }
     const rawIdentifier = authIdentifier.trim();
     const isEmailCredential = authInputLooksLikeEmail(rawIdentifier);
     const email = rawIdentifier.toLowerCase();
@@ -4324,7 +4374,14 @@ function HomeScreen() {
         signInParams.termsAccepted = "true";
         signInParams.termsVersion = CURRENT_TERMS_VERSION;
       }
-      await signIn("password", signInParams);
+      const signedIn = await signIn("password", signInParams);
+      if (!signedIn && credentialMode === "email") {
+        setAuthFlow("verifyEmail");
+        setAuthPassword("");
+        setAuthStatus("We sent a verification code to your email. Enter it below to continue.");
+        return;
+      }
+      if (!signedIn) throw new Error("Sign-in did not complete.");
       if (authFlow === "signUp") setDisplayName(name);
       if (authFlow === "signUp") setAuthTermsAccepted(false);
       setAuthPassword("");
@@ -4337,6 +4394,31 @@ function HomeScreen() {
             ? "Could not create account. That username may already be taken, or the password needs at least 8 characters."
             : "Could not create account. Passwords need at least 8 characters."
       );
+    } finally { setAuthBusy(false); }
+  }
+
+  async function submitEmailCorrection() {
+    if (authBusy) return;
+    const newEmail = authCorrectionEmail.trim().toLowerCase();
+    if (!authInputLooksLikeEmail(newEmail) || !authCorrectionPassword) {
+      setAuthStatus("Enter the corrected email address and your account password.");
+      return;
+    }
+    setAuthBusy(true);
+    setAuthStatus("");
+    try {
+      await signIn("password", {
+        flow: "correct-email",
+        email: authIdentifier.trim().toLowerCase(),
+        password: authCorrectionPassword,
+        newEmail
+      });
+      setAuthIdentifier(newEmail);
+      setAuthCorrectionPassword("");
+      setAuthCorrectionOpen(false);
+      setAuthStatus(`We sent a new code to ${newEmail}. Enter it above to finish signing in.`);
+    } catch {
+      setAuthStatus("Could not update the address. Check your password, or contact support if this account already has saved work.");
     } finally { setAuthBusy(false); }
   }
 
@@ -11411,7 +11493,7 @@ function HomeScreen() {
               <Text style={[styles.title, accountDarkMode && styles.accountDarkTitle]}>{firstName ? `${firstName}, your profile` : "Your account"}</Text>
               <Text style={[styles.titleSupport, accountDarkMode && styles.accountDarkMutedText]}>{isAuthenticated ? "Manage your profile, sign-in details, and preferences." : "Sign in or create an account to keep your studies across devices."}</Text>
               <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>
-                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{isAuthenticated ? "Your account" : authFlow === "signIn" ? "Sign in" : "Create account"}</Text>
+                <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{isAuthenticated ? "Your account" : authFlow === "signIn" ? "Sign in" : authFlow === "verifyEmail" ? "Verify your email" : "Create account"}</Text>
                 {isAuthenticated ? (
                   <>
                     <View style={styles.signedInBadgeRow}>
@@ -11421,11 +11503,92 @@ function HomeScreen() {
                       </View>
                     </View>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{`${accountIdentityLabel}. New studies, drafts, and encouragements can follow this account across devices.`}</Text>
+                    {legacyEmailGraceStart && (
+                      <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                        {legacyEmailNoticeStage > (accountIdentity?.emailVerificationNoticeStageDismissed || 0) && (
+                          <>
+                            <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>Confirm your email when you have a moment</Text>
+                            <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>
+                              {legacyEmailNoticeStage === 4
+                                ? "Your 90-day window has ended. Your Bible, studies, plans and Memory are still here. Please confirm your email to use email-based friend invitations."
+                                : `You have ${Math.max(0, 90 - legacyEmailGraceDays)} days to confirm your email. Your studies and reading progress remain available. We will only show another reminder closer to the deadline.`}
+                            </Text>
+                            <AppButton label="Not now" onPress={() => { void dismissEmailVerificationNotice({ stage: legacyEmailNoticeStage }); }} />
+                          </>
+                        )}
+                        <AppButton label={legacyVerificationOpen ? "Hide verification" : "Verify email"} onPress={() => { setLegacyVerificationOpen(!legacyVerificationOpen); setLegacyVerificationStatus(""); }} />
+                        {legacyVerificationOpen && (
+                          <>
+                            <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>{`We will send a code to ${accountIdentity?.authEmail || "your account email"}.`}</Text>
+                            <AppButton label={legacyVerificationBusy ? "Sending…" : "Send code"} disabled={legacyVerificationBusy} onPress={async () => {
+                              setLegacyVerificationBusy(true);
+                              setLegacyVerificationStatus("");
+                              try { await requestExistingEmailVerification({}); setLegacyVerificationStatus("Code sent. It expires in 15 minutes."); }
+                              catch (error) { setLegacyVerificationStatus(error instanceof Error ? error.message : "Could not send the code. Try again later."); }
+                              finally { setLegacyVerificationBusy(false); }
+                            }} />
+                            <TextInput accessibilityLabel="Email verification code" value={legacyVerificationCode} onChangeText={setLegacyVerificationCode} keyboardType="number-pad" autoCapitalize="none" placeholder="8-digit code" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                            <AppButton label={legacyVerificationBusy ? "Checking…" : "Confirm code"} disabled={legacyVerificationBusy} onPress={async () => {
+                              setLegacyVerificationBusy(true);
+                              setLegacyVerificationStatus("");
+                              try {
+                                const verified = await confirmExistingEmailVerification({ code: legacyVerificationCode.trim() });
+                                if (!verified) { setLegacyVerificationStatus("That code did not match. Please check it and try again."); return; }
+                                setLegacyVerificationCode("");
+                                setLegacyVerificationOpen(false);
+                                setLegacyVerificationStatus("Email confirmed. Thank you!");
+                              } catch (error) { setLegacyVerificationStatus(error instanceof Error ? error.message : "Could not confirm the code."); }
+                              finally { setLegacyVerificationBusy(false); }
+                            }} />
+                          </>
+                        )}
+                        {!!legacyVerificationStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{legacyVerificationStatus}</Text>}
+                      </View>
+                    )}
+                    {accountIdentity?.authLoginKind === "email" && (
+                      <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <AppButton label={emailChangeOpen ? "Hide email change" : "Change email address"} onPress={() => { setEmailChangeOpen(!emailChangeOpen); setEmailChangeStatus(""); }} />
+                        {emailChangeOpen && <>
+                          <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>Enter your current password and a new address. Your sign-in email stays the same until you confirm a code sent to the new address.</Text>
+                          <TextInput accessibilityLabel="New email address" value={emailChangeAddress} onChangeText={setEmailChangeAddress} autoCapitalize="none" keyboardType="email-address" placeholder="New email address" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                          <TextInput accessibilityLabel="Current password for email change" value={emailChangePassword} onChangeText={setEmailChangePassword} autoCapitalize="none" secureTextEntry placeholder="Current password" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                          <AppButton label={emailChangeBusy ? "Sending…" : "Send code to new email"} disabled={emailChangeBusy} onPress={async () => {
+                            setEmailChangeBusy(true);
+                            setEmailChangeStatus("");
+                            try {
+                              await requestEmailChange({ newEmail: emailChangeAddress, password: emailChangePassword });
+                              setEmailChangeSent(true);
+                              setEmailChangePassword("");
+                              setEmailChangeStatus("Code sent. It expires in 15 minutes.");
+                            } catch (error) { setEmailChangeStatus(error instanceof Error ? error.message : "Could not send the code. Try again later."); }
+                            finally { setEmailChangeBusy(false); }
+                          }} />
+                          {emailChangeSent && <>
+                            <TextInput accessibilityLabel="New email verification code" value={emailChangeCode} onChangeText={setEmailChangeCode} keyboardType="number-pad" autoCapitalize="none" placeholder="8-digit code" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                            <AppButton label={emailChangeBusy ? "Checking…" : "Confirm new email"} disabled={emailChangeBusy} onPress={async () => {
+                              setEmailChangeBusy(true);
+                              setEmailChangeStatus("");
+                              try {
+                                const changed = await confirmEmailChange({ code: emailChangeCode.trim() });
+                                if (!changed) { setEmailChangeStatus("That code did not match. Check it and try again."); return; }
+                                setEmailChangeAddress("");
+                                setEmailChangeCode("");
+                                setEmailChangeSent(false);
+                                setEmailChangeOpen(false);
+                                setEmailChangeStatus("Email updated and confirmed.");
+                              } catch (error) { setEmailChangeStatus(error instanceof Error ? error.message : "Could not confirm the code."); }
+                              finally { setEmailChangeBusy(false); }
+                            }} />
+                          </>}
+                        </>}
+                        {!!emailChangeStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{emailChangeStatus}</Text>}
+                      </View>
+                    )}
                     <AppButton label="Sign out" onPress={submitSignOut} />
                   </>
                 ) : (
                   <>
-                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{authFlow === "signIn" ? "Welcome back. Sign in to access your saved studies and reading progress." : "Create a free account to keep your studies and reading progress across devices."}</Text>
+                    <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>{authFlow === "signIn" ? "Welcome back. Sign in to access your saved studies and reading progress." : authFlow === "verifyEmail" ? `Enter the code sent to ${authIdentifier.trim().toLowerCase()}.` : "Create a free account to keep your studies and reading progress across devices."}</Text>
                     <Text style={[styles.helpIntro, accountDarkMode && styles.accountDarkMutedText]}>Empty local profiles may be removed after 60 days without a recorded online visit. Local profiles with saved work are kept. Returning after an empty profile is removed starts a new local profile.</Text>
                     {authFlow === "signUp" && <View style={[styles.freeAccountBox, accountDarkMode && styles.accountDarkInsetBox]}>
                       <View style={styles.feedbackHeader}>
@@ -11447,6 +11610,21 @@ function HomeScreen() {
                         <Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read the Privacy Policy</Text>
                       </Pressable>
                     </View>}
+                    {authFlow === "verifyEmail" ? (
+                      <>
+                        <TextInput accessibilityLabel="Verification code" value={authVerificationCode} onChangeText={setAuthVerificationCode} keyboardType="number-pad" autoCapitalize="none" placeholder="Verification code" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                        <AppButton label={authBusy ? "Verifying…" : "Verify and sign in"} disabled={authBusy} onPress={submitAuth} />
+                        <AppButton label={authCorrectionOpen ? "Hide email correction" : "Wrong email address?"} disabled={authBusy} onPress={() => { setAuthCorrectionOpen(!authCorrectionOpen); setAuthStatus(""); }} />
+                        {authCorrectionOpen && <>
+                          <Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkMutedText]}>If you have not signed in yet, you can correct the address with your password. We will send a new code to the corrected address.</Text>
+                          <TextInput accessibilityLabel="Corrected email address" value={authCorrectionEmail} onChangeText={setAuthCorrectionEmail} autoCapitalize="none" keyboardType="email-address" placeholder="Correct email address" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                          <TextInput accessibilityLabel="Account password for email correction" value={authCorrectionPassword} onChangeText={setAuthCorrectionPassword} autoCapitalize="none" secureTextEntry placeholder="Account password" placeholderTextColor={accountDarkMode ? "#9d927f" : undefined} style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]} />
+                          <AppButton label={authBusy ? "Updating…" : "Send code to corrected email"} disabled={authBusy} onPress={submitEmailCorrection} />
+                        </>}
+                        <AppButton label="Back to sign in" disabled={authBusy} onPress={() => { setAuthFlow("signIn"); setAuthVerificationCode(""); setAuthStatus(""); }} />
+                        {!!authStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{authStatus}</Text>}
+                      </>
+                    ) : <>
                     <View style={[styles.authFlowRow, accountDarkMode && styles.accountDarkSegmentedRow]}>
                       <Pressable accessibilityRole="button" accessibilityLabel="Sign in to an existing account" disabled={authBusy} accessibilityState={{ selected: authFlow === "signIn", disabled: authBusy }} onPress={() => { setAuthFlow("signIn"); setAuthStatus(""); setAuthPassword(""); setAuthTermsAccepted(false); }} style={[styles.authFlowButton, authFlow === "signIn" && styles.activeAuthFlowButton, accountDarkMode && authFlow === "signIn" && styles.accountDarkActiveSegment]}>
                         <Text style={[styles.authFlowText, accountDarkMode && styles.accountDarkMutedText, authFlow === "signIn" && styles.activeAuthFlowText]}>Sign in</Text>
@@ -11520,6 +11698,7 @@ function HomeScreen() {
                         <RecoveryCode darkMode={accountDarkMode} />
                       </Suspense>
                     </View>}
+                    </>}
                   </>
                 )}
                 {isAuthenticated && accountIdentity?.authPasswordAccountId && <Suspense fallback={<Text>Loading recovery options…</Text>}><View style={styles.accountRecoveryOptions}><RecoveryCode accountId={accountIdentity.authPasswordAccountId} darkMode={accountDarkMode} /></View></Suspense>}

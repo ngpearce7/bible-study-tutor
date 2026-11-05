@@ -59,6 +59,11 @@ export const inviteFriendByEmail = mutation({
     const profile = await authorizeSignedInProfile(ctx, args.profileId);
     assertProfileCanWrite(profile);
     const authUserId = await getRequiredAuthUserId(ctx);
+    const sender = await ctx.db.get(authUserId);
+    const graceStartedAt = sender?.emailVerificationGraceStartedAt;
+    if (graceStartedAt && !sender?.emailVerificationTime && Date.now() >= graceStartedAt + 90 * 24 * 60 * 60 * 1000) {
+      throw new Error("Verify your account email before inviting friends by email. Your saved studies are still available.");
+    }
     const email = clampText(args.email, 254).toLowerCase();
     if (!email) throw new Error("Add your friend's account email.");
 

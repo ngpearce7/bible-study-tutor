@@ -479,7 +479,10 @@ export const accountIdentity = query({
     authProvider: v.optional(v.string()),
     authUsername: v.optional(v.string()),
     authLoginKind: v.optional(v.string()),
-    authPasswordAccountId: v.optional(v.string())
+    authPasswordAccountId: v.optional(v.string()),
+    emailVerified: v.optional(v.boolean()),
+    emailVerificationGraceStartedAt: v.optional(v.number()),
+    emailVerificationNoticeStageDismissed: v.optional(v.number())
   }),
   handler: async (ctx, args) => {
     const profile = await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
@@ -503,7 +506,10 @@ export const accountIdentity = query({
       authProvider: preferredAuthAccount?.provider,
       authUsername: profile.normalizedUsername || username || undefined,
       authLoginKind: username ? "username" : preferredAuthAccount?.provider === "password" ? "email" : preferredAuthAccount?.provider,
-      authPasswordAccountId: passwordAccount?.providerAccountId
+      authPasswordAccountId: passwordAccount?.providerAccountId,
+      emailVerified: passwordAccount && !username ? !!passwordAccount.emailVerified : undefined,
+      emailVerificationGraceStartedAt: authUser?.emailVerificationGraceStartedAt,
+      emailVerificationNoticeStageDismissed: authUser?.emailVerificationNoticeStageDismissed
     };
   }
 });

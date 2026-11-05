@@ -3,7 +3,7 @@ export type LegalSectionContent = {
   body: string;
 };
 
-export const LEGAL_LAST_UPDATED = "October 27, 2026";
+export const LEGAL_LAST_UPDATED = "November 5, 2026";
 
 export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   {
@@ -32,7 +32,11 @@ export const PRIVACY_POLICY_SECTIONS: LegalSectionContent[] = [
   },
   {
     title: "Hosting and service providers",
-    body: "The website is hosted with Cloudflare Pages and the app backend is provided by Convex. These providers process data needed to deliver, secure, store, and operate the app. Depending on how those services route traffic and store data, information may be processed outside Australia."
+    body: "The website is hosted with Cloudflare Pages and the app backend is provided by Convex. We use Resend to deliver account verification and password recovery emails to addresses you provide. These providers process data needed to deliver, secure, store, and operate the app. Depending on how those services route traffic and store data, information may be processed outside Australia."
+  },
+  {
+    title: "Email verification",
+    body: "New email and password accounts receive a one-time code before the first sign-in. Existing email accounts can confirm their address during a 90-day period beginning with their first signed-in visit after this change. We store whether an address has been confirmed, the start of that period, limited reminder state, and short-lived verification code data. We do not send routine verification reminder emails. Username-only accounts are not asked to verify an email address."
   },
   {
     title: "Local storage and device information",
@@ -88,6 +92,10 @@ export const TERMS_OF_SERVICE_SECTIONS: LegalSectionContent[] = [
   {
     title: "Your account",
     body: "Creating an account is free. You may create an account with an email address or with a unique username if you prefer not to share an email address. You are responsible for keeping your sign-in details secure and for activity on your account. Use accurate account information, sign out on shared devices, and tell us if you believe your account has been misused."
+  },
+  {
+    title: "Confirming an email address",
+    body: "If you create an email and password account, you need to enter a one-time code sent to that address before signing in. Existing email account holders have 90 days from their first signed-in visit after the change to confirm their address. During and after that period, saved Bible reading, studies, plans, and Memory remain available. After the period, email-based friend invitations require a confirmed address. Username-only accounts are unaffected."
   },
   {
     title: "Inactive accounts",

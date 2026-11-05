@@ -14,12 +14,14 @@ import type * as auth from "../auth.js";
 import type * as bibleHighlights from "../bibleHighlights.js";
 import type * as community from "../community.js";
 import type * as crons from "../crons.js";
+import type * as emailVerification from "../emailVerification.js";
 import type * as http from "../http.js";
 import type * as insights from "../insights.js";
 import type * as memory from "../memory.js";
 import type * as passwordCrypto from "../passwordCrypto.js";
 import type * as passwordReset from "../passwordReset.js";
 import type * as passwordResetEmail from "../passwordResetEmail.js";
+import type * as passwordVerify from "../passwordVerify.js";
 import type * as profileAccess from "../profileAccess.js";
 import type * as recovery from "../recovery.js";
 import type * as recoveryData from "../recoveryData.js";
@@ -27,6 +29,7 @@ import type * as security from "../security.js";
 import type * as statistics from "../statistics.js";
 import type * as statisticsModel from "../statisticsModel.js";
 import type * as study from "../study.js";
+import type * as verifiedPassword from "../verifiedPassword.js";
 
 import type {
   ApiFromModules,
@@ -41,12 +44,14 @@ declare const fullApi: ApiFromModules<{
   bibleHighlights: typeof bibleHighlights;
   community: typeof community;
   crons: typeof crons;
+  emailVerification: typeof emailVerification;
   http: typeof http;
   insights: typeof insights;
   memory: typeof memory;
   passwordCrypto: typeof passwordCrypto;
   passwordReset: typeof passwordReset;
   passwordResetEmail: typeof passwordResetEmail;
+  passwordVerify: typeof passwordVerify;
   profileAccess: typeof profileAccess;
   recovery: typeof recovery;
   recoveryData: typeof recoveryData;
@@ -54,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   statistics: typeof statistics;
   statisticsModel: typeof statisticsModel;
   study: typeof study;
+  verifiedPassword: typeof verifiedPassword;
 }>;
 
 /**

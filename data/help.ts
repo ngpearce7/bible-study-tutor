@@ -190,7 +190,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       title: "Free account help",
       icon: "person-add-outline",
       summary: "You can use Bible Study Tutor locally, or create a free account to keep your work across devices.",
-      tips: ["Create an account with an email address or a unique username.", "Your name helps the app feel more personal.", "Read the Privacy Policy from Account if you want to see what is saved."]
+      tips: ["Create an account with an email address and confirm the code we send you. Existing username accounts can still sign in.", "Your name helps the app feel more personal.", "Read the Privacy Policy from Account if you want to see what is saved."]
     };
   }
 
@@ -282,7 +282,7 @@ export function getContextHelp(tab: string, context: ContextHelpContext = {}): C
       summary: "Account manages your name, sign-in, Bible translation, privacy notes, and future access choices.",
       tips: [
         "Add your name so the app can speak more personally.",
-        "Create a free account with either an email address or a unique username.",
+        "Create a free account with an email address and confirm the code we send you. Existing username accounts can still sign in.",
         "Signing in helps your saved work follow you across devices.",
         "Change Bible translation and appearance from Account.",
         "Read Privacy and Terms to understand what is saved and how deletion requests work."

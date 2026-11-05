@@ -14,6 +14,9 @@ function accountProfile(params: Record<string, unknown>) {
   assertCurrentTermsAcceptance(flow, params.termsAccepted, params.termsVersion);
   const requestedUsername = String(params.username || "").trim().toLowerCase().replace(/^@+/, "");
   const isUsername = params.authMode === "username" || !!requestedUsername;
+  if (flow === "signUp" && (isUsername || String(params.email || "").trim().toLowerCase().endsWith(usernameDomain))) {
+    throw new Error("Create an account with an email address. Existing username accounts can still sign in.");
+  }
   if (isUsername && !/^[a-z0-9][a-z0-9._-]{2,23}$/.test(requestedUsername)) {
     throw new Error("Username must be 3 to 24 characters and use letters, numbers, dots, hyphens, or underscores.");
   }
@@ -26,13 +29,13 @@ function accountProfile(params: Record<string, unknown>) {
     ...(flow === "signUp" ? {
       termsAcceptedAt: Date.now(),
       termsVersion: CURRENT_TERMS_VERSION,
-      ...(!isUsername ? { emailVerificationRequiredAt: Date.now() } : {})
+      emailVerificationRequiredAt: Date.now()
     } : {})
   };
 }
 
 // Keep the provider ID "password" so existing credentials and recovery codes remain valid.
-// Verification is conditional: synthetic username addresses must never receive email codes.
+// Existing synthetic username credentials can still sign in, but all new accounts verify email.
 export const verifiedPassword = ConvexCredentials<DataModel>({
   id: "password",
   crypto: passwordCrypto,

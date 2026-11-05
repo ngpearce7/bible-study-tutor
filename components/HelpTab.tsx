@@ -206,7 +206,7 @@ const guideItems = [
     summary: "You can use the app locally, or create a free account to sync across devices.",
     steps: [
       "Open Account to add your name, choose a translation, and set light or dark mode.",
-      "Create an account with an email address or a unique username.",
+      "Create an account with an email address, then confirm the code we send before signing in.",
       "Signed-in work can follow you across phone, web, and desktop.",
       "Privacy and Terms explain what is saved. You can request account deletion from Account."
     ],
@@ -257,7 +257,7 @@ const commonQuestions = [
   ["Can I print memory verses?", "Yes. Open Memory, tap Print cards, choose the saved verses and copies you want, then download the editable Word document."],
   ["How do I print a worksheet?", "Select verses in Bible and tap Print, or open Study and tap Print worksheet. On phone, use Share, then Print or Save to Files."],
   ["How do I print from mobile?", "Open the worksheet or memory card document, then use your phone browser’s Share button. Choose Print, Save to Files, or send it to another app."],
-  ["Can I create an account without email?", "Yes. In Account, create a free account with either an email address or a unique username. You can add an email later if you want."],
+  ["Can I create an account without email?", "New accounts need an email address and a confirmation code. You can still use a local profile without signing in. Existing username accounts can continue to sign in."],
   ["Can I use the app without signing in?", "Yes. You can use a local profile. Sign in later if you want your saved work to follow you across devices."],
   ["What data is saved?", "The app saves the things you choose to keep: studies, journal entries, memory verses, bookmarks, notes, reading progress, settings, and private encouragements. It does not publish your work publicly."],
   ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, choose a friend or circle, then tap Post insight."],

@@ -4363,7 +4363,11 @@ function HomeScreen() {
     const name = authName.trim();
     const accountId = credentialMode === "username" ? usernameCredential(username) : email;
     if (!rawIdentifier || !authPassword) {
-      setAuthStatus("Add your email or username and password first.");
+      setAuthStatus(authFlow === "signUp" ? "Add your email address and password first." : "Add your email or username and password first.");
+      return;
+    }
+    if (authFlow === "signUp" && (!isEmailCredential || email.endsWith(`@${USERNAME_AUTH_DOMAIN}`))) {
+      setAuthStatus("Enter a valid email address to create an account. Existing username accounts can still sign in.");
       return;
     }
     if (credentialMode === "username" && !usernameIsValid(username)) {
@@ -4413,9 +4417,7 @@ function HomeScreen() {
       setAuthStatus(
         authFlow === "signIn"
           ? `Could not sign in. Check the ${credentialMode} and password.`
-          : credentialMode === "username"
-            ? "Could not create account. That username may already be taken, or the password needs at least 8 characters."
-            : "Could not create account. Passwords need at least 8 characters."
+          : "Could not create account. Check your email address and use a password with at least 8 characters."
       );
     } finally { setAuthBusy(false); }
   }
@@ -11532,6 +11534,19 @@ function HomeScreen() {
                         <Text accessibilityLiveRegion="polite" style={[styles.accountEmailVerifiedText, accountDarkMode && styles.accountDarkText]}>Email confirmed. Your address is verified.</Text>
                       </View>
                     )}
+                    {accountIdentity?.authLoginKind === "username" && accountIdentity.authPasswordAccountId && (
+                      <View style={[styles.freeAccountBox, styles.emailVerificationCard, accountDarkMode && styles.accountDarkInsetBox]}>
+                        <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{accountIdentity.recoveryCodeConfigured ? "Recovery code set up" : "Protect your username account"}</Text>
+                        <Text style={[styles.emailVerificationDescription, accountDarkMode && styles.accountDarkMutedText]}>
+                          {accountIdentity.recoveryCodeConfigured
+                            ? "You created a recovery code. Keep your copy somewhere safe; it cannot be shown again. You can replace it here if needed."
+                            : "Your username account has no email for password resets. Create a recovery code and save it somewhere safe so you can regain access if you forget your password."}
+                        </Text>
+                        <Suspense fallback={<Text style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>Loading recovery options…</Text>}>
+                          <RecoveryCode accountId={accountIdentity.authPasswordAccountId} hasCode={accountIdentity.recoveryCodeConfigured} darkMode={accountDarkMode} />
+                        </Suspense>
+                      </View>
+                    )}
                     {legacyEmailGraceStart && (
                       <View style={[styles.freeAccountBox, styles.emailVerificationCard, accountDarkMode && styles.accountDarkInsetBox]}>
                         <Text style={[styles.sectionTitle, accountDarkMode && styles.accountDarkTitle]}>{legacyVerificationOpen ? "Check your inbox" : "Confirm your email"}</Text>
@@ -11670,20 +11685,20 @@ function HomeScreen() {
                         style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                       />
                     )}
-                    <Text style={[styles.authFieldLabel, accountDarkMode && styles.accountDarkText]}>Email or username</Text>
+                    <Text style={[styles.authFieldLabel, accountDarkMode && styles.accountDarkText]}>{authFlow === "signUp" ? "Email address" : "Email or username"}</Text>
                     <TextInput
-                      accessibilityLabel="Email address or username"
+                      accessibilityLabel={authFlow === "signUp" ? "Email address" : "Email address or username"}
                       value={authIdentifier}
                       onChangeText={setAuthIdentifier}
                       autoCapitalize="none"
-                      placeholder="Email or username"
+                      placeholder={authFlow === "signUp" ? "Email address" : "Email or username"}
                       placeholderTextColor={accountDarkMode ? "#9d927f" : undefined}
                       style={[styles.input, styles.accountAuthInput, accountDarkMode && styles.accountDarkInput]}
                     />
                     <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
                       {authFlow === "signIn"
                         ? "Enter the email address or username you used when creating your account."
-                        : "Use an email address, or choose a unique username without sharing your email."}
+                        : "We will send a code to this address. Confirm it to finish creating your account."}
                     </Text>
                     <Text style={[styles.authFieldLabel, accountDarkMode && styles.accountDarkText]}>{authFlow === "signUp" ? "Password (at least 8 characters)" : "Password"}</Text>
                     <TextInput
@@ -11708,7 +11723,6 @@ function HomeScreen() {
                           <Ionicons name={authTermsAccepted ? "checkbox" : "square-outline"} size={24} color={accountDarkMode ? "#d4a768" : colors.oliveDark} />
                           <Text style={[styles.authTermsText, accountDarkMode && styles.accountDarkText]}>I agree to the Terms of Service and Privacy Policy. I understand that, if inactive-account cleanup is introduced, my account may be deleted after at least three years without signing in.</Text>
                         </Pressable>
-                        <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>Username-only accounts without a verified contact email cannot receive email reminders.</Text>
                         <View style={styles.authTermsLinks}>
                           <Pressable accessibilityRole="link" onPress={() => openLegalDocumentFromAccountIntro("terms")}><Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read Terms of Service</Text></Pressable>
                           <Pressable accessibilityRole="link" onPress={() => openLegalDocumentFromAccountIntro("privacy")}><Text style={[styles.freeAccountPrivacyLinkText, accountDarkMode && styles.accountDarkBadgeText]}>Read Privacy Policy</Text></Pressable>
@@ -11727,7 +11741,7 @@ function HomeScreen() {
                     </>}
                   </>
                 )}
-                {isAuthenticated && accountIdentity?.authPasswordAccountId && <Suspense fallback={<Text>Loading recovery options…</Text>}><View style={styles.accountRecoveryOptions}><RecoveryCode accountId={accountIdentity.authPasswordAccountId} darkMode={accountDarkMode} /></View></Suspense>}
+                {isAuthenticated && accountIdentity?.authPasswordAccountId && accountIdentity.authLoginKind !== "username" && <Suspense fallback={<Text>Loading recovery options…</Text>}><View style={styles.accountRecoveryOptions}><RecoveryCode accountId={accountIdentity.authPasswordAccountId} hasCode={accountIdentity.recoveryCodeConfigured} darkMode={accountDarkMode} /></View></Suspense>}
                 {isAuthenticated && !!authStatus && <Text accessibilityLiveRegion="polite" style={[styles.authFeedback, accountDarkMode && styles.accountDarkText]}>{authStatus}</Text>}
               </View>
               <View style={[styles.accountSection, styles.accountAccessSection, accountDarkMode && styles.accountDarkSection, styles.openSection, styles.sectionDivider, accountDarkMode && styles.darkSectionDivider]}>

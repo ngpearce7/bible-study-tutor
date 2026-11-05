@@ -5,7 +5,7 @@ import { Text, TextInput, View } from "react-native";
 import { AppButton } from "./ui";
 import { recoveryStyles } from "./recoveryStyles";
 
-export function RecoveryCode({ accountId, darkMode = false }: { accountId?: string; darkMode?: boolean }) {
+export function RecoveryCode({ accountId, hasCode = false, darkMode = false }: { accountId?: string; hasCode?: boolean; darkMode?: boolean }) {
   const styles = recoveryStyles(darkMode);
   const createCode = useAction(api.recovery.createCode);
   const reset = useAction(api.recovery.resetWithCode);
@@ -15,7 +15,7 @@ export function RecoveryCode({ accountId, darkMode = false }: { accountId?: stri
   const [generated, setGenerated] = useState("");
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
-  if (!open) return <AppButton label={accountId ? "Create a recovery code" : "Use a saved recovery code"} variant="secondary" style={styles.secondary} labelStyle={styles.secondaryLabel} onPress={() => { setStatus(""); setOpen(true); }} />;
+  if (!open) return <AppButton label={accountId ? hasCode ? "Replace recovery code" : "Create a recovery code" : "Use a saved recovery code"} variant="secondary" style={styles.secondary} labelStyle={styles.secondaryLabel} onPress={() => { setStatus(""); setOpen(true); }} />;
   return <View style={styles.panel}>
     <Text style={styles.text}>{accountId ? "Keep this one-time code in a password manager or safe place. It can reset your password without email. Creating a new code replaces the old one." : "Enter your saved recovery code. The code can be used once to set a new password. Existing sessions will expire and cannot be renewed."}</Text>
     {!accountId && <TextInput style={styles.input} placeholderTextColor={darkMode ? "#bcb29f" : "#766d63"} autoCorrect={false} accessibilityLabel="Saved recovery code" placeholder="Recovery code" value={code} onChangeText={setCode} autoCapitalize="none" />}

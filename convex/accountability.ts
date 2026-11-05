@@ -480,6 +480,7 @@ export const accountIdentity = query({
     authUsername: v.optional(v.string()),
     authLoginKind: v.optional(v.string()),
     authPasswordAccountId: v.optional(v.string()),
+    recoveryCodeConfigured: v.optional(v.boolean()),
     emailVerified: v.optional(v.boolean()),
     emailVerificationGraceStartedAt: v.optional(v.number()),
     emailVerificationNoticeStageDismissed: v.optional(v.number())
@@ -507,6 +508,7 @@ export const accountIdentity = query({
       authUsername: profile.normalizedUsername || username || undefined,
       authLoginKind: username ? "username" : preferredAuthAccount?.provider === "password" ? "email" : preferredAuthAccount?.provider,
       authPasswordAccountId: passwordAccount?.providerAccountId,
+      recoveryCodeConfigured: passwordAccount ? !!profile.recoveryDigest : undefined,
       emailVerified: passwordAccount && !username ? !!passwordAccount.emailVerified : undefined,
       emailVerificationGraceStartedAt: authUser?.emailVerificationGraceStartedAt,
       emailVerificationNoticeStageDismissed: authUser?.emailVerificationNoticeStageDismissed

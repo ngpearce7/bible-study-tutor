@@ -556,20 +556,25 @@ function AdminUserDirectory({
             style={[styles.adminUserRow, darkMode && styles.accountDarkInsetBox, selectedProfileId === user.profileId && styles.activeAdminUserRow, darkMode && selectedProfileId === user.profileId && styles.adminDarkActiveUserRow]}
           >
             <View style={[styles.adminUserRowTop, phoneLayout && styles.phoneAdminUserRow]}>
-              <Pressable accessibilityRole="button" accessibilityLabel={`View user summary for ${user.displayName || "Bible student"}`} onPress={() => onSelect(user.profileId)} style={styles.journalTitleBlock}>
-                <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{user.displayName || "Bible student"}</Text>
-                <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
-                  {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
-                </Text>
-                {!!user.suspendedAt && !!user.suspensionReason && (
-                  <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{user.suspensionReason}</Text>
-                )}
-              </Pressable>
-              <View style={[styles.adminUserMetaPills, phoneLayout && styles.phoneAdminUserMetaPills]}>
-                {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
-                {!!user.securityReviewedAt && <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>Reviewed</Text>}
-                {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
-                <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
+              <View style={styles.adminUserIdentity}>
+                <Pressable accessibilityRole="button" accessibilityLabel={`View user summary for ${user.displayName || "Bible student"}`} onPress={() => onSelect(user.profileId)} style={styles.journalTitleBlock}>
+                  <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{user.displayName || "Bible student"}</Text>
+                  <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>
+                    {user.email || (user.signedIn ? "Signed in" : "Local profile")} · Last active {formatAdminDate(user.lastActiveAt)}
+                  </Text>
+                  {!!user.suspendedAt && !!user.suspensionReason && (
+                    <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{user.suspensionReason}</Text>
+                  )}
+                </Pressable>
+                <View style={styles.adminUserStatusRow}>
+                  <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>{user.signedIn ? "Account" : "Local"}</Text>
+                  {!!user.emailVerified && <Text style={[styles.draftPill, styles.adminVerifiedPill, darkMode && styles.adminDarkVerifiedPill]}>Email verified</Text>}
+                  {!!user.suspendedAt && <Text style={[styles.draftPill, styles.warningPill]}>Suspended</Text>}
+                  {!!user.securityReviewedAt && <Text style={[styles.draftPill, darkMode && styles.plansDarkDraftPill]}>Reviewed</Text>}
+                  {!!user.deletionStatus && <Text style={[styles.draftPill, styles.warningPill]}>Deletion</Text>}
+                </View>
+              </View>
+              <View style={[styles.adminUserActions, phoneLayout && styles.phoneAdminUserActions]}>
                 <Pressable
                   accessibilityRole="button"
                   onPress={() => {
@@ -595,19 +600,19 @@ function AdminUserDirectory({
                   <Text style={[styles.adminStatsCountPill, darkMode && styles.adminDarkStatsCountPill]}>{activityTotalLabel}</Text>
                   <Ionicons name={statsProfileId === user.profileId ? "chevron-up-outline" : "chevron-down-outline"} size={14} color={darkMode ? "#d4a768" : colors.oliveDark} />
                 </Pressable>
-                {reasonProfileId === user.profileId && (
-                  <SuspensionReasonPicker
-                    styles={styles}
-                    darkMode={darkMode}
-                    onCancel={() => setReasonProfileId(null)}
-                    onChoose={(reason) => {
-                      setReasonProfileId(null);
-                      onSetSuspension({ profileId: user.profileId, suspended: true, reason });
-                    }}
-                  />
-                )}
               </View>
             </View>
+            {reasonProfileId === user.profileId && (
+              <SuspensionReasonPicker
+                styles={styles}
+                darkMode={darkMode}
+                onCancel={() => setReasonProfileId(null)}
+                onChoose={(reason) => {
+                  setReasonProfileId(null);
+                  onSetSuspension({ profileId: user.profileId, suspended: true, reason });
+                }}
+              />
+            )}
             {statsProfileId === user.profileId && (
               <View style={[styles.adminUserStats, { borderTopColor: darkMode ? "#4a3e31" : colors.line }]}>
                 {activityStats.map(([label, count]) => (

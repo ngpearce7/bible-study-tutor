@@ -9873,16 +9873,35 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.dark.raised,
     borderColor: "rgba(212, 167, 104, 0.35)"
   },
-  adminUserMetaPills: {
-    alignItems: "flex-end",
-    flexShrink: 0,
-    gap: 5
+  adminUserIdentity: {
+    flex: 1,
+    gap: 7,
+    minWidth: 0
   },
-  phoneAdminUserMetaPills: {
+  adminUserStatusRow: {
     alignItems: "center",
     flexDirection: "row",
     flexWrap: "wrap",
+    gap: 6
+  },
+  adminUserActions: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexShrink: 0,
+    gap: 7,
+    justifyContent: "flex-end"
+  },
+  phoneAdminUserActions: {
+    flexWrap: "wrap",
     justifyContent: "flex-start"
+  },
+  adminVerifiedPill: {
+    backgroundColor: "#e5f1e4",
+    color: "#27633e"
+  },
+  adminDarkVerifiedPill: {
+    backgroundColor: "#254437",
+    color: "#c8ebcd"
   },
   adminUserStats: {
     borderTopWidth: 1,

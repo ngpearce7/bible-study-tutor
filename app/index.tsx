@@ -11774,7 +11774,7 @@ function HomeScreen() {
                   />}
                   {!profile?.authUsername && !!accountEmail && (
                     <Text style={[styles.authHelperText, accountDarkMode && styles.accountDarkMutedText]}>
-                      Email changes are temporarily unavailable while we add address verification.
+                      To change your sign-in email, use Change email address under Your account above. We will confirm the new address with a code before switching it.
                     </Text>
                   )}
                   {!!profile?.authUsername && (

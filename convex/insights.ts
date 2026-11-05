@@ -60,6 +60,7 @@ const adminUserRowValidator = v.object({
   displayName: v.string(),
   email: v.optional(v.string()),
   signedIn: v.boolean(),
+  emailVerified: v.boolean(),
   createdAt: v.number(),
   updatedAt: v.number(),
   lastActiveAt: v.number(),
@@ -542,8 +543,9 @@ export const adminFeedbackPage = query({
 });
 
 async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
-  const [user, aggregate, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, pendingDeletion] = await Promise.all([
+  const [user, passwordAccount, aggregate, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, pendingDeletion] = await Promise.all([
     profile.authUserId ? ctx.db.get(profile.authUserId) : Promise.resolve(null),
+    profile.authUserId ? ctx.db.query("authAccounts").withIndex("userIdAndProvider", (q) => q.eq("userId", profile.authUserId!).eq("provider", "password")).first() : Promise.resolve(null),
     ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).unique(),
     ctx.db.query("sessions").withIndex("by_profile_completed", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
     ctx.db.query("drafts").withIndex("by_profile_updated", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
@@ -568,6 +570,7 @@ async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
     displayName: profile.displayName,
     email: visibleAuthEmail(user?.email),
     signedIn: !!profile.authUserId,
+    emailVerified: !!passwordAccount?.emailVerified && !!visibleAuthEmail(user?.email) && passwordAccount.emailVerified.toLowerCase() === user?.email?.toLowerCase(),
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
     lastActiveAt,

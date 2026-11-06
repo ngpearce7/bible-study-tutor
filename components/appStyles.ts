@@ -5035,6 +5035,26 @@ export const styles = StyleSheet.create({
   studyNoteEditorWrap: {
     position: "relative"
   },
+  noteEditorSizeRow: {
+    alignItems: "flex-end",
+    marginBottom: 8
+  },
+  noteEditorSizeButton: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    flexDirection: "row",
+    gap: 6,
+    minHeight: 36,
+    paddingHorizontal: 12
+  },
+  noteEditorSizeText: {
+    color: colors.oliveDark,
+    fontSize: 13,
+    fontWeight: "700"
+  },
   scriptureInsertBox: {
     alignItems: "center",
     backgroundColor: colors.panel,

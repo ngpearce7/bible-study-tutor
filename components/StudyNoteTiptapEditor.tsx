@@ -128,6 +128,7 @@ export function StudyNoteTiptapEditor({
   appStyles: any;
   components: {
     WritingPromptChips: any;
+    NoteEditorSizeControl: any;
     MobileNoteFormatBar: any;
     ScriptureInsertPrompt: any;
     NoteFormatToolbar: any;
@@ -143,6 +144,7 @@ export function StudyNoteTiptapEditor({
 }) {
   const {
     WritingPromptChips,
+    NoteEditorSizeControl,
     MobileNoteFormatBar,
     ScriptureInsertPrompt,
     NoteFormatToolbar,
@@ -159,6 +161,7 @@ export function StudyNoteTiptapEditor({
   const [mobileMiniBarPosition, setMobileMiniBarPosition] = useState({ left: 8, top: 0 });
   const [dismissedMobileMiniBarKey, setDismissedMobileMiniBarKey] = useState("");
   const [dismissedScriptureKey, setDismissedScriptureKey] = useState("");
+  const [noteAreaExpanded, setNoteAreaExpanded] = useState(false);
   const scriptureInsertSettingsRef = useRef(scriptureInsertSettings);
   const dismissedScriptureKeyRef = useRef(dismissedScriptureKey);
   const savedEditorHighlightSelectionRef = useRef<{ from: number; to: number } | null>(null);
@@ -382,7 +385,7 @@ export function StudyNoteTiptapEditor({
     borderRadius: 11,
     color: darkMode ? "#f6f2ed" : colors.ink,
     marginBottom: 14,
-    minHeight: studyFocusMode ? (phoneLayout ? 220 : 260) : phoneLayout ? 170 : 150,
+    minHeight: noteAreaExpanded ? (phoneLayout ? 360 : 520) : studyFocusMode ? (phoneLayout ? 220 : 260) : phoneLayout ? 170 : 150,
     outline: "none",
     overflow: "hidden"
   };
@@ -411,6 +414,7 @@ export function StudyNoteTiptapEditor({
         compact={phoneLayout}
         darkMode={darkMode}
       />
+      <NoteEditorSizeControl expanded={noteAreaExpanded} onToggle={() => setNoteAreaExpanded((expanded) => !expanded)} darkMode={darkMode} />
       {createElement("div", { className: darkMode ? "bst-note-theme-dark" : "bst-note-theme-light", style: editorStyle, children: createElement(EditorContent, { editor }) })}
       {phoneLayout && selectedTextActive && dismissedMobileMiniBarKey !== selectedTextRangeKey && (
         <MobileNoteFormatBar

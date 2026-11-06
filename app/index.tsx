@@ -13640,6 +13640,7 @@ function StudyNoteEditor({
   const nativeSelectionKey = `${nativeSelection.start}:${nativeSelection.end}`;
   const nativeTextSelected = nativeSelection.start !== nativeSelection.end;
   const [dismissedNativeMiniBarKey, setDismissedNativeMiniBarKey] = useState("");
+  const [noteAreaExpanded, setNoteAreaExpanded] = useState(false);
 
   useEffect(() => {
     if (!profileScriptureInsertSettings) return;
@@ -13779,6 +13780,7 @@ function StudyNoteEditor({
         compact={phoneLayout}
         darkMode={darkMode}
       />
+      <NoteEditorSizeControl expanded={noteAreaExpanded} onToggle={() => setNoteAreaExpanded((expanded) => !expanded)} darkMode={darkMode} />
       <TextInput
         ref={nativeInputRef}
         multiline
@@ -13791,7 +13793,7 @@ function StudyNoteEditor({
         onSelectionChange={(event) => updateNativeSelection(event.nativeEvent.selection)}
         placeholder={placeholder}
         placeholderTextColor={darkMode ? "#8f8678" : undefined}
-        style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, darkMode && styles.accountDarkInput]}
+        style={[styles.input, styles.textarea, studyFocusMode && styles.focusTextarea, noteAreaExpanded && { minHeight: phoneLayout ? 360 : 520 }, darkMode && styles.accountDarkInput]}
       />
       {phoneLayout && nativeTextSelected && dismissedNativeMiniBarKey !== nativeSelectionKey && (
         <MobileNoteFormatBar
@@ -13841,6 +13843,23 @@ function StudyNoteEditor({
   );
 }
 
+function NoteEditorSizeControl({ expanded, onToggle, darkMode = false }: { expanded: boolean; onToggle: () => void; darkMode?: boolean }) {
+  return (
+    <View style={styles.noteEditorSizeRow}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={expanded ? "Use compact writing area" : "Expand writing area"}
+        accessibilityState={{ expanded }}
+        onPress={onToggle}
+        style={[styles.noteEditorSizeButton, darkMode && styles.homeDarkResumeButton]}
+      >
+        <Ionicons name={expanded ? "contract-outline" : "expand-outline"} size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
+        <Text style={[styles.noteEditorSizeText, darkMode && styles.homeDarkResumeButtonText]}>{expanded ? "Use compact size" : "Expand writing area"}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 function StudyNoteTiptapEditor(props: {
   value: string;
   onChange: (value: string, plainText?: string) => void;
@@ -13874,6 +13893,7 @@ function StudyNoteTiptapEditor(props: {
         appStyles={styles}
         components={{
           WritingPromptChips,
+          NoteEditorSizeControl,
           MobileNoteFormatBar,
           ScriptureInsertPrompt,
           NoteFormatToolbar,

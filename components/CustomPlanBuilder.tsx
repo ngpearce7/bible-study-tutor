@@ -201,7 +201,7 @@ export function CustomPlanBuilder({ title, onTitleChange, description, onDescrip
 
       {browserOpen && <>
         <View style={[s.browserColumns, phoneLayout && s.browserColumnsPhone]}>
-        <View style={[s.browserPane, phoneLayout && s.browserPanePhone, { borderColor, backgroundColor: surfaceColor }]}>
+        <View style={[s.browserPane, phoneLayout ? s.browserPanePhone : s.browserPaneDesktop, { borderColor, backgroundColor: surfaceColor }]}>
         <Text style={[s.browserTitle, { color: textColor }]}>Select a passage</Text>
         <View style={s.tabs}>
           <Pressable accessibilityRole="button" accessibilityLabel="Switch Testament" onPress={() => { const next = testament === "new" ? "old" : "new"; setTestament(next); setBook(next === "old" ? "Genesis" : "Matthew"); setChapter(1); setBookSearch(""); setBookListOpen(false); }} style={[s.pickerSelect, { borderColor }]}><Text style={[s.pickerSelectText, { color: textColor }]}>{testament === "old" ? "Old Testament" : "New Testament"} ▾</Text></Pressable>
@@ -222,7 +222,7 @@ export function CustomPlanBuilder({ title, onTitleChange, description, onDescrip
         </View>
         <View style={[s.passagePreview, { backgroundColor: softColor }]}><Text style={[s.selectedReference, { color: textColor }]}>{chosenReference}</Text><Text style={[s.previewText, { color: mutedColor }]}>{previewStatus === "ready" ? `${previewText.slice(0, 240)}${previewText.length > 240 ? "…" : ""}` : previewStatus === "loading" ? "Loading passage preview…" : "Preview unavailable. Check the reference before adding it."}</Text></View>
         </View>
-        <View style={[s.browserPane, phoneLayout && s.browserPanePhone, { borderColor, backgroundColor: surfaceColor }]}>
+        <View style={[s.browserPane, phoneLayout ? s.browserPanePhone : s.browserPaneDesktop, { borderColor, backgroundColor: surfaceColor }]}>
           <View style={s.browserHeadingRow}><Text style={[s.browserTitle, { color: textColor }]}>Your plan</Text><Text style={{ color: mutedColor }}>{references.length} {references.length === 1 ? "day" : "days"}</Text></View>
           <ScrollView style={s.planSummary} nestedScrollEnabled>{references.map((reference, index) => <View key={`${index}:${reference}`} style={[s.summaryDay, { borderColor }]}><Text style={[s.summaryNumber, { color: textColor }]}>Day {index + 1}</Text><Text style={{ color: mutedColor }}>{reference}</Text></View>)}</ScrollView>
           {references.length === 0 && <Text style={[s.empty, { color: mutedColor, borderColor }]}>Your selected readings will appear here.</Text>}
@@ -242,9 +242,10 @@ export function CustomPlanBuilder({ title, onTitleChange, description, onDescrip
 const s = StyleSheet.create({
   root: { gap: 12, minWidth: 0 }, heading: { fontSize: 22, fontWeight: "800" }, intro: { fontSize: 15, lineHeight: 22, marginBottom: 4 }, input: { borderWidth: 1, borderRadius: 11, minHeight: 48, paddingHorizontal: 14, fontSize: 16, minWidth: 0 }, sectionTitle: { fontSize: 14, fontWeight: "800", letterSpacing: 0.5, marginTop: 10 }, dayCard: { borderWidth: 1, borderRadius: 12, padding: 11, flexDirection: "row", alignItems: "center", gap: 10, minWidth: 0, position: "relative" }, dayCardPhone: { flexWrap: "wrap" }, dayMain: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 10 }, dayNumber: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center" }, dayNumberText: { fontWeight: "800" }, dayDetails: { flex: 1, minWidth: 0 }, dayLabel: { fontSize: 14, fontWeight: "800" }, reference: { fontSize: 14, marginTop: 2 }, dayActions: { flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end" }, dayActionsPhone: { width: "100%" }, iconButton: { minWidth: 32, minHeight: 36, alignItems: "center", justifyContent: "center" }, empty: { borderWidth: 1, borderStyle: "dashed", borderRadius: 11, padding: 16, fontSize: 14 }, addRow: { flexDirection: "row", alignItems: "center", gap: 8 }, addRowPhone: { flexWrap: "wrap" }, addInput: { flex: 1, minWidth: 200 }, phoneButton: { flexGrow: 1 }, error: { fontSize: 14, fontWeight: "700" }, browserTitle: { fontSize: 18, fontWeight: "800" }, tabs: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, tab: { minHeight: 38, borderWidth: 1, borderRadius: 9, paddingHorizontal: 12, alignItems: "center", justifyContent: "center" }, bookList: { maxHeight: 148 }, chipGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7, paddingBottom: 5 }, chip: { borderWidth: 1, borderRadius: 9, paddingHorizontal: 11, minHeight: 38, justifyContent: "center" }, subheading: { fontSize: 15, fontWeight: "700" }, chapterList: { maxHeight: 164 }, chapterGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7, paddingBottom: 5 }, chapter: { width: 44, height: 42, borderWidth: 1, borderRadius: 8, alignItems: "center", justifyContent: "center" }, rangeRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }, verseInput: { borderWidth: 1, borderRadius: 8, width: 70, minHeight: 38, paddingHorizontal: 9, fontSize: 15 }, selectedReference: { fontSize: 16, fontWeight: "800" }, footer: { flexDirection: "row", justifyContent: "flex-end", gap: 9, marginTop: 12 }, footerPhone: { flexWrap: "wrap" },
   browserColumns: { flexDirection: "row", gap: 14, alignItems: "flex-start", minWidth: 0 },
-  browserColumnsPhone: { flexDirection: "column" },
-  browserPane: { flex: 1, borderWidth: 1, borderRadius: 14, padding: 16, gap: 13, minWidth: 0 },
-  browserPanePhone: { flex: 0, width: "100%" },
+  browserColumnsPhone: { flexDirection: "column", alignItems: "stretch" },
+  browserPane: { borderWidth: 1, borderRadius: 14, padding: 16, gap: 13, minWidth: 0 },
+  browserPaneDesktop: { flex: 1 },
+  browserPanePhone: { width: "100%" },
   pickerSelect: { borderWidth: 1, borderRadius: 9, minHeight: 42, paddingHorizontal: 12, justifyContent: "center" },
   pickerSelectText: { fontWeight: "700" },
   passagePreview: { padding: 15, borderRadius: 10, gap: 7, minHeight: 85 },

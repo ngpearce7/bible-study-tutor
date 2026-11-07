@@ -8,6 +8,7 @@ import { sanitizeEditorHtml } from "@/data/noteHtml";
 import { scriptureDisplayColor } from "@/data/noteTheme";
 import { styles } from "@/components/appStyles";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
+import { CustomPlanBuilder } from "@/components/CustomPlanBuilder";
 import { hasPlanDeeperContext } from "@/data/biblePlanDeeperContext";
 import { createReaderSyncQueue } from "@/data/readerSync";
 import { hydratePrivateStorage, readRecoveryValue, writeRecoveryValue, removeRecoveryValue } from "@/data/privateStorage";
@@ -19,6 +20,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { VerseHighlightActions, type VerseHighlightColor } from "@/components/VerseHighlightActions";
 import { catchUpBibleReadingPlanDatesState, completeBibleReadingPlanDayState, createCustomBibleReadingPlanState, deleteCustomBibleReadingPlanState, followBibleReadingPlanState, stopFollowingBibleReadingPlanState, uncompleteBibleReadingPlanDayState } from "@/data/bibleReadingPlanActions";
 import { expandPlanReadingReferences, fetchBibleApiPassage, fetchBiblePlanReadingPassage, fetchBsbPassage, parseBsbPassageReference, parsePassageQuery, type BiblePassage, type BibleVerse } from "@/data/biblePassage";
+import { normalizeCustomPlanReference } from "@/data/customPlanReference";
 import { BIBLE_CHAPTER_COUNTS, NEW_TESTAMENT_BOOKS, OLD_TESTAMENT_BOOKS, bibleBooks, displayBibleBookName, normalizeBibleBookName } from "@/data/bibleLibrary";
 import { readerBookFromReferenceBook, type BibleReadingPlan, type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { MAX_BIBLE_READING_PLAN_COMPLETION_COUNT, MAX_CUSTOM_BIBLE_READING_PLANS, MAX_FOLLOWED_BIBLE_READING_PLANS, MAX_STORED_BIBLE_READING_PLAN_IDS, bibleReadingCareNoteKey, bibleReadingPlanDayKey, emptyBibleReadingPlanProgress, hasBibleReadingPlanProgress, normalizeBibleReadingPlanProgress, type StoredBibleReadingPlanProgress } from "@/data/bibleReadingPlanProgress";
@@ -1253,7 +1255,7 @@ function HomeScreen() {
   const [devotionalTextSizeOptionsOpen, setDevotionalTextSizeOptionsOpen] = useState(false);
   const [customBiblePlanTitle, setCustomBiblePlanTitle] = useState("");
   const [customBiblePlanDescription, setCustomBiblePlanDescription] = useState("");
-  const [customBiblePlanDaysText, setCustomBiblePlanDaysText] = useState("");
+  const [customBiblePlanReferences, setCustomBiblePlanReferences] = useState<string[]>([]);
   const [customBiblePlanStatus, setCustomBiblePlanStatus] = useState("");
   const [biblePlanStatus, setBiblePlanStatus] = useState("");
   const [readingCompletionNotice, setReadingCompletionNotice] = useState<{ planTitle: string; day: number; progress: string; nextReading: string } | null>(null);
@@ -7349,39 +7351,32 @@ function HomeScreen() {
     markBibleReadingPlanDayComplete(readerActiveBibleReadingPlanDay, readerBibleReadingPlan?.id || activeBibleReadingPlan?.id || "", { promptForNextDueReading: true });
   }
 
-  function createCustomBibleReadingPlan() {
+  function createCustomBibleReadingPlan(references: string[]) {
     const title = customBiblePlanTitle.trim();
     if (!title) {
       setCustomBiblePlanStatus("Add a plan title first.");
       return;
     }
 
-    const lines = customBiblePlanDaysText
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean);
-
-    const days = lines
-      .map((line, index): BibleReadingPlanDay | null => {
-        const parts = line.split("|").map((part) => part.trim()).filter(Boolean);
-        const reference = parts[0] || line;
-        const parsed = parseBsbPassageReference(reference);
+    const days = references
+      .map((reference, index): BibleReadingPlanDay | null => {
+        const normalized = normalizeCustomPlanReference(reference);
+        const parsed = normalized ? parseBsbPassageReference(normalized) : null;
         if (!parsed) return null;
         const readerBook = readerBookFromReferenceBook(parsed.bookName);
-        const studyReference = parts[1] || reference;
         return {
           day: index + 1,
           title: `Day ${index + 1}`,
-          reference,
+          reference: normalized!,
           readerBook,
           readerChapter: parsed.chapter,
-          studyReference
+          studyReference: normalized!
         };
       })
       .filter((day): day is BibleReadingPlanDay => !!day);
 
-    if (!days.length || days.length !== lines.length) {
-      setCustomBiblePlanStatus("Each line needs a readable Bible reference, for example John 3 or Romans 8.");
+    if (!days.length || days.length !== references.length) {
+      setCustomBiblePlanStatus("Add at least one valid daily reading before creating your plan.");
       return;
     }
 
@@ -7407,7 +7402,7 @@ function HomeScreen() {
     setCustomBibleReadingPlans(nextState.customPlans);
     setCustomBiblePlanTitle("");
     setCustomBiblePlanDescription("");
-    setCustomBiblePlanDaysText("");
+    setCustomBiblePlanReferences([]);
     setCustomBiblePlanFormOpen(false);
     setCustomBiblePlanStatus(nextState.canFollow ? `${plan.title} created.` : `${plan.title} created. Stop one plan before following it.`);
     setActiveBibleReadingPlanId(nextState.activePlanId);
@@ -10725,23 +10720,18 @@ function HomeScreen() {
                 <Ionicons name={customBiblePlanFormOpen ? "chevron-up-outline" : "chevron-down-outline"} size={17} color={plansDarkMode ? "#bbb8b4" : colors.muted} />
               </Pressable>
               {customBiblePlanFormOpen && (
-                <View style={styles.planCustomForm}>
-                  <TextInput accessibilityLabel="Custom reading plan title" value={customBiblePlanTitle} onChangeText={setCustomBiblePlanTitle} placeholder="Plan title" placeholderTextColor={plansDarkMode ? "#8f8678" : undefined} style={[styles.input, plansDarkMode && styles.accountDarkInput]} />
-                  <TextInput accessibilityLabel="Custom reading plan description" value={customBiblePlanDescription} onChangeText={setCustomBiblePlanDescription} placeholder="Optional description" placeholderTextColor={plansDarkMode ? "#8f8678" : undefined} style={[styles.input, plansDarkMode && styles.accountDarkInput]} />
-                  <TextInput
-                    accessibilityLabel="Custom reading plan days"
-                    value={customBiblePlanDaysText}
-                    onChangeText={setCustomBiblePlanDaysText}
-                    placeholder={"One reading per line, for example:\nJohn 1\nJohn 2\nRomans 8"}
-                    multiline
-                    placeholderTextColor={plansDarkMode ? "#8f8678" : undefined}
-                    style={[styles.input, styles.planCustomDaysInput, plansDarkMode && styles.accountDarkInput]}
-                  />
-                  <View style={[styles.planActionRow, phoneLayout && styles.phonePlanActionRow]}>
-                    <AppButton label="Create plan" onPress={createCustomBibleReadingPlan} style={phoneLayout && styles.phonePlanPrimaryButton} labelStyle={phoneLayout && styles.phonePlanButtonLabel} />
-                    <AppButton label="Cancel" variant="secondary" onPress={() => { setCustomBiblePlanFormOpen(false); setCustomBiblePlanStatus(""); dismissMobileInputFocus(); }} style={[phoneLayout && styles.phonePlanSecondaryButton, plansDarkMode && styles.homeDarkResumeButton]} labelStyle={[phoneLayout && styles.phonePlanButtonLabel, plansDarkMode && styles.homeDarkResumeButtonText]} />
-                  </View>
-                </View>
+                <CustomPlanBuilder
+                  title={customBiblePlanTitle}
+                  onTitleChange={setCustomBiblePlanTitle}
+                  description={customBiblePlanDescription}
+                  onDescriptionChange={setCustomBiblePlanDescription}
+                  references={customBiblePlanReferences}
+                  onReferencesChange={setCustomBiblePlanReferences}
+                  onCreate={createCustomBibleReadingPlan}
+                  onCancel={() => { setCustomBiblePlanFormOpen(false); setCustomBiblePlanStatus(""); dismissMobileInputFocus(); }}
+                  darkMode={plansDarkMode}
+                  phoneLayout={phoneLayout}
+                />
               )}
               {!!customBiblePlanStatus && <Text style={styles.saveStatus}>{customBiblePlanStatus}</Text>}
             </View>

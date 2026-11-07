@@ -1307,13 +1307,6 @@ export const styles = StyleSheet.create({
     gap: 3,
     minWidth: 0
   },
-  planCustomForm: {
-    gap: 9
-  },
-  planCustomDaysInput: {
-    minHeight: 110,
-    textAlignVertical: "top"
-  },
   readerQuickListToggle: {
     alignItems: "center",
     backgroundColor: theme.light.soft,

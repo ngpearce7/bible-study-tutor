@@ -201,7 +201,7 @@ export function CustomPlanBuilder({ title, onTitleChange, description, onDescrip
 
       {browserOpen && <>
         <View style={[s.browserColumns, phoneLayout && s.browserColumnsPhone]}>
-        <View style={[s.browserPane, { borderColor, backgroundColor: surfaceColor }]}>
+        <View style={[s.browserPane, phoneLayout && s.browserPanePhone, { borderColor, backgroundColor: surfaceColor }]}>
         <Text style={[s.browserTitle, { color: textColor }]}>Select a passage</Text>
         <View style={s.tabs}>
           <Pressable accessibilityRole="button" accessibilityLabel="Switch Testament" onPress={() => { const next = testament === "new" ? "old" : "new"; setTestament(next); setBook(next === "old" ? "Genesis" : "Matthew"); setChapter(1); setBookSearch(""); setBookListOpen(false); }} style={[s.pickerSelect, { borderColor }]}><Text style={[s.pickerSelectText, { color: textColor }]}>{testament === "old" ? "Old Testament" : "New Testament"} ▾</Text></Pressable>
@@ -212,7 +212,7 @@ export function CustomPlanBuilder({ title, onTitleChange, description, onDescrip
           {books.map((item) => <Pressable key={item} accessibilityRole="button" accessibilityState={{ selected: book === item }} onPress={() => chooseBook(item)} style={[s.chip, { borderColor, backgroundColor: book === item ? (darkMode ? "#8b531f" : "#234b70") : surfaceColor }]}><Text style={{ color: book === item ? "#fff" : textColor, fontWeight: "600" }}>{displayBibleBookName(item)}</Text></Pressable>)}
         </ScrollView></>}
         <Text style={[s.subheading, { color: textColor }]}>{displayBibleBookName(book)} · choose a chapter</Text>
-        <ScrollView style={s.chapterList} contentContainerStyle={s.chapterGrid} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+        <ScrollView style={[s.chapterList, { height: Math.min(164, Math.ceil(chapterCount / (phoneLayout ? 5 : 8)) * 49 + 6) }]} contentContainerStyle={s.chapterGrid} nestedScrollEnabled keyboardShouldPersistTaps="handled">
           {Array.from({ length: chapterCount }, (_, index) => index + 1).map((item) => <Pressable key={item} accessibilityRole="button" accessibilityLabel={`${displayBibleBookName(book)} chapter ${item}`} accessibilityState={{ selected: chapter === item }} onPress={() => setChapter(item)} style={[s.chapter, { borderColor, backgroundColor: chapter === item ? (darkMode ? "#8b531f" : "#234b70") : surfaceColor }]}><Text style={{ color: chapter === item ? "#fff" : textColor, fontWeight: "700" }}>{item}</Text></Pressable>)}
         </ScrollView>
         <View style={s.rangeRow}>
@@ -222,7 +222,7 @@ export function CustomPlanBuilder({ title, onTitleChange, description, onDescrip
         </View>
         <View style={[s.passagePreview, { backgroundColor: softColor }]}><Text style={[s.selectedReference, { color: textColor }]}>{chosenReference}</Text><Text style={[s.previewText, { color: mutedColor }]}>{previewStatus === "ready" ? `${previewText.slice(0, 240)}${previewText.length > 240 ? "…" : ""}` : previewStatus === "loading" ? "Loading passage preview…" : "Preview unavailable. Check the reference before adding it."}</Text></View>
         </View>
-        <View style={[s.browserPane, { borderColor, backgroundColor: surfaceColor }]}>
+        <View style={[s.browserPane, phoneLayout && s.browserPanePhone, { borderColor, backgroundColor: surfaceColor }]}>
           <View style={s.browserHeadingRow}><Text style={[s.browserTitle, { color: textColor }]}>Your plan</Text><Text style={{ color: mutedColor }}>{references.length} {references.length === 1 ? "day" : "days"}</Text></View>
           <ScrollView style={s.planSummary} nestedScrollEnabled>{references.map((reference, index) => <View key={`${index}:${reference}`} style={[s.summaryDay, { borderColor }]}><Text style={[s.summaryNumber, { color: textColor }]}>Day {index + 1}</Text><Text style={{ color: mutedColor }}>{reference}</Text></View>)}</ScrollView>
           {references.length === 0 && <Text style={[s.empty, { color: mutedColor, borderColor }]}>Your selected readings will appear here.</Text>}
@@ -244,6 +244,7 @@ const s = StyleSheet.create({
   browserColumns: { flexDirection: "row", gap: 14, alignItems: "flex-start", minWidth: 0 },
   browserColumnsPhone: { flexDirection: "column" },
   browserPane: { flex: 1, borderWidth: 1, borderRadius: 14, padding: 16, gap: 13, minWidth: 0 },
+  browserPanePhone: { flex: 0, width: "100%" },
   pickerSelect: { borderWidth: 1, borderRadius: 9, minHeight: 42, paddingHorizontal: 12, justifyContent: "center" },
   pickerSelectText: { fontWeight: "700" },
   passagePreview: { padding: 15, borderRadius: 10, gap: 7, minHeight: 85 },

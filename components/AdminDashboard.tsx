@@ -543,13 +543,23 @@ function AdminUserDirectory({
       ) : visibleUsers.map((user) => {
         const activityStats: [string, number][] = [
           ["Completed studies", user.studies || 0],
+          ["Plans followed", user.plansFollowing || 0],
+          ["Plan days completed", user.planReadings || 0],
+          ["Chapters marked read", user.chaptersRead || 0],
           ["Memory verses", user.memoryVerses || 0],
+          ["Memory reviews", user.memoryReviews || 0],
+          ["Bible bookmarks", user.bookmarks || 0],
+          ["Bible notes", user.bibleNotes || 0],
+          ["Verse highlights", user.highlights || 0],
+          ["Custom plans", user.customPlans || 0],
           ["Encouragements", user.checkins || 0],
           ["Study drafts", user.drafts || 0],
           ["Feedback", user.feedback || 0]
         ];
         const activityTotal = activityStats.reduce((total, [, count]) => total + count, 0);
-        const activityTotalLabel = `${activityTotal}${activityStats.some(([label, count]) => label !== "Completed studies" && count >= 500) ? "+" : ""}`;
+        const cappedStats = new Set(["Memory verses", "Verse highlights", "Encouragements", "Study drafts", "Feedback"]);
+        const isCapped = (label: string, count: number) => cappedStats.has(label) && count >= (label === "Verse highlights" ? 100 : 500);
+        const activityTotalLabel = `${activityTotal}${activityStats.some(([label, count]) => isCapped(label, count)) ? "+" : ""}`;
         return (
           <View
             key={user.profileId}
@@ -591,7 +601,7 @@ function AdminUserDirectory({
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={`${statsProfileId === user.profileId ? "Hide" : "Show"} activity stats for ${user.displayName || "Bible student"}, ${activityTotalLabel} saved items`}
+                  accessibilityLabel={`${statsProfileId === user.profileId ? "Hide" : "Show"} activity stats for ${user.displayName || "Bible student"}, ${activityTotalLabel} recorded activities`}
                   accessibilityState={{ expanded: statsProfileId === user.profileId }}
                   onPress={() => setStatsProfileId((current) => current === user.profileId ? null : user.profileId)}
                   style={[styles.adminDirectoryShowMore, styles.adminSuspendButton, darkMode && styles.homeDarkResumeButton]}
@@ -617,7 +627,7 @@ function AdminUserDirectory({
               <View style={[styles.adminUserStats, { borderTopColor: darkMode ? "#4a3e31" : colors.line }]}>
                 {activityStats.map(([label, count]) => (
                   <View key={label} style={[styles.adminUserStat, darkMode && styles.accountDarkInsetBox]}>
-                    <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{label === "Completed studies" ? count : count >= 500 ? "500+" : count}</Text>
+                    <Text style={[styles.helpFaqQuestion, darkMode && styles.accountDarkTitle]}>{isCapped(label, count) ? `${label === "Verse highlights" ? 100 : 500}+` : count}</Text>
                     <Text style={[styles.adminEventMeta, darkMode && styles.accountDarkMutedText]}>{label}</Text>
                   </View>
                 ))}

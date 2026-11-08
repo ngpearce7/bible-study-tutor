@@ -68,6 +68,14 @@ const adminUserRowValidator = v.object({
   drafts: v.number(),
   checkins: v.number(),
   memoryVerses: v.number(),
+  memoryReviews: v.number(),
+  planReadings: v.number(),
+  chaptersRead: v.number(),
+  plansFollowing: v.number(),
+  bookmarks: v.number(),
+  bibleNotes: v.number(),
+  highlights: v.number(),
+  customPlans: v.number(),
   feedback: v.number(),
   events: v.number(),
   deletionStatus: v.string(),
@@ -543,7 +551,7 @@ export const adminFeedbackPage = query({
 });
 
 async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
-  const [user, passwordAccount, aggregate, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, pendingDeletion] = await Promise.all([
+  const [user, passwordAccount, aggregate, sessions, drafts, checkins, memoryVerses, feedback, usageEvents, pendingDeletion, readerState, planCompletions, bookmarks, highlights, customPlans] = await Promise.all([
     profile.authUserId ? ctx.db.get(profile.authUserId) : Promise.resolve(null),
     profile.authUserId ? ctx.db.query("authAccounts").withIndex("userIdAndProvider", (q) => q.eq("userId", profile.authUserId!).eq("provider", "password")).first() : Promise.resolve(null),
     ctx.db.query("studyStats").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).unique(),
@@ -553,8 +561,22 @@ async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
     ctx.db.query("memoryVerses").withIndex("by_profile_updated", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
     ctx.db.query("feedback").withIndex("by_profile_created", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
     ctx.db.query("usageEvents").withIndex("by_profile_created", (q) => q.eq("profileId", profile._id)).order("desc").take(501),
-    ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profile._id).eq("status", "pending")).first()
+    ctx.db.query("accountDeletionRequests").withIndex("by_profile_status", (q) => q.eq("profileId", profile._id).eq("status", "pending")).first(),
+    ctx.db.query("bibleReaderStates").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).unique(),
+    ctx.db.query("bibleReadingPlanCompletions").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).take(61),
+    ctx.db.query("bibleBookmarks").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).take(31),
+    ctx.db.query("bibleVerseHighlights").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).take(101),
+    ctx.db.query("customBibleReadingPlans").withIndex("by_profile", (q) => q.eq("profileId", profile._id)).take(31)
   ]);
+  const savedReadChapters = readerState?.readChapters ?? profile.bibleReaderState?.readChapters ?? {};
+  const savedBookmarks = readerState?.bookmarksMigrated ? bookmarks : profile.bibleReaderState?.bookmarks ?? bookmarks;
+  const followedPlanIds = readerState?.plansMigrated
+    ? readerState.followedPlanIds ?? (readerState.activePlanId ? [readerState.activePlanId] : [])
+    : profile.bibleReaderState?.readingPlanProgress?.followedPlanIds
+      ?? (profile.bibleReaderState?.readingPlanProgress?.activePlanId ? [profile.bibleReaderState.readingPlanProgress.activePlanId] : []);
+  const savedPlanDays = planCompletions.length > 0
+    ? planCompletions.reduce((total, item) => total + item.completedDays.length, 0)
+    : profile.bibleReaderState?.readingPlanProgress?.completedDays.length ?? 0;
   const lastActiveAt = Math.max(
     profile.updatedAt || profile.createdAt,
     sessions[0]?.completedAt || 0,
@@ -578,6 +600,14 @@ async function buildAdminUserRow(ctx: QueryCtx, profile: Doc<"profiles">) {
     drafts: Math.min(drafts.length, 500),
     checkins: Math.min(checkins.length, 500),
     memoryVerses: Math.min(memoryVerses.length, 500),
+    memoryReviews: memoryVerses.reduce((total, verse) => total + verse.reviewCount, 0),
+    planReadings: savedPlanDays,
+    chaptersRead: Object.values(savedReadChapters).reduce((total, chapters) => total + chapters.length, 0),
+    plansFollowing: new Set(followedPlanIds).size,
+    bookmarks: savedBookmarks.filter((bookmark) => bookmark.bookmarked !== false).length,
+    bibleNotes: savedBookmarks.filter((bookmark) => !!bookmark.note?.trim()).length,
+    highlights: Math.min(highlights.length, 100),
+    customPlans: readerState?.plansMigrated ? customPlans.length : profile.bibleReaderState?.readingPlanProgress?.customPlans.length ?? customPlans.length,
     feedback: Math.min(feedback.length, 500),
     events: Math.min(usageEvents.length, 500),
     deletionStatus: pendingDeletion ? "pending" : "",

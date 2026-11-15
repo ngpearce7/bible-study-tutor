@@ -88,6 +88,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   adminStats,
   adminUsers,
   adminUsersCanLoadMore,
+  adminUsersStatus,
   adminUserDetail,
   adminAuditLog,
   adminMaintenanceStatus,
@@ -114,6 +115,7 @@ export const AdminDashboard = memo(function AdminDashboard({
   adminStats: AdminStats | null;
   adminUsers: any[];
   adminUsersCanLoadMore: boolean;
+  adminUsersStatus: string;
   adminUserDetail: any;
   adminAuditLog: any[];
   adminMaintenanceStatus: string;
@@ -213,7 +215,7 @@ export const AdminDashboard = memo(function AdminDashboard({
             <Text style={[styles.feedbackTitle, darkMode && styles.accountDarkTitle]}>User directory</Text>
           </View>
           <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>Stats totals saved activity; use Active 7d to find recently active profiles.</Text>
-          <AdminUserDirectory styles={styles} users={adminUsers} canLoadMore={adminUsersCanLoadMore} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} cleanupArmed={cleanupArmed} cleanupBusy={cleanupBusy} onCancelCleanup={onCancelCleanup} onSelect={onSelectProfile} onLoadMore={onLoadMoreAdminUsers} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
+          <AdminUserDirectory styles={styles} users={adminUsers} canLoadMore={adminUsersCanLoadMore} paginationStatus={adminUsersStatus} selectedProfileId={selectedProfileId} maintenanceStatus={adminMaintenanceStatus} cleanupArmed={cleanupArmed} cleanupBusy={cleanupBusy} onCancelCleanup={onCancelCleanup} onSelect={onSelectProfile} onLoadMore={onLoadMoreAdminUsers} onCleanupLocalProfiles={onCleanupLocalProfiles} onSetSuspension={onSetProfileSuspension} phoneLayout={phoneLayout} darkMode={darkMode} />
         </Card>
         <Card style={[styles.adminDashboardCard, phoneLayout && styles.phoneAdminDashboardCard, darkMode && styles.accountDarkMainCard]}>
           <View style={styles.feedbackHeader}>
@@ -419,6 +421,7 @@ function AdminUserDirectory({
   styles,
   users,
   canLoadMore,
+  paginationStatus,
   selectedProfileId,
   maintenanceStatus,
   cleanupArmed,
@@ -434,6 +437,7 @@ function AdminUserDirectory({
   styles: any;
   users: any[];
   canLoadMore: boolean;
+  paginationStatus: string;
   selectedProfileId: any;
   maintenanceStatus: string;
   cleanupArmed: boolean;
@@ -451,6 +455,8 @@ function AdminUserDirectory({
   const searchedUsers = useQuery(api.insights.adminSearchUsers, searchQuery.length >= 2 ? { term: searchQuery } : "skip");
   const [filter, setFilter] = useState<"all" | "signedIn" | "local" | "active" | "deletion" | "suspended">("all");
   const [visibleCount, setVisibleCount] = useState(15);
+  const [pendingLoad, setPendingLoad] = useState<{ filter: string; loadedCount: number; matchCount: number; pages: number } | null>(null);
+  const [loadMoreMessage, setLoadMoreMessage] = useState("");
   const [reasonProfileId, setReasonProfileId] = useState<any>(null);
   const [statsProfileId, setStatsProfileId] = useState<string | null>(null);
   const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -484,7 +490,29 @@ function AdminUserDirectory({
 
   useEffect(() => {
     setVisibleCount(15);
-  }, [filter, searchTerm, users.length]);
+    setPendingLoad(null);
+    setLoadMoreMessage("");
+  }, [filter, searchTerm]);
+
+  useEffect(() => {
+    if (!pendingLoad || pendingLoad.filter !== filter || searchQuery.length >= 2) return;
+    if (paginationStatus === "LoadingMore" || paginationStatus === "LoadingFirstPage") return;
+    const foundAnotherMatch = filteredUsers.length > pendingLoad.matchCount;
+    const reachedEnd = paginationStatus === "Exhausted" || paginationStatus === "Error";
+    const reachedSearchLimit = pendingLoad.pages >= 8;
+    if (foundAnotherMatch || reachedEnd || reachedSearchLimit) {
+      if (foundAnotherMatch) setVisibleCount((count) => Math.max(count, Math.min(filteredUsers.length, pendingLoad.matchCount + 15)));
+      else if (paginationStatus === "Error") setLoadMoreMessage("Could not load more users. Please try again.");
+      else if (reachedSearchLimit && !reachedEnd) setLoadMoreMessage("No additional matches in the next several pages. Load more to keep looking.");
+      else setLoadMoreMessage("No more matching users found.");
+      setPendingLoad(null);
+      return;
+    }
+    if (users.length > pendingLoad.loadedCount && canLoadMore) {
+      setPendingLoad({ ...pendingLoad, loadedCount: users.length, pages: pendingLoad.pages + 1 });
+      onLoadMore();
+    }
+  }, [canLoadMore, filter, filteredUsers.length, onLoadMore, paginationStatus, pendingLoad, searchQuery.length, users.length]);
 
   if (users.length === 0 && searchQuery.length < 2) return <Text style={[styles.helpIntro, darkMode && styles.accountDarkMutedText]}>No users found yet.</Text>;
 
@@ -637,18 +665,26 @@ function AdminUserDirectory({
         );
       })}
 
-      {(visibleCount < filteredUsers.length || (searchQuery.length < 2 && canLoadMore)) && (
+      {(visibleCount < filteredUsers.length || (searchQuery.length < 2 && (canLoadMore || !!pendingLoad))) && (
         <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ busy: !!pendingLoad, disabled: !!pendingLoad }}
+          disabled={!!pendingLoad}
           onPress={() => {
+            setLoadMoreMessage("");
             if (visibleCount < filteredUsers.length) setVisibleCount((count) => count + 15);
-            else onLoadMore();
+            else if (canLoadMore) {
+              setPendingLoad({ filter, loadedCount: users.length, matchCount: filteredUsers.length, pages: 1 });
+              onLoadMore();
+            }
           }}
           style={[styles.adminDirectoryShowMore, darkMode && styles.homeDarkResumeButton]}
         >
-          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>Load 15 more</Text>
+          <Text style={[styles.feedbackCategoryText, darkMode && styles.homeDarkResumeButtonText]}>{pendingLoad ? "Finding more users…" : "Load 15 more"}</Text>
           <Ionicons name="chevron-down-outline" size={16} color={darkMode ? "#d4a768" : colors.oliveDark} />
         </Pressable>
       )}
+      {!!loadMoreMessage && <Text accessibilityLiveRegion="polite" style={[styles.adminDirectorySummary, darkMode && styles.accountDarkMutedText]}>{loadMoreMessage}</Text>}
     </View>
   );
 }

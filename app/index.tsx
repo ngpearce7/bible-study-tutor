@@ -12100,6 +12100,7 @@ function HomeScreen() {
               adminStats={adminStats}
               adminUsers={Array.isArray(adminUsers) ? adminUsers : []}
               adminUsersCanLoadMore={adminUsersStatus === "CanLoadMore"}
+              adminUsersStatus={adminUsersStatus}
               adminUserDetail={adminUserDetail}
               adminAuditLog={Array.isArray(adminAuditLog) ? adminAuditLog : []}
               adminMaintenanceStatus={adminMaintenanceStatus}
@@ -12318,7 +12319,17 @@ function HomeScreen() {
 
       {showMobileReaderSelectionDock && (
         <View style={[styles.mobileReaderSelectionDock, bibleDarkMode && styles.bibleDarkMobileSelectionDock]}>
-          <Text numberOfLines={1} style={[styles.mobileReaderSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerMemoryStatus || readerStudyReference}</Text>
+          <View style={styles.mobileReaderSelectionHeader}>
+            <Text numberOfLines={1} style={[styles.mobileReaderSelectionText, bibleDarkMode && styles.accountDarkTitle]}>{readerMemoryStatus || readerStudyReference}</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close verse actions and deselect verses"
+              onPress={clearReaderSelection}
+              style={[styles.mobileReaderSelectionCloseButton, bibleDarkMode && styles.homeDarkResumeButton]}
+            >
+              <Ionicons name="close-outline" size={20} color={bibleDarkMode ? "#d4a768" : colors.oliveDark} />
+            </Pressable>
+          </View>
           <View style={styles.mobileReaderSelectionActions}>
             <Pressable onPress={openReaderChapterInStudy} style={[styles.mobileReaderSelectionButton, styles.primaryMobileReaderSelectionButton]}>
               <Ionicons name="book-outline" size={15} color="white" />
@@ -12344,15 +12355,6 @@ function HomeScreen() {
               <Text style={[styles.mobileReaderSelectionButtonText, styles.primaryMobileReaderSelectionButtonText]}>
                 {selectedReaderVersesAlreadyInMemory ? "Saved" : "Memory"}
               </Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Cancel Bible verse selection"
-              onPress={clearReaderSelection}
-              style={[styles.mobileReaderSelectionButton, bibleDarkMode && styles.homeDarkResumeButton]}
-            >
-              <Ionicons name="close-outline" size={17} color={bibleDarkMode ? "#bbb8b4" : colors.muted} />
-              <Text style={[styles.mobileReaderSelectionButtonText, bibleDarkMode && styles.homeDarkResumeButtonText]}>Cancel</Text>
             </Pressable>
           </View>
           {highlightServiceReadyProfileId === String(activeProfileId) && <View style={{ marginTop: 8 }}>

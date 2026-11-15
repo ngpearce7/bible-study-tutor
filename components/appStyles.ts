@@ -1780,8 +1780,26 @@ export const styles = StyleSheet.create({
   },
   mobileReaderSelectionText: {
     color: colors.oliveDark,
+    flex: 1,
     fontSize: 12,
-    fontWeight: "700"
+    fontWeight: "700",
+    minWidth: 0
+  },
+  mobileReaderSelectionHeader: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "space-between"
+  },
+  mobileReaderSelectionCloseButton: {
+    alignItems: "center",
+    backgroundColor: colors.panel,
+    borderColor: colors.line,
+    borderRadius: 999,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: "center",
+    width: 44
   },
   mobileReaderSelectionActions: {
     alignItems: "center",

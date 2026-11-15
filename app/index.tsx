@@ -1318,6 +1318,7 @@ function HomeScreen() {
   const appScrollRef = useRef<any>(null);
   const appScrollYRef = useRef(0);
   const biblePlanDayPickerRefs = useRef<Record<string, any>>({});
+  const biblePlanDayPickerWidthsRef = useRef<Record<string, number>>({});
   const memoryBlankFocusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const memoryBlankVisibilityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const planCelebrationPulse = useRef(new Animated.Value(0)).current;
@@ -2441,7 +2442,9 @@ function HomeScreen() {
         activeBibleReadingPlan.id,
         activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1,
         true,
-        140
+        140,
+        activeBibleReadingPlanDayWindow?.firstVisibleDay || 1,
+        activeBibleReadingPlanDayWindow?.days.at(-1)?.day || 1
       );
     }
     otherFollowedBibleReadingPlans.forEach((plan) => {
@@ -2449,7 +2452,8 @@ function HomeScreen() {
         activeBiblePlanSelectedPlanId === plan.id && activeBiblePlanSelectedDay
           ? activeBiblePlanSelectedDay
           : plan.days.find((day) => !completedBibleReadingPlanDaySet.has(bibleReadingPlanDayKey(plan.id, day.day)))?.day || 1;
-      scrollBiblePlanDayPickerIntoView(plan.id, selectedDay, true, 160);
+      const dayWindow = getBiblePlanDayWindow(plan, selectedDay);
+      scrollBiblePlanDayPickerIntoView(plan.id, selectedDay, true, 160, dayWindow.firstVisibleDay, dayWindow.days.at(-1)?.day || 1);
     });
   }, [
     activeBiblePlanSelectedDay,
@@ -2937,7 +2941,7 @@ function HomeScreen() {
     setTimeout(() => appScrollRef.current?.scrollTo?.({ y: 0, animated: true }), delay);
   }
 
-  function scrollBiblePlanDayPickerIntoView(planId: string, day = 1, animated = true, delay = 80, firstVisibleDay = 1) {
+  function scrollBiblePlanDayPickerIntoView(planId: string, day: number, animated: boolean, delay: number, firstVisibleDay: number, lastVisibleDay: number) {
     if (tab !== "plans" || !planId || day < 1) return;
     setTimeout(() => {
       const picker = biblePlanDayPickerRefs.current[planId];
@@ -2948,8 +2952,11 @@ function HomeScreen() {
         phoneLayout ? 260 : 360,
         Math.min(phoneLayout ? layoutWidth - 48 : layoutWidth - 420, phoneLayout ? 520 : 760)
       );
-      const tileStart = Math.max(0, day - firstVisibleDay) * (tileWidth + gap);
-      const x = Math.max(0, tileStart - estimatedVisibleWidth * 0.42);
+      const visibleWidth = biblePlanDayPickerWidthsRef.current[planId] || estimatedVisibleWidth;
+      const dayIsVisible = day >= firstVisibleDay && day <= lastVisibleDay;
+      const tileIndex = day - firstVisibleDay + (firstVisibleDay > 1 ? 1 : 0);
+      const tileCenter = tileIndex * (tileWidth + gap) + tileWidth / 2;
+      const x = dayIsVisible ? Math.max(0, tileCenter - visibleWidth / 2) : 0;
       picker.scrollTo({ x, y: 0, animated });
     }, delay);
   }
@@ -8666,7 +8673,11 @@ function HomeScreen() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.planDayPickerScroll}
-          onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(plan.id, selectedDay?.day || today?.day || 1, false, 20, dayWindow.firstVisibleDay)}
+          onLayout={(event) => {
+            biblePlanDayPickerWidthsRef.current[plan.id] = event.nativeEvent.layout.width;
+            scrollBiblePlanDayPickerIntoView(plan.id, selectedDay?.day || today?.day || 1, false, 20, dayWindow.firstVisibleDay, dayWindow.days.at(-1)?.day || 1);
+          }}
+          onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(plan.id, selectedDay?.day || today?.day || 1, false, 20, dayWindow.firstVisibleDay, dayWindow.days.at(-1)?.day || 1)}
         >
           {dayWindow.canShowEarlier ? (
             <Pressable accessibilityRole="button" accessibilityLabel={`Show earlier days in ${plan.title}`} onPress={dayWindow.showEarlier} style={[styles.planDayTile, styles.planDayWindowButton, plansDarkMode && styles.planDayTileDark]}>
@@ -10549,7 +10560,11 @@ function HomeScreen() {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.planDayPickerScroll}
-                  onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1, false, 20, activeBibleReadingPlanDayWindow?.firstVisibleDay || 1)}
+                  onLayout={(event) => {
+                    biblePlanDayPickerWidthsRef.current[activeBibleReadingPlan.id] = event.nativeEvent.layout.width;
+                    scrollBiblePlanDayPickerIntoView(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1, false, 20, activeBibleReadingPlanDayWindow?.firstVisibleDay || 1, activeBibleReadingPlanDayWindow?.days.at(-1)?.day || 1);
+                  }}
+                  onContentSizeChange={() => scrollBiblePlanDayPickerIntoView(activeBibleReadingPlan.id, activeBibleReadingPlanSelectedDay?.day || activeBibleReadingPlanToday?.day || 1, false, 20, activeBibleReadingPlanDayWindow?.firstVisibleDay || 1, activeBibleReadingPlanDayWindow?.days.at(-1)?.day || 1)}
                 >
                   {activeBibleReadingPlanDayWindow?.canShowEarlier ? (
                     <Pressable accessibilityRole="button" accessibilityLabel={`Show earlier days in ${activeBibleReadingPlan.title}`} onPress={activeBibleReadingPlanDayWindow.showEarlier} style={[styles.planDayTile, styles.planDayWindowButton, plansDarkMode && styles.planDayTileDark]}>

@@ -222,7 +222,7 @@ const guideItems = [
       "Your rhythm grows when you engage with Scripture in the app.",
       "Reading, study, memory, encouragements, bookmarks, searches, and worksheets can count.",
       "It shows a steady pattern, not a score to feel guilty about.",
-      "A grace day helps if you miss one day after recent activity."
+      "A missed day can be a grace day. Another grace day is available when it is at least 14 days after the previous one. Grace days keep your rhythm going but do not add to its active-day count."
     ],
     action: "Go Home",
     target: "home"
@@ -261,7 +261,7 @@ const commonQuestions = [
   ["Can I use the app without signing in?", "Yes. You can use a local profile. Sign in later if you want your saved work to follow you across devices."],
   ["What data is saved?", "The app saves the things you choose to keep: studies, journal entries, memory verses, bookmarks, notes, reading progress, settings, and private encouragements. It does not publish your work publicly."],
   ["How do I share an insight?", "On the final Study review screen, write or keep the shareable insight, choose a friend or circle, then tap Post insight."],
-  ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, encouragements, bookmarks, searches, and printed worksheets can count. It also allows a grace day, so missing one day does not immediately erase the rhythm."],
+  ["How does daily rhythm work?", "It is a gentle measure of regular Scripture engagement. Studies, Bible reading actions, memory practice, encouragements, bookmarks, searches, and printed worksheets can count. A missed day can be a grace day; another is available at least 14 days later. Grace days preserve the rhythm but do not add to its active-day count."],
   ["How do I change the Bible translation?", "Open Account, then choose BSB, WEB, or KJV under Bible translations."],
   ["What should I do if the screen feels crowded?", "Use Focus mode in Study, collapse the Bible reader panel, hide mobile sections until needed, and open filters only when you are using them."]
 ];

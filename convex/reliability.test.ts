@@ -70,6 +70,63 @@ test("a rhythm longer than the daily query window keeps its full count", async (
   expect((await t.query(api.study.stats, { profileId, clientKey, now: today })).currentStreak).toBe(400);
 });
 
+test("rhythm bridges grace days spaced at least 14 days apart", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "spaced-grace-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const today = Date.parse("2026-11-19T12:00:00Z");
+  await t.run(async (ctx) => {
+    await ctx.db.insert("studyStats", {
+      profileId, sessionCount: 52, minutes: 52, currentStreak: 26,
+      bestStreak: 26, lastActiveDayKey: "2026-11-19", migrationStatus: "ready", updatedAt: today
+    });
+    for (let offset = 53; offset >= 0; offset -= 1) {
+      const date = new Date(today - offset * 86400000).toISOString().slice(0, 10);
+      if (date === "2026-10-22" || date === "2026-11-18") continue;
+      await ctx.db.insert("studyDailyStats", {
+        profileId, dayKey: date, studiesCompleted: 1, planReadingsCompleted: 0,
+        planReadingsOpened: 0, chaptersRead: 0, bibleSearches: 0,
+        memoryReviews: 0, memoryMeditations: 0, memorySaved: 0,
+        worksheetsPrinted: 0, memoryCardsPrinted: 0,
+        encouragementsShared: 0, bookmarksSaved: 0, updatedAt: today
+      });
+    }
+  });
+
+  const stats = await t.query(api.study.stats, { profileId, clientKey, now: today });
+  expect(stats.currentStreak).toBe(52);
+  expect(stats.bestStreak).toBe(52);
+  expect(stats.rhythmGrace).toEqual({
+    missedDate: "2026-11-18",
+    latestActivityDate: "2026-11-19",
+    graceDates: ["2026-11-18", "2026-10-22"]
+  });
+});
+
+test("rhythm does not bridge grace days less than 14 days apart", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "close-grace-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const today = Date.parse("2026-11-19T12:00:00Z");
+  await t.run(async (ctx) => {
+    for (let offset = 20; offset >= 0; offset -= 1) {
+      const date = new Date(today - offset * 86400000).toISOString().slice(0, 10);
+      if (date === "2026-11-10" || date === "2026-11-18") continue;
+      await ctx.db.insert("studyDailyStats", {
+        profileId, dayKey: date, studiesCompleted: 1, planReadingsCompleted: 0,
+        planReadingsOpened: 0, chaptersRead: 0, bibleSearches: 0,
+        memoryReviews: 0, memoryMeditations: 0, memorySaved: 0,
+        worksheetsPrinted: 0, memoryCardsPrinted: 0,
+        encouragementsShared: 0, bookmarksSaved: 0, updatedAt: today
+      });
+    }
+  });
+
+  const stats = await t.query(api.study.stats, { profileId, clientKey, now: today });
+  expect(stats.currentStreak).toBe(8);
+  expect(stats.rhythmGrace?.graceDates).toEqual(["2026-11-18"]);
+});
+
 test("saving a memory verse assigns collections atomically and preserves existing collections", async () => {
   const t = convexTest(schema, modules);
   const clientKey = "memory-collection-device";

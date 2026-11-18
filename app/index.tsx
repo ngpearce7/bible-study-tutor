@@ -284,6 +284,7 @@ type PendingBiblePlanCompletionCelebration = {
 type PendingRhythmGracePrompt = {
   missedDate: string;
   latestActivityDate: string;
+  graceDates: string[];
   storageKey: string;
 };
 
@@ -2040,6 +2041,7 @@ function HomeScreen() {
     setPendingRhythmGracePrompt({
       missedDate,
       latestActivityDate: typeof rhythmGrace?.latestActivityDate === "string" ? rhythmGrace.latestActivityDate : "",
+      graceDates: rhythmGrace?.graceDates?.length ? rhythmGrace.graceDates : [missedDate],
       storageKey
     });
   }, [
@@ -2048,7 +2050,8 @@ function HomeScreen() {
     profileMatchesActiveState,
     profileUiPreferences,
     rhythmGrace?.latestActivityDate,
-    rhythmGrace?.missedDate
+    rhythmGrace?.missedDate,
+    rhythmGrace?.graceDates
   ]);
   const checkins = useQuery(api.accountability.recentCheckins, shouldLoadEncouragements ? { profileId: activeProfileId, limit: 50 } : "skip");
   const communityFriends = useQuery(api.community.myFriends, shouldLoadCommunityConnections ? { profileId: activeProfileId } : "skip");
@@ -13266,7 +13269,7 @@ function HomeScreen() {
           <View style={[styles.printOptionsCard, phoneLayout && styles.phonePrintOptionsCard, accountDarkMode && styles.accountDarkMainCard]}>
             <View style={styles.printOptionsHeader}>
               <View style={styles.printOptionsTitleBlock}>
-                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Your rhythm includes a grace day</Text>
+                <Text style={[styles.printOptionsTitle, accountDarkMode && styles.accountDarkTitle]}>Your rhythm continues</Text>
                 <Text style={[styles.printOptionsSubtitle, accountDarkMode && styles.accountDarkMutedText]}>
                   No activity is recorded for {formatPlanDayRelativeDate(pendingRhythmGracePrompt.missedDate)}.
                 </Text>
@@ -13284,7 +13287,7 @@ function HomeScreen() {
                   Grace day included automatically
                 </Text>
                 <Text style={[styles.rhythmGraceInfoText, accountDarkMode && styles.accountDarkMutedText]}>
-                  Your current count already allows one day without recorded activity. If you used the app that day, your activity may not have synced.
+                  Grace days can be used at least 14 days apart. You have used {pendingRhythmGracePrompt.graceDates.length} grace {pendingRhythmGracePrompt.graceDates.length === 1 ? "day" : "days"} in this rhythm{pendingRhythmGracePrompt.graceDates.length > 1 ? `; the previous one was ${formatPlanDayRelativeDate(pendingRhythmGracePrompt.graceDates[1])}` : ""}. Missed days keep your rhythm going but do not add to the active-day count below.
                 </Text>
               </View>
             </View>

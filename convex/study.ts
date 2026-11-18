@@ -574,7 +574,11 @@ export const stats = query({
       bookmarksSaved: v.number(),
       strongestArea: v.string()
     }),
-    rhythmGrace: v.union(v.null(), v.object({ missedDate: v.string(), latestActivityDate: v.string() }))
+    rhythmGrace: v.union(v.null(), v.object({
+      missedDate: v.string(),
+      latestActivityDate: v.string(),
+      graceDates: v.array(v.string())
+    }))
   }),
   handler: async (ctx, args) => {
     await authorizeProfileAccess(ctx, args.profileId, args.clientKey);
@@ -601,7 +605,8 @@ export const stats = query({
       rhythmGrace: rhythm.graceUsed
         ? {
             missedDate: rhythm.missedDate,
-            latestActivityDate: rhythm.latestActivityDate
+            latestActivityDate: rhythm.latestActivityDate,
+            graceDates: rhythm.graceDates
           }
         : null
     };
@@ -814,18 +819,19 @@ function customReviewTimestamp(daysFromNow: number) {
 }
 
 function currentStreak(dates: string[], timezoneOffsetMinutes = 0, now = 0) {
+  const minimumDaysBetweenGrace = 14;
   const today = dayKey(now, timezoneOffsetMinutes);
   const activeDays = new Set(dates);
   const latestActiveDay = [...activeDays].reverse().find((date) => date <= today);
-  if (!latestActiveDay) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: "" };
+  if (!latestActiveDay) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: "", graceDates: [] as string[] };
 
   const daysSinceLatestActivity = daysBetweenDateKeys(latestActiveDay, today);
-  if (daysSinceLatestActivity > 2) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: latestActiveDay };
+  if (daysSinceLatestActivity > 2) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: latestActiveDay, graceDates: [] as string[] };
 
   let count = 0;
-  let graceDaysUsed = Math.max(0, daysSinceLatestActivity - 1);
-  const initialGraceUsed = graceDaysUsed > 0;
-  let missedDate = initialGraceUsed ? addDaysToDateKey(latestActiveDay, 1) : "";
+  // Walk newest to oldest, so each earlier grace day must be at least 14
+  // calendar days before the next one in this same rhythm.
+  const graceDates = daysSinceLatestActivity === 2 ? [addDaysToDateKey(latestActiveDay, 1)] : [];
   let cursor = latestActiveDay;
 
   while (activeDays.has(cursor)) {
@@ -837,9 +843,10 @@ function currentStreak(dates: string[], timezoneOffsetMinutes = 0, now = 0) {
     }
 
     const dayBeforePrevious = addDaysToDateKey(previousDay, -1);
-    if (graceDaysUsed < 1 && activeDays.has(dayBeforePrevious)) {
-      graceDaysUsed += 1;
-      missedDate = previousDay;
+    const nearestGraceDate = graceDates[graceDates.length - 1];
+    if (activeDays.has(dayBeforePrevious) &&
+      (!nearestGraceDate || daysBetweenDateKeys(previousDay, nearestGraceDate) >= minimumDaysBetweenGrace)) {
+      graceDates.push(previousDay);
       cursor = dayBeforePrevious;
       continue;
     }
@@ -849,9 +856,10 @@ function currentStreak(dates: string[], timezoneOffsetMinutes = 0, now = 0) {
 
   return {
     current: count,
-    graceUsed: graceDaysUsed > 0,
-    missedDate,
-    latestActivityDate: latestActiveDay
+    graceUsed: graceDates.length > 0,
+    missedDate: graceDates[0] ?? "",
+    latestActivityDate: latestActiveDay,
+    graceDates
   };
 }
 

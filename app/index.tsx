@@ -10,6 +10,7 @@ import { styles } from "@/components/appStyles";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
 import { CustomPlanBuilder } from "@/components/CustomPlanBuilder";
 import { hasPlanDeeperContext } from "@/data/biblePlanDeeperContext";
+import { planStudyMethodGuidance } from "@/data/planStudyMethodGuidance";
 import { createReaderSyncQueue } from "@/data/readerSync";
 import { hydratePrivateStorage, readRecoveryValue, writeRecoveryValue, removeRecoveryValue } from "@/data/privateStorage";
 import { setStorageProfile, importLegacyDevicePreferences } from "@/data/feedbackPreferences";
@@ -8574,8 +8575,8 @@ function HomeScreen() {
             )}
             {!!planDay.studyMethod && (
               <View style={styles.planDayPromptRow}>
-                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
-                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planDay.studyMethod}</Text>
+                <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper · {planDay.studyMethod}</Text>
+                <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planStudyMethodGuidance(planDay.studyMethod)}</Text>
               </View>
             )}
               </>

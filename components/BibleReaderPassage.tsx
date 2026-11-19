@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import { type BiblePassage, type BibleVerse } from "@/data/biblePassage";
 import { type BibleReadingPlanDay } from "@/data/bibleReadingPlanTypes";
 import { hasPlanDeeperContext } from "@/data/biblePlanDeeperContext";
+import { planStudyMethodGuidance } from "@/data/planStudyMethodGuidance";
 import { DEVOTIONAL_TEXT_SIZE_OPTIONS, DEVOTIONAL_TEXT_SIZE_STYLES, type DevotionalTextSize } from "@/data/devotionalTypography";
 import { PlanDeeperContext } from "@/components/PlanDeeperContext";
 import { VerseHighlightActions, type VerseHighlightColor } from "@/components/VerseHighlightActions";
@@ -435,8 +436,8 @@ export function BibleReaderPassage({
                 )}
                 {!!activeReadingPlanDay.studyMethod && (
                   <View style={styles.planDayPromptRow}>
-                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper</Text>
-                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{activeReadingPlanDay.studyMethod}</Text>
+                    <Text style={[styles.planDayPromptLabel, devotionalTextSizing.label, darkMode && styles.studyDarkAccentText]}>Study deeper · {activeReadingPlanDay.studyMethod}</Text>
+                    <Text style={[styles.planDayPromptText, devotionalTextSizing.copy, darkMode && styles.accountDarkMutedText]}>{planStudyMethodGuidance(activeReadingPlanDay.studyMethod)}</Text>
                   </View>
                 )}
                   </>

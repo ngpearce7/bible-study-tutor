@@ -103,7 +103,7 @@ test("rhythm bridges grace days spaced at least 14 days apart", async () => {
   });
 });
 
-test("rhythm does not bridge grace days less than 14 days apart", async () => {
+test("a second missed day within 14 days resets the rhythm to the latest active run", async () => {
   const t = convexTest(schema, modules);
   const clientKey = "close-grace-device";
   const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
@@ -123,8 +123,32 @@ test("rhythm does not bridge grace days less than 14 days apart", async () => {
   });
 
   const stats = await t.query(api.study.stats, { profileId, clientKey, now: today });
-  expect(stats.currentStreak).toBe(8);
-  expect(stats.rhythmGrace?.graceDates).toEqual(["2026-11-18"]);
+  expect(stats.currentStreak).toBe(1);
+  expect(stats.rhythmGrace).toBeNull();
+});
+
+test("an unavailable grace day cannot keep a rhythm alive before activity resumes", async () => {
+  const t = convexTest(schema, modules);
+  const clientKey = "unavailable-grace-device";
+  const profileId = await t.mutation(api.study.ensureProfile, { clientKey });
+  const today = Date.parse("2026-11-20T12:00:00Z");
+  await t.run(async (ctx) => {
+    for (let offset = 12; offset >= 2; offset -= 1) {
+      const date = new Date(today - offset * 86400000).toISOString().slice(0, 10);
+      if (date === "2026-11-10") continue;
+      await ctx.db.insert("studyDailyStats", {
+        profileId, dayKey: date, studiesCompleted: 1, planReadingsCompleted: 0,
+        planReadingsOpened: 0, chaptersRead: 0, bibleSearches: 0,
+        memoryReviews: 0, memoryMeditations: 0, memorySaved: 0,
+        worksheetsPrinted: 0, memoryCardsPrinted: 0,
+        encouragementsShared: 0, bookmarksSaved: 0, updatedAt: today
+      });
+    }
+  });
+
+  const stats = await t.query(api.study.stats, { profileId, clientKey, now: today });
+  expect(stats.currentStreak).toBe(0);
+  expect(stats.rhythmGrace).toBeNull();
 });
 
 test("saving a memory verse assigns collections atomically and preserves existing collections", async () => {

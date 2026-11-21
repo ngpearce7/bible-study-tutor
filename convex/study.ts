@@ -821,37 +821,44 @@ function customReviewTimestamp(daysFromNow: number) {
 function currentStreak(dates: string[], timezoneOffsetMinutes = 0, now = 0) {
   const minimumDaysBetweenGrace = 14;
   const today = dayKey(now, timezoneOffsetMinutes);
-  const activeDays = new Set(dates);
-  const latestActiveDay = [...activeDays].reverse().find((date) => date <= today);
+  const activeDays = [...new Set(dates.filter((date) => date <= today))].sort();
+  const latestActiveDay = activeDays[activeDays.length - 1];
   if (!latestActiveDay) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: "", graceDates: [] as string[] };
 
   const daysSinceLatestActivity = daysBetweenDateKeys(latestActiveDay, today);
   if (daysSinceLatestActivity > 2) return { current: 0, graceUsed: false, missedDate: "", latestActivityDate: latestActiveDay, graceDates: [] as string[] };
 
-  let count = 0;
-  // Walk newest to oldest, so each earlier grace day must be at least 14
-  // calendar days before the next one in this same rhythm.
-  const graceDates = daysSinceLatestActivity === 2 ? [addDaysToDateKey(latestActiveDay, 1)] : [];
-  let cursor = latestActiveDay;
-
-  while (activeDays.has(cursor)) {
-    count += 1;
-    const previousDay = addDaysToDateKey(cursor, -1);
-    if (activeDays.has(previousDay)) {
-      cursor = previousDay;
-      continue;
+  let count = 1;
+  let lastGraceDate = "";
+  let graceDates: string[] = [];
+  // Allocate grace days from oldest to newest. A recent grace day cannot be
+  // replaced by a newer one simply because the newer day is closer to today.
+  for (let index = 1; index < activeDays.length; index += 1) {
+    const previousActiveDay = activeDays[index - 1];
+    const activeDay = activeDays[index];
+    const gap = daysBetweenDateKeys(previousActiveDay, activeDay);
+    if (gap === 1) {
+      count += 1;
+    } else if (gap === 2 &&
+      (!lastGraceDate || daysBetweenDateKeys(lastGraceDate, addDaysToDateKey(previousActiveDay, 1)) >= minimumDaysBetweenGrace)) {
+      const graceDate = addDaysToDateKey(previousActiveDay, 1);
+      lastGraceDate = graceDate;
+      graceDates.unshift(graceDate);
+      count += 1;
+    } else {
+      count = 1;
+      graceDates = [];
     }
+  }
 
-    const dayBeforePrevious = addDaysToDateKey(previousDay, -1);
-    const nearestGraceDate = graceDates[graceDates.length - 1];
-    if (activeDays.has(dayBeforePrevious) &&
-      (!nearestGraceDate || daysBetweenDateKeys(previousDay, nearestGraceDate) >= minimumDaysBetweenGrace)) {
-      graceDates.push(previousDay);
-      cursor = dayBeforePrevious;
-      continue;
+  if (daysSinceLatestActivity === 2) {
+    const missedDay = addDaysToDateKey(latestActiveDay, 1);
+    if (lastGraceDate && daysBetweenDateKeys(lastGraceDate, missedDay) < minimumDaysBetweenGrace) {
+      count = 0;
+      graceDates = [];
+    } else {
+      graceDates.unshift(missedDay);
     }
-
-    break;
   }
 
   return {
